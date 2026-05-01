@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>3</next_id>
+  </_meta>
+  <row id="1">
+    <role_name>Admin</role_name>
+    <permissions>all</permissions>
+    <id>1</id>
+  </row>
+<row id="2"><role_name>User</role_name><permissions>limited</permissions><id>2</id></row></database>

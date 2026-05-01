@@ -27,6 +27,7 @@ class Scheduler extends \SPP\SPPObject
      */
     public static function setContext(string $context): void
     {
+        $oldContext = self::$AppContext;
         $context = trim($context);
         $context = ($context === '') ? 'default' : $context;
 
@@ -46,6 +47,12 @@ class Scheduler extends \SPP\SPPObject
         $newProc->setStatus(\SPP\App::APP_EXEC);
 
         self::$AppContext = $context;
+
+        // Trace Logging
+        if (defined('SPP_DEBUG') && SPP_DEBUG) {
+            $logMsg = date('[Y-m-d H:i:s]') . " Context Switch: {$oldContext} -> {$context}\n";
+            @file_put_contents(SPP_LOG_DIR . '/spp_context.log', $logMsg, FILE_APPEND);
+        }
     }
 
     /**
@@ -57,11 +64,9 @@ class Scheduler extends \SPP\SPPObject
     {
         $pname = $proc->getName();
 
-        if (isset(self::$procs[$pname])) {
-            throw new \SPP\SPPException('Duplicate process registration: ' . $pname);
+        if (!isset(self::$procs[$pname])) {
+            self::$procs[$pname] = $proc;
         }
-
-        self::$procs[$pname] = $proc;
     }
 
     /**
@@ -130,45 +135,62 @@ class Scheduler extends \SPP\SPPObject
      */
     public static function detectAndEnforceContext(): void
     {
-        $uri = $_SERVER['REQUEST_URI'] ?? '/';
-        
-        // Load Global Settings
-        $settings = [];
-        $path = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 2)) . '/etc') . '/global-settings.yml';
-        if (file_exists($path) && class_exists('\\Symfony\\Component\\Yaml\\Yaml')) {
-            try {
-                $settings = \Symfony\Component\Yaml\Yaml::parseFile($path);
-            } catch (\Exception $e) {}
-        }
-        
-        $apps = $settings['apps'] ?? [];
-        $matchedApp = null;
-        $maxLen = -1;
+        \SPP\Registry::loadShared();
+        \SPP\SPPEvent::registerEvent('event_spp_context_enforce');
+        \SPP\SPPEvent::registerEvent('event_spp_route_resolve');
 
-        // Sort apps by base_url length descending to match most specific first
-        foreach ($apps as $name => $meta) {
-            $baseUrl = $meta['base_url'] ?? '';
-            if ($baseUrl === '' || $baseUrl === '/') continue;
-            
-            // Check if URI starts with base_url (Case-Insensitive)
-            if (stripos($uri, $baseUrl) !== false) {
-                 if (strlen($baseUrl) > $maxLen) {
-                     $maxLen = strlen($baseUrl);
-                     $matchedApp = $name;
-                 }
+        $uri = $_SERVER['REQUEST_URI'] ?? '/';
+        $uri = explode('?', $uri)[0];
+        
+        // Normalize URI if running in a subdirectory
+        $root = str_replace('\\', '/', SPP_DOC_ROOT);
+        $appBase = str_replace('\\', '/', SPP_APP_DIR);
+        
+        if ($root !== '') {
+            $subDir = trim(str_replace($root, '', $appBase), '/');
+            if ($subDir !== '') {
+                $uri = '/' . ltrim(str_replace('/' . $subDir, '', $uri), '/');
             }
         }
-
-        if (!$matchedApp) {
-            // Find explicit base app or fallback to 'default'
-            foreach ($apps as $name => $meta) {
-                if (!empty($meta['is_base_app'])) {
-                    $matchedApp = $name;
-                    break;
+        $uri = ($uri === '') ? '/' : $uri;
+        
+        $apps = \SPP\App::getGlobalSettings('apps') ?: [];
+        
+        // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
+        $srcDir = SPP_APP_DIR . SPP_DS . 'src';
+        if (is_dir($srcDir)) {
+            $dirs = array_diff(scandir($srcDir), ['.', '..']);
+            foreach ($dirs as $d) {
+                $appYml = $srcDir . SPP_DS . $d . SPP_DS . 'etc' . SPP_DS . 'app.yml';
+                if (file_exists($appYml)) {
+                    $appData = \Symfony\Component\Yaml\Yaml::parseFile($appYml);
+                    if ($appData) {
+                        $apps[$d] = array_merge($apps[$d] ?? [], $appData);
+                        // Ensure etc_path and src_path are set if not provided
+                        if (empty($apps[$d]['etc_path'])) $apps[$d]['etc_path'] = 'src/' . $d . '/etc';
+                        if (empty($apps[$d]['src_path'])) $apps[$d]['src_path'] = 'src/' . $d;
+                    }
                 }
             }
-            if (!$matchedApp) $matchedApp = 'default';
         }
+
+        $params = ['uri' => &$uri, 'apps' => &$apps, 'context' => null];
+        \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $params, function(&$p) {
+            foreach ($p['apps'] as $name => $cfg) {
+                $base = $cfg['base_url'] ?? '/' . $name;
+                if ($p['uri'] === $base || strpos($p['uri'], $base . '/') === 0) {
+                    $p['context'] = $name;
+                    return;
+                }
+            }
+        });
+
+        $matchedApp = $params['context'] ?: 'default';
+
+        $routeParams = ['uri' => $uri, 'context' => &$matchedApp];
+        \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeParams, function(&$p) {
+            // Default: do nothing, context already matched
+        });
 
         self::$AppContext = $matchedApp;
     }

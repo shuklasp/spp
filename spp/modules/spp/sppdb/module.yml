@@ -12,6 +12,7 @@ module:
         dbtype:
             type: select
             label: 'Database Engine'
+            help: 'The underlying database technology to use for the system.'
             options:
                 mysql: 'MySQL / MariaDB'
                 sqlite: 'SQLite'
@@ -23,34 +24,41 @@ module:
         dbhost:
             type: text
             label: 'Host / Server'
+            help: 'Network address of the database server. Use localhost if the database is on the same machine.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: localhost
         dbport:
             type: number
             label: 'Port'
+            help: 'Port number assigned to the database service (e.g., 3306 for MySQL).'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: 3306
         dbuser:
             type: text
             label: 'Username'
+            help: 'Database user account with sufficient privileges to manage tables and data.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: root
         dbpasswd:
             type: password
             label: 'Password'
+            help: 'Password for the specified database user.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: null
         dbname:
             type: text
             label: 'Database / SID / Service'
+            help: 'Name of the database schema or SID to connect to.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: school
         sqlite_path:
             type: text
             label: 'Database File Path (SQLite / MS Access)'
+            help: 'Path to the database file relative to the SPP root when using SQLite or MS Access.'
             depends_on: { dbtype: [sqlite, msaccess] }
             default: 'var/db/school.sqlite'
         table_prefix:
             type: text
             label: 'Table Prefix'
+            help: 'Prefix added to all SPP-managed tables to prevent naming collisions.'
             default: null

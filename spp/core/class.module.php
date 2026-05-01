@@ -61,7 +61,7 @@ class Module extends \SPP\SPPObject
 
      /**
       * In-memory cache for configuration values to prevent duplicate XML I/O parsing.
-      * @var array<string, array<string, string|false>>
+      * @var array<string, array<string, mixed>>
       */
      protected static array $configCache = [];
  
@@ -74,8 +74,23 @@ class Module extends \SPP\SPPObject
     /** @var bool Guard to prevent redundant full scans */
     private static bool $allModulesLoaded = false;
 
+    /** @var array<string> Search roots for system modules */
+    private static array $_system_module_roots = ['', 'spp', 'contrib', 'school', 'custom'];
+
     /** @var array $Dependencies Stores dependencies requested by the module */
     public $Dependencies = array();
+
+    /**
+     * Adds a new search root for system modules.
+     * @param string $path Relative path from SPP_MODULES_DIR
+     */
+    public static function addModuleRoot(string $path): void
+    {
+        $path = trim($path, '/\\');
+        if (!in_array($path, self::$_system_module_roots)) {
+            self::$_system_module_roots[] = $path;
+        }
+    }
 
     /** @var array<string, array> Global manifest file cache */
     private static array $manifestFileCache = [];
@@ -343,10 +358,10 @@ class Module extends \SPP\SPPObject
      * @param string $varname
      * @param string $modname
      * @param string|null $appname Optional app context
-     * @return string|false
+     * @return mixed
      * @throws \SPP\SPPException
      */
-    public static function getConfig(string $varname, string $modname, ?string $appname = null): string|false
+    public static function getConfig(string $varname, string $modname, ?string $appname = null): mixed
     {
         // Sanitize varname and modname against injection & traversal
         $varname = str_replace(["'", '"'], '', $varname);
@@ -361,14 +376,29 @@ class Module extends \SPP\SPPObject
         // --- Step 1: Check isolated per-app YAML config (Modern TOP priority) ---
         // Path: etc/apps/<app>/modsconf/<modname>/config.yml
         if ($appname) {
-            $isolatedConf = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . $modname . SPP_DS . 'config.yml';
+            $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
+            $isolatedConf = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
             if (file_exists($isolatedConf)) {
                 $yamlData = Yaml::parseFile($isolatedConf);
                 $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
                 if ($val !== null) {
-                    $result = (string) $val;
+                    $result = $val;
                     self::$configCache[$cacheKey] = $result;
                     return $result;
+                }
+            }
+        }
+
+        // --- Step 1.1: Fallback to 'default' isolated config if context is not 'default' ---
+        if ($appname && $appname !== 'default') {
+            $defaultModsConfDir = self::getEffectiveModsConfDir($modname, 'default');
+            $defaultConf = $defaultModsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
+            if (file_exists($defaultConf)) {
+                $yamlData = Yaml::parseFile($defaultConf);
+                $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
+                if ($val !== null) {
+                    self::$configCache[$cacheKey] = $val;
+                    return $val;
                 }
             }
         }
@@ -384,7 +414,7 @@ class Module extends \SPP\SPPObject
                 // Convention: variables are stored under a 'variables' key
                 $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
                 if ($val !== null) {
-                    $result = (string) $val;
+                    $result = $val;
                     self::$configCache[$cacheKey] = $result;
                     return $result;
                 }
@@ -398,11 +428,11 @@ class Module extends \SPP\SPPObject
             if (file_exists($appGlobalConf)) {
                 $appYaml = Yaml::parseFile($appGlobalConf);
                 if (isset($appYaml[$modname]['variables'][$varname])) {
-                    $val = (string) $appYaml[$modname]['variables'][$varname];
+                    $val = $appYaml[$modname]['variables'][$varname];
                     self::$configCache[$cacheKey] = $val;
                     return $val;
                 } elseif (isset($appYaml[$modname][$varname])) {
-                    $val = (string) $appYaml[$modname][$varname];
+                    $val = $appYaml[$modname][$varname];
                     self::$configCache[$cacheKey] = $val;
                     return $val;
                 }
@@ -415,7 +445,7 @@ class Module extends \SPP\SPPObject
             $serviceYaml = Yaml::parseFile($globalServiceConf);
             $val = $serviceYaml['variables'][$varname] ?? ($serviceYaml[$varname] ?? null);
             if ($val !== null) {
-                $result = (string) $val;
+                $result = $val;
                 self::$configCache[$cacheKey] = $result;
                 return $result;
             }
@@ -535,13 +565,15 @@ class Module extends \SPP\SPPObject
      * @return void
      * @throws \SPP\SPPException
      */
-    public static function setConfig(string $varname, mixed $value, string $modname): void
+    public static function setConfig(string $varname, mixed $value, string $modname, ?string $appname = null): void
     {
         $varname = str_replace(["'", '"'], '', $varname);
         $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
 
-        $proc = \SPP\Scheduler::getActiveProc();
-        $yamlConfFile = $proc->getModsConfDir() . SPP_DS . $modname . SPP_DS . 'config.yml';
+        // Perform semantic validation
+        \SPP\SPPConfig::validate($varname, $value, "mod:{$modname}");
+
+        $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
 
         // Load existing data or start fresh
         $yamlData = [];
@@ -565,8 +597,8 @@ class Module extends \SPP\SPPObject
         file_put_contents($yamlConfFile, Yaml::dump($yamlData, 4, 4));
 
         // Invalidate cache so next getConfig() reflects the new value
-        $appname = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
-        $cacheKey = $appname . '::' . $modname . '::' . $varname;
+        $context = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
+        $cacheKey = $context . '::' . $modname . '::' . $varname;
         self::$configCache[$cacheKey] = (string) $value;
     }
 
@@ -576,12 +608,12 @@ class Module extends \SPP\SPPObject
      * @param string $modname
      * @return string
      */
-    public static function getConfDir(string $modname): string
+    public static function getConfDir(string $modname, ?string $appname = null): string
     {
         $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
-        $dir = \SPP\Scheduler::getModsConfDir();
-        $dir .= SPP_DS . $modname;
-        return $dir;
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        $dir = self::getEffectiveModsConfDir($modname, $appname);
+        return $dir . SPP_DS . $modname;
     }
 
     /**
@@ -593,8 +625,7 @@ class Module extends \SPP\SPPObject
      */
     public static function getExpectedConfigPath(string $modname, ?string $appname = null): string
     {
-        $appname = $appname ?: \SPP\Scheduler::getContext();
-        return APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . $modname . SPP_DS . 'config.yml';
+        return self::getConfDir($modname, $appname) . SPP_DS . 'config.yml';
     }
 
     /**
@@ -630,8 +661,29 @@ class Module extends \SPP\SPPObject
         if ($modpath === false) {
             throw new \SPP\SPPException("Module not registered: {$modname}");
         }
-        $modManifest = $modpath . SPP_DS . 'module.xml';
-        return new \SPP\Module($modManifest);
+
+        // --- Step 1.1: Fallback to 'default' isolated config if context is not 'default' ---
+        if ($appname && $appname !== 'default') {
+            $defaultModsConfDir = self::getEffectiveModsConfDir($modname, 'default');
+            $defaultConf = $defaultModsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
+            if (file_exists($defaultConf)) {
+                $yamlData = Yaml::parseFile($defaultConf);
+                $val = $yamlData['variables'][$varname] ?? ($yamlData[$varname] ?? null);
+                if ($val !== null) {
+                    self::$configCache[$cacheKey] = $val;
+                    return $val;
+                }
+            }
+        }
+        
+        $manifest = $modpath . SPP_DS . 'module.yml';
+        if (!file_exists($manifest)) $manifest = $modpath . SPP_DS . 'module.xml';
+        
+        if (!file_exists($manifest)) {
+             throw new \SPP\SPPException("Module manifest not found for '{$modname}' at {$modpath}");
+        }
+        
+        return new \SPP\Module($manifest);
     }
 
     /**
@@ -686,8 +738,11 @@ class Module extends \SPP\SPPObject
         if (\SPP\Registry::get('__mods=>' . $this->InternalName) === false) {
             \SPP\Registry::register('__mods=>' . $this->InternalName, $this->ModPath);
             \SPP\Registry::register('__modobj=>' . $this->InternalName, $this);
-        } else {
-            // Gracefully ignore duplicate scans instead of fatal crashing locally safely seamlessly expertly natively intuitively smoothly safely explicitly cleverly cleanly dynamically organically successfully smoothly optimally physically natively smoothly comprehensively safely.
+
+            // Register semantic validation schema if defined
+            if (!empty($this->Settings)) {
+                \SPP\SPPConfig::registerSchema('mod:' . $this->InternalName, $this->Settings);
+            }
         }
     }
 
@@ -706,11 +761,9 @@ class Module extends \SPP\SPPObject
         $appname = $appname ?: \SPP\Scheduler::getContext();
 
         if ($type === 'system') {
-            // Check flat root first
-            $checkPaths = [SPP_MODULES_DIR . SPP_DS . $modname];
-            // Check common subdirectories
-            foreach (['spp', 'contrib', 'school', 'custom'] as $sub) {
-                $checkPaths[] = SPP_MODULES_DIR . SPP_DS . $sub . SPP_DS . $modname;
+            $checkPaths = [];
+            foreach (self::$_system_module_roots as $sub) {
+                $checkPaths[] = SPP_MODULES_DIR . SPP_DS . ($sub ? $sub . SPP_DS : '') . $modname;
             }
 
             foreach ($checkPaths as $dir) {
@@ -764,45 +817,87 @@ class Module extends \SPP\SPPObject
         }
         $loadedContexts[$appname] = true;
 
-        $appname = \SPP\Scheduler::getContext();
-        $registries = [];
-
-        // 1. Primary App Preference: SPP_ETC_DIR/apps/<app>/modsconf/
-        if ($appname !== '') {
-            $modsconfDir = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
-            if (file_exists($modsconfDir . SPP_DS . 'modules.yml')) {
-                $registries[] = ['file' => $modsconfDir . SPP_DS . 'modules.yml', 'type' => 'system'];
-            } elseif (file_exists($modsconfDir . SPP_DS . 'modules.xml')) {
-                $registries[] = ['file' => $modsconfDir . SPP_DS . 'modules.xml', 'type' => 'system'];
+        // --- Phase 1: Try Compiled Cache (High Performance) ---
+        if (!defined('SPP_DEBUG') || !SPP_DEBUG) {
+            $cacheFile = \SPP\Core\ModuleCompiler::getCachePath($appname);
+            if (file_exists($cacheFile)) {
+                $compiled = require $cacheFile;
+                if (is_array($compiled)) {
+                    foreach ($compiled as $name => $data) {
+                        self::initFromCache($name, $data);
+                    }
+                    self::$allModulesLoaded = true;
+                    return;
+                }
             }
         }
 
-        // 2. User Overrides (etc/apps/): Standard priority
-        if ($appname !== '') {
-            $userModsconf = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
-            if (file_exists($userModsconf . SPP_DS . 'modules.yml')) {
-                $registries[] = ['file' => $userModsconf . SPP_DS . 'modules.yml', 'type' => 'user'];
-            } elseif (file_exists($userModsconf . SPP_DS . 'modules.xml')) {
-                $registries[] = ['file' => $userModsconf . SPP_DS . 'modules.xml', 'type' => 'user'];
-            }
-        }
-
-        // 3. System Defaults (spp/etc/): Fallbacks
-        $registries[] = ['file' => SPP_ETC_DIR . SPP_DS . 'modules.yml', 'type' => 'system'];
-        $registries[] = ['file' => SPP_ETC_DIR . SPP_DS . 'modules.xml', 'type' => 'system'];
-        
-        // 4. Per-app Legacy Defaults (spp/etc/apps/)
-        if ($appname !== '') {
-            $registries[] = ['file' => SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules.yml', 'type' => 'system'];
-            $registries[] = ['file' => SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules.xml', 'type' => 'system'];
-        }
-
-        foreach ($registries as $r) {
+        // Load from structured registry files
+        foreach (self::getRegistryFiles($appname) as $r) {
             self::loadModulesFromManifest($r['file'], $r['type']);
+        }
+
+        // Load loosely coupled app-specific modules from src directories
+        foreach (self::getAppModuleDirs($appname) as $appModuleDir) {
+            if (!is_dir($appModuleDir)) continue;
+            $dirs = scandir($appModuleDir);
+            foreach ($dirs as $d) {
+                if ($d === '.' || $d === '..') continue;
+                $dirPath = $appModuleDir . SPP_DS . $d;
+                if (!is_dir($dirPath)) continue;
+
+                $manifestPath = null;
+                foreach (['module.yml', 'module.yaml', 'module.xml'] as $m) {
+                    if (file_exists($dirPath . SPP_DS . $m)) {
+                        $manifestPath = $dirPath . SPP_DS . $m;
+                        break;
+                    }
+                }
+                if ($manifestPath) {
+                    $module = new \SPP\Module($manifestPath);
+                    $module->ModuleType = 'user';
+                    $module->register();
+                    $module->includeFiles();
+                }
+            }
         }
 
         self::$allModulesLoaded = true;
     }
+
+    /**
+     * Rapid initialization of a module from compiled cache data.
+     */
+    private static function initFromCache(string $name, array $data): void
+    {
+        \SPP\Registry::register('__mods=>' . $name, $data['path']);
+        
+        $manifestPath = $data['path'] . SPP_DS . 'module.yml';
+        if (!file_exists($manifestPath)) $manifestPath = $data['path'] . SPP_DS . 'module.xml';
+        
+        $module = new self($manifestPath);
+        $module->ModuleType = $data['type'];
+        
+        \SPP\Registry::register('__modobj=>' . $name, $module);
+
+        if (!empty($data['services'])) {
+            $module->registerServices($data['services']);
+        }
+
+        foreach ($data['includes'] as $file) {
+            $path = $data['path'] . SPP_DS . $file;
+            if (file_exists($path)) require_once $path;
+        }
+
+        $initFile = $data['path'] . SPP_DS . 'modinit.php';
+        if (file_exists($initFile)) require_once $initFile;
+        
+        $eventsDir = $data['path'] . SPP_DS . 'events';
+        if (is_dir($eventsDir)) {
+            \SPP\SPPEvent::scanAndRegisterDirs($eventsDir);
+        }
+    }
+
 
     /**
      * Helper to load modules from a specific manifest file.
@@ -1011,76 +1106,40 @@ class Module extends \SPP\SPPObject
 
         $updatedFiles = [];
 
-        // Determine app context for per-app paths
-        $appname = '';
-        if (class_exists('\\SPP\\Scheduler')) {
-            try { $appname = \SPP\Scheduler::getContext(); } catch (\Throwable $e) {}
-        }
-        // Fallback to GET/POST parameter if Scheduler context is not set
-        if ($appname === '' && isset($_POST['appname'])) {
-            $appname = $_POST['appname'];
-        }
-        if ($appname === '' && isset($_GET['appname'])) {
-            $appname = $_GET['appname'];
-        }
-        if ($appname === '') $appname = 'default';
-
-        // 1. Identify type and location
-        $type = null;
-        $modPath = \SPP\Registry::get('__mods=>' . $modname);
-        $modObj = \SPP\Registry::get('__modobj=>' . $modname);
+        // Determine app context
+        $appname = \SPP\Scheduler::getContext() ?: ($_REQUEST['appname'] ?? 'default');
         
-        if ($modObj instanceof \SPP\Module) {
-            $type = $modObj->ModuleType;
-        }
-
-        // If not registered, perform discovery
-        if (!$modPath) {
-            // Check System hierarchy (spp/modules/spp/)
-            if (is_dir(SPP_MODULES_DIR . SPP_DS . 'spp' . SPP_DS . $modname)) {
-                $type = 'system';
-                $modPath = 'spp' . SPP_DS . $modname;
-            } elseif (is_dir(SPP_MODULES_DIR . SPP_DS . $modname)) {
-                $type = 'system';
-                $modPath = $modname;
-            } else {
-                // Check User/App hierarchy (modules/<appname>/)
-                $userDir = SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname . SPP_DS . $modname;
-                if (is_dir($userDir)) {
-                    $type = 'user';
-                    $modPath = $modname;
-                }
-            }
-        } else {
-            // Already registered, check type by path if Obj missing
-            if (!$type) {
-                if (strpos(realpath($modPath), realpath(SPP_MODULES_DIR)) === 0) {
-                    $type = 'system';
-                } else {
-                    $type = 'user';
-                }
-            }
-        }
-
-        if (!$type) {
-             throw new \SPP\SPPException("Module '{$modname}' could not be located in the filesystem.");
-        }
-
-        // 2. Canonical write target: SPP_ETC_DIR/apps/<appname>/modsconf/modules.yml
+        // 1. Identify all potential manifests for this app
         $candidates = [];
-        $preferred = '';
+        $registries = self::getRegistryFiles($appname);
+        foreach ($registries as $r) {
+            $candidates[] = $r['file'];
+        }
+        $preferred = !empty($candidates) ? $candidates[0] : '';
 
-        if (defined('SPP_ETC_DIR')) {
-            $preferred = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml';
-            $candidates[] = $preferred;
+        // 2. Identify type and location (for registration if missing)
+        $modPath = \SPP\Registry::get('__mods=>' . $modname);
+        $type = 'system'; // Default
+
+        if (!$modPath) {
+            $fullPath = self::findManifestPath($modname, 'system', $appname);
+            if ($fullPath) {
+                $modPath = dirname($fullPath);
+                $type = 'system';
+            }
         }
 
-        // 2a. Auto-migrate: if modules.yml doesn't exist but modules.xml does, migrate first
-        if ($preferred !== '' && !file_exists($preferred)) {
-            $xmlSibling = substr($preferred, 0, -4) . '.xml'; // same path but .xml
-            if (file_exists($xmlSibling)) {
-                self::migrateXmlToYaml($xmlSibling, $preferred);
-            }
+        if (!$modPath) {
+             // Fallback discovery if not registered
+             $fullPath = self::findManifestPath($modname, 'user', $appname);
+             if ($fullPath) {
+                 $modPath = dirname($fullPath);
+                 $type = 'user';
+             }
+        }
+
+        if (!$modPath) {
+             throw new \SPP\SPPException("Module '{$modname}' could not be located in the filesystem.");
         }
 
         // 3. Try to update existing entries
@@ -1126,24 +1185,25 @@ class Module extends \SPP\SPPObject
      */
     private static function moduleRegistryPath(string $modPath, string $type, string $appname): string
     {
-        $path = str_replace('\\', '/', $modPath);
+        $modPath = str_replace('\\', '/', $modPath);
 
         if ($type === 'system') {
-            $base = str_replace('\\', '/', realpath(SPP_MODULES_DIR) ?: SPP_MODULES_DIR);
-            $real = str_replace('\\', '/', realpath($modPath) ?: $modPath);
-            if (str_starts_with($real, $base)) {
-                return trim(substr($real, strlen($base)), '/');
+            foreach (self::$_system_module_roots as $root) {
+                $base = str_replace('\\', '/', realpath(SPP_MODULES_DIR . ($root ? SPP_DS . $root : '')) ?: (SPP_MODULES_DIR . ($root ? SPP_DS . $root : '')));
+                $real = str_replace('\\', '/', realpath($modPath) ?: $modPath);
+                if (str_starts_with($real, $base)) {
+                    return trim(substr($real, strlen($base)), '/');
+                }
             }
         } else {
-            $base = SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname;
-            $base = str_replace('\\', '/', realpath($base) ?: $base);
+            $base = str_replace('\\', '/', realpath(SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname) ?: (SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname));
             $real = str_replace('\\', '/', realpath($modPath) ?: $modPath);
             if (str_starts_with($real, $base)) {
                 return trim(substr($real, strlen($base)), '/');
             }
         }
 
-        return trim($path, '/');
+        return trim($modPath, '/');
     }
 
     /**
@@ -1173,10 +1233,7 @@ class Module extends \SPP\SPPObject
             return null;
         }
 
-        $type = $module->ModuleType ?: 'system';
-        $modsConfDir = ($type === 'system')
-            ? SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf'
-            : APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
+        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
 
         $configDir = $modsConfDir . SPP_DS . $modname;
         $configFile = $configDir . SPP_DS . 'config.yml';
@@ -1597,16 +1654,7 @@ class Module extends \SPP\SPPObject
         $modObj = self::resolveModuleObject($modname, $appname);
         $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
 
-        $modsConfDir = '';
-        if ($type === 'system') {
-            if (defined('SPP_ETC_DIR')) {
-                $modsConfDir = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
-            }
-        } else {
-            if (defined('APP_ETC_DIR')) {
-                $modsConfDir = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
-            }
-        }
+        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
 
         if ($modsConfDir !== '') {
             // 1. Canonical per-app YAML
@@ -1711,16 +1759,7 @@ class Module extends \SPP\SPPObject
         $modObj = self::resolveModuleObject($modname, $appname);
         $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
 
-        $modsConfDir = '';
-        if ($type === 'system') {
-            if (defined('SPP_ETC_DIR')) {
-                $modsConfDir = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
-            }
-        } else {
-            if (defined('APP_ETC_DIR')) {
-                $modsConfDir = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
-            }
-        }
+        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
 
         if ($modsConfDir === '') {
             return ['content' => '', 'path' => '', 'format' => 'yml'];
@@ -1790,12 +1829,7 @@ class Module extends \SPP\SPPObject
         $modObj = self::resolveModuleObject($modname, $appname);
         $type = ($modObj instanceof \SPP\Module) ? $modObj->ModuleType : 'system';
 
-        $modsConfDir = '';
-        if ($type === 'system') {
-            $modsConfDir = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
-        } else {
-            $modsConfDir = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf';
-        }
+        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
 
         $yamlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
 
@@ -1877,7 +1911,12 @@ class Module extends \SPP\SPPObject
                     if ($reflection->isSubclassOf('\\SPPMod\\SPPEntity\\SPPEntity')) {
                         // Check if the table for this entity exists
                         $entityName = $reflection->getShortName();
-                        $tableName = \SPPMod\SPPDB\SPPDB::sppTable(strtolower($entityName) . 's');
+                        $tableName = $entityClass::getMetadata('table');
+                        if (!$tableName) {
+                            $tableName = strtolower($entityName) . 's';
+                        }
+                        $tableName = \SPPMod\SPPDB\SPPDB::sppTable($tableName);
+                        
                         if (!$db->tableExists($tableName)) {
                              $deltas['entities'][] = ['class' => $entityClass, 'status' => 'missing'];
                         }
@@ -1922,12 +1961,13 @@ class Module extends \SPP\SPPObject
 
         // 1. Process Tables
         foreach ($deltas['tables'] as $t) {
+            $tableName = \SPPMod\SPPDB\SPPDB::sppTable($t['name']);
             if ($t['status'] === 'missing') {
-                $db->createTableIncremental($t['name'], $t['columns']);
-                $log[] = "Created table: " . $t['name'];
+                $db->createTableIncremental($tableName, $t['columns']);
+                $log[] = "Created table: " . $tableName;
             } elseif ($t['status'] === 'outdated') {
-                $db->add_columns($t['name'], $t['missing_columns']);
-                $log[] = "Updated table " . $t['name'] . " (added " . count($t['missing_columns']) . " columns)";
+                $db->add_columns($tableName, $t['missing_columns']);
+                $log[] = "Updated table " . $tableName . " (added " . count($t['missing_columns']) . " columns)";
             }
         }
 
@@ -2124,5 +2164,243 @@ class Module extends \SPP\SPPObject
         }
 
         return $log;
+    }
+
+    /**
+     * Resolves the appropriate modsconf directory for a module.
+     * System modules are restricted to framework-internal paths.
+     */
+    
+    /**
+     * Saves multiple config variables for a module within a specific app context.
+     * Writes to the file only once.
+     *
+     * @param array  $variables Key-value pairs to save
+     * @param string $modname   Module internal name
+     * @param string $appname   Application name
+     */
+    public static function setAllConfigForApp(array $variables, string $modname, string $appname): void
+    {
+        $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
+        $appname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname);
+
+        $modsConfDir = self::getEffectiveModsConfDir($modname, $appname);
+        $yamlConfFile = $modsConfDir . SPP_DS . $modname . SPP_DS . 'config.yml';
+
+        $yamlData = [];
+        if (file_exists($yamlConfFile)) {
+            $yamlData = Yaml::parseFile($yamlConfFile) ?? [];
+        } else {
+            $dir = dirname($yamlConfFile);
+            if (!is_dir($dir)) {
+                if (!mkdir($dir, 0755, true)) {
+                    throw new \SPP\SPPException("Failed to create config directory: {$dir}");
+                }
+            }
+        }
+
+        if (!isset($yamlData['variables']) || !is_array($yamlData['variables'])) {
+            $legacyValues = $yamlData;
+            $yamlData = ['variables' => []];
+            foreach ($legacyValues as $key => $existingValue) {
+                if ($key !== 'variables' && is_string($key)) {
+                    $yamlData['variables'][$key] = $existingValue;
+                }
+            }
+        }
+
+        foreach ($variables as $varname => $value) {
+            $varname = str_replace(["'", '"'], '', $varname);
+            $yamlData['variables'][$varname] = $value;
+            
+            // Invalidate cache for each variable
+            $context = $appname ? preg_replace('/[^a-zA-Z0-9_\-]/', '', $appname) : \SPP\Scheduler::getContext();
+            $cacheKey = $context . '::' . $modname . '::' . $varname;
+            self::$configCache[$cacheKey] = (string) $value;
+        }
+
+        file_put_contents($yamlConfFile, Yaml::dump($yamlData, 4, 4));
+        $logFile = (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : __DIR__) . '/../var/logs/api_save.log';
+        error_log("[" . date('Y-m-d H:i:s') . "] MODULE DEBUG: setAllConfigForApp saved to $yamlConfFile. Vars: " . count($variables) . "\n", 3, $logFile);
+    }
+
+    /**
+     * Resolves the appropriate modsconf directory for a module based on context and type.
+     * This is the CENTRAL AUTHORITY for all module configuration paths.
+     * 
+     * @param string $modname Module internal name
+     * @param string $appname Application name
+     * @return string Absolute path to the directory containing the module's subfolder
+     */
+    public static function getEffectiveModsConfDir(string $modname, string $appname): string
+    {
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        $app = \SPP\App::getApp($appname);
+        
+        // 1. Primary: The application's own etc/modsconf (Contained within app)
+        $appModsConf = $app->getModsConfDir();
+        if (is_dir($appModsConf . SPP_DS . $modname)) {
+            return $appModsConf;
+        }
+
+        // 2. Secondary: Global system path for framework-internal apps (Fallback)
+        // Path: spp/etc/apps/<appname>/modsconf/
+        $systemAppModsConf = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modsconf';
+        if (is_dir($systemAppModsConf . SPP_DS . $modname)) {
+            return $systemAppModsConf;
+        }
+
+        // 3. Fallback: Default to the application's config directory
+        // Even if the module subfolder doesn't exist yet, we prefer the app's etc/modsconf for new configs.
+        return $appModsConf;
+    }
+
+    /**
+     * Returns an array of potential module registry files (modules.yml/xml) for an app.
+     * Centralizes lookup priority for all module manifests.
+     * 
+     * @param string $appname
+     * @return array<array{file: string, type: string}>
+     */
+    public static function getRegistryFiles(string $appname): array
+    {
+        $registries = [];
+        if ($appname === '') return $registries;
+
+        $app = \SPP\App::getApp($appname);
+        $candidates = [
+            // 1. App-Specific (Owned by the app)
+            ['path' => $app->getModsConfDir() . SPP_DS . 'modules', 'type' => 'user'],
+            // 2. Framework Override (Owned by framework, for this app)
+            ['path' => SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules', 'type' => 'system'],
+            // 3. Global Framework Defaults
+            ['path' => SPP_ETC_DIR . SPP_DS . 'modules', 'type' => 'system']
+        ];
+
+        foreach ($candidates as $c) {
+            if (file_exists($c['path'] . '.yml')) {
+                $registries[] = ['file' => $c['path'] . '.yml', 'type' => $c['type']];
+            } elseif (file_exists($c['path'] . '.xml')) {
+                $registries[] = ['file' => $c['path'] . '.xml', 'type' => $c['type']];
+            }
+        }
+
+        return $registries;
+    }
+
+    /**
+     * Returns an array of directories that may contain loosely coupled user modules for an app.
+     * 
+     * @param string $appname
+     * @return array<string>
+     */
+    public static function getAppModuleDirs(string $appname): array
+    {
+        if ($appname === '' || $appname === 'default') return [];
+        $app = \SPP\App::getApp($appname);
+        
+        $dirs = [];
+        $dirs[] = $app->getAppSrcDir() . SPP_DS . 'modules';
+        
+        return $dirs;
+    }
+
+    /**
+     * Returns a list of all available modules (system and user) for a context.
+     * 
+     * @param string $appname
+     * @return array<array>
+     */
+    public static function listAvailableModules(string $appname): array
+    {
+        $manifests = [];
+        
+        // 1. Discover System Modules
+        $sysManifests = array_merge(
+            \SPP\SPPFS::findFile('module.yml', SPP_MODULES_DIR) ?: [],
+            \SPP\SPPFS::findFile('module.xml', SPP_MODULES_DIR) ?: []
+        );
+        foreach ($sysManifests as $f) {
+            $name = basename(dirname($f));
+            if (!isset($manifests[$name])) {
+                $manifests[$name] = ['file' => $f, 'type' => 'system'];
+            }
+        }
+
+        // 2. Discover User/App Modules
+        foreach (self::getAppModuleDirs($appname) as $dir) {
+            $userManifests = array_merge(
+                \SPP\SPPFS::findFile('module.yml', $dir) ?: [],
+                \SPP\SPPFS::findFile('module.xml', $dir) ?: []
+            );
+            foreach ($userManifests as $f) {
+                $name = basename(dirname($f));
+                $manifests[$name] = ['file' => $f, 'type' => 'user'];
+            }
+        }
+
+        $modules = [];
+        foreach ($manifests as $name => $info) {
+            try {
+                $mod = new \SPP\Module($info['file']);
+                $status = self::getModuleStatus($name, $appname);
+                
+                $modules[] = [
+                    'name' => $mod->InternalName ?: $name,
+                    'public_name' => $mod->PublicName ?: ($mod->InternalName ?: $name),
+                    'version' => $mod->Version ?: '1.0',
+                    'description' => $mod->PublicDesc ?: '',
+                    'author' => $mod->Author ?? 'Unknown',
+                    'active' => $status === 'active',
+                    'type' => $info['type'],
+                    'path' => $mod->ModPath,
+                    'dependencies' => (array) ($mod->Dependencies ?? []),
+                    'module_group' => $mod->ModuleGroup ?: 'General',
+                    'has_config' => (!empty($mod->ConfigVariables) || !empty($mod->Settings)),
+                    'manifest' => $info['file']
+                ];
+            } catch (\Exception $e) {}
+        }
+
+        return $modules;
+    }
+
+    /**
+     * Returns the status of a module in a specific app context.
+     * 
+     * @param string $modname
+     * @param string $appname
+     * @return string 'active' | 'inactive'
+     */
+    public static function getModuleStatus(string $modname, string $appname): string
+    {
+        $registries = self::getRegistryFiles($appname);
+        foreach ($registries as $r) {
+            $file = $r['file'];
+            if (!file_exists($file)) continue;
+
+            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if ($ext === 'yml' || $ext === 'yaml') {
+                $data = \Symfony\Component\Yaml\Yaml::parseFile($file);
+                $mods = $data['modules'] ?? [];
+                foreach ($mods as $m) {
+                    $mArr = (array) $m;
+                    if (($mArr['name'] ?? $mArr['modname'] ?? '') === $modname) {
+                        return (string) ($mArr['status'] ?? 'active');
+                    }
+                }
+            } else {
+                $xml = @simplexml_load_file($file);
+                if ($xml === false) continue;
+                foreach ($xml->module as $mod) {
+                    $name = (string) ($mod->modname ?? $mod->name ?? '');
+                    if ($name === $modname) {
+                        return (string) ($mod->status ?? 'active');
+                    }
+                }
+            }
+        }
+
+        return 'inactive';
     }
 }

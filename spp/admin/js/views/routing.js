@@ -44,21 +44,21 @@ export default class RoutingView extends BaseComponent {
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            headerActions.innerHTML = '';
-            const btn = document.createElement('button');
-            btn.className = 'btn primary-btn btn-sm';
-            btn.innerHTML = activeTab === 'pages' ? '+ New Page Route' : '+ Register Service';
-            btn.onclick = () => activeTab === 'pages' ? this.openPageModal() : this.openServiceModal();
-            headerActions.appendChild(btn);
+            const btnLabel = activeTab === 'pages' ? '+ New Page Route' : '+ Register Service';
+            const action = activeTab === 'pages' ? () => this.openPageModal() : () => this.openServiceModal();
+            const headerHtml = html`
+                <button type="button" class="btn primary-btn btn-sm" @click=${action}>${btnLabel}</button>
+            `;
+            headerActions.innerHTML = headerHtml.toString();
         }
 
         return html`
             <div class="routing-workspace">
                 <div class="tab-bar-secondary mb-4">
-                    <button class="sub-tab-btn ${activeTab === 'pages' ? 'active' : ''}" 
-                        onclick="${() => this.switchTab('pages')}">📄 Page Routes</button>
-                    <button class="sub-tab-btn ${activeTab === 'services' ? 'active' : ''}" 
-                        onclick="${() => this.switchTab('services')}">⚡ AJAX Services</button>
+                    <button type="button" class="sub-tab-btn ${activeTab === 'pages' ? 'active' : ''}" 
+                        @click=${() => this.switchTab('pages')}>📄 Page Routes</button>
+                    <button type="button" class="sub-tab-btn ${activeTab === 'services' ? 'active' : ''}" 
+                        @click=${() => this.switchTab('services')}>⚡ AJAX Services</button>
                 </div>
 
                 <div id="routing-content">
@@ -103,9 +103,9 @@ export default class RoutingView extends BaseComponent {
                                     <td><span class="method-badge ${item.method?.toLowerCase() || 'post'}">${item.method || 'POST'}</span></td>
                                 ` : ''}
                                 <td><span class="source-badge ${item.source === 'db' ? 'badge-db' : 'badge-file'}">${item.source.toUpperCase()}</span></td>
-                                <td class="text-right">
-                                    <button class="btn ghost-btn btn-sm" onclick="${() => this.state.activeTab === 'pages' ? this.openPageModal(item) : this.openServiceModal(item)}">Edit</button>
-                                    <button class="btn ghost-btn btn-sm text-danger" onclick="${() => this.remove(item)}">Delete</button>
+                                 <td class="text-right">
+                                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.state.activeTab === 'pages' ? this.openPageModal(item) : this.openServiceModal(item)}>Edit</button>
+                                    <button type="button" class="btn ghost-btn btn-sm text-danger" @click=${() => this.remove(item)}>Delete</button>
                                 </td>
                             </tr>
                         `)}
@@ -137,9 +137,9 @@ export default class RoutingView extends BaseComponent {
                     </div>
                 ` : html`<input type="hidden" name="source" value="${page.source}">`}
             </form>
-        `.toString());
-
-        document.getElementById('modal-save').onclick = () => this.save('save_page');
+        `, [
+            { label: page ? 'Save Changes' : 'Create Route', type: 'primary', fn: () => this.save('save_page') }
+        ]);
     }
 
     openServiceModal(svc = null) {
@@ -170,9 +170,9 @@ export default class RoutingView extends BaseComponent {
                     </div>
                 ` : html`<input type="hidden" name="source" value="${svc.source}">`}
             </form>
-        `.toString());
-
-        document.getElementById('modal-save').onclick = () => this.save('save_service');
+        `, [
+            { label: svc ? 'Save Changes' : 'Register Service', type: 'primary', fn: () => this.save('save_service') }
+        ]);
     }
 
     async save(action) {

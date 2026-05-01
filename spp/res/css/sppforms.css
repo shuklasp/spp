@@ -1,0 +1,125 @@
+/**
+ * SPP Modern Form Engine - Core Styles
+ */
+
+.spp-form-container {
+    width: 100%;
+}
+
+.spp-form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.spp-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text-main, #333);
+}
+
+.spp-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.spp-help-text {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+    color: var(--text-dim, #666);
+}
+
+.spp-error-msg {
+    color: var(--danger, #d9534f);
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    min-height: 1em;
+}
+
+/* Grid System */
+.spp-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
+[class*="spp-col-"] {
+    padding-left: 10px;
+    padding-right: 10px;
+    box-sizing: border-box;
+}
+
+.spp-col-12 { width: 100%; }
+.spp-col-11 { width: 91.66%; }
+.spp-col-10 { width: 83.33%; }
+.spp-col-9 { width: 75%; }
+.spp-col-8 { width: 66.66%; }
+.spp-col-7 { width: 58.33%; }
+.spp-col-6 { width: 50%; }
+.spp-col-5 { width: 41.66%; }
+.spp-col-4 { width: 33.33%; }
+.spp-col-3 { width: 25%; }
+.spp-col-2 { width: 16.66%; }
+.spp-col-1 { width: 8.33%; }
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+    [class*="spp-col-"] {
+        width: 100% !important;
+    }
+}
+
+/* Wizard Styles */
+.spp-wizard-step {
+    display: none;
+}
+.spp-wizard-step.active {
+    display: block;
+}
+
+.spp-wizard-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.spp-wizard-indicators {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.spp-step-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--glass-border, #ddd);
+}
+
+.spp-step-dot.active {
+    background: var(--primary, #007bff);
+}
+
+/* Repeater Styles */
+.spp-repeater-row {
+    border: 1px solid var(--glass-border, #eee);
+    padding: 15px;
+    border-radius: var(--radius-md, 4px);
+    margin-bottom: 10px;
+    position: relative;
+    background: var(--input-bg, transparent);
+}
+
+.btn-remove-row {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+.spp-hidden {
+    display: none !important;
+}

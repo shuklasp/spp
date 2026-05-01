@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="students">
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="name" type="varchar"/>
+    <column name="grade" type="varchar"/>
+    <column name="score" type="int"/>
+  </_schema>
+<row><id>1</id><name>Satya</name><grade>A</grade><score>95</score></row><row><id>2</id><name>John</name><grade>B</grade><score>82</score></row><row><id>3</id><name>Jane</name><grade>A</grade><score>91</score></row><row><id>5</id><name>Bob</name><grade>A</grade><score>88</score></row></database>

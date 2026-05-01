@@ -14,6 +14,7 @@ module:
         log_precedence:
             type: select
             label: 'Log Precedence'
+            help: 'Defines the order of execution when multiple adapters are active.'
             options:
                 db_first: 'Database First'
                 file_first: 'File First'
@@ -22,20 +23,25 @@ module:
         log_targets:
             type: text
             label: 'Log Targets'
+            help: 'Active logging sinks (e.g., db, file). Separate multiple targets with commas.'
             default: [db, file]
         log_subdir:
             type: text
             label: 'Log Subdir'
+            help: 'Subdirectory within the system log folder to store files.'
             default: system
         log_filename_format:
             type: text
             label: 'Log Filename Format'
+            help: 'Naming convention for log files. Supports tokens like {appname} and {date}.'
             default: 'log-{appname}-{date}-{index}.txt'
         max_file_size:
             type: number
             label: 'Max File Size'
+            help: 'Maximum size of a log file in bytes before rotation occurs.'
             default: 2097152.0
         log_retention_days:
             type: number
             label: 'Log Retention Days'
+            help: 'Number of days to keep logs before automatic purging.'
             default: 30.0

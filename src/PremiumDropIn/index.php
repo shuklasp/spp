@@ -9,12 +9,13 @@ if (class_exists('\SPPMod\SPPView\ViewPage')) {
 
 // Simple Router for Drop-in files
 $page = (isset($_GET['q']) && $_GET['q'] !== '') ? $_GET['q'] : 'index';
-$file = __DIR__ . '/../../resources/PremiumDropIn/views/' . $page;
+$viewPath = __DIR__ . '/resources/views/';
+$file = $viewPath . $page;
 
 if (file_exists($file . '.php')) {
     include $file . '.php';
 } elseif (file_exists($file . '.html')) {
     echo file_get_contents($file . '.html');
 } else {
-    echo "<h1>404 - Page Not Found</h1><p>File '{$page}' not found in resources/PremiumDropIn/views/</p>";
+    echo "<h1>404 - Page Not Found</h1><p>File '{$page}' not found in {$viewPath}</p>";
 }

@@ -47,13 +47,26 @@ export default class FormsView extends BaseComponent {
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            headerActions.innerHTML = '';
-            const btn = document.createElement('button');
-            btn.className = 'btn primary-btn btn-sm';
-            btn.innerHTML = '+ New Form';
             const defaultSource = 'form:\n  name: my_form\n  service: save_data\n\nfields:\n  - name: title\n    type: input\n    label: Title';
-            btn.onclick = () => this.openEditor('', 'yml', defaultSource);
-            headerActions.appendChild(btn);
+            const headerHtml = html`
+                <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', 'yml', defaultSource)}>+ New Form</button>
+            `;
+            headerActions.innerHTML = headerHtml.toString();
+            
+            // Ensure buttons in the header also trigger events for this component
+            headerActions.querySelectorAll('[data-spp-evt]').forEach(el => {
+                const id = el.getAttribute('data-spp-evt');
+                if (window.__spp_handlers && window.__spp_handlers[id]) {
+                    this._handlers.set(id, window.__spp_handlers[id]);
+                }
+            });
+            
+            if (!headerActions._hasSppListener) {
+                ['click', 'change', 'input'].forEach(type => {
+                    headerActions.addEventListener(type, (e) => this._onEvent(e));
+                });
+                headerActions._hasSppListener = true;
+            }
         }
 
         if (forms.length === 0) {
@@ -62,7 +75,7 @@ export default class FormsView extends BaseComponent {
                     <div class="empty-icon">📝</div>
                     <h3>No Form Definitions</h3>
                     <p>Forms enable Drop-and-Play augmentation across the framework.</p>
-                    <button class="btn primary-btn" onclick="${() => this.openEditor('', 'yml', '')}">+ Create Form</button>
+                    <button type="button" class="btn primary-btn" @click=${() => this.openEditor('', 'yml', '')}>+ Create Form</button>
                 </div>
             `;
         }
@@ -83,8 +96,8 @@ export default class FormsView extends BaseComponent {
                             <div class="card-footer">
                                 <small>${form.size ? Math.round(form.size / 1024 * 100) / 100 + ' KB' : ''}</small>
                                 <div class="card-actions">
-                                    <button class="btn ghost-btn btn-sm" onclick="${() => this.openEditor(form.name, form.type, form.content)}">Edit</button>
-                                    <button class="btn danger-btn btn-sm" onclick="${() => this.admin.confirmDelete('form', form.name)}">Delete</button>
+                                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openEditor(form.name, form.type, form.content)}>Edit</button>
+                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('form', form.name)}>Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -119,23 +132,18 @@ export default class FormsView extends BaseComponent {
         }
 
         this.state.currentFormConfig = this._normalizeConfig(config);
-        this.admin.openModal(name ? `Form: ${name}.${type.toLowerCase()}` : 'Create New Form', this.getModalHtml().toString());
-        
-        const saveBtn = document.getElementById('modal-save');
-        saveBtn.textContent = 'Save Form';
-        saveBtn.onclick = () => this.save();
-        saveBtn.className = 'btn primary-btn';
-
-        this.attachBuilderEvents();
+        this.admin.openModal(name ? `Form: ${name}.${type.toLowerCase()}` : 'Create New Form', this.getModalHtml(), [
+            { label: 'Save Form', type: 'primary', fn: (m) => this.save() }
+        ]);
     }
 
     getModalHtml() {
         const { activeFormTab } = this.state;
         return html`
             <div class="tab-bar">
-                <button class="tab-btn ${activeFormTab === 'builder' ? 'active' : ''}" onclick="${() => this.switchTab('builder')}">Visual Builder</button>
-                <button class="tab-btn ${activeFormTab === 'source' ? 'active' : ''}" onclick="${() => this.switchTab('source')}">Source (YAML)</button>
-                <button class="tab-btn ${activeFormTab === 'preview' ? 'active' : ''}" onclick="${() => this.switchTab('preview')}">Live Preview</button>
+                <button type="button" class="tab-btn ${activeFormTab === 'builder' ? 'active' : ''}" @click=${() => this.switchTab('builder')}>Visual Builder</button>
+                <button type="button" class="tab-btn ${activeFormTab === 'source' ? 'active' : ''}" @click=${() => this.switchTab('source')}>Source (YAML)</button>
+                <button type="button" class="tab-btn ${activeFormTab === 'preview' ? 'active' : ''}" @click=${() => this.switchTab('preview')}>Live Preview</button>
             </div>
             <div id="form-editor-content" class="tab-content active">
                 ${this.getTabContent(activeFormTab)}
@@ -174,8 +182,21 @@ export default class FormsView extends BaseComponent {
     }
 
     refreshModal() {
-        const body = document.getElementById('modal-body');
-        if (body) body.innerHTML = this.getModalHtml().toString();
+        const body = document.querySelector('.modal-body');
+        if (body) {
+            const htmlContent = this.getModalHtml();
+            body.innerHTML = htmlContent.toString();
+            
+            // Re-register handlers from the newly rendered HTML
+            body.querySelectorAll('[data-spp-evt]').forEach(el => {
+                const id = el.getAttribute('data-spp-evt');
+                if (window.__spp_handlers && window.__spp_handlers[id]) {
+                    this._handlers.set(id, window.__spp_handlers[id]);
+                }
+            });
+            
+            this.attachBuilderEvents();
+        }
     }
 
     getBuilderHtml() {
@@ -188,18 +209,36 @@ export default class FormsView extends BaseComponent {
                     <h4>Form Metadata</h4>
                     <div class="input-group">
                         <label>Name</label>
-                        <input type="text" onchange="${(e) => { c.form.name = e.target.value; }}" value="${c.form.name}">
+                        <input type="text" @change=${(e) => { c.form.name = e.target.value; }} value="${c.form.name}">
                     </div>
                     <div class="input-group">
                         <label>Type</label>
-                        <select onchange="${(e) => this.toggleFormType(e.target.value)}">
+                        <select @change=${(e) => this.toggleFormType(e.target.value)}>
                             <option value="single" ?selected="${!isWizard}">Single Step</option>
                             <option value="wizard" ?selected="${isWizard}">Multi-step Wizard</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label>Service (API)</label>
-                        <input type="text" onchange="${(e) => { c.form.service = e.target.value; }}" value="${c.form.service || ''}" placeholder="e.g. save_user">
+                        <input type="text" @change=${(e) => { c.form.service = e.target.value; }} value="${c.form.service || ''}" placeholder="e.g. save_user">
+                    </div>
+                    
+                    <hr style="margin: 15px 0; border: none; border-top: 1px solid var(--glass-border);">
+                    
+                    <h4>Intelligence & Resilience</h4>
+                    <div class="input-group-row" style="display: flex; flex-direction: column; gap: 8px;">
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                            <input type="checkbox" ?checked="${!!c.form.offline}" @change=${(e) => { c.form.offline = e.target.checked; }}>
+                            Offline Sync Support
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                            <input type="checkbox" ?checked="${!!c.form.telemetry}" @change=${(e) => { c.form.telemetry = e.target.checked; }}>
+                            Engagement Telemetry
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                            <input type="checkbox" ?checked="${!!c.form.autosave}" @change=${(e) => { c.form.autosave = e.target.checked; }}>
+                            Local Auto-save
+                        </label>
                     </div>
                 </div>
                 <div class="builder-main">
@@ -212,26 +251,29 @@ export default class FormsView extends BaseComponent {
         return html`
             <div class="builder-section-header">
                 <h4>Fields</h4>
-                <button class="btn ghost-btn btn-sm" onclick="${() => this.addField(stepIdx)}">+ Add Field</button>
+                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.addField(stepIdx)}>+ Add Field</button>
             </div>
             <div class="field-list">
                 ${fields.map((f, i) => html`
                     <div class="field-item draggable" draggable="true" 
                         data-index="${i}" data-step="${stepIdx !== null ? stepIdx : ''}"
-                        ondragstart="${(e) => this.onDragStart(e)}"
-                        ondragover="${(e) => this.onDragOver(e)}"
-                        ondragleave="${(e) => this.onDragLeave(e)}"
-                        ondrop="${(e) => this.onDrop(e)}"
-                        ondragend="${(e) => this.onDragEnd(e)}">
+                        @dragstart=${(e) => this.onDragStart(e)}
+                        @dragover=${(e) => this.onDragOver(e)}
+                        @dragleave=${(e) => this.onDragLeave(e)}
+                        @drop=${(e) => this.onDrop(e)}
+                        @dragend=${(e) => this.onDragEnd(e)}>
                         <div class="field-drag-handle">⋮</div>
                         <div class="field-info">
                             <strong>${f.name || 'unnamed'}</strong>
                             <span class="badge">${f.type || 'text'}</span>
+                            ${f.voice ? html`<span class="badge tiny info" title="Voice-to-Text enabled">🎙️</span>` : ''}
+                            ${f.telemetry ? html`<span class="badge tiny warning" title="Telemetry tracking active">📊</span>` : ''}
+                            ${f.computed ? html`<span class="badge tiny success" title="Computed field">🧮</span>` : ''}
                             <div class="field-label-preview">${f.label || ''}</div>
                         </div>
                         <div class="field-actions">
-                            <button class="btn btn-icon" onclick="${() => this.editField(i, stepIdx)}">⚙️</button>
-                            <button class="btn btn-icon danger" onclick="${() => this.removeField(i, stepIdx)}">✕</button>
+                            <button type="button" class="btn btn-icon" @click=${() => this.editField(i, stepIdx)}>⚙️</button>
+                            <button type="button" class="btn btn-icon danger" @click=${() => this.removeField(i, stepIdx)}>✕</button>
                         </div>
                     </div>
                 `)}
@@ -243,7 +285,7 @@ export default class FormsView extends BaseComponent {
         return html`
             <div class="builder-section-header">
                 <h4>Wizard Steps</h4>
-                <button class="btn ghost-btn btn-sm" onclick="${() => this.addStep()}">+ Add Step</button>
+                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.addStep()}>+ Add Step</button>
             </div>
             <div class="steps-container">
                 ${steps.map((s, idx) => html`
@@ -251,8 +293,8 @@ export default class FormsView extends BaseComponent {
                         <div class="step-header">
                             <h5>Step ${idx + 1}: ${s.title || 'Untitled'}</h5>
                             <div class="step-actions">
-                                <button class="btn btn-icon" onclick="${() => this.editStep(idx)}">⚙️</button>
-                                <button class="btn btn-icon danger" onclick="${() => this.removeStep(idx)}">✕</button>
+                                <button type="button" class="btn btn-icon" @click=${() => this.editStep(idx)}>⚙️</button>
+                                <button type="button" class="btn btn-icon danger" @click=${() => this.removeStep(idx)}>✕</button>
                             </div>
                         </div>
                         <div class="step-field-list">
@@ -284,6 +326,32 @@ export default class FormsView extends BaseComponent {
             c.fields = c.steps[0].fields || [];
             delete c.steps;
         }
+        this.refreshModal();
+        this.attachBuilderEvents();
+    }
+
+    addStep() {
+        const c = this.state.currentFormConfig;
+        if (!c.steps) c.steps = [];
+        c.steps.push({ title: 'New Step', fields: [] });
+        this.refreshModal();
+        this.attachBuilderEvents();
+    }
+
+    async editStep(idx) {
+        const step = this.state.currentFormConfig.steps[idx];
+        const res = await this.admin.api('get_iam_form&type=step_editor');
+        if (res.success) {
+            this.admin.openSubEditor('Edit Step Properties', res.data.html, step, (newData) => {
+                Object.assign(this.state.currentFormConfig.steps[idx], newData);
+                this.refreshModal();
+                this.attachBuilderEvents();
+            });
+        }
+    }
+
+    removeStep(idx) {
+        this.state.currentFormConfig.steps.splice(idx, 1);
         this.refreshModal();
         this.attachBuilderEvents();
     }
@@ -413,6 +481,11 @@ export default class FormsView extends BaseComponent {
         fd.append('form', yaml);
         const res = await this.admin.apiPost(fd);
         if (res.success) {
+            // Load required component assets before rendering HTML
+            if (res.data.assets) {
+                await this.admin.loadAssets(res.data.assets);
+            }
+            
             container.innerHTML = `
                 <div class="preview-container glass-panel">
                     <div class="preview-header"><span class="preview-badge">Live Preview</span></div>

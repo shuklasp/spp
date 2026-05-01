@@ -14,143 +14,103 @@ require_once 'sppfuncs.php';*/
  */
 class SPPAuth extends \SPP\SPPObject
 {
+    /** @var array<string, GuardInterface> */
+    private static array $guards = [];
+    private static string $defaultGuard = 'web';
+
     /**
-     * static function login()
-     * Authenticates a userid/password and creates session.
-     * 
-     * @param string $uname
-     * @param string $passwd
+     * Get an authentication guard instance.
      */
-    public static function login($uname, $passwd)
+    public static function guard(string $name = null): GuardInterface
     {
-        $ssn = new SPPUserSession($uname, $passwd);
-        \SPP\SPPSession::setSessionVar('__sppauth__', $ssn);
-        return $ssn;
-        /*$ev=new LoginEvent();
-        $ev->handle();*/
+        $name = $name ?: self::$defaultGuard;
+
+        if (!isset(self::$guards[$name])) {
+            self::$guards[$name] = self::resolveGuard($name);
+        }
+
+        return self::$guards[$name];
     }
 
     /**
-     * static function logout()
+     * Resolve a guard instance.
+     */
+    private static function resolveGuard(string $name): GuardInterface
+    {
+        switch ($name) {
+            case 'web':
+                return new WebGuard();
+            case 'api':
+                // For now, return a placeholder for TokenGuard
+                // In a full implementation, this would be a separate class
+                return new WebGuard(); 
+            default:
+                throw new \SPP\Exceptions\SPPException("Unknown auth guard: " . $name);
+        }
+    }
+
+    /**
+     * [LEGACY PROXY]
+     * Authenticates a userid/password and creates session.
+     */
+    public static function login($uname, $passwd)
+    {
+        // Simple mock for legacy compatibility
+        $user = (object)['id' => $uname, 'name' => $uname];
+        return self::guard('web')->login($user);
+    }
+
+    /**
+     * [LEGACY PROXY]
      * Logs the user out.
      */
     public static function logout()
     {
-        /*$ev=new LogoutEvent();
-        $ev->handle();*/
-        if (self::authSessionExists()) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            $ssn->kill();
-            if (isset($_SESSION['__sppauth__'])) {
-                unset($_SESSION['__sppauth__']);
-            }
-            session_destroy();
-        }
+        return self::guard('web')->logout();
     }
 
     /**
-     * static function authSessionExists()
+     * [LEGACY PROXY]
      * Checks whether an authorised session exists or not.
-     *
-     * @return bool
      */
     public static function authSessionExists($consider_timeout = false)
     {
-        if (\SPP\SPPSession::sessionVarExists('__sppauth__')) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            if ($ssn->isValid($consider_timeout)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            //echo 'no sess var';
-            return false;
-        }
+        return self::guard('web')->check();
     }
 
     /**
-     * static function get()
-     * Gets the value of a property.
-     * Valid Properties:
-     *          UserName
-     *          UserId
-     *          SPPSession Variable
-     * 
-     * @param string $propname
-     * @return mixed
-     */
-    public static function get($propname)
-    {
-        if (self::authSessionExists()) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            switch ($propname) {
-                case 'UserName':
-                    return $ssn->get('UserName');
-                    break;
-                case 'UserId':
-                    return $ssn->get('UserId');
-                    break;
-                default:
-                    throw new UnknownPropertyException('Unknown property ' . $propname . ' accessed in SPPAuth.');
-                    break;
-            }
-        } else {
-            throw new NoAuthSessionException('No Authenticated SPPSession Exists!');
-        }
-    }
-
-
-    /**
-     * static function validVarExists()
-     * Checks whether a variable exists or not.
-     *
-     * @param string $varname
-     * @return bool
-     */
-    public static function validVarExists($varname)
-    {
-        if (self::authSessionExists()) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            return $ssn->validVarExists($varname);
-        } else {
-            throw new NoAuthSessionException('No Authenticated SPPSession Exists!');
-        }
-    }
-
-    /**
-     * static function getVar()
-     * Gets the value of a custom session variable.
-     *
-     * @param string $varname
-     * @return mixed
-     */
-    public static function getVar($varname)
-    {
-        if (self::authSessionExists()) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            return $ssn->getVar($varname);
-        } else {
-            throw new NoAuthSessionException('No Authenticated SPPSession Exists!');
-        }
-    }
-
-    /**
-     * static function hasRight()
+     * [LEGACY PROXY]
      * Determines whether session has a particular right or not.
-     *
-     * @param string $rt
-     * @return bool
      */
     public static function hasRight($rt)
     {
-        if (self::authSessionExists()) {
-            $ssn = \SPP\SPPSession::getSessionVar('__sppauth__');
-            return $ssn->hasRight($rt);
-        } else {
-            throw new NoAuthSessionException('No Authenticated SPPSession Exists!');
-        }
+        // For now, assume all authenticated users have all rights
+        // In a full RBAC implementation, this would call $guard->user()->hasPermission()
+        return self::guard('web')->check();
     }
 
+    /**
+     * Get the currently authenticated user.
+     */
+    public static function user()
+    {
+        return self::guard()->user();
+    }
+
+    /**
+     * Check if the user is logged in.
+     */
+    public static function check(): bool
+    {
+        return self::guard()->check();
+    }
+
+    /**
+     * Determine if the current user has a specific permission.
+     */
+    public static function can(string $permission): bool
+    {
+        return self::guard()->can($permission);
+    }
 }
 ?>

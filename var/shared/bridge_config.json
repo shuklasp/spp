@@ -1,15 +1,33 @@
 {
-    "timestamp": 1777038567,
+    "timestamp": 1777639698,
     "spp_version": "0.7",
     "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
         "dbtype": "mysql",
         "dbhost": "localhost",
-        "dbname": "spp",
+        "dbname": "school",
         "dbuser": "root",
-        "dbpasswd": ""
+        "dbpasswd": "hello123"
     },
-    "modules": [],
+    "modules": {
+        "sppentity": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppentity",
+        "sppdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdb",
+        "sppconfig": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppconfig",
+        "spplogger": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spplogger",
+        "sppprofile": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppprofile",
+        "sppwizard": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppwizard",
+        "spphtml": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppview",
+        "sppajax": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppajax",
+        "sppgroup": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppgroup",
+        "sppai": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppai",
+        "sppauth": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppauth",
+        "sppux": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppux",
+        "marketing": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/marketing",
+        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi",
+        "parikshak": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/parikshak",
+        "sppblade": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppblade",
+        "sppdrupal": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdrupal"
+    },
     "runtimes": {
         "python": {
             "name": "Python",

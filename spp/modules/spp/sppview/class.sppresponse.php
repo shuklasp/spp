@@ -12,17 +12,16 @@ class SPPResponse extends \SPP\SPPObject{
      * Main value
      * @var 
      */
-    private $value=new  class{
-        public $data=[];
-        public $message="";
-        public $status=200;
-    };
+    private $value;
 
     /**
      * Constructor
      * @param int $status
      */
     public function __construct($status=200){
+        $this->value = new \stdClass();
+        $this->value->data = [];
+        $this->value->message = "";
         $this->value->status = $status;
     }
 

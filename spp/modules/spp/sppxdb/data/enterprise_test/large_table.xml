@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="large_table">
+  <row id="21">
+    <id>21</id>
+    <val>Test 21</val>
+  </row>
+  <row id="22">
+    <id>22</id>
+    <val>Test 22</val>
+  </row>
+  <row id="23">
+    <id>23</id>
+    <val>Test 23</val>
+  </row>
+  <row id="24">
+    <id>24</id>
+    <val>Test 24</val>
+  </row>
+  <row id="25">
+    <id>25</id>
+    <val>Test 25</val>
+  </row>
+</database>

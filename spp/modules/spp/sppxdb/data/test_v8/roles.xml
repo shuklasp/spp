@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="roles">
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="title" type="varchar"/>
+    <column name="level" type="int"/>
+  </_schema>
+<row id="1"><id>1</id><title>Admin</title><level>10</level></row><row id="2"><id>2</id><title>Editor</title><level>5</level></row></database>

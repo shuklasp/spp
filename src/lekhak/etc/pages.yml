@@ -1,0 +1,14 @@
+# Lekhak App Routing Configuration
+defaults:
+  pagedir: /src/lekhak
+  resdir: /src/lekhak/resources
+  home: home
+
+specials:
+  - { name: resources, method: serveResource }
+
+pages:
+  admin-api: { url: resources/admin-api.php, special: 1 }
+  admin: { url: resources/views/standalone-admin.blade.php }
+  home: { url: resources/views/index.blade.php }
+  node: { url: resources/views/node.blade.php }

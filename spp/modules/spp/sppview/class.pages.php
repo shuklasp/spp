@@ -17,14 +17,14 @@ use Symfony\Component\Yaml\Yaml;
  */
 class Pages extends \SPP\SPPObject
 {
-    /** @var array<string,mixed>|null In-memory YAML cache */
-    private static ?array $yamlCache = null;
+    /** @var array<string,mixed> In-memory YAML cache partitioned by file path */
+    private static array $yamlFileCache = [];
 
-    /** @var array<string,mixed>|null Resolved DB pages cache */
-    private static ?array $dbCache = null;
+    /** @var array<string,mixed> Resolved DB pages cache partitioned by appname */
+    private static array $dbAppCache = [];
 
-    /** @var string[]|null Resolved [primary, fallback] sources */
-    private static ?array $sources = null;
+    /** @var array<string,string[]> Resolved [primary, fallback] sources partitioned by appname */
+    private static array $sourceAppCache = [];
 
     /**
      * Whitelisted methods callable via 'specials' routing in pages.yml / DB.
@@ -33,6 +33,7 @@ class Pages extends \SPP\SPPObject
     private static array $allowedSpecialMethods = [
         'getResource',
         'getFile',
+        'serveResource',
     ];
 
     // -------------------------------------------------------------------------
@@ -40,19 +41,27 @@ class Pages extends \SPP\SPPObject
     // -------------------------------------------------------------------------
 
     /**
-     * Returns [primary, fallback] source names, respecting sppdb availability.
+     * Returns [primary, fallback] source names for a specific app context.
+     * @param string|null $appname
      * @return string[]
      */
-    private static function getSources(): array
+    private static function getSources(string $appname = null): array
     {
-        if (self::$sources !== null) {
-            return self::$sources;
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        
+        if (isset(self::$sourceAppCache[$appname])) {
+            return self::$sourceAppCache[$appname];
         }
 
         $dbAvailable = \SPP\Module::isEnabled('sppdb');
 
-        $primary  = \SPP\Module::getConfig('page_source_primary',  'sppview') ?: 'yaml';
-        $fallback = \SPP\Module::getConfig('page_source_fallback', 'sppview') ?: 'none';
+        $primary  = \SPP\Module::getConfig('page_source_primary',  'sppview', $appname) ?: 'yaml';
+        $fallback = \SPP\Module::getConfig('page_source_fallback', 'sppview', $appname) ?: 'none';
+
+        // Normalize aliases
+        $map = ['dbfirst' => 'db', 'filefirst' => 'yaml', 'file' => 'yaml'];
+        $primary  = $map[$primary] ?? $primary;
+        $fallback = $map[$fallback] ?? $fallback;
 
         // Silently demote DB to 'none' when sppdb is not loaded
         if (!$dbAvailable) {
@@ -60,36 +69,58 @@ class Pages extends \SPP\SPPObject
             if ($fallback === 'db') $fallback = 'none';
         }
 
-        self::$sources = [$primary, $fallback];
-        return self::$sources;
+        self::$sourceAppCache[$appname] = [$primary, $fallback];
+        return self::$sourceAppCache[$appname];
+    }
+
+    /**
+     * Resolves the pages.yml file path for an app, honoring etc_path config.
+     */
+    public static function getAppPagesFile(string $appname = ''): string
+    {
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        $etcPath = \SPP\App::getAppConf('etc_path', $appname);
+        
+        if ($etcPath) {
+            $base = (str_starts_with($etcPath, '/') || str_contains($etcPath, ':')) 
+                ? rtrim($etcPath, '/\\') 
+                : SPP_APP_DIR . SPP_DS . rtrim($etcPath, '/\\');
+            $file = $base . SPP_DS . 'pages.yml';
+        } else {
+            $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
+        }
+
+        if (!file_exists($file)) {
+            $legacyFile = APP_ETC_DIR . SPP_DS . 'pages.yml';
+            if (file_exists($legacyFile)) return $legacyFile;
+        }
+        return $file;
     }
 
     // -------------------------------------------------------------------------
     // YAML driver
     // -------------------------------------------------------------------------
 
-    private static function getYaml(): array
+    private static function getYaml(string $ymlFile = null): array
     {
-        if (self::$yamlCache === null) {
-            $appname = \SPP\Scheduler::getContext();
-            $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
-            
-            if (!file_exists($file)) {
-                // Fallback to legacy location (APP_ETC_DIR/pages.yml)
-                $legacyFile = APP_ETC_DIR . SPP_DS . 'pages.yml';
-                if (file_exists($legacyFile)) {
-                    $file = $legacyFile;
-                } else {
-                    throw new \SPP\SPPException('Pages configuration file not found in app context (' . $appname . ') or legacy location.');
-                }
-            }
-            try {
-                self::$yamlCache = Yaml::parseFile($file);
-            } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
-                throw new \SPP\SPPException('Failed to parse pages.yml: ' . $e->getMessage(), 1000, $e);
-            }
+        $ymlFile = $ymlFile ?: self::getAppPagesFile();
+        
+        if (isset(self::$yamlFileCache[$ymlFile])) {
+            return self::$yamlFileCache[$ymlFile];
         }
-        return self::$yamlCache;
+
+        if (!file_exists($ymlFile)) {
+            self::$yamlFileCache[$ymlFile] = ['pages' => [], 'defaults' => [], 'specials' => []];
+            return self::$yamlFileCache[$ymlFile];
+        }
+
+        try {
+            self::$yamlFileCache[$ymlFile] = Yaml::parseFile($ymlFile);
+        } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
+            throw new \SPP\SPPException('Failed to parse pages.yml (' . $ymlFile . '): ' . $e->getMessage(), 1000, $e);
+        }
+
+        return self::$yamlFileCache[$ymlFile];
     }
 
     // -------------------------------------------------------------------------
@@ -124,12 +155,15 @@ class Pages extends \SPP\SPPObject
 
     /**
      * Returns the full DB routing dataset, mirroring the YAML structure.
+     * @param string|null $appname
      * @return array{pages: array, defaults: array, specials: array}
      */
-    private static function getDb(): array
+    private static function getDb(string $appname = null): array
     {
-        if (self::$dbCache !== null) {
-            return self::$dbCache;
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        
+        if (isset(self::$dbAppCache[$appname])) {
+            return self::$dbAppCache[$appname];
         }
 
         self::ensureDbSchema();
@@ -145,22 +179,25 @@ class Pages extends \SPP\SPPObject
             $defaultsMap[$row['defkey']] = $row['defval'];
         }
 
-        self::$dbCache = [
+        self::$dbAppCache[$appname] = [
             'pages'    => $pages,
             'defaults' => $defaultsMap,
             'specials' => $specials,
         ];
 
-        return self::$dbCache;
+        return self::$dbAppCache[$appname];
     }
 
     // -------------------------------------------------------------------------
     // Internal helpers — single-source lookups
     // -------------------------------------------------------------------------
 
-    private static function findPageInYaml(string $q): ?array
+    private static function findPageInYaml(string $q, string $appname = null, string $ymlFile = null): ?array
     {
-        $yaml = self::getYaml();
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        $ymlFile = $ymlFile ?: self::getAppPagesFile($appname);
+        
+        $yaml = self::getYaml($ymlFile);
         
         // Handle empty routes by falling back to the 'home' setting
         if ($q === '' && isset($yaml['home'])) {
@@ -173,29 +210,100 @@ class Pages extends \SPP\SPPObject
 
         // Exact match prioritized
         if (isset($yaml['pages'][$q])) {
-             $routeConfig = $yaml['pages'][$q];
-             return self::buildPage($q, $routeConfig['url'], $q);
+             $res = self::processRoute($q, $yaml['pages'][$q], $q, $appname, $ymlFile);
+             if ($res) return $res;
         }
 
         foreach ($yaml['pages'] as $name => $routeConfig) {
             $name = (string)$name;
-            // Robust prefix matching for parameters
+            // Robust prefix matching for parameters / delegation
             if ($name !== '' && strpos($q, $name) === 0) {
-                return self::buildPage($name, $routeConfig['url'], $q);
+                $res = self::processRoute($name, $routeConfig, $q, $appname, $ymlFile);
+                if ($res) return $res;
             }
         }
         return null;
     }
 
-    /** @return array|null Matched page array or null */
-    private static function findPageInDb(string $q): ?array
+    /**
+     * Helper to process a matched route entry and handle app/subpages delegation.
+     */
+    private static function processRoute($name, $route, $q, $appname, $ymlFile): ?array
     {
-        $data = self::getDb();
+        $remaining = ltrim(substr($q, strlen($name)), '/');
+
+        // Case A: Delegate to another App
+        if ($remaining !== '' && isset($route['app'])) {
+            return self::resolvePage($remaining, $route['app']);
+        }
+
+        // Case B: Delegate to another YAML file
+        if ($remaining !== '' && isset($route['subpages'])) {
+            $subpagesFile = $route['subpages'];
+            if (!str_starts_with($subpagesFile, '/') && !str_contains($subpagesFile, ':')) {
+                $subpagesFile = dirname($ymlFile) . SPP_DS . $subpagesFile;
+            }
+            return self::findPageInYaml($remaining, $appname, $subpagesFile);
+        }
+
+        // Case C: Resolve as a direct page
+        if (isset($route['url'])) {
+            return self::buildPage($name, $route['url'], $q);
+        }
+
+        return null;
+    }
+
+    /** @return array|null Matched page array or null */
+    private static function findPageInDb(string $q, string $appname = null): ?array
+    {
+        $data = self::getDb($appname);
         foreach ($data['pages'] as $row) {
             if (substr_compare(trim($row['name']), $q, 0, strlen($row['name'])) === 0) {
                 return self::buildPage($row['name'], $row['url'], $q);
             }
         }
+
+        // --- Entity Routing (CMS Aliases) ---
+        return self::findPageInEntities($q, $appname);
+    }
+
+    /**
+     * Searches for routes in custom entity tables (e.g. CMS nodes).
+     * Requests routeable entities from SPPDB to ensure centralized DB logic.
+     */
+    private static function findPageInEntities(string $q, string $appname = null): ?array
+    {
+        $entities = \SPPMod\SPPDB\SPPDB::getRouteEntities();
+        
+        if (empty($entities)) {
+            return null;
+        }
+
+        $db = new \SPPMod\SPPDB\SPPDB();
+
+        foreach ($entities as $table => $e) {
+            $field = $e['field'] ?? 'alias';
+            $url   = $e['url'] ?? '';
+            
+            if (empty($url)) {
+                continue;
+            }
+
+            $res = $db->execute_query("SELECT * FROM " . \SPPMod\SPPDB\SPPDB::sppTable($table) . " WHERE {$field} = ?", [$q]);
+            if ($res && count($res) > 0) {
+                $row = $res[0];
+                $pg = self::buildPage($q, $url, $q);
+                // Attach the full entity record
+                $pg['entity'] = $row;
+                $pg['entity_table'] = $table;
+                if (isset($e['id_field']) && isset($row[$e['id_field']])) {
+                    $pg['params'][] = $row[$e['id_field']];
+                }
+                return $pg;
+            }
+        }
+
         return null;
     }
 
@@ -224,9 +332,9 @@ class Pages extends \SPP\SPPObject
     }
 
     /** @return string|null Special route URL or null */
-    private static function findSpecialInYaml(string $spl, string $q): ?array
+    private static function findSpecialInYaml(string $spl, string $q, string $appname = null): ?array
     {
-        $yaml = self::getYaml();
+        $yaml = self::getYaml(self::getAppPagesFile($appname));
         foreach ($yaml['specials'] ?? [] as $special) {
             if ($special['name'] === $spl) {
                 return self::dispatchSpecial($special['method'], $q);
@@ -236,9 +344,9 @@ class Pages extends \SPP\SPPObject
     }
 
     /** @return array|null Special route result or null */
-    private static function findSpecialInDb(string $spl, string $q): ?array
+    private static function findSpecialInDb(string $spl, string $q, string $appname = null): ?array
     {
-        $data = self::getDb();
+        $data = self::getDb($appname);
         foreach ($data['specials'] as $row) {
             if ($row['name'] === $spl) {
                 return self::dispatchSpecial($row['method'], $q);
@@ -282,19 +390,8 @@ class Pages extends \SPP\SPPObject
         $q = (isset($_GET['q']) && $_GET['q'] != null) ? $_GET['q'] : $page;
         $q = ($page === null) ? $q : $page;
 
-        [$primary, $fallback] = self::getSources();
-        $spl = explode('/', $q)[0];
-
-        // --- Specials ---
-        $result = self::trySourceSpecial($primary, $spl, $q)
-               ?? self::trySourceSpecial($fallback, $spl, $q);
-        if ($result !== null) {
-            return $result;
-        }
-
-        // --- Regular pages ---
-        $result = self::trySourcePage($primary, $q)
-               ?? self::trySourcePage($fallback, $q);
+        $result = self::resolvePage($q, \SPP\Scheduler::getContext());
+        
         if ($result !== null) {
             return $result;
         }
@@ -307,17 +404,37 @@ class Pages extends \SPP\SPPObject
         return ['url' => '', 'params' => [], 'named_params' => [], 'special' => 0];
     }
 
-    private static function trySourceSpecial(string $source, string $spl, string $q): ?array
+    /**
+     * Core recursive resolution logic.
+     */
+    private static function resolvePage(string $q, string $appname, string $ymlFile = null): ?array
     {
-        if ($source === 'yaml') return self::findSpecialInYaml($spl, $q);
-        if ($source === 'db')   return self::findSpecialInDb($spl, $q);
+        [$primary, $fallback] = self::getSources($appname);
+        $spl = explode('/', $q)[0];
+
+        // --- Specials ---
+        $result = self::trySourceSpecial($primary, $spl, $q, $appname)
+               ?? self::trySourceSpecial($fallback, $spl, $q, $appname);
+        if ($result !== null) return $result;
+
+        // --- Regular pages ---
+        $result = self::trySourcePage($primary, $q, $appname, $ymlFile)
+               ?? self::trySourcePage($fallback, $q, $appname, $ymlFile);
+        
+        return $result;
+    }
+
+    private static function trySourceSpecial(string $source, string $spl, string $q, string $appname = null): ?array
+    {
+        if ($source === 'yaml') return self::findSpecialInYaml($spl, $q, $appname);
+        if ($source === 'db')   return self::findSpecialInDb($spl, $q, $appname);
         return null;
     }
 
-    private static function trySourcePage(string $source, string $q): ?array
+    private static function trySourcePage(string $source, string $q, string $appname, string $ymlFile = null): ?array
     {
-        if ($source === 'yaml') return self::findPageInYaml($q);
-        if ($source === 'db')   return self::findPageInDb($q);
+        if ($source === 'yaml') return self::findPageInYaml($q, $appname, $ymlFile);
+        if ($source === 'db')   return self::findPageInDb($q, $appname);
         return null;
     }
 
@@ -333,6 +450,14 @@ class Pages extends \SPP\SPPObject
 
         if ($val !== null) {
             return $val;
+        }
+
+        // Hardcoded Framework Defaults to avoid breaking new apps
+        if ($def === 'pagedir') {
+            return '/src/' . \SPP\Scheduler::getContext();
+        }
+        if ($def === 'home') {
+            return 'index';
         }
 
         $arr = ['def' => $def];
@@ -365,6 +490,45 @@ class Pages extends \SPP\SPPObject
     {
         $dir = self::getDefault('filesdir');
         return self::stripAndJoin($dir, $url);
+    }
+
+    /**
+     * Standard asset server with MIME detection and headers.
+     * Use as a special method in pages.yml.
+     */
+    public static function serveResource($q): string
+    {
+        $file = self::getResource($q);
+        $fullPath = SPP_APP_DIR . $file;
+
+        if (file_exists($fullPath) && is_file($fullPath)) {
+            $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
+            $mimes = [
+                'js'   => 'application/javascript',
+                'css'  => 'text/css',
+                'png'  => 'image/png',
+                'jpg'  => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'gif'  => 'image/gif',
+                'svg'  => 'image/svg+xml',
+                'json' => 'application/json',
+                'txt'  => 'text/plain',
+                'pdf'  => 'application/pdf',
+                'woff' => 'font/woff',
+                'woff2'=> 'font/woff2',
+                'ttf'  => 'font/ttf'
+            ];
+
+            $mime = $mimes[$ext] ?? 'application/octet-stream';
+            header("Content-Type: $mime");
+            header("Content-Length: " . filesize($fullPath));
+            readfile($fullPath);
+            exit;
+        }
+
+        header("HTTP/1.0 404 Not Found");
+        echo "Resource not found: " . htmlspecialchars($q);
+        exit;
     }
 
     private static function stripAndJoin(string $dir, string $url): string
@@ -429,9 +593,9 @@ class Pages extends \SPP\SPPObject
      */
     public static function clearCache(): void
     {
-        self::$yamlCache = null;
-        self::$dbCache   = null;
-        self::$sources   = null;
+        self::$yamlFileCache = [];
+        self::$dbAppCache   = [];
+        self::$sourceAppCache = [];
     }
 
     /**

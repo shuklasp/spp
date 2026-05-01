@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="products"><_meta><next_id>6</next_id></_meta>
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="name" type="varchar"/>
+    <column name="category" type="varchar"/>
+    <column name="price" type="int"/>
+  </_schema>
+<row id="1"><name>Laptop</name><category>Electronics</category><price>1200</price><id>1</id></row><row id="2"><name>Phone</name><category>Electronics</category><price>800</price><id>2</id></row><row id="3"><name>Shirt</name><category>Apparel</category><price>25</price><id>3</id></row><row id="4"><name>Pants</name><category>Apparel</category><price>45</price><id>4</id></row><row id="5"><name>Watch</name><category>Electronics</category><price>200</price><id>5</id></row></database>

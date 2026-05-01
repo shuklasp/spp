@@ -48,10 +48,16 @@ if (!checkDevMode()) {
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/login.css?v=<?php echo time(); ?>">
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="images/spp-logo.jpg">
+
+    <!-- SPP-UX Infrastructure (Centralized) -->
+    <link rel="stylesheet" href="<?php echo \SPPMod\SPPUX\SPPUX::cssPath(); ?>?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="../res/css/sppforms.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
+    
+    <!-- SPP Modern Form Engine Master Loader -->
+    <script src="../res/js/sppforms.js?v=<?php echo time(); ?>"></script>
 </head>
 
 <body data-theme="night">
@@ -128,6 +134,23 @@ if (!checkDevMode()) {
                     <li><a href="#routing" class="nav-item" data-view="routing">
                             <span class="icon">🔗</span> Routing
                         </a></li>
+                    <li><a href="#xdb" class="nav-item" data-view="xdb">
+                            <span class="icon">🗄️</span> XML Database
+                        </a></li>
+                    
+                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Diagnostics</div>
+
+                    <li><a href="#config" class="nav-item" data-view="config">
+                            <span class="icon">⚙️</span> Config
+                        </a></li>
+                    <li><a href="#trace" class="nav-item" data-view="trace">
+                            <span class="icon">🛰️</span> Trace
+                        </a></li>
+                    <li><a href="#services" class="nav-item" data-view="services">
+                            <span class="icon">🔌</span> Services
+                        </a></li>
+                    <div id="dynamic-nav-items"></div>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -186,8 +209,9 @@ if (!checkDevMode()) {
     <!-- Global Portal for dynamic overlays (avoids modal stacking context issues) -->
     <div id="global-suggestions" class="suggestions-list"></div>
 
-    <!-- Framework Infrastructure (Standard Scripts for maximum compatibility) -->
-    <script src="js/sppux.js?v=<?php echo time(); ?>"></script>
+    <!-- Framework Infrastructure (Centralized) -->
+    <script src="<?php echo \SPPMod\SPPUX\SPPUX::runtimePath(); ?>?v=<?php echo time(); ?>"></script>
+    <script src="<?php echo \SPPMod\SPPUX\SPPUX::uiPath(); ?>?v=<?php echo time(); ?>"></script>
     <script src="js/admin.js?v=<?php echo time(); ?>"></script>
     <!-- Schema-based module settings enhancement (overrides openModuleSettings only) -->
     <script src="js/admin-settings.js?v=<?php echo time(); ?>"></script>

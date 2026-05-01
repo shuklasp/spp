@@ -1,0 +1,125 @@
+<?php
+namespace SPPMod\Lekhak\Core;
+
+/**
+ * Class Renderer
+ * The central orchestrator for the Lekhak Polyglot Pipeline.
+ */
+class Renderer
+{
+    protected array $filters = [];
+    protected array $drivers = [];
+    protected static ?Renderer $instance = null;
+
+    public function __construct()
+    {
+        // Trigger event to allow other modules to register filters
+        $params = ['renderer' => $this];
+        \SPP\SPPEvent::fireEvent('lekhak_render_pipeline', $params);
+        $this->sortFilters();
+    }
+
+    public static function getInstance(): Renderer
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Add a filter to the pipeline.
+     */
+    public function addFilter(FilterInterface $filter): void
+    {
+        $this->filters[] = $filter;
+    }
+
+    /**
+     * Register a template driver (Blade, Twig, etc.)
+     */
+    public function registerDriver(string $type, callable $driver): void
+    {
+        $this->drivers[$type] = $driver;
+    }
+
+    /**
+     * The main render method.
+     */
+    public function render(string $templatePath, array $data = []): string
+    {
+        $content = file_get_contents($templatePath);
+        $type = pathinfo($templatePath, PATHINFO_EXTENSION);
+        if (str_ends_with($templatePath, '.blade.php')) {
+            $type = 'blade';
+        }
+
+        $context = [
+            'path' => $templatePath,
+            'type' => $type,
+            'data' => $data
+        ];
+
+        // 1. Pre-Processing
+        foreach ($this->filters as $filter) {
+            $filter->preProcess($content, $context);
+        }
+
+        // 2. Logic Execution (Polyglot Dispatch)
+        $output = $this->dispatchRendering($content, $context);
+
+        // 3. Post-Processing
+        foreach ($this->filters as $filter) {
+            $filter->postProcess($output, $context);
+        }
+
+        return $output;
+    }
+
+    protected function dispatchRendering(string $content, array $context): string
+    {
+        $type = $context['type'];
+        
+        // If we have a specific driver for this type, use it
+        if (isset($this->drivers[$type])) {
+            $result = ($this->drivers[$type])($content, $context['data'], $context);
+            if ($result !== null) {
+                return $result;
+            }
+        }
+
+        // Fallback: Check for Blade (Native)
+        if ($type === 'blade' || $type === 'php') {
+            return $this->renderPhp($content, $context['data']);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Simple native PHP/Blade renderer (Zero Dependency fallback)
+     */
+    protected function renderPhp(string $content, array $data): string
+    {
+        extract($data);
+        ob_start();
+        
+        // We write the pre-processed content to a temporary file to include it
+        // In a real high-perf scenario, we'd use a cache directory
+        $tmpFile = tempnam(sys_get_temp_dir(), 'lekhak_');
+        file_put_contents($tmpFile, $content);
+        
+        try {
+            include $tmpFile;
+        } finally {
+            unlink($tmpFile);
+        }
+
+        return ob_get_clean();
+    }
+
+    protected function sortFilters(): void
+    {
+        usort($this->filters, fn($a, $b) => $a->getPriority() <=> $b->getPriority());
+    }
+}

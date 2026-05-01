@@ -60,6 +60,12 @@ class SPPEntity implements \JsonSerializable
           'attributes' => []
       ];
 
+      // Check for hardcoded properties on the class as higher-priority defaults
+      $defaultProps = $reflection->getDefaultProperties();
+      if (isset($defaultProps['table'])) $config['table'] = $defaultProps['table'];
+      if (isset($defaultProps['id_field'])) $config['id_field'] = $defaultProps['id_field'];
+      if (isset($defaultProps['sequence'])) $config['sequence'] = $defaultProps['sequence'];
+
       self::$_metadata[$class] = &$config;
 
       if ($yml_file !== false) {
@@ -92,6 +98,10 @@ class SPPEntity implements \JsonSerializable
               foreach ($ymlData['attributes'] as $k => $v) {
                   $config['attributes'][$k] = $v;
               }
+          }
+
+          if (isset($ymlData['validation']) && is_array($ymlData['validation'])) {
+              $config['validation'] = $ymlData['validation'];
           }
 
           // Merge profile attribute
@@ -186,7 +196,7 @@ class SPPEntity implements \JsonSerializable
       return self::$_metadata[static::class][$key] ?? $default;
   }
 
-  protected static function setMetadata(string $key, $value)
+  public static function setMetadata(string $key, $value)
   {
       self::$_metadata[static::class][$key] = $value;
   }
@@ -765,7 +775,15 @@ class SPPEntity implements \JsonSerializable
    */
   public function save()
   {
+    $this->defensiveCleanup();
     $this->before_save();
+
+    // Model-level Validation
+    $vResult = $this->validate();
+    if (!$vResult->isValid()) {
+        throw new \SPP\Exceptions\EntityValidationException($vResult);
+    }
+
     if ($this->id == null) {
       $new_id = $this->insert();
       \SPPMod\SPPAudit\SPPAudit::log(static::class, $new_id, 'create', null, $this->_values);
@@ -777,6 +795,24 @@ class SPPEntity implements \JsonSerializable
       $this->after_save();
       return $this->id;
     }
+  }
+
+  /**
+   * Validates the entity based on metadata rules.
+   * @return \SPPMod\SPPView\ValidationResult
+   */
+  public function validate(): \SPPMod\SPPView\ValidationResult
+  {
+      $rules = self::getMetadata('validation', []);
+      if (empty($rules)) {
+          return new \SPPMod\SPPView\ValidationResult();
+      }
+
+      // Use modernized ViewValidator in silent mode
+      $validator = new \SPPMod\SPPView\ViewValidator();
+      $validator->setSilent(true);
+      
+      return $validator->validateAll($this->_values, $rules);
   }
 
   /**
@@ -806,7 +842,13 @@ class SPPEntity implements \JsonSerializable
     $db = new \SPPMod\SPPDB\SPPDB();
     $new_id = $this->createId();
     $this->id = $new_id;
-    $val_array = array_merge(array($this->getMetadata('id_field') => $new_id), $this->_values);
+    $attributes = $this->getAttributes();
+    $val_array = array($this->getMetadata('id_field') => $new_id);
+    foreach ($this->_values as $k => $v) {
+        if (array_key_exists($k, $attributes)) {
+            $val_array[$k] = $v;
+        }
+    }
     
     if (class_exists('\\SPPMod\\SPPAI\\SPPAI') && $this->attributeExists('ai_vector')) {
         $val_array['ai_vector'] = json_encode(\SPPMod\SPPAI\SPPAI::createEmbedding(json_encode($this->_values)));
@@ -1036,6 +1078,36 @@ class SPPEntity implements \JsonSerializable
       $entities[] = $entity;
     }
     return $entities;
+  }
+
+  /**
+   * Internal Defensive Logic: Sanitizes and truncates data to prevent DB crashes.
+   */
+  protected function defensiveCleanup()
+  {
+      $attributes = $this->getAttributes();
+      foreach ($this->_values as $key => &$value) {
+          if (!isset($attributes[$key])) continue;
+          $type = strtolower($attributes[$key]);
+
+          // 1. Unicode Resilience: Ensure valid UTF-8 and strip dangerous control chars
+          if (is_string($value)) {
+              $value = mb_convert_encoding($value, 'UTF-8', 'UTF-8');
+              // If it's a date field, and it has emojis/trash, clean it strictly!
+              if (strpos($key, 'at') !== false || strpos($key, 'date') !== false || strpos($type, 'date') !== false) {
+                  $value = preg_replace('/[^\x20-\x7E]/', '', $value); // Strict ASCII for dates
+              }
+          }
+
+          // 2. Soft Truncation: Based on DB type (heuristics)
+          if (strpos($type, 'varchar') !== false || strpos($type, 'string') !== false) {
+              $len = 255; // Default safe length
+              if (preg_match('/\((\d+)\)/', $type, $matches)) {
+                  $len = (int)$matches[1];
+              }
+              if (strlen((string)$value) > $len) $value = substr((string)$value, 0, $len);
+          }
+      }
   }
 }
 

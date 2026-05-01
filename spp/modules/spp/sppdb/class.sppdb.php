@@ -49,7 +49,9 @@ class SPPDB
             $prefix = \SPP\Module::getConfig('table_prefix', 'sppdb', 'default');
         }
 
-        return ($prefix ?: '') . $tname;
+        $finalTable = ($prefix ?: '') . $tname;
+        error_log("SPPDB DEBUG: Resolved table '$tname' to '$finalTable' for context '$context' with prefix '$prefix'");
+        return $finalTable;
     }
 
     /**
@@ -202,6 +204,47 @@ class SPPDB
     }
 
     /**
+     * Returns metadata for all routeable entities in the current context.
+     * Centralizes entity registration within SPPDB.
+     */
+    public static function getRouteEntities(): array
+    {
+        // 1. Load app-specific entities from the module config (context-aware)
+        $entities = \SPP\Module::getConfig('route_entities', 'sppdb') ?: [];
+        
+        // 2. Load shared entities from global-settings.yml
+        $settings = self::loadGlobalSettings();
+        $context = \SPP\Scheduler::getContext();
+        $appMeta = $settings['apps'][$context] ?? null;
+        
+        if ($appMeta && !empty($appMeta['shared_group'])) {
+            $sharedEntities = self::resolveRouteEntities($appMeta['shared_group'], $settings['shared_groups'] ?? []);
+            $entities = array_merge($sharedEntities, $entities);
+        }
+        
+        return $entities;
+    }
+
+    /**
+     * Recursively resolves routeable entities through shared group inheritance.
+     */
+    private static function resolveRouteEntities(string $groupName, array $groups): array
+    {
+        if (!isset($groups[$groupName])) {
+            return [];
+        }
+        
+        $group = $groups[$groupName];
+        $entities = $group['route_entities'] ?? [];
+        
+        if (!empty($group['extends'])) {
+            $entities = array_merge(self::resolveRouteEntities($group['extends'], $groups), $entities);
+        }
+        
+        return $entities;
+    }
+
+    /**
      * Proxy unknown method calls to the underlying PDO instance.
      */
     public function __call($name, $arguments)
@@ -284,9 +327,9 @@ class SPPDB
     {
         $result = array();
         try {
-            if (sizeof($values) > 0) {
+            if (count((array)$values) > 0) {
                 $stmt = $this->prepare($sql);
-                $stmt->execute($values);
+                $stmt->execute((array)$values);
                 $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
             } else {
                 $stmt = $this->query($sql);
@@ -312,10 +355,36 @@ class SPPDB
     public function add_columns($table, $cols = array())
     {
         foreach ($cols as $col => $type) {
-            $col = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
-            $type = preg_replace('/[^a-zA-Z0-9_\(\)\s,]/', '', $type);
-            if (!$this->columnExists($table, $col)) {
-                $sql = 'alter table %tab% add ' . $col . ' ' . $type;
+            $upperCol = strtoupper($col);
+            
+            // 1. Handle Special Constraints (PRIMARY KEY, UNIQUE KEY)
+            if ($upperCol === 'PRIMARY KEY' || $upperCol === 'PRIMARYKEY') {
+                try {
+                    // Check if PK already exists to avoid noisey errors
+                    // Simplified: We try to add it, if it fails it's usually already there
+                    $sql = "ALTER TABLE %tab% ADD PRIMARY KEY {$type}";
+                    $this->exec_squery($sql, $table);
+                } catch (\Exception $e) {
+                    // Already exists or structural conflict
+                }
+                continue;
+            }
+
+            if ($upperCol === 'UNIQUE KEY' || $upperCol === 'UNIQUE') {
+                try {
+                    $sql = "ALTER TABLE %tab% ADD UNIQUE {$type}";
+                    $this->exec_squery($sql, $table);
+                } catch (\Exception $e) {
+                }
+                continue;
+            }
+
+            // 2. Handle Normal Columns
+            $colSafe = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
+            $typeSafe = preg_replace('/[^a-zA-Z0-9_\(\)\s,]/', '', $type);
+            
+            if (!$this->columnExists($table, $colSafe)) {
+                $sql = 'alter table %tab% add ' . $colSafe . ' ' . $typeSafe;
                 $this->exec_squery($sql, $table);
             }
         }
@@ -466,9 +535,21 @@ class SPPDB
     public function createTableIncremental(string $tableName, array $columns)
     {
         if (!$this->tableExists($tableName)) {
-            // Create base table with the first column
-            $firstCol = array_key_first($columns);
-            $firstType = $columns[$firstCol];
+            // Create base table with the first REAL column (skipping constraints)
+            $firstCol = null;
+            $firstType = null;
+            foreach ($columns as $c => $t) {
+                $uc = strtoupper($c);
+                if ($uc !== 'PRIMARY KEY' && $uc !== 'PRIMARYKEY' && $uc !== 'UNIQUE KEY' && $uc !== 'UNIQUE') {
+                    $firstCol = $c;
+                    $firstType = $t;
+                    break;
+                }
+            }
+
+            if (!$firstCol) {
+                throw new \Exception("Cannot create table {$tableName}: no valid columns defined.");
+            }
             
             // Clean names for raw SQL
             $tableNameSafe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName);
@@ -482,7 +563,7 @@ class SPPDB
             $this->exec($sql);
         }
         
-        // Use existing add_columns to fill in the rest
+        // Use existing add_columns to fill in the rest (including constraints)
         $this->add_columns($tableName, $columns);
     }
 

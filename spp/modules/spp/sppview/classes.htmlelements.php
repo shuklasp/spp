@@ -46,7 +46,7 @@ class SPP_HTML_Ul extends SPP_HTML_Element{
         $this->list[]=new SPP_HTML_Li($this->attributes['name'].'li'.sizeof($this->list),$item);
     }
 
-    public function getHTML()
+    public function getHTML(): string
     {
         $htm=parent::getHTML();
         foreach($this->list as $lst)
@@ -73,7 +73,7 @@ class SPP_HTML_Ol extends SPP_HTML_Element{
         $this->list[]=new SPP_HTML_Li($this->attributes['name'].'li'.sizeof($this->list),$item);
     }
 
-    public function getHTML()
+    public function getHTML(): string
     {
         $htm=parent::getHTML();
         foreach($this->list as $lst)
@@ -95,7 +95,7 @@ class SPP_HTML_Li extends SPP_HTML_Element{
         $this->attrlist=array();
     }
 
-    public function getHTML()
+    public function getHTML(): string
     {
         $htm=parent::getHTML();
         $htm.=$this->content;

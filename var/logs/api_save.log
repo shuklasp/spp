@@ -1,0 +1,15 @@
+[2026-04-29 01:39:58] MODULE DEBUG: setAllConfigForApp saved to C:\projects\apache\school1\spp/etc/apps/lekhak/modsconf/sppdb/config.yml. Vars: 1
+[2026-04-29 10:54:33] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak1","sqlite_path":"var/db/lekhak_app.sqlite","table_prefix":"lhk_"}
+[2026-04-29 10:54:34] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/spp/etc/apps/lekhak/modsconf/sppdb/config.yml. Vars: 7
+[2026-04-29 10:54:56] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak","sqlite_path":"var/db/lekhak_app.sqlite","table_prefix":"lhk_"}
+[2026-04-29 10:54:56] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/spp/etc/apps/lekhak/modsconf/sppdb/config.yml. Vars: 7
+[2026-04-29 11:10:24] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak1","sqlite_path":"var/db/lekhak_app.sqlite","table_prefix":"lhk_"}
+[2026-04-29 11:10:24] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/spp/etc/apps/lekhak/modsconf/sppdb/config.yml. Vars: 7
+[2026-04-29 11:10:47] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak","sqlite_path":"var/db/lekhak_app.sqlite","table_prefix":"lhk_"}
+[2026-04-29 11:10:47] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/spp/etc/apps/lekhak/modsconf/sppdb/config.yml. Vars: 7
+[2026-04-30 06:10:18] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak","sqlite_path":"var/db/school.sqlite","table_prefix":"lek_"}
+[2026-04-30 06:10:20] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/src/lekhak/etc/modsconf/sppdb/config.yml. Vars: 7
+[2026-04-30 10:20:04] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbport":"3307","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak1","sqlite_path":"var/db/school.sqlite","table_prefix":"lek_"}
+[2026-04-30 10:20:07] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/src/lekhak/etc/modsconf/sppdb/config.yml. Vars: 8
+[2026-04-30 10:20:35] API DEBUG: save_module_config mod=sppdb app=lekhak data={"dbtype":"mysql","dbhost":"localhost","dbport":"3307","dbuser":"root","dbpasswd":"hello123","dbname":"lekhak","sqlite_path":"var/db/school.sqlite","table_prefix":"lek_"}
+[2026-04-30 10:20:37] MODULE DEBUG: setAllConfigForApp saved to /mnt/c/projects/apache/school1/src/lekhak/etc/modsconf/sppdb/config.yml. Vars: 8

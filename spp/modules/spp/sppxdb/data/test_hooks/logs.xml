@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>2</next_id>
+  </_meta>
+  <row id="1">
+    <msg>Updated Msg</msg>
+    <timestamp>2026-05-01 14:41:37</timestamp>
+    <id>1</id>
+  </row>
+</database>

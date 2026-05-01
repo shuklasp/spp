@@ -1,0 +1,13 @@
+# Lekhak Admin Routes
+admin:
+  url: resources/views/standalone-admin.blade.php
+  special: 1
+
+admin-api:
+  url: resources/admin-api.php
+  special: 1
+
+# Default frontend
+index:
+  url: resources/views/index.blade.php
+  special: 1

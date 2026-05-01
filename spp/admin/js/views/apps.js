@@ -85,7 +85,7 @@ export default class AppsView extends BaseComponent {
                     <div class="empty-icon">⚠️</div>
                     <h3>Error</h3>
                     <p>${error}</p>
-                    <button class="btn primary-btn btn-sm mt-4" onclick="${() => this.loadData()}">🔄 Retry Connection</button>
+                    <button class="btn primary-btn btn-sm mt-4" @click=${() => this.loadData()}>🔄 Retry Connection</button>
                 </div>`;
         }
 
@@ -93,9 +93,9 @@ export default class AppsView extends BaseComponent {
             <div class="apps-view">
                 <div class="tab-bar-secondary">
                     <button class="sub-tab-btn ${activeTab === 'apps' ? 'active' : ''}" 
-                        onclick="${() => this.setTab('apps')}">📱 Applications</button>
+                        @click=${() => this.setTab('apps')}>📱 Applications</button>
                     <button class="sub-tab-btn ${activeTab === 'groups' ? 'active' : ''}" 
-                        onclick="${() => this.setTab('groups')}">👥 Shared Groups</button>
+                        @click=${() => this.setTab('groups')}>👥 Shared Groups</button>
                 </div>
 
                 <div class="apps-content">
@@ -120,13 +120,10 @@ export default class AppsView extends BaseComponent {
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th>Application</th>
-                                <th>Project Structure</th>
-                                <th>Base URL</th>
-                                <th>Prefix</th>
-                                <th>Sharing</th>
-                                <th>Database</th>
-                                <th class="text-right">Actions</th>
+                                <th style="width: 40%;">Application</th>
+                                <th style="width: 25%;">Base URL</th>
+                                <th style="width: 15%;">Prefix</th>
+                                <th class="text-right" style="width: 200px;">Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -135,11 +132,11 @@ export default class AppsView extends BaseComponent {
                                 return html`
                                     <tr class="${isExpanded ? 'expanded-row' : ''}">
                                         <td>
-                                            <div class="app-identity">
-                                                <label class="icon-radio-wrap" title="Set as Primary Base Application">
+                                            <div class="app-identity" style="display: flex; align-items: center; gap: 12px;">
+                                                <label class="icon-radio-wrap" title="Set as Primary Base Application" style="margin-bottom: 0;">
                                                     <input type="radio" name="base-app-selector" value="${app.name}" 
                                                         ?checked="${app.is_base_app}" 
-                                                        onchange="${() => this.setBaseApp(app.name)}">
+                                                        @change=${() => this.setBaseApp(app.name)}>
                                                     <div class="app-icon ${app.is_base_app ? 'active' : ''}">🚀</div>
                                                 </label>
                                                 <div class="app-name-wrap">
@@ -151,47 +148,33 @@ export default class AppsView extends BaseComponent {
                                             </div>
                                         </td>
                                         <td>
-                                            <div class="path-toggle-cell">
-                                                <button class="btn btn-icon-sm toggle-path-btn" 
-                                                    onclick="${() => this.togglePath(app.name)}" 
-                                                    title="Toggle System Paths">
-                                                    ${isExpanded ? '📂' : '📁'}
-                                                </button>
-                                                <div class="path-details ${isExpanded ? 'visible' : 'hidden'}">
-                                                    <div class="path-row"><strong>Etc:</strong> <code>${app.etc_path}</code></div>
-                                                    <div class="path-row"><strong>Src:</strong> <code>${app.src_path}</code></div>
-                                                </div>
-                                                ${!isExpanded ? html`<span class="path-hint">${this.admin.truncatePath(app.etc_path, 30)}</span>` : ''}
-                                            </div>
-                                        </td>
-                                        <td>
                                             <div class="url-cell">
                                                 <code class="code-badge primary">${app.base_url || '/'}</code>
                                             </div>
                                         </td>
                                         <td><code class="code-badge warning">${app.table_prefix || '(none)'}</code></td>
-                                        <td>
-                                            ${app.shared_group ? 
-                                                html`<span class="tag info-tag">${app.shared_group}</span>` : 
-                                                html`<span class="tag muted-tag">Private</span>`}
-                                        </td>
-                                        <td>
-                                            <div class="db-status">
-                                                ${app.db_config ? 
-                                                    html`<span class="badge warning" title="${app.db_config.dbname}">Custom DB</span>` : 
-                                                    html`<span class="badge success">Default DB</span>`}
-                                            </div>
-                                        </td>
                                         <td class="text-right">
-                                            <button class="btn ghost-btn btn-sm" 
-                                                onclick="${() => this.openAppEditor(app.name)}">
-                                                ⚙️ Configure
-                                            </button>
+                                            <div class="btn-group-horizontal" style="justify-content: flex-end;">
+                                                ${app.has_admin ? html`
+                                                    <button class="btn primary-btn btn-sm" 
+                                                        @click=${() => this.manageApp(app.name)} title="Manage Application">
+                                                        🛠️ Manage
+                                                    </button>
+                                                ` : ''}
+                                                <button class="btn ghost-btn btn-sm" 
+                                                    @click=${() => this.showAppInfo(app)} title="View Configuration">
+                                                    👁️ Show
+                                                </button>
+                                                <button class="btn ghost-btn btn-sm" 
+                                                    @click=${() => this.openAppEditor(app.name)} title="Configure Application">
+                                                    ⚙️ Configure
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 `;
                             })}
-                            ${apps.length === 0 ? html`<tr><td colspan="7" class="empty-row">No applications detected in registry.</td></tr>` : ''}
+                            ${apps.length === 0 ? html`<tr><td colspan="4" class="empty-row">No applications detected in registry.</td></tr>` : ''}
                         </tbody>
                     </table>
                 </div>
@@ -209,7 +192,7 @@ export default class AppsView extends BaseComponent {
                     <div class="header-main">
                         <h3 class="gradient-text">Shared Resource Groups</h3>
                         <button class="btn primary-btn btn-sm" id="add-group-btn" 
-                            onclick="${() => this.openGroupEditor()}">+ New Group</button>
+                            @click=${() => this.openGroupEditor()}>+ New Group</button>
                     </div>
                 </div>
                 <div class="table-container">
@@ -243,10 +226,10 @@ export default class AppsView extends BaseComponent {
                                     <td class="actions-cell">
                                         <div class="btn-group-horizontal">
                                             <button class="btn ghost-btn btn-sm" 
-                                                onclick="${() => this.openGroupEditor(name)}" 
+                                                @click=${() => this.openGroupEditor(name)} 
                                                 title="Edit Resource Group">✏️ Edit</button>
                                             <button class="btn danger-ghost-btn btn-sm" 
-                                                onclick="${() => this.deleteGroup(name)}" 
+                                                @click=${() => this.deleteGroup(name)} 
                                                 title="Delete Resource Group">🗑️ Delete</button>
                                         </div>
                                     </td>
@@ -258,6 +241,22 @@ export default class AppsView extends BaseComponent {
                 </div>
             </div>
         `;
+    }
+
+    async manageApp(appName) {
+        this.admin.selectedApp = appName;
+        localStorage.setItem('spp_admin_selected_app', appName);
+        this.admin.onAppContextChange(appName); // Synchronize context across the UI
+        
+        // Use app-specific hash if it exists, otherwise generic 'manage'
+        const app = this.state.apps.find(a => a.name === appName);
+        if (app && app.has_admin) {
+            location.hash = appName;
+        } else {
+            location.hash = 'manage';
+        }
+        
+        this.admin.notify(`Switched to ${appName} Management`, 'success');
     }
 
     async setBaseApp(appName) {
@@ -331,41 +330,83 @@ export default class AppsView extends BaseComponent {
                     </div>
                 </div>
             </details>
-        `.toString());
-
-        document.getElementById('modal-save').onclick = async () => {
-            const config = {
-                base_url: document.getElementById('app-base-url').value.trim(),
-                table_prefix: document.getElementById('app-table-prefix').value.trim(),
-                shared_group: document.getElementById('app-shared-group').value,
-                etc_path: document.getElementById('app-etc-path').value.trim(),
-                src_path: document.getElementById('app-src-path').value.trim(),
-            };
-
-            const dbname = document.getElementById('app-dbname').value.trim();
-            if (dbname) {
-                config.db_config = {
-                    dbhost: document.getElementById('app-dbhost').value.trim() || 'localhost',
-                    dbname: dbname,
-                    dbuser: document.getElementById('app-dbuser').value.trim(),
-                    dbpasswd: document.getElementById('app-dbpasswd').value
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+            { label: 'Save Changes', type: 'primary', fn: async () => {
+                const config = {
+                    base_url: document.getElementById('app-base-url').value.trim(),
+                    table_prefix: document.getElementById('app-table-prefix').value.trim(),
+                    shared_group: document.getElementById('app-shared-group').value,
+                    etc_path: document.getElementById('app-etc-path').value.trim(),
+                    src_path: document.getElementById('app-src-path').value.trim(),
                 };
-            }
 
-            const fd = new FormData();
-            fd.append('target_app', appName);
-            fd.append('config', JSON.stringify(config));
+                const dbname = document.getElementById('app-dbname').value.trim();
+                if (dbname) {
+                    config.db_config = {
+                        dbhost: document.getElementById('app-dbhost').value.trim() || 'localhost',
+                        dbname: dbname,
+                        dbuser: document.getElementById('app-dbuser').value.trim(),
+                        dbpasswd: document.getElementById('app-dbpasswd').value
+                    };
+                }
 
-            // Global API action
-            const res = await this.api.saveAppConfig(fd);
-            if (res.success) {
-                this.admin.notify('Application configuration updated.', 'success');
-                this.admin.closeModal();
-                await this.loadData();
-            } else {
-                this.admin.notify(res.message || 'Update failed', 'error');
-            }
-        };
+                const fd = new FormData();
+                fd.append('target_app', appName);
+                fd.append('config', JSON.stringify(config));
+
+                const res = await this.api.saveAppConfig(fd);
+                if (res.success) {
+                    this.admin.notify('Application configuration updated.', 'success');
+                    this.admin.closeModal();
+                    await this.loadData();
+                } else {
+                    this.admin.notify(res.message || 'Update failed', 'error');
+                }
+            }}
+        ]);
+    }
+
+    showAppInfo(app) {
+        this.admin.openModal(`Application Details: ${app.name}`, html`
+            <div class="app-info-modal">
+                <div class="info-section">
+                    <h4>Overview</h4>
+                    <div class="info-grid">
+                        <div class="info-item"><strong>Name:</strong> <span>${app.name}</span></div>
+                        <div class="info-item"><strong>Type:</strong> <span>${app.is_base_app ? 'Primary / Base Application' : 'Standard Module'}</span></div>
+                        <div class="info-item"><strong>Base URL:</strong> <code class="code-badge">${app.base_url || '/'}</code></div>
+                        <div class="info-item"><strong>Table Prefix:</strong> <code class="code-badge warning">${app.table_prefix || '(none)'}</code></div>
+                    </div>
+                </div>
+
+                <div class="info-section mt-4">
+                    <h4>System Paths</h4>
+                    <div class="path-card glass-panel p-3">
+                        <div class="path-row mb-2"><strong>ETC:</strong> <code class="text-xs">${app.etc_path}</code></div>
+                        <div class="path-row"><strong>SRC:</strong> <code class="text-xs">${app.src_path}</code></div>
+                    </div>
+                </div>
+
+                <div class="info-section mt-4">
+                    <h4>Sharing & Infrastructure</h4>
+                    <div class="info-grid">
+                        <div class="info-item"><strong>Shared Group:</strong> <span>${app.shared_group || 'None (Private)'}</span></div>
+                    </div>
+                </div>
+            </div>
+            
+            <style>
+                .app-info-modal h4 { color: var(--primary-color); margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; }
+                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; }
+                .info-item { display: flex; flex-direction: column; gap: 4px; }
+                .info-item strong { font-size: 0.75rem; color: var(--text-dim); }
+                .path-card code { display: block; word-break: break-all; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
+            </style>
+        `, [
+            { label: 'Configure', type: 'ghost', fn: () => { this.admin.closeModal(); this.openAppEditor(app.name); } },
+            { label: 'Close', type: 'secondary', fn: () => this.admin.closeModal() }
+        ]);
     }
 
     async openGroupEditor(groupName = null) {
@@ -394,37 +435,38 @@ export default class AppsView extends BaseComponent {
                     <span class="input-hint">Entities listed here will use the group's prefix instead of the app's local prefix.</span>
                 </div>
             </div>
-        `.toString());
+        `, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+            { label: 'Save Group', type: 'primary', fn: async () => {
+                const name = document.getElementById('group-name').value.trim();
+                if (!name) return this.admin.notify('Group name is required.', 'error');
 
-        document.getElementById('modal-save').onclick = async () => {
-            const name = document.getElementById('group-name').value.trim();
-            if (!name) return this.admin.notify('Group name is required.', 'error');
+                const updatedGroups = { ...this.state.sharedGroups };
+                updatedGroups[name] = {
+                    extends: document.getElementById('group-extends').value,
+                    table_prefix: document.getElementById('group-prefix').value.trim(),
+                    entities: document.getElementById('group-entities').value.split(',').map(s => s.trim()).filter(s => s)
+                };
 
-            const updatedGroups = { ...this.state.sharedGroups };
-            updatedGroups[name] = {
-                extends: document.getElementById('group-extends').value,
-                table_prefix: document.getElementById('group-prefix').value.trim(),
-                entities: document.getElementById('group-entities').value.split(',').map(s => s.trim()).filter(s => s)
-            };
+                const fullSettings = await this.api.getGlobalSettings();
+                if (fullSettings.success) {
+                    const settings = fullSettings.data;
+                    settings.shared_groups = updatedGroups;
 
-            const fullSettings = await this.api.getGlobalSettings();
-            if (fullSettings.success) {
-                const settings = fullSettings.data;
-                settings.shared_groups = updatedGroups;
+                    const fd = new FormData();
+                    fd.append('settings', JSON.stringify(settings));
 
-                const fd = new FormData();
-                fd.append('settings', JSON.stringify(settings));
-
-                const res = await this.api.saveGlobalSettings(fd);
-                if (res.success) {
-                    this.admin.notify('Shared group saved.', 'success');
-                    this.admin.closeModal();
-                    await this.loadData();
-                } else {
-                    this.admin.notify(res.message || 'Save failed', 'error');
+                    const res = await this.api.saveGlobalSettings(fd);
+                    if (res.success) {
+                        this.admin.notify('Shared group saved.', 'success');
+                        this.admin.closeModal();
+                        await this.loadData();
+                    } else {
+                        this.admin.notify(res.message || 'Save failed', 'error');
+                    }
                 }
-            }
-        };
+            }}
+        ]);
     }
 
     async deleteGroup(name) {

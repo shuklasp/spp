@@ -101,6 +101,18 @@ function sendResponse($success, $data = [], $message = '')
         'data' => $data,
         'errors_html' => $errorsHtml
     ];
+    
+    $logFile = SPP_LOG_DIR . '/api_debug.log';
+    error_log("[" . date('Y-m-d H:i:s') . "] API Response: success=" . ($success ? 'true' : 'false') . ", action=" . ($_REQUEST['action'] ?? 'none') . "\n", 3, $logFile);
+
+    if (is_array($data)) {
+        // Flatten data to root for legacy component compatibility
+        foreach ($data as $k => $v) {
+            if (!isset($response[$k])) {
+                $response[$k] = $v;
+            }
+        }
+    }
 
     if ($debugEnabled) {
         $response['_debug'] = [
@@ -382,85 +394,6 @@ function runAllHealthChecks($appname) {
     ];
 }
 
-/**
- * getModuleStatusFromManifests
- * 
- * Reads the status of a module directly from modules.xml files,
- * checking system-level and per-app manifests.
- *
- * @param string $modname Module internal name
- * @return string 'active', 'inactive', or 'unknown'
- */
-function getModuleStatusFromManifests(string $modname, string $appname, string $type = 'any'): string
-{
-    $candidates = [];
-
-    // 1. Primary App Preference: SPP_ETC_DIR/apps/<app>/modsconf/
-    if (defined('SPP_ETC_DIR') && $appname !== '') {
-        $modsconfDir = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modsconf';
-        if (file_exists($modsconfDir . DIRECTORY_SEPARATOR . 'modules.yml')) {
-            $candidates[] = $modsconfDir . DIRECTORY_SEPARATOR . 'modules.yml';
-        } elseif (file_exists($modsconfDir . DIRECTORY_SEPARATOR . 'modules.xml')) {
-            $candidates[] = $modsconfDir . DIRECTORY_SEPARATOR . 'modules.xml';
-        }
-    }
-
-    // 2. User Overrides (Highest Priority - Root /etc/apps/)
-    if (defined('APP_ETC_DIR') && $appname !== '') {
-        $userModsconf = APP_ETC_DIR . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modsconf';
-        if (file_exists($userModsconf . DIRECTORY_SEPARATOR . 'modules.yml')) {
-            $candidates[] = $userModsconf . DIRECTORY_SEPARATOR . 'modules.yml';
-        } elseif (file_exists($userModsconf . DIRECTORY_SEPARATOR . 'modules.xml')) {
-            $candidates[] = $userModsconf . DIRECTORY_SEPARATOR . 'modules.xml';
-        }
-    }
-
-    // 3. Framework-level App Defaults (spp/etc/apps/)
-    if (defined('SPP_ETC_DIR')) {
-        if ($appname !== '') {
-            $candidates[] = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modules.yml';
-            $candidates[] = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modules.xml';
-        }
-        
-        // 4. Global Framework Defaults (spp/etc/)
-        $candidates[] = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'modules.yml';
-        $candidates[] = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'modules.xml';
-    }
-
-    foreach ($candidates as $file) {
-        if (!file_exists($file))
-            continue;
-
-        $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-        if ($ext === 'yml' || $ext === 'yaml') {
-            try {
-                $yml = \Symfony\Component\Yaml\Yaml::parseFile($file);
-                $mods = $yml['modules'] ?? [];
-                foreach ($mods as $m) {
-                    $mArr = (array) $m;
-                    if (($mArr['name'] ?? $mArr['modname'] ?? '') === $modname) {
-                        return (string) ($mArr['status'] ?? 'active');
-                    }
-                }
-            } catch (\Exception $e) {
-            }
-        } else {
-            $xml = @simplexml_load_file($file);
-            if ($xml === false)
-                continue;
-            foreach ($xml->module as $mod) {
-                $name = (string) ($mod->modname ?? $mod->name ?? '');
-                if ($name === $modname) {
-                    return (string) ($mod->status ?? 'active');
-                }
-            }
-        }
-    }
-    
-    // Fallback: Module not explicitly listed in any manifest.
-    // If not configured, treat as inactive.
-    return 'inactive';
-}
 
 /**
  * repairNamespace
@@ -690,35 +623,136 @@ try {
             $appsDir = normalizePath(APP_ETC_DIR);
             $srcDir = normalizePath(SPP_APP_DIR) . '/src';
 
+            // Collect all apps from registry (now discovery-aware) and disk (etc/apps)
+            $allAppNames = array_keys($registry);
+            
             if (is_dir($appsDir)) {
                 $dirs = scandir($appsDir);
                 foreach ($dirs as $d) {
                     if ($d !== '.' && $d !== '..' && $d !== 'rc.d' && is_dir($appsDir . '/' . $d)) {
-                        $meta = $registry[$d] ?? [
-                            'base_url' => '/' . ($d === 'default' ? '' : $d),
-                            'table_prefix' => ($d === 'default' ? '' : $d . '_'),
-                            'shared_group' => '',
-                            'etc_path' => '',
-                            'src_path' => ''
-                        ];
-
-                        // Resolve Base App status from root setting
-                        $baseApp = $settings['base_app'] ?? 'default';
-                        $meta['is_base_app'] = ($d === $baseApp);
-
-                        // Resolve absolute locations for internal logic, then relativize for UI
-                        $etcAbs = !empty($meta['etc_path']) ? absolutizePath($meta['etc_path']) : $appsDir . '/' . $d;
-                        $srcAbs = !empty($meta['src_path']) ? absolutizePath($meta['src_path']) : $srcDir . '/' . $d;
-
-                        $apps[] = array_merge($meta, [
-                            'name' => $d,
-                            'etc_path' => relativizePath($etcAbs),
-                            'src_path' => relativizePath($srcAbs)
-                        ]);
+                        if (!in_array($d, $allAppNames)) $allAppNames[] = $d;
                     }
                 }
             }
+
+            foreach ($allAppNames as $d) {
+                $meta = $registry[$d] ?? [
+                    'base_url' => '/' . ($d === 'default' ? '' : $d),
+                    'table_prefix' => ($d === 'default' ? '' : $d . '_'),
+                    'shared_group' => '',
+                    'etc_path' => '',
+                    'src_path' => ''
+                ];
+
+                // Resolve Base App status from root setting
+                $baseApp = $settings['base_app'] ?? 'default';
+                $meta['is_base_app'] = ($d === $baseApp);
+
+                // Resolve absolute locations for internal logic, then relativize for UI
+                $etcAbs = !empty($meta['etc_path']) ? absolutizePath($meta['etc_path']) : $appsDir . '/' . $d;
+                $srcAbs = !empty($meta['src_path']) ? absolutizePath($meta['src_path']) : $srcDir . '/' . $d;
+
+                // Robust Table Prefix Resolution: Prefer meta, fallback to sppdb config
+                $prefix = $meta['table_prefix'] ?? null;
+                if ($prefix === null) {
+                    try {
+                        $dbConfig = \SPP\Module::getAllConfigForApp('sppdb', $d);
+                        $prefix = $dbConfig['variables']['table_prefix'] ?? ($d === 'default' ? '' : $d . '_');
+                    } catch (\Exception $e) {
+                        $prefix = ($d === 'default' ? '' : $d . '_');
+                    }
+                }
+
+                // Check for SPP Admin Component (Convention: manage.js or <appname>.js)
+                $hasAdmin = file_exists($srcAbs . '/comp/manage.js') || file_exists($srcAbs . '/comp/' . $d . '.js');
+
+                $apps[] = array_merge($meta, [
+                    'name' => $d,
+                    'table_prefix' => $prefix,
+                    'etc_path' => relativizePath($etcAbs),
+                    'src_path' => relativizePath($srcAbs),
+                    'has_admin' => $hasAdmin,
+                    'admin_icon' => $meta['admin_icon'] ?? ($d === 'lekhak' ? '🖋️' : '🛠️'),
+                    'admin_title' => $meta['admin_title'] ?? ($d === 'lekhak' ? 'Lekhak CMS' : ucfirst($d))
+                ]);
+            }
             sendResponse(true, ['apps' => $apps, 'shared_groups' => $settings['shared_groups'] ?? []]);
+            break;
+
+        /**
+         * XDB (XML Database) Actions
+         */
+        case 'list_xdb_databases':
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb();
+            sendResponse(true, ['databases' => $xdb->listDatabases()]);
+            break;
+
+        case 'list_xdb_tables':
+            $dbname = $_GET['dbname'] ?? 'default';
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname);
+            sendResponse(true, ['tables' => $xdb->listTables()]);
+            break;
+
+        case 'get_xdb_table_data':
+            $dbname = $_GET['dbname'] ?? 'default';
+            $table = $_GET['table'] ?? null;
+            if (!$table) sendResponse(false, [], "Table name required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname, $table);
+            $data = $xdb->querySQL("SELECT * FROM $table LIMIT 100");
+            sendResponse(true, ['rows' => $data]);
+            break;
+
+        case 'get_xdb_table_columns':
+            $dbname = $_GET['dbname'] ?? 'default';
+            $table = $_GET['table'] ?? null;
+            if (!$table) sendResponse(false, [], "Table name required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname);
+            sendResponse(true, ['columns' => $xdb->getTableColumns($table)]);
+            break;
+
+        case 'run_xdb_query':
+            $dbname = $_POST['dbname'] ?? 'default';
+            $sql = $_POST['sql'] ?? '';
+            if (!$sql) sendResponse(false, [], "SQL query required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname);
+            try {
+                $results = $xdb->querySQL($sql);
+                sendResponse(true, ['results' => $results]);
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
+            break;
+
+        case 'save_xdb_record':
+            $dbname = $_POST['dbname'] ?? 'default';
+            $table = $_POST['table'] ?? '';
+            $data = $_POST['data'] ?? [];
+            $id = $_POST['id'] ?? null;
+            if (!$table || empty($data)) sendResponse(false, [], "Table and data required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname, $table);
+            if ($id) {
+                $res = $xdb->update($data, "id = ?", [$id]);
+            } else {
+                $res = $xdb->insert($data);
+            }
+            sendResponse($res, [], $res ? "Record saved." : "Save failed.");
+            break;
+
+        case 'delete_xdb_record':
+            $dbname = $_POST['dbname'] ?? 'default';
+            $table = $_POST['table'] ?? '';
+            $id = $_POST['id'] ?? null;
+            if (!$table || !$id) sendResponse(false, [], "Table and ID required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname, $table);
+            $res = $xdb->delete("id = ?", [$id]);
+            sendResponse($res, [], $res ? "Record deleted." : "Delete failed.");
             break;
 
         case 'set_base_app':
@@ -743,73 +777,7 @@ try {
             break;
 
         case 'list_modules':
-            $modules = [];
-            if (class_exists('\\SPP\\SPPFS')) {
-
-                // 1. System modules (SPP core)
-                $sys_yml = \SPP\SPPFS::findFile('module.yml', SPP_MODULES_DIR) ?: [];
-                $sys_xml = \SPP\SPPFS::findFile('module.xml', SPP_MODULES_DIR) ?: [];
-
-                // 2. User/App modules
-                $user_mod_dir = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $appname;
-                $user_yml = is_dir($user_mod_dir) ? (\SPP\SPPFS::findFile('module.yml', $user_mod_dir) ?: []) : [];
-                $user_xml = is_dir($user_mod_dir) ? (\SPP\SPPFS::findFile('module.xml', $user_mod_dir) ?: []) : [];
-
-                $manifests = [];
-                // Collect and prioritize (type: system) - System modules are available in all contexts
-                foreach (array_merge($sys_yml, $sys_xml) as $f) {
-                    $name = basename(dirname($f));
-                    if (!isset($manifests[$name])) {
-                        $manifests[$name] = ['file' => $f, 'type' => 'system'];
-                    }
-                }
-
-                // Collect and prioritize (type: user - allows overrides if names match)
-                foreach (array_merge($user_yml, $user_xml) as $f) {
-                    $name = basename(dirname($f));
-                    $manifests[$name] = ['file' => $f, 'type' => 'user'];
-                }
-
-                foreach ($manifests as $name => $mInfo) {
-                    try {
-                        $file = $mInfo['file'];
-                        $type = $mInfo['type'];
-                        $mod = new \SPP\Module($file);
-
-                        // Check if module has config variables or settings definition
-                        $hasConfig = !empty($mod->ConfigVariables) || !empty($mod->Settings);
-                        if (!$hasConfig) {
-                            // Check filesystem for config file
-                            $confDir = ($type === 'system')
-                                ? SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modsconf' . DIRECTORY_SEPARATOR . $name
-                                : APP_ETC_DIR . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modsconf' . DIRECTORY_SEPARATOR . $name;
-                            if (is_dir($confDir))
-                                $hasConfig = true;
-                        }
-
-                        $status = getModuleStatusFromManifests($name, $appname, $type);
-
-                        $modules[] = [
-                            'name' => $mod->InternalName ?: $name,
-                            'public_name' => $mod->PublicName ?: ($mod->InternalName ?: $name),
-                            'version' => $mod->Version ?: '1.0',
-                            'description' => $mod->PublicDesc ?: '',
-                            'author' => $mod->Author ?? 'Unknown',
-                            'active' => $status === 'active',
-                            'type' => $type,
-                            'path' => $mod->ModPath,
-                            'dependencies' => (array) ($mod->Dependencies ?? []),
-                            'module_group' => $mod->ModuleGroup ?: 'General',
-                            'has_config' => $hasConfig
-                        ];
-                    } catch (\Throwable $e) {
-                        // Log technical error in debug details but continue listing others
-                        if (!isset($response['_debug_errors']))
-                            $response['_debug_errors'] = [];
-                        $response['_debug_errors'][] = "Error loading module '{$name}': " . $e->getMessage();
-                    }
-                }
-            }
+            $modules = \SPP\Module::listAvailableModules($appname);
             sendResponse(true, ['modules' => $modules]);
             break;
 
@@ -1102,6 +1070,42 @@ try {
         /**
          * list_groups: Reads group entity data from discovery (App, Global, DB).
          */
+        case 'list_middleware':
+            $globalStack = \SPP\Registry::get('__middleware=>global') ?: [];
+            $context = $_REQUEST['context'] ?: 'default';
+            $appStack = [];
+            
+            withContext($context, function() use (&$appStack) {
+                $appPath = \SPP\App::getApp()->resolvePath('etc/middleware.yml');
+                if (file_exists($appPath)) {
+                    $config = \Symfony\Component\Yaml\Yaml::parseFile($appPath);
+                    $appStack = $config['global'] ?? [];
+                }
+            });
+
+            sendResponse(true, [
+                'global' => $globalStack,
+                'application' => $appStack
+            ]);
+            break;
+
+        case 'list_queue':
+            $queue = \SPP\Registry::get('__shared=>queue') ?: [];
+            sendResponse(true, ['queue' => $queue]);
+            break;
+
+        case 'list_rbac':
+            $roles = \SPP\Registry::get('rbac=>roles') ?: [];
+            sendResponse(true, ['roles' => $roles]);
+            break;
+
+        case 'save_rbac_role':
+            $slug = $_REQUEST['slug'];
+            $perms = $_REQUEST['permissions'] ?: [];
+            \SPP\Registry::register("rbac=>roles=>{$slug}=>permissions", $perms);
+            sendResponse(true, [], "Role '{$slug}' updated successfully.");
+            break;
+
         case 'list_groups':
             $context = $appname;
             try {
@@ -1260,21 +1264,24 @@ try {
             }
 
             try {
-                require_once(SPP_BASE_DIR . '/modules/spp/sppgroup/class.sppgroup.php');
-                require_once(SPP_BASE_DIR . '/modules/spp/sppauth/class.sppuser.php');
-                
-                $group = new \SPPMod\SPPGroup\SPPGroup($groupId);
-                
-                if (!class_exists($entityClass)) {
-                    sendResponse(false, [], "Entity class '$entityClass' not found.");
-                }
+                $result = withContext($appname, function() use ($groupId, $entityClass, $entityId, $role) {
+                    require_once(SPP_BASE_DIR . '/modules/spp/sppgroup/class.sppgroup.php');
+                    require_once(SPP_BASE_DIR . '/modules/spp/sppauth/class.sppuser.php');
+                    
+                    $group = new \SPPMod\SPPGroup\SPPGroup($groupId);
+                    
+                    if (!class_exists($entityClass)) {
+                        return ["success" => false, "message" => "Entity class '$entityClass' not found."];
+                    }
 
-                $member = new $entityClass($entityId);
-                if ($group->addMember($member, $role)) {
-                    sendResponse(true, [], "Member added to group.");
-                } else {
-                    sendResponse(false, [], "Entity is already a member of this group.");
-                }
+                    $member = new $entityClass($entityId);
+                    if ($group->addMember($member, $role)) {
+                        return ["success" => true, "message" => "Member added to group."];
+                    } else {
+                        return ["success" => false, "message" => "Entity is already a member of this group."];
+                    }
+                });
+                sendResponse($result['success'], [], $result['message']);
             } catch (\Exception $e) {
                 sendResponse(false, [], "Failed to add member: " . $e->getMessage());
             }
@@ -1293,20 +1300,23 @@ try {
             }
 
             try {
-                require_once(SPP_BASE_DIR . '/modules/spp/sppgroup/class.sppgroup.php');
-                
-                $group = new \SPPMod\SPPGroup\SPPGroup($groupId);
-                
-                if (!class_exists($entityClass)) {
-                    sendResponse(false, [], "Entity class not found.");
-                }
+                $result = withContext($appname, function() use ($groupId, $entityClass, $entityId) {
+                    require_once(SPP_BASE_DIR . '/modules/spp/sppgroup/class.sppgroup.php');
+                    
+                    $group = new \SPPMod\SPPGroup\SPPGroup($groupId);
+                    
+                    if (!class_exists($entityClass)) {
+                        return ["success" => false, "message" => "Entity class not found."];
+                    }
 
-                $member = new $entityClass($entityId);
-                if ($group->removeMember($member)) {
-                    sendResponse(true, [], "Member removed from group.");
-                } else {
-                    sendResponse(false, [], "Member not found in this group.");
-                }
+                    $member = new $entityClass($entityId);
+                    if ($group->removeMember($member)) {
+                        return ["success" => true, "message" => "Member removed from group."];
+                    } else {
+                        return ["success" => false, "message" => "Member not found in this group."];
+                    }
+                });
+                sendResponse($result['success'], [], $result['message']);
             } catch (\Exception $e) {
                 sendResponse(false, [], "Failed to remove member: " . $e->getMessage());
             }
@@ -1471,6 +1481,14 @@ try {
                 ]
             ];
 
+            // Orion Cache Stats
+            $cachePath = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'modules_' . $appname . '.php';
+            $info['orion'] = [
+                'cache_exists' => file_exists($cachePath),
+                'cache_size' => file_exists($cachePath) ? round(filesize($cachePath) / 1024, 2) . ' KB' : 'Missing',
+                'cache_file' => $cachePath
+            ];
+
             // Calculate stats for the selected app context
             if (defined('APP_ETC_DIR') && is_dir(APP_ETC_DIR)) {
                 $apps = array_filter(scandir(APP_ETC_DIR), function ($d) {
@@ -1500,10 +1518,29 @@ try {
                 $info['stats']['modules'] = is_array($mods) ? count($mods) : 0;
             }
 
+            // Modern Framework Stats
+            $info['stats']['middleware_count'] = count(\SPP\Registry::get('__middleware=>global') ?: []);
+            $info['stats']['queue_size'] = count(\SPP\Registry::get('__shared=>queue') ?: []);
+            $info['stats']['bundling_enabled'] = \SPP\Module::getGlobalConfig('system', 'bundle_assets', false);
+
             // Add Health Report Card data
             $info['health_report'] = runAllHealthChecks($appname);
 
             sendResponse(true, $info, "System info retrieved");
+            break;
+
+        case 'compile_registry':
+            try {
+                require_once SPP_BASE_DIR . '/core/class.modulecompiler.php';
+                $compiler = new \SPP\Core\ModuleCompiler($appname);
+                if ($compiler->compile()) {
+                    sendResponse(true, [], "Module registry compiled successfully for '{$appname}' context.");
+                } else {
+                    sendResponse(false, [], "Module compilation failed. Check application logs.");
+                }
+            } catch (\Throwable $e) {
+                sendResponse(false, [], "Compiler error: " . $e->getMessage());
+            }
             break;
 
         case 'get_global_settings':
@@ -1572,6 +1609,80 @@ try {
                 return \SPP\Module::runSystemUpdate();
             });
             sendResponse(true, ['log' => $log]);
+            break;
+
+        /**
+         * run_auto_tests: Triggers Parikshak evolutionary testing suite.
+         */
+        case 'run_auto_tests':
+            try {
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                $results = $tester->runSuite($appname);
+                
+                // Export JUnit for CI/CD pipelines
+                $reportPath = SPP_APP_DIR . "/var/reports/parikshak_{$appname}_junit.xml";
+                if (!is_dir(dirname($reportPath))) mkdir(dirname($reportPath), 0777, true);
+                $tester->exportJUnit($results, $reportPath);
+                
+                $results['report_path'] = $reportPath;
+                sendResponse(true, $results);
+            } catch (\Exception $e) {
+                sendResponse(false, [], "Evaluation failed: " . $e->getMessage());
+            }
+            break;
+
+        case 'apply_fix':
+            try {
+                $entity = $_POST['entity_class'] ?? '';
+                $fix = $_POST['fix'] ?? [];
+                
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                $success = $tester->applyFix($entity, $fix);
+                
+                sendResponse($success, [], $success ? "Fix applied to manifest. Run system update to sync DB." : "Could not apply fix.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], "Fix failed: " . $e->getMessage());
+            }
+            break;
+
+        case 'run_oracle':
+            try {
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                sendResponse(true, $tester->runOracleAnalysis());
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
+            break;
+
+        case 'generate_blueprint':
+            try {
+                $entity = $_POST['entity_class'] ?? '';
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                sendResponse(true, $tester->generateBlueprint($entity));
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
+            break;
+
+        case 'dream_entity':
+            try {
+                $shorthand = $_POST['shorthand'] ?? '';
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                $success = $tester->dreamEntity($shorthand, $appname);
+                sendResponse($success, [], $success ? "Entity dreamed successfully! Syncing..." : "Invalid shorthand format.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
+            break;
+
+        case 'bulk_elite_upgrade':
+            try {
+                $tester = new \SPPMod\Parikshak\Parikshak();
+                $res = $tester->bulkUpgradeAll($appname);
+                sendResponse(true, $res, "Upgraded {$res['upgraded']}/{$res['total']} entities to Elite standards.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
             break;
 
         /**
@@ -1711,9 +1822,24 @@ try {
                     // Fallback to empty if manifest is missing or invalid
                 }
 
+                // Generate standard form HTML if definition is available
+                $formHtml = '';
+                if (!empty($settingsDef)) {
+                    try {
+                        $vars = $config['variables'] ?? $config;
+                        $form = \SPPMod\SPPView\ViewFormBuilder::fromSettings($settingsDef, $vars, 'mod_settings_' . $modname);
+                        $form->setTheme('glass_admin');
+                        $formHtml = $form->getHTML();
+                    } catch (\Exception $e) {
+                        // Client will fallback to manual loop if this fails
+                    }
+                }
+
                 sendResponse(true, [
                     'variables' => $config['variables'] ?? $config,
-                    'settings_definition' => $settingsDef
+                    'source' => $config['source'] ?? 'Default (Bundled)',
+                    'settings_definition' => $settingsDef,
+                    'settings_form_html' => $formHtml
                 ]);
             } catch (\Throwable $e) {
                 sendResponse(false, [], "Failed to read config: " . $e->getMessage());
@@ -1741,11 +1867,12 @@ try {
             }
 
             try {
-                foreach ($configData as $key => $value) {
-                    \SPP\Module::setConfigForApp($key, $value, $modname, $appname);
-                }
+                $logFile = SPP_BASE_DIR . '/../var/logs/api_save.log';
+                error_log("[" . date('Y-m-d H:i:s') . "] API DEBUG: save_module_config mod=$modname app=$appname data=" . substr($configJson, 0, 200) . "\n", 3, $logFile);
+                \SPP\Module::setAllConfigForApp($configData, $modname, $appname);
                 sendResponse(true, [], "Configuration for '{$modname}' (app: {$appname}) saved successfully.");
             } catch (\Throwable $e) {
+                error_log("[" . date('Y-m-d H:i:s') . "] API ERROR: Failed to save config: " . $e->getMessage() . "\n", 3, $logFile);
                 sendResponse(false, [], "Failed to save config: " . $e->getMessage());
             }
             break;
@@ -1798,8 +1925,12 @@ try {
                 if (!empty($existing['path'])) {
                     $targetPath = $existing['path'];
                 } else {
-                    // Create in canonical per-app location
-                    $modsConfDir = SPP_ETC_DIR . DIRECTORY_SEPARATOR . 'apps' . DIRECTORY_SEPARATOR . $appname . DIRECTORY_SEPARATOR . 'modsconf';
+                    // Create in canonical per-app location using effective resolver
+                    $modsConfDir = \SPP\Module::getEffectiveModsConfDir($modname, $appname);
+                    if ($modsConfDir === '') {
+                        sendResponse(false, [], "Failed to resolve configuration directory for '{$modname}'.");
+                    }
+                    
                     $dir = $modsConfDir . DIRECTORY_SEPARATOR . $modname;
                     if (!is_dir($dir)) {
                         mkdir($dir, 0755, true);
@@ -2174,7 +2305,11 @@ try {
 
                     return [
                         'html' => $form->getHTML(), 
-                        'title' => $form->getMatter() ?: "Edit " . $formName
+                        'title' => $form->getMatter() ?: "Edit " . $formName,
+                        'assets' => [
+                            'js' => \SPPMod\SPPView\ViewPage::getJsFiles(),
+                            'css' => \SPPMod\SPPView\ViewPage::getCssFiles()
+                        ]
                     ];
                 });
 
@@ -2337,8 +2472,112 @@ try {
             sendResponse(true, $diagnostics);
             break;
 
+        /**
+         * get_event_trace: Reads the latest event tracing log.
+         */
+        case 'get_event_trace':
+            $logPath = SPP_LOG_DIR . '/event_trace.json';
+            if (!file_exists($logPath)) {
+                sendResponse(true, ['traces' => []]);
+                break;
+            }
+            $data = json_decode(file_get_contents($logPath), true);
+            sendResponse(true, ['traces' => $data ?: []]);
+            break;
+
+        /**
+         * get_parikshak_trace: Reads the latest Parikshak event log.
+         */
+        case 'get_parikshak_trace':
+            $logPath = SPP_LOG_DIR . '/parikshak_events.log';
+            if (!file_exists($logPath)) {
+                sendResponse(true, ['content' => 'No Parikshak activity logged yet.']);
+            } else {
+                $lines = file($logPath);
+                $content = implode("", array_slice($lines, -300));
+                sendResponse(true, ['content' => $content]);
+            }
+            break;
+
+        /**
+         * run_parikshak_scan: Manually triggers a Parikshak evolutionary scan.
+         */
+        case 'run_parikshak_scan':
+            if (!class_exists('\\SPPMod\\Parikshak\\Parikshak')) {
+                sendResponse(false, [], "Parikshak module not found.");
+                break;
+            }
+            
+            // Run in background or immediate? Let's do immediate but with a time limit for the API.
+            try {
+                $engine = new \SPPMod\Parikshak\Parikshak($appname);
+                $results = $engine->runSystemScan();
+                sendResponse(true, ['results' => $results], "System scan completed successfully.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], "Scan failed: " . $e->getMessage());
+            }
+            break;
+
+        /**
+         * get_di_bindings: Lists all registered services in the DI Container.
+         */
+        case 'get_di_bindings':
+            $app = \SPP\App::getApp($appname);
+            $container = $app->getContainer();
+            
+            $refl = new \ReflectionClass($container);
+            $bindingsProp = $refl->getProperty('bindings');
+            $bindingsProp->setAccessible(true);
+            $bindings = $bindingsProp->getValue($container);
+            
+            $instancesProp = $refl->getProperty('instances');
+            $instancesProp->setAccessible(true);
+            $instances = $instancesProp->getValue($container);
+            
+            $result = [];
+            foreach ($bindings as $abstract => $meta) {
+                $result[] = [
+                    'abstract' => $abstract,
+                    'concrete' => is_string($meta['concrete']) ? $meta['concrete'] : 'Closure',
+                    'shared' => $meta['shared'],
+                    'instantiated' => isset($instances[$abstract])
+                ];
+            }
+            sendResponse(true, ['bindings' => $result]);
+            break;
+
+        /**
+         * get_config_all: Retrieves a flat list of all configuration settings.
+         */
+        case 'get_config_all':
+            $config = [
+                'global' => \SPP\SPPConfig::get('global:', []),
+                'app' => \SPP\SPPConfig::get('app:', []),
+                'sys' => \SPP\SPPConfig::get('sys:', [])
+            ];
+            sendResponse(true, ['config' => $config]);
+            break;
+
+        /**
+         * save_config_value: Updates a specific config value.
+         */
+        case 'save_config_value':
+            $key = $_POST['key'] ?? '';
+            $value = $_POST['value'] ?? '';
+            if (empty($key)) sendResponse(false, [], "Config key is required.");
+            if ($value === 'true') $value = true;
+            if ($value === 'false') $value = false;
+            
+            try {
+                \SPP\SPPConfig::set($key, $value);
+                sendResponse(true, [], "Config '{$key}' updated successfully.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], "Failed to update config: " . $e->getMessage());
+            }
+            break;
+
         default:
-            sendResponse(false, [], "Unsupported API action: " . htmlspecialchars($action));
+            sendResponse(false, [], "Unknown action: " . $action);
             break;
     }
 

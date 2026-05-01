@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lekhak CMS | Modern Polyglot Content Engine</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --accent: #a855f7;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f1f5f9;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .gradient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.15) 0%, transparent 40%),
+                        radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+
+        nav {
+            padding: 2rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; color: #fff; }
+        .logo span { color: var(--primary); }
+
+        .nav-links a { color: var(--text); text-decoration: none; margin-left: 2rem; opacity: 0.8; transition: opacity 0.3s; }
+        .nav-links a:hover { opacity: 1; color: var(--primary); }
+
+        header { padding: 8rem 0 4rem; text-align: center; }
+        header h1 { font-size: 4.5rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 1.5rem; line-height: 1.1; }
+        header h1 span { background: linear-gradient(to right, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        header p { font-size: 1.25rem; opacity: 0.7; max-width: 600px; margin: 0 auto 3rem; }
+
+        .cta-btn {
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: inline-block;
+        }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4); }
+
+        .features { padding: 6rem 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .feature-card {
+            background: var(--card-bg);
+            padding: 3rem 2rem;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px);
+            transition: transform 0.3s;
+        }
+        .feature-card:hover { transform: translateY(-10px); border-color: rgba(99, 102, 241, 0.3); }
+        .feature-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
+        .feature-card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .feature-card p { opacity: 0.6; font-size: 0.95rem; }
+
+        footer { padding: 4rem 0; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); margin-top: 4rem; opacity: 0.5; font-size: 0.9rem; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 3rem; }
+            .features { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gradient-bg"></div>
+    <div class="container">
+        <nav>
+            <a href="{{ $base_url }}" style="text-decoration: none;"><div class="logo">LEKHAK<span>.</span></div></a>
+            <div class="nav-links">
+                <a href="{{ $base_url }}/admin">Workbench</a>
+                <a href="#">Documentation</a>
+                <a href="#">Showcase</a>
+            </div>
+        </nav>
+
+        <header>
+            <h1>The Polyglot <span>CMS</span> for Modern Creators.</h1>
+            <p>Lekhak provides a seamless, high-performance environment for building everything from simple wikis to complex commerce platforms.</p>
+            <a href="{{ $base_url }}/admin" class="cta-btn">Enter Workspace</a>
+        </header>
+
+        <section class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🖋️</div>
+                <h3>Lekhak Canvas</h3>
+                <p>Block-based visual editing that feels like magic. Compose complex layouts with real-time feedback.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🌍</div>
+                <h3>Global Ready</h3>
+                <p>Built-in internationalization and localization. Speak to the world in their own language.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Edge Delivery</h3>
+                <p>Zero-dependency architecture optimized for lightning-fast delivery across global edge networks.</p>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2026 Lekhak CMS Engine. Powered by SPP Framework.
+        </footer>
+    </div>
+</body>
+</html>

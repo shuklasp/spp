@@ -15,3 +15,12 @@ module:
     config_variables:
         drupal_root: "../drupal" # Path to Drupal root relative to SPP root
         api_url: "" # JSON:API URL for headless mode
+    settings:
+        drupal_root:
+            label: "Drupal Root Path"
+            type: "text"
+            help: "Path to Drupal root relative to SPP root (e.g., ../drupal). Must contain core/includes/bootstrap.inc."
+        api_url:
+            label: "JSON:API URL"
+            type: "text"
+            help: "Full URL to Drupal JSON:API endpoint (e.g., https://site.com/jsonapi) for headless mode."

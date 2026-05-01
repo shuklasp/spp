@@ -19,8 +19,14 @@ class SPPBlade extends \SPP\SPPObject
         $app = \SPP\App::getApp();
         $appName = $app->getName();
 
-        // Resolve paths relative to app directory
-        $this->viewsPath = SPP_APP_DIR . '/resources/' . $appName . '/views';
+        // Resolve paths relative to app source or base directory
+        $srcDir = $app->getAppSrcDir();
+        if (is_dir($srcDir . '/resources/views')) {
+            $this->viewsPath = $srcDir . '/resources/views';
+        } else {
+            $this->viewsPath = SPP_APP_DIR . '/resources/' . $appName . '/views';
+        }
+
         $this->cachePath = SPP_APP_DIR . '/var/cache/' . $appName . '/blade';
 
         $this->ensureDirectories();
@@ -44,7 +50,8 @@ class SPPBlade extends \SPP\SPPObject
             return "<?php 
                 \$appName = \SPP\Scheduler::getContext();
                 \$fname = str_replace(['\'', '\"'], '', $expression);
-                \$baseDir = SPP_APP_DIR . '/etc/apps/' . \$appName . '/forms/';
+                \$app = \SPP\App::getApp(\$appName);
+                \$baseDir = \$app->getAppConfDir() . '/forms/';
                 
                 \$formFile = null;
                 foreach (['yml', 'yaml', 'xml'] as \$ext) {
@@ -141,7 +148,9 @@ class SPPBlade extends \SPP\SPPObject
                 \$name = \$args[0];
                 \$props = json_encode(\$args[1] ?? []);
                 \$context = \SPP\Scheduler::getContext();
-                \$path = \"/resources/{\$context}/js/react/{\$name}.js\";
+                \$app = \SPP\App::getApp(\$context);
+                \$srcPath = \SPP\App::getAppConf('src_path', \$context) ?? ('src/' . \$context);
+                \$path = \"/{\$srcPath}/resources/js/react/{\$name}.js\";
                 echo \"<div data-spp-component='1' data-spp-type='react' data-spp-path='{\$path}' data-spp-props='{\$props}'></div>\";
             ?>";
         });
@@ -154,7 +163,9 @@ class SPPBlade extends \SPP\SPPObject
                 \$name = \$args[0];
                 \$props = json_encode(\$args[1] ?? []);
                 \$context = \SPP\Scheduler::getContext();
-                \$path = \"/resources/{\$context}/js/vue/{\$name}.js\";
+                \$app = \SPP\App::getApp(\$context);
+                \$srcPath = \SPP\App::getAppConf('src_path', \$context) ?? ('src/' . \$context);
+                \$path = \"/{\$srcPath}/resources/js/vue/{\$name}.js\";
                 echo \"<div data-spp-component='1' data-spp-type='vue' data-spp-path='{\$path}' data-spp-props='{\$props}'></div>\";
             ?>";
         });
@@ -208,15 +219,40 @@ class SPPBlade extends \SPP\SPPObject
         });
     }
 
+    protected static ?self $instance = null;
+
     /**
-     * Render a blade template.
-     * 
-     * @param string $view
-     * @param array $data
-     * @return string
+     * Get singleton instance.
      */
-    public function render(string $view, array $data = []): string
+    public static function getInstance(): self
     {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * Static wrapper for rendering.
+     */
+    public static function render(string $view, array $data = []): string
+    {
+        return self::getInstance()->renderInstance($view, $data);
+    }
+
+    /**
+     * Internal render logic.
+     */
+    public function renderInstance(string $view, array $data = []): string
+    {
+        // Support full paths by stripping base view path if present
+        if (strpos($view, $this->viewsPath) === 0) {
+            $view = substr($view, strlen($this->viewsPath));
+            $view = ltrim($view, '/\\');
+            $view = str_replace('.blade.php', '', $view);
+            $view = str_replace(['/', '\\'], '.', $view);
+        }
+        
         return $this->engine->run($view, $data);
     }
 

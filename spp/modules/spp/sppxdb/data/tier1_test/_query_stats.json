@@ -1,0 +1,7 @@
+{
+    "CREATE TABLE accounts (id int, balance float)": 1,
+    "CREATE TABLE ledger (id int, tx_type varchar, amount float)": 1,
+    "SELECT COUNT(*) as total FROM accounts": 1,
+    "SELECT * FROM _audit ORDER BY timestamp DESC LIMIT ?": 2,
+    "SELECT * FROM _audit ORDER BY timestamp ASC": 1
+}

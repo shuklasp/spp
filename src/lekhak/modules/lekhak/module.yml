@@ -1,0 +1,60 @@
+# Lekhak Core CMS Engine Module
+module:
+    name: lekhak
+    version: "1.0"
+    pubname: Lekhak CMS Core
+    modgroup: SPP_CMS
+    pubdesc: Universal Polyglot CMS Engine with Zero Dependencies.
+    dependencies:
+        - sppentity
+        - sppauth
+        - sppux
+        - sppblade
+    services:
+        lekhak.renderer:
+            class: \SPPMod\Lekhak\Core\Renderer
+            shared: true
+        lekhak.storage:
+            class: \SPPMod\Lekhak\Core\StorageOrchestrator
+            shared: true
+    events:
+        lekhak_render_pipeline: "Filter pipeline for template rendering"
+        lekhak_node_presave: "Fired before a node is saved"
+        lekhak_node_postsave: "Fired after a node is saved"
+    settings:
+        primary_language:
+            label: "Primary Language"
+            type: select
+            options:
+                en: "English"
+                hi: "Hindi"
+                fr: "French"
+            default: en
+            help: "The default language for new content nodes."
+        default_status:
+            label: "Default Node Status"
+            type: select
+            options:
+                draft: "Draft"
+                published: "Published"
+            default: draft
+        enable_canvas:
+            label: "Enable Lekhak Canvas"
+            type: boolean
+            default: true
+            help: "Enable the block-based visual editor."
+        bundle_assets:
+            label: "Asset Orchestration"
+            type: boolean
+            default: false
+            help: "Automatically bundle and minify CSS/JS files."
+        shared_registry:
+            label: "Polyglot Registry Sync"
+            type: boolean
+            default: true
+            help: "Synchronize state across polyglot microservices."
+        task_queue:
+            label: "Distributed Task Queue"
+            type: boolean
+            default: true
+            help: "Enable background job processing via SppQueue."

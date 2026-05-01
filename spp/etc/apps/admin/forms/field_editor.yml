@@ -7,10 +7,12 @@ elements:
     label: "Field Name"
     placeholder: "e.g. first_name"
     required: true
+    col: 6
   label:
     type: text
     label: "Display Label"
     placeholder: "e.g. First Name"
+    col: 6
   type:
     type: select
     label: "Field Type"
@@ -18,27 +20,113 @@ elements:
       text: "Text Input"
       password: "Password"
       email: "Email"
+      number: "Number"
       textarea: "Text Area"
       select: "Dropdown"
-      multiselect: "Multi-Select"
+      datepicker: "Date Picker"
+      mask: "Input Mask"
+      repeater: "Repeater Field"
+      autocomplete: "Autocomplete"
+      signature: "Signature Pad"
+      tags: "Tag Input"
+      otp: "OTP (One-Time Password)"
+      rating: "Star Rating"
+      range: "Dual Range Slider"
+      cropper: "Image Cropper"
+      treeselect: "Tree Select"
+      duallist: "Dual Listbox"
       checkbox: "Checkbox"
       submit: "Submit Button"
-  placeholder:
-    type: text
-    label: "Placeholder"
-  help:
-    type: text
-    label: "Help Text"
+  col:
+    type: number
+    label: "Grid Columns (1-12)"
+    value: 12
+    min: 1
+    max: 12
+    col: 6
   required:
     type: checkbox
     label: "Is Required?"
+    col: 6
+  
+  # Advanced Features
+  voice:
+    type: checkbox
+    label: "Enable Voice-to-Text"
+    help: "Uses native Web Speech API"
+    col: 4
+  telemetry:
+    type: checkbox
+    label: "Engagement Tracking"
+    help: "Log local engagement metrics"
+    col: 4
+  counter:
+    type: checkbox
+    label: "Word/Char Counter"
+    col: 4
+
+  computed:
+    type: text
+    label: "Computed Formula"
+    placeholder: "e.g. {price} * {qty}"
+    help: "Real-time reactive calculation"
+
+  # Component Specific Settings
+  mask_pattern:
+    type: text
+    label: "Mask Pattern (for Mask type)"
+    placeholder: "e.g. (000) 000-0000"
+    depends_on: { type: [mask] }
+  
+  digits:
+    type: number
+    label: "OTP Digits"
+    value: 6
+    col: 6
+    depends_on: { type: [otp] }
+  
+  max_rating:
+    type: number
+    label: "Max Rating Stars"
+    value: 5
+    col: 6
+    depends_on: { type: [rating] }
+
+  min:
+    type: number
+    label: "Min Value (Range)"
+    value: 0
+    col: 6
+    depends_on: { type: [range] }
+  
+  max:
+    type: number
+    label: "Max Value (Range)"
+    value: 100
+    col: 6
+    depends_on: { type: [range] }
+
+  placeholder:
+    type: text
+    label: "Placeholder"
+    col: 6
+    depends_on: { type: [text, password, email, number, textarea, datepicker, mask, autocomplete, tags, otp] }
+  
+  help:
+    type: text
+    label: "Help Text"
+    col: 6
+
   source_table:
     type: text
-    label: "Data Source (Table)"
+    label: "Data Source (Table/Query)"
     placeholder: "e.g. roles OR SELECT id as value, name as label FROM roles"
-    help: "Enter table name (e.g. users) or a full SQL query starting with SELECT"
+    help: "Used for Select, Autocomplete, TreeSelect, DualList"
+    depends_on: { type: [select, autocomplete, treeselect, duallist] }
+  
   options:
     type: textarea
     label: "Manual Options"
     placeholder: "active: Active\nblocked: Blocked"
     help: "Enter options as 'value: Label' (one per line). Overrides Data Source if provided."
+    depends_on: { type: [select, autocomplete, treeselect, duallist] }

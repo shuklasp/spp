@@ -1,0 +1,3 @@
+variables:
+    drupal_root: ../drupal
+    api_url: ''

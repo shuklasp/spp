@@ -125,6 +125,9 @@ class PolyglotBridge extends \SPP\SPPObject
             } else {
                 // Fallback scan for MSVC
                 $vsPaths = [
+                    'C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC',
+                    'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC',
+                    'C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC',
                     'C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Tools\MSVC',
                     'C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC'
                 ];
@@ -342,7 +345,7 @@ print encode_json($result);
             'spp_version' => defined('SPP_VER') ? SPP_VER : '0.5',
             'base_dir' => SPP_BASE_DIR,
             'database' => $dbConfig,
-            'modules' => \SPP\Registry::get('__mods=>') ?: [],
+            'modules' => \SPP\Registry::get('__mods') ?: [],
             'runtimes' => $runtimes,
             'bridge_settings' => [
                 'shared_dir' => $sharedDir,

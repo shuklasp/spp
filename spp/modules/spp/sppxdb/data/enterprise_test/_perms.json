@@ -1,0 +1,10 @@
+{
+    "secure_data": {
+        "read": true,
+        "write": false
+    },
+    "large_table": {
+        "read": true,
+        "write": true
+    }
+}

@@ -36,6 +36,44 @@ class Registry extends \SPP\SPPObject
     /** @var int */
     private static int $valkey = 0;
 
+    /** @var \SPP\Core\Container|null */
+    private static ?\SPP\Core\Container $container = null;
+
+    /**
+     * Get the service container instance.
+     */
+    public static function container(): \SPP\Core\Container
+    {
+        if (self::$container === null) {
+            self::$container = new \SPP\Core\Container();
+        }
+        return self::$container;
+    }
+
+    /**
+     * Bind a service to the container.
+     */
+    public static function bind(string $abstract, $concrete = null, bool $shared = false): void
+    {
+        self::container()->bind($abstract, $concrete, shared: $shared);
+    }
+
+    /**
+     * Bind a singleton to the container.
+     */
+    public static function singleton(string $abstract, $concrete = null): void
+    {
+        self::container()->singleton($abstract, $concrete);
+    }
+
+    /**
+     * Resolve a service from the container.
+     */
+    public static function make(string $abstract): mixed
+    {
+        return self::container()->get($abstract);
+    }
+
     public function __construct()
     {
         // Reserved for future expansion; no initialization required.
@@ -43,10 +81,7 @@ class Registry extends \SPP\SPPObject
 
     /**
      * Registers an entity and assigns a value.
-     *
-     * @param string $entity
-     * @param mixed  $value
-     * @return void
+     * Also synchronizes to shared storage for polyglot support if prefix is __shared.
      */
     public static function register(string $entity, mixed $value): void
     {
@@ -55,7 +90,8 @@ class Registry extends \SPP\SPPObject
 
         if ($key !== false) {
             self::$values[$key] = $value;
-            self::$lookupCache[$entity] = $value; // Update cache
+            self::$lookupCache[$entity] = $value;
+            if (str_starts_with($entity, '__shared=>')) self::syncShared();
             return;
         }
 
@@ -80,6 +116,38 @@ class Registry extends \SPP\SPPObject
         }
 
         self::$reg[$rootKey] = $merged;
+        if (str_starts_with($entity, '__shared=>')) self::syncShared();
+    }
+
+    /**
+     * Synchronizes shared registry entries to a JSON file for polyglot support.
+     */
+    private static function syncShared(): void
+    {
+        $shared = self::get('__shared');
+        if (!is_array($shared)) return;
+
+        $sharedDir = SPP_BASE_DIR . '/var/shared';
+        if (!is_dir($sharedDir)) @mkdir($sharedDir, 0777, true);
+        
+        $sharedFile = $sharedDir . '/registry.json';
+        @file_put_contents($sharedFile, json_encode($shared, JSON_PRETTY_PRINT));
+    }
+
+    /**
+     * Loads shared registry entries from the JSON file.
+     */
+    public static function loadShared(): void
+    {
+        $sharedFile = SPP_BASE_DIR . '/var/shared/registry.json';
+        if (file_exists($sharedFile)) {
+            $data = json_decode(file_get_contents($sharedFile), true);
+            if (is_array($data)) {
+                foreach ($data as $k => $v) {
+                    self::register('__shared=>' . $k, $v);
+                }
+            }
+        }
     }
 
     /**

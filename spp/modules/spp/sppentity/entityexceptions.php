@@ -23,4 +23,21 @@ class EntityConfigurationException extends \SPP\SPPException
     }
 }
 
+class EntityValidationException extends \SPP\SPPException
+{
+    private $result;
+
+    public function __construct(\SPPMod\SPPView\ValidationResult $result)
+    {
+        $this->result = $result;
+        $errors = implode(", ", $result->getAllErrors());
+        parent::__construct("Entity validation failed: " . $errors, 422);
+    }
+
+    public function getResult(): \SPPMod\SPPView\ValidationResult
+    {
+        return $this->result;
+    }
+}
+
 ?>

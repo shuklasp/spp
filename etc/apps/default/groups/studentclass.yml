@@ -9,3 +9,8 @@ members:
         id: 1
         role: member
         rights: null
+    -
+        entity: SPPMod\SPPAuth\SPPUser
+        id: 3
+        role: member
+        rights: null

@@ -16,6 +16,7 @@ module:
         - class.pages.php
         - ajaxexceptions.php
         - formelements/classes.formelements.php
+        - sppvalidator/class.validationresult.php
         - sppvalidator/class.sppsinglevalidator.php
         - sppvalidator/class.sppmultiplevalidator.php
         - sppvalidator/classes.sppvalidators.php

@@ -13,7 +13,9 @@ export default class GroupsView extends BaseComponent {
             loading: true,
             groups: [],
             searchQuery: '',
-            searchResults: []
+            searchResults: [],
+            currentGroupId: null,
+            currentMembers: []
         };
         await this.fetchData();
     }
@@ -43,12 +45,10 @@ export default class GroupsView extends BaseComponent {
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            headerActions.innerHTML = '';
-            const btn = document.createElement('button');
-            btn.className = 'btn primary-btn btn-sm';
-            btn.innerHTML = '+ Create Group';
-            btn.onclick = () => this.admin.notify('Group creation via UI coming in next update. Use console for now.', 'info');
-            headerActions.appendChild(btn);
+            const headerHtml = html`
+                <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openCreateModal()}>+ Create Group</button>
+            `;
+            headerActions.innerHTML = headerHtml.toString();
         }
 
         if (groups.length === 0) {
@@ -77,8 +77,8 @@ export default class GroupsView extends BaseComponent {
                         <div class="card-footer">
                             <small>ID: ${g.id}</small>
                             <div class="card-actions">
-                                <button class="btn ghost-btn btn-sm" onclick="${() => this.manageMembers(g.id, g.name)}">Manage Members</button>
-                                <button class="btn danger-btn btn-sm" onclick="${() => this.admin.confirmDelete('group', g.id)}">Delete</button>
+                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.manageMembers(g.id, g.name)}>Manage Members</button>
+                                <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('group', g.id)}>Delete</button>
                             </div>
                         </div>
                     </div>
@@ -88,74 +88,92 @@ export default class GroupsView extends BaseComponent {
     }
 
     async manageMembers(groupId, groupName) {
-        this.admin.openModal(`Manage Members: ${groupName}`, html`
+        this.state.currentGroupId = groupId;
+        this.state.searchResults = [];
+        this.state.searchQuery = '';
+        this.state.currentMembers = [];
+        
+        this.admin.openModal(`Manage Members: ${groupName}`, this.getManagementHtml(), [
+            { label: 'Close', type: 'secondary', fn: () => this.admin.closeModal() }
+        ]);
+
+        await this.loadMembers(groupId);
+    }
+
+    getManagementHtml() {
+        const { searchResults, searchQuery, currentMembers, currentGroupId } = this.state;
+        return html`
             <div class="group-mgmt-wrap">
                 <div class="search-box mb-4">
                     <label>Add New Member</label>
                     <div class="member-search-container" style="position: relative;">
                         <input type="text" id="member-search-input" placeholder="Search Users, Staff, Students..." 
-                            class="spp-element" oninput="${(e) => this.handleSearch(e, groupId)}">
-                        <div id="member-suggestions" class="suggestions-list search-suggestions-dropdown"></div>
+                            class="spp-element" value="${searchQuery}" @input=${(e) => this.handleSearch(e, currentGroupId)}>
+                        
+                        <div id="member-suggestions" class="suggestions-list search-suggestions-dropdown ${searchResults.length > 0 ? 'active' : ''}">
+                            ${searchResults.map(item => html`
+                                <div class="suggestion-item" @click=${() => this.promptAddMember(currentGroupId, item.class, item.id, item.name)}>
+                                    <div class="suggestion-core">
+                                        <span class="icon">${item.icon || '👤'}</span>
+                                        <div class="suggestion-info">
+                                            <strong>${item.name}</strong>
+                                            <div class="type-label">${item.type || 'Entity'}</div>
+                                        </div>
+                                    </div>
+                                    <span class="add-plus">＋ Add</span>
+                                </div>
+                            `)}
+                        </div>
                     </div>
                 </div>
                 <div id="current-members-list">
-                    <div class="loader">Fetching members...</div>
+                    ${currentMembers.length === 0 ? html`<div class="loader">Fetching members...</div>` : this.getMembersListHtml()}
                 </div>
             </div>
-        `.toString());
+        `;
+    }
 
-        const saveBtn = document.getElementById('modal-save');
-        saveBtn.style.display = 'block';
-        saveBtn.innerText = 'Save';
-        saveBtn.onclick = () => this.admin.closeModal();
+    getMembersListHtml() {
+        const { currentMembers, currentGroupId } = this.state;
+        if (currentMembers.length === 0) return html`<div class="empty-mini">No members yet.</div>`;
 
-        // Bind delegated click listeners once on the modal container
-        const modalBody = document.getElementById('modal-body');
-        if (modalBody) {
-            // Using a standard, reliable event listener on the modal body.
-            // We use onclick to ensure any previous handlers are overwritten, 
-            // but addEventListener is also fine if we track it.
-            modalBody.onclick = (e) => {
-                const target = e.target;
-                
-                // 1. Handle Add Member (+ Add button)
-                const addBtn = target.closest('.suggestion-item');
-                if (addBtn) {
-                    const gid = addBtn.getAttribute('data-group-id');
-                    const cls = addBtn.getAttribute('data-class');
-                    const id = addBtn.getAttribute('data-id');
-                    const name = addBtn.getAttribute('data-name');
-                    if (gid && cls && id) {
-                        this.promptAddMember(gid, cls, id, name);
-                    }
-                    return;
-                }
+        return html`
+            <div class="member-list-mini">
+                <label>Current Members (${currentMembers.length})</label>
+                ${currentMembers.map(m => html`
+                    <div class="member-mini-item ${m.direct ? 'direct' : 'inherited'}">
+                        <div class="member-core">
+                            <span class="icon">${m.entity.includes('User') ? '👤' : (m.entity.includes('Group') ? '👥' : '🏷️')}</span>
+                            <div class="member-meta">
+                                <div class="name">${m.name} ${!m.direct ? html`<span class="inherited-label">Inherited</span>` : ''}</div>
+                                <div class="role">${m.role || 'member'} ${!m.direct ? html`<small>via ${m.inherited_via}</small>` : ''}</div>
+                            </div>
+                        </div>
+                        ${m.direct ? html`
+                            <button type="button" class="remove-btn" @click=${() => this.removeMember(currentGroupId, m.entity, m.id, m.name)}>✕</button>
+                        ` : html`<span class="lock">🔒</span>`}
+                    </div>
+                `)}
+            </div>
+        `;
+    }
 
-                // 2. Handle Remove Member (✕ button)
-                const removeBtn = target.closest('.remove-btn');
-                if (removeBtn) {
-                    const gid = removeBtn.getAttribute('data-group-id');
-                    const cls = removeBtn.getAttribute('data-class');
-                    const id = removeBtn.getAttribute('data-id');
-                    const name = removeBtn.getAttribute('data-name');
-                    if (gid && cls && id) {
-                        this.removeMember(gid, cls, id, name);
-                    }
-                    return;
-                }
-            };
-        }
-
-        await this.loadMembers(groupId);
+    refreshModal() {
+        const { groups, currentGroupId } = this.state;
+        const group = groups.find(g => g.id === currentGroupId);
+        const title = group ? `Manage Members: ${group.name}` : 'Manage Members';
+        
+        this.admin.updateModal(title, this.getManagementHtml());
+        this._registerGlobalHandlers();
     }
 
     async handleSearch(e, groupId) {
         const q = e.target.value.trim();
-        const dropdown = document.getElementById('member-suggestions');
+        this.state.searchQuery = q;
         
         if (q.length < 1) {
-            dropdown.innerHTML = '';
-            dropdown.classList.remove('active');
+            this.state.searchResults = [];
+            this.refreshModal();
             return;
         }
 
@@ -165,31 +183,8 @@ export default class GroupsView extends BaseComponent {
             fd.append('q', q);
             const res = await this.admin.apiPost(fd);
             
-            // Normalize response (handle standard wrap or flat results)
-            const results = res.data?.results || res.results || [];
-
-            if (results.length > 0) {
-                dropdown.innerHTML = results.map(item => `
-                    <div class="suggestion-item" 
-                        data-group-id="${groupId}" 
-                        data-class="${item.class}" 
-                        data-id="${item.id}" 
-                        data-name="${this.admin.escapeAttr(item.name)}">
-                        <div class="suggestion-core">
-                            <span class="icon">${item.icon || '👤'}</span>
-                            <div class="suggestion-info">
-                                <strong>${item.name}</strong>
-                                <div class="type-label">${item.type || 'Entity'}</div>
-                            </div>
-                        </div>
-                        <span class="add-plus">＋ Add</span>
-                    </div>
-                `).join('');
-                dropdown.classList.add('active');
-            } else {
-                dropdown.innerHTML = '<div class="empty-suggestion">No matches found.</div>';
-                dropdown.classList.add('active');
-            }
+            this.state.searchResults = res.data?.results || res.results || [];
+            this.refreshModal();
         } catch (err) {
             console.error('Group search error:', err);
         }
@@ -229,42 +224,14 @@ export default class GroupsView extends BaseComponent {
     }
 
     async loadMembers(groupId) {
-        const container = document.getElementById('current-members-list');
         try {
             const res = await this.admin.api(`list_group_members&group_id=${groupId}`);
             if (res.success) {
-                const members = res.data.members || [];
-                if (members.length === 0) {
-                    container.innerHTML = '<div class="empty-mini">No members yet.</div>';
-                    return;
-                }
-
-                container.innerHTML = `
-                    <div class="member-list-mini">
-                        <label>Current Members (${members.length})</label>
-                        ${members.map(m => `
-                            <div class="member-mini-item ${m.direct ? 'direct' : 'inherited'}">
-                                <div class="member-core">
-                                    <span class="icon">${m.entity.includes('User') ? '👤' : (m.entity.includes('Group') ? '👥' : '🏷️')}</span>
-                                    <div class="member-meta">
-                                        <div class="name">${m.name} ${!m.direct ? '<span class="inherited-label">Inherited</span>' : ''}</div>
-                                        <div class="role">${m.role || 'member'} ${!m.direct ? `<small>via ${m.inherited_via}</small>` : ''}</div>
-                                    </div>
-                                </div>
-                                ${m.direct ? `
-                                    <button class="remove-btn" 
-                                        data-group-id="${groupId}" 
-                                        data-class="${m.entity}" 
-                                        data-id="${m.id}" 
-                                        data-name="${this.admin.escapeAttr(m.name)}">✕</button>
-                                ` : '<span class="lock">🔒</span>'}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+                this.state.currentMembers = res.data.members || [];
+                this.refreshModal();
             }
         } catch (err) {
-            container.innerHTML = `<div class="alert error">${err.message}</div>`;
+            this.admin.notify(`Error loading members: ${err.message}`, 'error');
         }
     }
 
@@ -293,6 +260,53 @@ export default class GroupsView extends BaseComponent {
         } catch (err) {
             console.error("GroupsView: Error in removeMember:", err);
             this.admin.notify("An unexpected error occurred during removal.", "error");
+        }
+    }
+    async openCreateModal() {
+        const content = html`
+            <div class="spp-form-modern">
+                <div class="form-group">
+                    <label>Group Name</label>
+                    <input type="text" id="new-group-name" class="spp-element" placeholder="e.g. Administrators">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="new-group-desc" class="spp-element" placeholder="What is this group for?"></textarea>
+                </div>
+            </div>
+        `;
+
+        this.admin.openModal('Create New Group', content, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+            { label: 'Create Group', type: 'primary', fn: () => this.saveGroup() }
+        ]);
+    }
+
+    async saveGroup() {
+        const name = document.getElementById('new-group-name').value.trim();
+        const description = document.getElementById('new-group-desc').value.trim();
+
+        if (!name) {
+            this.admin.notify('Group name is required.', 'error');
+            return;
+        }
+
+        try {
+            const fd = new FormData();
+            fd.append('action', 'save_group');
+            fd.append('name', name);
+            fd.append('description', description);
+
+            const res = await this.admin.apiPost(fd);
+            if (res.success) {
+                this.admin.notify('Group created successfully.', 'success');
+                this.admin.closeModal();
+                await this.fetchData();
+            } else {
+                this.admin.notify(res.message || 'Failed to create group.', 'error');
+            }
+        } catch (err) {
+            this.admin.notify(`Error: ${err.message}`, 'error');
         }
     }
 }

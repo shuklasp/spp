@@ -1,0 +1,5 @@
+base_url: /spp
+table_prefix: ''
+etc_path: src/lekhak/etc
+src_path: src/lekhak
+app_init: init.php

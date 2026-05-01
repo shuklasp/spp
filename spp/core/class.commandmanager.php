@@ -40,21 +40,35 @@ class CommandManager
             }
         }
 
-        // 2. Scan APP Commands (for active app)
+        // 2. Scan ALL Registered Apps for Commands
         if (class_exists('\SPP\App')) {
-            $context = \SPP\Scheduler::getContext();
-            if ($context && $context !== 'default') {
-                $appCmdDir = SPP_APP_DIR . "/src/{$context}/commands";
+            $settings = \SPP\App::getGlobalSettings();
+            $apps = $settings['apps'] ?? [];
+            
+            foreach ($apps as $appName => $appMeta) {
+                // Determine src_path
+                $srcPath = $appMeta['src_path'] ?? '';
+                if ($srcPath !== null && $srcPath !== '') {
+                    $baseSrc = SPP_APP_DIR . SPP_DS . rtrim($srcPath, '/\\');
+                } else {
+                    $baseSrc = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appName;
+                }
+
+                $appCmdDir = $baseSrc . "/commands";
                 if (is_dir($appCmdDir)) {
                     foreach (glob($appCmdDir . '/*.php') as $file) {
-                        require_once $file;
-                        $className = basename($file, '.php');
-                        $class = "App\\" . ucfirst($context) . "\\Commands\\" . $className;
-                        if (class_exists($class)) {
-                            $cmdObj = new $class();
-                            if ($cmdObj instanceof Command) {
-                                $discoveredCommands[$cmdObj->getName()] = $cmdObj;
+                        try {
+                            require_once $file;
+                            $className = basename($file, '.php');
+                            $class = "App\\" . ucfirst($appName) . "\\Commands\\" . $className;
+                            if (class_exists($class)) {
+                                $cmdObj = new $class();
+                                if ($cmdObj instanceof Command) {
+                                    $discoveredCommands[$cmdObj->getName()] = $cmdObj;
+                                }
                             }
+                        } catch (\Throwable $e) {
+                            // Skip invalid commands
                         }
                     }
                 }

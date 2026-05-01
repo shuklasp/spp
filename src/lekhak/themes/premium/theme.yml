@@ -1,0 +1,9 @@
+name: "Lekhak Premium"
+description: "A professional, high-contrast dark theme for modern publishing."
+version: "1.0.0"
+author: "Lekhak Team"
+regions:
+  header: "Header Navigation"
+  sidebar: "Primary Sidebar"
+  content: "Main Document Area"
+  footer: "Footer Copyright"

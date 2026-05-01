@@ -1,5 +1,5 @@
 <?php
-namespace SPP;
+namespace SPP\Core;
 
 interface iModule{
     public function declare_events();

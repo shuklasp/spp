@@ -45,12 +45,11 @@ export default class EntitiesView extends BaseComponent {
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            headerActions.innerHTML = '';
-            const btn = document.createElement('button');
-            btn.className = 'btn primary-btn btn-sm';
-            btn.innerHTML = '+ New Entity';
-            btn.onclick = () => this.openEditor('', 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255');
-            headerActions.appendChild(btn);
+            const defaultSource = 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255';
+            const headerHtml = html`
+                <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', defaultSource)}>+ New Entity</button>
+            `;
+            headerActions.innerHTML = headerHtml.toString();
         }
 
         if (entities.length === 0) {
@@ -59,7 +58,7 @@ export default class EntitiesView extends BaseComponent {
                     <div class="empty-icon">🏗️</div>
                     <h3>No Entities Defined</h3>
                     <p>Applications in SPP use YAML-defined entities for decoupled data management.</p>
-                    <button class="btn primary-btn" onclick="${() => this.openEditor('', 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255')}">+ Create Entity</button>
+                    <button type="button" class="btn primary-btn" @click=${() => this.openEditor('', 'table: my_table\nid_field: id\nattributes:\n  name:\n    type: varchar\n    length: 255')}>+ Create Entity</button>
                 </div>
             `;
         }
@@ -85,8 +84,8 @@ export default class EntitiesView extends BaseComponent {
                             <div class="card-footer">
                                 <small>${ent.size ? Math.round(ent.size / 1024 * 100) / 100 + ' KB' : ''}</small>
                                 <div class="card-actions">
-                                    <button class="btn ghost-btn btn-sm" onclick="${() => this.openEditor(ent.name, ent.content)}">Edit</button>
-                                    <button class="btn danger-btn btn-sm" onclick="${() => this.admin.confirmDelete('entity', ent.name)}">Delete</button>
+                                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openEditor(ent.name, ent.content)}>Edit</button>
+                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('entity', ent.name)}>Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -116,22 +115,19 @@ export default class EntitiesView extends BaseComponent {
             }
         }
 
-        this.admin.openModal(name ? `Entity: ${name}.yml` : 'Create New Entity', this.getModalHtml().toString());
-        
-        const saveBtn = document.getElementById('modal-save');
-        saveBtn.textContent = name ? 'Save Changes' : 'Create Entity';
-        saveBtn.onclick = () => this.save();
-        saveBtn.className = 'btn primary-btn';
+        this.admin.openModal(name ? `Entity: ${name}.yml` : 'Create New Entity', this.getModalHtml(), [
+            { label: name ? 'Save Changes' : 'Create Entity', type: 'primary', fn: () => this.save() }
+        ]);
     }
 
     getModalHtml() {
         const { activeFormTab } = this.state;
         return html`
             <div class="tab-bar">
-                <button class="tab-btn ${activeFormTab === 'builder' ? 'active' : ''}" 
-                    onclick="${() => this.switchTab('builder')}">Visual Builder</button>
-                <button class="tab-btn ${activeFormTab === 'source' ? 'active' : ''}" 
-                    onclick="${() => this.switchTab('source')}">Source (YAML)</button>
+                <button type="button" class="tab-btn ${activeFormTab === 'builder' ? 'active' : ''}" 
+                    @click=${() => this.switchTab('builder')}>Visual Builder</button>
+                <button type="button" class="tab-btn ${activeFormTab === 'source' ? 'active' : ''}" 
+                    @click=${() => this.switchTab('source')}>Source (YAML)</button>
             </div>
             <div id="entity-editor-content" class="tab-content active">
                 ${activeFormTab === 'builder' ? this.getBuilderHtml() : this.getSourceHtml()}
@@ -153,7 +149,7 @@ export default class EntitiesView extends BaseComponent {
         }
 
         // Re-render modal body
-        document.getElementById('modal-body').innerHTML = this.getModalHtml().toString();
+        this.refreshModal();
         
         // Update tab button classes manually since we are injecting into modal
         document.querySelectorAll('.tab-btn').forEach(b => {
@@ -175,29 +171,29 @@ export default class EntitiesView extends BaseComponent {
                     <div class="input-group">
                         <label>Class Name</label>
                         <input type="text" value="${this.state.currentEntityName}" 
-                            onchange="${(e) => { this.state.currentEntityName = e.target.value; }}" 
+                            @change=${(e) => { this.state.currentEntityName = e.target.value; }} 
                             placeholder="e.g. Staff" ${this.state.currentEntityName ? 'disabled' : ''}>
                     </div>
                     <div class="input-group">
                         <label>Database Table</label>
                         <input type="text" value="${config.table || ''}" 
-                            onchange="${(e) => { config.table = e.target.value; }}" placeholder="e.g. staffs">
+                            @change=${(e) => { config.table = e.target.value; }} placeholder="e.g. staffs">
                     </div>
                     <div class="input-group">
                         <label>Extends (Parent)</label>
                         <input type="text" value="${config.extends || ''}" 
-                            onchange="${(e) => { config.extends = e.target.value; }}" placeholder="e.g. \\SPPMod\\SPPAuth\\SPPUser">
+                            @change=${(e) => { config.extends = e.target.value; }} placeholder="e.g. \\SPPMod\\SPPAuth\\SPPUser">
                     </div>
                     <div class="input-group checkbox-group">
                         <label><input type="checkbox" ?checked="${config.login_enabled}" 
-                            onchange="${(e) => { config.login_enabled = e.target.checked; }}"> Login Enabled</label>
+                            @change=${(e) => { config.login_enabled = e.target.checked; }}> Login Enabled</label>
                     </div>
                 </div>
                 <div class="builder-main">
                     <div class="section-card attributes-section">
                         <div class="section-header">
                             <h4>Attributes</h4>
-                            <button class="btn ghost-btn btn-sm" onclick="${() => this.addAttribute()}">+ Add Attribute</button>
+                            <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.addAttribute()}>+ Add Attribute</button>
                         </div>
                         <div class="attribute-list">
                             ${Object.entries(attrs).map(([name, type]) => this.getAttributeRowHtml(name, type))}
@@ -207,7 +203,7 @@ export default class EntitiesView extends BaseComponent {
                     <div class="section-card relations-section">
                         <div class="section-header">
                             <h4>Relationships</h4>
-                            <button class="btn ghost-btn btn-sm" onclick="${() => this.addRelation()}">+ Add Relation</button>
+                            <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.addRelation()}>+ Add Relation</button>
                         </div>
                         <div class="relation-list">
                             ${relations.map((rel, idx) => this.getRelationRowHtml(rel, idx))}
@@ -229,8 +225,8 @@ export default class EntitiesView extends BaseComponent {
         const typeStr = String(type);
         return html`
             <div class="attribute-row">
-                <input type="text" value="${name}" onchange="${(e) => this.updateAttributeName(name, e.target.value)}" placeholder="Field name">
-                <select onchange="${(e) => { this.state.currentEntityConfig.attributes[name] = e.target.value; }}">
+                <input type="text" value="${name}" @change=${(e) => this.updateAttributeName(name, e.target.value)} placeholder="Field name">
+                <select @change=${(e) => { this.state.currentEntityConfig.attributes[name] = e.target.value; }}>
                     <option value="varchar(255)" ?selected="${typeStr.includes('varchar')}">Varchar</option>
                     <option value="int" ?selected="${typeStr === 'int'}">Integer</option>
                     <option value="bigint" ?selected="${typeStr === 'bigint'}">BigInt</option>
@@ -238,7 +234,7 @@ export default class EntitiesView extends BaseComponent {
                     <option value="datetime" ?selected="${typeStr === 'datetime'}">DateTime</option>
                     <option value="decimal(10,2)" ?selected="${typeStr.includes('decimal')}">Decimal</option>
                 </select>
-                <button class="btn btn-icon danger" onclick="${() => this.removeAttribute(name)}">✕</button>
+                <button type="button" class="btn btn-icon danger" @click=${() => this.removeAttribute(name)}>✕</button>
             </div>`;
     }
 
@@ -246,23 +242,23 @@ export default class EntitiesView extends BaseComponent {
         return html`
             <div class="relation-row card">
                 <div class="rel-meta">
-                    <select onchange="${(e) => { this.state.currentEntityConfig.relations[idx].relation_type = e.target.value; this.refreshModal(); }}">
+                    <select @change=${(e) => { this.state.currentEntityConfig.relations[idx].relation_type = e.target.value; this.refreshModal(); }}>
                         <option value="OneToMany" ?selected="${rel.relation_type === 'OneToMany'}">One-to-Many</option>
                         <option value="ManyToMany" ?selected="${rel.relation_type === 'ManyToMany'}">Many-to-Many</option>
                     </select>
                     <span>Target:</span>
                     <input type="text" value="${rel.child_entity || ''}" 
-                        onchange="${(e) => { this.state.currentEntityConfig.relations[idx].child_entity = e.target.value; }}" placeholder="e.g. \\App\\Entities\\Course">
+                        @change=${(e) => { this.state.currentEntityConfig.relations[idx].child_entity = e.target.value; }} placeholder="e.g. \\App\\Entities\\Course">
                 </div>
                 <div class="rel-fields">
                     <input type="text" value="${rel.child_entity_field || ''}" 
-                        onchange="${(e) => { this.state.currentEntityConfig.relations[idx].child_entity_field = e.target.value; }}" placeholder="FK Field">
+                        @change=${(e) => { this.state.currentEntityConfig.relations[idx].child_entity_field = e.target.value; }} placeholder="FK Field">
                     ${rel.relation_type === 'ManyToMany' ? html`
                         <input type="text" value="${rel.pivot_table || ''}" 
-                            onchange="${(e) => { this.state.currentEntityConfig.relations[idx].pivot_table = e.target.value; }}" placeholder="Pivot Table">
+                            @change=${(e) => { this.state.currentEntityConfig.relations[idx].pivot_table = e.target.value; }} placeholder="Pivot Table">
                     ` : ''}
                 </div>
-                <button class="btn btn-icon danger" onclick="${() => this.removeRelation(idx)}">✕</button>
+                <button type="button" class="btn btn-icon danger" @click=${() => this.removeRelation(idx)}>✕</button>
             </div>`;
     }
 
@@ -271,6 +267,7 @@ export default class EntitiesView extends BaseComponent {
         const content = document.getElementById('entity-editor-content');
         if (content) {
             content.innerHTML = (this.state.activeFormTab === 'builder' ? this.getBuilderHtml() : this.getSourceHtml()).toString();
+            this._registerGlobalHandlers();
         }
     }
 

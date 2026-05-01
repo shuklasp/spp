@@ -29,7 +29,7 @@ class ViewForm extends ViewTag {
     public function  __construct($ename,$method='post',$act='', $id=null) {
         parent::__construct('form',$ename);
         $this->isemptyflag=false;
-        $this->attrlist=array('action','accept','accept-charset','enctype','method','name','target');
+        $this->attrlist=array('action','accept','accept-charset','enctype','method','name','target', 'data-onsuccess', 'data-onerror', 'data-onbeforesubmit');
         $this->eventattrlist[]='onsubmit';
         $this->eventattrlist[]='onreset';
         
@@ -67,6 +67,11 @@ class ViewForm extends ViewTag {
     public function setAction($action)
     {
         $this->attributes['action']=$action;
+    }
+
+    public function setTheme(string $themeName)
+    {
+        SPPViewForm_Element::setTheme($themeName);
     }
 
     public function setOnsubmit($onsubmit){
@@ -128,6 +133,11 @@ class ViewForm extends ViewTag {
     public function startForm()
     {
         echo parent::getHTML();
+        
+        // Automated CSRF Protection
+        $token = \SPP\Security\CSRF::getToken();
+        echo '<input type="hidden" name="_csrf_token" value="' . $token . '" />';
+
         // The hidden field is only for legacy multi-form-per-page detection in processForms()
         echo '<input type="hidden" name="__spp_form" id="__spp_form_' . $this->getAttribute('id') . '" value="'.$this->getAttribute('name').'" />';
     }
@@ -238,6 +248,23 @@ class ViewForm extends ViewTag {
                 
                 $elem->setAttribute('value', $value);
             }
+        }
+    }
+
+    public function getChild($name)
+    {
+        return $this->elements[$name] ?? null;
+    }
+
+    /**
+     * Registers an element in the form's element map without necessarily adding it as a direct child.
+     * Useful for elements wrapped in containers.
+     */
+    public function registerElement(\SPPMod\SPPView\ViewTag $elem)
+    {
+        $ename = $elem->getAttribute('id') ?: $elem->getAttribute('name');
+        if ($ename) {
+            $this->elements[$ename] = $elem;
         }
     }
 }

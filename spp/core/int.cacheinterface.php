@@ -1,5 +1,5 @@
 <?php
-namespace SPP;
+namespace SPP\Core;
 
 /**
  * Interface CacheInterface

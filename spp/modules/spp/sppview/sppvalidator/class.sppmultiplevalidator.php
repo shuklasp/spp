@@ -15,7 +15,18 @@ abstract class SPP_Multiple_Validator extends ViewValidator {
     public function __construct(array $elems, $errorholder = 'nameerror', $msg = 'Validation error', $jsfunc = 'undefined')
     {
         parent::__construct(null, $errorholder, $msg, $jsfunc);
-        $this->elements=$elems;
+        $this->elements = $elems;
+        
+        foreach ($this->elements as $elem) {
+            $id = $elem->getAttribute('id');
+            if ($id) {
+                $this->attachedto[$id] = [
+                    'element' => $elem,
+                    'event' => 'manual',
+                    'msg' => $msg
+                ];
+            }
+        }
     }
 
     public function getJsFunction(): string

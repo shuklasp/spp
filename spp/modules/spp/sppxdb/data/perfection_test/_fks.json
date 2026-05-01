@@ -1,0 +1,10 @@
+{
+    "children": [
+        {
+            "localCol": "parent_id",
+            "refTable": "parents",
+            "refCol": "id",
+            "onDelete": "CASCADE"
+        }
+    ]
+}

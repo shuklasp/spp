@@ -1,0 +1,7 @@
+{
+    "mv_test": {
+        "sql": "SELECT * FROM source_data",
+        "materialized": true,
+        "last_refresh": 1777647333
+    }
+}

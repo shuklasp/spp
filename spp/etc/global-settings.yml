@@ -1,151 +1,152 @@
 profile: dev
 shared_groups:
-  core:
-    table_prefix: spp_
-    entities:
-      - User
-      - Role
-      - Right
-  academic:
-    extends: core
-    table_prefix: sch_
-    entities:
-      - Student
-      - Teacher
-      - Class
-  example_shared:
-    extends: core
-    table_prefix: example_
-    entities:
-      - User
-      - Right
-  test_reactivity:
-    extends: core
-    table_prefix: test_
-    entities: {  }
+    core:
+        table_prefix: spp_
+        entities:
+            - users
+            - roles
+            - rights
+    academic:
+        extends: core
+        table_prefix: sch_
+        entities:
+            - Student
+            - Teacher
+            - Class
+    example_shared:
+        extends: core
+        table_prefix: example_
+        entities:
+            - User
+            - Right
+    test_reactivity:
+        extends: core
+        table_prefix: test_
+        entities: {  }
 admin_auth:
-  username: admin
-  password: admin123
+    username: admin
+    password: admin123
 apps:
-  default:
-    base_url: /
-    table_prefix: ''
-    shared_group: academic
-    etc_path: ''
-    src_path: ''
-  sppadmin:
-    base_url: /sppadmin
-    table_prefix: sppadmin_
-    shared_group: ''
-    etc_path: etc/apps/sppadmin
-    src_path: src/sppadmin
-  autodemo:
-    base_url: /autodemo
-    table_prefix: autodemo_
-    shared_group: core
-    etc_path: etc/apps/autodemo
-    src_path: src/autodemo
-  cms:
-    base_url: /cms
-    type: drupal
-    drupal_root: vshiksha_theme/..
-    table_prefix: drupal_
-    shared_group: core
-  test1:
-    base_url: /test1
-    table_prefix: test1_
-    type: sppux
-    shared_group: core
-    etc_path: etc/apps/test1
-    src_path: src/test1
-  MyBladeApp:
-    base_url: /MyBladeApp
-    table_prefix: mba_
-    shared_group: core
-    etc_path: etc/apps/MyBladeApp
-    src_path: src/MyBladeApp
-  IntegratedApp:
-    base_url: /IntegratedApp
-    table_prefix: ia_
-    shared_group: core
-    etc_path: etc/apps/IntegratedApp
-    src_path: src/IntegratedApp
-  PremiumApp:
-    base_url: /PremiumApp
-    table_prefix: pre_
-    shared_group: core
-    etc_path: etc/apps/PremiumApp
-    src_path: src/PremiumApp
-  SppUxApp:
-    base_url: /SppUxApp
-    table_prefix: SppUxApp_
-    type: sppux
-    shared_group: core
-    etc_path: etc/apps/SppUxApp
-    src_path: src/SppUxApp
-  PremiumBlade:
-    base_url: /PremiumBlade
-    table_prefix: PremiumBlade_
-    type: blade
-    shared_group: core
-    etc_path: etc/apps/PremiumBlade
-    src_path: src/PremiumBlade
-  PremiumDropIn:
-    base_url: /PremiumDropIn
-    table_prefix: PremiumDropIn_
-    type: dropin
-    shared_group: core
-    etc_path: etc/apps/PremiumDropIn
-    src_path: src/PremiumDropIn
-  PremiumSppUx:
-    base_url: /PremiumSppUx
-    table_prefix: PremiumSppUx_
-    type: sppux
-    shared_group: core
-    etc_path: etc/apps/PremiumSppUx
-    src_path: src/PremiumSppUx
-base_app: default
+    default:
+        base_url: /default
+        table_prefix: ''
+        shared_group: academic
+        etc_path: ''
+        src_path: ''
+        app_init: ''
+    sppadmin:
+        base_url: /sppadmin
+        table_prefix: sppadmin_
+        shared_group: ''
+        etc_path: etc/apps/sppadmin
+        src_path: src/sppadmin
+        app_init: init.php
+    autodemo:
+        base_url: /autodemo
+        table_prefix: autodemo_
+        shared_group: core
+        etc_path: etc/apps/autodemo
+        src_path: src/autodemo
+        app_init: init.php
+    cms:
+        base_url: /cms
+        type: drupal
+        drupal_root: vshiksha_theme/..
+        table_prefix: drupal_
+        shared_group: core
+        app_init: init.php
+    test1:
+        base_url: /test1
+        table_prefix: test1_
+        type: sppux
+        shared_group: core
+        etc_path: etc/apps/test1
+        src_path: src/test1
+        app_init: init.php
+    MyBladeApp:
+        base_url: /MyBladeApp
+        table_prefix: mba_
+        shared_group: core
+        etc_path: etc/apps/MyBladeApp
+        src_path: src/MyBladeApp
+        app_init: init.php
+    IntegratedApp:
+        base_url: /IntegratedApp
+        table_prefix: ia_
+        shared_group: academic
+        etc_path: etc/apps/IntegratedApp
+        src_path: src/IntegratedApp
+        app_init: init.php
+    PremiumApp:
+        base_url: /PremiumApp
+        table_prefix: pre_
+        shared_group: core
+        etc_path: etc/apps/PremiumApp
+        src_path: src/PremiumApp
+        app_init: init.php
+    SppUxApp:
+        base_url: /SppUxApp
+        table_prefix: SppUxApp_
+        type: sppux
+        shared_group: core
+        etc_path: etc/apps/SppUxApp
+        src_path: src/SppUxApp
+        app_init: init.php
+    PremiumBlade:
+        base_url: /PremiumBlade
+        table_prefix: PremiumBlade_
+        type: blade
+        shared_group: core
+        etc_path: etc/apps/PremiumBlade
+        src_path: src/PremiumBlade
+        app_init: init.php
+    PremiumDropIn:
+        base_url: /PremiumDropIn
+        table_prefix: PremiumDropIn_
+        shared_group: core
+        etc_path: etc/apps/PremiumDropIn
+        src_path: src/PremiumDropIn
+        app_init: init.php
+    PremiumSppUx:
+        base_url: /PremiumSppUx
+        table_prefix: PremiumSppUx_
+        type: sppux
+        shared_group: core
+        etc_path: etc/apps/PremiumSppUx
+        src_path: src/PremiumSppUx
+        app_init: init.php
+    lekhak:
+        base_url: /lekhak
+        shared_group: core
+        etc_path: src/lekhak/etc
+        src_path: src/lekhak
+        app_init: init.php
+        admin_icon: 🖋️
+        admin_title: 'Lekhak CMS'
+base_app: lekhak
 prototyping:
-  auto_evolution: manual
-  view_generation: php_html
-formats:
-  - yaml
-  - xml
-  - db
-  - json
-modes:
-  -
-    name: sys
-    format: yaml
-    ref: /etc/sys
-  -
-    name: mod
-    format: xml
-    ref: /etc/settings/modules
-  -
-    name: app
-    format: yaml
-    ref: /etc/settings/app
-  -
-    name: umod
-    format: json
-    ref: /etc/umod
-settings:
-  site_name: Vidyalaya
-  Key2:
-    skey1: 'new value'
-  Key3: Val3
-  debug: true
-  compulsory_modules:
-    - sppauth
-    - sppdb
-    - sppconfig
-    - sppview
+    auto_evolution: manual
+    view_generation: php_html
 bridge:
-  shared_dir: var/shared
+    shared_dir: var/shared
 dev:
-  testing:
-    storage_strategy: same_db
-    table_prefix: spptest__
-    auto_generate_tests: true
-    fuzz_intensity: 10
+    testing:
+        storage_strategy: same_db
+        table_prefix: spptest__
+        auto_generate_tests: true
+        fuzz_intensity: 10
+settings:
+# Example settings (can be used or deleted):
+#    Key2:
+#        skey1: 'new value'
+#    Key3: Val3
+    site_name: Vidyalaya
+    debug: true
+    compulsory_modules:
+        - sppauth
+        - sppdb
+        - sppconfig
+        - sppview
+    ui:
+        branding:
+            color: '#00ff00'

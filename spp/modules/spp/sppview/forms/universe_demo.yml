@@ -1,0 +1,63 @@
+form:
+  name: UniverseDemo
+  title: The SPP Legendary Universe
+
+elements:
+  intro:
+    type: html
+    content: "<h1>Welcome to the Future</h1><p>Every element below is a modern, reactive extension.</p>"
+
+  analytics_row:
+    type: html
+    content: "<div class='grid-2'><div>"
+  
+  revenue:
+    type: chart
+    chart_type: bar
+    data:
+      labels: ["W1", "W2", "W3", "W4"]
+      datasets: [{ label: "Revenue", data: [400, 600, 800, 1200], backgroundColor: "#6366f1" }]
+
+  growth:
+    type: chart
+    chart_type: line
+    data:
+      labels: ["W1", "W2", "W3", "W4"]
+      datasets: [{ label: "Growth", data: [5, 12, 8, 20], borderColor: "#10b981" }]
+
+  content_row:
+    type: html
+    content: "</div><div>"
+
+  location:
+    type: map
+    height: "300px"
+    center: [51.505, -0.09]
+    zoom: 13
+    markers:
+      - { pos: [51.505, -0.09], text: "HQ" }
+
+  closing_html:
+    type: html
+    content: "</div></div>"
+
+  config_editor:
+    type: code
+    language: "yaml"
+    value: |
+      system:
+        mode: legendary
+        version: 12.0
+        status: ultra-reactive
+
+  event_date:
+    type: calendar
+    mode: "range"
+    enable_time: true
+
+  priority_tasks:
+    type: sortable
+    items:
+      - { id: 1, text: "🚀 Launch Hyper-Drive" }
+      - { id: 2, text: "📦 Scale Infrastructure" }
+      - { id: 3, text: "💎 Polish UI Aesthetics" }

@@ -109,8 +109,8 @@
     </div>
 
     <!-- SPP-UX Runtime -->
-    <script src='/school1/spp/admin/js/sppux.js'></script>
-    <script src='/school1/spp/admin/js/spp-loader.js'></script>
+    <script src="{{ \SPPMod\SPPUX\SPPUX::runtimePath() }}"></script>
+    <script src="{{ \SPPMod\SPPUX\SPPUX::loaderPath() }}" type="module"></script>
     <script>
         // Minimal admin mock for standalone apps
         window.spp_admin = {

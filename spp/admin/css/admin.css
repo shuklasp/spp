@@ -53,6 +53,18 @@
     --transition: cubic-bezier(0.4, 0, 0.2, 1);
     --spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     --theme-transition: background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
+
+    /* SPP-UX Theme Overrides (Night) */
+    --sppux-panel: var(--panel-bg-solid);
+    --sppux-text: var(--text-main);
+    --sppux-text-dim: var(--text-dim);
+    --sppux-glass-border: var(--glass-border);
+    --sppux-overlay-bg: rgba(0, 0, 0, 0.6);
+    --sppux-overlay-blur: blur(20px);
+    --sppux-modal-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+    --sppux-footer-bg: rgba(0, 0, 0, 0.2);
+    --sppux-header-text: var(--text-bright);
+    --sppux-primary: var(--primary);
 }
 
 /* Day Mode Overrides */
@@ -79,13 +91,40 @@
     --text-secondary: #334155;
     --text-dim: #475569;
     --text-bright: #020617;
+
+    /* SPP-UX Theme Overrides */
+    --sppux-panel: var(--panel-bg-solid);
+    --sppux-text: var(--text-main);
+    --sppux-text-dim: var(--text-dim);
+    --sppux-glass-border: var(--glass-border);
+    --sppux-overlay-bg: rgba(255, 255, 255, 0.4);
+    --sppux-overlay-blur: blur(10px);
+    --sppux-modal-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    --sppux-footer-bg: rgba(0, 0, 0, 0.03);
+    --sppux-header-text: var(--text-bright);
+    --sppux-primary: var(--primary);
 }
 
 /* Day Mode Badge Contrast Overrides */
-[data-theme="day"] .code-badge.primary { background: #2563eb; color: #fff; }
-[data-theme="day"] .code-badge.warning { background: #ea580c; color: #fff; }
-[data-theme="day"] .badge.success { background: #16a34a; color: #fff; }
-[data-theme="day"] .badge.warning { background: #d97706; color: #fff; }
+[data-theme="day"] .code-badge.primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+[data-theme="day"] .code-badge.warning {
+    background: #ea580c;
+    color: #fff;
+}
+
+[data-theme="day"] .badge.success {
+    background: #16a34a;
+    color: #fff;
+}
+
+[data-theme="day"] .badge.warning {
+    background: #d97706;
+    color: #fff;
+}
 
 /* Saffron Mode Overrides - Premium Palette with Gradient */
 [data-theme="saffron"] {
@@ -98,18 +137,18 @@
     --s-600: #ea580c;
     --s-700: #c2410c;
 
-    --bg-dark: #fff4e6; /* Restored to deeper saffron base for better panel pop */
-    --bg-surface: rgba(255, 255, 255, 0.98);
-    --panel-bg: rgba(255, 255, 255, 0.92);
-    --panel-bg-solid: #ffffff;
-    --sidebar-bg: var(--s-600); /* Restored vibrant orange sidebar */
-    --card-bg: rgba(255, 255, 255, 0.6);
-    --input-bg: #fffbf5;
+    --bg-dark: #fff4e6;
+    --bg-surface: #fffbf5;
+    --panel-bg: rgba(255, 251, 245, 0.95);
+    --panel-bg-solid: #fffbf5;
+    --sidebar-bg: var(--s-600);
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --input-bg: #fffefc;
     --btn-soft-bg: var(--s-200);
     --btn-soft-hover: var(--s-300);
 
-    --glass-border: rgba(67, 20, 7, 0.2);
-    --glass-border-hover: rgba(67, 20, 7, 0.35);
+    --glass-border: rgba(124, 45, 18, 0.15);
+    --glass-border-hover: rgba(124, 45, 18, 0.3);
     --glass-accent: rgba(249, 115, 22, 0.08);
 
     --primary: #ea580c;
@@ -122,13 +161,58 @@
     --text-secondary: #7c2d12;
     --text-dim: #9a3412;
     --text-bright: #2d0a03;
+
+    /* SPP-UX Theme Overrides */
+    --sppux-panel: var(--panel-bg-solid);
+    --sppux-text: var(--text-main);
+    --sppux-text-dim: var(--text-dim);
+    --sppux-glass-border: var(--glass-border);
+    --sppux-overlay-bg: rgba(124, 45, 18, 0.15);
+    --sppux-overlay-blur: blur(15px);
+    --sppux-modal-shadow: 0 25px 60px rgba(124, 45, 18, 0.2);
+    --sppux-toast-shadow: 0 10px 30px rgba(124, 45, 18, 0.1);
+    --sppux-footer-bg: rgba(249, 115, 22, 0.05);
+    --sppux-header-text: var(--text-bright);
+    --sppux-primary: var(--primary);
+}
+
+/* Day Mode Shadow Override */
+[data-theme="day"] {
+    --sppux-modal-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    --sppux-toast-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+/* Explicit Toast Text Contrast */
+[data-theme="day"] .toast,
+[data-theme="day"] .sppux-toast {
+    color: #1e293b !important;
+}
+
+[data-theme="saffron"] .toast,
+[data-theme="saffron"] .sppux-toast {
+    color: #431407 !important;
 }
 
 /* Saffron Mode Badge Contrast Overrides */
-[data-theme="saffron"] .code-badge.primary { background: #c2410c; color: #fff; }
-[data-theme="saffron"] .code-badge.warning { background: #9a3412; color: #fff; }
-[data-theme="saffron"] .badge.success { background: #15803d; color: #fff; }
-[data-theme="saffron"] .badge.warning { background: #b45309; color: #fff; }
+[data-theme="saffron"] .code-badge.primary {
+    background: #c2410c;
+    color: #fff;
+}
+
+[data-theme="saffron"] .code-badge.warning {
+    background: #9a3412;
+    color: #fff;
+}
+
+[data-theme="saffron"] .badge.success {
+    background: #15803d;
+    color: #fff;
+}
+
+[data-theme="saffron"] .badge.warning {
+    background: #b45309;
+    color: #fff;
+}
 
 [data-theme="saffron"] body {
     background: linear-gradient(135deg, var(--s-50) 0%, var(--s-100) 100%);
@@ -282,13 +366,26 @@ body::after {
         inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
+.mod-update-row.glass-panel {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 1rem;
+    padding: 1.25rem;
+}
+
+.log-output.glass-panel {
+    background: #06070d !important;
+    border: 1px solid var(--glass-border);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
 .glass-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--sppux-overlay-bg);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     display: none;
@@ -827,8 +924,9 @@ textarea:focus {
 /* === CARD GRID === */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    align-items: stretch;
     animation: gridFadeIn 0.4s var(--transition) forwards;
 }
 
@@ -1433,7 +1531,8 @@ textarea:focus {
 }
 
 [data-theme="saffron"] .data-table tbody tr:nth-child(even) {
-    background: rgba(249, 115, 22, 0.04); /* Very subtle saffron tint */
+    background: rgba(249, 115, 22, 0.04);
+    /* Very subtle saffron tint */
 }
 
 /* --- Expanded Row Styling --- */
@@ -1469,7 +1568,7 @@ textarea:focus {
     overflow: visible !important;
     background: rgba(0, 0, 0, 0.4) !important;
     border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff !important; 
+    color: #fff !important;
     padding: 8px 12px;
     border-radius: 4px;
     max-width: 100%;
@@ -3031,40 +3130,6 @@ textarea:focus {
 }
 
 
- / *   = = =   T H E M E   S W I T C H E R   = = =   * /   . t h e m e - s w i t c h e r    {
-               d i s p l a y :    f l e x ;
-               g a p :    0 . 5 r e m ;
-               m a r g i n - t o p :    1 r e m ;
-               p a d d i n g :    0 . 5 r e m ;
-               b a c k g r o u n d :    r g b a ( 2 5 5 ,    2 5 5 ,    2 5 5 ,    0 . 0 3 ) ;
-               b o r d e r - r a d i u s :    v a r ( - - r a d i u s - m d ) ;
-               j u s t i f y - c o n t e n t :    s p a c e - a r o u n d ;
-       
-}
-
-     . t h e m e - b t n    {
-               b a c k g r o u n d :    t r a n s p a r e n t ;
-               b o r d e r :    1 p x   s o l i d   v a r ( - - g l a s s - b o r d e r ) ;
-               b o r d e r - r a d i u s :    8 p x ;
-               w i d t h :    3 2 p x ;
-               h e i g h t :    3 2 p x ;
-               d i s p l a y :    f l e x ;
-               a l i g n - i t e m s :    c e n t e r ;
-               j u s t i f y - c o n t e n t :    c e n t e r ;
-               c u r s o r :    p o i n t e r ;
-               f o n t - s i z e :    1 r e m ;
-               t r a n s i t i o n :    a l l   0 . 2 s   v a r ( - - t r a n s i t i o n ) ;
-       
-}
-
-     . t h e m e - b t n : h o v e r    {
-               b a c k g r o u n d :    v a r ( - - g l a s s - a c c e n t ) ;
-               t r a n s f o r m :    t r a n s l a t e Y ( - 2 p x ) ;
-               b o r d e r - c o l o r :    v a r ( - - p r i m a r y ) ;
-       
-}
-
-       
 
 /* =============================================
    GROUP MEMBERSHIP MODAL STYLES
@@ -3229,7 +3294,8 @@ textarea:focus {
 }
 
 .perfect-table thead th:first-child {
-    padding-left: 1.5rem; /* Standardized to match td alignment when using app-identity */
+    padding-left: 1.5rem;
+    /* Standardized to match td alignment when using app-identity */
 }
 
 .perfect-table tbody tr {
@@ -3317,7 +3383,7 @@ textarea:focus {
     justify-content: center;
     border-radius: 50%;
     border: 1px solid white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .icon-radio-wrap {
@@ -3524,7 +3590,8 @@ textarea:focus {
 
 /* ACTIVE state (Green) */
 .status-toggle-pill.active {
-    background: #10b981; /* Success Emerald */
+    background: #10b981;
+    /* Success Emerald */
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -3536,7 +3603,8 @@ textarea:focus {
 
 /* INACTIVE state (Red) */
 .status-toggle-pill.inactive {
-    background: #ef4444; /* Danger Red */
+    background: #ef4444;
+    /* Danger Red */
     color: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -3565,8 +3633,13 @@ textarea:focus {
     letter-spacing: 0.5px;
 }
 
-.status-label.active { color: var(--success); }
-.status-label.inactive { color: var(--text-dim); }
+.status-label.active {
+    color: var(--success);
+}
+
+.status-label.inactive {
+    color: var(--text-dim);
+}
 
 [data-theme="day"] .spp-switch-slider {
     background: rgba(0, 0, 0, 0.05);
@@ -3575,3 +3648,18 @@ textarea:focus {
 [data-theme="day"] .spp-switch-slider:before {
     background: #ffffff;
 }
+/* === DIAGNOSTIC VIEWS STYLING === */
+.sidebar-divider { height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5; }
+.sidebar-section-title { font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em; font-weight: 700; }
+.config-row { transition: background 0.2s; }
+.config-row:hover { background: rgba(255, 255, 255, 0.02); }
+[data-theme='day'] .config-row:hover { background: rgba(0, 0, 0, 0.02); }
+.status-dot.active { animation: statusPulse 2s infinite; }
+@keyframes statusPulse {
+    0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+}
+.tab-btn { background: transparent; border: none; padding: 10px 15px; color: var(--text-dim); font-size: 0.85rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.tab-btn:hover { color: var(--text-secondary); }
+.tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }

@@ -3,3 +3,19 @@ modules:
         name: spplogger
         path: spp/spplogger
         status: active
+    -
+        name: sppxdb
+        path: spp/sppxdb
+        status: inactive
+    -
+        name: sppaudit
+        path: spp/sppaudit
+        status: active
+    -
+        name: lekhak
+        path: spp/lekhak
+        status: active
+    -
+        name: lekhak_commerce
+        path: spp/lekhak_commerce
+        status: active

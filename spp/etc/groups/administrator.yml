@@ -1,0 +1,7 @@
+id: administrator
+name: Administrator
+description: 'Full system access.'
+attributes:
+    rights:
+        - '*'
+members: {  }

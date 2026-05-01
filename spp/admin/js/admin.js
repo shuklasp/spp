@@ -10,6 +10,12 @@ class SPPAdmin {
     constructor() {
         console.log("SPP Admin Workbench v1.1 Loaded");
         this.apiEndpoint = 'api.php';
+        
+        // Ensure local aliases for namespaced SPPUX utilities
+        if (typeof SPPUX !== 'undefined') {
+            window.html = SPPUX.html;
+            window.TrustedHTML = SPPUX.TrustedHTML;
+        }
         this.user = null;
         
         // Initialize Global Root Store
@@ -28,7 +34,14 @@ class SPPAdmin {
             'forms': '📝',
             'groups': '👥',
             'access': '🛡️',
-            'routing': '🔗'
+            'middleware': '🔀',
+            'queue': '🕒',
+            'routing': '🔗',
+            'manage': '🛠️',
+            'config': '⚙️',
+            'trace': '🛰️',
+            'services': '🔌',
+            'xdb': '🗄️'
         };
         this.viewTitles = {
             'system': 'System Information',
@@ -37,13 +50,27 @@ class SPPAdmin {
             'entities': 'Application Entities',
             'forms': 'Form Configurations',
             'groups': 'Group Management',
-            'access': 'Access Control & IAM',
-            'routing': 'Routing Management'
+            'access': 'Identity & RBAC',
+            'middleware': 'Middleware Pipeline',
+            'queue': 'Distributed Tasks',
+            'routing': 'Routing Management',
+            'manage': 'Application Management',
+            'config': 'Framework Config',
+            'trace': 'Event Tracing',
+            'services': 'Service Registry',
+            'xdb': 'XML Database'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
         this.searchTimeout = null;
         this.theme = localStorage.getItem('spp_admin_theme') || 'night';
+        
+        // Define base configuration for components
+        this.config = {
+            baseUrl: window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf('/spp/admin')),
+            apiBase: 'api.php'
+        };
+
         this.init();
     }
 
@@ -251,6 +278,12 @@ class SPPAdmin {
 
     applyTheme(theme) {
         document.body.setAttribute('data-theme', theme);
+        
+        // Sync SPPUX Global Variable Theme if library is loaded
+        if (window.SPPUX && SPPUX.Theme) {
+            SPPUX.Theme.set(theme);
+        }
+
         // Special cosmetic tweaks for body backgrounds if needed
         if (theme === 'day') {
             document.body.style.backgroundImage = 'none';
@@ -348,6 +381,12 @@ class SPPAdmin {
         document.getElementById('view-title').innerHTML =
             `<span class="view-icon">${icon}</span> ${title}`;
 
+        const app = this.availableApps.find(a => a.name === hash);
+        if (app && app.has_admin && this.selectedApp !== hash) {
+            this.onAppContextChange(hash);
+            return; // onAppContextChange will trigger loadView again
+        }
+
         if (this.user) {
             this.loadView(hash);
         }
@@ -367,21 +406,77 @@ class SPPAdmin {
 
             try {
                 const ts = Date.now();
-                // 1. Document-Relative Component paths (Base: /admin/js/)
-                const corePath = `./views/${view}.js?v=${ts}`;
-                const appPath = `../../src/${this.selectedApp}/comp/${view}.js?v=${ts}`;
+                // 1. Script-Relative Component paths
+                const scripts = document.getElementsByTagName('script');
+                let adminJsUrl = '';
+                for (let s of scripts) {
+                    if (s.src && s.src.includes('admin.js')) {
+                        adminJsUrl = s.src;
+                        break;
+                    }
+                }
+                const jsDir = adminJsUrl ? adminJsUrl.substring(0, adminJsUrl.lastIndexOf('/') + 1) : 'js/';
+                const corePath = `${jsDir}views/${view}.js?v=${ts}`;
                 
+                // 2. Resolve App-Side Component Path
+                const rootPath = jsDir.includes('spp/admin/js/') ? jsDir.split('spp/admin/js/')[0] : '../../';
+                let appPath = `${rootPath}src/${this.selectedApp}/comp/${view}.js?v=${ts}`;
+                
+                // If the view name matches an app name, try to load that app's 'manage.js' or '<appname>.js'
+                const appMeta = this.availableApps.find(a => a.name === view);
+                if (appMeta) {
+                    const srcPath = appMeta.src_path || `src/${view}`;
+                    appPath = `${rootPath}${srcPath}/comp/${view}.js?v=${ts}`;
+                }
+
                 let module;
-                try {
-                    // Try to load core component first
-                    module = await import(corePath);
-                    console.log(`Loaded core component: ${view}`);
-                } catch (e) {
+                // If a specific app is selected (not 'default' or '__sppadmin__'), try app-side first
+                const useAppFirst = this.selectedApp !== 'default' && this.selectedApp !== '__sppadmin__';
+
+                if (useAppFirst) {
                     try {
                         module = await import(appPath);
-                        console.log(`Loaded app-side component: ${view}`);
-                    } catch (e2) {
-                        // 2. Fallback to Legacy Hardcoded Methods
+                        console.log(`Loaded app-side component (Priority): ${view}`);
+                    } catch (e) {
+                        console.warn(`App-side component not found, trying core: ${appPath}`);
+                        try {
+                            module = await import(corePath);
+                            console.log(`Loaded core component (Fallback): ${view}`);
+                        } catch (e2) {
+                             console.error(`Core component also failed: ${corePath}`, e2);
+                             // Try manage.js fallback for apps
+                             if (appMeta) {
+                                try {
+                                    const srcPath = appMeta.src_path || `src/${view}`;
+                                    const managePath = `${rootPath}${srcPath}/comp/manage.js?v=${ts}`;
+                                    module = await import(managePath);
+                                    console.log(`Loaded app-side component: manage.js for ${view}`);
+                                } catch (e3) {
+                                    throw new Error(`Component "${view}" failed to load from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
+                                }
+                             } else {
+                                throw new Error(`Component "${view}" failed to load from app or core.\nApp: ${appPath} -> ${e.message}\nCore: ${corePath} -> ${e2.message}`);
+                             }
+                        }
+                    }
+                } else {
+                    try {
+                        // Try to load core component first
+                        module = await import(corePath);
+                        console.log(`Loaded core component: ${view}`);
+                    } catch (e) {
+                        console.error(`Failed to load core component: ${corePath}`, e);
+                        try {
+                            module = await import(appPath);
+                            console.log(`Loaded app-side component: ${view}`);
+                        } catch (e2) {
+                            throw e2;
+                        }
+                    }
+                }
+                
+                if (!module) {
+                    // 3. Fallback to Legacy Hardcoded Methods
                         const legacyMethod = 'render' + view.charAt(0).toUpperCase() + view.slice(1);
                     if (typeof this[legacyMethod] === 'function') {
                         console.log(`Falling back to legacy method: ${legacyMethod}`);
@@ -392,17 +487,15 @@ class SPPAdmin {
                     }
                     throw new Error(`Component or Legacy View "${view}" not found.`);
                 }
-            }
 
-            // 3. Render SPP-UX Component
-            if (module.default) {
-                this.viewInstance = new module.default(this, container);
-                await this.viewInstance.onInit();
-                this.viewInstance.update();
-            }
-
-        } catch (err) {
-            console.error('View load error:', err);
+                // 3. Render SPP-UX Component
+                if (module.default) {
+                    this.viewInstance = new module.default(this, container);
+                    await this.viewInstance.onInit();
+                    this.viewInstance.update();
+                }
+            } catch (err) {
+                console.error('View load error:', err);
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">⚠️</div>
@@ -464,16 +557,46 @@ class SPPAdmin {
             const res = await this.api('list_apps');
             if (res.success && res.data.apps) {
                 this.availableApps = res.data.apps;
-                // Just update the list, don't trigger side effects that might cause recursion
-                if (this.selectedApp && !this.availableApps.find(a => a.name === this.selectedApp)) {
-                    // Current app vanished or invalid, but don't force a reload here
-                    console.warn(`Selected app "${this.selectedApp}" no longer available.`);
-                }
                 this.renderAppSelector();
+                this.renderDynamicNav();
             }
         } catch (err) {
             console.error('Failed to load apps:', err);
         }
+    }
+
+    renderDynamicNav() {
+        const container = document.getElementById('dynamic-nav-items');
+        if (!container) return;
+
+        let html = '';
+        this.availableApps.forEach(app => {
+            if (app.has_admin) {
+                // Register metadata if not already there
+                if (!this.viewIcons[app.name]) this.viewIcons[app.name] = app.admin_icon || '🛠️';
+                if (!this.viewTitles[app.name]) this.viewTitles[app.name] = app.admin_title || app.name;
+
+                const active = this.currentView === app.name ? 'active' : '';
+                html += `
+                    <li>
+                        <a href="#${app.name}" class="nav-item ${active}" data-view="${app.name}">
+                            <span class="icon">${this.viewIcons[app.name]}</span> ${this.viewTitles[app.name]}
+                        </a>
+                    </li>
+                `;
+            }
+        });
+
+        container.innerHTML = html;
+
+        // Re-bind click events for new nav items
+        container.querySelectorAll('.nav-item').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = e.currentTarget.getAttribute('data-view');
+                location.hash = view;
+            });
+        });
     }
 
     renderAppSelector() {
@@ -538,6 +661,8 @@ class SPPAdmin {
         const elements = body.querySelectorAll('input, select, textarea');
         elements.forEach(el => {
             if (el.type === 'hidden') return;
+            if (el.closest('.spp-form-group, .form-group, .input-group')) return;
+            
             const labelText = el.getAttribute('label');
             const helpText = el.getAttribute('help');
             const wrapper = document.createElement('div');
@@ -573,6 +698,11 @@ class SPPAdmin {
                     else el.value = val;
                 }
             }
+        }
+        
+        // Initialize reactive dependencies if the SPPForm engine is loaded
+        if (window.SPPForm) {
+            SPPForm.autoInit(body);
         }
 
         subModal.querySelector('#sub-modal-save').onclick = () => {
@@ -611,66 +741,97 @@ class SPPAdmin {
     // API HELPERS
     // =============================================
 
-    async api(action, params = {}) {
-        let url;
-        // Support compound action strings or (actionName, paramsObject)
-        if (action.includes('&')) {
-            const parts = action.split('&');
-            const actionName = parts.shift();
-            url = this.apiEndpoint + '?action=' + encodeURIComponent(actionName) + '&' + parts.join('&');
-        } else {
-            url = this.apiEndpoint + '?action=' + encodeURIComponent(action);
-            for (const [key, val] of Object.entries(params)) {
-                if (!url.includes(`&${key}=`)) {
-                    url += `&${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
+    async api(action, params = {}, options = { lock: true }) {
+        if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
+        try {
+            let url;
+            const endpoint = options.endpoint || this.apiEndpoint;
+            // Support compound action strings or (actionName, paramsObject)
+            if (action.includes('&')) {
+                const parts = action.split('&');
+                const actionName = parts.shift();
+                url = endpoint + '?action=' + encodeURIComponent(actionName) + '&' + parts.join('&');
+            } else {
+                url = endpoint + '?action=' + encodeURIComponent(action);
+                for (const [key, val] of Object.entries(params)) {
+                    if (!url.includes(`&${key}=`)) {
+                        url += `&${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
+                    }
                 }
             }
-        }
 
-        // Add appname if not already in URL (context enforcement)
-        if (!url.includes('appname=') && !url.includes('context=')) {
-            url += '&appname=' + encodeURIComponent(this.selectedApp);
-        }
+            // Add appname if not already in URL (context enforcement)
+            if (!url.includes('appname=') && !url.includes('context=')) {
+                url += '&appname=' + encodeURIComponent(this.selectedApp);
+            }
 
-        // Add CSRF token
-        if (window.SPP_CSRF_TOKEN) {
-            url += '&csrf_token=' + encodeURIComponent(window.SPP_CSRF_TOKEN);
-        }
-        url += '&_ts=' + Date.now();
+            // Add CSRF token
+            if (window.SPP_CSRF_TOKEN) {
+                url += '&csrf_token=' + encodeURIComponent(window.SPP_CSRF_TOKEN);
+            }
+            url += '&_ts=' + Date.now();
 
-        const response = await fetch(url, { credentials: 'same-origin', cache: 'no-store' });
-        return response.json();
+            const headers = {
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            if (window.SPP_CSRF_TOKEN) {
+                headers['X-CSRF-TOKEN'] = window.SPP_CSRF_TOKEN;
+            }
+
+            const response = await fetch(url, { 
+                credentials: 'same-origin', 
+                cache: 'no-store',
+                headers: headers
+            });
+            return await response.json();
+        } finally {
+            if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
+        }
     }
 
-    async apiPost(actionOrFormData, params = {}) {
-        let formData;
-        
-        if (actionOrFormData instanceof FormData) {
-            formData = actionOrFormData;
-        } else {
-            formData = new FormData();
-            formData.append('action', actionOrFormData);
-            for (const [key, val] of Object.entries(params)) {
-                formData.append(key, val);
+    async apiPost(actionOrFormData, params = {}, options = { lock: true }) {
+        if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
+        try {
+            let formData;
+            
+            if (actionOrFormData instanceof FormData) {
+                formData = actionOrFormData;
+            } else {
+                formData = new FormData();
+                formData.append('action', actionOrFormData);
+                for (const [key, val] of Object.entries(params)) {
+                    formData.append(key, val);
+                }
             }
-        }
 
-        // Inject app context into POST data if not present
-        if (!formData.has('appname') && !formData.has('context')) {
-            formData.append('appname', this.selectedApp);
-        }
+            // Inject app context into POST data if not present
+            if (!formData.has('appname') && !formData.has('context')) {
+                formData.append('appname', this.selectedApp);
+            }
 
-        // Inject CSRF token
-        if (window.SPP_CSRF_TOKEN && !formData.has('csrf_token')) {
-            formData.append('csrf_token', window.SPP_CSRF_TOKEN);
-        }
+            // Inject CSRF token
+            if (window.SPP_CSRF_TOKEN && !formData.has('csrf_token')) {
+                formData.append('csrf_token', window.SPP_CSRF_TOKEN);
+            }
 
-        const response = await fetch(this.apiEndpoint, {
-            method: 'POST',
-            body: formData,
-            credentials: 'same-origin'
-        });
-        return response.json();
+            const headers = {
+                'X-Requested-With': 'XMLHttpRequest'
+            };
+            if (window.SPP_CSRF_TOKEN) {
+                headers['X-CSRF-TOKEN'] = window.SPP_CSRF_TOKEN;
+            }
+
+            const endpoint = options.endpoint || this.apiEndpoint;
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                body: formData,
+                credentials: 'same-origin',
+                headers: headers
+            });
+            return await response.json();
+        } finally {
+            if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
+        }
     }
 
     // =============================================
@@ -687,7 +848,7 @@ class SPPAdmin {
         }, 600);
     }
 
-    showWorkspace() {
+    async showWorkspace() {
         document.getElementById('login-layer').classList.remove('active');
         document.getElementById('workspace-layer').classList.add('active');
 
@@ -702,25 +863,19 @@ class SPPAdmin {
 
 
         // Discovery & Resource Sync
-        this.loadApps();
+        await this.loadApps();
 
         this.handleRouting();
     }
 
     notify(msg, type = 'info') {
-        if (!msg) return; // Prevention for "blue screen" crashes on null messages
-        const container = document.getElementById('toast-container');
-        if (!container) return; // Silent fail if workspace not loaded
-
-        const toast = document.createElement('div');
-        toast.className = 'toast' + (type === 'error' ? ' error' : type === 'success' ? ' success' : '');
-        toast.textContent = msg;
-        container.appendChild(toast);
-
-        setTimeout(() => {
-            toast.classList.add('removing');
-            setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        if (!msg) return;
+        if (window.SPPUX && SPPUX.Notify) {
+            SPPUX.Notify.show(msg, type);
+        } else {
+            console.warn("SPPUX UI not loaded, falling back to alert:", msg);
+            alert(msg);
+        }
     }
 
     handleApiErrors(res) {
@@ -739,60 +894,55 @@ class SPPAdmin {
         }
     }
 
-    openModal(title, content = '') {
-        const modal = document.getElementById('modal-container');
-        const titleEl = document.getElementById('modal-title');
-        const bodyEl = document.getElementById('modal-body');
-
-        if (titleEl) titleEl.textContent = title;
-        if (bodyEl) bodyEl.innerHTML = content;
-
-        // Restore standard footer buttons (wiped by previous calls)
-        this.resetModalFooter();
-
-        modal.classList.add('active');
-    }
-
-    resetModalFooter() {
-        const footerEl = document.getElementById('modal-footer');
-        if (!footerEl) return;
-        footerEl.style.display = 'flex';
-        footerEl.innerHTML = `
-            <button class="btn secondary-btn" id="modal-close">Cancel</button>
-            <button class="btn primary-btn" id="modal-save">Save Changes</button>
-        `;
-        // Re-bind the close button
-        const closeBtn = document.getElementById('modal-close');
-        if (closeBtn) closeBtn.addEventListener('click', () => this.closeModal());
+    openModal(title, content = '', actions = []) {
+        if (window.SPPUX && SPPUX.Modal) {
+            // If content is TrustedHTML, don't call toString() yet, pass it as is
+            this._activeModal = SPPUX.Modal.open(title, content, actions.length ? actions : [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+                { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
+            ]);
+            
+            // If we have a current view, ensure it picks up any handlers from this modal
+            if (this.viewInstance) {
+                this.viewInstance._registerGlobalHandlers();
+            }
+        } else {
+            console.error("SPPUX Modal system not loaded.");
+        }
     }
 
     updateModal(title, content, actions = null) {
-        const titleEl = document.getElementById('modal-title');
-        const bodyEl = document.getElementById('modal-body');
-        const footerEl = document.getElementById('modal-footer');
-        
-        if (titleEl) titleEl.textContent = title;
-        if (bodyEl) bodyEl.innerHTML = content;
-
-        if (footerEl) {
-            if (actions) {
-                footerEl.innerHTML = '';
-                footerEl.style.display = 'flex';
-                actions.forEach(act => {
-                    const btn = document.createElement('button');
-                    btn.className = `btn ${act.type}-btn`;
-                    btn.textContent = act.label;
-                    btn.onclick = act.fn.bind(this);
-                    footerEl.appendChild(btn);
-                });
-            } else {
-                footerEl.style.display = 'none';
+        if (this._activeModal) {
+            this._activeModal.props.title = title;
+            this._activeModal.props.content = content;
+            if (actions) this._activeModal.props.actions = actions;
+            this._activeModal.update();
+            
+            // Ensure the view picks up new handlers after update
+            if (this.currentViewInstance) {
+                this.currentViewInstance._registerGlobalHandlers();
             }
+        } else {
+            this.openModal(title, content, actions || []);
         }
     }
 
     closeModal() {
-        document.getElementById('modal-container').classList.remove('active');
+        if (this._activeModal) {
+            this._activeModal.close();
+            this._activeModal = null;
+        }
+        // Legacy support for manual modal layers
+        const manualModal = document.getElementById('modal-container');
+        if (manualModal) manualModal.classList.remove('active');
+    }
+
+    saveCurrentModal() {
+        // Compatibility helper for legacy save buttons
+        const saveBtn = document.getElementById('modal-save');
+        if (saveBtn && saveBtn.onclick) {
+            saveBtn.onclick();
+        }
     }
 
     renderSystem(data, bridge) {
@@ -956,80 +1106,113 @@ class SPPAdmin {
     // =============================================
 
     async runSystemUpdate() {
-        this.openModal('🔍 Scanning System for Updates...', '<div class="loader">Calculating deltas...</div>');
+        this.openModal('🔍 Scanning System for Updates...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Analyzing module manifests and entity schemas...</div></div>`);
         
         try {
             const res = await this.api('system_update_list');
             if (!res.success) {
-                this.updateModal('Update Scan Failed', `<div class="alert error">${res.message}</div>`);
+                this.updateModal('Scan Failed', SPPUX.html`<div class="alert error-alert">${res.message}</div>`);
                 return;
             }
 
             const deltas = res.data.deltas;
-            let html = '<div class="update-manifest" style="max-height: 400px; overflow-y: auto;">';
+            let manifestHtml = '';
             let hasWork = false;
 
             // Render Modules
             for (const [mod, data] of Object.entries(deltas.modules)) {
                 hasWork = true;
-                html += `<div class="mod-update-row" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px;">
-                    <h3 style="color: var(--primary-color)">📦 ${mod}</h3>
-                    <ul style="list-style: none; padding-left: 0; margin-top: 10px;">`;
-                if (data.tables) data.tables.forEach(t => html += `<li style="margin-bottom: 5px;">${t.status === 'missing' ? '🆕' : '🔄'} Table: <strong>${t.name}</strong></li>`);
-                if (data.entities) data.entities.forEach(e => html += `<li style="margin-bottom: 5px;">👤 Entity Sync: <em>${e.class}</em></li>`);
-                if (data.sequences) data.sequences.forEach(s => html += `<li style="margin-bottom: 5px;">🔢 Sequence: ${s.name}</li>`);
-                html += `</ul></div>`;
+                manifestHtml += `
+                    <div class="mod-update-row glass-panel" style="margin-bottom: 1rem; padding: 1.25rem; border-left: 4px solid var(--primary);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                            <h4 style="margin: 0; color: var(--text-main); font-size: 1rem;">📦 Module: ${mod}</h4>
+                            <span class="badge info" style="font-size: 0.65rem;">MIGRATION</span>
+                        </div>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; display: grid; gap: 8px;">`;
+                
+                if (data.tables) data.tables.forEach(t => {
+                    const icon = t.status === 'missing' ? '🆕' : '🔄';
+                    const color = t.status === 'missing' ? 'var(--success)' : 'var(--warning)';
+                    manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1rem;">${icon}</span>
+                        <span style="flex:1;">Table: <strong style="color: ${color};">${t.name}</strong></span>
+                        <span style="opacity: 0.5; font-size: 0.75rem;">${t.status === 'missing' ? 'Create' : 'Alter'}</span>
+                    </li>`;
+                });
+                
+                if (data.entities) data.entities.forEach(e => manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1rem;">👤</span>
+                    <span style="flex:1;">Entity Sync: <em style="color: var(--info);">${e.class}</em></span>
+                </li>`);
+                
+                manifestHtml += `</ul></div>`;
             }
 
             // Render App Entities
             if (deltas.entities.length > 0) {
                 hasWork = true;
-                html += `<div class="mod-update-row" style="margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-color)">📂 Application Entities</h3>
-                    <ul style="list-style: none; padding-left: 0; margin-top: 10px;">`;
-                deltas.entities.forEach(e => html += `<li style="margin-bottom: 5px;">🆕 New Table: <strong>${e.name}</strong></li>`);
-                html += `</ul></div>`;
+                manifestHtml += `
+                    <div class="mod-update-row glass-panel" style="margin-bottom: 1rem; padding: 1.25rem; border-left: 4px solid var(--success);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
+                            <h4 style="margin: 0; color: var(--text-main); font-size: 1rem;">📂 Application Entities</h4>
+                            <span class="badge success" style="font-size: 0.65rem;">SCHEMA</span>
+                        </div>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; display: grid; gap: 8px;">`;
+                
+                deltas.entities.forEach(e => manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1rem;">🆕</span>
+                    <span style="flex:1;">New Table: <strong style="color: var(--success);">${e.name}</strong></span>
+                </li>`);
+                
+                manifestHtml += `</ul></div>`;
             }
 
             if (!hasWork) {
-                this.updateModal('System Up to Date', '<div class="empty-state" style="padding: 40px;"><div style="font-size: 40px; margin-bottom: 15px;">✅</div><h3>Fully Synchronized</h3><p>No pending database or module updates found.</p></div>');
+                this.updateModal('System Up to Date', 
+                    SPPUX.html`<div style="text-align: center; padding: 3rem;"><div style="font-size: 4rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 15px var(--success));">✨</div><h3 style="margin-bottom: 0.5rem;">Fully Synchronized</h3><p style="opacity: 0.6;">No pending database or module updates found.</p></div>`,
+                    [{ label: 'Close', type: 'secondary', fn: (m) => m.close() }]);
                 return;
             }
 
-            html += '</div>';
-            
-            this.updateModal('Pending Incremental Updates', html, [
-                { label: 'Cancel', type: 'secondary', fn: this.closeModal },
-                { label: 'Continue with Update', type: 'primary', fn: this.applySystemUpdate }
+            this.updateModal('Pending Incremental Updates', SPPUX.html`<div class="update-manifest" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">${new SPPUX.TrustedHTML(manifestHtml)}</div>`, [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+                { label: 'Apply Updates Now 🚀', type: 'primary', fn: () => this.applySystemUpdate() }
             ]);
 
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
 
     async applySystemUpdate() {
-        this.updateModal('🚀 Updating System...', '<div class="loader">Executing migration routines...</div>');
+        this.updateModal('🚀 Updating System...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Executing migration routines and synchronizing schemas...</div><div style="font-size: 0.8rem; opacity: 0.4; margin-top: 1rem;">Please do not close this window.</div></div>`);
         
         try {
             const res = await this.api('system_update_run');
             if (res.success) {
-                let logHtml = '<pre class="log-output" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.6; text-align: left;">';
+                let logLines = '';
+                
                 if (res.data.log.length === 0) {
-                    logHtml += "No changes were necessary.";
+                    logLines = `<div style="color: var(--success); display:flex; align-items:center; gap:10px;"><span>✅</span> <span>No changes were necessary. System is already optimized.</span></div>`;
                 } else {
                     res.data.log.forEach(line => {
-                        logHtml += `<div>${this.escapeHtml(line)}</div>`;
+                        const isError = line.toLowerCase().includes('error') || line.toLowerCase().includes('fail');
+                        const isSuccess = line.includes('Updated') || line.includes('Created') || line.includes('Synchronized') || line.includes('Synchronised');
+                        const color = isError ? 'var(--danger)' : isSuccess ? 'var(--success)' : 'var(--text-main)';
+                        logLines += `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 4px 0;">${this.escapeHtml(line)}</div>`;
                     });
                 }
-                logHtml += '</pre>';
                 
-                this.updateModal('Update Complete', logHtml, [
+                this.updateModal('Update Complete', SPPUX.html`<div class="log-output glass-panel" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; font-family: 'Consolas', monospace; font-size: 0.85rem; line-height: 1.7; text-align: left; border: 1px solid rgba(255,255,255,0.05); color: #d4d4d4;">${new SPPUX.TrustedHTML(logLines)}</div>`, [
                     { label: 'Finish & Reload', type: 'primary', fn: () => location.reload() }
                 ]);
+            } else {
+                this.updateModal('Update Failed', SPPUX.html`<div class="alert error-alert">${res.message}</div>`);
             }
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
     // =============================================
@@ -1037,68 +1220,85 @@ class SPPAdmin {
     // =============================================
 
     async openModuleMaintenance(modname, publicName) {
-        this.openModal(`🏗️ Maintenance: ${publicName}`, '<div class="loader">Scanning module for changes...</div>');
+        this.openModal(`🏗️ Maintenance: ${publicName}`, SPPUX.html`
+            <div class="glass-panel" style="padding: 3rem; text-align: center; background: rgba(0,0,0,0.2);">
+                <div class="sppux-spinner" style="width: 45px; height: 45px; margin: 0 auto 1.5rem auto;"></div>
+                <div style="font-size: 1.1rem; opacity: 0.8; letter-spacing: 0.5px;">Scanning module for changes...</div>
+            </div>
+        `);
         
         try {
             const res = await this.apiPost('scan_module', { modname });
             if (!res.success) {
-                this.updateModal('Scan Failed', `<div class="alert error">${this.escapeHtml(res.message)}</div>`);
+                this.updateModal('Scan Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(res.message)}</div>`);
                 return;
             }
 
             const deltas = res.data.deltas;
-            let html = '<div class="maintenance-manifest" style="max-height: 400px; overflow-y: auto;">';
+            let manifestHtml = '';
             let hasWork = false;
 
             if (deltas.tables && deltas.tables.length > 0) {
                 hasWork = true;
-                html += `<h4>Database Tables</h4><ul style="list-style: none; padding-left: 0; margin-bottom: 20px;">`;
-                deltas.tables.forEach(t => html += `<li style="margin-bottom: 5px;">${t.status === 'missing' ? '🆕' : '🔄'} ${this.escapeHtml(t.name)}</li>`);
-                html += `</ul>`;
+                manifestHtml += `
+                    <div class="mod-update-row glass-panel" style="border-left: 4px solid var(--info);">
+                        <h4 style="margin-top: 0; margin-bottom: 0.75rem; color: var(--info); display: flex; align-items: center; gap: 8px;"><span>📊</span> Database Schema</h4>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                `;
+                deltas.tables.forEach(t => manifestHtml += `<li style="padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">${t.status === 'missing' ? '🆕' : '🔄'} ${this.escapeHtml(t.name)}</li>`);
+                manifestHtml += `</ul></div>`;
             }
 
             if (deltas.entities && deltas.entities.length > 0) {
                 hasWork = true;
-                html += `<h4>Entities</h4><ul style="list-style: none; padding-left: 0; margin-bottom: 20px;">`;
-                deltas.entities.forEach(e => html += `<li style="margin-bottom: 5px;">👤 ${this.escapeHtml(e.class)}</li>`);
-                html += `</ul>`;
+                manifestHtml += `
+                    <div class="mod-update-row glass-panel" style="border-left: 4px solid var(--accent);">
+                        <h4 style="margin-top: 0; margin-bottom: 0.75rem; color: var(--accent); display: flex; align-items: center; gap: 8px;"><span>👤</span> Entities</h4>
+                        <ul style="list-style: none; padding-left: 0; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                `;
+                deltas.entities.forEach(e => manifestHtml += `<li style="padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">💎 ${this.escapeHtml(e.class)}</li>`);
+                manifestHtml += `</ul></div>`;
             }
 
             if (!hasWork) {
-                this.updateModal(`Maintenance: ${publicName}`, '<div class="empty-state" style="padding: 20px;"><div style="font-size: 32px; margin-bottom: 10px;">✅</div><h3>Fully Synchronized</h3><p>No pending changes found.</p></div>');
+                this.updateModal(`Maintenance: ${publicName}`, SPPUX.html`
+                    <div style="text-align: center; padding: 4rem 2rem;">
+                        <div style="font-size: 4.5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 20px var(--success));">✨</div>
+                        <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Fully Synchronized</h3>
+                        <p style="opacity: 0.6; font-size: 1rem;">All module resources and database schemas are up to date.</p>
+                    </div>
+                `);
                 return;
             }
 
-            html += '</div>';
-
-            this.updateModal(`Maintenance: ${publicName}`, html, [
-                { label: 'Cancel', type: 'secondary', fn: this.closeModal },
+            this.updateModal(`Maintenance: ${publicName}`, SPPUX.html`<div class="maintenance-manifest" style="max-height: 400px; overflow-y: auto;">${new SPPUX.TrustedHTML(manifestHtml)}</div>`, [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
                 { label: 'Sync Now', type: 'primary', fn: () => this.runModuleUpdate(modname) }
             ]);
 
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error">${err.message}</div>`);
         }
     }
 
     async runModuleUpdate(modname) {
-        this.updateModal('🚀 Syncing Module...', '<div class="loader">Restructuring resources...</div>');
+        this.updateModal('🚀 Syncing Module...', SPPUX.html`<div class="loader">Restructuring resources...</div>`);
         try {
             const res = await this.apiPost('install_module', { modname });
             if (res.success) {
-                this.updateModal('Sync Complete', '<div class="empty-state" style="padding: 20px;"><div style="font-size: 32px; margin-bottom: 10px;">✨</div><h3>Success</h3><p>Module resources have been synchronized.</p></div>', [
-                    { label: 'Done', type: 'secondary', fn: this.closeModal }
+                this.updateModal('Sync Complete', SPPUX.html`<div class="empty-state" style="padding: 20px;"><div style="font-size: 32px; margin-bottom: 10px;">✨</div><h3>Success</h3><p>Module resources have been synchronized.</p></div>`, [
+                    { label: 'Done', type: 'secondary', fn: (m) => m.close() }
                 ]);
             } else {
-                this.updateModal('Sync Failed', `<div class="alert error">${this.escapeHtml(res.message)}</div>`);
+                this.updateModal('Sync Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(res.message)}</div>`);
             }
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error">${err.message}</div>`);
         }
     }
 
     async openModuleSettings(modname, publicName) {
-        this.openModal(`⚙️ Setup: ${publicName}`, '<div class="loader">Loading configuration modes...</div>');
+        this.openModal(`⚙️ Setup: ${publicName}`, SPPUX.html`<div class="loader">Loading configuration modes...</div>`);
         
         try {
             // Fetch both KV and Raw data simultaneously
@@ -1108,7 +1308,7 @@ class SPPAdmin {
             ]);
 
             if (!kvRes.success) {
-                this.updateModal('Setup Failed', `<div class="alert error">${this.escapeHtml(kvRes.message)}</div>`);
+                this.updateModal('Setup Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(kvRes.message)}</div>`);
                 return;
             }
 
@@ -1116,7 +1316,7 @@ class SPPAdmin {
             const config = kvRes.data.variables || {};
             const raw = rawRes.success ? rawRes.data : { content: '', format: 'yml' };
 
-            let html = `
+            let formHtml = `
                 <div class="tabs-toolbar" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 4px;">
                     <button class="tab-btn active" onclick="admin.switchSetupTab('interactive')" id="tab-interactive">🏠 Interactive Editor</button>
                     <button class="tab-btn" onclick="admin.switchSetupTab('yaml')" id="tab-yaml">📄 Advanced YAML</button>
@@ -1127,10 +1327,10 @@ class SPPAdmin {
             `;
             
             if (Object.keys(config).length === 0) {
-                html += `<div class="empty-state"><p>No standard settings discovered for "${modname}". Use the YAML tab for direct overrides.</p></div>`;
+                formHtml += `<div class="empty-state"><p>No standard settings discovered for "${modname}". Use the YAML tab for direct overrides.</p></div>`;
             } else {
                 for (const [key, val] of Object.entries(config)) {
-                    html += `
+                    formHtml += `
                         <div class="input-group" style="margin-bottom: 15px;">
                             <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-dim);">${this.escapeHtml(key)}</label>
                             <input type="text" class="setting-input" data-key="${this.escapeAttr(key)}" value="${this.escapeAttr(val)}" 
@@ -1140,7 +1340,7 @@ class SPPAdmin {
                 }
             }
 
-            html += `
+            formHtml += `
                     </div>
                 </div>
                 
@@ -1151,14 +1351,14 @@ class SPPAdmin {
                 </div>
             `;
 
-            this.updateModal(`Setup: ${publicName}`, html, [
-                { label: 'Cancel', type: 'secondary', fn: this.closeModal },
+            this.updateModal(`Setup: ${publicName}`, SPPUX.html`${new TrustedHTML(formHtml)}`, [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
                 { label: 'Save Changes', type: 'primary', fn: () => this.saveModuleSettings(modname, this.selectedApp) }
             ]);
             this.activeSetupTab = 'interactive';
 
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
 
@@ -1172,14 +1372,26 @@ class SPPAdmin {
     }
 
     async saveModuleSettings(modname, appname) {
-        this.updateModal('Saving...', '<div class="loader">Committing configuration changes...</div>');
+        this.updateModal('Saving...', SPPUX.html`<div class="loader">Committing configuration changes...</div>`);
         
         try {
             let res;
             if (this.activeSetupTab === 'interactive') {
-                const inputs = document.querySelectorAll('.setting-input');
+                // Scope to modal body to avoid grabbing unrelated global elements
+                const container = document.querySelector('.modal-body') || document;
+                const inputs = container.querySelectorAll('.setting-input, input.spp-element, select.spp-element, textarea.spp-element');
+                
                 const config = {};
-                inputs.forEach(inp => config[inp.getAttribute('data-key')] = inp.value);
+                inputs.forEach(inp => {
+                    const key = inp.name || inp.getAttribute('data-key');
+                    if (!key) return;
+                    
+                    if (inp.type === 'checkbox') {
+                        config[key] = inp.checked;
+                    } else {
+                        config[key] = inp.value;
+                    }
+                });
                 
                 res = await this.apiPost('save_module_config', { 
                     modname, 
@@ -1202,10 +1414,10 @@ class SPPAdmin {
                 this.notify('Module configuration updated successfully.', 'success');
                 this.closeModal();
             } else {
-                this.updateModal('Save Failed', `<div class="alert error">${this.escapeHtml(res.message)}</div>`);
+                this.updateModal('Save Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(res.message)}</div>`);
             }
         } catch (err) {
-            this.updateModal('Error', err.message);
+            this.updateModal('Error', SPPUX.html`<div class="alert error">${err.message}</div>`);
         }
     }
     /**
@@ -1224,6 +1436,46 @@ class SPPAdmin {
         if (remainingLen <= 0) return '...' + last;
         
         return `${first}/${mid}/${last}`;
+    }
+
+    /**
+     * Dynamic Asset Loader
+     * Ensures required CSS/JS files are present in the page context.
+     */
+    async loadAssets(assets) {
+        if (!assets) return;
+        
+        // Load CSS
+        if (assets.css) {
+            assets.css.forEach(href => {
+                const path = href.startsWith('http') ? href : (href.startsWith('/') ? href : href);
+                if (!document.querySelector(`link[href*="${path}"]`)) {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = href;
+                    document.head.appendChild(link);
+                }
+            });
+        }
+        
+        // Load JS
+        if (assets.js) {
+            const promises = assets.js.map(src => {
+                const path = src.startsWith('http') ? src : (src.startsWith('/') ? src : src);
+                if (!document.querySelector(`script[src*="${path}"]`)) {
+                    return new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = src;
+                        script.async = true;
+                        script.onload = resolve;
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+                return Promise.resolve();
+            });
+            await Promise.all(promises);
+        }
     }
 }
 

@@ -31,6 +31,30 @@ class SPPUX extends \SPP\SPPObject
         return self::toAppUri($value ?: 'spp/modules/spp/sppux/js/sppux.js');
     }
 
+    public static function uiPath(?string $appname = null): string
+    {
+        $value = \SPP\Module::getConfig('ui_path', 'sppux', $appname);
+        return self::toAppUri($value ?: 'spp/modules/spp/sppux/js/sppux-ui.js');
+    }
+
+    public static function cssPath(?string $appname = null): string
+    {
+        $value = \SPP\Module::getConfig('css_path', 'sppux', $appname);
+        return self::toAppUri($value ?: 'spp/modules/spp/sppux/css/sppux.css');
+    }
+
+    public static function gridPath(?string $appname = null): string
+    {
+        $value = \SPP\Module::getConfig('grid_path', 'sppux', $appname);
+        return self::toAppUri($value ?: 'spp/modules/spp/sppux/js/sppux-grid.js');
+    }
+
+    public static function bridgePath(?string $appname = null): string
+    {
+        $value = \SPP\Module::getConfig('bridge_path', 'sppux', $appname);
+        return self::toAppUri($value ?: 'spp/modules/spp/sppux/js/sppux-bridge.js');
+    }
+
     public static function loaderPath(?string $appname = null): string
     {
         $value = \SPP\Module::getConfig('loader_path', 'sppux', $appname);
@@ -59,20 +83,34 @@ class SPPUX extends \SPP\SPPObject
         return rtrim(self::componentBase($appname), '/') . '/' . ltrim($name, '/') . '.js';
     }
 
+    /**
+     * Register SPP-UX assets to the current ViewPage.
+     */
     public static function registerAssets(?string $appname = null): void
     {
         if (!class_exists('\SPPMod\SPPView\ViewPage')) {
             return;
         }
 
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::runtimePath($appname));
-
-        $autoMount = \SPP\Module::getConfig('auto_mount', 'sppux', $appname);
-        if ($autoMount === false || $autoMount === 'false' || $autoMount === '0') {
+        // Check if disabled in config
+        if (\SPP\Module::getConfig('disabled', 'sppux', $appname)) {
             return;
         }
 
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::loaderPath($appname), ['type' => 'module']);
+        // Add Core CSS
+        \SPPMod\SPPView\ViewPage::addCssIncludeFile(self::cssPath($appname));
+
+        // Add Runtime, UI Library, Grid & Bridge
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::runtimePath($appname));
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::uiPath($appname));
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::gridPath($appname));
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::bridgePath($appname));
+
+        // Add Loader if auto_mount is enabled
+        $autoMount = \SPP\Module::getConfig('auto_mount', 'sppux', $appname);
+        if ($autoMount !== false && $autoMount !== 'false' && $autoMount !== '0') {
+            \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::loaderPath($appname), ['type' => 'module']);
+        }
     }
 
     public static function registerBridge(?string $appname = null): void
@@ -137,7 +175,13 @@ JS);
         $propsJson = htmlspecialchars(json_encode($props), ENT_QUOTES, 'UTF-8');
         $pathAttr = htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
 
-        return "<div data-spp-component=\"1\" data-spp-type=\"ux\" data-spp-path=\"{$pathAttr}\" data-spp-props=\"{$propsJson}\"></div>";
+        // Optional SSR content if provided in props under '__ssr'
+        $ssrContent = $props['__ssr'] ?? '';
+        unset($props['__ssr']);
+        
+        $propsJson = htmlspecialchars(json_encode($props), ENT_QUOTES, 'UTF-8');
+
+        return "<div data-spp-component=\"1\" data-spp-type=\"ux\" data-spp-path=\"{$pathAttr}\" data-spp-props=\"{$propsJson}\">{$ssrContent}</div>";
     }
 
     public static function render(string $name, array $props = [], ?string $appname = null): void

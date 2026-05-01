@@ -10,6 +10,36 @@ abstract class EventHandler
     protected $override_handlers = array();
     protected $external_handlers = array();
 
+    /** @var int Execution priority (0-1000, higher runs first) */
+    protected int $priority = 500;
+
+    /** @var bool Flag to stop event propagation */
+    private bool $propagationStopped = false;
+
+    /**
+     * Halts the event chain. No further handlers will be executed for this event.
+     */
+    public function stopPropagation(): void
+    {
+        $this->propagationStopped = true;
+    }
+
+    /**
+     * Checks if propagation has been stopped.
+     */
+    public function isPropagationStopped(): bool
+    {
+        return $this->propagationStopped;
+    }
+
+    /**
+     * Returns the handler priority.
+     */
+    public function getPriority(): int
+    {
+        return $this->priority;
+    }
+
 
     /**
      * function __construct
@@ -36,16 +66,22 @@ abstract class EventHandler
 
 
 
-    public function __destruct()
+    /**
+     * Returns a mapping of events this class subscribes to.
+     * Format: ['event_name' => 'method_name'] or ['event_name' => ['method_name', priority]]
+     * 
+     * @return array
+     */
+    public static function getSubscribedEvents(): array
     {
-        //echo 'Destructor called for ' . get_called_class() . '<br/>';
+        return [];
     }
 
     /** 
      * function beforeHandler
      * Calls before handler for the event
      */
-    public function beforeHandler(array &$params = [])
+    public function beforeHandler(mixed &$params = [])
     {
         $this->externalBeforeHandler('execBefore', $params);
         foreach ($this->before_handlers as $handler) {
@@ -61,7 +97,7 @@ abstract class EventHandler
      * function overrideHandler
      * Calls override handler for the event
      */
-    public function overrideHandler(array &$params = [])
+    public function overrideHandler(mixed &$params = [])
     {
         foreach ($this->override_handlers as $handler) {
             if (is_callable(array($this, $handler)))
@@ -75,7 +111,7 @@ abstract class EventHandler
      * function afterHandler()
      * Calls after handler for the event
      */
-    public function afterHandler(array &$params = [])
+    public function afterHandler(mixed &$params = [])
     {
         $this->externalAfterHandler('execBefore', $params);
         foreach ($this->after_handlers as $handler) {
@@ -124,8 +160,9 @@ abstract class EventHandler
      * 
      * @param string $ocurence
      */
-    protected function externalBeforeHandler($ocurence, array &$params = [])
+    protected function externalBeforeHandler($ocurence, mixed &$params = [])
     {
+        if (!is_array($params)) return; // External handlers only support legacy arrays
         foreach ($this->external_handlers as $handler) {
             if ($handler['occurence'] == $ocurence) {
                 $className = '\\ExternalHandlers\\' . $handler['handler'];
@@ -142,8 +179,9 @@ abstract class EventHandler
      * 
      * @param string $ocurence
      */
-    protected function externalAfterHandler($ocurence, array &$params = [])
+    protected function externalAfterHandler($ocurence, mixed &$params = [])
     {
+        if (!is_array($params)) return; // External handlers only support legacy arrays
         foreach ($this->external_handlers as $handler) {
             if ($handler['occurence'] == $ocurence) {
                 $className = '\\ExternalHandlers\\' . $handler['handler'];
@@ -226,5 +264,13 @@ abstract class EventHandler
     public function getHandlerName()
     {
         return $this->getEventName();
+    }
+
+    /**
+     * Modern helper to dispatch an event
+     */
+    protected function dispatch(SPPEventObject $event): void
+    {
+        SPPEvent::dispatch($event);
     }
 }

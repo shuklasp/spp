@@ -12,22 +12,27 @@ module:
     active:
       type: boolean
       label: Active
+      help: 'Globally enable or disable the evolutionary testing engine.'
       default: true
     fuzz_intensity:
       type: number
       label: 'Fuzz Intensity'
+      help: 'Number of mutation iterations per entity field during testing. Higher values increase coverage but take longer.'
       default: 10
     auto_generate_tests:
       type: boolean
       label: 'Auto Generate Tests'
+      help: 'Automatically discover new entities and generate test suites for them.'
       default: true
     table_prefix:
       type: text
       label: 'Table Prefix'
+      help: 'Prefix used for temporary testing tables to avoid conflict with production data.'
       default: spptest__
     storage_strategy:
       type: select
       label: 'Storage Strategy'
+      help: 'Choose whether to run tests in the same database or an isolated one.'
       options:
         same_db: 'Same Database'
         isolated: 'Isolated Database'

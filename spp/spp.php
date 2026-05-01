@@ -92,10 +92,28 @@ $discoveredCommands = \SPP\CLI\CommandManager::discover();
 // Execution logic
 if (isset($discoveredCommands[$command])) {
     try {
+        // Auto-switch context if command is app-prefixed (e.g. lekhak:setup)
+        if (strpos($command, ':') !== false) {
+            $parts = explode(':', $command);
+            $appContext = $parts[0];
+            // Verify if it's a valid app before switching
+            $settings = \SPP\App::getGlobalSettings();
+            if (isset($settings['apps'][$appContext])) {
+                try {
+                    new \SPP\App($appContext);
+                    \SPP\Scheduler::setContext($appContext);
+                    // Re-load modules for the new context
+                    \SPP\Module::loadAllModules();
+                } catch (\Exception $e) {
+                    // Fallback silently
+                }
+            }
+        }
+
         $discoveredCommands[$command]->execute($argv);
         exit(0);
     } catch (\Exception $e) {
-        echo "Error: " . $e->getMessage() . "\n";
+        echo "[UNCAUGHT EXCEPTION] " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n";
         exit(1);
     }
 }

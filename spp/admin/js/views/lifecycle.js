@@ -193,7 +193,7 @@ export default class LifecycleView extends BaseComponent {
                         <h1>Development Lifecycle</h1>
                         <div style="display:flex; align-items:center; gap:15px; margin-top:5px;">
                             <p>Managing App: <strong>${activeApp}</strong></p>
-                            <div class="debug-toggle-pill ${this.state.debugEnabled ? 'on' : 'off'}" onclick="${() => this.toggleGlobalDebug()}">
+                            <div class="debug-toggle-pill ${this.state.debugEnabled ? 'on' : 'off'}" @click=${() => this.toggleGlobalDebug()}>
                                 <span class="icon">🐞</span>
                                 <span>Debug Mode: <strong>${this.state.debugEnabled ? 'ON' : 'OFF'}</strong></span>
                             </div>
@@ -206,8 +206,8 @@ export default class LifecycleView extends BaseComponent {
                         <h3>Scaffolding & Tools</h3>
                         <div class="command-buttons">
                             ${commands.map(cmd => html`
-                                <button class="cmd-btn" 
-                                        onclick=${() => this.runCommand(cmd.id, cmd.args || [])}
+                                <button type="button" class="cmd-btn" 
+                                        @click=${() => this.runCommand(cmd.id, cmd.args || [])}
                                         ?disabled=${running}>
                                     <span class="icon">${cmd.icon}</span>
                                     <span class="label">${cmd.label}</span>

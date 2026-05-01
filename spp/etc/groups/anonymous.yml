@@ -1,0 +1,7 @@
+id: anonymous
+name: Anonymous
+description: Standard rights for unlogged guests.
+attributes:
+    rights:
+        - view_content
+        - view_comments

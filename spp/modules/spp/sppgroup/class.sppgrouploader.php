@@ -111,4 +111,51 @@ class SPPGroupLoader {
     public static function getGlobalGroupDir() {
         return SPP_ETC_DIR . SPP_DS . 'groups';
     }
+
+    /**
+     * Retrieves all groups that a specific member belongs to.
+     * Searches both file-backed and database-backed groups.
+     * 
+     * @param string $class Member class name
+     * @param mixed $id Member ID
+     * @return array List of SPPGroup objects
+     */
+    public static function getGroupsForMember(string $class, $id): array {
+        $foundGroups = [];
+        $allGroups = static::listAllGroups();
+        
+        foreach ($allGroups as $g) {
+            try {
+                $group = new SPPGroup();
+                $group->load($g['name']);
+                
+                // Check membership based on class name and ID
+                if ($group->source === 'database') {
+                    $gm = new SPPGroupMember();
+                    $records = $gm->loadMultiple(
+                        ['groupid', 'member_class', 'member_id'],
+                        [$group->id, $class, $id]
+                    );
+                    if (!empty($records)) {
+                        $foundGroups[] = $group;
+                    }
+                } else {
+                    // File-backed
+                    $members = $group->get('members') ?: []; // Wait, members are in loadedMetadata
+                    // Actually, let's use getDirectMembers and check
+                    $direct = $group->getMembers(false); // getMembers(false) returns direct members
+                    foreach ($direct as $m) {
+                        if (get_class($m['entity']) === $class && $m['entity']->getId() == $id) {
+                            $foundGroups[] = $group;
+                            break;
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                continue;
+            }
+        }
+
+        return $foundGroups;
+    }
 }

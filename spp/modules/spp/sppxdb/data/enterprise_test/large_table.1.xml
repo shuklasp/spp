@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="large_table">
+  <row id="11">
+    <id>11</id>
+    <val>Test 11</val>
+  </row>
+  <row id="12">
+    <id>12</id>
+    <val>Test 12</val>
+  </row>
+  <row id="13">
+    <id>13</id>
+    <val>Test 13</val>
+  </row>
+  <row id="14">
+    <id>14</id>
+    <val>Test 14</val>
+  </row>
+  <row id="15">
+    <id>15</id>
+    <val>Test 15</val>
+  </row>
+  <row id="16">
+    <id>16</id>
+    <val>Test 16</val>
+  </row>
+  <row id="17">
+    <id>17</id>
+    <val>Test 17</val>
+  </row>
+  <row id="18">
+    <id>18</id>
+    <val>Test 18</val>
+  </row>
+  <row id="19">
+    <id>19</id>
+    <val>Test 19</val>
+  </row>
+  <row id="20">
+    <id>20</id>
+    <val>Test 20</val>
+  </row>
+</database>

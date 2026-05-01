@@ -16,7 +16,7 @@ class UXDebugCommand extends Command
     public function execute(array $args): void
     {
         $state = $args[2] ?? 'on';
-        $file = SPP_APP_DIR . '/spp/admin/js/sppux.js';
+        $file = SPP_APP_DIR . '/spp/modules/spp/sppux/js/sppux.js';
 
         if (!file_exists($file)) {
             echo "Error: sppux.js not found.\n";

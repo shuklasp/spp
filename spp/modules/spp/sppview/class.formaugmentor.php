@@ -13,22 +13,22 @@ namespace SPPMod\SPPView;
 class FormAugmentor extends \SPP\SPPObject
 {
     /**
-     * Augments HTML with YAML-defined form logic and optional script injection.
+     * Augments HTML with YAML-defined form logic and optional script/style injection.
      * 
      * @param string $html Original HTML output
      * @param array $scripts Optional list of JS files to inject
+     * @param array $styles Optional list of CSS files to inject
      * @return string Augmented HTML
      */
-    public static function augment(string $html, array $scripts = []): string
+    public static function augment(string $html, array $scripts = [], array $styles = []): string
     {
-        // Performance optimization: skip if no form is present AND no scripts to inject
-        if (stripos($html, '<form') === false && empty($scripts)) {
+        // Performance optimization: skip if no form is present AND no resources to inject
+        if (stripos($html, '<form') === false && empty($scripts) && empty($styles)) {
             return $html;
         }
 
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
-        // Load with UTF-8 support and handle fragments gracefully
         $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
         
         $forms = $dom->getElementsByTagName('form');
@@ -69,25 +69,44 @@ class FormAugmentor extends \SPP\SPPObject
             }
         }
 
-        // 2. Inject scripts if any
+        // 2. Inject Styles (CSS)
+        if (!empty($styles)) {
+            $head = $dom->getElementsByTagName('head')->item(0) ?: ($dom->getElementsByTagName('body')->item(0) ?: $dom->documentElement);
+            if ($head) {
+                foreach ($styles as $href) {
+                    $lNode = $dom->createElement('link');
+                    $lNode->setAttribute('rel', 'stylesheet');
+                    $lNode->setAttribute('href', $href);
+                    $head->appendChild($lNode);
+                }
+                $modified = true;
+            }
+        }
+
+        // 3. Inject Scripts (JS)
         if (!empty($scripts)) {
             $root = $dom->getElementsByTagName('body')->item(0) ?: $dom->documentElement;
             if ($root) {
-                foreach ($scripts as $sEntry) {
-                    $src = is_array($sEntry) ? $sEntry['path'] : $sEntry;
-                    $opts = is_array($sEntry) ? ($sEntry['options'] ?? []) : [];
-                    
+                foreach ($scripts as $src) {
                     $sNode = $dom->createElement('script');
-                    $sNode->setAttribute('type', $opts['type'] ?? 'text/javascript');
-                    $sNode->setAttribute('src', $src);
-                    
-                    // Add any other attributes (async, defer, etc)
-                    foreach ($opts as $key => $val) {
-                        if ($key !== 'type') {
-                            $sNode->setAttribute($key, $val);
+                    $path = $src;
+                    $options = [];
+                    if (is_array($src)) {
+                        $path = $src['path'] ?? '';
+                        $options = $src['options'] ?? [];
+                    }
+                    if ($path === '') continue;
+                    $sNode->setAttribute('src', (string)$path);
+                    foreach ($options as $attrKey => $attrVal) {
+                        if ($attrVal === false || $attrVal === null) continue;
+                        $safeKey = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$attrKey);
+                        if ($safeKey === '') continue;
+                        if ($attrVal === true) {
+                            $sNode->setAttribute($safeKey, $safeKey);
+                        } else {
+                            $sNode->setAttribute($safeKey, (string)$attrVal);
                         }
                     }
-
                     $sNode->nodeValue = ''; 
                     $root->appendChild($sNode);
                 }
@@ -102,8 +121,6 @@ class FormAugmentor extends \SPP\SPPObject
 
         $result = $dom->saveHTML();
         libxml_clear_errors();
-        
-        // Remove the XML encoding tag we added for UTF-8 support
         return str_replace('<?xml encoding="utf-8" ?>', '', $result);
     }
 

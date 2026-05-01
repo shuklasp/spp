@@ -37,12 +37,24 @@ export default class AccessView extends BaseComponent {
             let action = 'list_users';
             if (tab === 'roles') action = 'list_roles';
             if (tab === 'rights') action = 'list_rights';
+            if (tab === 'modern_rbac') action = 'list_rbac';
             if (tab === 'assignments') action = 'list_entity_assignments';
 
             const res = await this.admin.api(action);
             if (res.success) {
+                let items = res.data.users || res.data.roles || res.data.rights || res.data.queue || res.data || [];
+                
+                // Normalize Modern RBAC (object map to array)
+                if (tab === 'modern_rbac' && !Array.isArray(items)) {
+                    items = Object.entries(items).map(([slug, data]) => ({
+                        slug,
+                        permissions: data.permissions || [],
+                        ...data
+                    }));
+                }
+
                 this.setState({ 
-                    items: res.data.users || res.data.roles || res.data.rights || res.data || [], 
+                    items: items, 
                     loading: false 
                 });
             } else {
@@ -65,6 +77,9 @@ export default class AccessView extends BaseComponent {
             if (activeTab === 'assignments') {
                 btn.innerHTML = '+ New Assignment';
                 btn.onclick = () => this.openAssignmentEditor();
+            } else if (activeTab === 'modern_rbac') {
+                btn.innerHTML = '+ New Modern Role';
+                btn.onclick = () => this.openModernRoleEditor();
             } else {
                 btn.innerHTML = `+ New ${activeTab.slice(0, -1).charAt(0).toUpperCase() + activeTab.slice(1, -1)}`;
                 btn.onclick = () => this.openEditor(activeTab);
@@ -75,10 +90,11 @@ export default class AccessView extends BaseComponent {
         return html`
             <div class="iam-workspace">
                 <div class="tab-bar-secondary mb-4">
-                    <button class="sub-tab-btn ${activeTab === 'users' ? 'active' : ''}" onclick="${() => this.switchTab('users')}">👥 Users</button>
-                    <button class="sub-tab-btn ${activeTab === 'roles' ? 'active' : ''}" onclick="${() => this.switchTab('roles')}">🛡️ Roles</button>
-                    <button class="sub-tab-btn ${activeTab === 'rights' ? 'active' : ''}" onclick="${() => this.switchTab('rights')}">🔑 Rights</button>
-                    <button class="sub-tab-btn ${activeTab === 'assignments' ? 'active' : ''}" onclick="${() => this.switchTab('assignments')}">🔗 Assignments</button>
+                    <button class="sub-tab-btn ${activeTab === 'users' ? 'active' : ''}" @click=${() => this.switchTab('users')}>👥 Users</button>
+                    <button class="sub-tab-btn ${activeTab === 'roles' ? 'active' : ''}" @click=${() => this.switchTab('roles')}>🛡️ Legacy Roles</button>
+                    <button class="sub-tab-btn ${activeTab === 'rights' ? 'active' : ''}" @click=${() => this.switchTab('rights')}>🔑 Legacy Rights</button>
+                    <button class="sub-tab-btn ${activeTab === 'modern_rbac' ? 'active' : ''}" @click=${() => this.switchTab('modern_rbac')}>⚡ Modern RBAC</button>
+                    <button class="sub-tab-btn ${activeTab === 'assignments' ? 'active' : ''}" @click=${() => this.switchTab('assignments')}>🔗 Assignments</button>
                 </div>
 
                 <div id="iam-content">
@@ -123,7 +139,49 @@ export default class AccessView extends BaseComponent {
             return this.renderAssignmentsTable(pagedItems, totalItems, totalPages);
         }
 
+        if (activeTab === 'modern_rbac') {
+            return this.renderModernRbacTable(pagedItems, totalItems, totalPages);
+        }
+
         return this.renderStandardTable(pagedItems, totalItems, totalPages);
+    }
+
+    renderModernRbacTable(items, totalItems, totalPages) {
+        // Items is already normalized to array in switchTab
+        const roleList = items;
+
+        return html`
+            <div class="glass-panel">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Role Slug</th>
+                            <th>Permissions Count</th>
+                            <th>Resolved Permissions</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${roleList.map(role => html`
+                            <tr>
+                                <td><code>${role.slug}</code></td>
+                                <td><span class="badge info">${role.permissions.length}</span></td>
+                                <td>
+                                    <div class="permission-cloud">
+                                        ${role.permissions.slice(0, 5).map(p => html`<span class="p-tag">${p}</span>`)}
+                                        ${role.permissions.length > 5 ? html`<span class="p-more">+${role.permissions.length - 5} more</span>` : ''}
+                                    </div>
+                                </td>
+                                <td class="text-right">
+                                    <button class="btn ghost-btn btn-sm" @click=${() => this.openModernRoleEditor(role.slug, role.permissions)}>Edit</button>
+                                </td>
+                            </tr>
+                        `)}
+                    </tbody>
+                </table>
+            </div>
+            ${this.renderPagination(totalItems, totalPages)}
+        `;
     }
 
     renderStandardTable(items, totalItems, totalPages) {
@@ -143,7 +201,7 @@ export default class AccessView extends BaseComponent {
                                 <th>
                                     <input type="text" class="table-filter" placeholder="Filter ${col.label}..."
                                         value="${filters[col.key] || ''}"
-                                        oninput="${(e) => this.updateFilter(col.key, e.target.value)}">
+                                        @input=${(e) => this.updateFilter(col.key, e.target.value)}>
                                 </th>
                             `)}
                             <th></th>
@@ -724,6 +782,50 @@ export default class AccessView extends BaseComponent {
                 return user;
             });
             this.setState({ items: rolledBackItems });
+        }
+    }
+
+    async openModernRoleEditor(slug = '', permissions = []) {
+        const title = slug ? `Edit Modern Role: ${slug}` : 'Create Modern Role';
+        this.admin.openModal(title, html`
+            <form id="modern-role-form">
+                <div class="form-group">
+                    <label>Role Slug (Registry Key)</label>
+                    <input type="text" name="slug" class="spp-element" value="${slug}" ${slug ? 'readonly' : ''} placeholder="e.g. editor, manager">
+                </div>
+                <div class="form-group mt-4">
+                    <label>Permissions (Atomic Identifiers)</label>
+                    <textarea name="permissions" class="spp-element" style="height: 150px;" placeholder="One permission per line, e.g.\nposts.create\nposts.edit\n*">${permissions.join('\n')}</textarea>
+                    <small class="text-dim">Use '*' for super-admin access.</small>
+                </div>
+            </form>
+        `.toString());
+
+        const saveBtn = document.getElementById('modal-save');
+        saveBtn.textContent = 'Save Role';
+        saveBtn.onclick = () => this.saveModernRole();
+    }
+
+    async saveModernRole() {
+        const form = document.getElementById('modern-role-form');
+        const fd = new FormData(form);
+        
+        // Convert newline-separated textarea to array
+        const permsText = fd.get('permissions');
+        const permsArray = permsText.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+        
+        const apiFd = new FormData();
+        apiFd.append('action', 'save_rbac_role');
+        apiFd.append('slug', fd.get('slug'));
+        permsArray.forEach(p => apiFd.append('permissions[]', p));
+
+        const res = await this.admin.apiPost(apiFd);
+        if (res.success) {
+            this.admin.notify('Modern role saved to Registry.', 'success');
+            this.admin.closeModal();
+            this.switchTab('modern_rbac', true);
+        } else {
+            this.admin.handleApiErrors(res);
         }
     }
 }

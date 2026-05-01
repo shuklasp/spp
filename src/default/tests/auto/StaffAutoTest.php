@@ -5,7 +5,7 @@ use App\Default\Entities\Staff;
 
 /**
  * Auto-generated Test for Staff (Parikshak)
- * Generation Date: 2026-04-23 15:42:45
+ * Generation Date: 2026-04-26 15:40:19
  */
 class StaffAutoTest
 {
@@ -15,11 +15,11 @@ class StaffAutoTest
         try {
             $entity = new Staff();
             $data = array (
-  'id' => 133835,
-  'name' => 'PARIKSHAK_FUZZ_cbb66',
-  'department' => 'PARIKSHAK_FUZZ_881f7',
-  'created_at' => '2026-04-23 15:42:45',
-  'parent_id' => 'PARIKSHAK_FUZZ_5da4c',
+  'id' => 659200,
+  'name' => 'PARIKSHAK_FUZZ_8bf01',
+  'department' => 'PARIKSHAK_FUZZ_0f3fb',
+  'created_at' => '2026-04-26 15:40:19',
+  'parent_id' => 'PARIKSHAK_FUZZ_5738a',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

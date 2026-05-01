@@ -1,0 +1,15 @@
+# Lekhak Commerce Plugin
+module:
+    name: lekhak_commerce
+    version: "1.0"
+    pubname: Lekhak Commerce
+    modgroup: Lekhak_Plugins
+    dependencies:
+        - lekhak
+    services:
+        lekhak.commerce:
+            class: \SPPMod\LekhakCommerce\CommerceManager
+            shared: true
+    events:
+        lekhak_commerce_checkout: "Fired during checkout process"
+        lekhak_commerce_price_calc: "Allows modifying product prices"

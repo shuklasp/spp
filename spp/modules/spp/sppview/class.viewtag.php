@@ -250,11 +250,11 @@ class ViewTag extends \SPP\SPPObject
      *
      * @return string
      */
-    public function getHTML()
+    public function getHTML(): string
     {
         $pstr = '<' . $this->tagname;
         foreach ($this->attributes as $key => $val) {
-            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8') . '"';
+            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars(is_array($val) ? json_encode($val) : (string)$val, ENT_QUOTES, 'UTF-8') . '"';
         }
         if ($this->isemptyflag) {
             $pstr .= ' />';
@@ -295,7 +295,7 @@ class ViewTag extends \SPP\SPPObject
     {
         $pstr = '<' . $this->tagname;
         foreach ($this->attributes as $key => $val) {
-            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8') . '"';
+            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars(is_array($val) ? json_encode($val) : (string)$val, ENT_QUOTES, 'UTF-8') . '"';
         }
         if ($this->isemptyflag) {
             return $pstr . ' />';
@@ -480,7 +480,7 @@ class ViewTag extends \SPP\SPPObject
     {
         $pstr = '';
         foreach ($this->attributes as $key => $val) {
-            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars((string) $val, ENT_QUOTES, 'UTF-8') . '"';
+            $pstr .= ' ' . htmlspecialchars((string) $key, ENT_QUOTES, 'UTF-8') . '="' . htmlspecialchars(is_array($val) ? json_encode($val) : (string)$val, ENT_QUOTES, 'UTF-8') . '"';
         }
         return $pstr;
     }

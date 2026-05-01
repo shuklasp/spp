@@ -2,10 +2,10 @@
 
 module:
     name: sppxdb
-    version: "0.5"
+    version: "1.0"
     pubname: SPP XDB
     modgroup: SPP_Optional
-    pubdesc: Handles XML Database in SPP.
+    pubdesc: Handles XML Database in SPP with XQuery and SQL support.
     includes:
         - sppxdb.php
     deps:

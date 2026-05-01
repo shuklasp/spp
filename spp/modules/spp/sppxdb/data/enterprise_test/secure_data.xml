@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="secure_data">
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="secret" type="varchar"/>
+  </_schema>
+</database>

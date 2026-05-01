@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>3</next_id>
+  </_meta>
+<row id="1"><table>accounts</table><action>insert</action><data>{"id":2,"balance":500}</data><where_clause/><user>system</user><timestamp>2026-05-01 17:20:16</timestamp><prev_hash>00000000000000000000000000000000</prev_hash><id>1</id></row><row id="2"><table>accounts</table><action>update</action><data>{"balance":600}</data><where_clause>id = 2</where_clause><user>system</user><timestamp>2026-05-01 17:20:16</timestamp><prev_hash>84bdf334f00cb365b12932ccdbc2341003d4dd83764a1972ade10462dc897ef1</prev_hash><id>2</id></row></database>

@@ -1,6 +1,7 @@
 {
     "require": {
         "symfony/yaml": "^7.1",
-        "eftec/bladeone": "^4.19"
+        "eftec/bladeone": "^4.19",
+        "psr/container": "^2.0"
     }
 }

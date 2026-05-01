@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>4</next_id>
+  </_meta>
+  
+<row id="2"><name>Bob</name><role>Admin</role><status>inactive</status><id>2</id></row><row id="3"><name>Charlie</name><role>User</role><status>active</status><id>3</id></row></database>

@@ -50,3 +50,24 @@ function validateNumeric(errId, msg, fieldId) {
         return true;
     }
 }
+
+function validateRegex(errId, msg, fieldId, pattern) {
+    const field = document.getElementById(fieldId) || document.getElementsByName(fieldId)[0];
+    if (!field) return true;
+
+    const regex = new RegExp(pattern);
+    if (!regex.test(field.value)) {
+        _showSppError(errId, msg);
+        field.classList.add('errorclass');
+        return false;
+    } else {
+        _clearSppError(errId);
+        field.classList.remove('errorclass');
+        return true;
+    }
+}
+
+function validateEmail(errId, msg, fieldId) {
+    const pattern = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+    return validateRegex(errId, msg, fieldId, pattern);
+}

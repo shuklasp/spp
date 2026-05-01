@@ -1,132 +1,123 @@
 <?php
 namespace SPP\Core;
 
+use Psr\Container\ContainerInterface;
+use SPP\SPPException;
+
 /**
- * Class Container
- * A lightweight Dependency Injection container for the SPP framework.
+ * class \SPP\Core\Container
+ * 
+ * A PSR-11 compliant dependency injection container.
+ * Supports singletons, factories, and interface binding.
  */
-class Container
-{
-    protected array $bindings = [];
-    protected array $instances = [];
+class Container implements ContainerInterface {
+    private array $bindings = [];
+    private array $instances = [];
 
     /**
-     * Register a binding in the container.
+     * Bind a service to the container.
      */
-    public function bind(string $abstract, $concrete = null, bool $shared = false)
-    {
-        if (is_null($concrete)) {
+    public function bind(string $abstract, $concrete = null, bool $shared = false): void {
+        if ($concrete === null) {
             $concrete = $abstract;
         }
 
         $this->bindings[$abstract] = [
             'concrete' => $concrete,
-            'shared' => $shared
+            'shared'   => $shared
         ];
     }
 
     /**
-     * Register a shared binding (singleton) in the container.
+     * Bind a singleton service to the container.
      */
-    public function singleton(string $abstract, $concrete = null)
-    {
+    public function singleton(string $abstract, $concrete = null): void {
         $this->bind($abstract, $concrete, true);
     }
 
     /**
-     * Resolve the given type from the container.
+     * Get a service from the container.
      */
-    public function make(string $abstract, array $parameters = [])
-    {
-        // If the type is already instantiated as a singleton, return it
-        if (isset($this->instances[$abstract])) {
-            return $this->instances[$abstract];
+    public function get(string $id): mixed {
+        if (isset($this->instances[$id])) {
+            return $this->instances[$id];
         }
 
-        $concrete = $this->getConcrete($abstract);
-
-        if ($this->isBuildable($concrete, $abstract)) {
-            $object = $this->build($concrete, $parameters);
-        } else {
-            $object = $this->make($concrete, $parameters);
+        if (!$this->has($id)) {
+            // Attempt to resolve if it's a class name
+            if (class_exists($id)) {
+                return $this->resolve($id);
+            }
+            throw new SPPException("Service not found: " . $id);
         }
 
-        // If it's a shared binding, cache the instance
-        if ($this->isShared($abstract)) {
-            $this->instances[$abstract] = $object;
+        $concrete = $this->bindings[$id]['concrete'];
+        $object = $this->resolve($concrete);
+
+        if ($this->bindings[$id]['shared']) {
+            $this->instances[$id] = $object;
         }
 
         return $object;
     }
 
-    protected function getConcrete($abstract)
-    {
-        return $this->bindings[$abstract]['concrete'] ?? $abstract;
-    }
-
-    protected function isShared($abstract)
-    {
-        return $this->bindings[$abstract]['shared'] ?? false;
-    }
-
-    protected function isBuildable($concrete, $abstract)
-    {
-        return $concrete === $abstract || $concrete instanceof \Closure;
+    /**
+     * Check if a service exists in the container.
+     */
+    public function has(string $id): bool {
+        return isset($this->bindings[$id]) || isset($this->instances[$id]);
     }
 
     /**
-     * Instantiate a concrete instance of the given type.
+     * Resolve a concrete type.
      */
-    public function build($concrete, array $parameters = [])
-    {
+    private function resolve($concrete) {
         if ($concrete instanceof \Closure) {
-            return $concrete($this, $parameters);
+            return $concrete($this);
+        }
+
+        if (is_object($concrete)) {
+            return $concrete;
         }
 
         $reflector = new \ReflectionClass($concrete);
 
         if (!$reflector->isInstantiable()) {
-            throw new \Exception("Class {$concrete} is not instantiable.");
+            throw new SPPException("Class {$concrete} is not instantiable.");
         }
 
         $constructor = $reflector->getConstructor();
 
         if (is_null($constructor)) {
-            return new $concrete();
+            return new $concrete;
         }
 
-        $dependencies = $constructor->getParameters();
-        $instances = $this->resolveDependencies($dependencies, $parameters);
+        $parameters = $constructor->getParameters();
+        $dependencies = $this->resolveDependencies($parameters);
 
-        return $reflector->newInstanceArgs($instances);
+        return $reflector->newInstanceArgs($dependencies);
     }
 
-    protected function resolveDependencies(array $dependencies, array $parameters)
-    {
-        $results = [];
+    /**
+     * Resolve dependencies for a constructor.
+     */
+    private function resolveDependencies(array $parameters): array {
+        $dependencies = [];
 
-        foreach ($dependencies as $dependency) {
-            $name = $dependency->getName();
-
-            // If a parameter is explicitly passed, use it
-            if (isset($parameters[$name])) {
-                $results[] = $parameters[$name];
-                continue;
-            }
-
-            $type = $dependency->getType();
+        foreach ($parameters as $parameter) {
+            $type = $parameter->getType();
 
             if (!$type || $type->isBuiltin()) {
-                if ($dependency->isDefaultValueAvailable()) {
-                    $results[] = $dependency->getDefaultValue();
-                } else {
-                    throw new \Exception("Unresolvable dependency [{$dependency}] in class {$dependency->getDeclaringClass()->getName()}");
+                if ($parameter->isDefaultValueAvailable()) {
+                    $dependencies[] = $parameter->getDefaultValue();
+                    continue;
                 }
-            } else {
-                $results[] = $this->make($type->getName());
+                throw new SPPException("Cannot resolve primitive dependency: {$parameter->name}");
             }
+
+            $dependencies[] = $this->get($type->getName());
         }
 
-        return $results;
+        return $dependencies;
     }
 }

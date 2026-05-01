@@ -5,7 +5,7 @@ use App\Default\Entities\Teacher;
 
 /**
  * Auto-generated Test for Teacher (Parikshak)
- * Generation Date: 2026-04-23 15:42:46
+ * Generation Date: 2026-04-26 15:40:20
  */
 class TeacherAutoTest
 {
@@ -15,9 +15,9 @@ class TeacherAutoTest
         try {
             $entity = new Teacher();
             $data = array (
-  'created_at' => '2026-04-23 15:42:46',
-  'parent_id' => 'PARIKSHAK_FUZZ_7a9b0',
-  'department' => 'PARIKSHAK_FUZZ_2e6f0',
+  'created_at' => '2026-04-26 15:40:20',
+  'parent_id' => 'PARIKSHAK_FUZZ_84ff5',
+  'department' => 'PARIKSHAK_FUZZ_5bff3',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

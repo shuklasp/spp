@@ -129,7 +129,7 @@ export default class ModulesView extends BaseComponent {
                                             </div>
                                             <label class="toggle-switch">
                                                 <input type="checkbox" ?checked="${mod.active}" 
-                                                    onchange="${(e) => this.toggleModule(mod.name, e.target.checked)}">
+                                                    @change=${(e) => this.toggleModule(mod.name, e.target.checked)}>
                                                 <span class="toggle-slider"></span>
                                             </label>
                                         </div>
@@ -142,8 +142,8 @@ export default class ModulesView extends BaseComponent {
                                         <div class="card-footer">
                                             <small title="${mod.path}">${this.admin.truncatePath(mod.path, 40)}</small>
                                             <div class="card-actions">
-                                                <button class="btn ghost-btn btn-sm" onclick="${() => this.admin.openModuleMaintenance(mod.name, mod.public_name || mod.name)}">🏗️ Sync</button>
-                                                ${mod.has_config ? html`<button class="btn ghost-btn btn-sm" onclick="${() => this.admin.openModuleSettings(mod.name, mod.public_name || mod.name)}">⚙️ Setup</button>` : ''}
+                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.admin.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
+                                                ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.admin.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -156,6 +156,36 @@ export default class ModulesView extends BaseComponent {
         `;
     }
 
+    async rebuildRegistry() {
+        this.admin.notify('Rebuilding module registry cache...', 'info');
+        try {
+            const res = await this.admin.apiPost('compile_registry');
+            if (res.success) {
+                this.admin.notify(res.message, 'success');
+                await this.fetchData();
+            } else {
+                this.admin.notify(res.message, 'error');
+            }
+        } catch (err) {
+            this.admin.notify('Compilation request failed.', 'error');
+        }
+    }
+
+    async runMigrations() {
+        this.admin.notify('Running pending migrations...', 'info');
+        try {
+            const res = await this.admin.apiPost('run_migrations');
+            if (res.success) {
+                this.admin.notify(res.message, 'success');
+                console.log('Migration Log:', res.data.log);
+            } else {
+                this.admin.notify(res.message, 'error');
+            }
+        } catch (err) {
+            this.admin.notify('Migration request failed.', 'error');
+        }
+    }
+
     renderHeader() {
         const headerActions = document.getElementById('header-actions');
         if (!headerActions) return;
@@ -163,20 +193,37 @@ export default class ModulesView extends BaseComponent {
         const { modules, filter } = this.state;
         const activeCount = modules.filter(m => m.active).length;
 
-        // Note: Using traditional innerHTML for the header since it's an external target
-        // but we can use our html helper and .content if we wanted.
         const headerHtml = html`
-            <div class="header-filters">
+            <div class="header-filters" style="display: flex; gap: 12px; align-items: center;">
                 <select id="mod-filter-select" class="btn ghost-btn btn-sm" style="background: var(--bg-card-glass);" 
-                    onchange="${(e) => this.setFilter(e.target.value)}">
+                    @change=${(e) => this.setFilter(e.target.value)}>
                     <option value="all" ?selected="${filter === 'all'}">📦 All Modules</option>
                     <option value="core" ?selected="${filter === 'core'}">🛡️ Core Modules</option>
                     <option value="app" ?selected="${filter === 'app'}">🚀 App Modules</option>
                 </select>
+                <div class="btn-group" style="display: flex; gap: 8px; flex-shrink: 0;">
+                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.rebuildRegistry()} title="Rebuild High-Performance Cache" style="white-space: nowrap;">⚡ Compile</button>
+                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.runMigrations()} title="Run Database/File Migrations" style="white-space: nowrap;">🚀 Migrate</button>
+                </div>
             </div>
-            <span style="font-size: 0.8rem; color: var(--text-dim);">${activeCount}/${modules.length} active</span>
+            <span style="font-size: 0.8rem; color: var(--text-dim); white-space: nowrap;">${activeCount}/${modules.length} active</span>
         `;
         
         headerActions.innerHTML = headerHtml.toString();
+        
+        // Ensure buttons in the header also trigger events for this component
+        headerActions.querySelectorAll('[data-spp-evt]').forEach(el => {
+            const id = el.getAttribute('data-spp-evt');
+            if (window.__spp_handlers && window.__spp_handlers[id]) {
+                this._handlers.set(id, window.__spp_handlers[id]);
+            }
+        });
+        
+        if (!headerActions._hasSppListener) {
+            ['click', 'change', 'input'].forEach(type => {
+                headerActions.addEventListener(type, (e) => this._onEvent(e));
+            });
+            headerActions._hasSppListener = true;
+        }
     }
 }

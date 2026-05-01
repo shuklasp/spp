@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites><testsuite name="Parikshak_Evolutionary_Tests" tests="6" failures="0"><testcase name="DummyEntity" classname="App\Default\Entities\DummyEntity"/><testcase name="Employee" classname="App\Default\Entities\Employee"/><testcase name="Staff" classname="App\Default\Entities\Staff"/><testcase name="Teacher" classname="App\Default\Entities\Teacher"/><testcase name="TestEditEntity" classname="App\Default\Entities\TestEditEntity"/><testcase name="TestEntity" classname="App\Default\Entities\TestEntity"/></testsuite></testsuites>

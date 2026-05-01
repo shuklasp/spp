@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="authors">
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="name" type="varchar"/>
+  </_schema>
+<row id="2"><id>2</id><name>Tolkien</name></row></database>

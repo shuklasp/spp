@@ -1,0 +1,25 @@
+form:
+  name: GridDemo
+  title: High-Performance Grid Demo
+
+elements:
+  info:
+    type: html
+    content: "<h3>System Status Grid</h3><p>Manage your system modules with real-time editing and virtual scrolling.</p>"
+
+  module_grid:
+    type: grid
+    columns:
+      - { key: "id", label: "ID", width: "80px" }
+      - { key: "name", label: "Module Name", width: "200px", editable: true }
+      - { key: "status", label: "Status", width: "120px" }
+      - { key: "version", label: "Version", width: "100px" }
+    data:
+      - { id: 1, name: "Core", status: "Active", version: "1.0.0" }
+      - { id: 2, name: "Auth", status: "Active", version: "1.2.3" }
+      - { id: 3, name: "Billing", status: "Inactive", version: "0.9.1" }
+      - { id: 4, name: "Reporting", status: "Active", version: "2.1.0" }
+      - { id: 5, name: "API Gateway", status: "Active", version: "1.1.0" }
+      - { id: 6, name: "Notification", status: "Active", version: "1.0.5" }
+      - { id: 7, name: "Search", status: "Maintenance", version: "0.8.0" }
+    on_update: "console.log"

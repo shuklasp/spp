@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database table="accounts">
+  <_schema>
+    <column name="id" type="int"/>
+    <column name="balance" type="float"/>
+  </_schema>
+<row id="2"><id>2</id><balance>600</balance><history timestamp="2026-05-01 17:20:16"><id>2</id><balance>500</balance></history></row></database>

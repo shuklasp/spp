@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <row>
+    <id>INV-001</id>
+    <customer>Acme Corp</customer>
+    <amount>5000</amount>
+    <status>paid</status>
+  </row>
+<row><id>INV-002</id><customer>Globex</customer><amount>3200</amount><status>pending</status></row></database>

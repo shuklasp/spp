@@ -1,0 +1,9 @@
+base_url: /lekhak
+is_base_app: true
+app_init: init.php
+etc_path: etc
+var_path: var
+modules_path: modules
+theme: premium
+lekhni:
+    media_path: var/media/lekhni

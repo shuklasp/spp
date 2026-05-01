@@ -1,0 +1,10 @@
+{
+    "books": [
+        {
+            "localCol": "author_id",
+            "refTable": "authors",
+            "refCol": "id",
+            "onDelete": "CASCADE"
+        }
+    ]
+}
