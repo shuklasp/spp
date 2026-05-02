@@ -20,7 +20,7 @@ export default class ModulesView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.admin.api('list_modules');
+            const res = await this.api('list_modules');
             if (res.success) {
                 this.setState({
                     modules: res.data.modules || [],
@@ -42,24 +42,24 @@ export default class ModulesView extends BaseComponent {
     async toggleModule(modname, active) {
         const newStatus = active ? 'active' : 'inactive';
         try {
-            const res = await this.admin.apiPost('toggle_module', { 
+            const res = await this.apiPost('toggle_module', { 
                 modname, 
                 status: newStatus 
             });
             
             if (res.success) {
-                this.admin.notify(res.message, 'success');
+                this.notify(res.message, 'success');
                 // Update local state without full reload
                 const modules = this.state.modules.map(m => 
                     m.name === modname ? { ...m, active } : m
                 );
                 this.setState({ modules });
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
                 this.update(); // Revert UI
             }
         } catch (err) {
-            this.admin.notify('Error toggling module.', 'error');
+            this.notify('Error toggling module.', 'error');
             this.update();
         }
     }
@@ -140,10 +140,10 @@ export default class ModulesView extends BaseComponent {
                                             </div>
                                         </div>
                                         <div class="card-footer">
-                                            <small title="${mod.path}">${this.admin.truncatePath(mod.path, 40)}</small>
+                                            <small title="${mod.path}">${this.truncatePath(mod.path, 40)}</small>
                                             <div class="card-actions">
-                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.admin.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
-                                                ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.admin.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
+                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
+                                                ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
                                             </div>
                                         </div>
                                     </div>
@@ -157,32 +157,32 @@ export default class ModulesView extends BaseComponent {
     }
 
     async rebuildRegistry() {
-        this.admin.notify('Rebuilding module registry cache...', 'info');
+        this.notify('Rebuilding module registry cache...', 'info');
         try {
-            const res = await this.admin.apiPost('compile_registry');
+            const res = await this.apiPost('compile_registry');
             if (res.success) {
-                this.admin.notify(res.message, 'success');
+                this.notify(res.message, 'success');
                 await this.fetchData();
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
             }
         } catch (err) {
-            this.admin.notify('Compilation request failed.', 'error');
+            this.notify('Compilation request failed.', 'error');
         }
     }
 
     async runMigrations() {
-        this.admin.notify('Running pending migrations...', 'info');
+        this.notify('Running pending migrations...', 'info');
         try {
-            const res = await this.admin.apiPost('run_migrations');
+            const res = await this.apiPost('run_migrations');
             if (res.success) {
-                this.admin.notify(res.message, 'success');
+                this.notify(res.message, 'success');
                 console.log('Migration Log:', res.data.log);
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
             }
         } catch (err) {
-            this.admin.notify('Migration request failed.', 'error');
+            this.notify('Migration request failed.', 'error');
         }
     }
 

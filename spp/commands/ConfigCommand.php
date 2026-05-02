@@ -3,7 +3,7 @@ namespace SPP\Commands;
 
 use SPP\SPPConfig;
 
-class ConfigCommand extends \SPP\Core\Command
+class ConfigCommand extends \SPP\CLI\Command
 {
     public function getName(): string
     {

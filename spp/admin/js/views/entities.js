@@ -22,7 +22,7 @@ export default class EntitiesView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.admin.api('list_entities');
+            const res = await this.api('list_entities');
             if (res.success) {
                 this.setState({
                     entities: res.data.entities || [],
@@ -85,7 +85,7 @@ export default class EntitiesView extends BaseComponent {
                                 <small>${ent.size ? Math.round(ent.size / 1024 * 100) / 100 + ' KB' : ''}</small>
                                 <div class="card-actions">
                                     <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openEditor(ent.name, ent.content)}>Edit</button>
-                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('entity', ent.name)}>Delete</button>
+                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.confirmDelete('entity', ent.name)}>Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -109,13 +109,13 @@ export default class EntitiesView extends BaseComponent {
             const fd = new FormData();
             fd.append('action', 'parse_entity_yaml');
             fd.append('yaml', content);
-            const res = await this.admin.apiPost(fd);
+            const res = await this.apiPost(fd);
             if (res.success) {
                 this.state.currentEntityConfig = this._normalizeConfig(res.data.config);
             }
         }
 
-        this.admin.openModal(name ? `Entity: ${name}.yml` : 'Create New Entity', this.getModalHtml(), [
+        this.openModal(name ? `Entity: ${name}.yml` : 'Create New Entity', this.getModalHtml(), [
             { label: name ? 'Save Changes' : 'Create Entity', type: 'primary', fn: () => this.save() }
         ]);
     }
@@ -319,7 +319,7 @@ export default class EntitiesView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'dump_entity_yaml');
         fd.append('config', JSON.stringify(this.state.currentEntityConfig));
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         return res.success ? res.data.yaml : '# Dump failed';
     }
 
@@ -327,7 +327,7 @@ export default class EntitiesView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'parse_entity_yaml');
         fd.append('yaml', source);
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
             this.state.currentEntityConfig = this._normalizeConfig(res.data.config);
             this.state.currentEntitySource = source;
@@ -336,7 +336,7 @@ export default class EntitiesView extends BaseComponent {
 
     async save() {
         const name = this.state.currentEntityName.trim();
-        if (!name) return this.admin.notify('Entity name is required.', 'error');
+        if (!name) return this.notify('Entity name is required.', 'error');
 
         if (this.state.activeFormTab === 'source') {
             const source = document.getElementById('editor-content').value;
@@ -348,13 +348,13 @@ export default class EntitiesView extends BaseComponent {
         fd.append('name', name);
         fd.append('config', JSON.stringify(this.state.currentEntityConfig));
         
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Entity saved successfully.', 'success');
-            this.admin.closeModal();
+            this.notify('Entity saved successfully.', 'success');
+            this.closeModal();
             this.fetchData(); // Refresh list
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 }

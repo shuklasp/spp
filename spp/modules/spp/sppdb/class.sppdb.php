@@ -110,7 +110,13 @@ class SPPDB
     }
 
     /** @var \PDO The internal PDO instance */
-    private \PDO $pdo;
+    private ?\PDO $pdo = null;
+
+    /** @var \SPPMod\SPPXDB\SPP_XDB The internal XDB instance */
+    private $xdb = null;
+
+    /** @var string The active engine type ('pdo' or 'xdb') */
+    private string $engine = 'pdo';
     
     private $numrows;
 
@@ -126,6 +132,9 @@ class SPPDB
             $settings = self::loadGlobalSettings();
             $context = \SPP\Scheduler::getContext();
             $dbOverride = $settings['apps'][$context]['db_config'] ?? null;
+
+            $dbtype = null;
+            $dbname = null;
 
             if ($dburl == null) {
                 if ($dbOverride) {
@@ -147,14 +156,28 @@ class SPPDB
                 $url = $dburl;
                 $dbuser = ($dbuser == null) ? \SPP\Module::getConfig('dbuser', 'sppdb') : $dbuser;
                 $dbpasswd = ($dbpasswd == null) ? \SPP\Module::getConfig('dbpasswd', 'sppdb') : $dbpasswd;
+                
+                if (preg_match('/^([a-z0-9]+):/', $url, $m)) {
+                    $dbtype = $m[1];
+                }
             }
 
-            // Diagnostic validation
+            // -- XDB Engine Support --
+            if ($dbtype === 'xdb') {
+                $this->engine = 'xdb';
+                $xdbFile = dirname(__DIR__) . '/sppxdb/class.sppxdb.php';
+                if (file_exists($xdbFile)) require_once $xdbFile;
+                
+                $this->xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname ?: 'default');
+                return;
+            }
+
+            // Diagnostic validation for PDO
             if (!$url || !$dbuser) {
                 $configPath = \SPP\Module::getExpectedConfigPath('sppdb');
                 $missing = [];
-                if (!$dbhost) $missing[] = 'dbhost';
-                if (!$dbname) $missing[] = 'dbname';
+                if (!isset($dbhost)) $missing[] = 'dbhost';
+                if (!isset($dbname)) $missing[] = 'dbname';
                 if (!$dbuser) $missing[] = 'dbuser';
                 $missingStr = implode(', ', $missing);
                 
@@ -249,6 +272,9 @@ class SPPDB
      */
     public function __call($name, $arguments)
     {
+        if ($this->engine === 'xdb') {
+            return call_user_func_array([$this->xdb, $name], $arguments);
+        }
         return call_user_func_array([$this->pdo, $name], $arguments);
     }
 
@@ -257,6 +283,7 @@ class SPPDB
      */
     public function prepare(string $query, array $options = [])
     {
+        if ($this->engine === 'xdb') return null; // XDB doesn't use standard prepared statements
         return $this->pdo->prepare($query, $options);
     }
 
@@ -273,6 +300,9 @@ class SPPDB
      */
     public function exec(string $statement)
     {
+        if ($this->engine === 'xdb') {
+            return $this->xdb->querySQL($statement);
+        }
         return $this->pdo->exec($statement);
     }
 
@@ -325,6 +355,12 @@ class SPPDB
      */
     public function execute_query($sql, $values = array())
     {
+        if ($this->engine === 'xdb') {
+            $result = $this->xdb->querySQL($sql, $values);
+            $this->numrows = is_array($result) ? count($result) : 0;
+            return $result;
+        }
+
         $result = array();
         try {
             if (count((array)$values) > 0) {
@@ -418,6 +454,14 @@ class SPPDB
     public function tableExists($table)
     {
         try {
+            if ($this->engine === 'xdb') {
+                $tables = $this->xdb->querySQL("SHOW TABLES");
+                foreach ($tables as $t) {
+                    if (current($t) === $table) return true;
+                }
+                return false;
+            }
+
             // Using parameterized string filtering since SHOW TABLES LIKE does not support standard binding
             $safe_table = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$table);
             $result = $this->query("SHOW TABLES LIKE '{$safe_table}'");

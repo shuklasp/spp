@@ -112,6 +112,11 @@ class App extends \SPP\SPPObject
             
             // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
             if (!isset($settings['apps'])) $settings['apps'] = [];
+
+            // Skip discovery if explicitly requested (e.g. for lightweight XDB operations)
+            if (defined('SPP_SKIP_DISCOVERY') && SPP_SKIP_DISCOVERY) {
+                return $settings;
+            }
             
             $srcDir = defined('SPP_APP_DIR') ? SPP_APP_DIR . '/src' : null;
             if ($srcDir && is_dir($srcDir)) {

@@ -13,7 +13,7 @@ export default class ServicesView extends BaseComponent {
 
     async refresh() {
         try {
-            const res = await this.admin.api('get_di_bindings');
+            const res = await this.api('get_di_bindings');
             if (res.success) {
                 this.setState({
                     bindings: res.data.bindings || [],

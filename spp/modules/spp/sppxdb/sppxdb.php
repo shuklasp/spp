@@ -20,3 +20,13 @@ require_once(__DIR__ . '/class.migrationmanager.php');
 function get_xdb($db = 'default', $table = null) {
     return new \SPPMod\SPPXDB\SPP_XDB($db, $table);
 }
+
+// Register XDB Triggers (SPP Events)
+if (class_exists('\\SPP\\SPPEvent')) {
+    \SPP\SPPEvent::registerEvent('xdb.before_insert');
+    \SPP\SPPEvent::registerEvent('xdb.after_insert');
+    \SPP\SPPEvent::registerEvent('xdb.before_update');
+    \SPP\SPPEvent::registerEvent('xdb.after_update');
+    \SPP\SPPEvent::registerEvent('xdb.before_delete');
+    \SPP\SPPEvent::registerEvent('xdb.after_delete');
+}

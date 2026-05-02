@@ -7,8 +7,8 @@
  */
 
 export default class AppsView extends BaseComponent {
-    constructor(admin, container) {
-        super(admin, container);
+    constructor(container) {
+        super(container);
         
         // Load persisted toggles
         const savedToggles = localStorage.getItem('spp_admin_apps_expanded');
@@ -244,9 +244,7 @@ export default class AppsView extends BaseComponent {
     }
 
     async manageApp(appName) {
-        this.admin.selectedApp = appName;
-        localStorage.setItem('spp_admin_selected_app', appName);
-        this.admin.onAppContextChange(appName); // Synchronize context across the UI
+        window.admin.onAppContextChange(appName); // Synchronize context across the UI
         
         // Use app-specific hash if it exists, otherwise generic 'manage'
         const app = this.state.apps.find(a => a.name === appName);
@@ -256,7 +254,7 @@ export default class AppsView extends BaseComponent {
             location.hash = 'manage';
         }
         
-        this.admin.notify(`Switched to ${appName} Management`, 'success');
+        this.notify(`Switched to ${appName} Management`, 'success');
     }
 
     async setBaseApp(appName) {
@@ -265,15 +263,15 @@ export default class AppsView extends BaseComponent {
             formData.append('action', 'set_base_app');
             formData.append('target_app', appName);
             
-            const res = await this.admin.apiPost(formData);
+            const res = await this.apiPost(formData);
             if (res.success) {
-                this.admin.notify(`Base application set to "${appName}".`, 'success');
+                this.notify(`Base application set to "${appName}".`, 'success');
                 await this.loadData();
             } else {
-                this.admin.notify(res.message || 'Operation failed', 'error');
+                this.notify(res.message || 'Operation failed', 'error');
             }
         } catch (err) {
-            this.admin.notify(`Error changing base app: ${err.message}`, 'error');
+            this.notify(`Error changing base app: ${err.message}`, 'error');
         }
     }
 
@@ -281,7 +279,7 @@ export default class AppsView extends BaseComponent {
         const app = this.state.apps.find(a => a.name === appName);
         if (!app) return;
 
-        this.admin.openModal(`Configure: ${appName}`, html`
+        this.openModal(`Configure: ${appName}`, html`
             <div class="form-grid">
                 <div class="input-group">
                     <label>Base URL Prefix</label>
@@ -331,7 +329,7 @@ export default class AppsView extends BaseComponent {
                 </div>
             </details>
         `, [
-            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
             { label: 'Save Changes', type: 'primary', fn: async () => {
                 const config = {
                     base_url: document.getElementById('app-base-url').value.trim(),
@@ -357,18 +355,18 @@ export default class AppsView extends BaseComponent {
 
                 const res = await this.api.saveAppConfig(fd);
                 if (res.success) {
-                    this.admin.notify('Application configuration updated.', 'success');
-                    this.admin.closeModal();
+                    this.notify('Application configuration updated.', 'success');
+                    this.closeModal();
                     await this.loadData();
                 } else {
-                    this.admin.notify(res.message || 'Update failed', 'error');
+                    this.notify(res.message || 'Update failed', 'error');
                 }
             }}
         ]);
     }
 
     showAppInfo(app) {
-        this.admin.openModal(`Application Details: ${app.name}`, html`
+        this.openModal(`Application Details: ${app.name}`, html`
             <div class="app-info-modal">
                 <div class="info-section">
                     <h4>Overview</h4>
@@ -404,15 +402,15 @@ export default class AppsView extends BaseComponent {
                 .path-card code { display: block; word-break: break-all; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
             </style>
         `, [
-            { label: 'Configure', type: 'ghost', fn: () => { this.admin.closeModal(); this.openAppEditor(app.name); } },
-            { label: 'Close', type: 'secondary', fn: () => this.admin.closeModal() }
+            { label: 'Configure', type: 'ghost', fn: () => { this.closeModal(); this.openAppEditor(app.name); } },
+            { label: 'Close', type: 'secondary', fn: () => this.closeModal() }
         ]);
     }
 
     async openGroupEditor(groupName = null) {
         const group = groupName ? this.state.sharedGroups[groupName] : { extends: '', table_prefix: '', entities: [] };
         
-        this.admin.openModal(groupName ? `Edit Group: ${groupName}` : 'New Shared Group', html`
+        this.openModal(groupName ? `Edit Group: ${groupName}` : 'New Shared Group', html`
             <div class="form-grid">
                 <div class="input-group">
                     <label>Group Name</label>
@@ -436,10 +434,10 @@ export default class AppsView extends BaseComponent {
                 </div>
             </div>
         `, [
-            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
             { label: 'Save Group', type: 'primary', fn: async () => {
                 const name = document.getElementById('group-name').value.trim();
-                if (!name) return this.admin.notify('Group name is required.', 'error');
+                if (!name) return this.notify('Group name is required.', 'error');
 
                 const updatedGroups = { ...this.state.sharedGroups };
                 updatedGroups[name] = {
@@ -458,11 +456,11 @@ export default class AppsView extends BaseComponent {
 
                     const res = await this.api.saveGlobalSettings(fd);
                     if (res.success) {
-                        this.admin.notify('Shared group saved.', 'success');
-                        this.admin.closeModal();
+                        this.notify('Shared group saved.', 'success');
+                        this.closeModal();
                         await this.loadData();
                     } else {
-                        this.admin.notify(res.message || 'Save failed', 'error');
+                        this.notify(res.message || 'Save failed', 'error');
                     }
                 }
             }}
@@ -485,10 +483,10 @@ export default class AppsView extends BaseComponent {
 
             const res = await this.api.saveGlobalSettings(fd);
             if (res.success) {
-                this.admin.notify('Shared group deleted.', 'success');
+                this.notify('Shared group deleted.', 'success');
                 await this.loadData();
             } else {
-                this.admin.notify(res.message || 'Delete failed', 'error');
+                this.notify(res.message || 'Delete failed', 'error');
             }
         }
     }

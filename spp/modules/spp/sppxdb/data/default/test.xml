@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="test">
+  <_schema>
+    <column name="id" type="int" notNull="true" unique="true" primary="true" />
+    <column name="name" type="varchar" />
+    <constraint type="unique" columns="id,id,name,name" />
+  </_schema>
+  <data>
+  </data>
+</database>

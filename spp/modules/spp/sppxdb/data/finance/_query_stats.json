@@ -1,0 +1,8 @@
+{
+    "SELECT * FROM invoices LIMIT ?": 3,
+    "select * from invoices": 3,
+    "insert into invoices values(?, ?, ?, ?)": 4,
+    "show tabbles;": 1,
+    "show tables;": 1,
+    "select * from invoices;": 2
+}

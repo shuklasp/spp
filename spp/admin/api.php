@@ -717,11 +717,16 @@ try {
         case 'run_xdb_query':
             $dbname = $_POST['dbname'] ?? 'default';
             $sql = $_POST['sql'] ?? '';
-            if (!$sql) sendResponse(false, [], "SQL query required.");
+            if (!$sql) sendResponse(false, [], "SQL or XPath query required.");
             require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
             $xdb = get_xdb($dbname);
             try {
-                $results = $xdb->querySQL($sql);
+                // Detect if it's XPath (starts with / or //)
+                if (strpos(trim($sql), '/') === 0) {
+                    $results = $xdb->queryX($sql);
+                } else {
+                    $results = $xdb->querySQL($sql);
+                }
                 sendResponse(true, ['results' => $results]);
             } catch (\Exception $e) {
                 sendResponse(false, [], $e->getMessage());
@@ -753,6 +758,34 @@ try {
             $xdb = get_xdb($dbname, $table);
             $res = $xdb->delete("id = ?", [$id]);
             sendResponse($res, [], $res ? "Record deleted." : "Delete failed.");
+            break;
+
+        case 'create_xdb_database':
+            $dbname = $_POST['dbname'] ?? '';
+            if (!$dbname) sendResponse(false, [], "Database name required.");
+            $path = SPP_BASE_DIR . '/modules/spp/sppxdb/data/' . $dbname;
+            if (is_dir($path)) sendResponse(false, [], "Database already exists.");
+            if (mkdir($path, 0777, true)) {
+                sendResponse(true, [], "Database '$dbname' created successfully.");
+            } else {
+                sendResponse(false, [], "Failed to create database directory.");
+            }
+            break;
+
+        case 'create_xdb_table':
+            $dbname = $_POST['dbname'] ?? 'default';
+            $table = $_POST['table'] ?? '';
+            $schema = $_POST['schema'] ?? []; // ['col' => 'type']
+            if (!$table) sendResponse(false, [], "Table name required.");
+            require_once SPP_BASE_DIR . '/modules/spp/sppxdb/sppxdb.php';
+            $xdb = get_xdb($dbname);
+            try {
+                $res = $xdb->createTable($table, $schema);
+                sendResponse($res, [], $res ? "Table '$table' created." : "Table creation failed.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], $e->getMessage());
+            }
+            break;
             break;
 
         case 'set_base_app':

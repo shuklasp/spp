@@ -112,10 +112,114 @@
                         this.container.remove();
                     }, 300);
                 }
-            })(window.admin, container, { title, content, actions });
-
+            })(container, { title, content, actions });
             modal.update();
             return modal;
+        },
+        close() {
+            const root = document.getElementById('sppux-modal-root');
+            if (root) root.remove();
+        }
+    };
+
+    SPPUX.openModal = SPPUX.Modal.open;
+    
+    SPPUX.Prompt = {
+        show(title, message, callback) {
+            const content = SPPUX.html`
+                <div class="input-group" style="padding-top: 10px;">
+                    <label style="display:block; margin-bottom: 10px; opacity: 0.8;">${message}</label>
+                    <input type="text" id="sppux-prompt-input" class="spp-element" style="width:100%; padding: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); border-radius: 8px; color: white;" autofocus>
+                </div>
+            `;
+            SPPUX.Modal.open(title, content, [
+                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+                { label: 'Confirm', type: 'primary', fn: (m) => {
+                    const val = document.getElementById('sppux-prompt-input').value;
+                    callback(val);
+                    m.close();
+                }}
+            ]);
+            setTimeout(() => document.getElementById('sppux-prompt-input')?.focus(), 100);
+        }
+    };
+
+    /**
+     * Universal Confirmation Dialog
+     */
+    SPPUX.Confirm = (msg) => {
+        return new Promise((resolve) => {
+            SPPUX.Modal.open('Confirm', msg, [
+                { label: 'Cancel', type: 'secondary', fn: (m) => { m.close(); resolve(false); } },
+                { label: 'Confirm', type: 'primary', fn: (m) => { m.close(); resolve(true); } }
+            ]);
+        });
+    };
+
+    /**
+     * Sub-Editor / Visual Designer Helper
+     */
+    SPPUX.openSubEditor = (title, content, data = {}, onSave = null) => {
+        const subModal = document.createElement('div');
+        subModal.className = 'glass-overlay active sub-modal';
+        subModal.style.zIndex = '4000';
+        subModal.innerHTML = `
+            <div class="modal-content glass-panel sppux-sub-editor-animate" style="width: 80vw; max-width: 1000px; height: 80vh; background: var(--sppux-panel); display: flex; flex-direction: column;">
+                <div class="modal-header">
+                    <h3>${title}</h3>
+                    <button class="close-btn" onclick="this.closest('.sub-modal').remove()">✕</button>
+                </div>
+                <div class="modal-body" id="sub-editor-body" style="flex: 1; overflow-y: auto; padding: 1.5rem;"></div>
+                <div class="modal-footer">
+                    <button class="btn secondary-btn" onclick="this.closest('.sub-modal').remove()">Cancel</button>
+                    <button class="btn primary-btn" id="sub-modal-save">Apply Changes</button>
+                </div>
+            </div>`;
+        document.body.appendChild(subModal);
+
+        const body = subModal.querySelector('#sub-editor-body');
+        if (typeof content === 'string') body.innerHTML = content;
+        else SPPUX.render(content, body);
+        
+        // Initialize reactive dependencies if SPPForm is available
+        if (window.SPPForm) SPPForm.autoInit(body);
+
+        const saveBtn = subModal.querySelector('#sub-modal-save');
+        if (saveBtn) {
+            saveBtn.onclick = async () => {
+                const form = body.querySelector('form');
+                let resultData = {};
+                if (form) {
+                    const fd = new FormData(form);
+                    fd.forEach((v, k) => resultData[k] = v);
+                } else {
+                    // Manual extraction if no form
+                    body.querySelectorAll('input, select, textarea').forEach(el => {
+                        if (el.name) resultData[el.name] = el.type === 'checkbox' ? el.checked : el.value;
+                    });
+                }
+                if (onSave) await onSave(resultData);
+                subModal.remove();
+            };
+        }
+
+        // Fill initial data
+        for (let [k, v] of Object.entries(data)) {
+            const el = body.querySelector(`[name="${k}"], [id="${k}"]`);
+            if (el) {
+                if (el.type === 'checkbox') el.checked = !!v;
+                else el.value = v;
+            }
+        }
+
+        return subModal;
+    };
+
+    SPPUX.updateSubEditor = (content) => {
+        const body = document.querySelector('.sub-modal #sub-editor-body');
+        if (body) {
+            SPPUX.render(content, body);
+            if (window.SPPForm) SPPForm.autoInit(body);
         }
     };
 
@@ -175,7 +279,7 @@
                 }
                 filter(q) { this.setState({ query: q, filtered: this.props.items.filter(i => i.title.toLowerCase().includes(q.toLowerCase())) }); }
                 close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 300); }
-            })(window.admin, container, { items, onSelect });
+            })(container, { items, onSelect });
             spotlight.update(); return spotlight;
         }
     };
@@ -211,7 +315,7 @@
     SPPUX.Tooltip = { init() { document.addEventListener('mouseover', (e) => { const target = e.target.closest('[data-spp-tooltip]'); if (target && !target.dataset.tooltipActive) { target.dataset.tooltipActive = "true"; const tip = document.createElement('div'); tip.className = 'sppux-tooltip'; tip.textContent = target.dataset.sppTooltip; document.body.appendChild(tip); const rect = target.getBoundingClientRect(); tip.style.left = rect.left + (rect.width / 2) - (tip.offsetWidth / 2) + 'px'; tip.style.top = rect.top - tip.offsetHeight - 8 + 'px'; target.addEventListener('mouseleave', () => { tip.remove(); delete target.dataset.tooltipActive; }, { once: true }); } }); } };
     SPPUX.Avatar = { render(n, s = null, z = 'md') { const initials = n ? n.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase() : '?'; return html`<div class="sppux-avatar sppux-avatar-${z}">${s ? html`<img src="${s}">` : html`<span>${initials}</span>`}</div>`; } };
     SPPUX.Tabs = { render(tabs, activeId) { return html`<div class="sppux-tabs-container"><div class="sppux-tabs-header">${tabs.map(t => html`<button class="${t.id === activeId ? 'active' : ''}" @click=${t.onClick}>${t.label}</button>`)}</div><div class="sppux-tabs-content">${tabs.find(t => t.id === activeId)?.content || Fragment}</div></div>`; } };
-    SPPUX.Drawer = { open(t, c, s = 'right') { let container = document.getElementById('sppux-drawer-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-drawer-root'}))); const drawer = new (class extends BaseComponent { render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 400); } })(window.admin, container, { title, content, side: s }); drawer.update(); return drawer; } };
+    SPPUX.Drawer = { open(t, c, s = 'right') { let container = document.getElementById('sppux-drawer-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-drawer-root'}))); const drawer = new (class extends BaseComponent { render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 400); } })(container, { title, content, side: s }); drawer.update(); return drawer; } };
 
     // Legendary Inits
     SPPUX.Theme.init();

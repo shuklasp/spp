@@ -24,7 +24,7 @@ export default class RoutingView extends BaseComponent {
 
         try {
             const action = tab === 'pages' ? 'list_pages' : 'list_services';
-            const res = await this.admin.api(action);
+            const res = await this.api(action);
             if (res.success) {
                 this.setState({ 
                     items: res.data.pages || res.data.services || [], 
@@ -117,7 +117,7 @@ export default class RoutingView extends BaseComponent {
 
     // Modal Logic
     openPageModal(page = null) {
-        this.admin.openModal(page ? `Edit Route: ${page.name}` : 'Add New Page Route', html`
+        this.openModal(page ? `Edit Route: ${page.name}` : 'Add New Page Route', html`
             <form id="routing-form">
                 <div class="input-group">
                     <label>Route Name</label>
@@ -143,7 +143,7 @@ export default class RoutingView extends BaseComponent {
     }
 
     openServiceModal(svc = null) {
-        this.admin.openModal(svc ? `Edit Service: ${svc.name}` : 'Register AJAX Service', html`
+        this.openModal(svc ? `Edit Service: ${svc.name}` : 'Register AJAX Service', html`
             <form id="routing-form">
                 <div class="input-group">
                     <label>Service Name</label>
@@ -180,13 +180,13 @@ export default class RoutingView extends BaseComponent {
         const fd = new FormData(form);
         fd.append('action', action);
 
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Route updated.', 'success');
-            this.admin.closeModal();
+            this.notify('Route updated.', 'success');
+            this.closeModal();
             this.switchTab(this.state.activeTab, true);
         } else {
-            this.admin.notify(res.message, 'error');
+            this.notify(res.message, 'error');
         }
     }
 
@@ -198,9 +198,9 @@ export default class RoutingView extends BaseComponent {
         fd.append('name', item.name);
         fd.append('source', item.source);
 
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Route removed.', 'success');
+            this.notify('Route removed.', 'success');
             this.switchTab(this.state.activeTab, true);
         }
     }

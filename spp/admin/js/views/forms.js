@@ -23,7 +23,7 @@ export default class FormsView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.admin.api('list_forms');
+            const res = await this.api('list_forms');
             if (res.success) {
                 this.setState({
                     forms: res.data.forms || [],
@@ -97,7 +97,7 @@ export default class FormsView extends BaseComponent {
                                 <small>${form.size ? Math.round(form.size / 1024 * 100) / 100 + ' KB' : ''}</small>
                                 <div class="card-actions">
                                     <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openEditor(form.name, form.type, form.content)}>Edit</button>
-                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('form', form.name)}>Delete</button>
+                                    <button type="button" class="btn danger-btn btn-sm" @click=${() => this.confirmDelete('form', form.name)}>Delete</button>
                                 </div>
                             </div>
                         </div>
@@ -125,14 +125,14 @@ export default class FormsView extends BaseComponent {
             const fd = new FormData();
             fd.append('action', 'parse_form_yaml');
             fd.append('yaml', content);
-            const res = await this.admin.apiPost(fd);
+            const res = await this.apiPost(fd);
             if (res.success) {
                 config = Object.assign(config, res.data.config);
             }
         }
 
         this.state.currentFormConfig = this._normalizeConfig(config);
-        this.admin.openModal(name ? `Form: ${name}.${type.toLowerCase()}` : 'Create New Form', this.getModalHtml(), [
+        this.openModal(name ? `Form: ${name}.${type.toLowerCase()}` : 'Create New Form', this.getModalHtml(), [
             { label: 'Save Form', type: 'primary', fn: (m) => this.save() }
         ]);
     }
@@ -340,9 +340,9 @@ export default class FormsView extends BaseComponent {
 
     async editStep(idx) {
         const step = this.state.currentFormConfig.steps[idx];
-        const res = await this.admin.api('get_iam_form&type=step_editor');
+        const res = await this.api('get_iam_form&type=step_editor');
         if (res.success) {
-            this.admin.openSubEditor('Edit Step Properties', res.data.html, step, (newData) => {
+            this.openSubEditor('Edit Step Properties', res.data.html, step, (newData) => {
                 Object.assign(this.state.currentFormConfig.steps[idx], newData);
                 this.refreshModal();
                 this.attachBuilderEvents();
@@ -367,9 +367,9 @@ export default class FormsView extends BaseComponent {
     async editField(idx, stepIdx) {
         const fields = stepIdx !== null ? this.state.currentFormConfig.steps[stepIdx].fields : this.state.currentFormConfig.fields;
         const field = fields[idx];
-        const res = await this.admin.api('get_iam_form&type=field_editor');
+        const res = await this.api('get_iam_form&type=field_editor');
         if (res.success) {
-            this.admin.openSubEditor('Edit Field Properties', res.data.html, field, (newData) => {
+            this.openSubEditor('Edit Field Properties', res.data.html, field, (newData) => {
                 Object.assign(fields[idx], newData);
                 this.refreshModal();
                 this.attachBuilderEvents();
@@ -456,7 +456,7 @@ export default class FormsView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'parse_form_yaml');
         fd.append('yaml', source);
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
             this.state.currentFormConfig = this._normalizeConfig(res.data.config);
             this.state.currentFormSource = source;
@@ -469,7 +469,7 @@ export default class FormsView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'dump_form_yaml');
         fd.append('config', JSON.stringify(this.state.currentFormConfig));
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         return res.success ? res.data.yaml : '# Dump failed';
     }
 
@@ -479,11 +479,11 @@ export default class FormsView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'get_form_html');
         fd.append('form', yaml);
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
             // Load required component assets before rendering HTML
             if (res.data.assets) {
-                await this.admin.loadAssets(res.data.assets);
+                await this.loadAssets(res.data.assets);
             }
             
             container.innerHTML = `
@@ -507,10 +507,10 @@ export default class FormsView extends BaseComponent {
             fd.append('type', 'yml');
         }
 
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Form saved successfully.', 'success');
-            this.admin.closeModal();
+            this.notify('Form saved successfully.', 'success');
+            this.closeModal();
             this.fetchData();
         }
     }

@@ -144,8 +144,7 @@ class Computed extends Signal {
 }
 
 class BaseComponent {
-    constructor(admin, container, props = {}) {
-        this.admin = admin || window.spp_admin || null;
+    constructor(container, props = {}) {
         this.container = container;
         this.props = props;
         this.state = {};
@@ -153,23 +152,37 @@ class BaseComponent {
         this._handlers = new Map();
         this._eventContainers = new Set([this.container]);
         this.root = window.spp_root_store || null;
+        this._initHelpers();
+        
+        // Register with global dispatcher
+        if (!SPPUX._components) SPPUX._components = new Set();
+        SPPUX._components.add(this);
+    }
 
-        this.api = new Proxy({}, {
+    get selectedApp() {
+        return this.root?.get?.()?.selectedApp || 'default';
+    }
+
+    _initHelpers() {
+
+        const apiHandler = async (action, data = {}, options = { lock: true }) => {
+            if (options.lock) SPPUX.Busy.start();
+            try {
+                if (data instanceof FormData) {
+                    if (!data.has('action')) data.append('action', action);
+                    return await SPPUX.apiPost(data);
+                }
+                return await SPPUX.api(action, data);
+            } finally {
+                if (options.lock) SPPUX.Busy.stop();
+            }
+        };
+
+        this.api = new Proxy(apiHandler, {
             get: (target, prop) => {
-                if (typeof prop !== 'string') return target[prop];
+                if (typeof prop !== 'string' || prop in target) return target[prop];
                 const action = prop.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
-                return async (data = {}, options = { lock: true }) => {
-                    if (options.lock) SPPUX.Busy.start();
-                    try {
-                        if (data instanceof FormData) {
-                            if (!data.has('action')) data.append('action', action);
-                            return await this.admin.apiPost(data);
-                        }
-                        return await this.admin.api(action, data);
-                    } finally {
-                        if (options.lock) SPPUX.Busy.stop();
-                    }
-                };
+                return (data = {}, options = { lock: true }) => target(action, data, options);
             }
         });
 
@@ -190,9 +203,18 @@ class BaseComponent {
                     break;
                 }
             }
+            
+            // If not in our specific containers, check if we own the handler for this target
+            const el = e.target.closest('[data-spp-evt]');
+            if (!isOurEvent && el) {
+                const id = el.getAttribute('data-spp-evt');
+                if (this._handlers.has(id)) {
+                    isOurEvent = true;
+                }
+            }
+
             if (!isOurEvent) return;
 
-            const el = e.target.closest('[data-spp-evt]');
             if (el) {
                 const type = el.getAttribute('data-spp-type');
                 if (type && type !== e.type) return;
@@ -207,9 +229,10 @@ class BaseComponent {
             }
         };
         
-        ['click', 'input', 'change', 'submit', 'blur', 'focus', 'dragstart', 'dragover', 'dragleave', 'drop', 'dragend'].forEach(evt => {
-            document.addEventListener(evt, (e) => this._onEvent(e), true);
-        });
+        // Global dispatcher handles events for all components
+        if (window.SPPUX && !SPPUX._isDispatcherInit) {
+            SPPUX._initDispatcher();
+        }
 
         // Signal Auto-Tracking
         this._signalUnsubscribes = new Set();
@@ -256,20 +279,18 @@ class BaseComponent {
             const id = el.getAttribute('data-spp-evt');
             if (window.__spp_handlers && window.__spp_handlers[id]) {
                 this._handlers.set(id, window.__spp_handlers[id]);
+                // Exclusive claim: prevent other components from also registering this handler
+                delete window.__spp_handlers[id];
             }
         });
 
-        // Also register the modal root as an event source if it exists
-        const modalRoot = document.getElementById('sppux-modal-root');
-        if (modalRoot) {
-            this._eventContainers.add(modalRoot);
-        }
-        
-        // And the header actions
-        const header = document.getElementById('header-actions');
-        if (header) {
-            this._eventContainers.add(header);
-        }
+        // Also register system overlays as event sources
+        const overlaySelectors = ['#sppux-modal-root', '.sub-modal', '.glass-overlay', '#header-actions', '#sppux-drawer-root'];
+        overlaySelectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+                this._eventContainers.add(el);
+            });
+        });
     }
 
     async task(name, promise) {
@@ -320,6 +341,49 @@ class BaseComponent {
         window.__spp_handlers = {};
 
         this._reconcile(this.container, temp);
+    }
+
+    notify(msg, type = 'info') {
+        if (window.SPPUX && SPPUX.Notify) SPPUX.Notify.show(msg, type);
+        else console.log(`[${type}] ${msg}`);
+    }
+
+    async confirm(msg) {
+        if (window.SPPUX && SPPUX.Confirm) return await SPPUX.Confirm(msg);
+        return window.confirm(msg);
+    }
+
+    openModal(title, content, actions = []) {
+        if (window.SPPUX && SPPUX.openModal) return SPPUX.openModal(title, content, actions);
+        console.warn('SPPUX.openModal not available');
+    }
+
+    updateModal(title, content, actions = null) {
+        if (window.SPPUX && SPPUX.updateModal) return SPPUX.updateModal(title, content, actions);
+        console.warn('SPPUX.updateModal not available');
+    }
+
+    closeModal() {
+        if (window.SPPUX && SPPUX.Modal) SPPUX.Modal.close();
+    }
+
+    confirm(message) {
+        if (window.SPPUX && SPPUX.Confirm) return SPPUX.Confirm(message);
+        return window.confirm(message);
+    }
+
+    async confirmDelete(type, id) {
+        const confirmed = await this.confirm(`Are you sure you want to delete this ${type}?`);
+        if (confirmed) {
+            const res = await this.apiPost(`delete_${type}`, { name: id, id: id });
+            if (res.success) {
+                this.notify(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`, 'success');
+                if (typeof this.fetchData === 'function') await this.fetchData();
+                else if (typeof this.onInit === 'function') await this.onInit();
+            } else {
+                this.notify(res.message || `Failed to delete ${type}.`, 'error');
+            }
+        }
     }
 
     _reconcile(parent, newParent) {
@@ -375,15 +439,19 @@ class BaseComponent {
     }
 
     async service(name, params = {}) {
-        return this.admin.callAppService(name, params);
+        // Generic API call for backend services
+        return SPPUX.api('service', { name, ...params });
     }
 
     dispose() {
         this._subscriptions.forEach(unsubscribe => unsubscribe());
         this._signalUnsubscribes.forEach(unsub => unsub());
-        ['click', 'input', 'change', 'submit', 'blur', 'focus'].forEach(evt => {
-            this.container.removeEventListener(evt, this._onEvent, true);
-        });
+        
+        // Unregister from global dispatcher
+        if (window.SPPUX && SPPUX._components) {
+            SPPUX._components.delete(this);
+        }
+
         this._handlers.clear();
         this.onDestroy();
     }
@@ -456,7 +524,7 @@ class SPPForm extends BaseComponent {
      */
     static autoInit(container) {
         if (!container) return;
-        const form = new SPPForm(null, container);
+        const form = new SPPForm(container);
         form.onMount();
         return form;
     }
@@ -476,6 +544,110 @@ window.SPPUX = {
     SPPStore,
     BaseComponent,
     SPPForm,
+    render: (template, container) => {
+        if (!template || !container) return;
+        container.innerHTML = template.toString();
+    },
+    _components: new Set(),
+    _isDispatcherInit: false,
+    _initDispatcher() {
+        if (this._isDispatcherInit) return;
+        this._isDispatcherInit = true;
+        
+        const events = ['click', 'input', 'change', 'submit', 'blur', 'focus', 'keydown', 'keyup', 'keypress', 'dragstart', 'dragover', 'dragleave', 'drop', 'dragend'];
+        events.forEach(evt => {
+            document.addEventListener(evt, (e) => {
+                // Find all components that could handle this event
+                for (const comp of this._components) {
+                    // Check if component container still exists in DOM
+                    if (!document.contains(comp.container)) {
+                        this._components.delete(comp);
+                        continue;
+                    }
+                    comp._onEvent(e);
+                    // If event was handled (default prevented), we stop propagation to other components
+                    if (e.defaultPrevented) break;
+                }
+            }, true);
+        });
+    },
+    api: async (action, data = {}) => {
+        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        const ts = Date.now();
+        
+        // Auto-inject app context if available
+        if (!data.appname && !data.context) {
+            const rootState = window.spp_root_store?.get?.();
+            if (rootState?.selectedApp) data.appname = rootState.selectedApp;
+        }
+        
+        // Auto-inject CSRF
+        const csrf = data.csrf_token || window.SPP_CSRF_TOKEN;
+
+        const res = await fetch(`${endpoint}?action=${action}&t=${ts}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {})
+            },
+            body: JSON.stringify({ ...data, csrf_token: csrf })
+        });
+        const result = await res.json();
+        return result; // Return full result for compatibility, components can decide to throw
+    },
+    apiPost: async (formData) => {
+        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        
+        // Auto-inject app context if available
+        if (!formData.has('appname') && !formData.has('context')) {
+            const rootState = window.spp_root_store?.get?.();
+            if (rootState?.selectedApp) formData.append('appname', rootState.selectedApp);
+        }
+        
+        // Auto-inject CSRF
+        if (!formData.has('csrf_token') && window.SPP_CSRF_TOKEN) {
+            formData.append('csrf_token', window.SPP_CSRF_TOKEN);
+        }
+
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                ...(window.SPP_CSRF_TOKEN ? { 'X-CSRF-TOKEN': window.SPP_CSRF_TOKEN } : {})
+            },
+            body: formData
+        });
+        const result = await res.json();
+        return result;
+    },
+    utils: {
+        serializeForm: (container) => {
+            const data = {};
+            container.querySelectorAll('[name]').forEach(el => {
+                if (el.type === 'checkbox') data[el.name] = el.checked;
+                else if (el.type === 'radio') { if (el.checked) data[el.name] = el.value; }
+                else data[el.name] = el.value;
+            });
+            return data;
+        },
+        debounce: (fn, delay) => {
+            let timeout;
+            return (...args) => {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => fn(...args), delay);
+            };
+        },
+        deepMerge: (target, source) => {
+            for (const key in source) {
+                if (source[key] instanceof Object && key in target) {
+                    Object.assign(source[key], SPPUX.utils.deepMerge(target[key], source[key]));
+                }
+            }
+            Object.assign(target || {}, source);
+            return target;
+        }
+    },
     signal: (v) => new Signal(v),
     computed: (fn) => new Computed(fn),
     effect: (fn) => {

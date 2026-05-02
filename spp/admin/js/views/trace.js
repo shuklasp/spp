@@ -21,8 +21,8 @@ export default class TraceView extends BaseComponent {
     async fetchData() {
         try {
             const [traceRes, parikshakRes] = await Promise.all([
-                this.admin.api('get_event_trace'),
-                this.admin.api('get_parikshak_trace')
+                this.api('get_event_trace'),
+                this.api('get_parikshak_trace')
             ]);
 
             const traces = traceRes.success ? (traceRes.data.traces || []) : [];
@@ -48,17 +48,17 @@ export default class TraceView extends BaseComponent {
     }
 
     async runScan() {
-        this.admin.notify('Initiating Parikshak Evolutionary Scan...', 'info');
+        this.notify('Initiating Parikshak Evolutionary Scan...', 'info');
         try {
-            const res = await this.admin.apiPost('run_parikshak_scan', { appname: this.admin.selectedApp });
+            const res = await this.apiPost('run_parikshak_scan', { appname: this.selectedApp });
             if (res.success) {
-                this.admin.notify('Scan completed successfully.', 'success');
+                this.notify('Scan completed successfully.', 'success');
                 await this.fetchData();
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
             }
         } catch (err) {
-            this.admin.notify('Scan failed: ' + err.message, 'error');
+            this.notify('Scan failed: ' + err.message, 'error');
         }
     }
 

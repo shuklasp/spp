@@ -4877,3 +4877,2773 @@
 [2026-05-01 12:48:17]   -> Executing Inline/Anonymous handler
 [2026-05-01 12:48:18] Firing event: [event_spp_app_init]
 [2026-05-01 12:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:08] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:08] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:08] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:10] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:10]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:17] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:17] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:17] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:19] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:19] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:19] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:21] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:35] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:35] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:35] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:38] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:43] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:43] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:43] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:44] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:44] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:46] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:46]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:46] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:46]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:49] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:49] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:49] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:55] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:49:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:55] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:49:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:55] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:49:57] Firing event: [event_spp_app_init]
+[2026-05-01 15:49:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:02] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:02]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:04] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:50:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:04] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:50:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:04] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:07] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:11] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:11]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:50:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:50:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:28] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:31] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:35] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:44] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:50:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:44] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:50:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:44] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:47] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:50:52] Firing event: [event_spp_app_init]
+[2026-05-01 15:50:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:00] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:51:00]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:00] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:51:00]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:00] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:00]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:02] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:02]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:07] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:13] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:51:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:13] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:51:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:13] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:16] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:51:21] Firing event: [event_spp_app_init]
+[2026-05-01 15:51:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:56:56] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:56:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:56:57] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:56:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:56:57] Firing event: [event_spp_app_init]
+[2026-05-01 15:56:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:56:59] Firing event: [event_spp_app_init]
+[2026-05-01 15:56:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:04] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:04] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:04] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:06] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:06] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:06] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:08] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:21] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:21] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:21] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:24] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:24]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:30] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:30] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:31] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:31] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:34] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:35] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:37] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:37] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:37] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:43] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:43] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:43] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:46] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:46]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:50] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:52] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:57:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:52] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:57:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:52] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:55] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:57:59] Firing event: [event_spp_app_init]
+[2026-05-01 15:57:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:20] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:58:20]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:20] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:58:20]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:21] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:23] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:23]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:28] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:34] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:58:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:34] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:58:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:34] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:36] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:41] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:42] Firing event: [event_spp_context_enforce]
+[2026-05-01 15:58:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:42] Firing event: [event_spp_route_resolve]
+[2026-05-01 15:58:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:42] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:45] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:45]   -> Executing Inline/Anonymous handler
+[2026-05-01 15:58:49] Firing event: [event_spp_app_init]
+[2026-05-01 15:58:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:00:36] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:00:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:00:36] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:00:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:00:36] Firing event: [event_spp_app_init]
+[2026-05-01 16:00:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:42] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:02:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:42] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:02:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:42] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:44] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:02:49] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:02:49] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:49] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:51] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:02:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:51] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:02:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:51] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:02:53] Firing event: [event_spp_app_init]
+[2026-05-01 16:02:53]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:09] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:09]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:09] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:09]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:09] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:09]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:12] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:12]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:16] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:16] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:16] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:17] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:17] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:19] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:19] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:21] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:21] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:22] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:27] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:29] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:29]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:32] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:32]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:34] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:34] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:34] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:36] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:39] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:49] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:03:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:49] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:03:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:49] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:49]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:52] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:03:57] Firing event: [event_spp_app_init]
+[2026-05-01 16:03:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:18] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:04:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:18] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:04:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:19] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:21] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:26] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:35] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:35] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:36] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:36]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:38] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:04:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:38] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:04:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:38] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:40] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:04:43] Firing event: [event_spp_app_init]
+[2026-05-01 16:04:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:35] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:06:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:35] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:06:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:35] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:35]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:37] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:42] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:48] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:06:48]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:48] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:06:48]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:48] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:48]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:51] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:06:56] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:06:56] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:56] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:56]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:59] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:06:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:59] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:06:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:06:59] Firing event: [event_spp_app_init]
+[2026-05-01 16:06:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:07:01] Firing event: [event_spp_app_init]
+[2026-05-01 16:07:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:13] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:13] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:13] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:16] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:22] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:22] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:22] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:24] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:24]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:24] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:24]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:26] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:26] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:26] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:32] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:32]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:32] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:32]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:33] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:33]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:34] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:39] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:40] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:11:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:40] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:11:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:40] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:42] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:11:47] Firing event: [event_spp_app_init]
+[2026-05-01 16:11:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:07] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:12:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:07] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:12:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:07] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:10] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:10]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:15] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:15]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:18] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:12:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:18] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:12:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:19] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:21] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:21]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:25] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:25]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:26] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:12:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:26] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:12:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:26] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:29] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:29]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:12:33] Firing event: [event_spp_app_init]
+[2026-05-01 16:12:33]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:13:05] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:13:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:13:05] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:13:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:13:05] Firing event: [event_spp_app_init]
+[2026-05-01 16:13:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:13:07] Firing event: [event_spp_app_init]
+[2026-05-01 16:13:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:13:11] Firing event: [event_spp_app_init]
+[2026-05-01 16:13:11]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:31] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:14:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:31] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:14:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:31] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:33] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:33]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:38] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:55] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:14:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:55] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:14:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:55] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:55]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:57] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:57] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:57] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:14:58] Firing event: [event_spp_app_init]
+[2026-05-01 16:14:58]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:15:03] Firing event: [event_spp_app_init]
+[2026-05-01 16:15:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:17:26] Firing event: [event_spp_context_enforce]
+[2026-05-01 16:17:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:17:26] Firing event: [event_spp_route_resolve]
+[2026-05-01 16:17:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:17:26] Firing event: [event_spp_app_init]
+[2026-05-01 16:17:26]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:17:28] Firing event: [event_spp_app_init]
+[2026-05-01 16:17:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 16:17:34] Firing event: [event_spp_app_init]
+[2026-05-01 16:17:34]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:21:57] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:21:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:21:57] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:21:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:21:57] Firing event: [event_spp_app_init]
+[2026-05-01 23:21:57]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:21:59] Firing event: [event_spp_app_init]
+[2026-05-01 23:21:59]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:03] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:03] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:05] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:05] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:05] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:06] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:17] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:17]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:17] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:18] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:19] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:22] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:22] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:22] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:22]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:24] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:24]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:24] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:24]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:25] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:25]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:25] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:25]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:25] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:25]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:28] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:28] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:28] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:28] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:28] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:28]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:29] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:29]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:30] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:30] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:30] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:30] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:30]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:31] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:32] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:32]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:47] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:47] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:47] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:50] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:22:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:50] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:22:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:50] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:50] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:22:52] Firing event: [event_spp_app_init]
+[2026-05-01 23:22:52]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:07] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:23:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:07] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:23:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:07] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:10] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:23:10]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:10] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:23:10]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:10] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:10]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:11] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:11]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:13] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:13]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:14] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:14]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:18] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:23:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:18] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:23:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:18] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:27] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:23:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:27] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:23:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:27] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:27]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:31] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:23:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:31] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:23:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:31] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:31]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:32] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:32]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:23:33] Firing event: [event_spp_app_init]
+[2026-05-01 23:23:33]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:38] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:37:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:38] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:37:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:38] Firing event: [event_spp_app_init]
+[2026-05-01 23:37:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:41] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:37:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:41] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:37:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:41] Firing event: [event_spp_app_init]
+[2026-05-01 23:37:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:41] Firing event: [event_spp_app_init]
+[2026-05-01 23:37:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:42] Firing event: [event_spp_app_init]
+[2026-05-01 23:37:42]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:37:42] Firing event: [event_spp_app_init]
+[2026-05-01 23:37:43]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:01] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:01] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:01] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:03] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:03] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:04] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:05] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:16] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:16] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:16] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:16] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:16]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:18] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:18] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:18] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:18]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:19] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:19] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:19] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:19]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:20] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:20]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:37] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:37] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:37] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:37]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:38] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:38]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:39] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:39] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:39] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:39]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:40] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:40] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:40] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:40] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:40]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:41] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:41] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:41] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:41]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:44] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:44] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:44] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:44] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:38:46] Firing event: [event_spp_app_init]
+[2026-05-01 23:38:46]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:47] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:42:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:47] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:42:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:47] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:47]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:48] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:48]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:42:50] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:42:50] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:50] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:50]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:51] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:42:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:51] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:42:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:51] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:42:51] Firing event: [event_spp_app_init]
+[2026-05-01 23:42:51]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:01] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:01] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:01] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:01]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:02] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:02]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:03] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:03] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:03] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:03]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:04] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:04] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:04]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:05] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:05] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:05] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:05]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:06] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:06] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:06] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:06]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:07] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:07]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:08] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:08] Firing event: [event_spp_context_enforce]
+[2026-05-01 23:43:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:08] Firing event: [event_spp_route_resolve]
+[2026-05-01 23:43:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:08] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:08] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:08]   -> Executing Inline/Anonymous handler
+[2026-05-01 23:43:10] Firing event: [event_spp_app_init]
+[2026-05-01 23:43:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:06] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:07] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:09] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:09] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:09] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:10] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:10] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:10] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:11] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:19] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:19] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:19] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:20] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:21] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:21] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:23] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:23] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:24] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:24] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:24] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:25] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:26] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:27] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:27] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:28] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:54] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:00:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:54] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:00:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:54] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:54] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:00:55] Firing event: [event_spp_app_init]
+[2026-05-02 00:00:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:01:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:01:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:25] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:25] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:27] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:01:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:01:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:27] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:28] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:01:30] Firing event: [event_spp_app_init]
+[2026-05-02 00:01:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:02:17] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:02:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:02:17] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:02:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:02:17] Firing event: [event_spp_app_init]
+[2026-05-02 00:02:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:02:17] Firing event: [event_spp_app_init]
+[2026-05-02 00:02:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:02:18] Firing event: [event_spp_app_init]
+[2026-05-02 00:02:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:16] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:16] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:16] Firing event: [event_spp_app_init]
+[2026-05-02 00:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:16] Firing event: [event_spp_app_init]
+[2026-05-02 00:03:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:18] Firing event: [event_spp_app_init]
+[2026-05-02 00:03:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:03:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:03:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:03:38] Firing event: [event_spp_app_init]
+[2026-05-02 00:03:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:19] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:19] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:19] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:20] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:20] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:21] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:22] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:23] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:23] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:25] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:31] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:31] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:31] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:33] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:33] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:35] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:35] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:36] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:37] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:50] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:04:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:50] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:04:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:50] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:51] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:04:53] Firing event: [event_spp_app_init]
+[2026-05-02 00:04:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:05:28] Firing event: [event_spp_context_enforce]
+[2026-05-02 00:05:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:05:28] Firing event: [event_spp_route_resolve]
+[2026-05-02 00:05:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:05:28] Firing event: [event_spp_app_init]
+[2026-05-02 00:05:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:05:29] Firing event: [event_spp_app_init]
+[2026-05-02 00:05:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 00:05:30] Firing event: [event_spp_app_init]
+[2026-05-02 00:05:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:44] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:44] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:46] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:51] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:38:51] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:38:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:51] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:38:51] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:38:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:52] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:52] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:54] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:38:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:54] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:38:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:54] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:38:55] Firing event: [event_spp_app_init]
+[2026-05-02 03:38:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:03] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:39:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:03] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:39:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:03] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:05] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:39:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:39:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:11] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:13] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:39:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:13] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:39:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:13] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:39:15] Firing event: [event_spp_app_init]
+[2026-05-02 03:39:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:12] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:12] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:12] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:14] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:18] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:18] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:18] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:19] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:19] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:20] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:20] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:22] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:22] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:22] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:26] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:28] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:31] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:32] Firing event: [event_spp_context_enforce]
+[2026-05-02 03:48:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:32] Firing event: [event_spp_route_resolve]
+[2026-05-02 03:48:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:32] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:33] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 03:48:36] Firing event: [event_spp_app_init]
+[2026-05-02 03:48:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 04:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 04:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:23] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:24] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:28] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:39] Firing event: [event_spp_context_enforce]
+[2026-05-02 04:00:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:39] Firing event: [event_spp_route_resolve]
+[2026-05-02 04:00:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:39] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:40] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:00:45] Firing event: [event_spp_app_init]
+[2026-05-02 04:00:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:01] Firing event: [event_spp_context_enforce]
+[2026-05-02 04:01:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:01] Firing event: [event_spp_route_resolve]
+[2026-05-02 04:01:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:01] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:03] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:07] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:13] Firing event: [event_spp_context_enforce]
+[2026-05-02 04:01:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:14] Firing event: [event_spp_route_resolve]
+[2026-05-02 04:01:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:14] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:15] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 04:01:18] Firing event: [event_spp_app_init]
+[2026-05-02 04:01:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:04:59] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:04:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:04:59] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:04:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:04:59] Firing event: [event_spp_app_init]
+[2026-05-02 13:04:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:00] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:00]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:02] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:02] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:02] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:02]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:03] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:03] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:03] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:03]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:04] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:04]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:13] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:13] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:13] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:13] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:15] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:16] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:16] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:17] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:17] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:17] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:18] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:18] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:18] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:19] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:20] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:20] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:21] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:22] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:35] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:36] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:38] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:41] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:41] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:41] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:42] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:43] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:44] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:05:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:44] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:05:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:44] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:45] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:05:47] Firing event: [event_spp_app_init]
+[2026-05-02 13:05:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:06:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:06:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:26] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:27] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:29] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:29] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:06:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:29] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:06:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:29] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:31] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:33] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:06:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:06:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:33] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:34] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:36] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:44] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:06:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:44] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:06:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:44] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:46] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:06:48] Firing event: [event_spp_app_init]
+[2026-05-02 13:06:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:07:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 13:07:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:07:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 13:07:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:07:11] Firing event: [event_spp_app_init]
+[2026-05-02 13:07:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:07:12] Firing event: [event_spp_app_init]
+[2026-05-02 13:07:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 13:07:15] Firing event: [event_spp_app_init]
+[2026-05-02 13:07:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:33] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:33] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:35] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:48] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:48] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:48] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:48] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:50] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:50] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:50] Firing event: [event_spp_app_init]
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:23:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:38:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:38:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:25] Firing event: [event_spp_app_init]
+[2026-05-02 14:38:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:25] Firing event: [event_spp_app_init]
+[2026-05-02 14:38:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:38:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:38:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:28] Firing event: [event_spp_app_init]
+[2026-05-02 14:38:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:38:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:38:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:13] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:13] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:14] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:16] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:19] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:19] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:19] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:22] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:22] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:24] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:24] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:49] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:49] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:49] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:50] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:54] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:39:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:54] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:39:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:54] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:39:55] Firing event: [event_spp_app_init]
+[2026-05-02 14:39:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:26] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:28] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:30] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:30] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:30] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:31] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:31] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:33] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:33] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:34] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:34] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:34] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:48] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:48] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:48] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:53] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:40:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:53] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:40:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:53] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:54] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:57] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:40:57] Firing event: [event_spp_app_init]
+[2026-05-02 14:40:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:41:05] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:41:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:41:05] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:41:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:41:05] Firing event: [event_spp_app_init]
+[2026-05-02 14:41:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:36] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:42:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:36] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:42:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:36] Firing event: [event_spp_app_init]
+[2026-05-02 14:42:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:36] Firing event: [event_spp_app_init]
+[2026-05-02 14:42:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:42:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:42:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:38] Firing event: [event_spp_app_init]
+[2026-05-02 14:42:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:42:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:42:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:11] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:13] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:17] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:17] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:17] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:18] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:18] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:22] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:22] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:22] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:32] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:34] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:35] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:49] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:49] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:49] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:53] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:43:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:53] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:43:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:54] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:55] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:58] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:43:58] Firing event: [event_spp_app_init]
+[2026-05-02 14:43:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:45:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:45:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:35] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:40] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:45:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:40] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:45:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:40] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:40] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:43] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:44] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:45:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:44] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:45:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:44] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:45] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:45:50] Firing event: [event_spp_app_init]
+[2026-05-02 14:45:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:39] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:46:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:39] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:46:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:46:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:40] Firing event: [event_spp_app_init]
+[2026-05-02 14:46:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:43] Firing event: [event_spp_app_init]
+[2026-05-02 14:46:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:57] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:46:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:57] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:46:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:46:57] Firing event: [event_spp_app_init]
+[2026-05-02 14:46:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:47:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:47:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:47:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:47:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:47:34] Firing event: [event_spp_app_init]
+[2026-05-02 14:47:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:47:34] Firing event: [event_spp_app_init]
+[2026-05-02 14:47:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:47:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:47:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:20] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:23] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:23] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:24] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:26] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:26] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:28] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:28] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:28] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:29] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:48:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:29] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:48:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:30] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:32] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:48:34] Firing event: [event_spp_app_init]
+[2026-05-02 14:48:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:49:09] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:49:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:49:09] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:49:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:49:09] Firing event: [event_spp_app_init]
+[2026-05-02 14:49:09]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:01] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:50:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:01] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:50:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:01] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:01]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:50:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:50:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:07] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:08] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:08]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:11] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:12] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:50:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:12] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:50:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:12] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:12]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:13] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:50:17] Firing event: [event_spp_app_init]
+[2026-05-02 14:50:17]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:57:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:57:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:41] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:46] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:57:46] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:57:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:46] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:57:46] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:57:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:47] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:47] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:49] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:57:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:49] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:57:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:49] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:57:52] Firing event: [event_spp_app_init]
+[2026-05-02 14:57:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:06] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:08] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:08]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:14] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:14] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:15] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:15] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:18] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:18] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:21] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:27] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:29] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:30] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:32] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:33] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:58:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:33] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:58:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:33] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:35] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:58:39] Firing event: [event_spp_app_init]
+[2026-05-02 14:58:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:30] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:59:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:30] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:59:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:30] Firing event: [event_spp_app_init]
+[2026-05-02 14:59:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 14:59:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 14:59:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:38] Firing event: [event_spp_app_init]
+[2026-05-02 14:59:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:40] Firing event: [event_spp_app_init]
+[2026-05-02 14:59:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:44] Firing event: [event_spp_app_init]
+[2026-05-02 14:59:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 14:59:45] Firing event: [event_spp_app_init]
+[2026-05-02 14:59:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:54] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:36:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:54] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:36:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:54] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:36:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:36:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:36:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:36:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:56] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:58] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:36:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:58] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:36:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:58] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:36:58] Firing event: [event_spp_app_init]
+[2026-05-02 15:36:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:18] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:18] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:18] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:18] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:20] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:20] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:21] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:32] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:32] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:32] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:33] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:34] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:34] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:35] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:35] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:35] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:37] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:37] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:37] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:37] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:39] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:39] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:39] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:39] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:40] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:46] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:46] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:46] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:47] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:47] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:47] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:48] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:49] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:37:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:49] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:37:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:37:51] Firing event: [event_spp_app_init]
+[2026-05-02 15:37:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:34] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:34] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:36] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:40:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:36] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:40:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:36] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:37] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:40:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:43] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:40:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:43] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:45] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:40:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:45] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:40:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:45] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:46] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:47] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:47] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:40:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:47] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:40:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:47] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:47] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:47]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:40:48] Firing event: [event_spp_app_init]
+[2026-05-02 15:40:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:41:39] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:41:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:41:39] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:41:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:41:40] Firing event: [event_spp_app_init]
+[2026-05-02 15:41:40]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:04] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:04]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:05] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:05] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:05] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:05]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:06] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:15] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:16] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:27] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:28] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:29] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:29] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:29] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:29] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:30] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:30] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:31] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:31] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:31] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:32] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:32] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:32] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:32] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:32]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:33] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:34] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:46:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:34] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:46:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:34] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:34]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:46:35] Firing event: [event_spp_app_init]
+[2026-05-02 15:46:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:10] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:49:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:10] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:49:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:10] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:11] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:49:14] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:49:14] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:14] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:14]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:49:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:49:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:15] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:49:16] Firing event: [event_spp_app_init]
+[2026-05-02 15:49:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:35] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:36] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:38] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:38] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:38] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:38]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:39] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:39] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:39] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:39] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:39] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:39]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:41] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:41] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:41] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:41] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:42] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:42] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:53:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:42] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:53:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:42] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:43] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:53:44] Firing event: [event_spp_app_init]
+[2026-05-02 15:53:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:23] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:23] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:25] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:26] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:26] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:26] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:26] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:43] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:43] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:43] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:45] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:45] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:45] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:45] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:46] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:46] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:46] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:46] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:46] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:46]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:48] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:48] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:48] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:48] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:48]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:49] Firing event: [event_spp_context_enforce]
+[2026-05-02 15:56:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:49] Firing event: [event_spp_route_resolve]
+[2026-05-02 15:56:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:49] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:49]   -> Executing Inline/Anonymous handler
+[2026-05-02 15:56:50] Firing event: [event_spp_app_init]
+[2026-05-02 15:56:50]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:07] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:07] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:07] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:08] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:08]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:10] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:10] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:10] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:10]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:11] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:11] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:18] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:18] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:18]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:19] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:19] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:19]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:20] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:20] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:20] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:20]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:21] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:21] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:21] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:21]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:22] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:22] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:22] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:22] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:22]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:23] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:23] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:23] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:23]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:24] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:25] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:10:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:10:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:25] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:26] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:10:27] Firing event: [event_spp_app_init]
+[2026-05-02 16:10:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:12:06] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:12:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:12:06] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:12:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:12:06] Firing event: [event_spp_app_init]
+[2026-05-02 16:12:06]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:41] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:41] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:41] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:41] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:41]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:43] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:43] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:43] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:44] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:52] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:52] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:52] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:52] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:52]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:53] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:53] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:53] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:53] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:53]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:54] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:54]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:55] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:55] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:55]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:56] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:57] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:57] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:57] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:57]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:58] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:58]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:59] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:59] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:14:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:59] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:14:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:59] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:14:59] Firing event: [event_spp_app_init]
+[2026-05-02 16:14:59]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:00] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:00]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:31] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:15:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:31] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:15:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:31] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:33] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:33]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:35] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:35] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:15:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:35] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:15:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:35] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:35]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:36] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:36]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:37] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:37]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:42] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:15:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:42] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:15:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:42] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:42] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:42]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:43] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:43]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:44] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:15:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:44] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:15:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:44] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:44] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:44]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:15:45] Firing event: [event_spp_app_init]
+[2026-05-02 16:15:45]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:13] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:13] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:13] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:13] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:13]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:15] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:15] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:15] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:15]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:16] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:16] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:16] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:16] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:16]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:24] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:24] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:24] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:24] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:24]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:25] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:25] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:25] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:25]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:26] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:26] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:26]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:27] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:27] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:27] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:27] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:27] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:27]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:28] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:28] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:28] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:28]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:29] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:30] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:30] Firing event: [event_spp_context_enforce]
+[2026-05-02 16:17:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:30] Firing event: [event_spp_route_resolve]
+[2026-05-02 16:17:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:30] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:30] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:30]   -> Executing Inline/Anonymous handler
+[2026-05-02 16:17:31] Firing event: [event_spp_app_init]
+[2026-05-02 16:17:31]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:26:51] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:26:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:26:51] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:26:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:26:51] Firing event: [event_spp_app_init]
+[2026-05-02 18:26:51]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:29:29] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:29:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:29:29] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:29:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:29:29] Firing event: [event_spp_app_init]
+[2026-05-02 18:29:29]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:31:07] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:31:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:31:07] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:31:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:31:07] Firing event: [event_spp_app_init]
+[2026-05-02 18:31:07]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:34:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:34:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:34:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:34:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:34:56] Firing event: [event_spp_app_init]
+[2026-05-02 18:34:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:36:11] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:36:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:36:11] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:36:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:36:11] Firing event: [event_spp_app_init]
+[2026-05-02 18:36:11]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:38:56] Firing event: [event_spp_context_enforce]
+[2026-05-02 18:38:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:38:56] Firing event: [event_spp_route_resolve]
+[2026-05-02 18:38:56]   -> Executing Inline/Anonymous handler
+[2026-05-02 18:38:56] Firing event: [event_spp_app_init]
+[2026-05-02 18:38:56]   -> Executing Inline/Anonymous handler

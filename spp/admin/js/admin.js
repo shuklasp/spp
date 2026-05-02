@@ -490,7 +490,7 @@ class SPPAdmin {
 
                 // 3. Render SPP-UX Component
                 if (module.default) {
-                    this.viewInstance = new module.default(this, container);
+                    this.viewInstance = new module.default(container);
                     await this.viewInstance.onInit();
                     this.viewInstance.update();
                 }
@@ -638,103 +638,28 @@ class SPPAdmin {
     // =============================================
 
     openSubEditor(title, html, data, onSave) {
-        const subModal = document.createElement('div');
-        subModal.className = 'glass-overlay active sub-modal';
-        subModal.style.zIndex = '4000';
-        subModal.innerHTML = `
-            <div class="modal-content glass-panel" style="width: 80vw; max-width: 1000px; height: 80vh; background: var(--panel-bg-solid); display: flex; flex-direction: column;">
-                <div class="modal-header">
-                    <h3>${title}</h3>
-                    <button class="close-btn" onclick="this.closest('.sub-modal').remove()">✕</button>
-                </div>
-                <div class="modal-body" id="sub-editor-body" style="flex: 1; overflow-y: auto; padding: 1.5rem;">
-                    ${html}
-                </div>
-                <div class="modal-footer">
-                    <button class="btn ghost-btn" onclick="this.closest('.sub-modal').remove()">Cancel</button>
-                    <button class="btn primary-btn" id="sub-modal-save">Apply Changes</button>
-                </div>
-            </div>`;
-        document.body.appendChild(subModal);
+        return SPPUX.openSubEditor(title, html, data, onSave);
+    }
 
-        const body = subModal.querySelector('#sub-editor-body');
-        const elements = body.querySelectorAll('input, select, textarea');
-        elements.forEach(el => {
-            if (el.type === 'hidden') return;
-            if (el.closest('.spp-form-group, .form-group, .input-group')) return;
-            
-            const labelText = el.getAttribute('label');
-            const helpText = el.getAttribute('help');
-            const wrapper = document.createElement('div');
-            wrapper.className = 'form-group';
-            el.parentNode.insertBefore(wrapper, el);
-            if (labelText) {
-                const label = document.createElement('label');
-                label.className = 'field-label';
-                label.textContent = labelText;
-                wrapper.appendChild(label);
-            }
-            wrapper.appendChild(el);
-            if (helpText) {
-                const help = document.createElement('small');
-                help.className = 'field-help';
-                help.textContent = helpText;
-                wrapper.appendChild(help);
-            }
-        });
+    updateSubEditor(html) {
+        return SPPUX.updateSubEditor(html);
+    }
 
-        const form = subModal.querySelector('form');
-        if (form) {
-            let displayData = { ...data };
-            if (displayData.options && typeof displayData.options === 'object') {
-                displayData.options = Object.entries(displayData.options)
-                    .map(([k, v]) => `${k}: ${v}`)
-                    .join('\n');
-            }
-            for (let [key, val] of Object.entries(displayData)) {
-                const el = form.elements[key] || form.elements[key + '[]'];
-                if (el) {
-                    if (el.type === 'checkbox') el.checked = !!val;
-                    else el.value = val;
-                }
-            }
+    prompt(title, message, callback) {
+        if (window.SPPUX && SPPUX.Prompt) {
+            SPPUX.Prompt.show(title, message, callback);
+        } else {
+            const val = window.prompt(message);
+            if (val !== null) callback(val);
         }
-        
-        // Initialize reactive dependencies if the SPPForm engine is loaded
-        if (window.SPPForm) {
-            SPPForm.autoInit(body);
-        }
+    }
 
-        subModal.querySelector('#sub-modal-save').onclick = () => {
-            const fd = new FormData(form);
-            const newData = {};
-            fd.forEach((value, key) => {
-                if (key.endsWith('[]')) {
-                   const k = key.slice(0, -2);
-                   if (!newData[k]) newData[k] = [];
-                   newData[k].push(value);
-                } else {
-                    newData[key] = value;
-                }
-            });
-            if (newData.options && typeof newData.options === 'string') {
-                const lines = newData.options.split('\n').filter(l => l.trim() && l.includes(':'));
-                if (lines.length > 0) {
-                    const optObj = {};
-                    lines.forEach(l => {
-                        const parts = l.split(':');
-                        const keyValue = parts.shift().trim();
-                        const valValue = parts.join(':').trim();
-                        if (keyValue) optObj[keyValue] = valValue;
-                    });
-                    newData.options = optObj;
-                } else {
-                    delete newData.options;
-                }
-            }
-            onSave(newData);
-            subModal.remove();
-        };
+    confirm(title, message, callback) {
+        if (window.SPPUX && SPPUX.Confirm) {
+            SPPUX.Confirm.show(title, message, callback);
+        } else {
+            if (window.confirm(message)) callback();
+        }
     }
 
     // =============================================
@@ -868,14 +793,10 @@ class SPPAdmin {
         this.handleRouting();
     }
 
-    notify(msg, type = 'info') {
-        if (!msg) return;
-        if (window.SPPUX && SPPUX.Notify) {
-            SPPUX.Notify.show(msg, type);
-        } else {
-            console.warn("SPPUX UI not loaded, falling back to alert:", msg);
-            alert(msg);
-        }
+    notify(message, type = 'info') {
+        if (!message) return;
+        if (window.SPPUX && SPPUX.Notify) SPPUX.Notify.show(message, type);
+        else console.log(`[${type}] ${message}`);
     }
 
     handleApiErrors(res) {
@@ -895,20 +816,12 @@ class SPPAdmin {
     }
 
     openModal(title, content = '', actions = []) {
-        if (window.SPPUX && SPPUX.Modal) {
-            // If content is TrustedHTML, don't call toString() yet, pass it as is
-            this._activeModal = SPPUX.Modal.open(title, content, actions.length ? actions : [
-                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-                { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
-            ]);
-            
-            // If we have a current view, ensure it picks up any handlers from this modal
-            if (this.viewInstance) {
-                this.viewInstance._registerGlobalHandlers();
-            }
-        } else {
-            console.error("SPPUX Modal system not loaded.");
-        }
+        this._activeModal = SPPUX.openModal(title, content, actions.length ? actions : [
+            { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+            { label: 'Save Changes', type: 'primary', fn: () => this.saveCurrentModal() }
+        ]);
+        if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
+        return this._activeModal;
     }
 
     updateModal(title, content, actions = null) {
@@ -917,11 +830,7 @@ class SPPAdmin {
             this._activeModal.props.content = content;
             if (actions) this._activeModal.props.actions = actions;
             this._activeModal.update();
-            
-            // Ensure the view picks up new handlers after update
-            if (this.currentViewInstance) {
-                this.currentViewInstance._registerGlobalHandlers();
-            }
+            if (this.viewInstance) this.viewInstance._registerGlobalHandlers();
         } else {
             this.openModal(title, content, actions || []);
         }
@@ -932,9 +841,10 @@ class SPPAdmin {
             this._activeModal.close();
             this._activeModal = null;
         }
-        // Legacy support for manual modal layers
-        const manualModal = document.getElementById('modal-container');
-        if (manualModal) manualModal.classList.remove('active');
+    }
+
+    async confirm(message) {
+        return await SPPUX.Confirm(message);
     }
 
     saveCurrentModal() {

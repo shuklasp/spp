@@ -82,110 +82,10 @@ class SPP_XDB {
         return $this->dataDir;
     }
 
-    /**
-     * Lists all databases (subdirectories in the data root).
-     * 
-     * @return array
-     */
-    public function listDatabases() {
-        $dbs = [];
-        if (!is_dir($this->baseDataDir)) return $dbs;
-        foreach (scandir($this->baseDataDir) as $entry) {
-            if ($entry === '.' || $entry === '..') continue;
-            if (is_dir($this->baseDataDir . '/' . $entry)) {
-                $dbs[] = $entry;
-            }
-        }
-        return $dbs;
-    }
-
-    /**
-     * Lists all tables (XML files) in the current database.
-     * 
-     * @return array
-     */
-    public function listTables() {
-        $tables = [];
-        if (!is_dir($this->dataDir)) return $tables;
-        foreach (glob($this->dataDir . '/*.xml') as $file) {
-            $tables[] = pathinfo($file, PATHINFO_FILENAME);
-        }
-        return $tables;
-    }
-
-    public function tableExists($table) {
-        return file_exists($this->dataDir . '/' . $table . '.xml');
-    }
-
-    public function getTableColumns($table) {
-        if (!$this->tableExists($table)) return [];
-        $this->connect($table);
-        $firstRow = $this->xpath->query("//row[1]")->item(0);
-        if (!$firstRow) return ['id']; // Default ID column
-        
-        $cols = [];
-        foreach ($firstRow->childNodes as $child) {
-            if ($child->nodeType === XML_ELEMENT_NODE) {
-                $cols[] = $child->nodeName;
-            }
-        }
-        if (!in_array('id', $cols)) array_unshift($cols, 'id');
-        return $cols;
-    }
-
-    /**
-     * Checks if a database exists.
-     * 
-     * @param string $db
-     * @return bool
-     */
     public function databaseExists($db) {
         return is_dir($this->baseDataDir . '/' . $db);
     }
 
-
-    /**
-     * Creates a new database (directory). Does nothing if it already exists.
-     * 
-     * @param string $db
-     * @return $this
-     */
-    public function createDatabase($db) {
-        $path = $this->baseDataDir . '/' . $db;
-        if (!is_dir($path)) {
-            mkdir($path, 0777, true);
-        }
-        return $this;
-    }
-
-    /**
-     * Drops (deletes) a table from the current database.
-     * 
-     * @param string $table
-     * @return bool
-     */
-    public function dropTable($table) {
-        $path = $this->dataDir . '/' . $table . '.xml';
-        if (file_exists($path)) {
-            return unlink($path);
-        }
-        return false;
-    }
-
-    /**
-     * Drops (deletes) an entire database and all its tables.
-     * 
-     * @param string $db
-     * @return bool
-     */
-    public function dropDatabase($db) {
-        $path = $this->baseDataDir . '/' . $db;
-        if (!is_dir($path)) return false;
-        foreach (glob($path . '/*.xml') as $file) {
-            unlink($file);
-        }
-        return rmdir($path);
-    }
 
     /**
      * Backups a database to a ZIP file.
@@ -242,7 +142,7 @@ class SPP_XDB {
      * @param array $columns ['col_name' => 'type', ...]
      * @return $this
      */
-    public function createTable($table, $columns = []) {
+    public function createTable_OLD($table, $columns = []) {
         $this->tableName = $table;
         $this->filePath = $this->dataDir . '/' . $table . '.xml';
 
@@ -357,15 +257,208 @@ class SPP_XDB {
      * @return array ['col_name' => 'type', ...]
      */
     public function getSchema() {
-        if (!$this->xpath) return [];
-        $nodes = $this->xpath->query('/database/_schema/column');
-        $schema = [];
-        if ($nodes) {
-            foreach ($nodes as $col) {
-                $schema[$col->getAttribute('name')] = $col->getAttribute('type');
+        if (!$this->xpath) return ['columns' => [], 'constraints' => []];
+        
+        $colNodes = $this->xpath->query('/database/_schema/column');
+        $conNodes = $this->xpath->query('/database/_schema/constraint');
+        
+        $schema = ['columns' => [], 'constraints' => []];
+        
+        if ($colNodes) {
+            foreach ($colNodes as $col) {
+                $name = $col->getAttribute('name');
+                $schema['columns'][$name] = [
+                    'type' => $col->getAttribute('type'),
+                    'notNull' => $col->getAttribute('notNull') === 'true',
+                    'unique' => $col->getAttribute('unique') === 'true',
+                    'primary' => $col->getAttribute('primary') === 'true',
+                    'check' => $col->hasAttribute('check') ? $col->getAttribute('check') : null,
+                    'default' => $col->hasAttribute('default') ? $col->getAttribute('default') : null
+                ];
             }
         }
+        
+        if ($conNodes) {
+            foreach ($conNodes as $con) {
+                $schema['constraints'][] = [
+                    'type' => $con->getAttribute('type'),
+                    'columns' => explode(',', $con->getAttribute('columns'))
+                ];
+            }
+        }
+        
         return $schema;
+    }
+
+    /**
+     * Returns the column names for a specific table.
+     * 
+     * @param string $tableName
+     * @return array
+     */
+    public function getTableColumns($tableName) {
+        $this->connect($tableName);
+        $schema = $this->getSchema();
+        if (!empty($schema['columns'])) return array_keys($schema['columns']);
+        
+        // Fallback: get keys from first row
+        $nodes = $this->xpath->query("//row");
+        if ($nodes && $nodes->length > 0) {
+            $row = $this->nodeToArray($nodes->item(0));
+            // Filter out internal fields like @id, history, etc.
+            return array_filter(array_keys($row), function($k) {
+                return $k[0] !== '@' && $k !== 'history';
+            });
+        }
+        return [];
+    }
+
+    /**
+     * Lists all available databases in the XDB data directory.
+     * 
+     * @return array
+     */
+    public function listDatabases() {
+        $path = $this->baseDataDir;
+        if (!is_dir($path)) return [];
+        $dirs = array_filter(glob($path . '/*'), 'is_dir');
+        $dbs = array_map('basename', $dirs);
+        // Exclude system/internal dirs if any
+        return array_values(array_filter($dbs, function($d) {
+            return $d[0] !== '_';
+        }));
+    }
+
+    /**
+     * Lists all tables in a specific database.
+     * 
+     * @param string|null $dbName
+     * @return array
+     */
+    public function listTables($dbName = null) {
+        $dbName = $dbName ?: $this->dbName;
+        $path = $this->baseDataDir . '/' . $dbName;
+        if (!is_dir($path)) return [];
+        $files = glob($path . '/*.xml');
+        $tables = [];
+        foreach ($files as $file) {
+            $base = basename($file, '.xml');
+            // Ignore segments like table.0.xml
+            if (preg_match('/\.\d+$/', $base)) continue;
+            // Ignore temporary files
+            if (str_ends_with($file, '.tmp')) continue;
+            
+            $tables[] = $base;
+        }
+        return array_unique($tables);
+    }
+
+    /**
+     * Creates a new database directory.
+     * 
+     * @param string $dbName
+     * @return bool
+     */
+    public function createDatabase($dbName) {
+        $path = $this->baseDataDir . '/' . $dbName;
+        if (!is_dir($path)) {
+            return mkdir($path, 0777, true);
+        }
+        return true;
+    }
+
+    /**
+     * Deletes a database directory and all its tables.
+     * 
+     * @param string $dbName
+     * @return bool
+     */
+    public function dropDatabase($dbName) {
+        $path = $this->baseDataDir . '/' . $dbName;
+        if (is_dir($path)) {
+            foreach (glob($path . '/*') as $file) {
+                if (is_file($file)) unlink($file);
+            }
+            return rmdir($path);
+        }
+        return false;
+    }
+
+    /**
+     * Creates a new table (XML file) with an optional schema.
+     * 
+     * @param string $tableName
+     * @param array $columns ['name' => 'type', ...]
+     * @return bool
+     */
+    public function createTable($tableName, $columns = []) {
+        $path = $this->dataDir . '/' . $tableName . '.xml';
+        if (file_exists($path)) return false;
+        
+        $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
+        $xml .= "<database name=\"{$this->dbName}\" table=\"{$tableName}\">\n";
+        $xml .= "  <_schema>\n";
+        foreach ($columns as $name => $props) {
+            if ($name === '_constraints' && is_array($props)) {
+                foreach ($props as $c) {
+                    $ctype = $c['type'] ?? 'unique';
+                    $ccols = is_array($c['columns']) ? implode(',', $c['columns']) : $c['columns'];
+                    $xml .= "    <constraint type=\"{$ctype}\" columns=\"{$ccols}\" />\n";
+                }
+                continue;
+            }
+
+            if (is_string($props)) {
+                $xml .= "    <column name=\"{$name}\" type=\"{$props}\" />\n";
+            } else {
+                $type = $props['type'] ?? 'text';
+                $attrs = "name=\"{$name}\" type=\"{$type}\"";
+                if (!empty($props['notNull'])) $attrs .= " notNull=\"true\"";
+                if (!empty($props['unique'])) $attrs .= " unique=\"true\"";
+                if (!empty($props['primary'])) $attrs .= " primary=\"true\"";
+                if (!empty($props['check'])) $attrs .= " check=\"" . htmlspecialchars($props['check']) . "\"";
+                if (isset($props['default'])) $attrs .= " default=\"" . htmlspecialchars($props['default']) . "\"";
+                $xml .= "    <column {$attrs} />\n";
+                
+                // If it's a foreign key
+                if (!empty($props['references'])) {
+                    $refParts = explode('.', $props['references']);
+                    if (count($refParts) === 2) {
+                        $this->addForeignKey($tableName, $name, $refParts[0], $refParts[1]);
+                    }
+                }
+            }
+        }
+        $xml .= "  </_schema>\n";
+        $xml .= "  <data>\n  </data>\n";
+        $xml .= "</database>";
+        
+        return file_put_contents($path, $xml) !== false;
+    }
+
+    /**
+     * Deletes a table and its associated segments and indexes.
+     * 
+     * @param string $tableName
+     * @return bool
+     */
+    public function dropTable($tableName) {
+        $path = $this->dataDir . '/' . $tableName . '.xml';
+        if (file_exists($path)) {
+            unlink($path);
+            // Drop segments
+            foreach (glob($this->dataDir . '/' . $tableName . '.*.xml') as $seg) {
+                unlink($seg);
+            }
+            // Drop indexes
+            $idxDir = $this->dataDir . '/_indexes/' . $tableName;
+            if (is_dir($idxDir)) {
+                foreach (glob($idxDir . '/*') as $f) unlink($f);
+                rmdir($idxDir);
+            }
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -1051,7 +1144,60 @@ class SPP_XDB {
      */
     public function querySQL($sql, $params = []) {
         $sql = trim($sql);
+        $sql = rtrim($sql, ';');
         $this->trackQuery($sql);
+
+        // -- System Introspection Commands --
+        
+        // SHOW DATABASES
+        if (preg_match('/^SHOW\s+DATABASES/i', $sql)) {
+            $dirs = glob($this->baseDataDir . '/*', GLOB_ONLYDIR);
+            $results = [];
+            foreach ($dirs as $dir) {
+                $results[] = ['Database' => basename($dir)];
+            }
+            return $results;
+        }
+
+        // SHOW TABLES
+        if (preg_match('/^SHOW\s+TABLES/i', $sql)) {
+            $files = glob($this->dataDir . '/*.xml');
+            $results = [];
+            foreach ($files as $file) {
+                $name = basename($file, '.xml');
+                // Skip segment and temporary files
+                if (strpos($name, '.') === false && strpos($name, '_mview_') !== 0) {
+                    $results[] = ["Tables_in_{$this->dbName}" => $name];
+                }
+            }
+            return $results;
+        }
+
+        // DESCRIBE table / DESC table
+        if (preg_match('/^(?:DESCRIBE|DESC)\s+([a-zA-Z0-9_]+)/i', $sql, $m)) {
+            $tableName = $m[1];
+            $path = $this->dataDir . '/' . $tableName . '.xml';
+            if (!file_exists($path)) {
+                throw new Exception("Table '$tableName' not found in database '{$this->dbName}'");
+            }
+            
+            $doc = new DOMDocument();
+            $doc->load($path);
+            $xp = new DOMXPath($doc);
+            $cols = $xp->query("//_schema/column");
+            $results = [];
+            foreach ($cols as $col) {
+                $results[] = [
+                    'Field'   => $col->getAttribute('name'),
+                    'Type'    => strtoupper($col->getAttribute('type')),
+                    'Null'    => $col->getAttribute('notNull') === 'true' ? 'NO' : 'YES',
+                    'Key'     => $col->getAttribute('primary') === 'true' ? 'PRI' : ($col->getAttribute('unique') === 'true' ? 'UNI' : ''),
+                    'Default' => $col->getAttribute('default'),
+                    'Extra'   => $col->getAttribute('check') ? "CHECK (" . $col->getAttribute('check') . ")" : ""
+                ];
+            }
+            return $results;
+        }
 
         // -- Distributed Merge --
         $remoteData = [];
@@ -1376,23 +1522,33 @@ class SPP_XDB {
         } 
         
         // -- INSERT --
-        if (preg_match('/^INSERT\s+INTO\s+([a-zA-Z0-9_\.]+)\s*\((.+?)\)\s*VALUES\s*\((.+?)\)$/i', $sql, $matches)) {
+        if (preg_match('/^INSERT\s+INTO\s+([a-zA-Z0-9_\.]+)\s*(?:\((.+?)\))?\s*VALUES\s*\((.+?)\)$/i', $sql, $matches)) {
             $tablePath = trim($matches[1]);
-            $fields = array_map('trim', explode(',', $matches[2]));
-            $values = array_map('trim', explode(',', $matches[3]));
+            $hasCols = !empty($matches[2]);
+            
+            // Smarter comma splitting (handles commas inside quotes)
+            $splitCsv = function($str) {
+                return str_getcsv($str, ',', "'");
+            };
+
+            $values = array_map('trim', $splitCsv($matches[3]));
+            $this->resolveTablePath($tablePath);
+
+            if ($hasCols) {
+                $fields = array_map('trim', explode(',', $matches[2]));
+            } else {
+                $fields = $this->getTableColumns($this->tableName);
+            }
 
             $data = [];
             foreach ($fields as $i => $f) {
-                $val = $values[$i];
+                $val = $values[$i] ?? null;
                 if ($val === '?' && isset($params[$i])) {
                     $val = $params[$i];
-                } else {
-                    $val = trim($val, "'\"");
                 }
                 $data[$f] = $val;
             }
 
-            $this->resolveTablePath($tablePath);
             return $this->insert($data);
         }
 
@@ -1480,17 +1636,86 @@ class SPP_XDB {
      * @param array $data
      * @throws Exception
      */
-    protected function validateData($data) {
+    protected function validateData($data, $isInsert = true) {
         $schema = $this->getSchema();
-        if (empty($schema)) return;
+        if (empty($schema['columns'])) return;
         
-        foreach ($data as $key => $value) {
-            if (!isset($schema[$key])) continue;
+        foreach ($schema['columns'] as $name => $props) {
+            $value = $data[$name] ?? null;
             
-            $type = strtolower($schema[$key]);
+            // 1. Check NOT NULL / Required
+            if ($props['notNull'] && $value === null && $isInsert && $props['default'] === null) {
+                throw new Exception("Validation Error: Column '$name' cannot be null.");
+            }
+
+            if ($value === null) continue;
+
+            // 2. Check Type
+            $type = strtolower($props['type']);
             if ($type === 'int' || $type === 'integer' || $type === 'number') {
                 if ($value !== '' && !is_numeric($value)) {
-                    throw new Exception("Validation Error: Column '$key' must be numeric.");
+                    throw new Exception("Validation Error: Column '$name' must be numeric.");
+                }
+            }
+
+            // 3. Check SINGLE UNIQUE / PRIMARY
+            if ($props['unique'] || $props['primary']) {
+                $id = $data['id'] ?? null;
+                $xpath = "//row[" . $name . " = '" . addslashes($value) . "'";
+                if ($id) $xpath .= " and @id != '$id'";
+                $xpath .= "]";
+                
+                $existing = $this->xpath->query($xpath);
+                if ($existing && $existing->length > 0) {
+                    throw new Exception("Validation Error: Column '$name' value '$value' must be unique.");
+                }
+            }
+
+            // 4. Check VALUE CONSTRAINT (Check)
+            if ($props['check']) {
+                $tempDoc = new DOMDocument();
+                $tempRow = $tempDoc->createElement('row');
+                foreach ($data as $k => $v) {
+                    $f = $tempDoc->createElement($k);
+                    $f->appendChild($tempDoc->createTextNode((string)$v));
+                    $tempRow->appendChild($f);
+                }
+                $tempDoc->appendChild($tempRow);
+                $tempXpath = new DOMXPath($tempDoc);
+                
+                // Evaluate the check expression. Expecting it to be a boolean XPath expression
+                // e.g. "age > 18" becomes "/row[age > 18]"
+                $expression = "/row[" . $props['check'] . "]";
+                $res = $tempXpath->query($expression);
+                if (!$res || $res->length === 0) {
+                    throw new Exception("Validation Error: Column '$name' failed value constraint: " . $props['check']);
+                }
+            }
+        }
+
+        // 5. Check COMPOSITE CONSTRAINTS
+        foreach ($schema['constraints'] as $con) {
+            if ($con['type'] === 'unique' || $con['type'] === 'primary') {
+                $id = $data['id'] ?? null;
+                $predicateParts = [];
+                $validConstraint = true;
+                foreach ($con['columns'] as $col) {
+                    if (!isset($data[$col])) {
+                        $validConstraint = false;
+                        break;
+                    }
+                    $predicateParts[] = "$col = '" . addslashes($data[$col]) . "'";
+                }
+                
+                if ($validConstraint) {
+                    $xpath = "//row[" . implode(' and ', $predicateParts) . "]";
+                    if ($id) $xpath = "//row[" . implode(' and ', $predicateParts) . " and @id != '$id']";
+                    
+                    $existing = $this->xpath->query($xpath);
+                    if ($existing && $existing->length > 0) {
+                        $colList = implode(', ', $con['columns']);
+                        throw new Exception("Validation Error: Composite key ($colList) must be unique.");
+                    }
                 }
             }
         }
@@ -1505,8 +1730,14 @@ class SPP_XDB {
      * @return bool
      */
     public function update($data, $where = null, $params = []) {
-        $this->validateData($data);
+        $this->validateData($data, false);
         $this->fireHook('beforeUpdate', $data);
+        
+        $triggerData = ['table' => $this->tableName, 'data' => &$data, 'where' => $where, 'params' => $params];
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::fireEvent('xdb.before_update', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_update", $triggerData);
+        }
         $xpath = "//row";
         if ($where) {
             $xpath .= "[" . $this->translateWhereToXPath($where, $params) . "]";
@@ -1538,10 +1769,11 @@ class SPP_XDB {
                 foreach ($data as $key => $value) {
                     $valToSave = $value;
                     // Apply type coercion if schema exists
-                    if (isset($schema[$key])) {
-                        if ($schema[$key] === 'int') $valToSave = (int)$value;
-                        elseif ($schema[$key] === 'float' || $schema[$key] === 'double') $valToSave = (float)$value;
-                        elseif ($schema[$key] === 'bool' || $schema[$key] === 'boolean') $valToSave = $value ? 'true' : 'false';
+                    if (isset($schema['columns'][$key])) {
+                        $stype = strtolower($schema['columns'][$key]['type']);
+                        if ($stype === 'int') $valToSave = (int)$value;
+                        elseif ($stype === 'float' || $stype === 'double') $valToSave = (float)$value;
+                        elseif ($stype === 'bool' || $stype === 'boolean') $valToSave = $value ? 'true' : 'false';
                     }
 
                     if (in_array($key, $this->encryptedFields)) {
@@ -1567,6 +1799,13 @@ class SPP_XDB {
         $result = $this->save();
         $this->logAudit('update', $data, $where);
         $this->fireHook('afterUpdate', $data);
+        
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $triggerData = ['table' => $this->tableName, 'data' => $data, 'count' => $nodes->length];
+            \SPP\SPPEvent::fireEvent('xdb.after_update', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_update", $triggerData);
+        }
+        
         return $result;
     }
 
@@ -1579,6 +1818,12 @@ class SPP_XDB {
      */
     public function delete($where = null, $params = []) {
         $this->fireHook('beforeDelete', $where);
+        
+        $triggerData = ['table' => $this->tableName, 'where' => $where, 'params' => $params];
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::fireEvent('xdb.before_delete', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_delete", $triggerData);
+        }
         $xpath = "//row";
         if ($where) {
             $xpath .= "[" . $this->translateWhereToXPath($where, $params) . "]";
@@ -1605,6 +1850,13 @@ class SPP_XDB {
         $result = $this->save();
         $this->logAudit('delete', null, $where);
         $this->fireHook('afterDelete', $where);
+        
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $triggerData = ['table' => $this->tableName, 'where' => $where, 'count' => $nodes->length];
+            \SPP\SPPEvent::fireEvent('xdb.after_delete', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_delete", $triggerData);
+        }
+        
         return $result;
     }
 
@@ -1616,8 +1868,14 @@ class SPP_XDB {
      * @return bool
      */
     public function insert($data) {
-        $this->validateData($data);
+        $this->validateData($data, true);
         $this->fireHook('beforeInsert', $data);
+        
+        $triggerData = ['table' => $this->tableName, 'data' => &$data];
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::fireEvent('xdb.before_insert', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_insert", $triggerData);
+        }
         $root = $this->doc->documentElement;
         
         // Handle auto-increment ID
@@ -1642,13 +1900,21 @@ class SPP_XDB {
         
         $schema = $this->getSchema();
         
+        // Ensure all schema fields exist, applying defaults if needed
+        foreach ($schema['columns'] as $name => $props) {
+            if (!isset($data[$name]) && $props['default'] !== null) {
+                $data[$name] = $props['default'];
+            }
+        }
+
         foreach ($data as $key => $value) {
             $valToSave = $value;
             // Apply type coercion if schema exists
-            if (isset($schema[$key])) {
-                if ($schema[$key] === 'int') $valToSave = (int)$value;
-                elseif ($schema[$key] === 'float' || $schema[$key] === 'double') $valToSave = (float)$value;
-                elseif ($schema[$key] === 'bool' || $schema[$key] === 'boolean') $valToSave = $value ? 'true' : 'false';
+            if (isset($schema['columns'][$key])) {
+                $stype = strtolower($schema['columns'][$key]['type']);
+                if ($stype === 'int') $valToSave = (int)$value;
+                elseif ($stype === 'float' || $stype === 'double') $valToSave = (float)$value;
+                elseif ($stype === 'bool' || $stype === 'boolean') $valToSave = $value ? 'true' : 'false';
             }
 
             if (in_array($key, $this->encryptedFields)) {
@@ -1668,6 +1934,13 @@ class SPP_XDB {
         $result = $this->save();
         $this->logAudit('insert', $data);
         $this->fireHook('afterInsert', $data);
+        
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $triggerData = ['table' => $this->tableName, 'data' => $data, 'id' => $this->lastInsertId];
+            \SPP\SPPEvent::fireEvent('xdb.after_insert', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_insert", $triggerData);
+        }
+        
         return $result;
     }
 

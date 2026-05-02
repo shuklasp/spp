@@ -1,595 +1,525 @@
 [
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639392585",
-        "timestamp": "2026-05-01 12:43:13",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738498722",
+        "timestamp": "2026-05-02 16:15:00",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639392.433573,
+                "timestamp": 1777738499.369465,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639392.436851,
+                "timestamp": 1777738499.373365,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639392.452911,
+                "timestamp": 1777738499.399903,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639392.588695,
+                "timestamp": 1777738499.804641,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1777738500.779166,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639392585",
-        "timestamp": "2026-05-01 12:43:13",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=create_xdb_table&t=1777738530854",
+        "timestamp": "2026-05-02 16:15:35",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639392.433506,
+                "timestamp": 1777738531.781388,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639392.43623,
+                "timestamp": 1777738531.79106,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639392.452412,
+                "timestamp": 1777738531.891405,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639392.58875,
+                "timestamp": 1777738533.325182,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639393.181317,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639393.279697,
+                "timestamp": 1777738535.444358,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/src\/lekhak\/comp\/system.js?v=1777639393903",
-        "timestamp": "2026-05-01 12:43:15",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738535201",
+        "timestamp": "2026-05-02 16:15:38",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639393.808557,
+                "timestamp": 1777738535.812568,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639393.815819,
+                "timestamp": 1777738535.821241,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639393.84827,
+                "timestamp": 1777738535.877818,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1777738536.630577,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1777738537.920509,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_bridge_info&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639395393",
-        "timestamp": "2026-05-01 12:43:16",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=get_xdb_table_columns&t=1777738542166",
+        "timestamp": "2026-05-02 16:15:43",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639395.126017,
+                "timestamp": 1777738542.502587,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639395.12837,
+                "timestamp": 1777738542.508175,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.145881,
+                "timestamp": 1777738542.533179,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.310541,
+                "timestamp": 1777738542.997833,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.967297,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639395.994567,
+                "timestamp": 1777738543.921245,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_system_info&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639395393",
-        "timestamp": "2026-05-01 12:43:16",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=get_xdb_table_data&t=1777738543942",
+        "timestamp": "2026-05-02 16:15:45",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639395.12621,
+                "timestamp": 1777738544.115643,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639395.128547,
+                "timestamp": 1777738544.122252,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.145896,
+                "timestamp": 1777738544.142876,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.311159,
+                "timestamp": 1777738544.478235,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639395.967225,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639395.994633,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639395393",
-        "timestamp": "2026-05-01 12:43:16",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1777639395.126033,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1777639395.128397,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639395.146011,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639395.313042,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639396.406483,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639396.514351,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_global_settings&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639397225",
-        "timestamp": "2026-05-01 12:43:18",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1777639397.035294,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1777639397.03887,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639397.069998,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639397.514986,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639398.560044,
+                "timestamp": 1777738545.474252,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "\/school1\/sppadmin\/",
-        "timestamp": "2026-05-01 12:47:45",
+        "timestamp": "2026-05-02 16:17:15",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639663.245258,
+                "timestamp": 1777738633.273375,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639663.248751,
+                "timestamp": 1777738633.280192,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639663.285701,
+                "timestamp": 1777738633.316548,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639663.801225,
+                "timestamp": 1777738633.876222,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/res\/css\/sppforms.css?v=1777639665",
-        "timestamp": "2026-05-01 12:47:46",
+        "request_uri": "\/school1\/res\/css\/sppforms.css?v=1777738635",
+        "timestamp": "2026-05-02 16:17:16",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639665.541483,
+                "timestamp": 1777738635.691513,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639665.543845,
+                "timestamp": 1777738635.693527,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639665.56074,
+                "timestamp": 1777738635.719037,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&appname=lekhak&_ts=1777639666468",
-        "timestamp": "2026-05-01 12:47:48",
+        "request_uri": "\/school1\/res\/js\/sppforms.js?v=1777738635",
+        "timestamp": "2026-05-02 16:17:16",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639666.364324,
+                "timestamp": 1777738635.691587,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639666.368304,
+                "timestamp": 1777738635.693441,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639666.398579,
+                "timestamp": 1777738635.718994,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&appname=lekhak&_ts=1777738636048",
+        "timestamp": "2026-05-02 16:17:18",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1777738636.541339,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1777738636.548735,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639666.915695,
+                "timestamp": 1777738636.572536,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1777738636.973628,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "\/school1\/sppadmin\/api.php",
-        "timestamp": "2026-05-01 12:47:59",
+        "timestamp": "2026-05-02 16:17:25",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639678.039078,
+                "timestamp": 1777738644.130704,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639678.048283,
+                "timestamp": 1777738644.134613,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639678.090088,
+                "timestamp": 1777738644.172893,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639678.770508,
+                "timestamp": 1777738644.75115,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639679395",
-        "timestamp": "2026-05-01 12:48:01",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&appname=lekhak&csrf_token=47cf445b3886bd796b624b5267a66d2ac97a91091dcec82239354570f0f68dd8&_ts=1777738645836",
+        "timestamp": "2026-05-02 16:17:27",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639680.032232,
+                "timestamp": 1777738645.970981,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639680.033799,
+                "timestamp": 1777738645.972763,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639680.048813,
+                "timestamp": 1777738645.987511,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639680.319386,
+                "timestamp": 1777738646.253091,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639679394",
-        "timestamp": "2026-05-01 12:48:01",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=47cf445b3886bd796b624b5267a66d2ac97a91091dcec82239354570f0f68dd8&_ts=1777738645836",
+        "timestamp": "2026-05-02 16:17:27",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639680.031683,
+                "timestamp": 1777738645.970569,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639680.033388,
+                "timestamp": 1777738645.972293,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639680.048756,
+                "timestamp": 1777738645.98745,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639680.271295,
+                "timestamp": 1777738646.196632,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639681.098263,
+                "timestamp": 1777738647.080922,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639681.192097,
+                "timestamp": 1777738647.178268,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/src\/lekhak\/comp\/system.js?v=1777639681116",
-        "timestamp": "2026-05-01 12:48:02",
+        "request_uri": "\/school1\/src\/lekhak\/comp\/xdb.js?v=1777738647468",
+        "timestamp": "2026-05-02 16:17:28",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639681.730544,
+                "timestamp": 1777738647.676123,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639681.736666,
+                "timestamp": 1777738647.682402,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639681.769836,
+                "timestamp": 1777738647.714863,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_bridge_info&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639682713",
-        "timestamp": "2026-05-01 12:48:04",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_databases&t=1777738648769",
+        "timestamp": "2026-05-02 16:17:30",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639683.077902,
+                "timestamp": 1777738648.864854,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639683.080402,
+                "timestamp": 1777738648.868717,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.099325,
+                "timestamp": 1777738648.895081,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.256248,
+                "timestamp": 1777738649.252785,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.922673,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639683.9481,
+                "timestamp": 1777738650.19226,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_system_info&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639682713",
-        "timestamp": "2026-05-01 12:48:04",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738650402",
+        "timestamp": "2026-05-02 16:17:31",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639683.077944,
+                "timestamp": 1777738650.474926,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639683.080329,
+                "timestamp": 1777738650.478784,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.099235,
+                "timestamp": 1777738650.502423,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.256328,
+                "timestamp": 1777738650.902064,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.922716,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639683.948176,
+                "timestamp": 1777738651.870271,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639682714",
-        "timestamp": "2026-05-01 12:48:05",
+        "request_uri": "CLI",
+        "timestamp": "2026-05-02 18:26:53",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639683.078909,
+                "timestamp": 1777739211.70571,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639683.080853,
+                "timestamp": 1777739211.706229,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639683.09922,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639683.487566,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639684.714664,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639684.801969,
+                "timestamp": 1777739211.714231,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_global_settings&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639684853",
-        "timestamp": "2026-05-01 12:48:07",
+        "request_uri": "CLI",
+        "timestamp": "2026-05-02 18:29:30",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639685.355895,
+                "timestamp": 1777739369.290942,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639685.363483,
+                "timestamp": 1777739369.291558,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639685.398242,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639685.863149,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639686.947087,
+                "timestamp": 1777739369.297797,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/src\/lekhak\/comp\/xdb.js?v=1777639695761",
-        "timestamp": "2026-05-01 12:48:17",
+        "request_uri": "CLI",
+        "timestamp": "2026-05-02 18:31:08",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639695.968341,
+                "timestamp": 1777739467.050402,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639695.973566,
+                "timestamp": 1777739467.050863,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639696.012602,
+                "timestamp": 1777739467.056132,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_databases&appname=lekhak&csrf_token=a272008096713c75ea6e6a94a88d49bda49f9fd732542d7f974e6b7a6ae726ca&_ts=1777639697357",
-        "timestamp": "2026-05-01 12:48:18",
+        "request_uri": "CLI",
+        "timestamp": "2026-05-02 18:34:57",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777639697.316464,
+                "timestamp": 1777739696.3354,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777639697.3234,
+                "timestamp": 1777739696.336035,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639697.343822,
+                "timestamp": 1777739696.340853,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-05-02 18:38:54",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1777739771.586134,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1777739771.586894,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777639697.727027,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777639698.534371,
+                "timestamp": 1777739771.592447,
                 "handlers": []
             }
         ]

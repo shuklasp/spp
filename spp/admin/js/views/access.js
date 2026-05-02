@@ -40,7 +40,7 @@ export default class AccessView extends BaseComponent {
             if (tab === 'modern_rbac') action = 'list_rbac';
             if (tab === 'assignments') action = 'list_entity_assignments';
 
-            const res = await this.admin.api(action);
+            const res = await this.api(action);
             if (res.success) {
                 let items = res.data.users || res.data.roles || res.data.rights || res.data.queue || res.data || [];
                 
@@ -356,7 +356,7 @@ export default class AccessView extends BaseComponent {
 
     async openEditor(type, id = null, name = '') {
         const title = id ? `Edit ${type.slice(0, -1)}: ${name}` : `Create New ${type.slice(0, -1)}`;
-        this.admin.openModal(title, html`<div class="loader">Fetching framework form for ${type}...</div>`.toString());
+        this.openModal(title, html`<div class="loader">Fetching framework form for ${type}...</div>`.toString());
 
         const saveBtn = document.getElementById('modal-save');
         saveBtn.textContent = 'Save Changes';
@@ -373,7 +373,7 @@ export default class AccessView extends BaseComponent {
             fd.append('form', formName);
             if (id) fd.append('id', id);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await this.apiPost(fd);
             if (res.success) {
                 document.getElementById('modal-body').innerHTML = `
                     <div class="spp-form-wrapper">
@@ -384,7 +384,7 @@ export default class AccessView extends BaseComponent {
                 throw new Error(res.message);
             }
         } catch (err) {
-            this.admin.notify('Failed to load form: ' + err.message, 'error');
+            this.notify('Failed to load form: ' + err.message, 'error');
         }
     }
 
@@ -400,21 +400,21 @@ export default class AccessView extends BaseComponent {
         fd.append('action', action);
         if (id) fd.append('id', id);
 
-        const res = await this.admin.apiPost(fd);
+        const res = await this.apiPost(fd);
         if (res.success) {
-            this.admin.notify(res.message, 'success');
-            this.admin.closeModal();
+            this.notify(res.message, 'success');
+            this.closeModal();
             this.switchTab(type, true);
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 
     async openAssignmentEditor(targetClass = null, targetId = null) {
-        this.admin.openModal(targetId ? 'Edit Role Assignment' : 'New Role Assignment', html`<div class="loader">Preparing assignment form...</div>`.toString());
+        this.openModal(targetId ? 'Edit Role Assignment' : 'New Role Assignment', html`<div class="loader">Preparing assignment form...</div>`.toString());
         
         try {
-            const rolesRes = await this.admin.api('list_roles');
+            const rolesRes = await this.api.listRoles();
             if (!rolesRes.success) throw new Error(rolesRes.message);
 
             // Fetch current roles if editing
@@ -428,7 +428,7 @@ export default class AccessView extends BaseComponent {
                 // For now, let's assume we can fetch it if it's a User.
                 if (targetClass.includes('SPPUser')) {
                     detailsFd.append('id', targetId);
-                    const detRes = await this.admin.apiPost(detailsFd);
+                    const detRes = await SPPUX.apiPost(detailsFd);
                     if (detRes.success) assignedRoleIds = detRes.data.assigned_ids || [];
                 }
             }
@@ -480,7 +480,7 @@ export default class AccessView extends BaseComponent {
                 fd.append('type', classSelect.value);
                 fd.append('q', q);
 
-                const res = await this.admin.apiPost(fd);
+                const res = await SPPUX.apiPost(fd);
                 const results = (res.data && res.data.results) || res.data || [];
 
                 if (res.success && results.length > 0) {
@@ -510,18 +510,18 @@ export default class AccessView extends BaseComponent {
         const fd = new FormData(form);
         
         if (!fd.get('target_id')) {
-            this.admin.notify('Please select an entity from suggestions.', 'error');
+            this.notify('Please select an entity from suggestions.', 'error');
             return;
         }
 
         fd.append('action', 'assign_role_to_entity');
-        const res = await this.admin.apiPost(fd);
+        const res = await SPPUX.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Assignments created.', 'success');
-            this.admin.closeModal();
+            this.notify('Assignments created.', 'success');
+            SPPUX.Modal.close();
             this.switchTab('assignments', true);
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 
@@ -534,17 +534,17 @@ export default class AccessView extends BaseComponent {
         fd.append('target_id', targetId);
         fd.append('role_id', roleId);
 
-        const res = await this.admin.apiPost(fd);
+        const res = await SPPUX.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Assignment removed.', 'success');
+            this.notify('Assignment removed.', 'success');
             this.switchTab('assignments', true);
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 
     async openUserRolesEditor(userId, userName) {
-        this.admin.openModal(`Manage Roles: ${userName}`, html`<div class="loader">Fetching role manifest...</div>`.toString());
+        this.openModal(`Manage Roles: ${userName}`, html`<div class="loader">Fetching role manifest...</div>`.toString());
         
         try {
             const fd = new FormData();
@@ -552,7 +552,7 @@ export default class AccessView extends BaseComponent {
             fd.append('type', 'users');
             fd.append('id', userId);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await SPPUX.apiPost(fd);
             if (!res.success) throw new Error(res.message);
 
             const { assigned_ids, available } = res.data;
@@ -577,12 +577,12 @@ export default class AccessView extends BaseComponent {
             document.getElementById('modal-close').textContent = 'Close';
 
         } catch (err) {
-            this.admin.notify(err.message, 'error');
+            this.notify(err.message, 'error');
         }
     }
 
     async openRoleRightsEditor(roleId, roleName) {
-        this.admin.openModal(`Manage Rights: ${roleName}`, html`<div class="loader">Fetching permission table...</div>`.toString());
+        this.openModal(`Manage Rights: ${roleName}`, html`<div class="loader">Fetching permission table...</div>`.toString());
         
         try {
             const fd = new FormData();
@@ -590,7 +590,7 @@ export default class AccessView extends BaseComponent {
             fd.append('type', 'roles');
             fd.append('id', roleId);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await SPPUX.apiPost(fd);
             if (!res.success) throw new Error(res.message);
 
             const { assigned_ids, available } = res.data;
@@ -616,7 +616,7 @@ export default class AccessView extends BaseComponent {
             
             document.getElementById('modal-save').style.display = 'none';
         } catch (err) {
-            this.admin.notify(err.message, 'error');
+            this.notify(err.message, 'error');
         }
     }
 
@@ -633,16 +633,16 @@ export default class AccessView extends BaseComponent {
             fd.append('right_id', relationId);
         }
 
-        const res = await this.admin.apiPost(fd);
+        const res = await SPPUX.apiPost(fd);
         if (res.success) {
-            this.admin.notify('Permission updated.', 'success');
+            this.notify('Permission updated.', 'success');
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 
     async openMassUserAssignor(roleId, roleName) {
-        this.admin.openModal(`Assign Users to Role: ${roleName}`, html`
+        this.openModal(`Assign Users to Role: ${roleName}`, html`
             <div class="mass-assignor">
                 <p class="mb-4 text-dim">Search for users and add them to the selection list to assign this role in bulk.</p>
                 <div class="form-group">
@@ -679,7 +679,7 @@ export default class AccessView extends BaseComponent {
             fd.append('type', 'SPPMod\\SPPAuth\\SPPUser');
             fd.append('q', q);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await SPPUX.apiPost(fd);
             const results = (res.data && res.data.results) || res.data || [];
 
             if (res.success && results.length > 0) {
@@ -712,7 +712,7 @@ export default class AccessView extends BaseComponent {
         saveBtn.textContent = 'Apply Assignments';
         saveBtn.onclick = async () => {
             if (selectedIds.size === 0) {
-                this.admin.notify('Select at least one user.', 'error');
+                this.notify('Select at least one user.', 'error');
                 return;
             }
             
@@ -722,12 +722,12 @@ export default class AccessView extends BaseComponent {
                 fd.append('target_class', 'SPPMod\\SPPAuth\\SPPUser');
                 fd.append('target_id', userId);
                 fd.append('role_id', roleId);
-                return this.admin.apiPost(fd);
+                return this.apiPost(fd);
             });
 
             await Promise.all(promises);
-            this.admin.notify(`Role ${roleName} assigned to ${selectedIds.size} users.`, 'success');
-            this.admin.closeModal();
+            this.notify(`Role ${roleName} assigned to ${selectedIds.size} users.`, 'success');
+            this.closeModal();
             this.switchTab(this.state.activeTab, true);
         };
     }
@@ -768,15 +768,15 @@ export default class AccessView extends BaseComponent {
             fd.append('id', userId);
             fd.append('status', newStatus);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await SPPUX.apiPost(fd);
             if (res.success) {
-                this.admin.notify(`User status updated to ${newStatus}.`, 'success');
+                this.notify(`User status updated to ${newStatus}.`, 'success');
             } else {
                 throw new Error(res.message || 'Update failed');
             }
         } catch (err) {
             // 2. Rollback on failure
-            this.admin.notify(`Failed to update status: ${err.message}`, 'error');
+            this.notify(`Failed to update status: ${err.message}`, 'error');
             const rolledBackItems = this.state.items.map(user => {
                 if (user.id === userId) return { ...user, status: currentStatus };
                 return user;
@@ -787,7 +787,7 @@ export default class AccessView extends BaseComponent {
 
     async openModernRoleEditor(slug = '', permissions = []) {
         const title = slug ? `Edit Modern Role: ${slug}` : 'Create Modern Role';
-        this.admin.openModal(title, html`
+        this.openModal(title, html`
             <form id="modern-role-form">
                 <div class="form-group">
                     <label>Role Slug (Registry Key)</label>
@@ -819,13 +819,13 @@ export default class AccessView extends BaseComponent {
         apiFd.append('slug', fd.get('slug'));
         permsArray.forEach(p => apiFd.append('permissions[]', p));
 
-        const res = await this.admin.apiPost(apiFd);
+        const res = await this.apiPost(apiFd);
         if (res.success) {
-            this.admin.notify('Modern role saved to Registry.', 'success');
-            this.admin.closeModal();
+            this.notify('Modern role saved to Registry.', 'success');
+            this.closeModal();
             this.switchTab('modern_rbac', true);
         } else {
-            this.admin.handleApiErrors(res);
+            this.handleApiErrors(res);
         }
     }
 }

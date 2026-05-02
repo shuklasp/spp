@@ -56,6 +56,19 @@ $gql = '{ users(role: "admin") { id name email } }';
 $data = $xdb->queryGraphQL($gql);
 ```
 
+### SQL Introspection & DDL
+The SQL engine supports standard database discovery and management commands:
+```php
+// List all databases
+$databases = $xdb->querySQL("SHOW DATABASES");
+
+// List tables in current database
+$tables = $xdb->querySQL("SHOW TABLES");
+
+// Describe table schema (Type, Null, Key, Default, Extra)
+$schema = $xdb->querySQL("DESCRIBE users");
+```
+
 ### Global Transactions (Tier-1 ACID)
 ```php
 $xdb->beginGlobalTransaction();
@@ -67,6 +80,42 @@ try {
     $xdb->rollbackGlobal();
 }
 ```
+
+---
+
+## 🔗 Framework Integration (SPPDB Driver)
+SPPXDB is now fully integrated into the `SPPDB` abstraction layer. You can use XDB transparently via the generic database methods.
+
+### Usage in SPPDB
+```php
+use SPPMod\SPPDB\SPPDB;
+
+// Automatically uses XDB if dbtype: xdb is configured
+$db = new SPPDB();
+
+// Generic SELECT (engine-agnostic)
+$results = $db->execute_query("SELECT * FROM users WHERE status = ?", ['active']);
+
+// Fluent Query Builder
+$user = $db->table('users')->where('id', 1)->first();
+```
+
+---
+
+## 🐚 Interactive CLI Shell
+The XDB Shell provides a high-performance REPL for direct database communication.
+
+### Launching the Shell
+```bash
+# Standard launch via SPP CLI
+php spp.php xdb:shell
+```
+
+### Features
+- **Prompt**: `xdb(context)>` for visual feedback.
+- **SQL Compatibility**: Full support for `SELECT`, `INSERT`, `UPDATE`, `DELETE`, and `SHOW`.
+- **ASCII Tables**: Automatic terminal formatting for query results.
+- **Quiet Mode**: Automatically suppresses framework discovery logs for a clean interface.
 
 ---
 

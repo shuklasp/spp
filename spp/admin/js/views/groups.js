@@ -22,7 +22,7 @@ export default class GroupsView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.admin.api('list_groups');
+            const res = await this.api('list_groups');
             if (res.success) {
                 this.setState({
                     groups: res.data.groups || [],
@@ -78,7 +78,7 @@ export default class GroupsView extends BaseComponent {
                             <small>ID: ${g.id}</small>
                             <div class="card-actions">
                                 <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.manageMembers(g.id, g.name)}>Manage Members</button>
-                                <button type="button" class="btn danger-btn btn-sm" @click=${() => this.admin.confirmDelete('group', g.id)}>Delete</button>
+                                <button type="button" class="btn danger-btn btn-sm" @click=${() => this.confirmDelete('group', g.id)}>Delete</button>
                             </div>
                         </div>
                     </div>
@@ -93,8 +93,8 @@ export default class GroupsView extends BaseComponent {
         this.state.searchQuery = '';
         this.state.currentMembers = [];
         
-        this.admin.openModal(`Manage Members: ${groupName}`, this.getManagementHtml(), [
-            { label: 'Close', type: 'secondary', fn: () => this.admin.closeModal() }
+        this.openModal(`Manage Members: ${groupName}`, this.getManagementHtml(), [
+            { label: 'Close', type: 'secondary', fn: () => this.closeModal() }
         ]);
 
         await this.loadMembers(groupId);
@@ -163,7 +163,7 @@ export default class GroupsView extends BaseComponent {
         const group = groups.find(g => g.id === currentGroupId);
         const title = group ? `Manage Members: ${group.name}` : 'Manage Members';
         
-        this.admin.updateModal(title, this.getManagementHtml());
+        this.updateModal(title, this.getManagementHtml());
         this._registerGlobalHandlers();
     }
 
@@ -181,7 +181,7 @@ export default class GroupsView extends BaseComponent {
             const fd = new FormData();
             fd.append('action', 'search_entities');
             fd.append('q', q);
-            const res = await this.admin.apiPost(fd);
+            const res = await this.apiPost(fd);
             
             this.state.searchResults = res.data?.results || res.results || [];
             this.refreshModal();
@@ -207,31 +207,31 @@ export default class GroupsView extends BaseComponent {
             fd.append('member_id', entityId);
             fd.append('role', 'member'); // Default role for immediate action
 
-            this.admin.notify(`Adding ${name}...`, 'info');
-            const res = await this.admin.apiPost(fd);
+            this.notify(`Adding ${name}...`, 'info');
+            const res = await this.apiPost(fd);
             console.log("GroupsView: add_group_member response:", res);
 
             if (res.success) {
-                this.admin.notify(`Successfully added ${name}.`, 'success');
+                this.notify(`Successfully added ${name}.`, 'success');
                 await this.loadMembers(groupId);
             } else {
-                this.admin.notify(res.message || "Failed to add member.", 'error');
+                this.notify(res.message || "Failed to add member.", 'error');
             }
         } catch (err) {
             console.error("GroupsView: Error in promptAddMember:", err);
-            this.admin.notify("An unexpected error occurred during addition.", "error");
+            this.notify("An unexpected error occurred during addition.", "error");
         }
     }
 
     async loadMembers(groupId) {
         try {
-            const res = await this.admin.api(`list_group_members&group_id=${groupId}`);
+            const res = await this.api(`list_group_members&group_id=${groupId}`);
             if (res.success) {
                 this.state.currentMembers = res.data.members || [];
                 this.refreshModal();
             }
         } catch (err) {
-            this.admin.notify(`Error loading members: ${err.message}`, 'error');
+            this.notify(`Error loading members: ${err.message}`, 'error');
         }
     }
 
@@ -247,19 +247,19 @@ export default class GroupsView extends BaseComponent {
             fd.append('member_entity', entityClass);
             fd.append('member_id', entityId);
 
-            this.admin.notify(`Removing ${name}...`, 'info');
-            const res = await this.admin.apiPost(fd);
+            this.notify(`Removing ${name}...`, 'info');
+            const res = await this.apiPost(fd);
             console.log("GroupsView: remove_group_member response:", res);
 
             if (res.success) {
-                this.admin.notify(`Successfully removed ${name}.`, 'success');
+                this.notify(`Successfully removed ${name}.`, 'success');
                 await this.loadMembers(groupId);
             } else {
-                this.admin.notify(res.message || "Failed to remove member.", 'error');
+                this.notify(res.message || "Failed to remove member.", 'error');
             }
         } catch (err) {
             console.error("GroupsView: Error in removeMember:", err);
-            this.admin.notify("An unexpected error occurred during removal.", "error");
+            this.notify("An unexpected error occurred during removal.", "error");
         }
     }
     async openCreateModal() {
@@ -276,8 +276,8 @@ export default class GroupsView extends BaseComponent {
             </div>
         `;
 
-        this.admin.openModal('Create New Group', content, [
-            { label: 'Cancel', type: 'secondary', fn: () => this.admin.closeModal() },
+        this.openModal('Create New Group', content, [
+            { label: 'Cancel', type: 'secondary', fn: () => this.closeModal() },
             { label: 'Create Group', type: 'primary', fn: () => this.saveGroup() }
         ]);
     }
@@ -287,7 +287,7 @@ export default class GroupsView extends BaseComponent {
         const description = document.getElementById('new-group-desc').value.trim();
 
         if (!name) {
-            this.admin.notify('Group name is required.', 'error');
+            this.notify('Group name is required.', 'error');
             return;
         }
 
@@ -297,16 +297,16 @@ export default class GroupsView extends BaseComponent {
             fd.append('name', name);
             fd.append('description', description);
 
-            const res = await this.admin.apiPost(fd);
+            const res = await this.apiPost(fd);
             if (res.success) {
-                this.admin.notify('Group created successfully.', 'success');
-                this.admin.closeModal();
+                this.notify('Group created successfully.', 'success');
+                this.closeModal();
                 await this.fetchData();
             } else {
-                this.admin.notify(res.message || 'Failed to create group.', 'error');
+                this.notify(res.message || 'Failed to create group.', 'error');
             }
         } catch (err) {
-            this.admin.notify(`Error: ${err.message}`, 'error');
+            this.notify(`Error: ${err.message}`, 'error');
         }
     }
 }

@@ -24,6 +24,11 @@ if ($argc < 2) {
 
 $command = $argv[1];
 
+// Auto-enable quiet mode for XDB commands to suppress discovery noise
+if (str_starts_with($command, 'xdb:')) {
+    define('SPP_SKIP_DISCOVERY', true);
+}
+
 // Load Composer autoloader for Yaml support
 require_once __DIR__ . '/sppinit.php';
 

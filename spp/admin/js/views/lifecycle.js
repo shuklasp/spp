@@ -6,7 +6,7 @@
 export default class LifecycleView extends BaseComponent {
     async onInit() {
         this.setState({
-            activeApp: this.admin.selectedApp || 'default',
+            activeApp: this.selectedApp || 'default',
             output: '',
             running: false,
             commands: [
@@ -27,7 +27,7 @@ export default class LifecycleView extends BaseComponent {
 
     async fetchDebugStatus() {
         try {
-            const res = await this.admin.api('get_global_settings');
+            const res = await this.api('get_global_settings');
             if (res.success) {
                 this.setState({ 
                     debugEnabled: res.data.parsed.settings?.debug === true,
@@ -44,17 +44,17 @@ export default class LifecycleView extends BaseComponent {
         settings.parsed.settings.debug = newState;
 
         try {
-            const res = await this.admin.apiPost('save_global_settings', {
+            const res = await this.apiPost('save_global_settings', {
                 mode: 'form',
                 data: JSON.stringify(settings.parsed)
             });
 
             if (res.success) {
                 this.setState({ debugEnabled: newState, settings: settings });
-                this.admin.notify(`Framework Debug Mode turned ${newState ? 'ON' : 'OFF'}`, 'success');
+                this.notify(`Framework Debug Mode turned ${newState ? 'ON' : 'OFF'}`, 'success');
             }
         } catch (e) {
-            this.admin.notify('Failed to toggle debug mode', 'error');
+            this.notify('Failed to toggle debug mode', 'error');
         }
     }
 
@@ -84,9 +84,9 @@ export default class LifecycleView extends BaseComponent {
             </div>
         `;
 
-        this.admin.openModal('🚀 Provision New Application', content);
-        this.admin.updateModal('🚀 Provision New Application', content, [
-            { label: 'Cancel', type: 'secondary', fn: this.admin.closeModal },
+        this.openModal('🚀 Provision New Application', content);
+        this.updateModal('🚀 Provision New Application', content, [
+            { label: 'Cancel', type: 'secondary', fn: this.closeModal },
             { label: 'Create App', type: 'primary', fn: this.executeAppCreation.bind(this) }
         ]);
     }
@@ -101,7 +101,7 @@ export default class LifecycleView extends BaseComponent {
             return;
         }
 
-        this.admin.closeModal();
+        this.closeModal();
         
         const args = [name, type];
         if (url) args.push(url);
@@ -109,15 +109,15 @@ export default class LifecycleView extends BaseComponent {
         await this.runCommand('make:app', [], args);
 
         // Immediate reflection in the UI
-        await this.admin.loadApps(); // Reload the app list from server
-        this.admin.selectedApp = name; // Switch the global admin context
+        await window.admin.loadApps(); // Reload the app list from server
+        window.admin.onAppContextChange(name); // Switch the global admin context
         this.setState({ activeApp: name }); // Update local view state
         
         // Update the sidebar dropdown (if it exists)
         const selector = document.getElementById('app-context-selector');
         if (selector) selector.value = name;
         
-        this.admin.notify(`Application '${name}' is now active.`, 'success');
+        this.notify(`Application '${name}' is now active.`, 'success');
     }
 
     async runCommand(cmdId, promptArgs = [], predefinedArgs = null) {
@@ -152,7 +152,7 @@ export default class LifecycleView extends BaseComponent {
 
         this.setState({ running: true, output: `> Running ${cmdId}...\n` });
 
-        const res = await this.admin.apiPost('run_command', {
+        const res = await this.apiPost('run_command', {
             command: cmdId,
             args: args,
             appname: this.state.activeApp
@@ -166,14 +166,14 @@ export default class LifecycleView extends BaseComponent {
 
             // If it was a deletion, refresh the UI
             if (cmdId === 'delete:app') {
-                await this.admin.loadApps(); // Reload registry
-                this.admin.selectedApp = 'default';
+                await window.admin.loadApps(); // Reload registry
+                window.admin.onAppContextChange('default');
                 this.setState({ activeApp: 'default' });
                 
                 const selector = document.getElementById('app-context-selector');
                 if (selector) selector.value = 'default';
                 
-                this.admin.notify(`Application deleted. Context reset to 'default'.`, 'info');
+                this.notify(`Application deleted. Context reset to 'default'.`, 'info');
             }
         } else {
             this.setState({ 

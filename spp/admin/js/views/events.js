@@ -17,7 +17,7 @@ export default class EventsView extends BaseComponent {
 
     async fetchData() {
         try {
-            const res = await this.admin.api('get_event_trace');
+            const res = await this.api('get_event_trace');
             if (res.success) {
                 const traces = res.data.traces || [];
                 this.setState({

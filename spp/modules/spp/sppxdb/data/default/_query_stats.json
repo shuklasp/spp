@@ -1,0 +1,7 @@
+{
+    "create table student(id  int, name varchar(?))": 1,
+    "SELECT * FROM _audit LIMIT ?": 1,
+    "show tables;": 1,
+    "list tables;": 1,
+    "show databases;": 1
+}

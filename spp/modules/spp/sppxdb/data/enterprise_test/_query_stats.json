@@ -1,0 +1,4 @@
+{
+    "SELECT * FROM large_table.? LIMIT ?": 1,
+    "SELECT * FROM secure_data LIMIT ?": 2
+}

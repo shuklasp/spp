@@ -25,7 +25,7 @@ export default class SystemView extends BaseComponent {
 
     async fetchSettings() {
         try {
-            const res = await this.admin.api('get_global_settings');
+            const res = await this.api('get_global_settings');
             if (res.success) {
                 this.setState({ settings: res.data });
             }
@@ -50,15 +50,15 @@ export default class SystemView extends BaseComponent {
             }
 
 
-            const res = await this.admin.apiPost('save_global_settings', payload);
+            const res = await this.apiPost('save_global_settings', payload);
             if (res.success) {
-                this.admin.notify('Settings saved successfully.', 'success');
+                this.notify('Settings saved successfully.', 'success');
                 await this.fetchSettings();
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
             }
         } catch (e) {
-            this.admin.notify('Network error.', 'error');
+            this.notify('Network error.', 'error');
         } finally {
             this.setState({ savingSettings: false });
         }
@@ -78,9 +78,9 @@ export default class SystemView extends BaseComponent {
     async fetchData() {
         try {
             const [sysRes, bridgeRes, appsRes] = await Promise.all([
-                this.admin.api('get_system_info'),
-                this.admin.api('get_bridge_info'),
-                this.admin.api('list_apps')
+                this.api('get_system_info'),
+                this.api('get_bridge_info'),
+                this.api('list_apps')
             ]);
 
             if (sysRes.success) {
@@ -102,31 +102,31 @@ export default class SystemView extends BaseComponent {
     async refreshBridge() {
         this.setState({ syncing: true });
         try {
-            const res = await this.admin.api('setup_bridge');
+            const res = await this.api('setup_bridge');
             if (res.success) {
-                this.admin.notify('Polyglot Bridge environment refreshed.', 'success');
+                this.notify('Polyglot Bridge environment refreshed.', 'success');
                 await this.fetchData();
             } else {
-                this.admin.notify(res.message || 'Bridge refresh failed.', 'error');
+                this.notify(res.message || 'Bridge refresh failed.', 'error');
             }
         } catch (e) {
-            this.admin.notify('Network error during bridge refresh.', 'error');
+            this.notify('Network error during bridge refresh.', 'error');
         } finally {
             this.setState({ syncing: false });
         }
     }
 
     async testRuntime(lang) {
-        this.admin.notify(`Testing ${lang} runtime...`, 'info');
+        this.notify(`Testing ${lang} runtime...`, 'info');
         try {
-            const res = await this.admin.apiPost('test_bridge', { lang });
+            const res = await this.apiPost('test_bridge', { lang });
             if (res.success) {
-                this.admin.notify(`${lang}: ${JSON.stringify(res.data)}`, 'success');
+                this.notify(`${lang}: ${JSON.stringify(res.data)}`, 'success');
             } else {
-                this.admin.notify(`${lang} error: ${res.message}`, 'error');
+                this.notify(`${lang} error: ${res.message}`, 'error');
             }
         } catch (e) {
-            this.admin.notify(`Failed to test ${lang} runtime.`, 'error');
+            this.notify(`Failed to test ${lang} runtime.`, 'error');
         }
     }
 
@@ -177,7 +177,7 @@ export default class SystemView extends BaseComponent {
         if (loading) return html`<div class="loading-state">Syncing framework diagnostics...</div>`;
         if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
 
-        const activeApp = apps.find(a => a.name === this.admin.selectedApp) || {};
+        const activeApp = apps.find(a => a.name === this.selectedApp) || {};
 
         const truncatePath = (path, len) => {
             if (!path) return 'N/A';
@@ -313,7 +313,7 @@ export default class SystemView extends BaseComponent {
                     <div class="hero-header">
                         <div class="hero-title">
                             <label style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.2em; color: var(--primary);">System Environment</label>
-                            <h2>Active Context: ${this.admin.selectedApp}</h2>
+                            <h2>Active Context: ${this.selectedApp}</h2>
                         </div>
                         <div class="hero-actions">
                             <span class="tag ${activeApp.db_config ? 'warning-tag' : 'success-tag'}" style="padding: 6px 12px; font-size: 0.8rem;">
@@ -371,7 +371,7 @@ export default class SystemView extends BaseComponent {
                         <div class="card-value">${system.orion.cache_size}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top: auto;">
                             <span class="badge ${system.orion.cache_exists ? 'success' : 'danger'}" style="font-size: 0.6rem;">${system.orion.cache_exists ? 'OPTIMIZED' : 'LEGACY'}</span>
-                            <button class="btn ghost-btn btn-xs" @click=${() => this.admin.apiPost('compile_registry').then(r => this.admin.notify(r.message, r.success ? 'success' : 'error'))}>Rebuild</button>
+                            <button class="btn ghost-btn btn-xs" @click=${() => this.apiPost('compile_registry').then(r => this.notify(r.message, r.success ? 'success' : 'error'))}>Rebuild</button>
                         </div>
                     </div>
                     <div class="compact-card">
@@ -475,7 +475,7 @@ export default class SystemView extends BaseComponent {
                     </div>
                     <div style="display:flex; gap:12px;">
                         <button class="btn ghost-btn" @click=${() => location.hash = 'apps'}>📱 Manage Applications</button>
-                        <button type="button" class="btn accent-btn" @click=${() => this.admin.runSystemUpdate()} style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
+                        <button type="button" class="btn accent-btn" @click=${() => this.runSystemUpdate()} style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
                     </div>
                 </div>
             </div>

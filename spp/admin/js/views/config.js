@@ -14,7 +14,7 @@ export default class ConfigView extends BaseComponent {
 
     async refresh() {
         try {
-            const res = await this.admin.api('get_config_all');
+            const res = await this.api('get_config_all');
             if (res.success) {
                 this.setState({
                     config: res.data.config,
@@ -35,15 +35,15 @@ export default class ConfigView extends BaseComponent {
         const fullKey = activeTab === 'global' ? `global:${key}` : (activeTab === 'sys' ? `sys:${key}` : `app:${key}`);
         
         try {
-            const res = await this.admin.apiPost('save_config_value', { key: fullKey, value });
+            const res = await this.apiPost('save_config_value', { key: fullKey, value });
             if (res.success) {
-                this.admin.notify(`Updated ${fullKey} to ${value}`, 'success');
+                this.notify(`Updated ${fullKey} to ${value}`, 'success');
                 await this.refresh();
             } else {
-                this.admin.notify(`Failed to update ${fullKey}: ${res.message}`, 'error');
+                this.notify(`Failed to update ${fullKey}: ${res.message}`, 'error');
             }
         } catch (err) {
-            this.admin.notify(`Update request failed: ${err.message}`, 'error');
+            this.notify(`Update request failed: ${err.message}`, 'error');
         }
     }
 

@@ -6,4 +6,4 @@
     <amount>5000</amount>
     <status>paid</status>
   </row>
-<row><id>INV-002</id><customer>Globex</customer><amount>3200</amount><status>pending</status></row></database>
+<row><id>INV-002</id><customer>Globex</customer><amount>3200</amount><status>pending</status></row><row id="INV-003"><id>INV-003</id><customer>Pragyesh Enterprisees</customer><amount>20000</amount><status>paid</status></row><row id="INV-003"><id>INV-003</id><customer>Pragyesh Corporation</customer><amount>20000</amount><status>paid</status></row></database>

@@ -9,7 +9,7 @@ export default class ParikshakView extends BaseComponent {
             loading: false,
             running: false,
             results: null,
-            appname: this.admin.selectedApp || 'default'
+            appname: this.selectedApp || 'default'
         };
     }
 
@@ -18,25 +18,25 @@ export default class ParikshakView extends BaseComponent {
 
         this.setState({ running: true, results: null });
         try {
-            const res = await this.admin.apiPost('run_auto_tests', {
+            const res = await this.apiPost('run_auto_tests', {
                 appname: this.state.appname
             });
             
             if (res.success) {
                 this.setState({ results: res.data });
-                this.admin.notify(`Evolutionary tests completed for ${this.state.appname}.`, 'success');
+                this.notify(`Evolutionary tests completed for ${this.state.appname}.`, 'success');
             } else {
-                this.admin.notify(res.message, 'error');
+                this.notify(res.message, 'error');
             }
         } catch (e) {
-            this.admin.notify('Network error during automated testing.', 'error');
+            this.notify('Network error during automated testing.', 'error');
         } finally {
             this.setState({ running: false });
         }
     }
 
     async runMonkeyBot() {
-        this.admin.notify('🐒 Monkey Bot Launched: Stress-testing UI...', 'info');
+        this.notify('🐒 Monkey Bot Launched: Stress-testing UI...', 'info');
         // Simulate random clicks and form inputs
         const buttons = document.querySelectorAll('.btn, a');
         const randomBtn = buttons[Math.floor(Math.random() * buttons.length)];
@@ -47,20 +47,20 @@ export default class ParikshakView extends BaseComponent {
     }
 
     async generateBlueprint(entityClass) {
-        const res = await this.admin.apiCall('generate_blueprint', { entity_class: entityClass });
+        const res = await this.apiCall('generate_blueprint', { entity_class: entityClass });
         if (res.success) {
             console.log("Blueprint for " + entityClass, res.data);
-            this.admin.notify('Blueprint generated! check console for code.', 'success');
+            this.notify('Blueprint generated! check console for code.', 'success');
         }
     }
 
     async bulkEliteUpgrade() {
-        this.admin.notify('🚀 Initiating system-wide Elite Upgrade...', 'info');
-        const res = await this.admin.apiCall('bulk_elite_upgrade');
+        this.notify('🚀 Initiating system-wide Elite Upgrade...', 'info');
+        const res = await this.apiCall('bulk_elite_upgrade');
         if (res.success) {
-            this.admin.notify(`Success! ${res.data.upgraded}/${res.data.total} entities upgraded. Run "System Update" to sync DB.`, 'success');
+            this.notify(`Success! ${res.data.upgraded}/${res.data.total} entities upgraded. Run "System Update" to sync DB.`, 'success');
         } else {
-            this.admin.notify('Upgrade failed: ' + res.message, 'danger');
+            this.notify('Upgrade failed: ' + res.message, 'danger');
         }
     }
 
@@ -69,27 +69,27 @@ export default class ParikshakView extends BaseComponent {
         const shorthand = input.value;
         if (!shorthand) return;
         
-        this.admin.notify('Dreaming your entity into existence...', 'info');
-        const res = await this.admin.apiCall('dream_entity', { shorthand: shorthand });
+        this.notify('Dreaming your entity into existence...', 'info');
+        const res = await this.apiCall('dream_entity', { shorthand: shorthand });
         if (res.success) {
-            this.admin.notify('Entity created! Run "System Update" then "Sync" to see it.', 'success');
+            this.notify('Entity created! Run "System Update" then "Sync" to see it.', 'success');
             input.value = '';
         } else {
-            this.admin.notify('Dream failed: ' + res.message, 'danger');
+            this.notify('Dream failed: ' + res.message, 'danger');
         }
     }
 
     async applyFix(entityClass, fix) {
-        this.admin.notify('Applying autonomous repair...', 'info');
-        const res = await this.admin.apiCall('apply_fix', {
+        this.notify('Applying autonomous repair...', 'info');
+        const res = await this.apiCall('apply_fix', {
             entity_class: entityClass,
             fix: fix
         });
         
         if (res.success) {
-            this.admin.notify('Manifest updated! Please run "System Update" to sync database.', 'success');
+            this.notify('Manifest updated! Please run "System Update" to sync database.', 'success');
         } else {
-            this.admin.notify('Repair failed: ' + res.message, 'danger');
+            this.notify('Repair failed: ' + res.message, 'danger');
         }
     }
 
@@ -195,7 +195,7 @@ export default class ParikshakView extends BaseComponent {
                         </div>
                         <div style="display:flex; gap:5px;">
                             <button class="btn btn-xs success" style="flex-grow:1;" @click="${() => this.runMonkeyBot()}">🐒 Monkey Bot</button>
-                            <button class="btn btn-xs secondary" style="flex-grow:1;" @click="${() => this.admin.apiCall('run_oracle').then(r => this.admin.notify(r.data.insight, 'info'))}">🔮 The Oracle</button>
+                            <button class="btn btn-xs secondary" style="flex-grow:1;" @click="${() => this.apiCall('run_oracle').then(r => this.notify(r.data.insight, 'info'))}">🔮 The Oracle</button>
                             <button class="btn btn-xs accent" style="flex-grow:1;" @click="${() => this.bulkEliteUpgrade()}">🚀 Elite Upgrade</button>
                         </div>
                     </div>
@@ -259,7 +259,7 @@ export default class ParikshakView extends BaseComponent {
                              <span style="font-size:0.65rem; opacity:0.4;">Seed: ${results.seed}</span>
                              <div style="display:flex; gap:5px;">
                                 <button class="btn ghost-btn btn-xs" @click="${() => this.generateBlueprint(e.class)}">📐 Blueprint</button>
-                                <button class="btn ghost-btn btn-xs" @click="${() => this.admin.notify('CI Report: ' + (results.report_path || 'Generating...'), 'info')}">📂 JUnit XML</button>
+                                <button class="btn ghost-btn btn-xs" @click="${() => this.notify('CI Report: ' + (results.report_path || 'Generating...'), 'info')}">📂 JUnit XML</button>
                              </div>
                         </div>
                     </div>

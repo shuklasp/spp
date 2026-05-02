@@ -1,7 +1,7 @@
 {
-    "timestamp": 1777639698,
+    "timestamp": 1777739937,
     "spp_version": "0.7",
-    "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
+    "base_dir": "C:\\projects\\apache\\school1\\spp",
     "database": {
         "dbtype": "mysql",
         "dbhost": "localhost",
@@ -10,57 +10,53 @@
         "dbpasswd": "hello123"
     },
     "modules": {
-        "sppentity": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppentity",
-        "sppdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdb",
-        "sppconfig": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppconfig",
-        "spplogger": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spplogger",
-        "sppprofile": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppprofile",
-        "sppwizard": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppwizard",
-        "spphtml": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppview",
-        "sppajax": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppajax",
-        "sppgroup": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppgroup",
-        "sppai": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppai",
-        "sppauth": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppauth",
-        "sppux": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppux",
-        "marketing": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/marketing",
-        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi",
-        "parikshak": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/parikshak",
-        "sppblade": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppblade",
-        "sppdrupal": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdrupal"
+        "marketing": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/marketing",
+        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
+        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
+        "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
+        "sppconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppconfig",
+        "sppprofile": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppprofile",
+        "sppwizard": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppwizard",
+        "spphtml": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
+        "sppajax": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppajax",
+        "sppux": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppux",
+        "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/parikshak",
+        "sppblade": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppblade",
+        "sppdrupal": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdrupal"
     },
     "runtimes": {
         "python": {
             "name": "Python",
-            "path": "\/usr\/bin\/python3",
-            "version": "Python 3.12.3"
+            "path": "C:\\Python312\\python.exe",
+            "version": "Python 3.12.0"
         },
         "perl": {
             "name": "Perl",
-            "path": "\/usr\/bin\/perl",
-            "version": "5.38.2"
+            "path": "C:\\xampp\\perl\\bin\\perl.exe",
+            "version": "5.32.1"
         },
         "java": {
             "name": "Java",
-            "path": "\/usr\/bin\/java",
-            "version": "21.0.10"
+            "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
+            "version": "15.0.2"
         },
         "dotnet": {
             "name": ".NET",
-            "path": "\/usr\/bin\/dotnet",
-            "version": "8.0.126"
+            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+            "version": "9.0.201"
         },
         "go": {
             "name": "Go",
-            "path": "\/usr\/bin\/go",
-            "version": "1.22.2"
+            "path": "",
+            "version": ""
         },
         "compiler": {
-            "name": "GCC",
-            "path": "\/usr\/bin\/gcc",
-            "version": "13.3.0"
+            "name": "MSVC",
+            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\Hostx64\\x64\\cl.exe",
+            "version": "19.43.34809"
         }
     },
     "bridge_settings": {
-        "shared_dir": "\/mnt\/c\/projects\/apache\/school1\/var\/shared"
+        "shared_dir": "C:\\projects\\apache\\school1\\var\\shared"
     }
 }
