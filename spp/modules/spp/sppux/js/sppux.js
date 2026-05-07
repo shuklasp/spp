@@ -57,7 +57,7 @@ const html = (strings, ...values) => {
                 window.__spp_handlers[eventId] = value;
                 
                 raw = raw.substring(0, raw.lastIndexOf('@' + eventMatch[1] + '='));
-                raw += `data-spp-evt="${eventId}" data-spp-type="${eventMatch[1]}"`;
+                raw += `data-spp-evt-${eventMatch[1]}="${eventId}" data-spp-type="${eventMatch[1]}"`;
                 skipNextQuote = true;
                 continue;
             }
@@ -144,7 +144,8 @@ class Computed extends Signal {
 }
 
 class BaseComponent {
-    constructor(container, props = {}) {
+    constructor(app, container, props = {}) {
+        this.app = app;
         this.container = container;
         this.props = props;
         this.state = {};
@@ -165,14 +166,17 @@ class BaseComponent {
 
     _initHelpers() {
 
-        const apiHandler = async (action, data = {}, options = { lock: true }) => {
+        const apiHandler = async (actionOrData, data = {}, options = { lock: true }) => {
             if (options.lock) SPPUX.Busy.start();
             try {
+                if (actionOrData instanceof FormData) {
+                    return await SPPUX.apiPost(actionOrData);
+                }
                 if (data instanceof FormData) {
-                    if (!data.has('action')) data.append('action', action);
+                    if (!data.has('action')) data.append('action', actionOrData);
                     return await SPPUX.apiPost(data);
                 }
-                return await SPPUX.api(action, data);
+                return await SPPUX.api(actionOrData, data);
             } finally {
                 if (options.lock) SPPUX.Busy.stop();
             }
@@ -185,6 +189,17 @@ class BaseComponent {
                 return (data = {}, options = { lock: true }) => target(action, data, options);
             }
         });
+
+        this.apiPost = apiHandler;
+
+        this.service = async (service, params = {}, options = { lock: true }) => {
+            if (options.lock) SPPUX.Busy.start();
+            try {
+                return await SPPUX.api('call_service', { service, ...params });
+            } finally {
+                if (options.lock) SPPUX.Busy.stop();
+            }
+        };
 
         this.serv = new Proxy({}, {
             get: (target, prop) => {
@@ -205,9 +220,10 @@ class BaseComponent {
             }
             
             // If not in our specific containers, check if we own the handler for this target
-            const el = e.target.closest('[data-spp-evt]');
+            // If not in our specific containers, check if we own the handler for this target
+            const el = e.target.closest(`[data-spp-evt], [data-spp-evt-${e.type}]`);
             if (!isOurEvent && el) {
-                const id = el.getAttribute('data-spp-evt');
+                const id = el.getAttribute(`data-spp-evt-${e.type}`) || el.getAttribute('data-spp-evt');
                 if (this._handlers.has(id)) {
                     isOurEvent = true;
                 }
@@ -217,14 +233,17 @@ class BaseComponent {
 
             if (el) {
                 const type = el.getAttribute('data-spp-type');
-                if (type && type !== e.type) return;
-
-                const id = el.getAttribute('data-spp-evt');
-                const handler = this._handlers.get(id);
-                if (handler) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handler.call(this, e);
+                const idByType = el.getAttribute(`data-spp-evt-${e.type}`);
+                const idLegacy = (type === e.type) ? el.getAttribute('data-spp-evt') : null;
+                const id = idByType || idLegacy;
+                
+                if (id) {
+                    const handler = this._handlers.get(id);
+                    if (handler) {
+                        if (e.type !== 'dragstart') e.preventDefault();
+                        if (!e.type.startsWith('drag') && e.type !== 'drop') e.stopPropagation();
+                        handler.call(this, e);
+                    }
                 }
             }
         };
@@ -239,7 +258,7 @@ class BaseComponent {
         this._isRendering = false;
 
         // Check for Hydration
-        if (this.container.children.length > 0) {
+        if (this.container && this.container.children && this.container.children.length > 0) {
             this._hydrate();
         }
     }
@@ -317,35 +336,53 @@ class BaseComponent {
             this.update();
         };
 
-        Signal.activeSubscriber = subscriber;
-        const template = this.render();
-        Signal.activeSubscriber = null;
-        this._isRendering = false;
-        
-        if (!template || template.content === undefined) return;
+        try {
+            Signal.activeSubscriber = subscriber;
+            const template = this.render();
+            Signal.activeSubscriber = null;
+            this._isRendering = false;
+            
+            if (!template || template.content === undefined) return;
 
-        const temp = document.createElement('div');
-        temp.innerHTML = template.toString();
+            const temp = document.createElement('div');
+            temp.innerHTML = template.toString();
 
-        // Register handlers from the rendered template
-        temp.querySelectorAll('[data-spp-evt]').forEach(el => {
-            const id = el.getAttribute('data-spp-evt');
-            if (window.__spp_handlers && window.__spp_handlers[id]) {
-                this._handlers.set(id, window.__spp_handlers[id]);
-            }
-        });
-        
-        // Also scan global containers (modals, header) for any handlers added during render()
-        this._registerGlobalHandlers();
-        
-        window.__spp_handlers = {};
+            // Register handlers from the rendered template
+            temp.querySelectorAll('*').forEach(el => {
+                for (const attr of el.attributes) {
+                    if (attr.name.startsWith('data-spp-evt')) {
+                        const id = attr.value;
+                        if (window.__spp_handlers && window.__spp_handlers[id]) {
+                            this._handlers.set(id, window.__spp_handlers[id]);
+                        }
+                    }
+                }
+            });
+            
+            // Also scan global containers (modals, header) for any handlers added during render()
+            this._registerGlobalHandlers();
+            
+            window.__spp_handlers = {};
 
-        this._reconcile(this.container, temp);
+            // Reconcile new virtual DOM with actual DOM
+            console.log(`[BaseComponent] Updating ${this.constructor.name}...`);
+            this._reconcile(this.container, temp);
+        } finally {
+            this._isRendering = false;
+            Signal.activeSubscriber = null;
+        }
     }
 
     notify(msg, type = 'info') {
         if (window.SPPUX && SPPUX.Notify) SPPUX.Notify.show(msg, type);
         else console.log(`[${type}] ${msg}`);
+    }
+
+    handleApiErrors(res) {
+        if (this.app && typeof this.app.handleApiErrors === 'function') {
+            return this.app.handleApiErrors(res);
+        }
+        this.notify(res.message || 'An error occurred', 'error');
     }
 
     async confirm(msg) {
@@ -459,6 +496,24 @@ class BaseComponent {
     async onInit() {}
     async onMount() {}
     onDestroy() {}
+    renderSourceHeader(source) {
+        if (!source) return '';
+        const isYaml = source.type === 'yaml';
+        const icon = isYaml ? '📄' : '🗄️';
+        const typeLabel = isYaml ? 'YAML Config' : 'Database Storage';
+        const className = isYaml ? 'type-yaml' : 'type-database';
+
+        return html`
+            <div class="source-header ${className}" style="display: flex; align-items: center; gap: 12px; padding: 12px 20px; background: rgba(255,255,255,0.03); border-radius: 12px; border-left: 4px solid ${isYaml ? '#6366f1' : '#f59e0b'}; margin: 1.5rem 0;">
+                <div class="source-icon" style="font-size: 1.5rem;">${icon}</div>
+                <div class="source-info">
+                    <div class="source-type" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6;">${typeLabel}</div>
+                    <div class="source-label" style="font-weight: 600; font-size: 0.9rem;">${source.label}</div>
+                </div>
+            </div>
+        `;
+    }
+
     render() { return Fragment; }
 }
 
@@ -557,6 +612,9 @@ window.SPPUX = {
         const events = ['click', 'input', 'change', 'submit', 'blur', 'focus', 'keydown', 'keyup', 'keypress', 'dragstart', 'dragover', 'dragleave', 'drop', 'dragend'];
         events.forEach(evt => {
             document.addEventListener(evt, (e) => {
+                const target = e.target.closest('[data-spp-evt]');
+                if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
+                
                 // Find all components that could handle this event
                 for (const comp of this._components) {
                     // Check if component container still exists in DOM
@@ -570,8 +628,163 @@ window.SPPUX = {
                 }
             }, true);
         });
+
+        // Initialize LiveService Global Listener
+        document.addEventListener('click', async (e) => {
+            this._handleLocalAction(e, 'click');
+            await this._handleLiveEvent(e, 'click');
+        });
+        document.addEventListener('change', async (e) => this._handleLiveEvent(e, 'change'));
+        document.addEventListener('submit', async (e) => this._handleLiveEvent(e, 'submit'));
+        document.addEventListener('blur', async (e) => this._handleLiveEvent(e, 'blur'), true);
+
+        // 3. Handle Live Inputs (Debounced)
+        document.addEventListener('input', (e) => {
+            const el = e.target.closest('[data-spp-live-input]');
+            if (!el) return;
+
+            const service = el.getAttribute('data-spp-live-input');
+            const delay = parseInt(el.getAttribute('data-live-debounce') || '300');
+            
+            if (!el._liveDebounce) {
+                el._liveDebounce = SPPUX.utils.debounce(async () => {
+                    const params = { ...el.dataset, value: el.value };
+                    delete params.sppLiveInput;
+                    await SPPUX.api(service, params);
+                }, delay);
+            }
+            el._liveDebounce();
+        });
+
+        // 4. Handle Polling
+        this._initPolling();
     },
-    api: async (action, data = {}) => {
+
+    _handleLocalAction(e, eventType) {
+        if (eventType !== 'click') return;
+        
+        const el = e.target.closest('[data-live-toggle], [data-live-remove], [data-live-url]');
+        if (!el) return;
+
+        // Toggle Class
+        const toggleClass = el.getAttribute('data-live-toggle');
+        if (toggleClass) {
+            const targetSelector = el.getAttribute('data-live-target');
+            let target;
+            if (targetSelector && targetSelector.startsWith('closest ')) {
+                target = el.closest(targetSelector.replace('closest ', ''));
+            } else {
+                target = targetSelector ? document.querySelector(targetSelector) : el;
+            }
+            if (target) target.classList.toggle(toggleClass);
+        }
+
+        // Remove Element
+        if (el.hasAttribute('data-live-remove')) {
+            const targetSelector = el.getAttribute('data-live-target');
+            let target;
+            if (targetSelector && targetSelector.startsWith('closest ')) {
+                target = el.closest(targetSelector.replace('closest ', ''));
+            } else {
+                target = targetSelector ? document.querySelector(targetSelector) : el;
+            }
+            if (target) target.remove();
+        }
+
+        // URL Navigation
+        const url = el.getAttribute('data-live-url');
+        if (url) {
+            window.location.href = url;
+        }
+    },
+
+    async _handleLiveEvent(e, eventType) {
+        const el = e.target.closest('[data-spp-live]');
+        if (!el) return;
+
+        // Verify trigger
+        const trigger = el.getAttribute('data-live-trigger') || (el.tagName === 'FORM' ? 'submit' : 'click');
+        if (trigger !== eventType) return;
+
+        // 1. Handle Confirmation
+        const confirmMsg = el.getAttribute('data-live-confirm');
+        if (confirmMsg && !window.confirm(confirmMsg)) {
+            e.preventDefault();
+            return;
+        }
+
+        if (el.tagName === 'FORM' || eventType === 'submit') e.preventDefault();
+
+        // 2. Handle Loading State
+        const loaderSelector = el.getAttribute('data-live-loading');
+        const loaderEl = loaderSelector ? document.querySelector(loaderSelector) : null;
+        if (loaderEl) loaderEl.style.display = '';
+        el.classList.add('spp-live-busy');
+
+        // 3. Collect Data
+        let params = { ...el.dataset };
+        delete params.sppLive;
+
+        // Auto-serialize if it's a form or inside a form
+        const form = el.tagName === 'FORM' ? el : el.closest('form');
+        if (form) {
+            const formData = new FormData(form);
+            for (let [key, value] of formData.entries()) {
+                params[key] = value;
+            }
+        }
+        
+        // Target override
+        const targetSelector = el.getAttribute('data-live-target');
+        const swapMode = el.getAttribute('data-live-swap') || 'morph';
+
+        const service = el.getAttribute('data-spp-live');
+        
+        try {
+            const result = await SPPUX.api(service, params);
+            
+            // If the service returned HTML in the root data and we have a target, apply it
+            if (result.success && result.data && result.data.html && targetSelector) {
+                let targetEl;
+                if (targetSelector.startsWith('closest ')) {
+                    targetEl = el.closest(targetSelector.replace('closest ', ''));
+                } else {
+                    targetEl = document.querySelector(targetSelector);
+                }
+                
+                if (targetEl) {
+                    if (swapMode === 'replace') targetEl.innerHTML = result.data.html;
+                    else if (swapMode === 'append') targetEl.insertAdjacentHTML('beforeend', result.data.html);
+                    else if (swapMode === 'prepend') targetEl.insertAdjacentHTML('afterbegin', html);
+                    else this.morph(targetEl, result.data.html);
+                }
+            }
+        } finally {
+            if (loaderEl) loaderEl.style.display = 'none';
+            el.classList.remove('spp-live-busy');
+        }
+    },
+
+    _initPolling() {
+        document.querySelectorAll('[data-live-poll]').forEach(el => {
+            const interval = parseInt(el.getAttribute('data-live-poll'));
+            const service = el.getAttribute('data-spp-live') || el.getAttribute('data-spp-live-input');
+            if (!interval || !service) return;
+
+            setInterval(async () => {
+                // Only poll if tab is active to save resources
+                if (document.hidden) return;
+                
+                const params = { ...el.dataset, is_poll: true };
+                await SPPUX.api(service, params);
+            }, interval);
+        });
+    },
+    api: async (actionOrData, data = {}) => {
+        if (actionOrData instanceof FormData) {
+            return await SPPUX.apiPost(actionOrData);
+        }
+        const action = actionOrData;
         const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
         const ts = Date.now();
         
@@ -594,7 +807,13 @@ window.SPPUX = {
             body: JSON.stringify({ ...data, csrf_token: csrf })
         });
         const result = await res.json();
-        return result; // Return full result for compatibility, components can decide to throw
+        
+        // Auto-apply LiveAction instructions if present
+        if (result.instructions) {
+            SPPUX.applyInstructions(result.instructions, result.data || result);
+        }
+        
+        return result; 
     },
     apiPost: async (formData) => {
         const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
@@ -619,7 +838,103 @@ window.SPPUX = {
             body: formData
         });
         const result = await res.json();
+
+        // Auto-apply LiveAction instructions if present
+        if (result.instructions) {
+            SPPUX.applyInstructions(result.instructions, result.data || result);
+        }
+
         return result;
+    },
+    applyInstructions: (instructions, context = {}) => {
+        if (!instructions || !Array.isArray(instructions)) return;
+        instructions.forEach(ins => {
+            const { action, selector, html, url, message, type, event, detail, attr, value } = ins;
+            const el = selector ? document.querySelector(selector) : null;
+            
+            switch (action) {
+                case 'replace': if (el) el.innerHTML = html; break;
+                case 'morph': if (el) this.morph(el, html); break;
+                case 'append': if (el) el.insertAdjacentHTML('beforeend', html); break;
+                case 'prepend': if (el) el.insertAdjacentHTML('afterbegin', html); break;
+                case 'remove': if (el) el.remove(); break;
+                case 'attr': if (el) el.setAttribute(attr, value); break;
+                case 'redirect': window.location.href = url; break;
+                case 'notify': 
+                    if (window.admin && admin.notify) admin.notify(message, type);
+                    else if (window.SPPUX && SPPUX.Notify) SPPUX.Notify.show(message, type);
+                    else if (window.alert) alert(message);
+                    break;
+                case 'modal':
+                    if (window.SPPUX && SPPUX.openModal) {
+                        SPPUX.openModal(ins.title || 'Info', ins.html || ins.content || '', ins.actions || [], context);
+                    }
+                    break;
+                case 'closeModal':
+                    if (window.SPPUX && SPPUX.Modal) SPPUX.Modal.close();
+                    break;
+                case 'refresh':
+                    if (window.admin && admin.loadView) admin.loadView(admin.currentView);
+                    else location.reload();
+                    break;
+                case 'dispatch':
+                    const target = el || window;
+                    target.dispatchEvent(new CustomEvent(event, { detail }));
+                    break;
+                case 'store':
+                    if (window.spp_root_store) window.spp_root_store.set(detail);
+                    break;
+                case 'script':
+                    try { eval(html); } catch (e) { console.error('LiveAction Script Error:', e); }
+                    break;
+                case 'alert':
+                    alert(message);
+                    break;
+                case 'assign':
+                    if (el) el[ins.prop] = value;
+                    break;
+                case 'call':
+                    const fn = window[ins.func];
+                    if (typeof fn === 'function') fn(...(ins.args || []));
+                    break;
+                case 'clear':
+                    if (el) el[ins.attr || 'innerHTML'] = '';
+                    break;
+            }
+        });
+    },
+
+    morph: (el, newHtml) => {
+        const temp = document.createElement('div');
+        temp.innerHTML = newHtml;
+        const newNode = temp.firstElementChild;
+        if (!newNode) return;
+
+        // 1. Update Attributes
+        for (const attr of newNode.attributes) {
+            if (el.getAttribute(attr.name) !== attr.value) {
+                el.setAttribute(attr.name, attr.value);
+            }
+        }
+        for (const attr of el.attributes) {
+            if (!newNode.hasAttribute(attr.name)) {
+                el.removeAttribute(attr.name);
+            }
+        }
+
+        // 2. Update Content (Simple Text/HTML Morph)
+        // If the structure is complex, we do a swap, otherwise we sync text
+        if (newNode.children.length === 0 && el.children.length === 0) {
+            if (el.textContent !== newNode.textContent) {
+                el.textContent = newNode.textContent;
+            }
+        } else {
+            // For now, if complex children, we swap innerHTML but keep the parent element
+            // This preserves focus if the parent is the input/container
+            if (el.innerHTML !== newNode.innerHTML) {
+                el.innerHTML = newNode.innerHTML;
+            }
+        }
     },
     utils: {
         serializeForm: (container) => {
@@ -646,6 +961,28 @@ window.SPPUX = {
             }
             Object.assign(target || {}, source);
             return target;
+        },
+        escapeHtml: (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        },
+        escapeAttr: (str) => {
+            if (str === null || str === undefined) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        },
+        truncatePath: (path, len = 60) => {
+            if (!path || path.length <= len) return path;
+            const parts = path.split(/[\\/]/);
+            if (parts.length <= 2) return path.substring(0, len) + '...';
+            const first = parts[0], last = parts[parts.length - 1], mid = '...';
+            const remainingLen = len - first.length - last.length - mid.length;
+            if (remainingLen <= 0) return '...' + last;
+            return `${first}/${mid}/${last}`;
         }
     },
     signal: (v) => new Signal(v),

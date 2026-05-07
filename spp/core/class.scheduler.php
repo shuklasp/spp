@@ -185,7 +185,7 @@ class Scheduler extends \SPP\SPPObject
             }
         });
 
-        $matchedApp = $params['context'] ?: 'default';
+        $matchedApp = $params['context'] ?: (\SPP\App::getGlobalSettings('base_app') ?: 'default');
 
         $routeParams = ['uri' => $uri, 'context' => &$matchedApp];
         \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeParams, function(&$p) {
@@ -193,5 +193,35 @@ class Scheduler extends \SPP\SPPObject
         });
 
         self::$AppContext = $matchedApp;
+    }
+
+    /**
+     * Executes a callback within a specific application context.
+     * Safely switches and restores context.
+     *
+     * @param string $context
+     * @param callable $callback
+     * @return mixed
+     */
+    public static function withContext(string $context, callable $callback)
+    {
+        $oldContext = self::$AppContext;
+        if ($oldContext === $context) return $callback();
+
+        // Ensure the target app is initialized if it's not already
+        if (!isset(self::$procs[$context])) {
+             new \SPP\App($context, false, 3);
+        }
+
+        self::setContext($context);
+        try {
+            return $callback();
+        } finally {
+            if ($oldContext !== '') {
+                self::setContext($oldContext);
+            } else {
+                self::$AppContext = '';
+            }
+        }
     }
 }

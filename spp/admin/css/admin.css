@@ -383,22 +383,24 @@ body::after {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--sppux-overlay-bg);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    width: 100vw;
+    height: 100vh;
+    background: var(--sppux-overlay-bg, rgba(0, 0, 0, 0.6));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     display: none;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 50000;
     opacity: 0;
     transition: opacity 0.3s var(--transition);
+    pointer-events: none;
 }
 
 .glass-overlay.active {
-    display: flex;
-    opacity: 1;
+    display: flex !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
 }
 
 /* ============================= */
@@ -3663,3 +3665,64 @@ textarea:focus {
 .tab-btn { background: transparent; border: none; padding: 10px 15px; color: var(--text-dim); font-size: 0.85rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
 .tab-btn:hover { color: var(--text-secondary); }
 .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* --- Configuration Source Headers --- */
+.source-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: var(--radius-md);
+    margin: 1.5rem 0 0.75rem 0;
+    border-left: 3px solid var(--primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.source-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary-subtle), transparent);
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.source-header .source-icon {
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+
+.source-header .source-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.source-header .source-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+.source-header .source-type {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+    font-weight: 700;
+}
+
+.source-header.type-yaml { border-left-color: var(--accent); }
+.source-header.type-yaml .source-icon { color: var(--accent); }
+.source-header.type-database { border-left-color: var(--info); }
+.source-header.type-database .source-icon { color: var(--info); }
+
+.source-group-container {
+    margin-bottom: 2rem;
+}
+

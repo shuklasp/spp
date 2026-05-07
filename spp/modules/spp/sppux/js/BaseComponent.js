@@ -14,9 +14,16 @@ export default class BaseComponent {
         this._eventContainers = new Set([this.container]);
         this.root = window.spp_root_store || null;
 
-        this.api = new Proxy({}, {
+        this.api = new Proxy((actionOrData, data = {}, options = { lock: true }) => {
+            if (actionOrData instanceof FormData) return this.admin.apiPost(actionOrData, data, options);
+            if (data instanceof FormData) {
+                if (!data.has('action')) data.append('action', actionOrData);
+                return this.admin.apiPost(data, {}, options);
+            }
+            return this.admin.api(actionOrData, data, options);
+        }, {
             get: (target, prop) => {
-                if (typeof prop !== 'string') return target[prop];
+                if (prop in target || typeof prop !== 'string') return target[prop];
                 const action = prop.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
                 return async (data = {}, options = { lock: true }) => {
                     if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
@@ -35,6 +42,15 @@ export default class BaseComponent {
                 };
             }
         });
+        
+        this.apiPost = async (data = {}, params = {}, options = { lock: true }) => {
+            if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
+            try {
+                return await this.admin.apiPost(data, params, options);
+            } finally {
+                if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
+            }
+        };
 
         this.serv = new Proxy({}, {
             get: (target, prop) => {
@@ -215,6 +231,24 @@ export default class BaseComponent {
         });
         this._handlers.clear();
         this.onDestroy();
+    }
+
+    renderSourceHeader(source) {
+        if (!source) return '';
+        const isYaml = source.type === 'yaml';
+        const icon = isYaml ? '📄' : '🗄️';
+        const typeLabel = isYaml ? 'YAML Config' : 'Database Storage';
+        const className = isYaml ? 'type-yaml' : 'type-database';
+
+        return html`
+            <div class="source-header ${className}">
+                <div class="source-icon">${icon}</div>
+                <div class="source-info">
+                    <div class="source-type">${typeLabel}</div>
+                    <div class="source-label">${source.label}</div>
+                </div>
+            </div>
+        `;
     }
 
     async onInit() {}

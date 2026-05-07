@@ -1,0 +1,14 @@
+services:
+  - name: inventory_stats
+    runtime: python
+    target: inventory
+    method: get_stats
+    requires_auth: false
+    method_http: GET
+
+  - name: update_stock
+    runtime: python
+    target: inventory
+    method: update_stock
+    requires_auth: true
+    method_http: POST

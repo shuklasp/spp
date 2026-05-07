@@ -605,16 +605,21 @@ class Pages extends \SPP\SPPObject
     {
         $yaml = self::getYaml();
         $ymlPages = $yaml['pages'] ?? [];
+        $ymlFile = self::getAppPagesFile();
         foreach ($ymlPages as &$p) {
             $p['source'] = 'yaml';
+            $p['source_path'] = $ymlFile;
         }
 
         $dbPages = [];
         if (\SPP\Module::isEnabled('sppdb')) {
             $data = self::getDb();
             $dbPages = $data['pages'] ?? [];
+            $db = new \SPPMod\SPPDB\SPPDB();
+            $dbSummary = $db->getConnectionSummary();
             foreach ($dbPages as &$p) {
                 $p['source'] = 'db';
+                $p['db_summary'] = $dbSummary;
             }
         }
 

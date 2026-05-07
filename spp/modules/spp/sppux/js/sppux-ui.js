@@ -73,7 +73,29 @@
      * Modal Helper
      */
     SPPUX.Modal = {
-        open(title, content, actions = []) {
+        open(title, content, actions = [], context = {}) {
+            // Ensure content is treated as HTML if it contains tags
+            if (typeof content === 'string' && content.includes('<')) {
+                content = new SPPUX.TrustedHTML(content);
+            }
+            
+            // Resolve string actions to functions while preserving metadata (label, type)
+            const resolvedActions = (actions && actions.length ? actions : [{ label: 'Close', type: 'secondary', fn: 'close' }]).map(act => {
+                let resolvedFn = act.fn;
+                if (typeof act.fn === 'string') {
+                    const actionName = act.fn;
+                    resolvedFn = (modal) => {
+                        if (window.admin && typeof admin.handleModalAction === 'function') {
+                            admin.handleModalAction(actionName, modal, { title, content, actions }, context);
+                        } else {
+                            if (actionName === 'close') modal.close();
+                            else console.warn(`Unhandled modal action: ${actionName}`);
+                        }
+                    };
+                }
+                return { ...act, fn: resolvedFn };
+            });
+
             let container = document.getElementById('sppux-modal-root');
             if (container) container.remove();
             
@@ -96,13 +118,18 @@
                                 <div class="modal-footer">
                                     ${this.props.actions.map(act => html`
                                         <button class="btn ${act.type || 'secondary'}-btn" @click=${() => act.fn(this)}>
-                                            ${act.label}
+                                            <span>${act.label || act.text || act.title || 'OK'}</span>
                                         </button>
                                     `)}
                                 </div>
                             </div>
                         </div>
                     `;
+                }
+
+                onMount() {
+                    const body = this.container.querySelector('.modal-body');
+                    if (body && window.SPPForm) SPPForm.autoInit(body);
                 }
 
                 close() {
@@ -112,7 +139,7 @@
                         this.container.remove();
                     }, 300);
                 }
-            })(container, { title, content, actions });
+            })(null, container, { title, content, actions: resolvedActions });
             modal.update();
             return modal;
         },
@@ -123,6 +150,9 @@
     };
 
     SPPUX.openModal = SPPUX.Modal.open;
+    SPPUX.updateModal = (title, content, actions = [], context = {}) => {
+        return SPPUX.Modal.open(title, content, actions, context);
+    };
     
     SPPUX.Prompt = {
         show(title, message, callback) {
@@ -279,7 +309,7 @@
                 }
                 filter(q) { this.setState({ query: q, filtered: this.props.items.filter(i => i.title.toLowerCase().includes(q.toLowerCase())) }); }
                 close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 300); }
-            })(container, { items, onSelect });
+            })(null, container, { items, onSelect });
             spotlight.update(); return spotlight;
         }
     };
@@ -315,7 +345,15 @@
     SPPUX.Tooltip = { init() { document.addEventListener('mouseover', (e) => { const target = e.target.closest('[data-spp-tooltip]'); if (target && !target.dataset.tooltipActive) { target.dataset.tooltipActive = "true"; const tip = document.createElement('div'); tip.className = 'sppux-tooltip'; tip.textContent = target.dataset.sppTooltip; document.body.appendChild(tip); const rect = target.getBoundingClientRect(); tip.style.left = rect.left + (rect.width / 2) - (tip.offsetWidth / 2) + 'px'; tip.style.top = rect.top - tip.offsetHeight - 8 + 'px'; target.addEventListener('mouseleave', () => { tip.remove(); delete target.dataset.tooltipActive; }, { once: true }); } }); } };
     SPPUX.Avatar = { render(n, s = null, z = 'md') { const initials = n ? n.split(' ').map(x => x[0]).join('').substring(0, 2).toUpperCase() : '?'; return html`<div class="sppux-avatar sppux-avatar-${z}">${s ? html`<img src="${s}">` : html`<span>${initials}</span>`}</div>`; } };
     SPPUX.Tabs = { render(tabs, activeId) { return html`<div class="sppux-tabs-container"><div class="sppux-tabs-header">${tabs.map(t => html`<button class="${t.id === activeId ? 'active' : ''}" @click=${t.onClick}>${t.label}</button>`)}</div><div class="sppux-tabs-content">${tabs.find(t => t.id === activeId)?.content || Fragment}</div></div>`; } };
-    SPPUX.Drawer = { open(t, c, s = 'right') { let container = document.getElementById('sppux-drawer-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-drawer-root'}))); const drawer = new (class extends BaseComponent { render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 400); } })(container, { title, content, side: s }); drawer.update(); return drawer; } };
+    SPPUX.Drawer = { open(t, c, s = 'right') { 
+        if (typeof c === 'string' && c.includes('<')) c = new SPPUX.TrustedHTML(c);
+        let container = document.getElementById('sppux-drawer-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-drawer-root'}))); 
+        const drawer = new (class extends BaseComponent { 
+            render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } 
+            close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 400); } 
+        })(null, container, { title: t, content: c, side: s }); 
+        drawer.update(); return drawer; 
+    } };
 
     // Legendary Inits
     SPPUX.Theme.init();

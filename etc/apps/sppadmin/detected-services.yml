@@ -1,0 +1,34 @@
+################################################################################
+# SPP Detected Services Registry
+# This file is automatically managed by the SPPAjax Dynamic Discovery engine.
+################################################################################
+
+services:
+  -
+    name: login
+    script: spp/admin/services/General.php
+    method: live_login
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_apps
+    script: spp/admin/services/General.php
+    method: live_list_apps
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_bridge_info
+    script: spp/admin/services/General.php
+    method: live_get_bridge_info
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_global_settings
+    script: spp/admin/services/General.php
+    method: live_get_global_settings
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_system_info
+    script: spp/admin/services/General.php
+    method: live_get_system_info

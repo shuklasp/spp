@@ -1,1 +1,249 @@
-Class defined? YES | Session Status: 1
+[2026-05-04 16:51:04] Context set to sppadmin
+[2026-05-04 16:51:05] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 16:51:05] API FATAL ERROR: Service function 'live_list_apps' not found. in /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php on line 356
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#1 {main}
+[2026-05-04 16:51:05] Context set to sppadmin
+[2026-05-04 16:51:09] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 16:51:09] API FATAL ERROR: Service function 'live_list_modules' not found. in /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php on line 356
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#1 {main}
+[2026-05-04 16:52:02] Context set to sppadmin
+[2026-05-04 16:52:03] Context set to sppadmin
+[2026-05-04 16:52:03] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 16:52:03] API FATAL ERROR: Service function 'live_list_apps' not found. in /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php on line 356
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#1 {main}
+[2026-05-04 16:52:06] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 16:52:06] API FATAL ERROR: Service function 'live_list_modules' not found. in /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php on line 356
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#1 {main}
+[2026-05-04 16:53:27] Context set to sppadmin
+[2026-05-04 16:53:28] Context set to sppadmin
+[2026-05-04 16:53:28] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 16:53:31] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 16:53:41] Context set to sppadmin
+[2026-05-04 16:57:44] Context set to sppadmin
+[2026-05-04 16:57:45] Context set to sppadmin
+[2026-05-04 16:57:45] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 16:57:48] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 16:57:57] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777913875324","modname":"sppdb","public_name":"SPP Database Core","appname":"sppadmin","csrf_token":"71a7066077234ccbc976ede7b3e42f3bca61b93104425d9181a254786434b308"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6173
+[2026-05-04 22:47:51] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777934863386","modname":"sppdb","public_name":"SPP Database Core","appname":"sppadmin","csrf_token":"71a7066077234ccbc976ede7b3e42f3bca61b93104425d9181a254786434b308"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6173
+[2026-05-04 22:58:15] Context set to sppadmin
+[2026-05-04 22:58:26] Context set to sppadmin
+[2026-05-04 22:58:27] Context set to sppadmin
+[2026-05-04 22:58:27] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 22:58:30] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 22:58:39] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777935517354","modname":"sppdb","public_name":"SPP Database Core","appname":"sppadmin","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6191
+[2026-05-04 22:59:23] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777935561626","modname":"sppdb","public_name":"SPP Database Core","appname":"sppadmin","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6191
+[2026-05-04 23:03:27] Context set to sppadmin
+[2026-05-04 23:03:28] Context set to sppadmin
+[2026-05-04 23:03:28] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 23:03:32] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 23:03:40] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777935818838","modname":"sppdb","public_name":"SPP Database Core","appname":"sppadmin","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6191
+[2026-05-04 23:04:06] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 23:04:14] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777935852081","modname":"sppdb","public_name":"SPP Database Core","appname":"default","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6191
+[2026-05-04 23:05:55] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-04 23:10:30] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-04 23:10:37] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777936235635","modname":"sppdb","public_name":"SPP Database Core","appname":"default","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 6323
+[2026-05-04 23:11:31] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777936289321","modname":"spplogger","public_name":"SPP Unified Logger","appname":"default","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=spplogger, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/spplogger/module.yml, settingsCount=6
+[Modules] Generated HTML length: 4009
+[2026-05-04 23:15:07] Context set to sppadmin
+[SPPAjax] findService(open_module_settings) found in yaml: script=spp/admin/services/General.php, method=live_open_module_settings
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1777936505611","modname":"spplogger","public_name":"SPP Unified Logger","appname":"default","csrf_token":"cfb4f38a452fbd7077f3ad34753513c5918f5fd0a9da51596b1eaad6d08e5053"}
+[Modules] OpenSettings: mod=spplogger, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/spplogger/module.yml, settingsCount=6
+[Modules] Generated HTML length: 4652
+[2026-05-04 23:16:07] Context set to sppadmin
+[2026-05-04 23:16:13] Context set to sppadmin
+[2026-05-04 23:16:13] API FATAL ERROR: Class "SPP\Parser" not found in /mnt/c/projects/apache/school1/spp/admin/services/Entities.php on line 50
+#0 /mnt/c/projects/apache/school1/spp/admin/services/General.php(62): live_Entities_ParseYAML()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php(354): live_parse_entity_yaml()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#3 {main}
+[2026-05-04 23:16:29] Context set to sppadmin
+[2026-05-04 23:16:29] API FATAL ERROR: Class "SPP\Parser" not found in /mnt/c/projects/apache/school1/spp/admin/services/Entities.php on line 62
+#0 /mnt/c/projects/apache/school1/spp/admin/services/General.php(63): live_Entities_DumpYAML()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php(354): live_dump_entity_yaml()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(431): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#3 {main}
+[2026-05-05 00:21:52] Context set to sppadmin
+[2026-05-05 10:52:29] Context set to sppadmin
+[2026-05-05 10:53:15] Context set to sppadmin
+[2026-05-05 10:53:37] Context set to sppadmin
+[2026-05-05 10:54:01] Context set to sppadmin
+[2026-05-05 10:54:17] Context set to sppadmin
+[2026-05-05 10:55:32] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-05 10:56:33] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-05 10:56:46] Context set to sppadmin
+[2026-05-05 10:57:01] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-05 10:57:58] Context set to sppadmin
+[2026-05-05 10:57:59] Context set to sppadmin
+[SPPAjax] findService(list_modules) found in yaml: script=spp/admin/services/General.php, method=live_list_modules
+[2026-05-05 10:58:22] Context set to sppadmin
+[2026-05-05 10:59:28] Context set to sppadmin
+[2026-05-05 10:59:30] Context set to sppadmin
+[2026-05-05 10:59:31] Context set to sppadmin
+[2026-05-05 10:59:32] Context set to sppadmin
+[2026-05-05 10:59:32] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-05 10:59:42] Context set to sppadmin
+[2026-05-05 11:00:46] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-05 11:01:23] Context set to sppadmin
+[2026-05-05 11:01:35] Context set to sppadmin
+[2026-05-05 11:04:51] Context set to sppadmin
+[2026-05-05 11:05:18] Context set to sppadmin
+[2026-05-05 11:06:24] Context set to sppadmin
+[2026-05-05 11:06:54] Context set to sppadmin
+[2026-05-05 11:07:14] Context set to sppadmin
+[2026-05-05 11:08:12] Context set to sppadmin
+[2026-05-05 11:14:02] Context set to sppadmin
+[2026-05-05 11:15:07] Context set to sppadmin
+[2026-05-05 11:15:29] Context set to sppadmin
+[2026-05-05 11:16:18] Context set to sppadmin
+[2026-05-05 11:16:40] Context set to sppadmin
+[2026-05-05 11:17:05] Context set to sppadmin
+[2026-05-05 11:17:26] Context set to sppadmin
+[SPPAjax] findService(list_apps) found in yaml: script=spp/admin/services/General.php, method=live_list_apps
+[2026-05-05 11:17:38] Context set to sppadmin
+[2026-05-05 11:17:51] Context set to sppadmin
+[2026-05-05 11:18:20] Context set to sppadmin
+[2026-05-05 11:18:41] Context set to sppadmin
+[2026-05-05 11:19:08] Context set to sppadmin
+[2026-05-05 11:19:20] Context set to sppadmin
+[2026-05-05 11:19:32] Context set to sppadmin
+[2026-05-05 11:21:14] Context set to sppadmin
+[2026-05-05 11:21:30] Context set to sppadmin
+[2026-05-05 11:21:54] Context set to sppadmin
+[2026-05-05 11:22:07] Context set to sppadmin
+[2026-05-05 11:23:00] Context set to sppadmin
+[2026-05-05 11:23:18] Context set to sppadmin
+[2026-05-05 11:23:47] Context set to sppadmin
+[2026-05-05 11:24:35] Context set to sppadmin
+[2026-05-05 11:25:01] Context set to sppadmin
+[2026-05-05 11:25:31] Context set to sppadmin
+[2026-05-05 11:25:50] Context set to sppadmin
+[SPPAjax] findService(Entities) found in yaml: script=spp/admin/services/Entities.php, method=POST
+[2026-05-05 11:25:50] FATAL SHUTDOWN: Cannot redeclare live_Entities_List() (previously declared in /mnt/c/projects/apache/school1/spp/admin/services/Entities.php:6) in /mnt/c/projects/apache/school1/spp/admin/services/Entities.php on line 6
+[2026-05-05 11:28:49] Context set to sppadmin
+[2026-05-05 11:29:13] Context set to sppadmin
+[2026-05-05 11:29:56] Context set to sppadmin
+[2026-05-05 11:30:12] Context set to sppadmin
+[2026-05-05 11:31:53] Context set to sppadmin
+[2026-05-05 11:32:26] Context set to sppadmin
+[2026-05-05 11:32:42] Context set to sppadmin
+[2026-05-05 11:37:13] Context set to sppadmin
+[2026-05-05 11:38:19] Context set to sppadmin
+[2026-05-05 11:38:54] Context set to sppadmin
+[2026-05-05 11:39:13] Context set to sppadmin
+[2026-05-05 11:39:51] Context set to sppadmin
+[2026-05-05 11:40:06] Context set to sppadmin
+[2026-05-05 11:40:25] Context set to sppadmin
+[2026-05-05 11:40:46] Context set to sppadmin
+[2026-05-05 11:41:28] Context set to sppadmin
+[2026-05-05 11:42:03] Context set to sppadmin
+[2026-05-05 11:46:58] Context set to sppadmin
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/services.yml
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/services.yml
+[SPPAjax] findService(inventory_stats) checking registry with 12 services.
+[SPPAjax] findService(inventory_stats) FAILED to find match.
+[2026-05-05 11:48:52] Context set to sppadmin
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] findService(inventory_stats) checking registry with 1 services.
+[SPPAjax] findService(inventory_stats) MATCHED in yaml (/mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml): script=N/A, runtime=python
+[2026-05-05 11:55:00] Context set to sppadmin
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] findService(inventory_stats) checking registry with 1 services.
+[SPPAjax] findService(inventory_stats) MATCHED in yaml (/mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml): script=N/A, runtime=python
+[2026-05-05 11:57:33] Context set to sppadmin
+[2026-05-05 11:57:54] Context set to sppadmin
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] getServiceRegistryFile() for context 'sppadmin' resolved to: /mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml
+[SPPAjax] findService(inventory_stats) checking registry with 1 services.
+[SPPAjax] findService(inventory_stats) MATCHED in yaml (/mnt/c/projects/apache/school1/etc/apps/sppadmin/services.yml): script=N/A, runtime=python
+[2026-05-05 13:05:26] Context set to sppadmin
+[2026-05-05 13:05:37] Context set to sppadmin
+[2026-05-05 13:05:39] Context set to sppadmin
+[2026-05-05 13:05:39] Context set to sppadmin
+[2026-05-05 13:05:43] Context set to sppadmin
+[2026-05-05 13:05:43] Context set to sppadmin
+[2026-05-05 13:05:44] Context set to sppadmin
+[2026-05-05 13:05:46] Context set to sppadmin
+[2026-05-05 13:06:27] Context set to sppadmin
+[2026-05-05 13:08:50] Context set to sppadmin
+[2026-05-05 13:08:51] Context set to sppadmin
+[2026-05-05 13:08:51] Context set to sppadmin
+[2026-05-05 13:08:54] Context set to sppadmin
+[2026-05-05 13:08:54] Context set to sppadmin
+[2026-05-05 13:08:55] Context set to sppadmin
+[2026-05-05 13:08:57] Context set to sppadmin
+[2026-05-05 23:45:14] Context set to sppadmin
+[2026-05-05 23:45:24] Context set to sppadmin
+[2026-05-05 23:45:26] Context set to sppadmin
+[2026-05-05 23:45:26] Context set to sppadmin
+[2026-05-05 23:45:31] Context set to sppadmin
+[2026-05-05 23:45:31] Context set to sppadmin
+[2026-05-05 23:45:33] Context set to sppadmin
+[2026-05-05 23:45:38] Context set to sppadmin
+[2026-05-05 23:46:08] Context set to sppadmin
+[2026-05-05 23:46:10] Context set to sppadmin
+[2026-05-05 23:46:10] Context set to sppadmin
+[2026-05-06 11:03:21] Context set to sppadmin
+[2026-05-06 11:03:37] Context set to sppadmin
+[2026-05-06 11:03:40] Context set to sppadmin
+[2026-05-06 11:03:40] Context set to sppadmin
+[2026-05-06 11:03:49] Context set to sppadmin
+[2026-05-06 11:03:49] Context set to sppadmin
+[2026-05-06 11:03:50] Context set to sppadmin
+[2026-05-06 11:03:56] Context set to sppadmin

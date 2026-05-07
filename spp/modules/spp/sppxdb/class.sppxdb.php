@@ -49,14 +49,14 @@ class SPP_XDB {
     protected $currentTerm = 0;
     protected $votedFor = null;
 
-    /**
-     * Constructor
-     * 
-     * @param string $db Database name (subdirectory in data/)
-     * @param string|null $table Table name (XML filename)
-     */
     public function __construct($db = 'default', $table = null) {
         $this->baseDataDir = __DIR__ . '/data';
+        
+        // Load encryption key from environment or settings if possible
+        if (class_exists('\\SPP\\SPPConfig')) {
+            $this->encryptionKey = \SPP\SPPConfig::get('sys:security.xdb_key', $this->encryptionKey);
+        }
+
         $this->selectDatabase($db);
         if ($table) {
             $this->connect($table);

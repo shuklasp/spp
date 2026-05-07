@@ -27,7 +27,9 @@
         'sppaudit.js'
     ];
 
-    const baseUrl = '/spp/res/js/'; // Adjust based on your web root
+    // Auto-resolve base URL based on script location
+    const currentScript = document.querySelector('script[src*="sppforms.js"]');
+    const baseUrl = currentScript ? currentScript.src.replace('sppforms.js', '').split('?')[0] : '/spp/res/js/';
 
     scripts.forEach(script => {
         if (!document.querySelector(`script[src*="${script}"]`)) {

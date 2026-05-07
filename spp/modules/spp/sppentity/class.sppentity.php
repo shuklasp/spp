@@ -217,7 +217,7 @@ class SPPEntity implements \JsonSerializable
 
   public function define_attributes()
   {
-    throw new \SPP\SPPException('Required method define_attributes() not defined in entity ' . get_class($this) . '.');
+    return null;
   }
 
   public function after_creation()
@@ -331,7 +331,12 @@ class SPPEntity implements \JsonSerializable
    */
   public function getAttributes()
   {
-    return self::getMetadata('attributes', []);
+    $meta = self::getMetadata('attributes', []);
+    $defined = $this->define_attributes();
+    if (is_array($defined)) {
+        $meta = array_merge($meta, $defined);
+    }
+    return $meta;
   }
 
   /**
@@ -624,7 +629,8 @@ class SPPEntity implements \JsonSerializable
         $this->_values[$attribute] = $value;
         return true;
       } else {
-        throw new AttributeNotFoundException('Wrong attribute ' . $attribute . ' accessed');
+        error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
+        return false;
       }
     }
   }
@@ -645,9 +651,8 @@ class SPPEntity implements \JsonSerializable
       $attributes = $this->getAttributes();
       if (array_key_exists($attribute, $attributes)) {
         $this->_values[$attribute] = $value;
-        //return true;
       } else {
-        throw new AttributeNotFoundException('Wrong attribute ' . $attribute . ' accessed');
+        error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
       }
     }
     return $value;
@@ -702,7 +707,8 @@ class SPPEntity implements \JsonSerializable
       if (array_key_exists($attribute, $attributes)) {
         return $this->_values[$attribute];
       } else {
-        throw new AttributeNotFoundException('Wrong attribute ' . $attribute . ' accessed');
+        error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
+        return null;
       }
     }
   }
@@ -988,7 +994,7 @@ class SPPEntity implements \JsonSerializable
      if (sizeof($result) > 0) {
       $row = $result[0];
       foreach ($row as $attribute => $value) {
-        if (!is_numeric($attribute)) {
+        if (!is_numeric($attribute) && $this->attributeExists($attribute)) {
           $this->set($attribute, $value);
         }
       }
@@ -1015,7 +1021,9 @@ class SPPEntity implements \JsonSerializable
     if (sizeof($result) > 0) {
       $row = $result[0];
       foreach ($row as $attribute => $value) {
-        $this->set($attribute, $value);
+        if (!is_numeric($attribute) && $this->attributeExists($attribute)) {
+          $this->set($attribute, $value);
+        }
       }
       $this->after_load();
       $this->_snapshot = $this->_values;

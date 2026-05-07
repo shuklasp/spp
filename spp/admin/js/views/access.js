@@ -12,7 +12,7 @@ export default class AccessView extends BaseComponent {
         this.state = {
             loading: true,
             activeTab: localStorage.getItem('spp_admin_iam_tab') || 'users',
-            items: [],
+            sources: [],
             error: null,
             page: 1,
             pageSize: 10,
@@ -42,19 +42,36 @@ export default class AccessView extends BaseComponent {
 
             const res = await this.api(action);
             if (res.success) {
-                let items = res.data.users || res.data.roles || res.data.rights || res.data.queue || res.data || [];
+                let sources = res.data.sources || [];
                 
-                // Normalize Modern RBAC (object map to array)
-                if (tab === 'modern_rbac' && !Array.isArray(items)) {
-                    items = Object.entries(items).map(([slug, data]) => ({
-                        slug,
-                        permissions: data.permissions || [],
-                        ...data
-                    }));
+                // If it's a flat list (legacy assignments), wrap it in a pseudo-source if needed, 
+                // but assignments in IAM.php are already becoming structured if I updated them.
+                // Wait, I only updated ListUsers, ListRoles, ListRights, ListRBAC.
+                // ListEntityAssignments still returns a flat array.
+                
+                if (tab === 'assignments') {
+                    sources = [{
+                        label: 'Database (IAM Relations)',
+                        type: 'database',
+                        items: res.data || []
+                    }];
+                }
+
+                // Normalize Modern RBAC (object map to array within sources)
+                if (tab === 'modern_rbac') {
+                    sources.forEach(src => {
+                        if (!Array.isArray(src.items)) {
+                            src.items = Object.entries(src.items).map(([slug, data]) => ({
+                                slug,
+                                permissions: data.permissions || [],
+                                ...data
+                            }));
+                        }
+                    });
                 }
 
                 this.setState({ 
-                    items: items, 
+                    sources: sources, 
                     loading: false 
                 });
             } else {
@@ -66,7 +83,7 @@ export default class AccessView extends BaseComponent {
     }
 
     render() {
-        const { loading, activeTab, items, error } = this.state;
+        const { loading, activeTab, sources, error } = this.state;
 
         // Update Header
         const headerActions = document.getElementById('header-actions');
@@ -108,9 +125,9 @@ export default class AccessView extends BaseComponent {
     }
 
     renderTabContent() {
-        const { activeTab, items, filters, page, pageSize } = this.state;
+        const { activeTab, sources, filters, page, pageSize } = this.state;
         
-        if (items.length === 0) {
+        if (sources.length === 0) {
             return html`
                 <div class="empty-state">
                     <div class="empty-icon">🛡️</div>
@@ -120,30 +137,41 @@ export default class AccessView extends BaseComponent {
             `;
         }
 
-        // 1. Apply Filtering
-        const filteredItems = items.filter(item => {
-            return Object.entries(filters).every(([field, val]) => {
-                if (!val) return true;
-                const itemVal = String(item[field] || '').toLowerCase();
-                return itemVal.includes(val.toLowerCase());
-            });
-        });
+        return html`
+            <div class="sources-wrap">
+                ${sources.map(source => {
+                    // 1. Apply Filtering to source items
+                    const filteredItems = source.items.filter(item => {
+                        return Object.entries(filters).every(([field, val]) => {
+                            if (!val) return true;
+                            const itemVal = String(item[field] || '').toLowerCase();
+                            return itemVal.includes(val.toLowerCase());
+                        });
+                    });
 
-        // 2. Apply Paging
-        const totalItems = filteredItems.length;
-        const totalPages = Math.ceil(totalItems / pageSize);
-        const startIndex = (page - 1) * pageSize;
-        const pagedItems = filteredItems.slice(startIndex, startIndex + pageSize);
+                    // 2. Apply Paging (this is tricky with multiple sources, 
+                    // but usually IAM has one source per tab in practice)
+                    const totalItems = filteredItems.length;
+                    const totalPages = Math.ceil(totalItems / pageSize);
+                    const startIndex = (page - 1) * pageSize;
+                    const pagedItems = filteredItems.slice(startIndex, startIndex + pageSize);
 
-        if (activeTab === 'assignments') {
-            return this.renderAssignmentsTable(pagedItems, totalItems, totalPages);
-        }
-
-        if (activeTab === 'modern_rbac') {
-            return this.renderModernRbacTable(pagedItems, totalItems, totalPages);
-        }
-
-        return this.renderStandardTable(pagedItems, totalItems, totalPages);
+                    return html`
+                        <div class="source-group-container">
+                            ${this.renderSourceHeader(source)}
+                            
+                            ${activeTab === 'assignments' 
+                                ? this.renderAssignmentsTable(pagedItems, totalItems, totalPages)
+                                : (activeTab === 'modern_rbac' 
+                                    ? this.renderModernRbacTable(pagedItems, totalItems, totalPages)
+                                    : this.renderStandardTable(pagedItems, totalItems, totalPages)
+                                )
+                            }
+                        </div>
+                    `;
+                })}
+            </div>
+        `;
     }
 
     renderModernRbacTable(items, totalItems, totalPages) {

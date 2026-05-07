@@ -1,68 +1,68 @@
 <?php
-namespace SPP\CLI\Commands;
+namespace SPP\Commands;
 
-use SPPMod\SPPEntity\SPPEntity;
+use SPP\CLI\Command;
+use SPPMod\SPPDB\SPPDB;
 
 /**
  * Class DbSyncCommand
- * Synchronizes all entity definitions with the database schema.
+ * CLI tool to synchronize data between any two SPPDB adapters.
  */
-class DbSyncCommand extends BaseMakeCommand
+class DbSyncCommand extends Command
 {
-    protected string $name = 'db:sync';
-    protected string $description = 'Synchronize all entity definitions with the database schema';
+    public function getName(): string
+    {
+        return 'db:sync';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Synchronize data between two database adapters (e.g. MySQL to XDB)';
+    }
 
     public function execute(array $args): void
     {
-        echo "Scanning for entities...\n";
-        $entities = SPPEntity::listAvailableEntities();
-        
-        if (empty($entities)) {
-            echo "No entities found.\n";
+        $from = $args['from'] ?? null; // e.g. mysql:users
+        $to = $args['to'] ?? null;     // e.g. xdb:users_backup
+
+        if (!$from || !$to) {
+            echo "Usage: php spp.php db:sync --from=[engine:table] --to=[engine:table]\n";
             return;
         }
 
-        echo "Found " . count($entities) . " entities. Starting sync...\n\n";
+        list($fromEngine, $fromTable) = explode(':', $from);
+        list($toEngine, $toTable) = explode(':', $to);
 
-        foreach ($entities as $name => $info) {
-            echo "Syncing {$name}... ";
-            try {
-                // We need to resolve the class or at least call install via a temporary object
-                // The listAvailableEntities gives us the YAML context.
-                
-                // For a proper sync, we need the app context.
-                // entities[$name]['path'] tells us where it is.
-                // E.g. .../etc/apps/default/entities/product.yml
-                
-                $pathParts = explode(DIRECTORY_SEPARATOR, $info['path']);
-                // Try to find the app name in the path
-                $appIndex = array_search('apps', $pathParts);
-                $appname = ($appIndex !== false) ? $pathParts[$appIndex + 1] : 'default';
+        echo "Syncing {$fromTable} ({$fromEngine}) -> {$toTable} ({$toEngine})...\n";
 
-                $config = \Symfony\Component\Yaml\Yaml::parseFile($info['path']);
-                
-                // Mock class metadata for the installer
-                $className = "App\\" . ucfirst($appname) . "\\Entities\\" . ucfirst($name);
-                
-                // Trigger the install logic
-                $db = new \SPPMod\SPPDB\SPPDB();
-                $table = $config['table'] ?? strtolower($name).'s';
-                $attributes = $config['attributes'] ?? [];
+        // 1. Initialize Source
+        // Note: For real use, we'd need a way to pass custom connection strings to SPPDB.
+        // For this demo, we assume the environment is pre-configured.
+        $source = new SPPDB(); 
+        
+        // 2. Initialize Target
+        // We simulate a different engine by passing a custom DBURL
+        $target = new SPPDB("{$toEngine}:dbname=default");
 
-                if (!$db->tableExists($table)) {
-                    $sql = 'create table %tab% (' . ($config['id_field'] ?? 'id') . ' varchar(20))';
-                    $db->exec_squery($sql, $table);
-                    echo "[CREATED TABLE] ";
-                }
-                
-                $db->add_columns($table, $attributes);
-                echo "[COLUMNS SYNCED] OK\n";
-                
-            } catch (\Exception $e) {
-                echo "[ERROR] " . $e->getMessage() . "\n";
-            }
+        // 3. Extract
+        $data = $source->execute_query("SELECT * FROM {$fromTable}");
+        $count = count($data);
+
+        if ($count === 0) {
+            echo "Source table is empty. Nothing to sync.\n";
+            return;
         }
 
-        echo "\nDatabase synchronization complete.\n";
+        // 4. Provision Target (Incremental)
+        $schema = $source->getSchema($fromTable);
+        $target->createTableIncremental($toTable, $schema['columns']);
+
+        // 5. Load
+        echo "Processing {$count} records...\n";
+        foreach ($data as $row) {
+            $target->insertValues($toTable, $row);
+        }
+
+        echo "Success! Sync completed.\n";
     }
 }

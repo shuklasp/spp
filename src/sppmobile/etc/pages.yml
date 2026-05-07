@@ -1,0 +1,10 @@
+# Mobile Studio Pro - Routing Configuration
+# Defines framework-managed routes and page settings for the studio.
+
+defaults:
+  pagedir: /src/sppmobile
+  home: index
+
+pages:
+  index:
+    url: index.php

@@ -129,7 +129,7 @@ export default class EntitiesView extends BaseComponent {
                 <button type="button" class="tab-btn ${activeFormTab === 'source' ? 'active' : ''}" 
                     @click=${() => this.switchTab('source')}>Source (YAML)</button>
             </div>
-            <div id="entity-editor-content" class="tab-content active">
+            <div id="entity-editor-content" class="tab-content active" style="margin-top: 1.5rem;">
                 ${activeFormTab === 'builder' ? this.getBuilderHtml() : this.getSourceHtml()}
             </div>
         `;
@@ -137,6 +137,8 @@ export default class EntitiesView extends BaseComponent {
 
     async switchTab(tab) {
         const prevTab = this.state.activeFormTab;
+        if (tab === prevTab) return;
+        
         this.state.activeFormTab = tab;
 
         if (tab === 'builder' && prevTab === 'source') {
@@ -148,15 +150,7 @@ export default class EntitiesView extends BaseComponent {
             this.state.currentEntitySource = await this.generateYaml();
         }
 
-        // Re-render modal body
         this.refreshModal();
-        
-        // Update tab button classes manually since we are injecting into modal
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            const text = b.textContent.toLowerCase();
-            const isActive = (tab === 'builder' && text.includes('visual')) || (tab === 'source' && text.includes('yaml'));
-            b.classList.toggle('active', isActive);
-        });
     }
 
     getBuilderHtml() {
@@ -264,10 +258,17 @@ export default class EntitiesView extends BaseComponent {
 
     // Helper to refresh modal content without closing it
     refreshModal() {
-        const content = document.getElementById('entity-editor-content');
-        if (content) {
-            content.innerHTML = (this.state.activeFormTab === 'builder' ? this.getBuilderHtml() : this.getSourceHtml()).toString();
-            this._registerGlobalHandlers();
+        const body = document.querySelector('.modal-body');
+        if (body) {
+            body.innerHTML = this.getModalHtml().toString();
+            
+            // Re-claim handlers for the new DOM elements
+            body.querySelectorAll('[data-spp-evt]').forEach(el => {
+                const id = el.getAttribute('data-spp-evt');
+                if (window.__spp_handlers && window.__spp_handlers[id]) {
+                    this._handlers.set(id, window.__spp_handlers[id]);
+                }
+            });
         }
     }
 

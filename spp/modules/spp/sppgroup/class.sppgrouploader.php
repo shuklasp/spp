@@ -59,7 +59,8 @@ class SPPGroupLoader {
                         if (!isset($groups[$name])) {
                             $groups[$name] = [
                                 'name' => $name,
-                                'source' => 'database'
+                                'source' => 'database',
+                                'db_summary' => $db->getConnectionSummary()
                             ];
                         }
                     }

@@ -1,0 +1,13 @@
+app_id: com.spp.default
+app_name: 'Default Mobile'
+version: 1.0.0
+theme:
+  primary: '#6366f1'
+  secondary: '#a855f7'
+  surface: '#1e1e2e'
+screens:
+  -
+    id: home
+    title: Home
+    type: dashboard
+    mapping: ''

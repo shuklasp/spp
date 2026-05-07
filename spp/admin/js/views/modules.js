@@ -140,10 +140,10 @@ export default class ModulesView extends BaseComponent {
                                             </div>
                                         </div>
                                         <div class="card-footer">
-                                            <small title="${mod.path}">${this.truncatePath(mod.path, 40)}</small>
+                                            <small title="${mod.path}">${this.app.truncatePath ? this.app.truncatePath(mod.path, 40) : mod.path}</small>
                                             <div class="card-actions">
-                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
-                                                ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
+                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.app.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
+                                                ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.app.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
                                             </div>
                                         </div>
                                     </div>

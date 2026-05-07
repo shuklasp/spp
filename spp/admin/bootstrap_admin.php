@@ -17,36 +17,53 @@ use SPPMod\SPPDB\SPPDB;
 use SPP\SPPBase;
 
 try {
-    echo "--- SPP Admin Bootstrap ---\n";
+    echo "--- SPP Admin Bootstrap (XDB Mode) ---\n";
     
-    $db = new SPPDB();
-    $tableName = \SPPMod\SPPDB\SPPDB::sppTable('users');
+    // Force XDB for administrative identity
+    $db = new SPPDB("xdb:dbname=default");
     
+    // Ensure tables exist in XDB
+    if (!$db->tableExists('users')) {
+        echo "Step: Provisioning 'users' table in XDB...\n";
+        $db->execute_query("CREATE TABLE users (id AUTO_INCREMENT, username STRING, password STRING, status STRING)");
+    }
+    if (!$db->tableExists('roles')) {
+        echo "Step: Provisioning 'roles' table in XDB...\n";
+        $db->execute_query("CREATE TABLE roles (id AUTO_INCREMENT, role_name STRING, description STRING)");
+    }
+    if (!$db->tableExists('userroles')) {
+        echo "Step: Provisioning 'userroles' table in XDB...\n";
+        $db->execute_query("CREATE TABLE userroles (userid INT, roleid INT)");
+    }
+
     // Check if admin already exists
-    if (SPPUser::userExists('admin')) {
-        echo "Check: Administrator 'admin' already exists.\n";
+    $adminCheck = $db->execute_query("SELECT id FROM users WHERE username='admin'");
+    if (!empty($adminCheck)) {
+        echo "Check: Administrator 'admin' already exists in XDB.\n";
     } else {
-        echo "Step: Creating default administrator 'admin'...\n";
+        echo "Step: Creating default administrator 'admin' in XDB...\n";
         
         // Ensure standard 'Admin' role exists
         $roleCheck = $db->execute_query("SELECT id FROM roles WHERE role_name='Admin'");
         if (empty($roleCheck)) {
             echo "Step: Creating 'Admin' role...\n";
             $db->execute_query("INSERT INTO roles (role_name, description) VALUES ('Admin', 'System Administrator with full access')");
-            $roleId = $db->lastInsertId();
+            $roleId = 1; // XDB auto-inc starts at 1
         } else {
             $roleId = $roleCheck[0]['id'];
         }
         
-        // Create user
-        if (SPPUser::createUser('admin', 'admin123', 'active')) {
-            $adminUser = new SPPUser('admin');
-            $adminUser->assignRole('Admin');
-            echo "Success: Created 'admin' with password 'admin123' and assigned 'Admin' role.\n";
-            echo "IMPORTANT: Please change this password immediately after login.\n";
-        } else {
-            echo "Error: Failed to create admin user.\n";
-        }
+        // Create user (plaintext for now, will be hashed if SPPUser::save is used, 
+        // but here we do raw insert for simplicity in bootstrap)
+        $hashed = password_hash('admin123', PASSWORD_DEFAULT);
+        $db->execute_query("INSERT INTO users (username, password, status) VALUES ('admin', '{$hashed}', 'active')");
+        $adminId = 1;
+
+        // Assign role
+        $db->execute_query("INSERT INTO userroles (userid, roleid) VALUES ({$adminId}, {$roleId})");
+        
+        echo "Success: Created 'admin' with password 'admin123' and assigned 'Admin' role in XDB.\n";
+        echo "IMPORTANT: Please change this password immediately after login.\n";
     }
     
     echo "--- Bootstrap Complete ---\n";

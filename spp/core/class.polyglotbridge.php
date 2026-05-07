@@ -60,6 +60,7 @@ class PolyglotBridge extends \SPP\SPPObject
             'python'   => ['name' => 'Python', 'path' => '', 'version' => ''],
             'perl'     => ['name' => 'Perl',   'path' => '', 'version' => ''],
             'java'     => ['name' => 'Java',   'path' => '', 'version' => ''],
+            'node'     => ['name' => 'Node.js', 'path' => '', 'version' => ''],
             'dotnet'   => ['name' => '.NET',   'path' => '', 'version' => ''],
             'go'       => ['name' => 'Go',     'path' => '', 'version' => ''],
             'compiler' => ['name' => 'C++ Compiler', 'path' => '', 'version' => '']
@@ -114,6 +115,18 @@ class PolyglotBridge extends \SPP\SPPObject
             $runtimes['go']['path'] = $goPath;
             $ver = @shell_exec("\"$goPath\" version 2>&1");
             if (preg_match('/go(\d+\.\d+\.\d+)/', $ver, $m)) $runtimes['go']['version'] = $m[1];
+        }
+
+        // Node.js
+        $nodeBinaries = $isWindows ? ['node'] : ['node', 'nodejs'];
+        foreach ($nodeBinaries as $bin) {
+            $path = self::findBinary($bin);
+            if ($path) {
+                $runtimes['node']['path'] = $path;
+                $ver = @shell_exec("\"$path\" --version 2>&1");
+                if ($ver) $runtimes['node']['version'] = trim($ver);
+                break;
+            }
         }
 
         // C++ Compiler
@@ -199,33 +212,49 @@ class PolyglotBridge extends \SPP\SPPObject
         }
         $sharedDir = realpath($sharedDir);
         
-        $dispatchScript = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'dispatch.' . ($lang === 'python' ? 'py' : ($lang === 'perl' ? 'pl' : ''));
-        
-        if (!file_exists($dispatchScript)) {
-            return ['success' => false, 'error' => "Dispatcher script for {$lang} not found."];
-        }
-
         $runtimes = self::discoverRuntimes();
         $binary = $runtimes[$lang]['path'] ?? $lang;
+        if (empty($binary) && $lang !== 'compiler') {
+            return ['success' => false, 'error' => "Runtime for {$lang} not discovered."];
+        }
 
         if ($lang === 'java') {
-            // Java expects: java -cp <classpath> <Class> <args>
-            // We assume the module name is the class name
             $command = "\"{$binary}\" \"{$module}\"";
         } elseif ($lang === 'dotnet') {
-            // .NET expects: dotnet <DLL> <args>
             $command = "\"{$binary}\" \"{$module}\"";
         } elseif ($lang === 'go') {
-            // Go expects: go run <file> <args>
-            // For now we assume the module is a .go file path
             $command = "\"{$binary}\" run \"{$module}\" \"{$func}\"";
+        } elseif ($lang === 'compiler') {
+            $compiler = $runtimes['compiler']['path'];
+            if (!$compiler) return ['success' => false, 'error' => "C++ Compiler not found."];
+            
+            $outputExe = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'temp_bin.exe';
+            if (PHP_OS_FAMILY === 'Windows') {
+                $compileCmd = "\"{$compiler}\" /EHsc \"{$module}\" /Fe:\"{$outputExe}\" 2>&1";
+            } else {
+                $outputExe = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'temp_bin';
+                $compileCmd = "\"{$compiler}\" \"{$module}\" -o \"{$outputExe}\" 2>&1";
+            }
+            
+            $cOut = @shell_exec($compileCmd);
+            if (!file_exists($outputExe)) return ['success' => false, 'error' => "Compilation failed: " . $cOut];
+            $command = "\"{$outputExe}\"";
         } else {
-            $dispatchScript = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'dispatch.' . ($lang === 'python' ? 'py' : ($lang === 'perl' ? 'pl' : ''));
+            $ext = ($lang === 'python' ? 'py' : ($lang === 'perl' ? 'pl' : ($lang === 'node' ? 'js' : '')));
+            $dispatchScript = $sharedDir . SPP_DS . 'bridge' . SPP_DS . 'dispatch.' . $ext;
+            
             if (!file_exists($dispatchScript)) {
                 return ['success' => false, 'error' => "Dispatcher script for {$lang} not found."];
             }
             $command = "\"{$binary}\" \"{$dispatchScript}\" \"{$module}\" \"{$func}\"";
         }
+        
+        $env = array_merge(getenv(), [
+            'DOTNET_CLI_HOME' => $sharedDir . SPP_DS . 'bridge' . SPP_DS . '.dotnet',
+            'GOCACHE' => $sharedDir . SPP_DS . 'bridge' . SPP_DS . '.gocache',
+            'DOTNET_NOLOGO' => '1',
+            'DOTNET_SKIP_FIRST_TIME_EXPERIENCE' => '1'
+        ]);
         
         $descriptors = [
             0 => ["pipe", "r"], // stdin
@@ -233,7 +262,7 @@ class PolyglotBridge extends \SPP\SPPObject
             2 => ["pipe", "w"]  // stderr
         ];
 
-        $process = proc_open($command, $descriptors, $pipes);
+        $process = proc_open($command, $descriptors, $pipes, $sharedDir . SPP_DS . 'bridge', $env);
 
         if (is_resource($process)) {
             fwrite($pipes[0], json_encode($args));
@@ -252,7 +281,8 @@ class PolyglotBridge extends \SPP\SPPObject
 
             $result = json_decode($stdout, true);
             if (json_last_error() !== JSON_ERROR_NONE) {
-                return ['success' => false, 'error' => "JSON Parse Error: " . $stdout . " | " . $stderr];
+                // If not JSON, return the raw stdout as the data
+                return ['success' => true, 'data' => trim($stdout)];
             }
 
             return ['success' => true, 'data' => $result];
@@ -328,6 +358,43 @@ if (ref($args) eq "ARRAY") {
 print encode_json($result);
 ';
         file_put_contents($bridgeDir . SPP_DS . 'dispatch.pl', trim($pl));
+
+        // Node.js Dispatcher
+        $js = '
+const fs = require("fs");
+const path = require("path");
+
+async function main() {
+    try {
+        const moduleName = process.argv[2];
+        const funcName = process.argv[3];
+        const argsRaw = fs.readFileSync(0, "utf8");
+        const args = argsRaw ? JSON.parse(argsRaw) : [];
+
+        // Check if module is relative or global
+        let module;
+        if (fs.existsSync(moduleName) || fs.existsSync(moduleName + ".js")) {
+            module = require(path.resolve(moduleName));
+        } else {
+            module = require(moduleName);
+        }
+
+        const func = module[funcName];
+        if (typeof func !== "function") throw new Error(`Function ${funcName} not found in module ${moduleName}`);
+
+        let result = func(...(Array.isArray(args) ? args : [args]));
+        if (result instanceof Promise) result = await result;
+
+        process.stdout.write(JSON.stringify(result));
+    } catch (e) {
+        process.stderr.write(e.stack || e.message);
+        process.exit(1);
+    }
+}
+
+main();
+';
+        file_put_contents($bridgeDir . SPP_DS . 'dispatch.js', trim($js));
     }
 
     private static function exportConfig(string $sharedDir, array $runtimes): array

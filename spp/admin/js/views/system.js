@@ -465,6 +465,7 @@ export default class SystemView extends BaseComponent {
                     <h3>Framework Configuration</h3>
                     <div class="section-line"></div>
                 </div>
+                ${this.renderSourceHeader({ label: 'etc/global-settings.yml', type: 'yaml' })}
                 ${this.renderSettingsEditor()}
 
                 <!-- Action Banner -->
@@ -475,7 +476,7 @@ export default class SystemView extends BaseComponent {
                     </div>
                     <div style="display:flex; gap:12px;">
                         <button class="btn ghost-btn" @click=${() => location.hash = 'apps'}>📱 Manage Applications</button>
-                        <button type="button" class="btn accent-btn" @click=${() => this.runSystemUpdate()} style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
+                        <button type="button" class="btn accent-btn" @click=${() => { console.log('Update button clicked'); this.app.runSystemUpdate(); }} style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
                     </div>
                 </div>
             </div>

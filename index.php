@@ -20,7 +20,8 @@ if ($context !== 'default') {
 require_once('global.php');
 
 \SPP\Core\MiddlewareKernel::run(function($request) {
-    \SPP\Scheduler::setContext('lekhak');
+    $context = \SPP\Scheduler::getContext() ?: 'lekhak';
+    \SPP\Scheduler::setContext($context);
     $appBaseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
     $appAsset = function (string $path) use ($appBaseUri): string {
         return rtrim($appBaseUri, '/') . '/' . ltrim($path, '/');

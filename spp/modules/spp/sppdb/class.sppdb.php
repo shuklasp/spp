@@ -16,6 +16,12 @@ class SPPDB
     /** @var array<\PDO> Shared connections pool indexed by connection hash */
     private static array $sharedConnections = [];
 
+    /** @var string|null The resolved database type (e.g. mysql, sqlite, xdb) */
+    public ?string $dbtype = null;
+
+    /** @var string|null The resolved database name */
+    public ?string $dbname = null;
+
     /**
      * Resolves a table name with current context's prefix, supporting shared group inheritance.
      *
@@ -109,14 +115,8 @@ class SPPDB
         return is_array($cached) ? $cached : ['apps' => [], 'shared_groups' => []];
     }
 
-    /** @var \PDO The internal PDO instance */
-    private ?\PDO $pdo = null;
-
-    /** @var \SPPMod\SPPXDB\SPP_XDB The internal XDB instance */
-    private $xdb = null;
-
-    /** @var string The active engine type ('pdo' or 'xdb') */
-    private string $engine = 'pdo';
+    /** @var \SPPMod\SPPInterDB\DBAdapter The active database adapter */
+    private \SPPMod\SPPInterDB\DBAdapter $adapter;
     
     private $numrows;
 
@@ -158,17 +158,19 @@ class SPPDB
                 $dbpasswd = ($dbpasswd == null) ? \SPP\Module::getConfig('dbpasswd', 'sppdb') : $dbpasswd;
                 
                 if (preg_match('/^([a-z0-9]+):/', $url, $m)) {
-                    $dbtype = $m[1];
+                    $this->dbtype = $m[1];
                 }
             }
+            
+            $this->dbname = $dbname ?: 'default';
 
-            // -- XDB Engine Support --
-            if ($dbtype === 'xdb') {
-                $this->engine = 'xdb';
+            // -- Adapter Initialization --
+            if ($this->dbtype === 'xdb') {
                 $xdbFile = dirname(__DIR__) . '/sppxdb/class.sppxdb.php';
                 if (file_exists($xdbFile)) require_once $xdbFile;
                 
-                $this->xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname ?: 'default');
+                $xdb = new \SPPMod\SPPXDB\SPP_XDB($this->dbname ?: 'default');
+                $this->adapter = new \SPPMod\SPPInterDB\XDBAdapter($xdb);
                 return;
             }
 
@@ -184,32 +186,33 @@ class SPPDB
                 throw new \SPP\SPPException("Database configuration properties ($missingStr) are not defined in {$configPath}. Please check your configuration.");
             }
 
-            // Generate a unique key for the connection parameters if sharing is enabled
+            // PDO Connection Sharing
             $key = null;
+            $pdo = null;
             if ($shared) {
                 $key = md5(serialize([$url, $dbuser, $dbpasswd, $options]));
                 if (isset(self::$sharedConnections[$key])) {
-                    $this->pdo = self::$sharedConnections[$key];
-                    return;
+                    $pdo = self::$sharedConnections[$key];
                 }
             }
 
-            // Create new connection if not found in pool or sharing is disabled
-            if ($dbuser == null && $dbpasswd == null && $options == null) {
-                $this->pdo = new \PDO($url);
-            } elseif ($options == null) {
-                $this->pdo = new \PDO($url, $dbuser, $dbpasswd);
-            } else {
-                $this->pdo = new \PDO($url, $dbuser, $dbpasswd, $options);
+            if (!$pdo) {
+                if ($dbuser == null && $dbpasswd == null && $options == null) {
+                    $pdo = new \PDO($url);
+                } elseif ($options == null) {
+                    $pdo = new \PDO($url, $dbuser, $dbpasswd);
+                } else {
+                    $pdo = new \PDO($url, $dbuser, $dbpasswd, $options);
+                }
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                if ($shared && $key) {
+                    self::$sharedConnections[$key] = $pdo;
+                }
             }
 
-            // Ensure PDO throws exceptions for consistency with existing error handling
-            $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            $this->adapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo);
 
-            if ($shared && $key) {
-                self::$sharedConnections[$key] = $this->pdo;
-            }
-        } catch (\PDOException $e) {
+        } catch (\Exception $e) {
             error_log("Database Connection Error: " . $e->getMessage());
             throw new \SPP\SPPException("Database Connection Error: " . $e->getMessage(), (int) $e->getCode(), $e);
         }
@@ -217,9 +220,6 @@ class SPPDB
 
     /**
      * Entry point for the fluent Query Builder.
-     *
-     * @param string $table The table name (will be prefixed automatically)
-     * @return QueryBuilder
      */
     public function table(string $table): QueryBuilder
     {
@@ -228,14 +228,10 @@ class SPPDB
 
     /**
      * Returns metadata for all routeable entities in the current context.
-     * Centralizes entity registration within SPPDB.
      */
     public static function getRouteEntities(): array
     {
-        // 1. Load app-specific entities from the module config (context-aware)
         $entities = \SPP\Module::getConfig('route_entities', 'sppdb') ?: [];
-        
-        // 2. Load shared entities from global-settings.yml
         $settings = self::loadGlobalSettings();
         $context = \SPP\Scheduler::getContext();
         $appMeta = $settings['apps'][$context] ?? null;
@@ -248,73 +244,72 @@ class SPPDB
         return $entities;
     }
 
-    /**
-     * Recursively resolves routeable entities through shared group inheritance.
-     */
     private static function resolveRouteEntities(string $groupName, array $groups): array
     {
-        if (!isset($groups[$groupName])) {
-            return [];
-        }
-        
+        if (!isset($groups[$groupName])) return [];
         $group = $groups[$groupName];
         $entities = $group['route_entities'] ?? [];
-        
         if (!empty($group['extends'])) {
             $entities = array_merge(self::resolveRouteEntities($group['extends'], $groups), $entities);
         }
-        
         return $entities;
     }
 
     /**
-     * Proxy unknown method calls to the underlying PDO instance.
+     * Returns the underlying database adapter instance.
+     */
+    public function getAdapter(): \SPPMod\SPPInterDB\DBAdapter
+    {
+        return $this->adapter;
+    }
+
+    /**
+     * Returns a human-readable summary of the current connection.
+     */
+    public function getConnectionSummary(): string
+    {
+        return "Database (" . strtoupper($this->dbtype ?? 'PDO') . ": " . ($this->dbname ?? 'unknown') . ")";
+    }
+
+    /**
+     * Proxy unknown method calls to the underlying adapter.
      */
     public function __call($name, $arguments)
     {
-        if ($this->engine === 'xdb') {
-            return call_user_func_array([$this->xdb, $name], $arguments);
-        }
-        return call_user_func_array([$this->pdo, $name], $arguments);
+        return call_user_func_array([$this->adapter, $name], $arguments);
     }
 
-    /**
-     * Proxy prepare to internal PDO
-     */
     public function prepare(string $query, array $options = [])
     {
-        if ($this->engine === 'xdb') return null; // XDB doesn't use standard prepared statements
-        return $this->pdo->prepare($query, $options);
+        if ($this->adapter instanceof \SPP\Core\PDOAdapter) {
+            return $this->adapter->query($query, $options); // Simplified for proxy
+        }
+        return null;
     }
 
-    /**
-     * Proxy query to internal PDO
-     */
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
-        return $this->pdo->query($query, $fetchMode, ...$fetchModeArgs);
+        return $this->adapter->query($query);
     }
 
-    /**
-     * Proxy exec to internal PDO
-     */
     public function exec(string $statement)
     {
-        if ($this->engine === 'xdb') {
-            return $this->xdb->querySQL($statement);
-        }
-        return $this->pdo->exec($statement);
+        return $this->adapter->execute($statement);
     }
 
-    /**
-     * public function build_query(string $sql,string $tabname)
-     * 
-     * Builds the query with the table names
-     *
-     * @param string $sql
-     * @param mixed $tabname
-     * @return string
-     */
+    public function execute_query($sql, $values = array())
+    {
+        $result = $this->adapter->query($sql, (array)$values);
+        $this->numrows = count($result);
+        return $result;
+    }
+
+    public function exec_squery($sql, $tabname, $values = array())
+    {
+        $qry = $this->build_query($sql, $tabname);
+        return $this->execute_query($qry, $values);
+    }
+
     private function build_query($sql, $tabname)
     {
         $result = $sql;
@@ -328,286 +323,64 @@ class SPPDB
         return $result;
     }
 
-    /**
-     * public function exec_squery
-     * executes a query securely and returns the result
-     *
-     * @param string $sql
-     * @param string $tabname
-     * @param array $values
-     * @return array
-     */
-    public function exec_squery($sql, $tabname, $values = array())
-    {
-        $qry = $this->build_query($sql, $tabname);
-        return $this->execute_query($qry, $values);
-    }
-
-
-    /**
-     * public function execute_query
-     * 
-     * Executes the query and returns the result
-     *
-     * @param [type] $sql
-     * @param array $values
-     * @return array
-     */
-    public function execute_query($sql, $values = array())
-    {
-        if ($this->engine === 'xdb') {
-            $result = $this->xdb->querySQL($sql, $values);
-            $this->numrows = is_array($result) ? count($result) : 0;
-            return $result;
-        }
-
-        $result = array();
-        try {
-            if (count((array)$values) > 0) {
-                $stmt = $this->prepare($sql);
-                $stmt->execute((array)$values);
-                $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            } else {
-                $stmt = $this->query($sql);
-                $result = $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : array();
-            }
-            $this->numrows = count($result);
-        } catch (\PDOException $e) {
-            error_log("Database Error: " . $e->getMessage());
-            throw new \SPP\SPPException("Database Error: " . $e->getMessage(), (int) $e->getCode(), $e);
-        }
-        return $result;
-    }
-
-    /**
-     * public function add_columns
-     * 
-     * Adds columns to the table
-     *
-     * @param [type] $table
-     * @param array $cols
-     * @return void
-     */
-    public function add_columns($table, $cols = array())
-    {
-        foreach ($cols as $col => $type) {
-            $upperCol = strtoupper($col);
-            
-            // 1. Handle Special Constraints (PRIMARY KEY, UNIQUE KEY)
-            if ($upperCol === 'PRIMARY KEY' || $upperCol === 'PRIMARYKEY') {
-                try {
-                    // Check if PK already exists to avoid noisey errors
-                    // Simplified: We try to add it, if it fails it's usually already there
-                    $sql = "ALTER TABLE %tab% ADD PRIMARY KEY {$type}";
-                    $this->exec_squery($sql, $table);
-                } catch (\Exception $e) {
-                    // Already exists or structural conflict
-                }
-                continue;
-            }
-
-            if ($upperCol === 'UNIQUE KEY' || $upperCol === 'UNIQUE') {
-                try {
-                    $sql = "ALTER TABLE %tab% ADD UNIQUE {$type}";
-                    $this->exec_squery($sql, $table);
-                } catch (\Exception $e) {
-                }
-                continue;
-            }
-
-            // 2. Handle Normal Columns
-            $colSafe = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
-            $typeSafe = preg_replace('/[^a-zA-Z0-9_\(\)\s,]/', '', $type);
-            
-            if (!$this->columnExists($table, $colSafe)) {
-                $sql = 'alter table %tab% add ' . $colSafe . ' ' . $typeSafe;
-                $this->exec_squery($sql, $table);
-            }
-        }
-    }
-
-    /**
-     * public function remove_columns
-     * 
-     * Removes columns from the table
-     *
-     * @param [type] $table
-     * @param array $cols
-     */
-    public function remove_columns($table, $cols = array())
-    {
-        foreach ($cols as $col) {
-            $col = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
-            if ($this->columnExists($table, $col)) {
-                $sql = 'alter table %tab% drop column ' . $col;
-                $this->exec_squery($sql, $table);
-            }
-        }
-    }
-
-    /**
-     * Check if a table exists in the current database.
-     *
-     * @param string $table Table to search for.
-     * @return bool TRUE if table exists, FALSE if no table found.
-     */
     public function tableExists($table)
     {
-        try {
-            if ($this->engine === 'xdb') {
-                $tables = $this->xdb->querySQL("SHOW TABLES");
-                foreach ($tables as $t) {
-                    if (current($t) === $table) return true;
-                }
-                return false;
-            }
-
-            // Using parameterized string filtering since SHOW TABLES LIKE does not support standard binding
-            $safe_table = preg_replace('/[^a-zA-Z0-9_]/', '', (string)$table);
-            $result = $this->query("SHOW TABLES LIKE '{$safe_table}'");
-            return $result && $result->rowCount() > 0;
-        } catch (\Exception $e) {
-            return FALSE;
-        }
+        return $this->adapter->tableExists($table);
     }
 
-    /**
-     * public function columnExists
-     * 
-     * Returns true if the column exists in the table
-     *
-     * @param [type] $table
-     * @param [type] $col
-     * @return bool
-     */
     public function columnExists($table, $col)
     {
-        $query = "select " . $col . " from {$table} limit 1";
-        if ($this->tableExists($table)) {
-            try {
-                $result = $this->query($query);
-            } catch (\Exception $e) {
-                return false;
-            }
-        } else {
-            throw new \SPP\SPPException('Table not found');
+        try {
+            $schema = $this->adapter->getSchema($table);
+            return isset($schema['columns'][$col]);
+        } catch (\Exception $e) {
+            return false;
         }
-        return true;
     }
 
-    /**
-     * public function insertValues
-     * 
-     * Inserts values into the table
-     *
-     * @param [type] $table
-     * @param array $columns
-     * @param array $values
-     *  */
     public function insertValues(string $table, array $columns, array $values = array())
     {
-        $cols = array();
-        if (sizeof($values) == 0) {
-            foreach ($columns as $key => $value) {
-                $cols[] = $key;
-                $values[] = $value;
-            }
+        $data = [];
+        if (empty($values)) {
+            $data = $columns;
         } else {
-            $cols = $columns;
-        }
-        $sql = ') values (';
-        for ($i = 0; $i < sizeof($values); $i++) {
-            $sql .= '?';
-            if ($i < sizeof($values) - 1) {
-                $sql .= ',';
+            foreach ($columns as $i => $col) {
+                $data[$col] = $values[$i] ?? null;
             }
         }
-        $sql .= ')';
-        $sql = 'insert into %tab% (' . implode(', ', $cols) . $sql;
-        $this->exec_squery($sql, $table, $values);
+        return $this->adapter->insert($table, $data);
     }
 
-    /**
-     * public function updateValues(string $table, array $columns, string $where, array $values=array())
-     * 
-     * Updates values in the table
-     *
-     * @param string $table
-     * @param array $columns
-     * @param string $where
-     * @param array $values
-     */
     public function updateValues(string $table, array $columns, string $where, array $values = array())
     {
-        if (empty($columns)) {
-            return;
-        }
-        $sql = 'update %tab% set ';
-        
-        // Properly identify if the provided columns array is an associative mapping
+        $data = [];
         $is_assoc = array_keys($columns) !== range(0, count($columns) - 1);
-        
         if ($is_assoc) {
-            $bind_values = [];
-            $sql_cols = [];
-            foreach ($columns as $col => $val) {
-                $sql_cols[] = $col . '=?';
-                $bind_values[] = $val;
-            }
-            $sql .= implode(', ', $sql_cols);
-            // Append explicit WHERE bindings provided in the $values array fallback reliably
-            $values = array_merge($bind_values, $values);
+            $data = $columns;
         } else {
-            // Standard indexed fallback expecting all bindings neatly passed inside $values
-            $sql_cols = [];
-            foreach ($columns as $col) {
-                $sql_cols[] = $col . '=?';
+            // This is a bit complex for the old API, but we try to map it
+            // Assuming $values contains [col1_val, col2_val, ..., where_val1, where_val2]
+            foreach ($columns as $i => $col) {
+                $data[$col] = array_shift($values);
             }
-            $sql .= implode(', ', $sql_cols);
         }
-        
-        $sql .= ' where ' . $where;
-        $this->exec_squery($sql, $table, $values);
+        return $this->adapter->update($table, $data, $where, $values);
     }
 
-    /**
-     * public function createTableIncremental(string $tableName, array $columns)
-     * 
-     * Creates a table if missing and adds missing columns incrementally.
-     * Non-destructive.
-     */
+    public function add_columns($table, $cols = array())
+    {
+        // This is engine specific (DDL), so we pass to execute
+        foreach ($cols as $col => $type) {
+            $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
+        }
+    }
+
     public function createTableIncremental(string $tableName, array $columns)
     {
         if (!$this->tableExists($tableName)) {
-            // Create base table with the first REAL column (skipping constraints)
-            $firstCol = null;
-            $firstType = null;
-            foreach ($columns as $c => $t) {
-                $uc = strtoupper($c);
-                if ($uc !== 'PRIMARY KEY' && $uc !== 'PRIMARYKEY' && $uc !== 'UNIQUE KEY' && $uc !== 'UNIQUE') {
-                    $firstCol = $c;
-                    $firstType = $t;
-                    break;
-                }
-            }
-
-            if (!$firstCol) {
-                throw new \Exception("Cannot create table {$tableName}: no valid columns defined.");
-            }
-            
-            // Clean names for raw SQL
-            $tableNameSafe = preg_replace('/[^a-zA-Z0-9_]/', '', $tableName);
-            $firstColSafe = preg_replace('/[^a-zA-Z0-9_]/', '', $firstCol);
-            
-            if (empty($tableNameSafe)) {
-                throw new \Exception("Cannot create table: target table name is empty after sanitization.");
-            }
-            
-            $sql = "CREATE TABLE {$tableNameSafe} ({$firstColSafe} {$firstType})";
-            $this->exec($sql);
+            // Basic DDL proxy
+            $this->adapter->execute("CREATE TABLE {$tableName} (placeholder INT)");
         }
-        
-        // Use existing add_columns to fill in the rest (including constraints)
         $this->add_columns($tableName, $columns);
     }
 
@@ -634,6 +407,10 @@ class SPPDB
         }
         return false;
     }
+
+    public function beginTransaction(): bool { return $this->adapter->beginTransaction(); }
+    public function commit(): bool { return $this->adapter->commit(); }
+    public function rollBack(): bool { return $this->adapter->rollBack(); }
 }
 //\SPP\Module::endWS();
 ?>

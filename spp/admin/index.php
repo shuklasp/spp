@@ -1,4 +1,5 @@
 <?php
+error_log("INDEX.PHP LOADED");
 /**
  * SPP Admin SPA Entry Point
  * 
@@ -15,6 +16,11 @@ if (!defined('SPP_BASE_DIR')) {
 require_once dirname(SPP_BASE_DIR) . '/vendor/autoload.php';
 require_once SPP_BASE_DIR . '/sppinit.php';
 require_once dirname(SPP_BASE_DIR) . '/global.php';
+
+// Force Admin Context for Session consistency
+try { \SPP\Scheduler::getProcObj('sppadmin'); } catch (\Exception $e) { new \SPP\App('sppadmin', false, 3); }
+\SPP\Scheduler::setContext('sppadmin');
+
 
 /**
  * checkDevMode function
@@ -55,6 +61,7 @@ if (!checkDevMode()) {
     <link rel="stylesheet" href="<?php echo \SPPMod\SPPUX\SPPUX::cssPath(); ?>?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../res/css/sppforms.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/mobile.css?v=<?php echo time(); ?>">
     
     <!-- SPP Modern Form Engine Master Loader -->
     <script src="../res/js/sppforms.js?v=<?php echo time(); ?>"></script>
@@ -134,8 +141,14 @@ if (!checkDevMode()) {
                     <li><a href="#routing" class="nav-item" data-view="routing">
                             <span class="icon">🔗</span> Routing
                         </a></li>
+                    <li><a href="#mobile" class="nav-item" data-view="mobile">
+                            <span class="icon">📱</span> Mobile Studio
+                        </a></li>
                     <li><a href="#xdb" class="nav-item" data-view="xdb">
                             <span class="icon">🗄️</span> XML Database
+                        </a></li>
+                    <li><a href="#interdb" class="nav-item" data-view="interdb">
+                            <span class="icon">🕸️</span> InterDB Mesh
                         </a></li>
                     
                     <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
@@ -148,9 +161,14 @@ if (!checkDevMode()) {
                             <span class="icon">🛰️</span> Trace
                         </a></li>
                     <li><a href="#services" class="nav-item" data-view="services">
-                            <span class="icon">🔌</span> Services
+                            <span class="icon">🔌</span> DI Services
                         </a></li>
-                    <div id="dynamic-nav-items"></div>
+                    <li><a href="#ajax" class="nav-item" data-view="ajax">
+                            <span class="icon">⚡</span> LiveServices
+                        </a></li>
+                    <li><a href="#lifecycle" class="nav-item" data-view="lifecycle">
+                            <span class="icon">🚀</span> Deployment
+                        </a></li>
                 </ul>
             </nav>
             <div class="sidebar-footer">
@@ -221,33 +239,12 @@ if (!checkDevMode()) {
         window.SPP_CSRF_TOKEN = '<?php echo \SPP\SPPSession::getCsrfToken(); ?>';
     </script>
 
-    <!-- Inline Override for stale caches -->
     <script>
         setTimeout(() => {
             if (window.admin) {
-                // Ensure critical utilities are globally available as fallbacks
-                window.admin.escapeHtml = function (str) {
-                    if (str === null || str === undefined) return '';
-                    const div = document.createElement('div');
-                    div.textContent = String(str);
-                    return div.innerHTML;
-                };
-                window.admin.escapeAttr = function (str) {
-                    if (str === null || str === undefined) return '';
-                    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                };
-                window.admin.truncatePath = function (path, len = 60) {
-                    if (!path || path.length <= len) return path;
-                    const parts = path.split(/[\\/]/);
-                    if (parts.length <= 2) return path.substring(0, len) + '...';
-                    const first = parts[0], last = parts[parts.length - 1], mid = '...';
-                    const remainingLen = len - first.length - last.length - mid.length;
-                    if (remainingLen <= 0) return '...' + last;
-                    return `${first}/${mid}/${last}`;
-                };
-                console.log("SPP Admin Reliability Overrides Applied.");
+                console.log("SPP Admin Evolved Framework Loaded.");
             }
-        }, 500); // Reduced delay for faster stabilization
+        }, 500); 
     </script>
 </body>
 

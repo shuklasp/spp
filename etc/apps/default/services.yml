@@ -12,13 +12,11 @@ services:
     script: auth_login.php
     method: POST
 
-# Example entries (uncomment and edit):
-#    - name: save_form
-#      script: save_form.php
-#      method: POST
-#    - name: get_student
-#      script: get_student.php
-#      method: GET
-#    - name: logout
-#      script: logout.php
-#      method: POST
+  - name: inventory_stats
+    runtime: python
+    target: inventory
+    method: get_stats
+  - name: update_stock
+    runtime: python
+    target: inventory
+    method: update_stock

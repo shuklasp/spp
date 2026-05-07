@@ -12,7 +12,7 @@ export default class RoutingView extends BaseComponent {
         this.state = {
             loading: true,
             activeTab: 'pages',
-            items: []
+            sources: []
         };
         await this.switchTab('pages', true);
     }
@@ -27,7 +27,7 @@ export default class RoutingView extends BaseComponent {
             const res = await this.api(action);
             if (res.success) {
                 this.setState({ 
-                    items: res.data.pages || res.data.services || [], 
+                    sources: res.data.sources || [], 
                     loading: false 
                 });
             } else {
@@ -39,7 +39,7 @@ export default class RoutingView extends BaseComponent {
     }
 
     render() {
-        const { loading, activeTab, items, error } = this.state;
+        const { loading, activeTab, sources, error } = this.state;
 
         // Update Header
         const headerActions = document.getElementById('header-actions');
@@ -72,45 +72,52 @@ export default class RoutingView extends BaseComponent {
     }
 
     renderGrid() {
-        if (this.state.items.length === 0) {
+        const { sources, activeTab } = this.state;
+        if (sources.length === 0) {
             return html`
                 <div class="empty-state">
                     <div class="empty-icon">🗺️</div>
                     <h3>No Routes Mapped</h3>
-                    <p>Register your first ${this.state.activeTab.slice(0, -1)} to enable framework dispatch.</p>
+                    <p>Register your first ${activeTab.slice(0, -1)} to enable framework dispatch.</p>
                 </div>
             `;
         }
 
         return html`
-            <div class="glass-panel">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Target</th>
-                            ${this.state.activeTab === 'services' ? html`<th>Method</th>` : ''}
-                            <th>Source</th>
-                            <th class="text-right">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${this.state.items.map(item => html`
-                            <tr>
-                                <td class="font-mono" style="color: var(--primary-color);"><strong>${item.name}</strong></td>
-                                <td class="font-mono">${item.url || item.script}</td>
-                                ${this.state.activeTab === 'services' ? html`
-                                    <td><span class="method-badge ${item.method?.toLowerCase() || 'post'}">${item.method || 'POST'}</span></td>
-                                ` : ''}
-                                <td><span class="source-badge ${item.source === 'db' ? 'badge-db' : 'badge-file'}">${item.source.toUpperCase()}</span></td>
-                                 <td class="text-right">
-                                    <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.state.activeTab === 'pages' ? this.openPageModal(item) : this.openServiceModal(item)}>Edit</button>
-                                    <button type="button" class="btn ghost-btn btn-sm text-danger" @click=${() => this.remove(item)}>Delete</button>
-                                </td>
-                            </tr>
-                        `)}
-                    </tbody>
-                </table>
+            <div class="sources-wrap">
+                ${sources.map(source => html`
+                    <div class="source-group-container">
+                        ${this.renderSourceHeader(source)}
+                        
+                        <div class="glass-panel">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Target</th>
+                                        ${activeTab === 'services' ? html`<th>Method</th>` : ''}
+                                        <th class="text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${source.items.map(item => html`
+                                        <tr>
+                                            <td class="font-mono" style="color: var(--primary-color);"><strong>${item.name}</strong></td>
+                                            <td class="font-mono">${item.url || item.script}</td>
+                                            ${activeTab === 'services' ? html`
+                                                <td><span class="method-badge ${item.method?.toLowerCase() || 'post'}">${item.method || 'POST'}</span></td>
+                                            ` : ''}
+                                            <td class="text-right">
+                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => activeTab === 'pages' ? this.openPageModal(item) : this.openServiceModal(item)}>Edit</button>
+                                                <button type="button" class="btn ghost-btn btn-sm text-danger" @click=${() => this.remove(item)}>Delete</button>
+                                            </td>
+                                        </tr>
+                                    `)}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `)}
             </div>
         `;
     }

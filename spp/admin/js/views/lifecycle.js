@@ -1,306 +1,429 @@
 /**
- * Component: LifecycleView
- * Manages the development lifecycle of the active application.
- * Bridges CLI commands into the Admin UI.
+ * LifecycleView - Environment Sync & Deployment Workbench
  */
 export default class LifecycleView extends BaseComponent {
+    constructor(app, container, props = {}) {
+        super(app, container, props);
+        this.state = {
+            target: 'production',
+            environments: {},
+            manifests: null,
+            deltas: null,
+            loading: false
+        };
+    }
+
     async onInit() {
-        this.setState({
-            activeApp: this.selectedApp || 'default',
-            output: '',
-            running: false,
-            commands: [
-                { id: 'make:app', label: 'Create New App', icon: '🆕', args: ['AppName'] },
-                { id: 'make:blade-project', label: 'Scaffold Blade Project', icon: '💎', args: ['ProjectName'] },
-                { id: 'make:blade-scaffold', label: 'CRUD Scaffold', icon: '⚡', args: ['EntityName'] },
-                { id: 'make:form', label: 'Scaffold Form', icon: '📝', args: ['FormName'] },
-                { id: 'make:ux-component', label: 'UX Component', icon: '⚛️', args: ['Name'] },
-                { id: 'make:react-component', label: 'React Component', icon: '🔵', args: ['Name'] },
-                { id: 'make:vue-component', label: 'Vue Component', icon: '🟢', args: ['Name'] },
-                { id: 'delete:app', label: 'DELETE THIS APP', icon: '⚠️', args: ['AppNameToConfirm'] },
-                { id: 'blade:clear', label: 'Clear Blade Cache', icon: '🧹' },
-            ],
-            debugEnabled: false
-        });
-        await this.fetchDebugStatus();
+        console.log("LifecycleView Initialized");
+        await this.loadEnvironments();
     }
 
-    async fetchDebugStatus() {
+    async loadEnvironments() {
         try {
-            const res = await this.api('get_global_settings');
+            const res = await this.admin.api('lifecycle_get_envs');
             if (res.success) {
-                this.setState({ 
-                    debugEnabled: res.data.parsed.settings?.debug === true,
-                    settings: res.data
-                });
+                this.environments = res.data.environments;
             }
-        } catch (e) {}
-    }
-
-    async toggleGlobalDebug() {
-        const newState = !this.state.debugEnabled;
-        const settings = { ...this.state.settings };
-        if (!settings.parsed.settings) settings.parsed.settings = {};
-        settings.parsed.settings.debug = newState;
-
-        try {
-            const res = await this.apiPost('save_global_settings', {
-                mode: 'form',
-                data: JSON.stringify(settings.parsed)
-            });
-
-            if (res.success) {
-                this.setState({ debugEnabled: newState, settings: settings });
-                this.notify(`Framework Debug Mode turned ${newState ? 'ON' : 'OFF'}`, 'success');
-            }
-        } catch (e) {
-            this.notify('Failed to toggle debug mode', 'error');
+        } catch (err) {
+            console.error("Failed to load environments:", err);
         }
     }
 
-    showAppCreationModal() {
-        const content = `
-            <div class="app-creation-form" style="padding: 10px;">
-                <div class="input-group mb-3">
-                    <label>Application Name</label>
-                    <input type="text" id="new-app-name" placeholder="e.g. news_portal" class="setting-input">
+    async update() {
+        await this.render(this.container);
+    }
+
+    async render(container) {
+        let envOptions = '';
+        Object.keys(this.environments).forEach(name => {
+            const selected = name === this.target ? 'selected' : '';
+            envOptions += `<option value="${name}" ${selected}>${name}</option>`;
+        });
+
+        container.innerHTML = `
+            <div class="view-header">
+                <div class="view-title">
+                    <span class="icon">🚀</span>
+                    <h1>Lifecycle & Deployment</h1>
                 </div>
-                <div class="input-group mb-3">
-                    <label>App Type</label>
-                    <select id="new-app-type" class="setting-input">
-                        <option value="native">Native SPP (PHP/Blade)</option>
-                        <option value="dropin">Drop-in HTML/PHP (Low-Code/Auto-Form)</option>
-                        <option value="sppux">SPP-UX Application (SPA/Reactive)</option>
-                        <option value="blade">Blade Integrated (Full Scaffold)</option>
-                        <option value="react">React Project (No-Build)</option>
-                        <option value="vue">Vue 3 Project (No-Build)</option>
-                        <option value="drupal">Drupal Managed (Hybrid)</option>
-                    </select>
+                <div class="view-actions">
+                    <button class="btn btn-secondary" id="btn-backup">
+                        <span class="icon">📦</span> Local Backup
+                    </button>
+                    <button class="btn btn-primary" id="btn-compare">
+                        <span class="icon">🔍</span> Check Sync Status
+                    </button>
                 </div>
-                <div class="input-group mb-3">
-                    <label>Base URL</label>
-                    <input type="text" id="new-app-url" placeholder="/my_app" class="setting-input">
+            </div>
+
+            <div class="lifecycle-grid">
+                <div class="card env-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>Environment Target</h3>
+                        <button class="btn btn-sm ghost-btn" id="btn-config-env" title="Configure Target">⚙️</button>
+                    </div>
+                    <div class="form-group">
+                        <label>Target Server</label>
+                        <select id="target-env" class="form-control">
+                            ${envOptions}
+                        </select>
+                    </div>
+                    <div id="env-status" class="status-indicator">
+                        Status: <span class="badge badge-neutral">Unknown</span>
+                    </div>
+                </div>
+
+                <div class="card security-card">
+                    <h3>Security & Authorization</h3>
+                    <div class="form-group">
+                        <label>Local Deployment Token</label>
+                        <div class="input-group-with-btn" style="display: flex; gap: 8px;">
+                            <input type="password" id="local-token" class="form-control" readonly value="••••••••••••••••">
+                            <button class="btn btn-sm btn-secondary" id="btn-show-token" title="Show/Hide">👁️</button>
+                            <button class="btn btn-sm btn-outline-danger" id="btn-rotate-token" title="Rotate Token">🔄</button>
+                        </div>
+                        <small class="muted">This token is required by remote servers to authorize pushes from this machine.</small>
+                    </div>
+                </div>
+
+                <div class="card remote-config-card">
+                    <h3>Remote Config Management</h3>
+                    <div id="remote-config-status">
+                        <button class="btn btn-sm btn-outline-primary" id="btn-fetch-remote-config">
+                            Fetch Production Settings
+                        </button>
+                    </div>
+                    <div id="remote-config-list" style="margin-top: 15px; display: none;">
+                        <div class="muted" style="font-size: 0.8rem; margin-bottom: 5px;">Manage production settings without leaving local workbench.</div>
+                        <div class="remote-config-table-wrapper" style="max-height: 200px; overflow-y: auto;">
+                            <table class="table table-sm" id="remote-config-table">
+                                <tbody id="remote-config-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card delta-card" id="delta-container" style="display: none;">
+                <h3>Pending Changes</h3>
+                <div class="delta-list-wrapper">
+                    <table class="table" id="delta-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Path / Resource</th>
+                                <th>Action</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="delta-body"></tbody>
+                    </table>
+                </div>
+                <div class="view-footer">
+                    <button class="btn btn-success" id="btn-sync-all">
+                        Deploy All Changes
+                    </button>
                 </div>
             </div>
         `;
 
-        this.openModal('🚀 Provision New Application', content);
-        this.updateModal('🚀 Provision New Application', content, [
-            { label: 'Cancel', type: 'secondary', fn: this.closeModal },
-            { label: 'Create App', type: 'primary', fn: this.executeAppCreation.bind(this) }
+        this.bindEvents(container);
+    }
+
+    bindEvents(container) {
+        container.querySelector('#btn-compare').addEventListener('click', () => this.checkStatus());
+        container.querySelector('#btn-backup').addEventListener('click', () => this.createBackup());
+        container.querySelector('#btn-sync-all').addEventListener('click', () => this.syncAll());
+        container.querySelector('#btn-fetch-remote-config').addEventListener('click', () => this.fetchRemoteConfig());
+        container.querySelector('#btn-config-env').addEventListener('click', () => this.openEnvConfig());
+        
+        container.querySelector('#target-env').addEventListener('change', (e) => {
+            this.target = e.target.value;
+            console.log("Sync Target Switched to:", this.target);
+        });
+
+        container.querySelector('#btn-show-token').addEventListener('click', () => this.toggleTokenVisibility());
+        container.querySelector('#btn-rotate-token').addEventListener('click', () => this.rotateToken());
+        
+        // Initial fetch
+        this.fetchSecurity();
+    }
+
+    async fetchSecurity() {
+        try {
+            const res = await this.admin.api('lifecycle_get_security');
+            if (res.success) {
+                this.localToken = res.data.token;
+                document.getElementById('local-token').value = this.localToken;
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    toggleTokenVisibility() {
+        const input = document.getElementById('local-token');
+        const btn = document.getElementById('btn-show-token');
+        if (input.type === 'password') {
+            input.type = 'text';
+            btn.innerHTML = '🙈';
+        } else {
+            input.type = 'password';
+            btn.innerHTML = '👁️';
+        }
+    }
+
+    async rotateToken() {
+        if (!confirm("Are you sure you want to rotate the deployment token? All existing connections using the old token will fail.")) return;
+        
+        try {
+            const res = await this.admin.api('lifecycle_rotate_token');
+            if (res.success) {
+                this.localToken = res.data.token;
+                document.getElementById('local-token').value = this.localToken;
+                alert("Security token rotated successfully.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async openEnvConfig() {
+        const env = this.environments[this.target] || { url: '', token: '', exclude: [] };
+        
+        const content = SPPUX.html`
+            <div class="form-group">
+                <label>Environment Name</label>
+                <input type="text" id="env-name" class="form-control" value="${this.target}">
+            </div>
+            <div class="form-group">
+                <label>Remote Server Root</label>
+                <input type="text" id="env-url" class="form-control" value="${env.url}" placeholder="e.g. http://production-server.local/">
+                <small class="muted">The framework will automatically discover the API endpoint.</small>
+            </div>
+            <div class="form-group">
+                <label>Deployment Token</label>
+                <input type="password" id="env-token" class="form-control" value="${env.token}">
+            </div>
+            <div class="form-group">
+                <label>Exclusion Rules (comma separated)</label>
+                <textarea id="env-exclude" class="form-control">${(env.exclude || []).join(', ')}</textarea>
+                <small class="muted">e.g. etc/db-config.yml, var/logs/</small>
+            </div>
+        `;
+
+        this.admin.openModal("Configure Environment", content, [
+            { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
+            { label: 'Save Changes', type: 'primary', fn: async () => {
+                const data = {
+                    name: document.getElementById('env-name').value,
+                    url: document.getElementById('env-url').value,
+                    token: document.getElementById('env-token').value,
+                    exclude: document.getElementById('env-exclude').value,
+                    description: "Updated from local workbench"
+                };
+
+                const res = await this.admin.api('lifecycle_save_env', data);
+                if (res.success) {
+                    this.target = data.name;
+                    await this.loadEnvironments();
+                    this.update();
+                    this.admin.closeModal();
+                } else {
+                    alert(res.message);
+                }
+            }}
         ]);
     }
 
-    async executeAppCreation() {
-        const name = document.getElementById('new-app-name').value;
-        const type = document.getElementById('new-app-type').value;
-        const url = document.getElementById('new-app-url').value;
-
-        if (!name) {
-            alert('App Name is required');
-            return;
+    async fetchRemoteConfig() {
+        this.admin.showLoading(true);
+        try {
+            const res = await this.admin.api('lifecycle_get_remote_config', { target: this.target });
+            if (res.success) {
+                this.renderRemoteConfig(res.data.config);
+            } else {
+                alert("Failed to fetch remote config: " + res.message);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            this.admin.showLoading(false);
         }
-
-        this.closeModal();
-        
-        const args = [name, type];
-        if (url) args.push(url);
-
-        await this.runCommand('make:app', [], args);
-
-        // Immediate reflection in the UI
-        await window.admin.loadApps(); // Reload the app list from server
-        window.admin.onAppContextChange(name); // Switch the global admin context
-        this.setState({ activeApp: name }); // Update local view state
-        
-        // Update the sidebar dropdown (if it exists)
-        const selector = document.getElementById('app-context-selector');
-        if (selector) selector.value = name;
-        
-        this.notify(`Application '${name}' is now active.`, 'success');
     }
 
-    async runCommand(cmdId, promptArgs = [], predefinedArgs = null) {
-        // Special case for App Creation (Needs more options)
-        if (cmdId === 'make:app' && !predefinedArgs) {
-            this.showAppCreationModal();
-            return;
-        }
+    renderRemoteConfig(config) {
+        const list = document.getElementById('remote-config-list');
+        const body = document.getElementById('remote-config-body');
+        list.style.display = 'block';
+        body.innerHTML = '';
 
-        let args = {};
-        if (predefinedArgs) {
-            // Mapping for positional CLI args [0:AppName, 1:Type, 2:Url, etc]
-            predefinedArgs.forEach((val, i) => args[i] = val);
-        } else {
-            for (const arg of promptArgs) {
-                const val = prompt(`Enter value for ${arg}:`);
-                if (val === null) return;
-                args[arg] = val;
-            }
-        }
-
-        // Special case: Delete App confirmation bridge
-        if (cmdId === 'delete:app') {
-            const confirmedName = args['AppNameToConfirm'] || args[0];
-            if (confirmedName !== this.state.activeApp) {
-                alert(`Confirmation failed. You typed '${confirmedName}' but the active app is '${this.state.activeApp}'.`);
-                return;
-            }
-            // Switch args to the format DeleteAppCommand expects: [AppName, --force]
-            args = [confirmedName, '--force'];
-        }
-
-        this.setState({ running: true, output: `> Running ${cmdId}...\n` });
-
-        const res = await this.apiPost('run_command', {
-            command: cmdId,
-            args: args,
-            appname: this.state.activeApp
+        // Focus on global settings
+        const global = config.global || {};
+        Object.entries(global).forEach(([key, val]) => {
+            if (typeof val === 'object') return; // Skip complex structs for simple list
+            body.innerHTML += `
+                <tr>
+                    <td><code>${key}</code></td>
+                    <td><input type="text" class="form-control form-control-sm remote-config-input" data-key="global:${key}" value="${val}"></td>
+                    <td><button class="btn btn-sm btn-primary btn-save-remote-config" data-key="global:${key}">💾</button></td>
+                </tr>
+            `;
         });
 
-        if (res.success) {
-            this.setState({ 
-                running: false, 
-                output: this.state.output + res.data.output 
+        body.querySelectorAll('.btn-save-remote-config').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const key = e.currentTarget.dataset.key;
+                const input = body.querySelector(`input[data-key="${key}"]`);
+                this.saveRemoteConfig(key, input.value, e.currentTarget);
             });
+        });
+    }
 
-            // If it was a deletion, refresh the UI
-            if (cmdId === 'delete:app') {
-                await window.admin.loadApps(); // Reload registry
-                window.admin.onAppContextChange('default');
-                this.setState({ activeApp: 'default' });
-                
-                const selector = document.getElementById('app-context-selector');
-                if (selector) selector.value = 'default';
-                
-                this.notify(`Application deleted. Context reset to 'default'.`, 'info');
-            }
-        } else {
-            this.setState({ 
-                running: false, 
-                output: this.state.output + `[ERROR] ${res.message}` 
+    async saveRemoteConfig(key, value, btn) {
+        btn.disabled = true;
+        try {
+            const res = await this.admin.api('lifecycle_save_remote_config', {
+                target: this.target,
+                key: key,
+                value: value
             });
+            if (res.success) {
+                btn.innerHTML = '✅';
+                setTimeout(() => btn.innerHTML = '💾', 2000);
+            } else {
+                alert("Save failed: " + res.message);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            btn.disabled = false;
         }
     }
 
-    render() {
-        const { activeApp, commands, output, running } = this.state;
+    async checkStatus() {
+        this.admin.showLoading(true);
+        try {
+            const res = await this.admin.api('lifecycle_compare', { target: this.target });
+            if (res.success) {
+                this.deltas = res.data.deltas;
+                this.renderDeltas();
+            } else {
+                alert("Comparison failed: " + res.message);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            this.admin.showLoading(false);
+        }
+    }
 
-        return html`
-            <div class="lifecycle-container">
-                <div class="view-header">
-                    <div class="title-group">
-                        <h1>Development Lifecycle</h1>
-                        <div style="display:flex; align-items:center; gap:15px; margin-top:5px;">
-                            <p>Managing App: <strong>${activeApp}</strong></p>
-                            <div class="debug-toggle-pill ${this.state.debugEnabled ? 'on' : 'off'}" @click=${() => this.toggleGlobalDebug()}>
-                                <span class="icon">🐞</span>
-                                <span>Debug Mode: <strong>${this.state.debugEnabled ? 'ON' : 'OFF'}</strong></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    renderDeltas() {
+        const container = document.getElementById('delta-container');
+        const body = document.getElementById('delta-body');
+        const stats = document.getElementById('sync-stats');
+        
+        container.style.display = 'block';
+        body.innerHTML = '';
 
-                <div class="lifecycle-grid">
-                    <div class="command-panel card">
-                        <h3>Scaffolding & Tools</h3>
-                        <div class="command-buttons">
-                            ${commands.map(cmd => html`
-                                <button type="button" class="cmd-btn" 
-                                        @click=${() => this.runCommand(cmd.id, cmd.args || [])}
-                                        ?disabled=${running}>
-                                    <span class="icon">${cmd.icon}</span>
-                                    <span class="label">${cmd.label}</span>
-                                </button>
-                            `)}
-                        </div>
-                    </div>
+        let total = 0;
+        
+        // Files to upload
+        this.deltas.files.upload.forEach(f => {
+            total++;
+            body.innerHTML += `
+                <tr>
+                    <td><span class="badge badge-primary">CODE</span></td>
+                    <td><code>${f.path}</code></td>
+                    <td>Upload to Remote</td>
+                    <td><button class="btn btn-sm btn-outline-primary btn-sync-single" data-type="file" data-path="${f.path}">Push</button></td>
+                </tr>
+            `;
+        });
 
-                    <div class="terminal-panel card">
-                        <h3>Output Console</h3>
-                        <pre class="terminal-output">${output || 'Waiting for command...'}</pre>
-                        ${running ? html`<div class="loader-sm"></div>` : ''}
-                    </div>
+        // XDB Collections to push
+        this.deltas.xdb.push.forEach(x => {
+            total++;
+            body.innerHTML += `
+                <tr>
+                    <td><span class="badge badge-warning">DATA</span></td>
+                    <td>Collection: <strong>${x.collection}</strong> (${x.db})</td>
+                    <td>Merge with Remote</td>
+                    <td><button class="btn btn-sm btn-outline-warning btn-sync-single" data-type="xdb" data-db="${x.db}" data-coll="${x.collection}">Push</button></td>
+                </tr>
+            `;
+        });
+
+        stats.innerHTML = `
+            <div class="stats-row">
+                <div class="stat-item">
+                    <span class="stat-val">${total}</span>
+                    <span class="stat-label">Changes Detected</span>
                 </div>
             </div>
-
-            <style>
-                .lifecycle-grid {
-                    display: grid;
-                    grid-template-columns: 350px 1fr;
-                    gap: 1.5rem;
-                    margin-top: 1.5rem;
-                }
-                .command-buttons {
-                    display: grid;
-                    grid-template-columns: 1fr;
-                    gap: 0.75rem;
-                }
-                .cmd-btn {
-                    display: flex;
-                    align-items: center;
-                    gap: 1rem;
-                    padding: 0.75rem 1rem;
-                    background: #f8fafc;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    transition: all 0.2s;
-                    text-align: left;
-                }
-                .cmd-btn:hover:not(:disabled) {
-                    background: #edf2f7;
-                    border-color: #cbd5e0;
-                    transform: translateX(4px);
-                }
-                .cmd-btn .icon { font-size: 1.25rem; }
-                .terminal-output {
-                    background: #1a202c;
-                    color: #48bb78;
-                    padding: 1rem;
-                    border-radius: 6px;
-                    font-family: 'Fira Code', monospace;
-                    font-size: 0.9rem;
-                    min-height: 400px;
-                    overflow-y: auto;
-                    white-space: pre-wrap;
-                }
-                .loader-sm {
-                    width: 20px;
-                    height: 20px;
-                    border: 2px solid #e2e8f0;
-                    border-top-color: #3182ce;
-                    border-radius: 50%;
-                    animation: spin 1s linear infinite;
-                    margin: 10px auto;
-                }
-                .debug-toggle-pill {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 4px 12px;
-                    border-radius: 20px;
-                    font-size: 0.85rem;
-                    cursor: pointer;
-                    transition: all 0.3s;
-                    border: 1px solid transparent;
-                }
-                .debug-toggle-pill.on {
-                    background: rgba(34, 197, 94, 0.15);
-                    color: #22c55e;
-                    border-color: rgba(34, 197, 94, 0.3);
-                }
-                .debug-toggle-pill.off {
-                    background: rgba(239, 68, 68, 0.15);
-                    color: #ef4444;
-                    border-color: rgba(239, 68, 68, 0.3);
-                }
-                .debug-toggle-pill:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-                }
-                @keyframes spin { to { transform: rotate(360deg); } }
-            </style>
         `;
+
+        // Bind single sync buttons
+        body.querySelectorAll('.btn-sync-single').forEach(btn => {
+            btn.addEventListener('click', (e) => this.syncSingle(e.target));
+        });
+    }
+
+    async syncSingle(btn) {
+        const type = btn.dataset.type;
+        const path = btn.dataset.path;
+        const db = btn.dataset.db;
+        const coll = btn.dataset.coll;
+
+        btn.disabled = true;
+        btn.innerHTML = 'Syncing...';
+
+        try {
+            const res = await this.admin.api('lifecycle_push', {
+                target: this.target,
+                type: type,
+                path: path,
+                db: db,
+                coll: coll
+            });
+
+            if (res.success) {
+                btn.innerHTML = '✅ Done';
+                btn.classList.add('btn-success');
+            } else {
+                btn.innerHTML = '❌ Failed';
+                alert(res.message);
+            }
+        } catch (err) {
+            btn.innerHTML = '❌ Error';
+        }
+    }
+
+    async syncAll() {
+        if (!confirm("Are you sure you want to deploy all pending changes to production?")) return;
+        
+        const buttons = document.querySelectorAll('.btn-sync-single');
+        for (const btn of buttons) {
+            if (btn.innerHTML !== '✅ Done') {
+                await this.syncSingle(btn);
+            }
+        }
+        alert("Sync complete!");
+    }
+
+    async createBackup() {
+        this.admin.showLoading(true);
+        try {
+            const res = await this.admin.api('lifecycle_backup');
+            if (res.success) {
+                alert("Backup created: " + res.data.filename);
+            } else {
+                alert("Backup failed: " + res.message);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            this.admin.showLoading(false);
+        }
     }
 }

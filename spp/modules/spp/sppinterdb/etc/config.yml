@@ -1,0 +1,8 @@
+mode: interdb
+mappings:
+  user:
+    engine: default
+    table: users
+  preferences:
+    engine: xdb
+    table: user_preferences

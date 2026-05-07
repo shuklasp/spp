@@ -1,0 +1,7 @@
+services:
+  - name: inventory_stats
+    runtime: python
+    target: inventory
+    method: get_stats
+    requires_auth: false
+    method_http: GET

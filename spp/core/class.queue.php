@@ -68,4 +68,21 @@ class Queue
         // SELECT * FROM spp_jobs WHERE available_at <= NOW() LIMIT 1
         return null;
     }
+
+    /**
+     * Get the size of the queue.
+     */
+    public static function size(): int
+    {
+        try {
+            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $res = $db->query("SELECT COUNT(*) as count FROM " . self::$table);
+                return (int) ($res[0]['count'] ?? 0);
+            }
+        } catch (\Exception $e) {
+            // Ignore
+        }
+        return 0;
+    }
 }

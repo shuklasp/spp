@@ -228,6 +228,34 @@ class SPPAjax extends \SPP\SPPObject
         }
 
         // Resolve script path securely
+        if (isset($service['runtime']) && isset($service['target'])) {
+            // Polyglot Service Execution
+            try {
+                $args = array_merge($_GET, $_POST, json_decode(file_get_contents('php://input'), true) ?: []);
+                $res = \SPP\PolyglotBridge::call($service['runtime'], $service['target'], $service['method'] ?? 'main', $args);
+                
+                if ($res['success']) {
+                    $la = new \SPPMod\SPPAjax\LiveAction();
+                    $data = $res['data'] ?? [];
+                    if (isset($data['status'])) {
+                        $la->setStatus($data['status']);
+                        unset($data['status']);
+                    }
+                    if (isset($data['message'])) {
+                        $la->notify($data['message']);
+                        unset($data['message']);
+                    }
+                    $la->setData($data);
+                    $la->send();
+                    exit;
+                } else {
+                    self::respond('error', ['message' => 'Polyglot Service Error: ' . ($res['error'] ?? 'Unknown')], 500);
+                }
+            } catch (\Exception $e) {
+                self::respond('error', ['message' => 'Bridge Exception: ' . $e->getMessage()], 500);
+            }
+        }
+
         $servDir = \SPP\Module::getConfig('spa_service_dir', 'sppajax') ?: '/src/serv';
         $script = basename($service['script']); // strip any directory component
         $fullPath = SPP_APP_DIR . $servDir . '/' . $script;
@@ -248,28 +276,169 @@ class SPPAjax extends \SPP\SPPObject
         try {
             include $realFile;
         } catch (\Throwable $e) {
-            \SPPMod\SPPLogger\SPP_Logger::error("SPPAjax Service Crash ($name): " . $e->getMessage());
             self::respond('error', ['message' => 'Service error: ' . $e->getMessage()], 500);
         }
 
-        // Validate $response shape
-        if (!is_array($response) || !isset($response['status'])) {
-            self::respond('error', ['message' => 'Service did not return a valid $response array.'], 500);
-        }
+        self::respond($response['status'] ?? 'ok', $response['data'] ?? [], $response['message'] ?? '');
+    }
 
-        // Normalize redirect: convert page name → URL if needed
-        if ($response['status'] === 'redirect' && isset($response['redirect'])) {
-            try {
-                $dest = \SPPMod\SPPView\Pages::getPage($response['redirect']);
-                if (!empty($dest['url'])) {
-                    $response['redirect_url'] = '?q=' . urlencode($response['redirect']);
+    /**
+     * Advanced Dispatcher: Resolves and executes a service using Dynamic Discovery.
+     * This is the core of the "Zero-Boring-Code" architecture.
+     */
+    public static function resolveAndExecute(string $action, array $params = []): void
+    {
+        $serviceFile = null;
+        $funcName = null;
+
+        // 1. Try Registry First (Dual Architecture - Manual & Detected)
+        $svc = self::findService($action);
+        if ($svc) {
+            // Polyglot Service Check
+            if (isset($svc['runtime']) && isset($svc['target'])) {
+                try {
+                    $args = array_merge($params, json_decode(file_get_contents('php://input'), true) ?: []);
+                    $res = \SPP\PolyglotBridge::call($svc['runtime'], $svc['target'], $svc['method'] ?? 'main', $args);
+                    if ($res['success']) {
+                        $la = new \SPPMod\SPPAjax\LiveAction();
+                        $data = $res['data'] ?? [];
+                        if (isset($data['status'])) { $la->setStatus($data['status']); unset($data['status']); }
+                        if (isset($data['message'])) { $la->notify($data['message']); unset($data['message']); }
+                        $la->setData($data);
+                        $la->send();
+                        exit;
+                    } else {
+                        self::respond('error', ['message' => 'Polyglot Service Error: ' . ($res['error'] ?? 'Unknown')], 500);
+                    }
+                } catch (\Exception $e) {
+                    self::respond('error', ['message' => 'Bridge Exception: ' . $e->getMessage()], 500);
                 }
-            } catch (\Throwable) {
-                // redirect value may already be a full URL — leave as-is
+            }
+
+            $serviceFile = $svc['script'];
+            $funcName = $svc['method'] ?? null;
+            if ($funcName && ($funcName === 'POST' || $funcName === 'ANY' || $funcName === 'GET')) $funcName = null;
+            
+            if (!str_starts_with($serviceFile, '/') && !str_contains($serviceFile, ':')) {
+                $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
+            }
+            
+            $serviceFile = realpath($serviceFile);
+
+            if ($serviceFile && file_exists($serviceFile)) {
+                require_once $serviceFile;
             }
         }
 
-        self::respond($response['status'], $response);
+        if (!$serviceFile) {
+            // 2. Fallback: Dynamic Discovery
+            $context = \SPP\Scheduler::getContext();
+            $srcPath = \SPP\App::getAppConf('src_path', $context) ?: ('src/' . $context);
+            $servicesPath = \SPP\App::getAppConf('services_path', $context) ?: (rtrim($srcPath, '/') . '/services');
+            $servicesDir = SPP_APP_DIR . '/' . ltrim($servicesPath, '/');
+
+            // Fallback 1: Standalone file in services directory
+            $standaloneFile = $servicesDir . '/' . $action . '.php';
+            if (file_exists($standaloneFile)) {
+                $serviceFile = $standaloneFile;
+            }
+
+            // Fallback 2: Standalone file in src/serv directory (SPA pattern)
+            if (!$serviceFile) {
+                $servFile = SPP_APP_DIR . '/' . ltrim($srcPath, '/') . '/serv/' . $action . '.php';
+                if (file_exists($servFile)) $serviceFile = $servFile;
+            }
+
+            // Fallback 3: Grouped service (e.g. User.Save -> User.php with live_Save)
+            if (!$serviceFile && strpos($action, '.') !== false) {
+                $parts = explode('.', $action);
+                $group = $parts[0];
+                $method = $parts[1];
+                
+                $groupFile = $servicesDir . '/' . $group . '.php';
+                if (file_exists($groupFile)) {
+                    $testFunc = 'live_' . $method;
+                    require_once $groupFile;
+                    if (function_exists($testFunc)) {
+                        $serviceFile = $groupFile;
+                        $funcName = $testFunc;
+                    }
+                }
+            }
+            
+            // Fallback 4: Check in General.php
+            if (!$serviceFile) {
+                $generalFile = $servicesDir . '/General.php';
+                if (!file_exists($generalFile) && \SPP\Scheduler::getContext() === 'sppadmin') {
+                    $generalFile = SPP_BASE_DIR . '/admin/services/General.php';
+                }
+
+                if (file_exists($generalFile)) {
+                    require_once $generalFile;
+                    $testFunc = 'live_' . $action;
+                    if (function_exists($testFunc) || function_exists('\\' . $testFunc)) {
+                        $serviceFile = $generalFile;
+                        $funcName = $testFunc;
+                    }
+                }
+            }
+
+            // Fallback 5: Check in module-specific services
+            if (!$serviceFile && isset($params['modname'])) {
+                $mod = $params['modname'];
+                $modServiceFile = SPP_MODULES_DIR . '/spp/' . $mod . '/services/' . $action . '.php';
+                if (file_exists($modServiceFile)) $serviceFile = $modServiceFile;
+            }
+
+            // 3. Persistence: If discovered dynamically, cache it for future calls
+            if ($serviceFile) {
+                self::persistDetectedService($action, $serviceFile, $funcName);
+            }
+        }
+
+        if ($serviceFile) {
+            $serviceFile = realpath($serviceFile);
+            $la = new \SPPMod\SPPAjax\LiveAction();
+            
+            ob_start();
+            if ($funcName) {
+                if (function_exists($funcName)) {
+                    $funcName($la, $params);
+                } else {
+                    $globalFunc = '\\' . $funcName;
+                    if (function_exists($globalFunc)) {
+                        $globalFunc($la, $params);
+                    } else {
+                        throw new \Exception("Service function '$funcName' not found.");
+                    }
+                }
+            } else {
+                if ($serviceFile && file_exists($serviceFile)) {
+                    require_once $serviceFile;
+                }
+            }
+            $output = ob_get_clean();
+            
+            // Auto-capture echoed HTML
+            if (!empty($output)) {
+                $currentData = $la->getData();
+                if (empty($currentData['html'])) {
+                    $la->setData(array_merge($currentData, ['html' => $output]));
+                }
+            }
+            
+            $la->send();
+            exit;
+        }
+
+        // If no discovery worked, return error
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'message' => "Service '{$action}' could not be resolved via Dynamic Discovery.",
+            'data' => []
+        ]);
+        exit;
     }
 
     // -------------------------------------------------------------------------
@@ -307,27 +476,24 @@ class SPPAjax extends \SPP\SPPObject
 
         $registry = [];
         
-        // 1. Load from YAML
+        // 1. Load from services.yml (Manual)
         $file = self::getServiceRegistryFile();
-        if (file_exists($file)) {
-            try {
-                $parsed = Yaml::parseFile($file);
-                $ymlServices = $parsed['services'] ?? [];
-                foreach ($ymlServices as &$svc) {
-                    $svc['source'] = 'yaml';
-                }
-                $registry = array_merge($registry, $ymlServices);
-            } catch (\Exception $e) {}
-        }
+        $registry = array_merge($registry, self::loadYamlRegistry($file));
 
-        // 2. Load from Database
+        // 2. Load from detected-services.yml (Auto-discovered)
+        $detectedFile = self::getDetectedServicesFile();
+        $registry = array_merge($registry, self::loadYamlRegistry($detectedFile));
+
+        // 3. Load from Database
         if (\SPP\Module::isEnabled('sppdb')) {
             self::ensureDbSchema();
             try {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $dbServices = $db->execute_query('SELECT name, script, method FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppajax_services'));
+                $dbSummary = $db->getConnectionSummary();
                 foreach ($dbServices as &$svc) {
                     $svc['source'] = 'db';
+                    $svc['db_summary'] = $dbSummary;
                 }
                 $registry = array_merge($registry, $dbServices);
             } catch (\Exception $e) {}
@@ -335,6 +501,59 @@ class SPPAjax extends \SPP\SPPObject
 
         self::$serviceRegistry = $registry;
         return self::$serviceRegistry;
+    }
+
+    private static function loadYamlRegistry(string $file): array
+    {
+        if (!file_exists($file)) return [];
+        try {
+            $parsed = Yaml::parseFile($file);
+            $services = $parsed['services'] ?? [];
+            foreach ($services as &$svc) {
+                $svc['source'] = 'yaml';
+                $svc['source_path'] = $file;
+            }
+            return $services;
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    private static function persistDetectedService(string $name, string $file, ?string $method): void
+    {
+        $regFile = self::getServiceRegistryFile();
+        $detectedFile = self::getDetectedServicesFile();
+
+        // 1. Don't persist if it's already in the manual registry or previously detected
+        $manual = self::loadYamlRegistry($regFile);
+        foreach ($manual as $svc) if ($svc['name'] === $name) return;
+
+        $detected = self::loadYamlRegistry($detectedFile);
+        foreach ($detected as $svc) if ($svc['name'] === $name) return;
+
+        // 2. Add new entry
+        $relPath = str_replace(realpath(SPP_APP_DIR), '', realpath($file));
+        $relPath = ltrim(str_replace('\\', '/', $relPath), '/');
+
+        $newSvc = [
+            'name' => $name,
+            'script' => $relPath,
+            'method' => $method ?: 'POST'
+        ];
+        
+        $detected[] = $newSvc;
+
+        // 3. Save to detected-services.yml
+        $dir = dirname($detectedFile);
+        if (!is_dir($dir)) mkdir($dir, 0777, true);
+
+        $yaml = "################################################################################\n";
+        $yaml .= "# SPP Detected Services Registry\n";
+        $yaml .= "# This file is automatically managed by the SPPAjax Dynamic Discovery engine.\n";
+        $yaml .= "################################################################################\n\n";
+        $yaml .= Yaml::dump(['services' => $detected], 4, 2);
+        
+        file_put_contents($detectedFile, $yaml, LOCK_EX);
     }
 
     // -------------------------------------------------------------------------
@@ -354,7 +573,17 @@ class SPPAjax extends \SPP\SPPObject
         header('Content-Type: application/json; charset=utf-8');
         header('X-SPP-Ajax-Response: 1');
 
-        $envelope = array_merge(['status' => $status], $data);
+        $envelope = array_merge([
+            'status' => $status,
+            'success' => ($status === 'ok' || $status === 'redirect')
+        ], $data);
+
+        if (defined('SPP_LOG_DIR')) {
+            $logFile = SPP_LOG_DIR . '/api_debug.log';
+            $action = $_REQUEST['action'] ?? 'unknown';
+            error_log("[" . date('Y-m-d H:i:s') . "] SPPAjax Response: status=$status, action=$action\n", 3, $logFile);
+        }
+
         echo json_encode($envelope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;
     }
@@ -464,5 +693,11 @@ class SPPAjax extends \SPP\SPPObject
             }
         }
         return $file;
+    }
+
+    private static function getDetectedServicesFile(): string
+    {
+        $regFile = self::getServiceRegistryFile();
+        return str_replace('services.yml', 'detected-services.yml', $regFile);
     }
 }

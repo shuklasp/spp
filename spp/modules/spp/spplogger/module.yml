@@ -13,8 +13,8 @@ module:
     settings:
         log_precedence:
             type: select
-            label: 'Log Precedence'
-            help: 'Defines the order of execution when multiple adapters are active.'
+            label: 'Log Dispatch Priority'
+            help: 'Defines the order of priority for log message distribution. "Database First" ensures transactional integrity before local file write.'
             options:
                 db_first: 'Database First'
                 file_first: 'File First'
@@ -22,26 +22,26 @@ module:
             default: db_first
         log_targets:
             type: text
-            label: 'Log Targets'
-            help: 'Active logging sinks (e.g., db, file). Separate multiple targets with commas.'
-            default: [db, file]
+            label: 'Active Log Sinks'
+            help: 'Comma-separated list of enabled adapters. Valid sinks: "db" (SQL persistence), "file" (Local filesystem), "syslog" (OS system log).'
+            default: 'db, file'
         log_subdir:
             type: text
-            label: 'Log Subdir'
-            help: 'Subdirectory within the system log folder to store files.'
+            label: 'Log Storage Directory'
+            help: 'Relative directory inside the global var/logs folder where this module will deposit files.'
             default: system
         log_filename_format:
             type: text
-            label: 'Log Filename Format'
-            help: 'Naming convention for log files. Supports tokens like {appname} and {date}.'
-            default: 'log-{appname}-{date}-{index}.txt'
+            label: 'Filename Pattern'
+            help: 'Naming convention for generated log files. Available tokens: {appname} (Active context), {date} (YYYY-MM-DD), {index} (Rotation counter).'
+            default: 'log-{appname}-{date}-{index}.log'
         max_file_size:
             type: number
-            label: 'Max File Size'
-            help: 'Maximum size of a log file in bytes before rotation occurs.'
-            default: 2097152.0
+            label: 'Rotation Threshold (Bytes)'
+            help: 'Individual file size limit before the logger initiates rotation. Default is 2MB (2,097,152 bytes).'
+            default: 2097152
         log_retention_days:
             type: number
-            label: 'Log Retention Days'
-            help: 'Number of days to keep logs before automatic purging.'
-            default: 30.0
+            label: 'Retention Policy (Days)'
+            help: 'Number of days historical log entries will be preserved before automated cleanup tasks purge them.'
+            default: 30

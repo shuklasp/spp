@@ -18,6 +18,10 @@ Welcome to the technical documentation for the SPP (Satya Portal Pack) Framework
 *   [**Path Resolution**](path-resolution.md): Portability logic and the "Smart Path" algorithm.
 *   [**Polyglot Interop**](polyglot-architecture.md): Cross-language communication and shared state.
 *   [**SPP XDB**](sppxdb.md): Tier-1 Native XML Database with Global ACID, GraphQL, and Blockchain Audit.
+*   [**SPP InterDB**](sppinterdb.md): Federated Data Aggregation & GraphQL Gateway.
+*   [**Admin Panel**](admin-panel.md): The Developer Workbench and System Orchestration UI.
+*   [**LiveService**](liveservice.md): Unified Reactive Architecture & SAJAX-style Services.
+*   [**Mobile Studio**](mobile-studio.md): Visual Builder for Cross-Platform Apps.
 *   [**Core Modules**](modules/index.md): Deep-dive into SppView, SppEntity, SppLogger, etc.
 
 ---

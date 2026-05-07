@@ -1074,6 +1074,27 @@ switch ($command) {
         ];
         file_put_contents("{$appDir}/manifest.yml", \Symfony\Component\Yaml\Yaml::dump($manifest));
 
+        // Create services.yml
+        $servicesYml = "################################################################################\n";
+        $servicesYml .= "# SPP Service Registry (Manual)\n";
+        $servicesYml .= "# Register your services here to bypass dynamic discovery overhead.\n";
+        $servicesYml .= "# Syntax:\n";
+        $servicesYml .= "# services:\n";
+        $servicesYml .= "#   - name: MyService\n";
+        $servicesYml .= "#     script: src/{$appName}/serv/MyService.php\n";
+        $servicesYml .= "#     method: POST\n";
+        $servicesYml .= "################################################################################\n\n";
+        $servicesYml .= "services: []\n";
+        file_put_contents("{$appDir}/services.yml", $servicesYml);
+
+        // Create detected-services.yml
+        $detectedYml = "################################################################################\n";
+        $detectedYml .= "# SPP Detected Services Registry (Auto-discovered)\n";
+        $detectedYml .= "# This file is automatically populated by the SPPAjax discovery engine.\n";
+        $detectedYml .= "################################################################################\n\n";
+        $detectedYml .= "services: []\n";
+        file_put_contents("{$appDir}/detected-services.yml", $detectedYml);
+
         // Create initial modules.yml
         $modules = [
             'modules' => [

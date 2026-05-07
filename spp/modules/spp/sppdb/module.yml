@@ -12,10 +12,10 @@ module:
         dbtype:
             type: select
             label: 'Database Engine'
-            help: 'The underlying database technology to use for the system.'
+            help: 'Select the primary database technology. This choice determines which connection parameters (Host, Port, User) are required below.'
             options:
                 mysql: 'MySQL / MariaDB'
-                sqlite: 'SQLite'
+                sqlite: 'SQLite (File-based)'
                 pgsql: 'PostgreSQL'
                 mssql: 'Microsoft SQL Server'
                 oracledb: 'Oracle Database'
@@ -23,42 +23,42 @@ module:
             default: mysql
         dbhost:
             type: text
-            label: 'Host / Server'
-            help: 'Network address of the database server. Use localhost if the database is on the same machine.'
+            label: 'Hostname / IP Address'
+            help: 'The network location of your database server. Use "localhost" or "127.0.0.1" if the server is running on this same machine.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: localhost
         dbport:
             type: number
-            label: 'Port'
-            help: 'Port number assigned to the database service (e.g., 3306 for MySQL).'
+            label: 'Network Port'
+            help: 'The port number the database service is listening on (Standard defaults: MySQL: 3306, PostgreSQL: 5432, MSSQL: 1433).'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: 3306
         dbuser:
             type: text
-            label: 'Username'
-            help: 'Database user account with sufficient privileges to manage tables and data.'
+            label: 'Administrative Username'
+            help: 'The database user account. For development, "root" or "sa" is common; for production, use a dedicated application user.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: root
         dbpasswd:
             type: password
-            label: 'Password'
-            help: 'Password for the specified database user.'
+            label: 'Security Password'
+            help: 'Authentication secret for the specified user. Leave blank ONLY if your database server allows passwordless local connections (not recommended).'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: null
         dbname:
             type: text
-            label: 'Database / SID / Service'
-            help: 'Name of the database schema or SID to connect to.'
+            label: 'Database Name / Schema'
+            help: 'The specific database or schema where the SPP tables will be installed. This must exist before the module can sync schemas.'
             depends_on: { dbtype: [mysql, pgsql, mssql, oracledb] }
             default: school
         sqlite_path:
             type: text
-            label: 'Database File Path (SQLite / MS Access)'
-            help: 'Path to the database file relative to the SPP root when using SQLite or MS Access.'
+            label: 'SQLite Database Path'
+            help: 'The filesystem path to your .sqlite database file. This should be relative to the SPP application root.'
             depends_on: { dbtype: [sqlite, msaccess] }
             default: 'var/db/school.sqlite'
         table_prefix:
             type: text
-            label: 'Table Prefix'
-            help: 'Prefix added to all SPP-managed tables to prevent naming collisions.'
+            label: 'Global Table Prefix'
+            help: 'A short string (e.g., "spp_") prepended to all table names to avoid collisions with other applications sharing the same database.'
             default: null

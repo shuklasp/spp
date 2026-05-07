@@ -152,17 +152,6 @@ class App extends \SPP\SPPObject
                 error_log("SPP Discovery: srcDir not found or invalid: " . ($srcDir ?: 'NULL'));
             }
 
-            // Fail-safe for Lekhak if discovery had issues
-            if (!isset($settings['apps']['lekhak']) && is_dir($srcDir . '/lekhak')) {
-                $settings['apps']['lekhak'] = [
-                    'base_url' => '/lekhak',
-                    'etc_path' => 'src/lekhak/etc',
-                    'src_path' => 'src/lekhak',
-                    'var_path' => 'src/lekhak/var',
-                    'admin_icon' => '🖋️',
-                    'admin_title' => 'Lekhak CMS'
-                ];
-            }
         }
 
         if ($key === '') {
@@ -240,27 +229,45 @@ class App extends \SPP\SPPObject
 
     public function getAppConfDir(): string
     {
-        $etcPath = self::getAppConf('etc_path', $this->_attributes['appname']);
+        $appname = $this->_attributes['appname'];
+        $etcPath = self::getAppConf('etc_path', $appname);
         if ($etcPath !== null && $etcPath !== '') {
-            return $this->resolvePath($etcPath, SPP_APP_DIR);
+            // Absolute if starts with / (relative to SPP_APP_DIR)
+            if (str_starts_with($etcPath, '/') || str_starts_with($etcPath, '\\')) {
+                return $this->resolvePath($etcPath, SPP_APP_DIR);
+            }
+            // Relative to src otherwise
+            return $this->resolvePath($etcPath, $this->getAppSrcDir());
         }
-        return $this->resolvePath('etc', $this->getAppSrcDir());
+        
+        // Fallback: If src_path is set, use etc/ inside src dir. 
+        // Otherwise use global APP_ETC_DIR fallback.
+        $srcPath = self::getAppConf('src_path', $appname);
+        if ($srcPath !== null && $srcPath !== '') {
+            return $this->resolvePath('etc', $this->getAppSrcDir());
+        }
+        
+        return APP_ETC_DIR . SPP_DS . $appname;
     }
     
     public function getModsConfDir(): string
     {
-        $modsConfPath = self::getAppConf('modsconf_path', $this->_attributes['appname']);
+        $appname = $this->_attributes['appname'];
+        $modsConfPath = self::getAppConf('modsconf_path', $appname);
         if ($modsConfPath !== null && $modsConfPath !== '') {
             return $this->resolvePath($modsConfPath, SPP_APP_DIR);
         }
-        return $this->resolvePath('etc/modsconf', $this->getAppSrcDir());
+        
+        // Default to modsconf subfolder in the resolved conf dir
+        return $this->getAppConfDir() . SPP_DS . 'modsconf';
     }
 
     public function getAppSrcDir(): string
     {
         $srcPath = self::getAppConf('src_path', $this->_attributes['appname']);
         if ($srcPath !== null && $srcPath !== '') {
-            return $this->resolvePath($srcPath, SPP_APP_DIR);
+            // src is always relative to SPP_APP_DIR (rooted at APP_BASE_DIR)
+            return rtrim(SPP_APP_DIR, '/\\') . SPP_DS . ltrim($srcPath, '/\\');
         }
         return $this->resolvePath('src/' . $this->_attributes['appname'], SPP_APP_DIR);
     }

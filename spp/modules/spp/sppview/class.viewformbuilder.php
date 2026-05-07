@@ -150,7 +150,11 @@ class ViewFormBuilder extends \SPP\SPPObject
             $elem = self::buildElement($field);
             if ($elem) {
                 self::populateElementMetadata($elem, $field, $form);
-                $form->addChild($elem);
+                if ($form instanceof ViewForm) {
+                    $form->addElement($elem);
+                } else {
+                    $form->addChild($elem);
+                }
             }
         }
 

@@ -1,0 +1,8 @@
+name: SPPSync
+version: 1.1.0
+description: Incremental Mirroring & Differential Sync Engine for Lifecycle Management.
+author: Satya Prakash Shukla
+namespace: SPPMod\SPPSync
+autoload:
+    psr-4:
+        SPPMod\SPPSync\: ./

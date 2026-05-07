@@ -7,3 +7,5 @@ modules_path: modules
 theme: premium
 lekhni:
     media_path: var/media/lekhni
+admin_icon: 🖋️
+admin_title: Lekhak

@@ -1,7 +1,7 @@
 profile: dev
 shared_groups:
     core:
-        table_prefix: spp_
+        table_prefix: ''
         entities:
             - users
             - roles
@@ -35,11 +35,11 @@ apps:
         src_path: ''
         app_init: ''
     sppadmin:
-        base_url: /sppadmin
-        table_prefix: sppadmin_
-        shared_group: ''
-        etc_path: etc/apps/sppadmin
-        src_path: src/sppadmin
+        base_url: /spp/admin
+        table_prefix: ''
+        shared_group: core
+        etc_path: spp/admin/etc
+        src_path: spp/admin
         app_init: init.php
     autodemo:
         base_url: /autodemo
@@ -122,7 +122,14 @@ apps:
         src_path: src/lekhak
         app_init: init.php
         admin_icon: 🖋️
-        admin_title: 'Lekhak CMS'
+        admin_title: 'Lekhak'
+    sppmobile:
+        base_url: /sppmobile
+        table_prefix: ''
+        shared_group: core
+        etc_path: src/sppmobile/etc
+        src_path: src/sppmobile
+        app_init: ''
 base_app: lekhak
 prototyping:
     auto_evolution: manual

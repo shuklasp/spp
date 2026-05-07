@@ -60,6 +60,8 @@ if (!defined('SPP_VER')) {
         $appBaseUri = dirname($_SERVER['SCRIPT_NAME']);
         if (str_contains($appBaseUri, '/spp/admin')) {
             $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/admin'));
+        } elseif (str_contains($appBaseUri, '/sppadmin')) {
+            $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/sppadmin'));
         } elseif (str_contains($appBaseUri, '/spp')) {
             $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp'));
         }
@@ -161,6 +163,12 @@ if (!defined('SPP_VER')) {
       $legacyFile = $modDir . SPP_DS . 'class.' . strtolower($class) . '.php';
       if (file_exists($legacyFile)) {
         require_once $legacyFile;
+        return true;
+      }
+      
+      $interfaceFile = $modDir . SPP_DS . 'int.' . strtolower($class) . '.php';
+      if (file_exists($interfaceFile)) {
+        require_once $interfaceFile;
         return true;
       }
 

@@ -246,8 +246,12 @@ class SPPGroup extends SPPEntity {
             foreach ($records as $record) {
                 $class = $record->member_class;
                 if (class_exists($class)) {
+                    // OPTIMIZATION: Don't load full entity if we only need basic info (unless it's a group)
+                    $member = new $class();
+                    $member->id = $record->member_id;
+                    
                     $results[] = [
-                        'entity' => new $class($record->member_id),
+                        'entity' => $member,
                         'role' => $record->role
                     ];
                 }

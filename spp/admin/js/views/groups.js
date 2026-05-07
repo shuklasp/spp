@@ -11,7 +11,7 @@ export default class GroupsView extends BaseComponent {
     async onInit() {
         this.state = {
             loading: true,
-            groups: [],
+            sources: [],
             searchQuery: '',
             searchResults: [],
             currentGroupId: null,
@@ -25,7 +25,7 @@ export default class GroupsView extends BaseComponent {
             const res = await this.api('list_groups');
             if (res.success) {
                 this.setState({
-                    groups: res.data.groups || [],
+                    sources: res.data.sources || [],
                     loading: false
                 });
             } else {
@@ -37,7 +37,7 @@ export default class GroupsView extends BaseComponent {
     }
 
     render() {
-        const { loading, groups, error } = this.state;
+        const { loading, sources, error } = this.state;
 
         if (loading) return html`<div class="loading-state">Loading group infrastructure...</div>`;
         if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
@@ -51,7 +51,7 @@ export default class GroupsView extends BaseComponent {
             headerActions.innerHTML = headerHtml.toString();
         }
 
-        if (groups.length === 0) {
+        if (sources.length === 0) {
             return html`
                 <div class="empty-state">
                     <div class="empty-icon">👥</div>
@@ -62,24 +62,32 @@ export default class GroupsView extends BaseComponent {
         }
 
         return html`
-            <div class="card-grid">
-                ${groups.map((g, i) => html`
-                    <div class="item-card glass-panel" style="animation-delay: ${i * 0.05}s">
-                        <div class="card-header">
-                            <div style="display:flex; align-items:center; gap:12px;">
-                                <div class="user-avatar-sm" style="background: var(--accent-gradient)">👥</div>
-                                <div>
-                                    <h3>${g.name}</h3>
-                                    <div class="card-meta">${g.description || 'Global Framework Group'}</div>
+            <div class="sources-wrap">
+                ${sources.map(source => html`
+                    <div class="source-group-container">
+                        ${this.renderSourceHeader(source)}
+                        
+                        <div class="card-grid">
+                            ${source.items.map((g, i) => html`
+                                <div class="item-card glass-panel" style="animation-delay: ${i * 0.05}s">
+                                    <div class="card-header">
+                                        <div style="display:flex; align-items:center; gap:12px;">
+                                            <div class="user-avatar-sm" style="background: var(--accent-gradient)">👥</div>
+                                            <div>
+                                                <h3>${g.name}</h3>
+                                                <div class="card-meta">${g.description || 'Global Framework Group'}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <small>ID: ${g.id}</small>
+                                        <div class="card-actions">
+                                            <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.manageMembers(g.id, g.name)}>Manage Members</button>
+                                            <button type="button" class="btn danger-btn btn-sm" @click=${() => this.confirmDelete('group', g.id)}>Delete</button>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <small>ID: ${g.id}</small>
-                            <div class="card-actions">
-                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.manageMembers(g.id, g.name)}>Manage Members</button>
-                                <button type="button" class="btn danger-btn btn-sm" @click=${() => this.confirmDelete('group', g.id)}>Delete</button>
-                            </div>
+                            `)}
                         </div>
                     </div>
                 `)}
@@ -112,7 +120,7 @@ export default class GroupsView extends BaseComponent {
                         
                         <div id="member-suggestions" class="suggestions-list search-suggestions-dropdown ${searchResults.length > 0 ? 'active' : ''}">
                             ${searchResults.map(item => html`
-                                <div class="suggestion-item" @click=${() => this.promptAddMember(currentGroupId, item.class, item.id, item.name)}>
+                                <div class="suggestion-item" @click=${() => this.promptAddMember(currentGroupId, item.entity, item.id, item.name)}>
                                     <div class="suggestion-core">
                                         <span class="icon">${item.icon || '👤'}</span>
                                         <div class="suggestion-info">
@@ -159,8 +167,12 @@ export default class GroupsView extends BaseComponent {
     }
 
     refreshModal() {
-        const { groups, currentGroupId } = this.state;
-        const group = groups.find(g => g.id === currentGroupId);
+        const { sources, currentGroupId } = this.state;
+        let group = null;
+        for (const s of sources) {
+            group = s.items.find(g => g.id === currentGroupId);
+            if (group) break;
+        }
         const title = group ? `Manage Members: ${group.name}` : 'Manage Members';
         
         this.updateModal(title, this.getManagementHtml());

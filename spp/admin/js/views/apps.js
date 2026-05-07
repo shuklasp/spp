@@ -7,8 +7,8 @@
  */
 
 export default class AppsView extends BaseComponent {
-    constructor(container) {
-        super(container);
+    constructor(app, container, props = {}) {
+        super(app, container, props);
         
         // Load persisted toggles
         const savedToggles = localStorage.getItem('spp_admin_apps_expanded');
@@ -299,11 +299,13 @@ export default class AppsView extends BaseComponent {
                 </div>
                 <div class="input-group">
                     <label>Custom Etc Directory (Optional)</label>
-                    <input type="text" id="app-etc-path" value="${app.etc_path || ''}" placeholder="Absolute path to etc folder">
+                    <input type="text" id="app-etc-path" value="${app.etc_path || ''}" placeholder="/etc or relative/to/src">
+                    <span class="input-hint">Absolute if starts with /, otherwise relative to Src directory.</span>
                 </div>
                 <div class="input-group">
                     <label>Custom Src Directory (Optional)</label>
-                    <input type="text" id="app-src-path" value="${app.src_path || ''}" placeholder="Absolute path to src folder">
+                    <input type="text" id="app-src-path" value="${app.src_path || ''}" placeholder="/src/custom">
+                    <span class="input-hint">Path relative to APP_BASE_DIR (root directory).</span>
                 </div>
             </div>
             

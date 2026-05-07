@@ -1,0 +1,9 @@
+environments:
+    production:
+        url: 'http://production-server.local/sppadmin/api.php'
+        token: 'spp_deploy_token_placeholder'
+        description: 'Primary Production Environment'
+        exclude:
+            - 'etc/db-config.yml'
+            - 'etc/secrets.yml'
+            - 'var/logs/'

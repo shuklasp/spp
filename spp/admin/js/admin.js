@@ -15,6 +15,9 @@ class SPPAdmin {
         if (typeof SPPUX !== 'undefined') {
             window.html = SPPUX.html;
             window.TrustedHTML = SPPUX.TrustedHTML;
+            this.escapeHtml = SPPUX.utils.escapeHtml;
+            this.escapeAttr = SPPUX.utils.escapeAttr;
+            this.truncatePath = SPPUX.utils.truncatePath;
         }
         this.user = null;
         
@@ -41,7 +44,10 @@ class SPPAdmin {
             'config': '⚙️',
             'trace': '🛰️',
             'services': '🔌',
-            'xdb': '🗄️'
+            'ajax': '⚡',
+            'lifecycle': '🚀',
+            'xdb': '🗄️',
+            'interdb': '🕸️'
         };
         this.viewTitles = {
             'system': 'System Information',
@@ -57,8 +63,11 @@ class SPPAdmin {
             'manage': 'Application Management',
             'config': 'Framework Config',
             'trace': 'Event Tracing',
-            'services': 'Service Registry',
-            'xdb': 'XML Database'
+            'services': 'DI Service Registry',
+            'ajax': 'LiveService Registry',
+            'lifecycle': 'Lifecycle & Deployment',
+            'xdb': 'XML Database',
+            'interdb': 'InterDB Mesh'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
@@ -393,18 +402,67 @@ class SPPAdmin {
     }
 
     // =============================================
-    // VIEW LOADING
+    // VIEW MANAGEMENT
     // =============================================
+    
+    /**
+     * RemoteView Component
+     * Loads and renders a PHP-based view from the server.
+     */
+    static RemoteView = class extends BaseComponent {
+        async onInit() {
+            this.state = { loading: true, html: '' };
+            await this.fetchView();
+        }
+        async fetchView() {
+            console.log(`[RemoteView] Fetching ${this.props.viewName}...`);
+            try {
+                const res = await this.api('load_view', { view: this.props.viewName });
+                console.log(`[RemoteView] Response for ${this.props.viewName}:`, res);
+                if (res.success) {
+                    const html = res.html || (res.data && res.data.html) || '';
+                    this.setState({ loading: false, html: html });
+                } else {
+                    this.setState({ loading: false, error: res.message });
+                }
+            } catch (err) {
+                console.error(`[RemoteView] Error loading ${this.props.viewName}:`, err);
+                this.setState({ loading: false, error: 'Failed to load remote view.' });
+            }
+        }
+        render() {
+            if (this.state.loading) {
+                return SPPUX.html`<div style="padding: 4rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="opacity: 0.5;">Loading ${this.props.viewName}...</div></div>`;
+            }
+            if (this.state.error) {
+                return SPPUX.html`<div class="alert error">${this.state.error}</div>`;
+            }
+            return new TrustedHTML(this.state.html);
+        }
+    }
 
     async loadView(view) {
         this.activeView = view;
         const container = document.getElementById('view-container');
         document.getElementById('header-actions').innerHTML = '';
+        const params = {}; // Reserved for future deep-linking parameters
         
         container.innerHTML = '<div class="loading-state">Loading section...</div>';
         this.showSkeleton(container);
 
-            try {
+        // List of views that should be loaded as PHP templates
+        const phpHybridViews = []; // All views migrated to SPP-UX components
+        
+        if (phpHybridViews.includes(view)) {
+            console.log(`[SPPAdmin] Loading PHP-Hybrid view: ${view}`);
+            this.activeViewInstance = new SPPAdmin.RemoteView(this, container, { viewName: view });
+            await this.activeViewInstance.onInit();
+            this.activeViewInstance.update();
+            this.updateViewTitle(view);
+            return;
+        }
+
+        try {
                 const ts = Date.now();
                 // 1. Script-Relative Component paths
                 const scripts = document.getElementsByTagName('script');
@@ -490,7 +548,7 @@ class SPPAdmin {
 
                 // 3. Render SPP-UX Component
                 if (module.default) {
-                    this.viewInstance = new module.default(container);
+                    this.viewInstance = new module.default(this, container, params);
                     await this.viewInstance.onInit();
                     this.viewInstance.update();
                 }
@@ -548,6 +606,15 @@ class SPPAdmin {
         container.innerHTML = `<div class="skeleton-grid">${cards}</div>`;
     }
 
+    updateViewTitle(view) {
+        const titleEl = document.getElementById('view-title');
+        if (titleEl) {
+            const icon = this.viewIcons[view] || '📦';
+            const title = this.viewTitles[view] || view;
+            titleEl.innerHTML = `<span class="view-icon">${icon}</span> ${title}`;
+        }
+    }
+
     // =============================================
     // APP CONTEXT MANAGEMENT
     // =============================================
@@ -556,69 +623,38 @@ class SPPAdmin {
         try {
             const res = await this.api('list_apps');
             if (res.success && res.data.apps) {
-                this.availableApps = res.data.apps;
+                if (Array.isArray(res.data.apps)) {
+                    this.availableApps = res.data.apps;
+                } else {
+                    this.availableApps = Object.entries(res.data.apps).map(([name, cfg]) => {
+                        return typeof cfg === 'object' ? { ...cfg, name } : { name, title: cfg };
+                    });
+                }
                 this.renderAppSelector();
-                this.renderDynamicNav();
             }
         } catch (err) {
             console.error('Failed to load apps:', err);
         }
     }
 
-    renderDynamicNav() {
-        const container = document.getElementById('dynamic-nav-items');
-        if (!container) return;
-
-        let html = '';
-        this.availableApps.forEach(app => {
-            if (app.has_admin) {
-                // Register metadata if not already there
-                if (!this.viewIcons[app.name]) this.viewIcons[app.name] = app.admin_icon || '🛠️';
-                if (!this.viewTitles[app.name]) this.viewTitles[app.name] = app.admin_title || app.name;
-
-                const active = this.currentView === app.name ? 'active' : '';
-                html += `
-                    <li>
-                        <a href="#${app.name}" class="nav-item ${active}" data-view="${app.name}">
-                            <span class="icon">${this.viewIcons[app.name]}</span> ${this.viewTitles[app.name]}
-                        </a>
-                    </li>
-                `;
-            }
-        });
-
-        container.innerHTML = html;
-
-        // Re-bind click events for new nav items
-        container.querySelectorAll('.nav-item').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = e.currentTarget.getAttribute('data-view');
-                location.hash = view;
-            });
-        });
-    }
-
     renderAppSelector() {
         const container = document.getElementById('app-selector-container');
         if (!container) return;
-
-        let options = '';
-        this.availableApps.forEach(app => {
-            const selected = app.name === this.selectedApp ? 'selected' : '';
-            options += `<option value="${app.name}" ${selected}>${app.name}</option>`;
-        });
-
+        
+        const options = this.availableApps.map(app => `
+            <option value="${app.name}" ${app.name === this.selectedApp ? 'selected' : ''}>
+                ${app.icon || '🛠️'} ${app.title || app.name}
+            </option>
+        `).join('');
+        
         container.innerHTML = `
-            <div class="context-selector-box">
-                <div class="context-label">App Context</div>
-                <select class="context-selector" id="context-selector">
+            <div class="sidebar-selector-wrap" style="padding: 0 1rem; margin-bottom: 1.5rem;">
+                <label style="display:block; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.1em; padding-left: 2px;">Active Context</label>
+                <select class="app-context-select" onchange="admin.onAppContextChange(this.value)" style="width: 100%; font-size: 0.75rem;">
                     ${options}
                 </select>
             </div>
         `;
-
-        document.getElementById('context-selector').addEventListener('change', (e) => this.onAppContextChange(e.target.value));
     }
 
     onModuleFilterChange(val) {
@@ -669,46 +705,10 @@ class SPPAdmin {
     async api(action, params = {}, options = { lock: true }) {
         if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
-            let url;
-            const endpoint = options.endpoint || this.apiEndpoint;
-            // Support compound action strings or (actionName, paramsObject)
-            if (action.includes('&')) {
-                const parts = action.split('&');
-                const actionName = parts.shift();
-                url = endpoint + '?action=' + encodeURIComponent(actionName) + '&' + parts.join('&');
-            } else {
-                url = endpoint + '?action=' + encodeURIComponent(action);
-                for (const [key, val] of Object.entries(params)) {
-                    if (!url.includes(`&${key}=`)) {
-                        url += `&${encodeURIComponent(key)}=${encodeURIComponent(val)}`;
-                    }
-                }
-            }
-
-            // Add appname if not already in URL (context enforcement)
-            if (!url.includes('appname=') && !url.includes('context=')) {
-                url += '&appname=' + encodeURIComponent(this.selectedApp);
-            }
-
-            // Add CSRF token
-            if (window.SPP_CSRF_TOKEN) {
-                url += '&csrf_token=' + encodeURIComponent(window.SPP_CSRF_TOKEN);
-            }
-            url += '&_ts=' + Date.now();
-
-            const headers = {
-                'X-Requested-With': 'XMLHttpRequest'
-            };
-            if (window.SPP_CSRF_TOKEN) {
-                headers['X-CSRF-TOKEN'] = window.SPP_CSRF_TOKEN;
-            }
-
-            const response = await fetch(url, { 
-                credentials: 'same-origin', 
-                cache: 'no-store',
-                headers: headers
-            });
-            return await response.json();
+            // Unify with SPPUX.api which handles LiveAction instructions automatically
+            const res = await SPPUX.api(action, params);
+            if (res.errors_html) this.handleApiErrors(res);
+            return res;
         } finally {
             if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
         }
@@ -717,43 +717,14 @@ class SPPAdmin {
     async apiPost(actionOrFormData, params = {}, options = { lock: true }) {
         if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
-            let formData;
-            
+            let res;
             if (actionOrFormData instanceof FormData) {
-                formData = actionOrFormData;
+                res = await SPPUX.apiPost(actionOrFormData);
             } else {
-                formData = new FormData();
-                formData.append('action', actionOrFormData);
-                for (const [key, val] of Object.entries(params)) {
-                    formData.append(key, val);
-                }
+                res = await SPPUX.api(actionOrFormData, params);
             }
-
-            // Inject app context into POST data if not present
-            if (!formData.has('appname') && !formData.has('context')) {
-                formData.append('appname', this.selectedApp);
-            }
-
-            // Inject CSRF token
-            if (window.SPP_CSRF_TOKEN && !formData.has('csrf_token')) {
-                formData.append('csrf_token', window.SPP_CSRF_TOKEN);
-            }
-
-            const headers = {
-                'X-Requested-With': 'XMLHttpRequest'
-            };
-            if (window.SPP_CSRF_TOKEN) {
-                headers['X-CSRF-TOKEN'] = window.SPP_CSRF_TOKEN;
-            }
-
-            const endpoint = options.endpoint || this.apiEndpoint;
-            const response = await fetch(endpoint, {
-                method: 'POST',
-                body: formData,
-                credentials: 'same-origin',
-                headers: headers
-            });
-            return await response.json();
+            if (res.errors_html) this.handleApiErrors(res);
+            return res;
         } finally {
             if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.stop();
         }
@@ -841,6 +812,48 @@ class SPPAdmin {
             this._activeModal.close();
             this._activeModal = null;
         }
+    }
+
+    handleModalAction(name, modal, instruction, context = null) {
+        console.log(`[SPPAdmin] handleModalAction: ${name}`, { instruction, context });
+        
+        // Use provided context or fall back to last stored API context
+        const ctx = context || this._lastApiContext || {};
+        
+        if (name === 'close') {
+            modal.close();
+            if (this._activeModal === modal) this._activeModal = null;
+            return;
+        } 
+        
+        if (name === 'save') {
+            if (ctx.modname && ctx.appname) {
+                this.saveModuleSettings(ctx.modname, ctx.appname);
+            } else {
+                console.warn('Save action triggered without context:', ctx);
+                const form = document.querySelector('.modal-body form');
+                if (form) form.submit();
+            }
+            return;
+        }
+
+        if (name === 'admin.applySystemUpdate()') {
+            this.applySystemUpdate();
+            modal.close();
+            return;
+        }
+
+        // Generic evaluation for other admin methods
+        if (name.startsWith('admin.')) {
+            const method = name.substring(6).replace('()', '');
+            if (typeof this[method] === 'function') {
+                this[method]();
+                modal.close();
+                return;
+            }
+        }
+
+        console.warn(`Unhandled modal action: ${name}`);
     }
 
     async confirm(message) {
@@ -999,129 +1012,37 @@ class SPPAdmin {
     // LEGACY IAM & GROUPS REMOVED - MIGRATED TO SPP-UX AccessView & GroupsView
 
 
-    escapeHtml(str) {
-        if (str === null || str === undefined) return '';
-        const div = document.createElement('div');
-        div.textContent = String(str);
-        return div.innerHTML;
-    }
-
-    escapeAttr(str) {
-        if (str === null || str === undefined) return '';
-        return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    }
 
     // =============================================
     // SYSTEM UPDATE LOGIC
     // =============================================
 
     async runSystemUpdate() {
+        console.log('[SPPAdmin] runSystemUpdate triggered');
         this.openModal('🔍 Scanning System for Updates...', 
             SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Analyzing module manifests and entity schemas...</div></div>`);
         
         try {
             const res = await this.api('system_update_list');
-            if (!res.success) {
-                this.updateModal('Scan Failed', SPPUX.html`<div class="alert error-alert">${res.message}</div>`);
-                return;
-            }
-
-            const deltas = res.data.deltas;
-            let manifestHtml = '';
-            let hasWork = false;
-
-            // Render Modules
-            for (const [mod, data] of Object.entries(deltas.modules)) {
-                hasWork = true;
-                manifestHtml += `
-                    <div class="mod-update-row glass-panel" style="margin-bottom: 1rem; padding: 1.25rem; border-left: 4px solid var(--primary);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                            <h4 style="margin: 0; color: var(--text-main); font-size: 1rem;">📦 Module: ${mod}</h4>
-                            <span class="badge info" style="font-size: 0.65rem;">MIGRATION</span>
-                        </div>
-                        <ul style="list-style: none; padding-left: 0; margin: 0; display: grid; gap: 8px;">`;
-                
-                if (data.tables) data.tables.forEach(t => {
-                    const icon = t.status === 'missing' ? '🆕' : '🔄';
-                    const color = t.status === 'missing' ? 'var(--success)' : 'var(--warning)';
-                    manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                        <span style="font-size: 1rem;">${icon}</span>
-                        <span style="flex:1;">Table: <strong style="color: ${color};">${t.name}</strong></span>
-                        <span style="opacity: 0.5; font-size: 0.75rem;">${t.status === 'missing' ? 'Create' : 'Alter'}</span>
-                    </li>`;
-                });
-                
-                if (data.entities) data.entities.forEach(e => manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1rem;">👤</span>
-                    <span style="flex:1;">Entity Sync: <em style="color: var(--info);">${e.class}</em></span>
-                </li>`);
-                
-                manifestHtml += `</ul></div>`;
-            }
-
-            // Render App Entities
-            if (deltas.entities.length > 0) {
-                hasWork = true;
-                manifestHtml += `
-                    <div class="mod-update-row glass-panel" style="margin-bottom: 1rem; padding: 1.25rem; border-left: 4px solid var(--success);">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.75rem;">
-                            <h4 style="margin: 0; color: var(--text-main); font-size: 1rem;">📂 Application Entities</h4>
-                            <span class="badge success" style="font-size: 0.65rem;">SCHEMA</span>
-                        </div>
-                        <ul style="list-style: none; padding-left: 0; margin: 0; display: grid; gap: 8px;">`;
-                
-                deltas.entities.forEach(e => manifestHtml += `<li style="font-size: 0.85rem; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1rem;">🆕</span>
-                    <span style="flex:1;">New Table: <strong style="color: var(--success);">${e.name}</strong></span>
-                </li>`);
-                
-                manifestHtml += `</ul></div>`;
-            }
-
-            if (!hasWork) {
-                this.updateModal('System Up to Date', 
-                    SPPUX.html`<div style="text-align: center; padding: 3rem;"><div style="font-size: 4rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 15px var(--success));">✨</div><h3 style="margin-bottom: 0.5rem;">Fully Synchronized</h3><p style="opacity: 0.6;">No pending database or module updates found.</p></div>`,
-                    [{ label: 'Close', type: 'secondary', fn: (m) => m.close() }]);
-                return;
-            }
-
-            this.updateModal('Pending Incremental Updates', SPPUX.html`<div class="update-manifest" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">${new SPPUX.TrustedHTML(manifestHtml)}</div>`, [
-                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-                { label: 'Apply Updates Now 🚀', type: 'primary', fn: () => this.applySystemUpdate() }
-            ]);
-
+            console.log('[SPPAdmin] system_update_list response:', res);
+            // The modal is updated automatically via LiveAction instructions in res
         } catch (err) {
+            console.error('[SPPAdmin] runSystemUpdate error:', err);
             this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
 
     async applySystemUpdate() {
+        console.log('[SPPAdmin] applySystemUpdate triggered');
         this.updateModal('🚀 Updating System...', 
             SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Executing migration routines and synchronizing schemas...</div><div style="font-size: 0.8rem; opacity: 0.4; margin-top: 1rem;">Please do not close this window.</div></div>`);
         
         try {
             const res = await this.api('system_update_run');
-            if (res.success) {
-                let logLines = '';
-                
-                if (res.data.log.length === 0) {
-                    logLines = `<div style="color: var(--success); display:flex; align-items:center; gap:10px;"><span>✅</span> <span>No changes were necessary. System is already optimized.</span></div>`;
-                } else {
-                    res.data.log.forEach(line => {
-                        const isError = line.toLowerCase().includes('error') || line.toLowerCase().includes('fail');
-                        const isSuccess = line.includes('Updated') || line.includes('Created') || line.includes('Synchronized') || line.includes('Synchronised');
-                        const color = isError ? 'var(--danger)' : isSuccess ? 'var(--success)' : 'var(--text-main)';
-                        logLines += `<div style="color: ${color}; border-bottom: 1px solid rgba(255,255,255,0.03); padding: 4px 0;">${this.escapeHtml(line)}</div>`;
-                    });
-                }
-                
-                this.updateModal('Update Complete', SPPUX.html`<div class="log-output glass-panel" style="max-height: 400px; overflow-y: auto; background: rgba(0,0,0,0.4); padding: 1.5rem; border-radius: 12px; font-family: 'Consolas', monospace; font-size: 0.85rem; line-height: 1.7; text-align: left; border: 1px solid rgba(255,255,255,0.05); color: #d4d4d4;">${new SPPUX.TrustedHTML(logLines)}</div>`, [
-                    { label: 'Finish & Reload', type: 'primary', fn: () => location.reload() }
-                ]);
-            } else {
-                this.updateModal('Update Failed', SPPUX.html`<div class="alert error-alert">${res.message}</div>`);
-            }
+            console.log('[SPPAdmin] system_update_run response:', res);
+            // The result modal is handled server-side via LiveAction
         } catch (err) {
+            console.error('[SPPAdmin] applySystemUpdate error:', err);
             this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
@@ -1139,136 +1060,71 @@ class SPPAdmin {
         
         try {
             const res = await this.apiPost('scan_module', { modname });
-            if (!res.success) {
-                this.updateModal('Scan Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(res.message)}</div>`);
-                return;
-            }
-
-            const deltas = res.data.deltas;
-            let manifestHtml = '';
-            let hasWork = false;
-
-            if (deltas.tables && deltas.tables.length > 0) {
-                hasWork = true;
-                manifestHtml += `
-                    <div class="mod-update-row glass-panel" style="border-left: 4px solid var(--info);">
-                        <h4 style="margin-top: 0; margin-bottom: 0.75rem; color: var(--info); display: flex; align-items: center; gap: 8px;"><span>📊</span> Database Schema</h4>
-                        <ul style="list-style: none; padding-left: 0; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
-                `;
-                deltas.tables.forEach(t => manifestHtml += `<li style="padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">${t.status === 'missing' ? '🆕' : '🔄'} ${this.escapeHtml(t.name)}</li>`);
-                manifestHtml += `</ul></div>`;
-            }
-
-            if (deltas.entities && deltas.entities.length > 0) {
-                hasWork = true;
-                manifestHtml += `
-                    <div class="mod-update-row glass-panel" style="border-left: 4px solid var(--accent);">
-                        <h4 style="margin-top: 0; margin-bottom: 0.75rem; color: var(--accent); display: flex; align-items: center; gap: 8px;"><span>👤</span> Entities</h4>
-                        <ul style="list-style: none; padding-left: 0; margin: 0; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
-                `;
-                deltas.entities.forEach(e => manifestHtml += `<li style="padding: 4px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">💎 ${this.escapeHtml(e.class)}</li>`);
-                manifestHtml += `</ul></div>`;
-            }
-
-            if (!hasWork) {
-                this.updateModal(`Maintenance: ${publicName}`, SPPUX.html`
-                    <div style="text-align: center; padding: 4rem 2rem;">
-                        <div style="font-size: 4.5rem; margin-bottom: 1.5rem; filter: drop-shadow(0 0 20px var(--success));">✨</div>
-                        <h3 style="margin-bottom: 0.5rem; font-size: 1.5rem;">Fully Synchronized</h3>
-                        <p style="opacity: 0.6; font-size: 1rem;">All module resources and database schemas are up to date.</p>
-                    </div>
-                `);
-                return;
-            }
-
-            this.updateModal(`Maintenance: ${publicName}`, SPPUX.html`<div class="maintenance-manifest" style="max-height: 400px; overflow-y: auto;">${new SPPUX.TrustedHTML(manifestHtml)}</div>`, [
-                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-                { label: 'Sync Now', type: 'primary', fn: () => this.runModuleUpdate(modname) }
-            ]);
-
+            // The modal is updated automatically via LiveAction instructions in res
         } catch (err) {
-            this.updateModal('Error', SPPUX.html`<div class="alert error">${err.message}</div>`);
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
 
-    async runModuleUpdate(modname) {
-        this.updateModal('🚀 Syncing Module...', SPPUX.html`<div class="loader">Restructuring resources...</div>`);
+    async installModule(modname) {
+        this.updateModal('🚀 Synchronizing Module...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Applying module structural changes...</div></div>`);
+        
         try {
             const res = await this.apiPost('install_module', { modname });
-            if (res.success) {
-                this.updateModal('Sync Complete', SPPUX.html`<div class="empty-state" style="padding: 20px;"><div style="font-size: 32px; margin-bottom: 10px;">✨</div><h3>Success</h3><p>Module resources have been synchronized.</p></div>`, [
-                    { label: 'Done', type: 'secondary', fn: (m) => m.close() }
-                ]);
-            } else {
-                this.updateModal('Sync Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(res.message)}</div>`);
-            }
+            // The result modal is handled server-side via LiveAction
         } catch (err) {
-            this.updateModal('Error', SPPUX.html`<div class="alert error">${err.message}</div>`);
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }
     }
 
     async openModuleSettings(modname, publicName) {
-        this.openModal(`⚙️ Setup: ${publicName}`, SPPUX.html`<div class="loader">Loading configuration modes...</div>`);
+        // This is now handled entirely via LiveAction from the server
+        const res = await this.apiPost('open_module_settings', { 
+            modname, 
+            public_name: publicName,
+            appname: this.selectedApp 
+        });
         
+        if (res.success) {
+            this._lastApiContext = res.data;
+            // The modal is automatically opened by SPPUX.applyInstructions called within apiPost
+        } else {
+            this.notify(res.message || 'Failed to open settings', 'error');
+        }
+    }
+
+    async testRuntime(id) {
+        this.notify(`Testing ${id} bridge connectivity...`, 'info');
         try {
-            // Fetch both KV and Raw data simultaneously
-            const [kvRes, rawRes] = await Promise.all([
-                this.api('get_module_config', { modname, appname: this.selectedApp }),
-                this.api('get_module_config_raw', { modname, appname: this.selectedApp })
-            ]);
-
-            if (!kvRes.success) {
-                this.updateModal('Setup Failed', SPPUX.html`<div class="alert error">${this.escapeHtml(kvRes.message)}</div>`);
-                return;
-            }
-
-            // Unwrap the variables object from the standard API response structure
-            const config = kvRes.data.variables || {};
-            const raw = rawRes.success ? rawRes.data : { content: '', format: 'yml' };
-
-            let formHtml = `
-                <div class="tabs-toolbar" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); display: flex; gap: 4px;">
-                    <button class="tab-btn active" onclick="admin.switchSetupTab('interactive')" id="tab-interactive">🏠 Interactive Editor</button>
-                    <button class="tab-btn" onclick="admin.switchSetupTab('yaml')" id="tab-yaml">📄 Advanced YAML</button>
-                </div>
-                
-                <div id="setup-pane-interactive" class="setup-pane active">
-                    <div class="settings-form" style="max-height: 450px; overflow-y: auto; padding-right: 10px;">
-            `;
-            
-            if (Object.keys(config).length === 0) {
-                formHtml += `<div class="empty-state"><p>No standard settings discovered for "${modname}". Use the YAML tab for direct overrides.</p></div>`;
+            const res = await this.api('get_bridge_info', { test: id });
+            if (res.success) {
+                this.notify(`${id} Bridge is operational!`, 'success');
+                if (window.SPPUX && SPPUX.Celebrate) SPPUX.Celebrate.burst();
             } else {
-                for (const [key, val] of Object.entries(config)) {
-                    formHtml += `
-                        <div class="input-group" style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-dim);">${this.escapeHtml(key)}</label>
-                            <input type="text" class="setting-input" data-key="${this.escapeAttr(key)}" value="${this.escapeAttr(val)}" 
-                                style="width: 100%; padding: 8px; background: var(--input-bg); border: 1px solid var(--glass-border); border-radius: 4px; color: var(--text-main);">
-                        </div>
-                    `;
-                }
+                this.notify(`Bridge test failed: ${res.message}`, 'error');
             }
-
-            formHtml += `
-                    </div>
-                </div>
-                
-                <div id="setup-pane-yaml" class="setup-pane" style="display: none;">
-                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 10px;">Direct YAML manipulation for "${modname}" in application context "${this.selectedApp}".</p>
-                    <textarea id="raw-config-editor" style="width: 100%; height: 400px; background: #1e1e1e; color: #d4d4d4; font-family: 'Cascadia Code', Consolas, monospace; padding: 15px; border-radius: 8px; border: 1px solid var(--glass-border); line-height: 1.5; outline: none; resize: vertical;">${this.escapeHtml(raw.content || '')}</textarea>
-                    <input type="hidden" id="raw-config-format" value="${this.escapeAttr(raw.format || 'yml')}">
-                </div>
-            `;
-
-            this.updateModal(`Setup: ${publicName}`, SPPUX.html`${new TrustedHTML(formHtml)}`, [
-                { label: 'Cancel', type: 'secondary', fn: (m) => m.close() },
-                { label: 'Save Changes', type: 'primary', fn: () => this.saveModuleSettings(modname, this.selectedApp) }
-            ]);
-            this.activeSetupTab = 'interactive';
-
         } catch (err) {
-            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
+            this.notify('Test failed due to network error.', 'error');
+        }
+    }
+
+    async saveSyncConfig() {
+        const yaml = document.getElementById('sync-config-raw')?.value;
+        if (!yaml) return this.notify('Configuration cannot be empty.', 'error');
+        await this.api('lifecycle_save_target', { yaml });
+    }
+
+    async syncDeploymentToken() {
+        this.notify('Synchronizing deployment secrets...', 'info');
+        try {
+            const res = await this.api('lifecycle_receive', { 
+                action: 'sync_token',
+                token: '' // Will be prompted or retrieved if needed
+            });
+            // Result handled by LiveAction
+        } catch (err) {
+            this.notify('Sync failed.', 'error');
         }
     }
 
@@ -1331,24 +1187,6 @@ class SPPAdmin {
         }
     }
     /**
-     * Helper to truncate long paths for UI
-     */
-    truncatePath(path, len = 60) {
-        if (!path || path.length <= len) return path;
-        const parts = path.split(/[\\/]/);
-        if (parts.length <= 2) return path.substring(0, len) + '...';
-        
-        const first = parts[0];
-        const last = parts[parts.length - 1];
-        const mid = '...';
-        
-        const remainingLen = len - first.length - last.length - mid.length;
-        if (remainingLen <= 0) return '...' + last;
-        
-        return `${first}/${mid}/${last}`;
-    }
-
-    /**
      * Dynamic Asset Loader
      * Ensures required CSS/JS files are present in the page context.
      */
@@ -1387,6 +1225,7 @@ class SPPAdmin {
             await Promise.all(promises);
         }
     }
+
 }
 
 // Add shake animation for login failures (injected dynamically)

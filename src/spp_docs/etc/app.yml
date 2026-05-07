@@ -1,4 +1,4 @@
-base_url: /spp
+base_url: /spp/docs
 table_prefix: ''
 etc_path: src/lekhak/etc
 src_path: src/lekhak

@@ -1,525 +1,603 @@
 [
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738498722",
-        "timestamp": "2026-05-02 16:15:00",
+        "request_uri": "\/school1\/res\/spp\/css\/spp.css",
+        "timestamp": "2026-05-07 10:14:02",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738499.369465,
+                "timestamp": 1778148840.767264,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738499.373365,
+                "timestamp": 1778148840.769534,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738499.399903,
+                "timestamp": 1778148840.801022,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738499.804641,
+                "timestamp": 1778148840.920942,
+                "handlers": []
+            },
+            {
+                "event": "PageNotFound",
+                "timestamp": 1778148842.34254,
+                "handlers": [
+                    {
+                        "stage": "before",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "override",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "after",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppmobile\/js\/views\/mobile.js",
+        "timestamp": "2026-05-07 10:14:04",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1778148842.716408,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1778148842.724815,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738500.779166,
+                "timestamp": 1778148842.79326,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778148843.175814,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=create_xdb_table&t=1777738530854",
-        "timestamp": "2026-05-02 16:15:35",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=asset&name=favicon.svg",
+        "timestamp": "2026-05-07 10:14:05",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738531.781388,
+                "timestamp": 1778148844.506405,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738531.79106,
+                "timestamp": 1778148844.50824,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738531.891405,
+                "timestamp": 1778148844.532097,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738533.325182,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738535.444358,
+                "timestamp": 1778148844.64979,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738535201",
-        "timestamp": "2026-05-02 16:15:38",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_mobile_config&t=1778148844634",
+        "timestamp": "2026-05-07 10:14:05",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738535.812568,
+                "timestamp": 1778148844.506343,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738535.821241,
+                "timestamp": 1778148844.508338,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738535.877818,
+                "timestamp": 1778148844.531822,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738536.630577,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738537.920509,
+                "timestamp": 1778148844.649865,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_xdb_table_columns&t=1777738542166",
-        "timestamp": "2026-05-02 16:15:43",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_entities&t=1778148845618",
+        "timestamp": "2026-05-07 10:14:07",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738542.502587,
+                "timestamp": 1778148845.561169,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738542.508175,
+                "timestamp": 1778148845.56515,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738542.533179,
+                "timestamp": 1778148845.598573,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738542.997833,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738543.921245,
+                "timestamp": 1778148845.934757,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_xdb_table_data&t=1777738543942",
-        "timestamp": "2026-05-02 16:15:45",
+        "request_uri": "\/school1\/sppmobile\/",
+        "timestamp": "2026-05-07 10:18:03",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738544.115643,
+                "timestamp": 1778149079.627213,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738544.122252,
+                "timestamp": 1778149079.632314,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738544.142876,
+                "timestamp": 1778149079.678414,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738544.478235,
+                "timestamp": 1778149080.961812,
                 "handlers": []
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738545.474252,
+                "event": "event_spp_view_pre_render",
+                "timestamp": 1778149083.197791,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_view_render",
+                "timestamp": 1778149083.205155,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/",
-        "timestamp": "2026-05-02 16:17:15",
+        "request_uri": "\/school1\/sppmobile\/js\/mobile-app.js",
+        "timestamp": "2026-05-07 10:18:04",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738633.273375,
+                "timestamp": 1778149083.451039,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738633.280192,
+                "timestamp": 1778149083.454336,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738633.316548,
+                "timestamp": 1778149083.48846,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738633.876222,
+                "timestamp": 1778149083.644776,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/res\/css\/sppforms.css?v=1777738635",
-        "timestamp": "2026-05-02 16:17:16",
+        "request_uri": "\/school1\/res\/spp\/css\/spp.css",
+        "timestamp": "2026-05-07 10:18:04",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738635.691513,
+                "timestamp": 1778149083.449973,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738635.693527,
+                "timestamp": 1778149083.453194,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738635.719037,
+                "timestamp": 1778149083.486441,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149083.64091,
+                "handlers": []
+            },
+            {
+                "event": "PageNotFound",
+                "timestamp": 1778149084.876069,
+                "handlers": [
+                    {
+                        "stage": "before",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "override",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "after",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppmobile\/css\/mobile.css",
+        "timestamp": "2026-05-07 10:18:05",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1778149083.451079,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1778149083.454351,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149083.488536,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149083.703906,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/res\/js\/sppforms.js?v=1777738635",
-        "timestamp": "2026-05-02 16:17:16",
+        "request_uri": "\/school1\/sppmobile\/js\/views\/mobile.js",
+        "timestamp": "2026-05-07 10:18:07",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738635.691587,
+                "timestamp": 1778149085.661783,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738635.693441,
+                "timestamp": 1778149085.666467,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738635.718994,
+                "timestamp": 1778149085.69762,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149086.084445,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&appname=lekhak&_ts=1777738636048",
-        "timestamp": "2026-05-02 16:17:18",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_mobile_config&t=1778149087360",
+        "timestamp": "2026-05-07 10:18:10",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738636.541339,
+                "timestamp": 1778149088.035819,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738636.548735,
+                "timestamp": 1778149088.041279,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738636.572536,
+                "timestamp": 1778149088.084671,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738636.973628,
+                "timestamp": 1778149088.507852,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php",
-        "timestamp": "2026-05-02 16:17:25",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_entities&t=1778149089981",
+        "timestamp": "2026-05-07 10:18:12",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738644.130704,
+                "timestamp": 1778149090.632755,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738644.134613,
+                "timestamp": 1778149090.640255,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738644.172893,
+                "timestamp": 1778149090.710176,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738644.75115,
+                "timestamp": 1778149091.220595,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&appname=lekhak&csrf_token=47cf445b3886bd796b624b5267a66d2ac97a91091dcec82239354570f0f68dd8&_ts=1777738645836",
-        "timestamp": "2026-05-02 16:17:27",
+        "request_uri": "\/school1\/sppmobile\/",
+        "timestamp": "2026-05-07 10:25:42",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738645.970981,
+                "timestamp": 1778149540.384247,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738645.972763,
+                "timestamp": 1778149540.389684,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738645.987511,
+                "timestamp": 1778149540.431665,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738646.253091,
+                "timestamp": 1778149540.770629,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_view_pre_render",
+                "timestamp": 1778149542.768841,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_view_render",
+                "timestamp": 1778149542.775625,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&appname=lekhak&csrf_token=47cf445b3886bd796b624b5267a66d2ac97a91091dcec82239354570f0f68dd8&_ts=1777738645836",
-        "timestamp": "2026-05-02 16:17:27",
+        "request_uri": "\/school1\/sppmobile\/css\/mobile.css",
+        "timestamp": "2026-05-07 10:25:44",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738645.970569,
+                "timestamp": 1778149543.012434,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738645.972293,
+                "timestamp": 1778149543.014296,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738645.98745,
+                "timestamp": 1778149543.037059,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738646.196632,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738647.080922,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738647.178268,
+                "timestamp": 1778149544.023388,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/src\/lekhak\/comp\/xdb.js?v=1777738647468",
-        "timestamp": "2026-05-02 16:17:28",
+        "request_uri": "\/school1\/res\/spp\/css\/spp.css",
+        "timestamp": "2026-05-07 10:25:45",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738647.676123,
+                "timestamp": 1778149543.012354,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738647.682402,
+                "timestamp": 1778149543.014148,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738647.714863,
+                "timestamp": 1778149543.037262,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149544.023525,
+                "handlers": []
+            },
+            {
+                "event": "PageNotFound",
+                "timestamp": 1778149545.060908,
+                "handlers": [
+                    {
+                        "stage": "before",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "override",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    },
+                    {
+                        "stage": "after",
+                        "handler": "\\EventHandlers\\PageNotFound",
+                        "stopped": false
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppmobile\/js\/mobile-app.js",
+        "timestamp": "2026-05-07 10:25:45",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1778149543.063792,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1778149543.069524,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149543.10037,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149544.229193,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_databases&t=1777738648769",
-        "timestamp": "2026-05-02 16:17:30",
+        "request_uri": "\/school1\/sppmobile\/js\/views\/mobile.js",
+        "timestamp": "2026-05-07 10:25:49",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738648.864854,
+                "timestamp": 1778149546.182108,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738648.868717,
+                "timestamp": 1778149546.186168,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738648.895081,
+                "timestamp": 1778149546.231357,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738649.252785,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738650.19226,
+                "timestamp": 1778149546.727988,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_xdb_tables&t=1777738650402",
-        "timestamp": "2026-05-02 16:17:31",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=asset&name=favicon.svg",
+        "timestamp": "2026-05-07 10:25:50",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777738650.474926,
+                "timestamp": 1778149549.286166,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777738650.478784,
+                "timestamp": 1778149549.291139,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738650.502423,
+                "timestamp": 1778149549.332566,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777738650.902064,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777738651.870271,
+                "timestamp": 1778149549.470082,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-05-02 18:26:53",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_mobile_config&t=1778149548817",
+        "timestamp": "2026-05-07 10:25:50",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777739211.70571,
+                "timestamp": 1778149549.286115,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777739211.706229,
+                "timestamp": 1778149549.29072,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777739211.714231,
+                "timestamp": 1778149549.326393,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1778149549.469715,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-05-02 18:29:30",
+        "request_uri": "\/school1\/sppmobile\/api.php?action=get_entities&t=1778149550037",
+        "timestamp": "2026-05-07 10:25:52",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1777739369.290942,
+                "timestamp": 1778149550.618727,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1777739369.291558,
+                "timestamp": 1778149550.629654,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777739369.297797,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-05-02 18:31:08",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1777739467.050402,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1777739467.050863,
+                "timestamp": 1778149550.681608,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1777739467.056132,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-05-02 18:34:57",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1777739696.3354,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1777739696.336035,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777739696.340853,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-05-02 18:38:54",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1777739771.586134,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1777739771.586894,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1777739771.592447,
+                "timestamp": 1778149551.050081,
                 "handlers": []
             }
         ]

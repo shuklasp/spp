@@ -1,0 +1,76 @@
+################################################################################
+# SPP Detected Services Registry
+# This file is automatically managed by the SPPAjax Dynamic Discovery engine.
+################################################################################
+
+services:
+  -
+    name: list_apps
+    script: spp/admin/services/General.php
+    method: live_list_apps
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: list_modules
+    script: spp/admin/services/General.php
+    method: live_list_modules
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: open_module_settings
+    script: spp/admin/services/General.php
+    method: live_open_module_settings
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: login
+    script: spp/admin/services/General.php
+    method: live_login
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: list_entities
+    script: spp/admin/services/General.php
+    method: live_list_entities
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: parse_entity_yaml
+    script: spp/admin/services/General.php
+    method: live_parse_entity_yaml
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: dump_entity_yaml
+    script: spp/admin/services/General.php
+    method: live_dump_entity_yaml
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: list_pages
+    script: spp/admin/services/General.php
+    method: live_list_pages
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: get_system_info
+    script: spp/admin/services/General.php
+    method: live_get_system_info
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: get_bridge_info
+    script: spp/admin/services/General.php
+    method: live_get_bridge_info
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: get_global_settings
+    script: spp/admin/services/General.php
+    method: live_get_global_settings
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/detected-services.yml
+  -
+    name: Entities
+    script: spp/admin/services/Entities.php
+    method: POST

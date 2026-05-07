@@ -18,42 +18,50 @@ class SPPSession extends \SPP\SPPObject
     private $sessvars = array();
 
     /** @var ?SPPSession Local memory cache to prevent duplicate deserialization */
-    private static ?SPPSession $cache = null;
+    /** @var array<string, SPPSession> Cache of loaded session buckets */
+    private static array $caches = [];
 
     private static function fetchSession(): SPPSession
     {
         $ssname = \SPP\App::getSessionName();
-        if (!self::sessionExists()) {
+        if (isset(self::$caches[$ssname])) {
+            return self::$caches[$ssname];
+        }
+
+        if (!isset($_SESSION[$ssname])) {
             if (session_status() === PHP_SESSION_ACTIVE || php_sapi_name() === 'cli') {
                 // Auto-initialize the session bucket if we are in an active session context
                 $session = new SPPSession();
                 $_SESSION[$ssname] = serialize($session);
-                self::$cache = $session;
+                self::$caches[$ssname] = $session;
                 return $session;
             }
-            self::$cache = null;
             throw new SessionDoesNotExistException('No session exists! (Bucket ' . $ssname . ' not found in $_SESSION)');
         }
-        if (self::$cache !== null) {
-            return self::$cache;
-        }
+
         // Restrict allowed classes to prevent POI vectors, but allow the user session classes
-        self::$cache = unserialize($_SESSION[$ssname], ['allowed_classes' => true]);
-        return self::$cache;
+        self::$caches[$ssname] = unserialize($_SESSION[$ssname], ['allowed_classes' => true]);
+        return self::$caches[$ssname];
     }
 
     private static function saveSession(): void
     {
-        if (self::$cache !== null) {
-            $_SESSION[\SPP\App::getSessionName()] = serialize(self::$cache);
+        $ssname = \SPP\App::getSessionName();
+        if (isset(self::$caches[$ssname])) {
+            $_SESSION[$ssname] = serialize(self::$caches[$ssname]);
             self::syncToBridge();
         }
     }
 
     private static function syncToBridge(): void
     {
+        $ssname = \SPP\App::getSessionName();
+        if (!isset(self::$caches[$ssname])) {
+            return;
+        }
+
         $bridgedData = [];
-        foreach (self::$cache->sessvars as $name => $data) {
+        foreach (self::$caches[$ssname]->sessvars as $name => $data) {
             if (!empty($data['bridged']) && !empty($data['isactive'])) {
                 $bridgedData[$name] = $data['val'];
             }
