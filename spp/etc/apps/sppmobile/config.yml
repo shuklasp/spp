@@ -1,0 +1,16 @@
+# SPP Mobile Studio Context Configuration
+app:
+  name: "Mobile Studio Pro"
+  version: "1.0.0"
+  context: "sppmobile"
+
+studio:
+  root: "src/sppmobile"
+  blueprints: "src/sppmobile/blueprints"
+  projects: "src/sppmobile/projects"
+  assets: "src/sppmobile/assets"
+
+features:
+  flutter_generation: true
+  pwa_sync: true
+  xdb_isolation: true

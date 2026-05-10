@@ -1,0 +1,92 @@
+{
+    "id": "smart_activity_feed",
+    "name": "Smart Activity Feed",
+    "description": "Premium activity stream with integrated Floating Action Button for rapid task entry.",
+    "template": [
+        {
+            "id": "header_ab",
+            "type": "app_bar",
+            "props": {
+                "text": "Activity Center",
+                "elevation": 4
+            }
+        },
+        {
+            "id": "main_scroll",
+            "type": "list",
+            "props": {
+                "padding": 15
+            },
+            "children": [
+                {
+                    "id": "status_card",
+                    "type": "card",
+                    "props": {
+                        "padding": 20,
+                        "margin": 10,
+                        "borderRadius": 16,
+                        "elevation": 2
+                    },
+                    "children": [
+                        {
+                            "id": "status_row",
+                            "type": "row",
+                            "props": { "gap": 15 },
+                            "children": [
+                                { "id": "status_icon", "type": "icon", "props": { "icon": "check_circle", "color": "#34d399" } },
+                                { "id": "status_text", "type": "text", "props": { "text": "All systems operational", "fontWeight": "bold" } }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id": "feed_title",
+                    "type": "text",
+                    "props": {
+                        "text": "RECENT UPDATES",
+                        "fontSize": 0.7,
+                        "fontWeight": "bold",
+                        "opacity": 0.5,
+                        "margin": 10
+                    }
+                },
+                {
+                    "id": "item_1",
+                    "type": "card",
+                    "props": { "padding": 15, "margin": 5, "borderRadius": 12 },
+                    "children": [
+                        { "id": "t1", "type": "text", "props": { "text": "New deployment detected in 'Mobile Studio Pro'", "fontSize": 0.9 } },
+                        { "id": "s1", "type": "text", "props": { "text": "2 minutes ago", "fontSize": 0.7, "opacity": 0.6 } }
+                    ]
+                },
+                {
+                    "id": "item_2",
+                    "type": "card",
+                    "props": { "padding": 15, "margin": 5, "borderRadius": 12 },
+                    "children": [
+                        { "id": "t2", "type": "text", "props": { "text": "Database synchronization completed successfully", "fontSize": 0.9 } },
+                        { "id": "s2", "type": "text", "props": { "text": "1 hour ago", "fontSize": 0.7, "opacity": 0.6 } }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "action_fab",
+            "type": "fab",
+            "props": {
+                "icon": "plus",
+                "text": "+",
+                "elevation": 6
+            },
+            "actions": [
+                {
+                    "trigger": "onTap",
+                    "steps": [
+                        { "type": "notify", "target": "Opening Task Entry Pipeline..." },
+                        { "type": "navigate", "target": "tasks" }
+                    ]
+                }
+            ]
+        }
+    ]
+}

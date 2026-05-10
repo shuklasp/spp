@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lekhak System: Theme Engine | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Lekhak System: Theme Engine</h1>
+<p>The Lekhak Theme Engine is a professional-grade layout management system that decouples application content from its visual presentation. </p>
+<h2>1. How It Works</h2>
+<p>The engine uses the SPP Event System to intercept the framework&#039;s rendering pipeline. </p>
+<p>1.  <strong>Event Hook</strong>: The <code>ThemeEventHandler</code> listens for the <code>event_spp_view_render_theme</code> event fired by <code>ViewPage</code>. 2.  <strong>Layout Selection</strong>: It identifies the active theme from <code>app.yml</code>. 3.  <strong>Content Wrapping</strong>: It captures the raw page HTML and passes it to the <code>ThemeManager</code> for layout application. 4.  <strong>Region Injection</strong>: It injects the content into the theme&#039;s <code>layout.blade.php</code>. </p>
+<h2>2. Regions &amp; Portals</h2>
+<p>Themes can define an unlimited number of regions (e.g., <code>header</code>, <code>sidebar_left</code>, <code>footer_scripts</code>). </p>
+<p><strong>Populating a Region:</strong> </p>
+<pre><code>use SPPMod\SppTheme\Api\ThemeManager;
+<p>ThemeManager::setRegion(&#039;sidebar&#039;, &#039;&lt;div class=&quot;widget&quot;&gt;Recent Posts&lt;/div&gt;&#039;);</code></pre> </p>
+<p><strong>Theme Layout (<code>layout.blade.php</code>):</strong> </p>
+<pre><code>&lt;main&gt;
+<p>{!! $content !!}  &lt;!-- Main page content automatically injected --&gt; &lt;/main&gt; &lt;aside&gt; {!! $sidebar !!}  &lt;!-- Custom content injected via setRegion --&gt; &lt;/aside&gt;</code></pre> </p>
+<h2>3. Theme Portability</h2>
+<p>Each theme is a folder within <code>src/lekhak/themes/</code>. It contains its own: </p>
+<ul><li><code>theme.yml</code>: Metadata and region definitions.</li><li><code>layout.blade.php</code>: The master template.</li><li><code>css/</code>, <code>js/</code>, <code>images/</code>: Local theme assets.</li></ul>
+<p>Assets are resolved using the <code>$theme_path</code> variable, which points to the theme&#039;s public URL regardless of where the app is deployed. </p>
+<hr>
+<p><a href="index.html">Back to Index</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

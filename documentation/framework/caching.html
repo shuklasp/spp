@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Caching Systems: Technical Deep-Dive | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>SPP Caching Systems: Technical Deep-Dive</h1>
+<p>The SPP Framework utilizes a multi-layered caching architecture to ensure high performance across different stages of the application lifecycle. </p>
+<h2>1. Orion Cache (Module Registry)</h2>
+<p><strong>Purpose</strong>: Zero-I/O module discovery and dependency resolution. - <strong>Backend</strong>: Compiled PHP array (<code>var/cache/modules_&lt;app&gt;.php</code>). - <strong>Mechanism</strong>: Parses all module manifests (<code>module.yml</code>) and compiles them into a single file. - <strong>Activation</strong>: Automatic when <code>SPP_DEBUG</code> is false. - <strong>Documentation</strong>: <a href="modules/orion-cache.html">Orion Cache</a> </p>
+<h2>2. General Object Cache (<code>\SPP\Cache</code>)</h2>
+<p><strong>Purpose</strong>: Generic key-value storage for application-level and framework-level data. - <strong>Interface</strong>: <code>\SPP\Core\CacheInterface</code> - <strong>Drivers</strong>: - <strong>RedisCache</strong>: High-performance distributed cache (requires Redis extension). - <strong>FileCache</strong>: Fallback driver using serialized PHP files in <code>var/cache</code>. - <strong>Usage</strong>: <code>`</code>php use SPP\Cache; Cache::set(&#039;my_key&#039;, $complexObject, 3600); $data = Cache::get(&#039;my_key&#039;); <code>`</code> </p>
+<h2>3. Asset Orchestration Cache</h2>
+<p><strong>Purpose</strong>: Minimizes HTTP requests by bundling and minifying frontend resources. - <strong>Mechanism</strong>: The <code>AssetOrchestrator</code> hashes the list of requested assets and generates a persistent bundle in <code>var/assets/</code>. - <strong>Cache Invalidation</strong>: Automatically invalidates when the list of assets or their order changes (MD5 hash mismatch). - <strong>Features</strong>: Basic minification and comment stripping. </p>
+<h2>4. Metadata &amp; Registry Caching (Memory)</h2>
+<p><strong>Purpose</strong>: Prevents redundant processing within a single request cycle. - <strong>Registry (<code>\SPP\Registry</code>)</strong>: Stores global state and shared objects in a static memory array. - <strong>Entity Metadata (<code>SPPEntity</code>)</strong>: Caches parsed YAML entity configurations in a static registry to avoid repeated file I/O for the same entity type. - <strong>Settings Cache (<code>App::getGlobalSettings</code>)</strong>: Uses a static variable to cache the <code>global-settings.yml</code> data after the first parse. </p>
+<h2>5. Session Caching</h2>
+<p><strong>Purpose</strong>: Persistent user state across requests. - <strong>Drivers</strong>: Standard PHP file-based sessions or high-performance <strong>Redis Session Handler</strong>. - <strong>Configuration</strong>: Automatically switches to Redis if the <code>redis</code> module is enabled and available. </p>
+<hr>
+<h2>🛠️ Cache Management</h2>
+<h3>Clearing Caches</h3>
+<p>Most caches can be cleared via the <strong>SPP Admin Panel</strong> or manually by removing the contents of the <code>var/cache/</code> and <code>var/assets/</code> directories. </p>
+<h3>Development Mode</h3>
+<p>When <code>SPP_DEBUG</code> is enabled: - Orion Cache is bypassed. - Asset Orchestration often performs real-time resolution (depending on implementation). - The general cache remains active but is often cleared more frequently. </p>
+<hr>
+<p><a href="index.html">Back to Framework Wiki</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Architecture: Polyglot Interoperability | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>SPP Architecture: Polyglot Interoperability</h1>
+<p>Polyglot Interoperability is the framework&#039;s ability to share state, data, and lifecycle information across different programming environments (e.g., PHP, Python, Go, Node.js). </p>
+<h2>1. The Shared State Model</h2>
+<p>In SPP, polyglot communication is built on a <strong>Hybrid Registry</strong> model. While most application data remains in PHP&#039;s memory for performance, specialized data is &quot;mirrored&quot; to a persistent shared store. </p>
+<h3>Key Concepts:</h3>
+<ul><li><strong>The <code>__shared=&gt;</code> Namespace</strong>: Any key registered with this prefix is treated as a &quot;Shared Global&quot;.</li><li><strong>Atomic Sync</strong>: Changes made in PHP are immediately flushed to the filesystem.</li><li><strong>Startup Hydration</strong>: The framework automatically loads the shared state at the beginning of every request.</li></ul>
+<hr>
+<h2>2. Technical Implementation</h2>
+<h3>File-Based Source of Truth</h3>
+<p>The framework maintains a JSON-based registry at: <code>[APP_BASE_DIR]/var/shared/registry.json</code> </p>
+<h3>Interacting from PHP</h3>
+<pre><code>use \SPP\Registry;
+<p>// Write shared state Registry::register(&#039;__shared=&gt;api=&gt;status&#039;, &#039;online&#039;); </p>
+<p>// Read shared state (already pre-loaded by Scheduler) $status = Registry::get(&#039;__shared=&gt;api=&gt;status&#039;);</code></pre> </p>
+<hr>
+<h2>3. Interacting from Other Languages</h2>
+<p>Because the state is stored in standard JSON, external services can participate in the framework&#039;s ecosystem. </p>
+<h3>Example: Python Monitoring Service</h3>
+<pre><code>import json
+<p>import os </p>
+<p>REGISTRY_PATH = &quot;var/shared/registry.json&quot; </p>
+<p>def get_shared_key(key): if os.path.exists(REGISTRY_PATH): with open(REGISTRY_PATH, &#039;r&#039;) as f: data = json.load(f) return data.get(key) return None </p>
+<h1>Accessing SPP state</h1>
+<p>status = get_shared_key(&#039;api&#039;) print(f&quot;SPP API Status: {status[&#039;status&#039;]}&quot;)</code></pre> </p>
+<h3>Example: Node.js Background Worker</h3>
+<pre><code>const fs = require(&#039;fs&#039;);
+<p>const path = &quot;var/shared/registry.json&quot;; </p>
+<p>// Writing to SPP state from Node.js function setSharedKey(key, value) { let data = {}; if (fs.existsSync(path)) { data = JSON.parse(fs.readFileSync(path)); } data[key] = value; fs.writeFileSync(path, JSON.stringify(data, null, 4)); } </p>
+<p>setSharedKey(&#039;worker_status&#039;, &#039;active&#039;);</code></pre> </p>
+<hr>
+<h2>4. Best Practices</h2>
+<ul><li><strong>Namespace Discipline</strong>: Only store data that *needs* to be shared across languages in <code>__shared=&gt;</code>. Use standard namespaces for internal PHP logic.</li><li><strong>Read-Heavy Usage</strong>: The filesystem sync is optimized for read-heavy operations. High-frequency writes (thousands per second) should consider a Redis-based driver (see future roadmap).</li><li><strong>Immutability</strong>: Avoid renaming core shared keys at runtime to prevent breaking external dependencies.</li></ul>
+<hr>
+<p><a href="index.html">Back to Index</a> | <a href="registry.html">Registry</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

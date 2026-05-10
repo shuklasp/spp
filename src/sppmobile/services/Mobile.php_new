@@ -1,0 +1,75 @@
+function live_Mobile_GetBlueprintLibrary($la, $params) {
+    // Force absolute path normalization for Windows
+    $root = str_replace('\\', '/', STUDIO_ROOT);
+    $blueprintDir = rtrim($root, '/') . '/blueprints';
+    
+    if (!is_dir($blueprintDir)) {
+        @mkdir($blueprintDir, 0777, true);
+    }
+
+    $library = [
+        'layouts' => [],
+        'blueprints' => [
+            [
+                "id" => "debug_check_1",
+                "name" => "SYSTEM: Path Verify",
+                "description" => "Target: " . $blueprintDir,
+                "template" => []
+            ]
+        ]
+    ];
+
+    // Use a more robust scanning method than glob
+    if (is_dir($blueprintDir)) {
+        $items = scandir($blueprintDir);
+        foreach ($items as $item) {
+            if ($item === '.' || $item === '..') continue;
+            
+            $fullPath = $blueprintDir . '/' . $item;
+            
+            if (is_dir($fullPath)) {
+                $category = $item;
+                $subItems = scandir($fullPath);
+                foreach ($subItems as $subItem) {
+                    if (preg_match('/\.(json|php)$/i', $subItem)) {
+                        $filePath = $fullPath . '/' . $subItem;
+                        $ext = pathinfo($filePath, PATHINFO_EXTENSION);
+                        $content = ($ext === 'json') ? json_decode(file_get_contents($filePath), true) : include($filePath);
+                        
+                        if ($content && is_array($content)) {
+                            if ($category === 'layouts') {
+                                $library['layouts'][$content['id'] ?? basename($subItem, ".$ext")] = $content;
+                            } else {
+                                if (isset($content[0]) && is_array($content[0])) {
+                                    $library['blueprints'] = array_merge($library['blueprints'], $content);
+                                } else {
+                                    $library['blueprints'][] = $content;
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (preg_match('/\.(json|php)$/i', $item)) {
+                $ext = pathinfo($fullPath, PATHINFO_EXTENSION);
+                $content = ($ext === 'json') ? json_decode(file_get_contents($fullPath), true) : include($fullPath);
+                if ($content && is_array($content)) {
+                    if (isset($content[0]) && is_array($content[0])) {
+                        $library['blueprints'] = array_merge($library['blueprints'], $content);
+                    } else {
+                        $library['blueprints'][] = $content;
+                    }
+                }
+            }
+        }
+    }
+
+    $la->setData([
+        'library' => $library,
+        'debug' => [
+            'root' => $root,
+            'blueprintDir' => $blueprintDir,
+            'exists' => is_dir($blueprintDir),
+            'scandir' => is_dir($blueprintDir) ? scandir($blueprintDir) : []
+        ]
+    ]);
+}

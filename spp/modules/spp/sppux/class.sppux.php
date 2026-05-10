@@ -101,10 +101,10 @@ class SPPUX extends \SPP\SPPObject
         \SPPMod\SPPView\ViewPage::addCssIncludeFile(self::cssPath($appname));
 
         // Add Runtime, UI Library, Grid & Bridge
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::runtimePath($appname));
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::uiPath($appname));
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::gridPath($appname));
-        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::bridgePath($appname));
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::runtimePath($appname), ['type' => 'module']);
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::uiPath($appname), ['type' => 'module']);
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::gridPath($appname), ['type' => 'module']);
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::bridgePath($appname), ['type' => 'module']);
 
         // Add Loader if auto_mount is enabled
         $autoMount = \SPP\Module::getConfig('auto_mount', 'sppux', $appname);

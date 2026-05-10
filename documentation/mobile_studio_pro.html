@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📱 Mobile Studio Pro: The Engineering Blueprint | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>📱 Mobile Studio Pro: The Engineering Blueprint</h1>
+<p>Welcome to <strong>Mobile Studio Pro</strong>, the high-fidelity visual orchestration engine for Flutter-based mobile applications. If you&#039;ve never touched mobile development, don&#039;t worry—this is the &quot;no-code&quot; IDE that actually thinks like an engineer. </p>
+<h2>🏗️ Core Concepts</h2>
+<h3>1. The Screen Architecture</h3>
+<p>In Mobile Studio Pro, an app is a collection of <strong>Screens</strong>. Think of a screen as a logical context (Home, Profile, Settings). Each screen has its own layout tree and local state. </p>
+<h3>2. Blueprints (High-Fidelity Templates)</h3>
+<p>Blueprints are pre-engineered architectural patterns. Instead of dragging a single button, you can apply a <strong>Discovery Feed</strong> or <strong>Analytics Dashboard</strong> blueprint. </p>
+<ul><li><strong>Why use them?</strong> They enforce professional design standards (padding, alignment, hierarchy) out of the box.</li><li><strong>How to apply:</strong> Select a screen, pick a blueprint from the library, and watch the studio orchestrate the components for you.</li></ul>
+<h3>3. Atoms &amp; Molecules (Components)</h3>
+<p>Everything you see is a <strong>Component</strong>. </p>
+<ul><li><strong>Atoms</strong>: Basic building blocks like <code>Text</code>, <code>Button</code>, and <code>Image</code>.</li><li><strong>Molecules/Organisms</strong>: Complex structural widgets like <code>GridView</code>, <code>GlassPanel</code>, and <code>Carousel</code>.</li><li><strong>Containers</strong>: These hold other components. The studio uses a recursive rendering engine, so you can put a <code>Card</code> inside a <code>Column</code> inside a <code>Container</code>—infinitely.</li></ul>
+<hr>
+<h2>🧠 The &quot;Brain&quot; (Logic &amp; State)</h2>
+<h3>State Management</h3>
+<p>Apps aren&#039;t static; they hold data. </p>
+<ul><li><strong>State Variables</strong>: You can define custom variables (e.g., <code>isLoggedIn</code>, <code>userName</code>).</li><li><strong>Data Binding</strong>: You can &quot;bind&quot; a component&#039;s property to a state variable. When the variable changes, the UI updates instantly. No <code>setState()</code> boilerplate required.</li></ul>
+<h3>Action Pipeline</h3>
+<p>This is where the magic happens. Actions are triggered by user interactions (like clicking a button). </p>
+<ul><li><strong>Navigate</strong>: Move between screens.</li><li><strong>API Call</strong>: Fetch data from your backend (via <strong>LiveServices</strong>).</li><li><strong>State Update</strong>: Change the value of a variable to trigger a UI update.</li></ul>
+<hr>
+<h2>📂 Asset Orchestration (Media Management)</h2>
+<p>Professional apps require organized media. Mobile Studio Pro features an <strong>Enterprise Asset Engine</strong>: </p>
+<ul><li><strong>Hierarchical Folders</strong>: Organize your images and icons into logical namespaces.</li><li><strong>Base64 Tunneling</strong>: Upload media directly through the browser; the engine handles the secure ingestion and path resolution for you.</li><li><strong>Dynamic Resolution</strong>: Assets are automatically mapped to Flutter-compatible paths during the build process.</li></ul>
+<hr>
+<h2>🎨 Theme Engine (Visual Identity)</h2>
+<p>The studio uses a professional <strong>Material Design 3 (MD3)</strong> theme engine. </p>
+<ul><li><strong>Color Palettes</strong>: Primary, Secondary, and Tertiary color tokens that sync across all components.</li><li><strong>Design Tokens</strong>: Define a style once (e.g., &quot;Glassy Card&quot;) and apply it to multiple components using tokens.</li><li><strong>Visual Fidelity</strong>: What you see in the preview is a pixel-accurate representation of the final Flutter UI.</li></ul>
+<hr>
+<h2>🚀 Deployment &amp; Sync</h2>
+<h3>1. PWA Sync</h3>
+<p>One-click synchronization to a <strong>Progressive Web App</strong>. This allows you to test your app&#039;s logic and flow instantly in any browser. </p>
+<h3>2. Flutter Build</h3>
+<p>When you&#039;re ready for the App Store, the studio compiles your visual blueprint into production-ready <strong>Flutter (Dart)</strong> code. </p>
+<ul><li>It generates the widget tree.</li><li>It synchronizes the asset manifest.</li><li>It wires up the action pipeline to real Dart event handlers.</li></ul>
+<hr>
+<h2>🛠️ Typical Workflow</h2>
+<p>1.  <strong>Orchestrate</strong>: Create your screens and apply architectural blueprints. 2.  <strong>Define State</strong>: Setup your variables in the &#039;State&#039; tab. 3.  <strong>Wire Up</strong>: Build action pipelines for buttons and interactions. 4.  <strong>Polish</strong>: Fine-tune colors and tokens in the &#039;Theme&#039; tab. 5.  <strong>Sync</strong>: Hit &#039;Sync PWA&#039; to see your creation live! </p>
+<p><strong>Congratulations!</strong> You&#039;ve just graduated from &quot;Mobile Nerd&quot; to &quot;Mobile Architect&quot;. Now go build something elite. </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

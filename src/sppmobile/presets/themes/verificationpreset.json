@@ -1,0 +1,24 @@
+{
+    "name": "VerificationPreset",
+    "themes": [
+        {
+            "primary": "#1e293b",
+            "secondary": "#334155",
+            "surface": "#f8fafc",
+            "name": "Default"
+        },
+        {
+            "primary": "#1e293b",
+            "secondary": "#334155",
+            "surface": "#f8fafc",
+            "name": "VerificationTheme"
+        },
+        {
+            "primary": "#1e293b",
+            "secondary": "#334155",
+            "surface": "#f8fafc",
+            "name": "VerificationTheme Copy"
+        }
+    ],
+    "created_at": "2026-05-09 04:58:43"
+}

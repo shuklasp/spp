@@ -1,13 +1,40 @@
-app_id: com.spp.default
-app_name: 'Default Mobile'
+app_id: com.spp.firstbook
 version: 1.0.0
-theme:
-  primary: '#6366f1'
-  secondary: '#a855f7'
-  surface: '#1e1e2e'
+created_at: '2026-05-07 13:11:49'
+app_name: 'First Book'
 screens:
   -
-    id: home
-    title: Home
-    type: dashboard
-    mapping: ''
+    id: p1
+    title: Introduction
+    type: reader
+    mapping: page1
+    content:
+      nav: buttons
+      show_progress: true
+  -
+    id: p2
+    title: 'Getting Started'
+    type: reader
+    mapping: page2
+    content:
+      nav: buttons
+      show_progress: true
+themes:
+  -
+    primary: '#ce4040'
+    secondary: '#cd3737'
+    surface: '#f8fafc'
+    name: Default
+    background: '#f3c9c9'
+    text: '#1f0404'
+    font: 'JetBrains Mono'
+  -
+    primary: '#5679e1'
+    secondary: '#cd3737'
+    surface: '#f8fafc'
+    name: NewTheme
+    background: '#f3c9c9'
+    text: '#1f0404'
+    font: 'Open Sans'
+    id: theme_1778343675130
+activeTheme: Default

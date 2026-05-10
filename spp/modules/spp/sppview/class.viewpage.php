@@ -96,12 +96,15 @@ class ViewPage extends \SPP\SPPObject
         $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool)\SPP\Module::getConfig('auto_js_injection', 'sppview'));
 
         if ($pageData['special'] == 1) {
-            $includePath = SPP_APP_DIR . $src . SPP_US . trim($pageData['url']);
+            $includePath = SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\');
             if (file_exists($includePath)) {
                 include($includePath);
             } else {
-                // Fallback to legacy root inclusion
-                include(SPP_APP_DIR . SPP_US . trim($pageData['url']));
+                // Fallback to legacy root inclusion (safety)
+                $legacyPath = SPP_APP_DIR . SPP_DS . $src . SPP_DS . ltrim($pageData['url'], '/\\');
+                if (file_exists($legacyPath)) {
+                    include($legacyPath);
+                }
             }
             return true;
         }
@@ -112,7 +115,7 @@ class ViewPage extends \SPP\SPPObject
         SPPGlobal::set('q', $q);
         SPPGlobal::set('numparams', count($pageData['params']));
         
-        $filename = SPP_APP_DIR . $src . SPP_US . $pageData['url'];
+        $filename = SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\');
         
         // Safety check: Prevent infinite recursion if pagedir resolution fails or points to root index
         if ($filename === SPP_APP_DIR . SPP_US . 'index.php') {
@@ -292,8 +295,11 @@ class ViewPage extends \SPP\SPPObject
 
     public static function includeJqueryDynamic()
     {
-        // Using document.write synchronously guarantees blocking execution before dependent scripts load
-        echo '<script type="text/javascript">if(typeof jQuery === "undefined") { document.write(\'<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"><\/script>\'); }</script>' . "\n";
+        // Modernized: Avoid document.write to prevent parser-blocking warnings.
+        // We now use a standard script tag. If jQuery is already loaded by the app, 
+        // this will still load but jQuery handles multiple inclusions gracefully.
+        // However, for SPP-UX apps, we recommend using addJsIncludeFile instead.
+        echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>' . "\n";
     }
 
     public static function render($page = null)

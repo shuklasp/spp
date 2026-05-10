@@ -1,0 +1,16 @@
+[
+    { "id": "dashboard", "name": "Analytics Dashboard", "description": "Multi-column stats and health monitor.", "template": [
+        { "id": "ab1", "type": "app_bar", "props": { "text": "Dashboard" } },
+        { "id": "gv1", "type": "grid_view", "props": { "cols": 2 }, "children": [
+            { "id": "c1", "type": "card", "props": { "text": "Active Assets" } },
+            { "id": "c2", "type": "card", "props": { "text": "System Health" } }
+        ]}
+    ]},
+    { "id": "ecommerce", "name": "Digital Storefront", "description": "Product grids and checkout flow.", "template": [
+        { "id": "ab1", "type": "app_bar", "props": { "text": "Marketplace" } },
+        { "id": "gv1", "type": "grid_view", "props": { "cols": 2 }, "children": [
+            { "id": "p1", "type": "image", "props": { "text": "Product 1" } },
+            { "id": "p2", "type": "image", "props": { "text": "Product 2" } }
+        ]}
+    ]}
+]

@@ -1,6 +1,4 @@
-/**
- * Main include file for SPP View module.
- */
+window.spp = window.spp || {};
 
 spp.navigate=function(url){
 	window.location.href=url;

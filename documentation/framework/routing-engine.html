@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Routing Engine: The Nerd's Guide 🧠 | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="card">
+                <div class="badge badge-accent">Rule 02</div>
+                <h3>Application & Module Context</h3>
+                <p>Routes declared within a <code>module.yml</code> are scoped to the module directory. Application routes resolve to the app-specific <code>src/</code> subfolder.</p>
+                <pre><code>url: views/dash.php  => [ROOT]/modules/my_mod/views/dash.php
+url: index.php       => [ROOT]/src/my_app/index.php</code></pre>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>SPP Routing Engine: The Nerd&#039;s Guide 🧠</h1>
+<p>Welcome to the internal mechanics of the Satya Portal Pack (SPP) Routing Engine. This guide covers the context-aware resolution logic, module delegation, and asset directory mapping introduced in the Phase 5 &quot;Universal Route&quot; update. </p>
+<h2>1. Path Resolution Rules</h2>
+<p>The routing engine uses a deterministic three-tier resolution strategy based on the path prefix and the discovery context. </p>
+<h3>A. Absolute Routes (The Root Override)</h3>
+<p>Any path starting with a forward slash (<code>/</code>) or backslash (<code>\</code>) is resolved relative to the <code>APP_BASE_DIR</code> (the physical root of your SPP installation). </p>
+<ul><li><strong>Syntax</strong>: <code>/path/to/file.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/path/to/file.php</code></li><li><strong>Use Case</strong>: Accessing shared system files, <code>etc</code> configurations, or cross-application common assets.</li></ul>
+<h3>B. Relative Routes (Context-Aware)</h3>
+<p>Paths that do <strong>not</strong> start with a slash are resolved based on where they are declared. </p>
+<p>#### I. Module Context If a route is declared in a <code>module.yml</code> file, it is considered &quot;Module-Local&quot;. </p>
+<ul><li><strong>Syntax</strong>: <code>views/dashboard.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/modules/[MODULE_NAME]/views/dashboard.php</code></li><li><strong>Nerd Note</strong>: The router automatically calculates the relative offset from the root using <code>realpath</code> resolution to ensure symlinks don&#039;t break the pathing.</li></ul>
+<p>#### II. Application Context If a route is declared in the application&#039;s <code>pages.yml</code> or via <code>App::getAppConf(&#039;routes&#039;)</code>, it is considered &quot;App-Source&quot;. </p>
+<ul><li><strong>Syntax</strong>: <code>profile.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/src/profile.php</code></li><li><strong>Default Behavior</strong>: Non-slashed paths always default to the <code>src/</code> directory for standard app logic.</li></ul>
+<hr>
+<h2>2. Route Types</h2>
+<h3>Static URL Mapping</h3>
+<p>Maps a virtual URL to a physical PHP or template file. </p>
+<pre><code><h1>pages.yml</h1>
+<p>pages: my-profile: url: user/profile.php   # -&gt; src/user/profile.php system-conf: url: /etc/config.php    # -&gt; [ROOT]/etc/config.php</code></pre> </p>
+<h3>Asset Directory Mapping (Recursive Serving)</h3>
+<p>The <code>assets</code> key allows you to mount entire physical directories onto a virtual URL prefix. </p>
+<pre><code><h1>module.yml</h1>
+<p>module: name: image_vault routes: gallery: assets: res/images    # -&gt; modules/image_vault/res/images/*</code></pre> </p>
+<p><strong>Request Flow</strong>: 1. User hits <code>/gallery/icons/user.svg</code>. 2. Router matches prefix <code>gallery</code>. 3. Router appends the remainder (<code>icons/user.svg</code>) to the base (<code>res/images</code>). 4. Engine serves <code>modules/image_vault/res/images/icons/user.svg</code> with correct MIME types and cache headers. </p>
+<hr>
+<h2>3. The Discovery Pipeline</h2>
+<p>When a request arrives, the <code>SPPMod\SPPView\Pages</code> class executes the following pipeline: </p>
+<p>1.  <strong>Primary Source</strong>: Check <code>pages.yml</code> (or DB) in the current application context. 2.  <strong>Module Registry</strong>: Iterates through all registered <code>SPP\Module</code> objects and checks their <code>Routes</code> property. 3.  <strong>App Configuration</strong>: Checks the dynamic <code>routes</code> array in the application runtime config. 4.  <strong>Global Specials</strong>: Checks for system-level special routes (e.g., <code>getResource</code>, <code>getFile</code>). </p>
+<hr>
+<h2>4. Advanced: Special Route Methods</h2>
+<p>You can invoke internal framework methods by setting the <code>special: 1</code> flag. </p>
+<ul><li><strong><code>serveResource</code></strong>: Serves files from the configured <code>resdir</code>.</li><li><strong><code>serveDirectory</code></strong>: The internal engine used for directory mapping. It handles:</li><li><code>Content-Type</code> detection for over 15 modern formats.</li><li><code>Cache-Control: public, max-age=31536000</code> for production performance.</li><li>404 handling with graceful exits.</li></ul>
+<hr>
+<p>*Documentation maintained by the SPP Framework Team.* </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

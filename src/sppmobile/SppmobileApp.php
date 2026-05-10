@@ -24,13 +24,52 @@ class SppmobileApp extends \SPP\App {
     public function handle($request) {
         $q = $_GET['q'] ?? '';
         
-        // Handle API requests (Still isolated)
+        // Robust Path Normalization: Ensure we handle framework-delivered prefixes consistently
+        $q = ltrim($q, '/');
+        if (strpos($q, 'sppmobile') === 0) {
+            $q = ltrim(substr($q, 9), '/');
+        }
+        $q = rtrim($q, '/');
+
+        // 1. Handle Logout
+        if ($q === 'logout') {
+            \SPP\App::killSession();
+            $baseUrl = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '', '/');
+            header("Location: " . $baseUrl . "/sppmobile/login");
+            exit;
+        }
+
+        // 2. Handle API requests first
         if ($q === 'api.php' || $q === 'api') {
             require_once __DIR__ . '/api.php';
             return;
         }
 
-        // --- NEW: Directory Routing Engine ---
+        // 2. Isolated Studio Login Route
+        if ($q === 'login' || $q === 'login.php') {
+            require_once __DIR__ . '/login.php';
+            return;
+        }
+
+        // 3. Isolated Auth Protection (No connection to /admin)
+        $sessionUser = null;
+        if (\SPP\SPPSession::sessionVarExists('studio_user')) {
+            $sessionUser = \SPP\SPPSession::getSessionVar('studio_user');
+        }
+
+        if (!$sessionUser) {
+            // Force absolute redirect to ensure it works across all environments
+            $baseUrl = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '', '/');
+            $loginUrl = $baseUrl . '/sppmobile/login';
+            header("Location: $loginUrl"); 
+            exit;
+        }
+
+        // 4. Studio-Specific RBAC
+        $role = $sessionUser['role'] ?? 'viewer';
+        $rights = $this->getRightsForRole($role);
+
+        // --- Directory Routing Engine ---
         foreach ($this->dirRoutes as $route => $dir) {
             if ($q === $route || strpos($q, $route . '/') === 0) {
                 $file = __DIR__ . '/' . $q;
@@ -64,10 +103,11 @@ class SppmobileApp extends \SPP\App {
             \SPPMod\SPPView\ViewPage::addCssContent('.content-header, .system-bar, #system-header { display: none !important; }');
             
             // Register isolated studio assets through framework routines
+            \SPPMod\SPPView\ViewPage::addJsIncludeFile('https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js');
             \SPPMod\SPPView\ViewPage::addCssIncludeFile('css/mobile.css');
+            \SPPMod\SPPView\ViewPage::addJsIncludeFile('js/blueprints.js');
             \SPPMod\SPPView\ViewPage::addJsIncludeFile('js/mobile-app.js', ['type' => 'module']);
-            \SPPMod\SPPView\ViewPage::addJsContent("window.SPP_CONFIG = { apiEndpoint: 'api.php' };");
-
+            
             // Delegate to framework's showPage
             \SPPMod\SPPView\ViewPage::showPage(null, ['augment' => false]);
             return;
@@ -75,5 +115,19 @@ class SppmobileApp extends \SPP\App {
 
         // Fallback for non-view environments
         require_once __DIR__ . '/index.php';
+    }
+
+    /**
+     * Internal Rights Mapper
+     * Defines what each role can do within the studio.
+     */
+    private function getRightsForRole(string $role): array {
+        $matrix = [
+            'admin' => ['studio_view', 'studio_edit', 'studio_save', 'studio_sync', 'studio_build', 'api_access'],
+            'developer' => ['studio_view', 'studio_edit', 'studio_save', 'studio_sync', 'api_access'],
+            'designer' => ['studio_view', 'studio_edit', 'studio_save', 'api_access'],
+            'viewer' => ['studio_view', 'api_access']
+        ];
+        return $matrix[$role] ?? $matrix['viewer'];
     }
 }

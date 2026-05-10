@@ -36,7 +36,8 @@ class Module extends \SPP\SPPObject
         'ConfigVariables',
         'Settings',
         'Installation',
-        'RuntimeBridgeConfig'
+        'RuntimeBridgeConfig',
+        'Routes'
     ];
 
     /** @var array<string> */
@@ -56,7 +57,8 @@ class Module extends \SPP\SPPObject
         'ConfigVariables',
         'Settings',
         'Installation',
-        'RuntimeBridgeConfig'
+        'RuntimeBridgeConfig',
+        'Routes'
     ];
 
     /**
@@ -285,6 +287,9 @@ class Module extends \SPP\SPPObject
                     break;
                 case 'settings':
                     $this->Settings = (array) $val;
+                    break;
+                case 'routes':
+                    $this->Routes = (array) $val;
                     break;
                 default:
                     // Ignore unknown keys (keep robust)

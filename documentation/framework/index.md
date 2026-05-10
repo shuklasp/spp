@@ -21,7 +21,7 @@ Welcome to the technical documentation for the SPP (Satya Portal Pack) Framework
 *   [**SPP InterDB**](sppinterdb.md): Federated Data Aggregation & GraphQL Gateway.
 *   [**Admin Panel**](admin-panel.md): The Developer Workbench and System Orchestration UI.
 *   [**LiveService**](liveservice.md): Unified Reactive Architecture & SAJAX-style Services.
-*   [**Mobile Studio**](mobile-studio.md): Visual Builder for Cross-Platform Apps.
+*   [**Mobile Studio Pro**](mobile-studio.md): Elite Visual Builder for Cross-Platform Apps.
 *   [**Core Modules**](modules/index.md): Deep-dive into SppView, SppEntity, SppLogger, etc.
 
 ---

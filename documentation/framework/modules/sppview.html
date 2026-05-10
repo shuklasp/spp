@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Module: SppView | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Core Module: SppView</h1>
+<p>SppView is the primary presentation and resource management module of the SPP framework. It transforms data and templates into fully augmented HTML pages. </p>
+<hr>
+<h2>1. Basic Philosophy</h2>
+<p>SppView follows the <strong>&quot;Augmented View&quot;</strong> philosophy. Instead of just rendering a template, it treats the resulting HTML as a living document that can be further processed (augmented) to inject scripts, styles, and framework-level UI components. </p>
+<hr>
+<h2>2. Architecture</h2>
+<p>The module is centered around the <code>\SPP\ViewPage</code> class. </p>
+<h3>Key Lifecycle Stages:</h3>
+<p>1.  <strong>Preparation</strong>: Gathering data and setting page metadata (title, breadcrumbs). 2.  <strong>Resource Queueing</strong>: Collecting CSS and JS files required for the page. 3.  <strong>Rendering</strong>: Executing the template engine (via overridable events). 4.  <strong>Augmentation</strong>: Post-processing the HTML to inject queued resources and resolve custom tags like <code>&lt;php-comp&gt;</code>. 5.  <strong>Theming</strong>: Wrapping the final output in an application-level theme. </p>
+<hr>
+<h2>3. API &amp; Usage</h2>
+<h3>Core Methods</h3>
+<ul><li><code>addJsIncludeFile(string $url)</code>: Queues a JavaScript file for the current page.</li><li><code>addCssIncludeFile(string $url)</code>: Queues a CSS file.</li><li><code>render(string $filename, array $data)</code>: Initiates the full rendering and augmentation pipeline.</li><li><code>setPageTitle(string $title)</code>: Sets the <code>&lt;title&gt;</code> and <code>&lt;h1&gt;</code> of the page.</li></ul>
+<h3>Example Usage</h3>
+<pre><code>use \SPP\ViewPage;
+<p>ViewPage::setPageTitle(&quot;Welcome to SPP&quot;); ViewPage::addCssIncludeFile(&quot;/res/my-style.css&quot;); </p>
+<p>ViewPage::render(&quot;home.blade.php&quot;, [ &#039;user&#039; =&gt; &#039;Satya&#039;, &#039;items&#039; =&gt; $itemList ]);</code></pre> </p>
+<hr>
+<h2>4. Events</h2>
+<p>SppView is highly extensible via the following hooks: </p>
+<ul><li><code>event_spp_view_pre_render</code>: Modify data before rendering.</li><li><code>event_spp_view_render</code>: (Overridable) The actual template execution.</li><li><code>event_spp_view_post_render</code>: Modify raw HTML output.</li><li><code>event_spp_view_before_augment</code>: Last chance to modify HTML before resource injection.</li></ul>
+<hr>
+<p><a href="index.html">Back to Modules Index</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Component: Event System | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Core Component: Event System</h1>
+<p>The SPP Event System (<code>\SPP\SPPEvent</code>) is a sophisticated, stage-based messaging bus that enables the framework&#039;s decoupled architecture. </p>
+<h2>1. The 4-Stage Execution Pipeline</h2>
+<p>Every event fired via <code>fireEvent</code> follows a strict sequence: </p>
+<h3>STAGE 1: BEFORE</h3>
+<ul><li><strong>Purpose</strong>: Parameter modification or validation.</li><li><strong>Execution</strong>: All registered handlers are called in order of priority.</li><li><strong>Stop Propagation</strong>: A handler can call <code>stopPropagation()</code> to prevent subsequent handlers and stages.</li></ul>
+<h3>STAGE 2: OVERRIDE</h3>
+<ul><li><strong>Purpose</strong>: To replace the core framework functionality.</li><li><strong>Trigger</strong>: Triggered if a handler implements the <code>overrideHandler()</code> method.</li><li><strong>Effect</strong>: If executed, the <strong>Default Stage</strong> is completely skipped.</li></ul>
+<h3>STAGE 3: DEFAULT</h3>
+<ul><li><strong>Purpose</strong>: The framework&#039;s internal implementation of the feature.</li><li><strong>Execution</strong>: Only runs if STAGE 2 was not triggered.</li><li><strong>Note</strong>: The core framework registers its logic as a &quot;Default Handler&quot;.</li></ul>
+<h3>STAGE 4: AFTER</h3>
+<ul><li><strong>Purpose</strong>: Result augmentation or cleanup.</li><li><strong>Execution</strong>: Always runs after the action (Stage 2 or 3) is complete.</li></ul>
+<h2>2. Advanced Features</h2>
+<ul><li><strong>Priority Ranking</strong>: Handlers can define a priority (integer). Higher numbers run first.</li><li><strong>Subscribers</strong>: Modules can use <code>getSubscribedEvents()</code> to register multiple handlers in a single class.</li><li><strong>Traceability</strong>: When <code>SPP_DEBUG</code> is enabled, the system logs every event and its handlers to <code>var/logs/event_trace.json</code>.</li></ul>
+<h2>3. Implementation Snippet</h2>
+<pre><code>\SPP\SPPEvent::fireEvent(&#039;event_name&#039;, $params, &#039;DefaultFallbackHandler&#039;);</code></pre>
+<hr>
+<p><a href="index.html">Back to Index</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

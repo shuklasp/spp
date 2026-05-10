@@ -9,6 +9,7 @@ Welcome to the internal technical documentation for Lekhak CMS. Lekhak is design
 ## 🧩 Modules & Systems
 *   [**Lekhni Editor**](lekhni-editor.md): The professional WYSIWYG publishing engine.
 *   [**Theme Engine**](theme-engine.md): The CMS-style layout and region injection system.
+*   [**Mobile Studio Pro**](../mobile_studio_pro.md): The elite visual IDE for high-fidelity Flutter development.
 *   [**Media & Data**](media-management.md): Path resolution, local storage, and the media API.
 *   [**Registry & Configuration**](application-registry.md): Application-local settings and routing.
 

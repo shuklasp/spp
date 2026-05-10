@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Studio Pro — Complete Documentation | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Mobile Studio Pro — Complete Documentation</h1>
+<p>&gt; <strong>Version</strong>: 4.0 (Satya Studio Pro) | <strong>Last Updated</strong>: May 2026 &gt; <strong>Audience</strong>: Pro Users, Designers, &amp; Elite Developers (Total Nerds) </p>
+<hr>
+<h2>0. The Unified Framework (Developer Special)</h2>
+<p>&gt; [!IMPORTANT] &gt; <strong>Breaking Change Alert</strong>: As of v3.0, <code>BaseComponent.js</code> has been deprecated and merged into the core <code>sppux.js</code> framework. There is now only <strong>one</strong> source of truth for the reactive engine. </p>
+<h3>Why the Unification?</h3>
+<p>Previously, the framework was fragmented between a global script (<code>sppux.js</code>) and an ES module (<code>BaseComponent.js</code>). This led to: 1. <strong>Feature Drifts</strong>: New features like <code>domFilter</code> or <code>guard</code> were added to one but not the other. 2. <strong>Event Conflicts</strong>: Two different event dispatchers fighting for the same click. 3. <strong>Bloat</strong>: Loading two versions of the same core logic. </p>
+<h3>How it works now</h3>
+<p><code>sppux.js</code> is now a dual-mode asset. It acts as a standard global script for legacy pages and as a modern ES module for new components. </p>
+<p><strong>The nerd way to extend it:</strong> </p>
+<pre><code>// Standard import from the framework directory
+<p>import { BaseComponent, html } from &#039;../../../../spp/modules/spp/sppux/js/sppux.js&#039;; </p>
+<p>export default class MyAdvancedComponent extends BaseComponent { // Look Ma, no duplication! }</code></pre> </p>
+<hr>
+<h2>Part 1: User Guide</h2>
+<h3>What is Mobile Studio Pro?</h3>
+<p>Mobile Studio Pro is a <strong>visual drag-and-drop builder</strong> for designing mobile app screens. Think of it like Figma or Canva, but specifically for creating real mobile app layouts that can be exported to Flutter or PWA. </p>
+<h3>Getting Started</h3>
+<p>1. Open your browser and go to your SPP installation URL + <code>/sppmobile</code> 2. You&#039;ll see the <strong>Project Portfolio</strong> — a list of your mobile app projects 3. Click <strong>Create New Project</strong> to start a new app, or click an existing one to open it </p>
+<h3>The Studio Interface</h3>
+<p>When you open a project, you see three panels: </p>
+<pre><code>┌──────────────────────────────────────────────────────────────┐
+<p>│  Header: App Name | Visual/Code/Assets | iOS/Android | Zoom │ ├────────────┬────────────────────────┬────────────────────────┤ │            │                        │                        │ │  Left:     │  Center:               │  Right:                │ │  Navigator │  Device Preview        │  Inspector             │ │            │  (your phone screen)   │  (properties panel)    │ │  - Screens │                        │  - Colors, text, etc.  │ │  - Library │                        │  - Layout settings     │ │  - Search  │                        │  - Actions             │ │            │                        │                        │ ├────────────┴────────────────────────┴────────────────────────┤</code></pre> </p>
+<h3>Using the Library</h3>
+<p>The left sidebar has a <strong>Library</strong> section with two tabs: </p>
+<p>- <strong>Atoms</strong> — Basic building blocks: buttons, text, images, containers, inputs, etc. - <strong>Blueprints</strong> — Pre-built full-screen layouts: dashboards, login pages, checkout flows, etc. </p>
+<p><strong>To add a component</strong>: Click any Atom or Blueprint to add it to the current screen. </p>
+<p><strong>To search</strong>: Type in the search box. It filters items <strong>instantly</strong> as you type. Works in both Atoms and Blueprints tabs. Clear the search box to see everything again. </p>
+<h3>Working with Screens</h3>
+<p>- Each app has multiple <strong>screens</strong> (like pages in a website) - Click a screen name in the left panel to switch to it - Click <strong>+ Add Screen</strong> to create a new one - Each screen has a type (home, settings, profile, etc.) </p>
+<h3>The Inspector (Right Panel)</h3>
+<p>When you click on a component in the device preview: </p>
+<p>- <strong>Properties tab</strong> — Edit text, colors, sizes, padding, margins - <strong>Actions tab</strong> — Set what happens when the user taps (navigate, API call, etc.) - <strong>Style tab</strong> — Fine-tune appearance (border radius, elevation, opacity) </p>
+<h3>1.5 Pro Features: Data &amp; Reactivity</h3>
+<p>Mobile Studio Pro introduces a full-stack data layer directly in the visual builder. </p>
+<ul><li><strong>DataManager</strong>: Open the <strong>Data</strong> tab to manage Global State. Create variables (e.g., <code>userScore</code>, <code>themeColor</code>) that persist across the entire session.</li><li><strong>Property Binding</strong>: Click the <strong>🔗 Link</strong> icon next to any property (Text, Image Source, Color) to bind it to a variable. The value will update <strong>instantly</strong> whenever the state changes.</li><li><strong>Conditional Actions</strong>: Build branching logic in your button clicks. </li><li>*Example*: <code>If {{state.count}} &gt; 10 → Navigate to WinScreen Else → Show Notification</code>.</li></ul>
+<h3>1.6 Symbols &amp; Reusability</h3>
+<p>Stop recreating the same header on every screen. 1. Right-click a component and select <strong>✨ Convert to Symbol</strong>. 2. Give it a name (e.g., &quot;Main Header&quot;). 3. Drag your Symbol from the <strong>Symbols Library</strong> onto any other screen. 4. <strong>The Magic</strong>: Edit the master Symbol once, and every instance in your app updates automatically. </p>
+<h3>1.7 Responsive Design</h3>
+<p>Use the <strong>Breakpoint Toolbar</strong> at the top of the preview to test your designs on: </p>
+<ul><li>📱 <strong>Mobile</strong> (Portrait)</li><li>📟 <strong>Tablet</strong> (Android/iOS)</li><li>🖥️ <strong>Desktop</strong> (Wide)</li></ul>
+<p>Adjust <strong>Zoom</strong> (25% - 200%) to get pixel-perfect alignment. </p>
+<h3>Loading Screen</h3>
+<p>When you first open a project, you see a <strong>loading spinner</strong> with &quot;Orchestrating Workspace...&quot; text. This means the studio is: 1. Loading your project configuration 2. Loading the blueprint library 3. Preparing the visual editor </p>
+<p>This usually takes 2-5 seconds depending on your connection. </p>
+<h3>1.9 Pro-User Quick Start (Non-Developers)</h3>
+<p>If you&#039;re here to build an app without writing code, follow these three rules of the &quot;Pro&quot; workflow: 1.  <strong>Select, then Inspect</strong>: Click any element on the phone screen. Use the right panel (Inspector) to change its looks. 2.  <strong>Bind for Live Data</strong>: Use the 🔗 icon next to text fields to connect them to the <strong>DataManager</strong>. This makes your app reactive. 3.  <strong>Use Symbols for Consistency</strong>: If you have a navbar or footer, convert it to a <strong>Symbol</strong> (Right-click → Convert). It will then appear in the Symbols tab for use on other screens. </p>
+<hr>
+<h2>Part 2: Developer Handbook</h2>
+<h3>Architecture Overview</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────────┐
+<p>│                            Satya Studio Pro Shell                            │ │                                                                             │ │  ┌────────────────┐      ┌─────────────────────┐      ┌──────────────────┐  │ │  │  mobile-app.js │      │      mobile.js      │      │   Binding Engine │  │ │  │ (Project Mgmt) │◀────▶│   (View Engine)     │◀────▶│ (resolveValue)   │  │ │  └────────────────┘      └──────────┬──────────┘      └──────────────────┘  │ │                                     │                           ▲           │ │                                     ▼                           │           │ │                          ┌─────────────────────┐      ┌─────────┴────────┐  │ │                          │    Action Pipeline  │      │   Global State   │  │ │                          │  (Async execution)  │◀────▶│  (config.state)  │  │ │                          └─────────────────────┘      └──────────────────┘  │ │                                     │                                       │ │                                     ▼                                       │ │                          ┌─────────────────────┐                            │ │                          │    Symbol Resolver  │                            │ │                          │ (Recursive mapping) │                            │ │                          └─────────────────────┘                            │ └─────────────────────────────────────┬───────────────────────────────────────┘ │ Visual Reconciler │ ▼ [ DOM Tree Rendering ]</code></pre> </p>
+<h3>Key Files</h3>
+<p>| File | Purpose | |------|---------| | <code>src/sppmobile/SppmobileApp.php</code> | Entry point. Routes requests, registers CSS/JS assets | | <code>src/sppmobile/services/Mobile.php</code> | Backend API. Config CRUD + blueprint discovery | | <code>src/sppmobile/js/mobile-app.js</code> | App shell. Project management, modal dialogs | | <code>src/sppmobile/js/views/mobile.js</code> | Main component. The entire visual studio UI | | <code>src/sppmobile/js/blueprints.js</code> | Built-in blueprint/layout registry | | <code>src/sppmobile/css/mobile.css</code> | All studio styles | | <code>spp/modules/spp/sppux/js/sppux.js</code> | SPP-UX framework (BaseComponent, html tag, reconciler) | </p>
+<hr>
+<h2>Part 3: SPP-UX Framework Reference</h2>
+<p>Every studio component extends <code>BaseComponent</code> from the SPP-UX framework. Here&#039;s how it works. </p>
+<h3>3.1 Component Lifecycle</h3>
+<pre><code>constructor(app, container, props)
+<p>│ ▼ onInit()          ← Load data, set initial state │ ▼ render()          ← Return HTML template │ ▼ update()          ← Reconcile DOM (called by setState) │ ▼ afterUpdate()     ← Post-render hook (bind listeners, apply filters) │ ▼ onMount()         ← Component is fully mounted │ ... ▼ onDestroy()       ← Cleanup on disposal</code></pre> </p>
+<h3>3.2 The <code>html</code> Template Tag</h3>
+<p>The <code>html</code> tag creates safe HTML from template literals. It auto-escapes values and handles event bindings. </p>
+<pre><code>render() {
+<p>const name = this.state.userName; const count = this.state.itemCount; </p>
+<p>return html` &lt;div class=&quot;greeting&quot;&gt; &lt;h1&gt;Hello, ${name}!&lt;/h1&gt; &lt;p&gt;You have ${count} items.&lt;/p&gt; &lt;button @click=${() =&gt; this.loadMore()}&gt;Load More&lt;/button&gt; &lt;/div&gt; `; }</code></pre> </p>
+<h3>3.3 State Management</h3>
+<pre><code>// Setting state triggers a re-render
+<p>this.setState({ loading: false, items: data }); </p>
+<p>// Reading state const { loading, items } = this.state; </p>
+<p>// IMPORTANT: Direct mutation does NOT trigger re-render this.state.loading = false;  // ← No re-render! Use setState instead.</code></pre> </p>
+<h3>3.4 The Reconciler</h3>
+<p>When <code>setState()</code> is called: </p>
+<p>1. <code>render()</code> creates a new HTML string 2. The string is parsed into a temporary DOM tree 3. <code>_reconcile()</code> <strong>diffs</strong> the old DOM against the new DOM 4. Only <strong>changed</strong> attributes and text nodes are updated 5. The actual DOM elements are preserved (not replaced) </p>
+<h3>3.5 <code>afterUpdate()</code> Hook</h3>
+<p>Called after every DOM reconciliation. Use it for post-render work: </p>
+<pre><code>class MyView extends BaseComponent {
+<p>afterUpdate() { // Re-apply search filter after any state change if (this.state.searchQuery) { this._applyFilter(this.state.searchQuery); } </p>
+<p>// Initialize third-party widgets this._initCharts(); } }</code></pre> </p>
+<h3>3.6 <code>renderLoading(message)</code> Utility</h3>
+<p>Returns a professional spinner + message template. Use it for loading states. </p>
+<h3>3.7 <code>BaseComponent.domFilter()</code> Utility</h3>
+<p>Filters DOM elements by showing/hiding them based on a text query. <strong>Does not trigger re-render</strong> — safe to call from input handlers. </p>
+<h3>3.8 <code>guard(key, fn)</code> Utility</h3>
+<p>Prevents the same async operation from running concurrently: </p>
+<pre><code>async fetchData() {
+<p>// If fetchData is already running, this call is silently ignored return this.guard(&#039;fetch&#039;, async () =&gt; { this.setState({ loading: true }); const res = await this.api(&#039;get_data&#039;); this.setState({ data: res.data, loading: false }); }); }</code></pre> </p>
+<h3>3.9 API Calls</h3>
+<pre><code>// Simple API call
+<p>const res = await this.api(&#039;get_items&#039;); </p>
+<p>// Shorthand (camelCase → snake_case conversion) const res = await this.api.getItems();  // calls &#039;get_items&#039;</code></pre> </p>
+<hr>
+<h2>Part 4: Step-by-Step — Building a Component</h2>
+<h3>Example: Building a &quot;User List&quot; Component</h3>
+<p><strong>Goal:</strong> A searchable list of users with loading state. </p>
+<p>#### Step 1: Create the file </p>
+<p>Create <code>src/yourapp/comp/user-list.js</code>: </p>
+<pre><code>/**
+<ul><li>UserList — A searchable list of users</li></ul>
+<p>*/ export default class UserListView extends BaseComponent { </p>
+<p>async onInit() { this.state = { loading: true, users: [], searchQuery: &#039;&#039; }; await this.fetchData(); } </p>
+<p>async fetchData() { return this.guard(&#039;fetch&#039;, async () =&gt; { this.setState({ loading: true }); try { const res = await this.api(&#039;get_users&#039;); if (res.success) { this.setState({ users: res.data.users, loading: false }); } else { this.setState({ loading: false }); this.notify(&#039;Failed to load users&#039;, &#039;error&#039;); } } catch (e) { this.setState({ loading: false }); this.notify(&#039;Network error: &#039; + e.message, &#039;error&#039;); } }); } </p>
+<p>onSearch(e) { this.state.searchQuery = e.target.value; BaseComponent.domFilter(this.container, e.target.value, { itemSelector: &#039;.user-card[data-search-name]&#039;, attrs: [&#039;data-search-name&#039;] }); } </p>
+<p>afterUpdate() { if (this.state.searchQuery) { BaseComponent.domFilter(this.container, this.state.searchQuery, { itemSelector: &#039;.user-card[data-search-name]&#039;, attrs: [&#039;data-search-name&#039;] }); } } </p>
+<p>render() { const { loading, users } = this.state; </p>
+<p>if (loading) return this.renderLoading(&#039;Loading users...&#039;); </p>
+<p>return html` &lt;div class=&quot;user-list&quot;&gt; &lt;h2&gt;Users (${users.length})&lt;/h2&gt; </p>
+<p>&lt;input type=&quot;text&quot; placeholder=&quot;Search users...&quot; value=&quot;${this.state.searchQuery || &#039;&#039;}&quot; @input=${(e) =&gt; this.onSearch(e)}&gt; </p>
+<p>&lt;div class=&quot;user-grid&quot;&gt; ${users.map(u =&gt; html` &lt;div class=&quot;user-card&quot; data-search-name=&quot;${u.name.toLowerCase()}&quot;&gt; &lt;strong&gt;${u.name}&lt;/strong&gt; &lt;span&gt;${u.email}&lt;/span&gt; &lt;/div&gt; `)} &lt;/div&gt; </p>
+<p>${users.length === 0 ? html<code>&lt;p&gt;No users found.&lt;/p&gt;</code> : &#039;&#039;} &lt;/div&gt; `; } }</code></pre> </p>
+<hr>
+<h2>Part 5: Creating Custom Blueprints</h2>
+<h3>What is a Blueprint?</h3>
+<p>A blueprint is a <strong>pre-built screen layout</strong> — a JSON file that describes a complete mobile screen with all its components, styling, and structure. </p>
+<h3>Where Blueprints Live</h3>
+<p>The backend <strong>recursively scans</strong> <code>src/sppmobile/blueprints/</code>. Drop a <code>.json</code> file anywhere inside it and the studio will automatically discover it on next load. </p>
+<h3>Blueprint JSON Format</h3>
+<p>1. <strong>Set a unique <code>id</code></strong> — lowercase with underscores (e.g., <code>my_dashboard_v2</code>) 2. <strong>Add <code>name</code> and <code>description</code></strong> — shown in the studio&#039;s blueprint list 3. <strong>Define <code>components</code></strong> — array of component objects with <code>type</code>, <code>props</code>, and optional <code>children</code> 4. <strong>Save the file</strong> — the studio discovers it automatically on next page load </p>
+<hr>
+<h2>Part 6: Creating Custom Layouts</h2>
+<h3>What is a Layout?</h3>
+<p>A layout is a <strong>structural skeleton</strong> — it defines the arrangement of sections on a screen without content. </p>
+<h3>Layout Definition (in blueprints.js)</h3>
+<pre><code>window.MobileBlueprints = {
+<p>layouts: { &#039;my_custom_layout&#039;: { name: &#039;My Custom Layout&#039;, sections: [ { id: &#039;header&#039;, label: &#039;Header Area&#039;, height: &#039;60px&#039; }, { id: &#039;content&#039;, label: &#039;Main Content&#039;, flex: 1 }, { id: &#039;footer&#039;, label: &#039;Footer&#039;, height: &#039;50px&#039; } ] } }, blueprints: [ /* ... */ ] };</code></pre> </p>
+<h3>Adding Layouts via JSON Files</h3>
+<p>You can also define layouts in JSON files in the <code>blueprints/</code> directory: </p>
+<pre><code>{
+<p>&quot;type&quot;: &quot;layout&quot;, &quot;id&quot;: &quot;split_view_layout&quot;, &quot;name&quot;: &quot;Split View&quot;, &quot;sections&quot;: [ { &quot;id&quot;: &quot;left&quot;, &quot;label&quot;: &quot;Left Panel&quot;, &quot;width&quot;: &quot;40%&quot; }, { &quot;id&quot;: &quot;right&quot;, &quot;label&quot;: &quot;Right Panel&quot;, &quot;flex&quot;: 1 } ] }</code></pre> </p>
+<hr>
+<h2>Part 7: Troubleshooting</h2>
+<h3>Search bar not working / text disappears</h3>
+<p><strong>Fixed in SPP-UX v11.1.</strong> The framework now: - Does not call <code>e.preventDefault()</code> on <code>input</code> events - Does not overwrite the value of a focused input during DOM reconciliation </p>
+<p>If you&#039;re on an older version, update <code>sppux.js</code>. </p>
+<h3>Infinite <code>[BaseComponent] Updating MobileView...</code> in console</h3>
+<p>This means a render loop. Common causes: - An <code>@input</code> handler calling <code>setState()</code> which triggers re-render which triggers input - A <code>render()</code> method that changes state as a side effect </p>
+<p><strong>Fix:</strong> Use <code>domFilter()</code> for search instead of <code>setState()</code>. Never modify state inside <code>render()</code>. </p>
+<h3>Blank screen during loading</h3>
+<p>The studio now shows a skeleton placeholder with a spinner. If you still see blank, check: - Browser console for JavaScript errors - Network tab for failed API calls to <code>get_mobile_config</code> </p>
+<h3>&quot;BaseComponent is not defined&quot; Error</h3>
+<p>If you see this in a module, it means you&#039;re trying to use the global <code>BaseComponent</code> before it&#039;s loaded. <strong>Fix</strong>: Add an explicit import at the top of your file: </p>
+<pre><code>import { BaseComponent } from &#039;../../../../spp/modules/spp/sppux/js/sppux.js&#039;;</code></pre>
+<h3>Static vs Instance Methods</h3>
+<p>Remember: - <code>this.setState()</code> is an <strong>instance</strong> method (use inside your class). - <code>BaseComponent.domFilter()</code> is a <strong>static</strong> utility (call on the class itself). - <code>this.api</code> is a <strong>proxy</strong> (call it like a function or a method). </p>
+<hr>
+<h2>Part 8: The Nerd Core — Internal Specifications</h2>
+<h3>8.1 The Binding Engine (<code>resolveValue</code>)</h3>
+<p>The core of Satya Pro&#039;s reactivity is a recursive regex parser that intercepts property values before they reach the DOM reconciler. </p>
+<p><strong>Syntax</strong>: <code>{{state.variableName}}</code> <strong>Execution Flow</strong>: 1. <code>renderComponent(c)</code> is called. 2. <code>props</code> are deep-cloned to prevent reference leakage. 3. Every string property is passed to <code>resolveValue(str)</code>. 4. The regex <code>/{{\s*(state\.[a-zA-Z0-9._]+)\s*}}/g</code> identifies tokens. 5. Tokens are resolved against <code>this.state.config.state</code>. 6. Results are cast back to the expected type (String/Number/Bool). </p>
+<h3>8.2 Async Action Pipeline</h3>
+<p>Unlike basic visual tools, Satya Pro uses a <strong>Task Queue</strong> for user interactions. </p>
+<pre><code>async executeAction(step) {
+<p>const { type, target, condition } = step; </p>
+<p>// 1. Condition Evaluation if (condition &amp;&amp; !this.evalCondition(this.resolveValue(condition))) return; </p>
+<p>// 2. Deterministic Execution switch (type) { case &#039;setState&#039;: // Atomic update via Proxy break; case &#039;navigate&#039;: // Screen stack management break; } }</code></pre> </p>
+<h3>8.3 Symbol Resolution Logic</h3>
+<p>Symbols are handled via <strong>Shallow Wrapping</strong>. - A <code>symbol_instance</code> component stores a <code>symbolId</code>. - The renderer looks up the symbol definition in <code>config.symbols</code>. - It renders the Symbol&#039;s <code>root</code> component, but wraps it in an <code>instance_wrapper</code>. - <strong>Selection Isolation</strong>: Clicking the instance selects the instance on the current screen, but the properties being viewed are derived from the master definition unless overrides are present. </p>
+<h3>8.4 CSS Utility tokens</h3>
+<p>Developers can use these pro-tier utility classes in custom component plugins: - <code>.glass-panel</code>: Standard frosted-glass background. - <code>.bound-input</code>: Visual indicator for reactive inputs. - <code>.active-bind</code>: Pulse animation for live data links. - <code>.skeleton-pulse</code>: Standard placeholder effect. </p>
+<hr>
+<h2>Part 9: Code Export API</h2>
+<p>You can programmatically trigger a project export by calling: </p>
+<pre><code>mobileView.exportProject();</code></pre>
+<p>This produces a strictly-typed JSON schema that matches the <code>config.yml</code> structure, ready for consumption by the <strong>Satya Native Flutter Wrapper</strong>. </p>
+<hr>
+<h2>Part 10: The Advanced Nerd Zone</h2>
+<h3>10.1 Recursive DOM Reconciliation Deep-Dive</h3>
+<p>The <code>_reconcile</code> engine is a custom implementation designed for high-performance visual editing. Unlike generic VDOM libraries: -   <strong>Node Persistence</strong>: It maintains the same DOM nodes across renders, which is critical for maintaining browser focus on inputs and preserving CSS transitions. -   <strong>Attribute Syncing</strong>: Only attributes that actually change are updated via <code>setAttribute</code>, preventing layout thrashing. -   <strong>Focus Preservation</strong>: It explicitly checks <code>document.activeElement</code> before updating input values, ensuring that a user&#039;s typing isn&#039;t interrupted by a background state update. </p>
+<h3>10.2 The Action Pipeline &amp; Task Guarding</h3>
+<p>The studio uses an asynchronous action pipeline with a &quot;Guard&quot; mechanism. -   <strong>Concurrency Control</strong>: The <code>guard(key, fn)</code> pattern ensures that slow network operations (like <code>save_project</code>) cannot be triggered multiple times if a user double-clicks. -   <strong>Atomic State Updates</strong>: State changes via <code>setState</code> are queued and merged, ensuring the UI remains deterministic even during complex multi-step actions. </p>
+<h3>10.3 Symbol Context Isolation</h3>
+<p>When a Symbol is rendered, the studio performs <strong>Context Wrapping</strong>: 1.  The master definition is retrieved from the project config. 2.  A virtual scope is created for the symbol instance. 3.  <strong>Property Overrides</strong>: If an instance has a specific color override, the <code>resolveValue</code> engine prioritizes the instance data over the master symbol data. 4.  <strong>Re-rendering</strong>: Updating the master symbol triggers a <code>requestUpdate()</code> call across all active components, which then selectively re-renders only those components containing instances of that symbol. </p>
+<h3>10.4 CSS Variable Injection (Runtime Theming)</h3>
+<p>The Studio avoids full CSS reloads. Instead: -   It injects a <code>&lt;style id=&quot;spp-dynamic-theme&quot;&gt;</code> block into the document head. -   Themes are defined as a set of CSS Variables (<code>--primary-color</code>, <code>--panel-bg</code>, etc.). -   Switching themes simply updates the <code>:root</code> variables, resulting in an instant, zero-latency visual update across the entire workspace. </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Admin Panel: Developer Workbench | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>SPP Admin Panel: Developer Workbench</h1>
+<p>The SPP Admin Panel is a high-performance, single-page application (SPA) designed for framework orchestration, application management, and system diagnostics. It provides a &quot;Glassmorphism&quot; inspired interface for managing every layer of the SPP ecosystem. </p>
+<hr>
+<h2>🏛️ 1. Dashboard &amp; System Information</h2>
+<p>The entry point of the workbench provides a high-level overview of the framework&#039;s health and environment. </p>
+<ul><li><strong>Framework Status</strong>: Displays the active SPP version and system uptime.</li><li><strong>Database Connectivity</strong>: Real-time status of the primary database engine.</li><li><strong>System Stats</strong>: Aggregated count of registered apps, active modules, entities, and forms.</li><li><strong>Environment Details</strong>: Details on Operating System, PHP version, and Server Software.</li><li><strong>Polyglot Bridge</strong>: Status of cross-language runtimes (Python, Node.js, Ruby, Go).</li><li><strong>Action: Refresh Bridge</strong>: Re-scans the system for installed runtimes and regenerates the shared configuration.</li></ul>
+<hr>
+<h2>🌐 2. Infrastructure &amp; Ecosystem</h2>
+<h3>Applications &amp; Sharing</h3>
+<p>Manage the multi-tenant application registry. </p>
+<ul><li><strong>Application Tab</strong>: </li><li><strong>Base URL</strong>: The routing prefix for the application (e.g., <code>/lekhak</code>).</li><li><strong>Table Prefix</strong>: Database isolation string (e.g., <code>spp_</code>).</li><li><strong>Source Path</strong>: The filesystem path to the app&#039;s <code>src/</code> directory.</li><li><strong>Shared Group</strong>: The group identifier for resource inheritance.</li><li><strong>Shared Groups Tab</strong>: </li><li><strong>Create Group</strong>: Provision a new shared resource container.</li><li><strong>Edit Group</strong>: Manage group-level entity associations and isolation modes.</li></ul>
+<h3>InterDB Mesh</h3>
+<p>The central hub for federated data orchestration. </p>
+<ul><li><strong>Aggregation Mode</strong>: </li><li><code>InterDB</code>: Active multi-database federation with relationship stitching.</li><li><code>Standalone</code>: Lightweight GraphQL interface for a single database engine.</li><li><strong>Entity Mappings Table</strong>:</li><li><strong>Entity (Type)</strong>: The unique identifier for the data object.</li><li><strong>Engine / Alias</strong>: Select between <code>Default (SQL)</code>, <code>SPPXDB (XML)</code>, or generic <code>PDO</code>.</li><li><strong>Target Table</strong>: The actual table name in the target engine.</li><li><strong>Action: Save Config</strong>: Commits the mapping mesh to <code>sppinterdb/etc/config.yml</code>.</li></ul>
+<h3>XML Database (XDB)</h3>
+<p>Management interface for the Tier-1 Native XML Database. </p>
+<ul><li><strong>XDB Explorer</strong>: </li><li><strong>Browse Collections</strong>: Navigate the hierarchical XML structure.</li><li><strong>Document Editor</strong>: Direct XML/JSON editing of stored documents.</li><li><strong>Action: New Collection</strong>: Create a new top-level data container.</li><li><strong>Action: Run Query</strong>: Execute XQuery or GraphQL-over-XDB.</li></ul>
+<hr>
+<h2>🧠 3. Application Logic</h2>
+<h3>System Modules</h3>
+<p>Configure the modular building blocks of the framework. </p>
+<ul><li><strong>Action: Setup</strong>: Opens the module configuration modal.</li><li><strong>Interactive Tab</strong>: Edit settings via a dynamic form.</li><li><strong>YAML Tab</strong>: Direct raw editing of the module&#039;s <code>config.yml</code>.</li><li><strong>Action: Maintenance</strong>: Triggers the <code>scan_module</code> API to:</li><li>Check for missing database tables.</li><li>Validate entity mappings.</li><li>Clear module-specific caches.</li><li><strong>Action: Update</strong>: Synchronizes the module&#039;s state with the framework registry.</li></ul>
+<h3>Application Entities</h3>
+<p>A dynamic CRUD interface for managing system data. </p>
+<ul><li><strong>Action: Create New</strong>: Open a form to instantiate a new entity.</li><li><strong>Action: Edit/Delete</strong>: Direct management of existing records.</li><li><strong>Context Selector</strong>: Switch between &quot;Core&quot; entities and &quot;App-Side&quot; entities.</li></ul>
+<h3>Form Configurations</h3>
+<p>Manage reactive UI forms powered by <code>SPPForm</code>. </p>
+<ul><li><strong>Schema Preview</strong>: Inspect the JSON/YAML structure of form definitions.</li><li><strong>Action: Refresh Registry</strong>: Re-scan <code>etc/forms</code> for new definitions.</li></ul>
+<hr>
+<h2>🔐 4. Security &amp; Identity</h2>
+<h3>Identity &amp; RBAC</h3>
+<p>Modernized Access Control Layer based on XDB. </p>
+<ul><li><strong>User Management</strong>: </li><li><strong>Action: Create User</strong>: Provision new administrative or application accounts.</li><li><strong>Action: Password Reset</strong>: Securely update user credentials.</li><li><strong>Role Orchestration</strong>: </li><li><strong>Action: Manage Roles</strong>: Define roles and assign specific permissions (Rights).</li><li><strong>Action: Assign Roles</strong>: Map roles to specific users.</li></ul>
+<h3>Group Management</h3>
+<p>Polymorphic group orchestration for organizational structures. </p>
+<ul><li><strong>Group Hierarchy</strong>: Create and nesting groups for inheritance-based access.</li><li><strong>Member Management</strong>: </li><li><strong>Action: Add Member</strong>: Attach users, entities, or other groups to a target group.</li><li><strong>Bucket Isolation</strong>: Manage members across <code>core</code>, <code>app</code>, and <code>custom</code> buckets.</li></ul>
+<hr>
+<h2>🛠️ 5. Technical Stack &amp; Diagnostics</h2>
+<h3>Routing Management</h3>
+<p>Debug the application routing engine. </p>
+<ul><li><strong>Route Table</strong>: </li><li><strong>Pattern</strong>: The URI template for the route.</li><li><strong>Target</strong>: The controller method or closure responsible for the response.</li><li><strong>Action: Test Route</strong>: Simulate a request to verify routing behavior.</li></ul>
+<h3>Middleware Pipeline</h3>
+<p>Visualize the &quot;Onion&quot; processing layer. </p>
+<ul><li><strong>Global Stack</strong>: Middleware that executes for all system requests.</li><li><strong>Action: Toggle Middleware</strong>: Enable or disable specific layers for debugging.</li></ul>
+<h3>Distributed Tasks</h3>
+<p>Monitor the background job infrastructure. </p>
+<ul><li><strong>Task Monitor</strong>: </li><li><strong>Status</strong>: Track <code>queued</code>, <code>processing</code>, <code>failed</code>, or <code>completed</code>.</li><li><strong>Action: Re-queue</strong>: Restart a failed background task.</li><li><strong>Action: Terminate</strong>: Stop a running worker process.</li></ul>
+<h3>DI Service Registry</h3>
+<p>Displays registered services and bindings in the Dependency Injection (DI) Container. </p>
+<ul><li><strong>Abstract / Interface</strong>: The service contract.</li><li><strong>Concrete Implementation</strong>: The actual class instantiated.</li><li><strong>Lifecycle</strong>: Indicates if the service is a <code>SINGLETON</code> or <code>FACTORY</code>.</li><li><strong>Action: Refresh Registry</strong>: Re-scans the container for active bindings.</li></ul>
+<h3>LiveService Registry</h3>
+<p>Manage the unified reactive architecture and asynchronous services. </p>
+<ul><li><strong>Service Name</strong>: The unique identifier used in <code>data-spp-live</code>.</li><li><strong>Backend Script</strong>: The PHP file located in <code>src/serv/</code> that handles the logic.</li><li><strong>Action: Register Service</strong>: Open a modal to map a new service name to a script.</li><li><strong>Action: Test Service</strong>: Triggers a diagnostic request to verify the service&#039;s <code>LiveAction</code> response.</li></ul>
+<h3>Event Tracing</h3>
+<p>Real-time monitoring of the SPP Event Bus. </p>
+<ul><li><strong>Event Log</strong>: Chronological list of fired events and their payloads.</li><li><strong>Action: Clear Trace</strong>: Resets the in-memory event buffer.</li><li><strong>Action: Filter Trace</strong>: Narrow down events by namespace or priority.</li><li><strong>Payload Inspector</strong>: View the raw data objects passed through the event pipeline.</li></ul>
+<h3>Framework Config</h3>
+<p>Raw access to the framework&#039;s global settings. </p>
+<ul><li><strong>Action: Sync Settings</strong>: Atomic save and reload of <code>global-settings.yml</code>.</li><li><strong>Action: Switch Profile</strong>: Dynamically transition between <code>dev</code>, <code>test</code>, and <code>prod</code> environments.</li></ul>
+<hr>
+<p><a href="index.html">Back to Technical Wiki</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

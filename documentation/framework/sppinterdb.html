@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP InterDB: Federated Data Aggregation & GraphQL Gateway | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>SPP InterDB: Federated Data Aggregation &amp; GraphQL Gateway</h1>
+<h2>📖 Overview</h2>
+<p><strong>SPP InterDB</strong> is an advanced data orchestration module designed to bridge multiple, heterogeneous database engines into a single, unified &quot;Data Mesh.&quot; It allows developers to query data across MySQL, PostgreSQL, XDB, and other engines using a standardized GraphQL interface. </p>
+<hr>
+<h2>🏛️ The &quot;InterDB&quot; Architecture</h2>
+<p>The architecture is built on two core pillars: </p>
+<h3>1. The Universal Bridge (Adapter Pattern)</h3>
+<p>All database engines are treated as modular drivers that implement the <code>DBAdapter</code> interface. This decoupling allows the framework to interact with any storage backend—whether relational, hierarchical, or key-value—using a consistent API. </p>
+<h3>2. The Federated GraphQL Gateway</h3>
+<p>The gateway orchestrates queries across these adapters. It can parse a single GraphQL query, dispatch sub-queries to different databases, and &quot;stitch&quot; the results together into a cohesive response, resolving complex relationships in-memory. </p>
+<hr>
+<h2>🚀 Implementation Details</h2>
+<h3>The DBAdapter Interface</h3>
+<p>Every bridged database must implement these core operations: </p>
+<pre><code>namespace SPPMod\SPPInterDB;
+<p>interface DBAdapter { public function query(string $sql, array $params = []): array; public function insert(string $table, array $data): bool; public function tableExists(string $table): bool; public function getSchema(string $table): array; }</code></pre> </p>
+<h3>The SPPInterDB Module</h3>
+<p>The central hub for data federation. It can operate in two modes: - <strong><code>interdb</code></strong>: Full multi-database orchestration. - <strong><code>standalone</code></strong>: Single-database GraphQL interface. </p>
+<hr>
+<h2>💻 Usage &amp; Examples</h2>
+<h3>1. Registering Mappings</h3>
+<p>Define which entities live in which database engine via configuration or code: </p>
+<pre><code>use SPPMod\SPPInterDB\SPPInterDB;
+<p>$interDB = new SPPInterDB(); </p>
+<p>// &#039;user&#039; is in the default MySQL DB, &#039;preferences&#039; is in XDB $interDB-&gt;map(&#039;user&#039;, &#039;default&#039;, &#039;users&#039;); $interDB-&gt;map(&#039;preferences&#039;, &#039;xdb&#039;, &#039;user_preferences&#039;);</code></pre> </p>
+<h3>2. Executing Federated Queries</h3>
+<p>Fetch stitched data across multiple engines in a single request: </p>
+<pre><code>$query = &#039;
+<p>query { user(id: 1) { name email preferences { theme notifications } } }&#039;; </p>
+<p>$response = $interDB-&gt;graphql($query); print_r($response[&#039;data&#039;]);</code></pre> </p>
+<hr>
+<h2>💼 Use Cases</h2>
+<h3>1. Micro-Database Mesh</h3>
+<p>Instead of one massive database, split your data into specialized engines. Use <strong>MySQL</strong> for transactional data and <strong>XDB</strong> for flexible, evolving user metadata. The InterDB bridge makes them appear as one. </p>
+<h3>2. Legacy System Bridging</h3>
+<p>Modernize legacy databases (e.g. Oracle or Mainframe) by wrapping them in a <code>DBAdapter</code>. Use the <strong>GraphQL Gateway</strong> to serve legacy data alongside modern application data without complex migration projects. </p>
+<h3>3. Edge &amp; Distributed Computing</h3>
+<p>Deploy <strong>XDB</strong> on edge nodes for local, low-latency processing. Use the <strong>InterDB Bridge</strong> to synchronize edge data back to a central <strong>Core SQL</strong> database for global reporting. </p>
+<hr>
+<h2>🛠️ Internal Mechanics: Relationship Stitching</h2>
+<p>When the Gateway encounters a nested field (e.g. <code>preferences</code> inside <code>user</code>), it: 1. Identifies the target engine for the nested field. 2. Extracts the foreign key from the parent result. 3. Dispatches a second query to the target engine. 4. Merges the nested result into the parent object before returning. </p>
+<hr>
+<p><a href="index.html">Framework Index</a> | <a href="sppxdb.html">SPPXDB Documentation</a> </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

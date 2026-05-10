@@ -34,6 +34,7 @@ class Pages extends \SPP\SPPObject
         'getResource',
         'getFile',
         'serveResource',
+        'serveDirectory',
     ];
 
     // -------------------------------------------------------------------------
@@ -228,7 +229,7 @@ class Pages extends \SPP\SPPObject
     /**
      * Helper to process a matched route entry and handle app/subpages delegation.
      */
-    private static function processRoute($name, $route, $q, $appname, $ymlFile): ?array
+    private static function processRoute($name, $route, $q, $appname, $ymlFile, ?string $modulePath = null): ?array
     {
         $remaining = ltrim(substr($q, strlen($name)), '/');
 
@@ -248,10 +249,69 @@ class Pages extends \SPP\SPPObject
 
         // Case C: Resolve as a direct page
         if (isset($route['url'])) {
-            return self::buildPage($name, $route['url'], $q);
+            $resolvedUrl = self::resolveInternalPath($route['url'], $modulePath, $appname);
+            return self::buildPage($name, $resolvedUrl, $q);
+        }
+        
+        // Case D: Asset Directory Support
+        if (isset($route['assets'])) {
+            $resolvedAssets = self::resolveInternalPath($route['assets'], $modulePath, $appname);
+            return [
+                'url' => $resolvedAssets . '/' . $remaining, 
+                'special' => 1,
+                'method' => 'serveDirectory',
+                'context' => [
+                    'base_dir' => $resolvedAssets,
+                    'relative_path' => $remaining
+                ]
+            ];
         }
 
         return null;
+    }
+
+    /**
+     * Resolves a route path according to framework rules:
+     * 1. Starts with '/': Relative to APP_BASE_DIR (root)
+     * 2. No '/':
+     *    - If modulePath provided: Relative to module base
+     *    - Otherwise: Relative to src/ directory
+     */
+    private static function resolveInternalPath(string $path, ?string $modulePath = null, ?string $appname = null): string
+    {
+        if (str_starts_with($path, '/') || str_starts_with($path, '\\')) {
+            return ltrim($path, '/\\');
+        }
+
+        if ($modulePath) {
+            // Convert absolute module path to relative path from SPP_APP_DIR
+            $root = realpath(SPP_APP_DIR);
+            $mod  = realpath($modulePath);
+            
+            if ($root && $mod && str_starts_with($mod, $root)) {
+                $rel = ltrim(substr($mod, strlen($root)), '/\\');
+                return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
+            }
+            // Fallback: if realpath fails or is outside root, use basename if it looks safe
+            return 'modules/' . basename($modulePath) . '/' . ltrim($path, '/\\');
+        }
+
+        // Application Context: Resolve relative to the app's configured source directory
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        $app = \SPP\App::getApp($appname);
+        $srcDir = $app->getAppSrcDir();
+        
+        // Convert absolute src directory to relative path from SPP_APP_DIR
+        $root = realpath(SPP_APP_DIR);
+        $src  = realpath($srcDir);
+        
+        if ($root && $src && str_starts_with($src, $root)) {
+            $rel = ltrim(substr($src, strlen($root)), '/\\');
+            return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
+        }
+
+        // Fallback to convention if path resolution fails
+        return 'src/' . $appname . '/' . ltrim($path, '/\\');
     }
 
     /** @return array|null Matched page array or null */
@@ -356,12 +416,12 @@ class Pages extends \SPP\SPPObject
     }
 
     /** Validates and dispatches a special method, returning the route result */
-    private static function dispatchSpecial(string $method, string $q): array
+    private static function dispatchSpecial(string $method, string $q, array $context = []): array
     {
         if (!in_array($method, self::$allowedSpecialMethods, true)) {
             throw new \SPP\SPPException('Disallowed special route method: ' . $method);
         }
-        return ['url' => call_user_func([__CLASS__, $method], $q), 'special' => 1];
+        return ['url' => call_user_func([__CLASS__, $method], $q, $context), 'special' => 1];
     }
 
     /** @return string|null Default value from YAML or null */
@@ -389,11 +449,22 @@ class Pages extends \SPP\SPPObject
     {
         $q = (isset($_GET['q']) && $_GET['q'] != null) ? $_GET['q'] : $page;
         $q = ($page === null) ? $q : $page;
+        $appname = \SPP\Scheduler::getContext();
 
-        $result = self::resolvePage($q, \SPP\Scheduler::getContext());
+        $result = self::resolvePage($q, $appname);
         
         if ($result !== null) {
             return $result;
+        }
+
+        // --- Physical Discovery Fallback ---
+        // If no route is defined, try to find the file in the app source directory
+        $fallbackPath = $q;
+        if (!str_ends_with($fallbackPath, '.php')) $fallbackPath .= '.php';
+        
+        $resolvedFallback = self::resolveInternalPath($fallbackPath, null, $appname);
+        if (file_exists(SPP_APP_DIR . SPP_DS . $resolvedFallback)) {
+             return self::buildPage($q, $resolvedFallback, $q);
         }
 
         // --- Not found ---
@@ -420,8 +491,53 @@ class Pages extends \SPP\SPPObject
         // --- Regular pages ---
         $result = self::trySourcePage($primary, $q, $appname, $ymlFile)
                ?? self::trySourcePage($fallback, $q, $appname, $ymlFile);
+        if ($result !== null) return $result;
+
+        // --- Module Route Discovery ---
+        $result = self::findPageInModules($q, $appname);
+        if ($result !== null) return $result;
+
+        // --- App Config Route Discovery ---
+        $result = self::findPageInAppConfig($q, $appname);
+        if ($result !== null) return $result;
         
         return $result;
+    }
+
+    /**
+     * Scans all registered modules for route declarations.
+     */
+    private static function findPageInModules(string $q, ?string $appname): ?array
+    {
+        $mods = \SPP\Registry::get('__modobj');
+        if (!is_array($mods)) return null;
+
+        foreach ($mods as $mod) {
+            if (isset($mod->Routes) && is_array($mod->Routes)) {
+                foreach ($mod->Routes as $name => $cfg) {
+                    if ($q === $name || strpos($q, $name . '/') === 0) {
+                        return self::processRoute($name, $cfg, $q, $appname, null, $mod->ModPath);
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Checks for routes declared directly in the app configuration.
+     */
+    private static function findPageInAppConfig(string $q, ?string $appname): ?array
+    {
+        $appRoutes = \SPP\App::getAppConf('routes', $appname);
+        if (!is_array($appRoutes)) return null;
+
+        foreach ($appRoutes as $name => $cfg) {
+            if ($q === $name || strpos($q, $name . '/') === 0) {
+                return self::processRoute($name, $cfg, $q, $appname, null);
+            }
+        }
+        return null;
     }
 
     private static function trySourceSpecial(string $source, string $spl, string $q, string $appname = null): ?array
@@ -454,7 +570,7 @@ class Pages extends \SPP\SPPObject
 
         // Hardcoded Framework Defaults to avoid breaking new apps
         if ($def === 'pagedir') {
-            return '/src/' . \SPP\Scheduler::getContext();
+            return ''; // We now resolve paths fully in the router
         }
         if ($def === 'home') {
             return 'index';
@@ -499,7 +615,24 @@ class Pages extends \SPP\SPPObject
     public static function serveResource($q): string
     {
         $file = self::getResource($q);
-        $fullPath = SPP_APP_DIR . $file;
+        return self::serveFile($file, $q);
+    }
+
+    /**
+     * Serves a file from a declared asset directory.
+     */
+    public static function serveDirectory(string $q, array $context): string
+    {
+        $base = $context['base_dir'] ?? '';
+        $rel  = $context['relative_path'] ?? '';
+        $file = rtrim($base, '/\\') . '/' . ltrim($rel, '/\\');
+        
+        return self::serveFile($file, $q);
+    }
+
+    private static function serveFile(string $file, string $q): string
+    {
+        $fullPath = SPP_APP_DIR . '/' . ltrim($file, '/\\');
 
         if (file_exists($fullPath) && is_file($fullPath)) {
             $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
@@ -511,6 +644,7 @@ class Pages extends \SPP\SPPObject
                 'jpeg' => 'image/jpeg',
                 'gif'  => 'image/gif',
                 'svg'  => 'image/svg+xml',
+                'ico'  => 'image/x-icon',
                 'json' => 'application/json',
                 'txt'  => 'text/plain',
                 'pdf'  => 'application/pdf',
@@ -522,6 +656,11 @@ class Pages extends \SPP\SPPObject
             $mime = $mimes[$ext] ?? 'application/octet-stream';
             header("Content-Type: $mime");
             header("Content-Length: " . filesize($fullPath));
+            
+            // Set cache headers for assets
+            header("Cache-Control: public, max-age=31536000");
+            header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
+            
             readfile($fullPath);
             exit;
         }

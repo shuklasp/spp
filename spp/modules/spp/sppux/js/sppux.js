@@ -6,7 +6,7 @@
  *
  * Visual UI components are located in sppux-ui.js.
  */
-class TrustedHTML {
+export class TrustedHTML {
     constructor(content) {
         this.content = content;
         this.__isTrusted = true;
@@ -19,7 +19,7 @@ class TrustedHTML {
     }
 }
 
-const html = (strings, ...values) => {
+export const html = (strings, ...values) => {
     const escape = (value) => {
         if (value && typeof value === 'object' && (value.__isTrusted || value.content !== undefined)) {
             return value.content;
@@ -80,9 +80,9 @@ const html = (strings, ...values) => {
     return new TrustedHTML(raw);
 };
 
-const Fragment = new TrustedHTML('');
+export const Fragment = new TrustedHTML('');
 
-class SPPStore {
+export class SPPStore {
     constructor(initialState = {}) {
         this.state = initialState;
         this.listeners = new Set();
@@ -104,7 +104,7 @@ class SPPStore {
 /**
  * Signal-based Reactivity (Phase 1)
  */
-class Signal {
+export class Signal {
     constructor(value) {
         this._value = value;
         this.subscribers = new Set();
@@ -124,7 +124,7 @@ class Signal {
 }
 Signal.activeSubscriber = null;
 
-class Computed extends Signal {
+export class Computed extends Signal {
     constructor(fn) {
         super();
         this.fn = fn;
@@ -143,9 +143,10 @@ class Computed extends Signal {
     }
 }
 
-class BaseComponent {
+export class BaseComponent {
     constructor(app, container, props = {}) {
-        this.app = app;
+        this.app = app || window.app || window.admin || null;
+        this.admin = this.app; // Backward compatibility alias
         this.container = container;
         this.props = props;
         this.state = {};
@@ -240,7 +241,8 @@ class BaseComponent {
                 if (id) {
                     const handler = this._handlers.get(id);
                     if (handler) {
-                        if (e.type !== 'dragstart') e.preventDefault();
+                        const _noPrevent = ['input', 'change', 'focus', 'blur', 'keydown', 'keyup', 'keypress', 'dragstart'];
+                        if (!_noPrevent.includes(e.type)) e.preventDefault();
                         if (!e.type.startsWith('drag') && e.type !== 'drop') e.stopPropagation();
                         handler.call(this, e);
                     }
@@ -292,22 +294,39 @@ class BaseComponent {
         this.update();
     }
 
-    _registerGlobalHandlers() {
+    _registerGlobalHandlers(claimedIds) {
         // Claim all handlers currently in the global pool that are present in the DOM
-        document.querySelectorAll('[data-spp-evt]').forEach(el => {
-            const id = el.getAttribute('data-spp-evt');
-            if (window.__spp_handlers && window.__spp_handlers[id]) {
-                this._handlers.set(id, window.__spp_handlers[id]);
-                // Exclusive claim: prevent other components from also registering this handler
-                delete window.__spp_handlers[id];
+        // Scan both legacy [data-spp-evt] and type-specific [data-spp-evt-*] attributes
+        const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-change], [data-spp-evt-input], [data-spp-evt-submit]';
+        document.querySelectorAll(selectors).forEach(el => {
+            for (const attr of el.attributes) {
+                if (attr.name.startsWith('data-spp-evt')) {
+                    const id = attr.value;
+                    if (window.__spp_handlers && window.__spp_handlers[id]) {
+                        this._handlers.set(id, window.__spp_handlers[id]);
+                        if (claimedIds) claimedIds.add(id);
+                    }
+                }
             }
         });
 
-        // Also register system overlays as event sources
-        const overlaySelectors = ['#sppux-modal-root', '.sub-modal', '.glass-overlay', '#header-actions', '#sppux-drawer-root'];
+        // Also register system overlays and their descendants as event sources
+        const overlaySelectors = ['#sppux-modal-root', '.sub-modal', '.glass-overlay', '#header-actions', '#sppux-drawer-root', '#studio-modal-overlay'];
         overlaySelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(el => {
                 this._eventContainers.add(el);
+                // Also scan the overlay content itself if it was injected via non-framework means
+                el.querySelectorAll(selectors).forEach(child => {
+                    for (const attr of child.attributes) {
+                        if (attr.name.startsWith('data-spp-evt')) {
+                            const id = attr.value;
+                            if (window.__spp_handlers && window.__spp_handlers[id]) {
+                                this._handlers.set(id, window.__spp_handlers[id]);
+                                if (claimedIds) claimedIds.add(id);
+                            }
+                        }
+                    }
+                });
             });
         });
     }
@@ -340,33 +359,41 @@ class BaseComponent {
             Signal.activeSubscriber = subscriber;
             const template = this.render();
             Signal.activeSubscriber = null;
-            this._isRendering = false;
             
-            if (!template || template.content === undefined) return;
+            if (!template || template.content === undefined) {
+                this._isRendering = false;
+                return;
+            }
 
             const temp = document.createElement('div');
             temp.innerHTML = template.toString();
 
-            // Register handlers from the rendered template
+            // Register handlers from the rendered template and claim from global pool
+            const claimedIds = new Set();
             temp.querySelectorAll('*').forEach(el => {
                 for (const attr of el.attributes) {
                     if (attr.name.startsWith('data-spp-evt')) {
                         const id = attr.value;
                         if (window.__spp_handlers && window.__spp_handlers[id]) {
                             this._handlers.set(id, window.__spp_handlers[id]);
+                            claimedIds.add(id);
                         }
                     }
                 }
             });
             
             // Also scan global containers (modals, header) for any handlers added during render()
-            this._registerGlobalHandlers();
+            this._registerGlobalHandlers(claimedIds);
             
-            window.__spp_handlers = {};
+            // Only remove handlers claimed by this component, not all global handlers
+            for (const id of claimedIds) {
+                if (window.__spp_handlers) delete window.__spp_handlers[id];
+            }
 
             // Reconcile new virtual DOM with actual DOM
             console.log(`[BaseComponent] Updating ${this.constructor.name}...`);
             this._reconcile(this.container, temp);
+            this.afterUpdate();
         } finally {
             this._isRendering = false;
             Signal.activeSubscriber = null;
@@ -387,7 +414,14 @@ class BaseComponent {
 
     async confirm(msg) {
         if (window.SPPUX && SPPUX.Confirm) return await SPPUX.Confirm(msg);
+        if (window.SPPUX && SPPUX.confirm) return await SPPUX.confirm(msg);
         return window.confirm(msg);
+    }
+
+    async prompt(msg, defaultValue = '') {
+        if (window.SPPUX && SPPUX.Prompt) return await SPPUX.Prompt(msg, defaultValue);
+        if (window.SPPUX && SPPUX.prompt) return await SPPUX.prompt(msg, defaultValue);
+        return window.prompt(msg, defaultValue);
     }
 
     openModal(title, content, actions = []) {
@@ -421,6 +455,36 @@ class BaseComponent {
                 this.notify(res.message || `Failed to delete ${type}.`, 'error');
             }
         }
+    }
+
+    /**
+     * Recursive search for an item in a tree structure.
+     */
+    static findInTree(list, id, key = 'id', childrenKey = 'children') {
+        if (!list || !Array.isArray(list)) return null;
+        for (const item of list) {
+            if (item[key] === id) return item;
+            if (item[childrenKey]) {
+                const found = BaseComponent.findInTree(item[childrenKey], id, key, childrenKey);
+                if (found) return found;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Deep clone a tree structure and optionally regenerate IDs.
+     */
+    static cloneTree(tree, idGenerator = null, childrenKey = 'children') {
+        const clone = JSON.parse(JSON.stringify(tree));
+        if (idGenerator) {
+            const walk = (node) => {
+                node.id = idGenerator(node);
+                if (node[childrenKey]) node[childrenKey].forEach(walk);
+            };
+            walk(clone);
+        }
+        return clone;
     }
 
     _reconcile(parent, newParent) {
@@ -463,7 +527,9 @@ class BaseComponent {
                 }
 
                 if (oldNode.value !== undefined && newNode.value !== undefined && oldNode.value !== newNode.value) {
-                    oldNode.value = newNode.value;
+                    if (document.activeElement !== oldNode) {
+                        oldNode.value = newNode.value;
+                    }
                 }
 
                 this._reconcile(oldNode, newNode);
@@ -493,9 +559,63 @@ class BaseComponent {
         this.onDestroy();
     }
 
+    /** Lifecycle: called after every DOM reconciliation. Override in subclasses. */
+    afterUpdate() {}
+
+    /** Lifecycle: called once during component bootstrap. */
     async onInit() {}
+
+    /** Lifecycle: called after first render. */
     async onMount() {}
+
+    /** Lifecycle: called on dispose. */
     onDestroy() {}
+
+    /**
+     * Generic loading state renderer.
+     * @param {string} message - Loading message to display
+     * @returns {TrustedHTML} A spinner + message template
+     */
+    renderLoading(message = 'Loading...') {
+        return html`
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:16px;">
+                <div style="width:36px; height:36px; border:3px solid rgba(99,102,241,0.15); border-top-color:var(--primary-color,#6366f1); border-radius:50%; animation:sppSpin 0.8s linear infinite;"></div>
+                <div style="color:var(--text-dim,#64748b); font-size:0.8rem; font-weight:600; letter-spacing:0.5px; text-transform:uppercase;">${message}</div>
+            </div>
+            <style>@keyframes sppSpin { to { transform: rotate(360deg); } }</style>
+        `;
+    }
+
+    /**
+     * DOM-based search filter. Shows/hides elements by matching query against data attributes.
+     * Does NOT trigger re-render — safe to call from input handlers.
+     * @param {Element} container - Parent element to search within
+     * @param {string} query - Search query (case-insensitive)
+     * @param {Object} options
+     * @param {string} options.itemSelector - CSS selector for filterable items (default: '[data-search-name]')
+     * @param {string[]} options.attrs - Data attributes to match against (default: ['data-search-name'])
+     */
+    static domFilter(container, query, { itemSelector = '[data-search-name]', attrs = ['data-search-name'] } = {}) {
+        if (!container) return;
+        const q = (query || '').toLowerCase();
+        container.querySelectorAll(itemSelector).forEach(el => {
+            if (!q) { el.style.display = ''; return; }
+            const match = attrs.some(a => (el.getAttribute(a) || '').includes(q));
+            el.style.display = match ? '' : 'none';
+        });
+    }
+
+    /**
+     * Async concurrency guard. Prevents duplicate concurrent calls for the same key.
+     * @param {string} key - Unique guard key
+     * @param {Function} fn - Async function to execute
+     */
+    async guard(key, fn) {
+        if (this[`_guard_${key}`]) return;
+        this[`_guard_${key}`] = true;
+        try { return await fn(); }
+        finally { this[`_guard_${key}`] = false; }
+    }
     renderSourceHeader(source) {
         if (!source) return '';
         const isYaml = source.type === 'yaml';
@@ -520,7 +640,7 @@ class BaseComponent {
 /**
  * Built-in SPPForm Component
  */
-class SPPForm extends BaseComponent {
+export class SPPForm extends BaseComponent {
     onMount() {
         this.refreshDependencies();
         ['input', 'change'].forEach(evt => {
@@ -592,7 +712,7 @@ window.Fragment = Fragment;
 window.SPPStore = SPPStore;
 window.BaseComponent = BaseComponent;
 window.SPPForm = SPPForm;
-window.SPPUX = {
+export const SPPUX = {
     TrustedHTML,
     html,
     Fragment,
@@ -612,7 +732,8 @@ window.SPPUX = {
         const events = ['click', 'input', 'change', 'submit', 'blur', 'focus', 'keydown', 'keyup', 'keypress', 'dragstart', 'dragover', 'dragleave', 'drop', 'dragend'];
         events.forEach(evt => {
             document.addEventListener(evt, (e) => {
-                const target = e.target.closest('[data-spp-evt]');
+                const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-change], [data-spp-evt-input], [data-spp-evt-submit]';
+                const target = e.target.closest(selectors);
                 if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
                 
                 // Find all components that could handle this event
@@ -1037,6 +1158,7 @@ window.SPPUX = {
         }
     }
 }; 
+window.SPPUX = SPPUX;
 
 // Initialize LiveSync in Dev Mode
 // SPPUX.liveSync.init();
