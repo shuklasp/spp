@@ -1,15 +1,5 @@
 <!DOCTYPE html>
-<?php
-    $nodeId = $params[0] ?? null;
-    $node = null;
-    if ($nodeId) {
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $res = $db->execute_query("SELECT * FROM lek_nodes WHERE id = ? OR alias = ?", [$nodeId, $nodeId]);
-        if (!empty($res)) {
-            $node = (object)$res[0];
-        }
-    }
-?>
+@load_node
 <html>
 <head>
     <title>{{ $node->title ?? 'Node' }} | Lekhak CMS</title>

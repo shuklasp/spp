@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>1</next_id>
+  </_meta>
+<row id="1"><id>1</id><bundle>Article</bundle><title>Test Article</title><body>This is a test article.</body><status>published</status><changed>2026-05-14 00:44:18</changed><created>2026-05-14 00:43:47</created><alias>test-article-1778719427</alias><author_id>1</author_id><history timestamp="2026-05-14 00:44:18"><id>1</id><bundle>Article</bundle><title>Test Article</title><body/><status>draft</status><changed>2026-05-14 00:43:47</changed><created>2026-05-14 00:43:47</created><alias>test-article-1778719427</alias><author_id>1</author_id></history><last_modified>2026-05-14 00:44:18</last_modified></row></database>

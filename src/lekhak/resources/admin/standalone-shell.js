@@ -18,6 +18,8 @@ class LekhakAdminShell {
 
         // Compatibility mapping for existing components
         window.admin = this; 
+        this.api = this.api.bind(this);
+        this.apiPost = this.apiPost.bind(this);
     }
 
     async init() {
@@ -29,12 +31,17 @@ class LekhakAdminShell {
     }
 
     setupNavigation() {
-        document.querySelectorAll('.nav-link[data-view]').forEach(link => {
-            link.addEventListener('click', (e) => {
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('.nav-link[data-view], [data-spp-evt="nav-editor"], [data-spp-evt="nav-content"], [data-spp-evt="nav-canvas"], [data-spp-evt="nav-settings"], [data-spp-evt="nav-lekhak"]');
+            if (!link) return;
+            
+            const view = link.getAttribute('data-view') || link.getAttribute('data-spp-evt')?.replace('nav-', '');
+            if (view) {
                 e.preventDefault();
-                const view = e.currentTarget.getAttribute('data-view');
-                location.hash = view;
-            });
+                const targetHash = view === 'lekhak' ? 'dashboard' : view;
+                location.hash = targetHash;
+                this.handleInitialRoute();
+            }
         });
     }
 
@@ -68,13 +75,15 @@ class LekhakAdminShell {
             };
 
             const compName = viewMap[view] || 'lekhak';
-            const modulePath = `../../comp/${compName}.js`;
+            const modulePath = `../../comp/${compName}.js?t=${Date.now()}`;
             
+            console.log(`[StandaloneShell] Loading module: ${modulePath}`);
             const module = await import(modulePath);
             const ComponentClass = module.default;
 
-            // Clear previous actions
+            // Clear previous actions and container contents
             this.headerActions.innerHTML = '';
+            this.container.innerHTML = '';
             
             // Instantiate and mount
             this.activeComponent = new ComponentClass(this, this.container, params);

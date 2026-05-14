@@ -96,6 +96,12 @@ class ViewPage extends \SPP\SPPObject
         $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool)\SPP\Module::getConfig('auto_js_injection', 'sppview'));
 
         if ($pageData['special'] == 1) {
+            if (isset($pageData['method'])) {
+                $method = $pageData['method'];
+                $context = $pageData['context'] ?? [];
+                echo \SPPMod\SPPView\Pages::$method($q ?? '', $context);
+                return true;
+            }
             $includePath = SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\');
             if (file_exists($includePath)) {
                 include($includePath);
@@ -115,14 +121,34 @@ class ViewPage extends \SPP\SPPObject
         SPPGlobal::set('q', $q);
         SPPGlobal::set('numparams', count($pageData['params']));
         
-        $filename = SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\');
+        $filename = ($pageData['url'] !== '') ? (SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\')) : null;
         
         // Safety check: Prevent infinite recursion if pagedir resolution fails or points to root index
-        if ($filename === SPP_APP_DIR . SPP_US . 'index.php') {
+        if ($filename !== null && $filename === SPP_APP_DIR . SPP_US . 'index.php') {
             throw new \SPP\SPPException('Router safety: Infinite recursion detected. Please check your "pagedir" setting in pages.yml.');
         }
 
-        if (file_exists($filename) && is_file($filename)) {
+        // --- Controller Execution ---
+        if (isset($pageData['controller'])) {
+            $parts = explode('@', $pageData['controller']);
+            $class = $parts[0];
+            $method = $parts[1] ?? 'index';
+            
+            if (class_exists($class)) {
+                $controller = new $class();
+                if (method_exists($controller, $method)) {
+                    $params = $pageData['params'] ?? [];
+                    $result = call_user_func_array([$controller, $method], $params);
+                    if (is_string($result)) {
+                        echo $result;
+                        // If we have a controller result, we might not need to render the file
+                        $filename = null; 
+                    }
+                }
+            }
+        }
+
+        if ($filename && file_exists($filename) && is_file($filename)) {
             // Inject common variables for templates
             $app = \SPP\App::getApp();
             $pageData['base_url'] = rtrim((defined('APP_BASE_URI') ? APP_BASE_URI : ''), '/') . '/' . ltrim($app->base_url ?? '', '/');
@@ -139,7 +165,7 @@ class ViewPage extends \SPP\SPPObject
             \SPP\SPPEvent::fireEvent('event_spp_view_pre_render', $preParams);
 
             self::renderFile($filename, $pageData);
-
+            
             if ($doAugment) {
                 $html = ob_get_clean();
                 $postParams = ['html' => &$html, 'pageData' => $pageData];
@@ -523,7 +549,8 @@ class ViewPage extends \SPP\SPPObject
         if (array_key_exists('__spp_form', $_POST)) {
             $formId = $_POST['__spp_form'];
             if (!array_key_exists($formId, self::$formslist)) {
-                throw new SPPException('Submitted form ID "' . htmlspecialchars($formId, ENT_QUOTES, 'UTF-8') . '" is not registered on this page.');
+                // throw new SPPException('Submitted form ID "' . htmlspecialchars($formId, ENT_QUOTES, 'UTF-8') . '" is not registered on this page.');
+                return; // Let controllers handle it
             }
             $callfunc = $formId . '_submitted';
             self::$formslist[$formId]->doValidation();

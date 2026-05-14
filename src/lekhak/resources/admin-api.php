@@ -77,6 +77,9 @@ try {
         sendResponse($res['success'], $res, $res['message'] ?? '');
     }
 
+    // Auto-install/verify nodes table schema gracefully to prevent DB exception loops
+    \SPPMod\Lekhak\Core\LekhakNode::install();
+
     switch ($action) {
         case 'get_dashboard_stats':
             $logFile = SPP_LOG_DIR . '/api_debug.log';
@@ -131,12 +134,19 @@ try {
             $title = $_POST['title'] ?? 'Untitled Document';
             $body = $_POST['body'] ?? '';
             $status = $_POST['status'] ?? 'draft';
+            $bundle = $_POST['bundle'] ?? null;
 
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             $node->title = $title;
             $node->body = $body;
             $node->status = $status;
+            if ($bundle) {
+                $node->bundle = $bundle;
+            } elseif (!$id && empty($node->bundle)) {
+                $node->bundle = 'Article';
+            }
             $node->changed = date("Y-m-d H:i:s");
+            
             
             if (!$id) {
                 $node->created = date("Y-m-d H:i:s");

@@ -64,12 +64,11 @@ function live_Auth_Profile($la, $params) {
         }
         
         $user = new \SPPMod\SPPAuth\SPPUser($username);
-        $la->setData([
-            'id' => $user->getId(),
-            'username' => $user->username,
-            'email' => $user->email,
-            'role' => "Developer"
-        ]);
+        $logFile = 'C:/projects/apache/school1/scratch/auth_debug.log';
+        $debugInfo = "[SPP ADMIN] Profile for $username: ID=" . $user->getId() . " UNAME=" . $user->get('username') . " EMAIL=" . $user->get('email') . " VALUES=" . json_encode($user->getValues()) . "\n";
+        file_put_contents($logFile, $debugInfo, FILE_APPEND);
+        
+        $la->setData($user->getValues());
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("Profile fetch failed: " . $e->getMessage());
     }

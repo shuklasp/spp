@@ -1,0 +1,188 @@
+<div class="lekhak-content-repository-shell">
+    <!-- Uniform Ceil Sticky Admin Ribbon -->
+    <div class="lekhak-admin-toolbar">
+        <div class="toolbar-brand">
+            <span class="logo-icon" style="background: linear-gradient(135deg, var(--primary), #a855f7); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; vertical-align: middle; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✍️</span>
+            <span class="brand-label">Lekhak Content Repository</span>
+        </div>
+        <div class="toolbar-links">
+            <a class="toolbar-tab" data-spp-evt="nav-lekhak" data-spp-type="click">Dashboard</a>
+            <a class="toolbar-tab active" data-spp-evt="nav-content" data-spp-type="click">Content List</a>
+            <a class="toolbar-tab" data-spp-evt="nav-canvas" data-spp-type="click">Visual Layouts</a>
+            <a class="toolbar-tab" data-spp-evt="nav-settings" data-spp-type="click">System Bindings</a>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-toolbar-primary" data-spp-evt="nav-editor" data-spp-type="click">＋ Add Content</button>
+        </div>
+    </div>
+
+    <div class="lekhak-main-container">
+        <header class="repository-header">
+            <div class="header-main">
+                <h1>Master Content Overview</h1>
+                <p class="desc">Filter, update, and deploy structured framework documents efficiently.</p>
+            </div>
+            
+            <!-- Secondary Local Tasks Header -->
+            <div class="lekhak-local-tasks">
+                <button class="task-pill active" data-spp-evt="status-all">
+                    All Nodes <span class="pill-badge">${state.nodes.length}</span>
+                </button>
+                <button class="task-pill" data-spp-evt="status-published">
+                    Published Streams <span class="pill-badge success">Active</span>
+                </button>
+                <button class="task-pill" data-spp-evt="status-draft">
+                    Working Drafts <span class="pill-badge warning">Buffers</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Advanced Live Action Filtering Toolbar -->
+        <div class="lekhak-filter-tray">
+            <div class="search-input-wrapper">
+                <span class="search-icon">🔍</span>
+                <input type="text" placeholder="Filter articles by matching keyword string..." id="spp-content-filter-input">
+            </div>
+            <div class="tray-meta">
+                <span>Dynamic real-time active data set target</span>
+            </div>
+        </div>
+
+        <!-- Responsive Data Table Framework -->
+        <div class="lekhak-table-card">
+            <div class="table-responsive-wrapper">
+                <table class="lekhak-data-table">
+                    <thead>
+                        <tr>
+                            <th class="col-indicator"></th>
+                            <th class="col-title">Document Title</th>
+                            <th class="col-status">Publish State</th>
+                            <th class="col-date">Last Modification Milestone</th>
+                            <th class="col-actions" style="text-align: right;">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spp-content-table-rows">
+                        <!-- Dynamic template target rendering slot -->
+                        <tr>
+                            <td colspan="5" class="empty-table-cell">
+                                <span style="font-size: 1.5rem; display: block; margin-bottom: 8px;">📭</span>
+                                <span>Dynamic items reconciliation target active for content records stream.</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lekhak-content-repository-shell { font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; background: transparent; }
+    
+    /* 1. Sticky Ceil Admin Toolbar Ribbon */
+    .lekhak-admin-toolbar {
+        position: sticky; top: 0; z-index: 1000;
+        background: var(--header-bg); border-bottom: 2px solid var(--border);
+        padding: 0 1.5rem; height: 50px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .toolbar-brand { display: flex; align-items: center; gap: 8px; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--text); }
+    .toolbar-links { display: flex; height: 100%; }
+    .toolbar-tab {
+        padding: 0 1rem; display: flex; align-items: center;
+        color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
+        text-decoration: none; cursor: pointer; transition: all 0.2s;
+        border-bottom: 2px solid transparent; height: 100%;
+    }
+    .toolbar-tab:hover, .toolbar-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(128,128,128,0.05); }
+    .btn-toolbar-primary {
+        background: var(--primary); color: white; border: none;
+        padding: 6px 14px; border-radius: 6px; font-size: 0.8rem;
+        font-weight: 800; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-toolbar-primary:hover { opacity: 0.9; }
+
+    /* 2. Main Flow Shell */
+    .lekhak-main-container { padding: 2.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+    
+    .repository-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+    .header-main h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; margin: 0; color: var(--text); }
+    .header-main .desc { color: var(--text-dim); font-size: 0.95rem; margin-top: 4px; }
+
+    /* Local Tasks Nav-Pills */
+    .lekhak-local-tasks { display: flex; gap: 8px; margin-top: 1.5rem; flex-wrap: wrap; }
+    .task-pill {
+        background: var(--sidebar-bg); border: 1px solid var(--border);
+        color: var(--text); padding: 6px 14px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 8px; transition: all 0.15s;
+    }
+    .task-pill:hover, .task-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .pill-badge { background: var(--header-bg); color: var(--text-dim); font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+    .task-pill.active .pill-badge { background: rgba(255,255,255,0.25); color: white; }
+
+    /* 3. Search Filter Controls Tray */
+    .lekhak-filter-tray {
+        background: var(--sidebar-bg); border: 1px solid var(--border);
+        border-radius: 8px; padding: 12px 16px; margin-bottom: 1.5rem;
+        display: flex; justify-content: space-between; align-items: center;
+        flex-wrap: wrap; gap: 1rem;
+    }
+    .search-input-wrapper {
+        position: relative; display: flex; align-items: center;
+        flex-grow: 1; max-width: 500px;
+    }
+    .search-icon { position: absolute; left: 12px; font-size: 0.8rem; color: #64748b; }
+    .search-input-wrapper input {
+        width: 100%; background: transparent; border: 1px solid var(--border);
+        border-radius: 6px; padding: 8px 32px 8px 32px; color: var(--text);
+        font-size: 0.85rem; outline: none; transition: border-color 0.15s;
+    }
+    .search-input-wrapper input:focus { border-color: var(--primary); }
+    .tray-meta { font-size: 0.8rem; color: var(--text-dim); }
+
+    /* 4. Responsive Table Architecture */
+    .lekhak-table-card {
+        background: var(--sidebar-bg); border: 1px solid var(--border);
+        border-radius: 8px; overflow: hidden;
+    }
+    .table-responsive-wrapper { width: 100%; overflow-x: auto; }
+    
+    .lekhak-data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .lekhak-data-table th {
+        background: var(--header-bg); color: var(--text-dim); font-size: 0.75rem;
+        text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;
+        padding: 14px 16px; border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    .lekhak-data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    
+    .data-row { cursor: pointer; transition: background 0.15s; }
+    .data-row:hover { background: rgba(128,128,128,0.1); }
+
+    .col-indicator { width: 24px; padding-right: 0 !important; }
+    .row-marker { width: 8px; height: 8px; border-radius: 50%; background: #64748b; }
+    .row-marker.published { background: #4ade80; }
+
+    .title-text { font-weight: 700; font-size: 0.95rem; color: var(--text); font-family: 'Outfit', sans-serif; }
+    .node-id-label { font-size: 0.7rem; color: var(--text-dim); margin-top: 2px; font-family: monospace; }
+
+    .lekhak-status-tag {
+        font-size: 0.65rem; font-weight: bold; text-transform: uppercase;
+        padding: 3px 8px; border-radius: 4px; background: var(--header-bg); color: var(--text-dim);
+    }
+    .lekhak-status-tag.published { background: rgba(74,222,128,0.1); color: #4ade80; }
+
+    .date-string { font-size: 0.8rem; color: var(--text-dim); }
+
+    .lekhak-operations-group { display: flex; gap: 4px; justify-content: flex-end; }
+    .btn-operation {
+        background: transparent; border: 1px solid var(--border);
+        color: var(--text); padding: 4px 10px; border-radius: 4px;
+        font-size: 0.75rem; text-decoration: none; cursor: pointer;
+        transition: all 0.15s;
+    }
+    .btn-operation:hover { background: var(--header-bg); color: var(--text); }
+    .btn-operation.highlight { border-color: var(--primary); color: var(--primary); font-weight: 600; }
+    .btn-operation.highlight:hover { background: var(--primary); color: white; }
+</style>

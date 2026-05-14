@@ -4,6 +4,7 @@ module:
     pubname: 'SPP UX'
     modgroup: SPP_Core
     pubdesc: 'Native lightweight SPP frontend runtime for reactive application components.'
+    category: 'Core Optional'
     includes:
         - class.sppux.php
     deps:

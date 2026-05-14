@@ -47,7 +47,13 @@ class SPPAdmin {
             'ajax': '⚡',
             'lifecycle': '🚀',
             'xdb': '🗄️',
-            'interdb': '🕸️'
+            'interdb': '🕸️',
+            'sppai': '🤖',
+            'marketing': '📢',
+            'commerce': '🛒',
+            'parikshak': '🧪',
+            'events': '🎯',
+            'mobile': '📱'
         };
         this.viewTitles = {
             'system': 'System Information',
@@ -67,7 +73,13 @@ class SPPAdmin {
             'ajax': 'LiveService Registry',
             'lifecycle': 'Lifecycle & Deployment',
             'xdb': 'XML Database',
-            'interdb': 'InterDB Mesh'
+            'interdb': 'InterDB Mesh',
+            'sppai': 'SPP AI Engine',
+            'marketing': 'Marketing Automation',
+            'commerce': 'Lekhak Commerce',
+            'parikshak': 'Parikshak Evaluator',
+            'events': 'Event Dispatcher',
+            'mobile': 'Mobile Studio'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
@@ -160,7 +172,9 @@ class SPPAdmin {
             // Close portal suggestions on outside click
             document.addEventListener('click', (e) => {
                 const portal = document.getElementById('global-suggestions');
-                const isSearchInput = e.target.classList.contains('spp-element') && e.target.placeholder.includes('Search');
+                const isSearchInput = e.target.classList.contains('spp-element') && 
+                                    e.target.placeholder && 
+                                    e.target.placeholder.includes('Search');
                 if (portal && portal.classList.contains('active') && !portal.contains(e.target) && !isSearchInput) {
                     this.hidePortalSuggestions();
                 }
@@ -1088,7 +1102,13 @@ class SPPAdmin {
         
         if (res.success) {
             this._lastApiContext = res.data;
+            this.activeSetupTab = 'interactive';
             // The modal is automatically opened by SPPUX.applyInstructions called within apiPost
+            
+            // Allow small delay for DOM to render before initializing dependencies
+            setTimeout(() => {
+                if (window.SPPDependencies) SPPDependencies.init();
+            }, 100);
         } else {
             this.notify(res.message || 'Failed to open settings', 'error');
         }
@@ -1128,36 +1148,70 @@ class SPPAdmin {
         }
     }
 
-    switchSetupTab(tab) {
-        this.activeSetupTab = tab;
+    switchSetupTab(tabId) {
+        // Sync Interactive -> YAML before switching to YAML tab
+        if (tabId === 'yaml' && this.activeSetupTab === 'interactive') {
+            const config = this.getInteractiveConfig();
+            const editor = document.getElementById('raw-config-editor');
+            if (editor) {
+                editor.value = "variables:\n" + Object.entries(config)
+                    .map(([k, v]) => `    ${k}: ${JSON.stringify(v)}`)
+                    .join("\n");
+            }
+        }
+
+        this.activeSetupTab = tabId;
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.setup-pane').forEach(p => p.style.display = 'none');
         
-        document.getElementById(`tab-${tab}`).classList.add('active');
-        document.getElementById(`setup-pane-${tab}`).style.display = 'block';
+        const tabBtn = document.getElementById(`tab-${tabId}`);
+        const pane = document.getElementById(`setup-pane-${tabId}`);
+        if (tabBtn) tabBtn.classList.add('active');
+        if (pane) pane.style.display = 'block';
+
+        if (tabId === 'interactive' && window.SPPDependencies) {
+            SPPDependencies.init();
+        }
+    }
+
+    getInteractiveConfig() {
+        const container = document.querySelector('.modal-body') || document;
+        const inputs = container.querySelectorAll('input:not([type="hidden"]), select, textarea:not(.code-editor)');
+        
+        const config = {};
+        inputs.forEach(inp => {
+            const key = inp.id || inp.name || inp.getAttribute('data-key');
+            if (!key || key.startsWith('setup-') || key === '__spp_form' || key === '_csrf_token') return;
+            
+            let val;
+            if (inp.type === 'checkbox' || inp.type === 'radio') {
+                val = inp.checked ? (inp.value || true) : false;
+            } else {
+                val = inp.value;
+            }
+            
+            const cleanKey = key.replace(/^spp-/, '');
+            config[cleanKey] = val;
+        });
+        return config;
     }
 
     async saveModuleSettings(modname, appname) {
-        this.updateModal('Saving...', SPPUX.html`<div class="loader">Committing configuration changes...</div>`);
+        if (!modname) modname = document.getElementById('setup-modname')?.value;
+        if (!appname) appname = document.getElementById('setup-appname')?.value;
+
+        if (!modname) {
+            this.notify('Module name not found.', 'error');
+            return;
+        }
+
+        console.log(`[SPPAdmin] Saving settings for ${modname} in ${appname}...`);
         
         try {
             let res;
             if (this.activeSetupTab === 'interactive') {
-                // Scope to modal body to avoid grabbing unrelated global elements
-                const container = document.querySelector('.modal-body') || document;
-                const inputs = container.querySelectorAll('.setting-input, input.spp-element, select.spp-element, textarea.spp-element');
-                
-                const config = {};
-                inputs.forEach(inp => {
-                    const key = inp.name || inp.getAttribute('data-key');
-                    if (!key) return;
-                    
-                    if (inp.type === 'checkbox') {
-                        config[key] = inp.checked;
-                    } else {
-                        config[key] = inp.value;
-                    }
-                });
+                const config = this.getInteractiveConfig();
+                console.log('[SPPAdmin] Saving Interactive Config:', config);
                 
                 res = await this.apiPost('save_module_config', { 
                     modname, 
@@ -1165,14 +1219,18 @@ class SPPAdmin {
                     config: JSON.stringify(config) 
                 });
             } else {
-                const content = document.getElementById('raw-config-editor').value;
-                const format = document.getElementById('raw-config-format').value;
-                
+                const editor = document.getElementById('raw-config-editor');
+                if (!editor) {
+                    this.notify('Editor element not found.', 'error');
+                    return;
+                }
+
+                const content = editor.value;
                 res = await this.apiPost('save_module_config_raw', { 
                     modname, 
                     appname, 
                     content,
-                    format
+                    format: 'yml'
                 });
             }
 
@@ -1243,3 +1301,5 @@ document.head.appendChild(shakeStyle);
 // Global instance initialization
 const admin = new SPPAdmin();
 window.admin = admin;
+
+window.SPPAdmin = SPPAdmin;

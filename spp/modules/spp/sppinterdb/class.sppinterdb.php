@@ -126,14 +126,53 @@ class SPPInterDB
         return $result;
     }
 
+    public function get_entities(): array
+    {
+        $entities = [];
+        foreach ($this->registry as $name => $meta) {
+            $entities[] = [
+                'name' => $name,
+                'engine' => $meta['engine'],
+                'table' => $meta['table']
+            ];
+        }
+        return ['success' => true, 'entities' => $entities];
+    }
+
+    public function get_schema(array $params): array
+    {
+        $entity = $params['entity'] ?? null;
+        if (!$entity || !isset($this->registry[$entity])) {
+            return ['success' => false, 'message' => "Entity '{$entity}' not found."];
+        }
+
+        $mapping = $this->registry[$entity];
+        $db = $this->getDatabase($mapping['engine']);
+        
+        try {
+            $table = $mapping['table'];
+            // Dynamic schema discovery (MySQL implementation example)
+            $columns = $db->query("SHOW COLUMNS FROM `{$table}`");
+            $fields = [];
+            foreach ($columns as $col) {
+                $fields[] = [
+                    'name' => $col['Field'],
+                    'type' => $col['Type'],
+                    'nullable' => $col['Null'] === 'YES'
+                ];
+            }
+            return ['success' => true, 'entity' => $entity, 'fields' => $fields];
+        } catch (\Exception $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
     private function getDatabase(string $engine): SPPDB
     {
         if ($engine === 'default' || $this->mode === 'standalone') {
             return new SPPDB();
         }
         
-        // InterDB: Connection string can be dynamic or from mappings
-        // For now we use engine as a dbtype hint
         return new SPPDB("{$engine}:dbname=default");
     }
 }

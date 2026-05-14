@@ -5,7 +5,8 @@ module:
     name: sppauth
     version: "0.5"
     pubname: SPP Auth
-    modgroup: SPP_Optional
+    modgroup: Core
+    category: 'Core Required'
     pubdesc: Handles native SPP Authentication.
     includes:
         - class.sppauth.php

@@ -1,0 +1,13 @@
+################################################################################
+# Framework Core Infrastructure Secure Asset Registry
+# Enforces complete front-controller asset isolation and dynamic controller map streams.
+################################################################################
+
+security:
+  block_direct_access: true
+
+assets:
+  core: "spp/res"
+  system: "res"
+  shared: "resources/shared"
+  components: "spp/modules/spp/sppux/js"

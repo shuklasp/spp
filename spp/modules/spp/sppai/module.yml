@@ -5,7 +5,15 @@ module:
     name: sppai
     author: SPP Auto-Builder
     version: "1.0"
-    description: SPPAI Core AI integration module.
+    description: SPPAI Universal AI Gateway module with multi-provider support.
+    category: 'Core Optional'
     namespace: SPPMod\SPPAI
+    config: etc/config.yml
     autoload:
         - { class: SPPAI, file: class.sppai.php }
+        - { interface: AIDriverInterface, file: int.aidriver.php }
+        - { class: GeminiDriver, file: drivers/class.geminidriver.php }
+        - { class: ChatGPTDriver, file: drivers/class.chatgptdriver.php }
+        - { class: ClaudeDriver, file: drivers/class.claudedriver.php }
+        - { class: DeepSeekDriver, file: drivers/class.deepseekdriver.php }
+        - { class: SarvamDriver, file: drivers/class.sarvamdriver.php }

@@ -64,6 +64,8 @@ export default class ComponentRegistry {
                 items: [
                     { name: 'Story Circle', type: 'story_circle', icon: '⭕', schema: { src: 'string', size: 'number', viewed: 'boolean' } },
                     { name: 'Video Player', type: 'video_player', icon: '🎬', schema: { src: 'string', autoPlay: 'boolean' } },
+                    { name: 'Lottie Animation', type: 'lottie', icon: '🌀', schema: { src: 'string', loop: 'boolean', autoPlay: 'boolean' } },
+                    { name: 'Rive Asset', type: 'rive', icon: '🛸', schema: { src: 'string', stateMachine: 'string' } },
                     { name: 'Audio Node', type: 'audio_player', icon: '📻', schema: { src: 'string' } },
                     { name: 'Post Card', type: 'social_post', icon: '📱', schema: { author: 'string', content: 'string', image: 'string' } }
                 ]

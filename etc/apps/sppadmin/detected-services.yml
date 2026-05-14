@@ -32,3 +32,63 @@ services:
     name: get_system_info
     script: spp/admin/services/General.php
     method: live_get_system_info
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_ai_registry
+    script: spp/admin/services/General.php
+    method: live_get_ai_registry
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: test_ai_prompt
+    script: spp/admin/services/General.php
+    method: live_test_ai_prompt
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: logout
+    script: spp/admin/services/General.php
+    method: live_logout
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_entities
+    script: spp/admin/services/General.php
+    method: live_list_entities
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_modules
+    script: spp/admin/services/General.php
+    method: live_list_modules
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: scan_module
+    script: spp/admin/services/General.php
+    method: live_scan_module
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: open_module_settings
+    script: spp/admin/services/General.php
+    method: live_open_module_settings
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: save_module_config
+    script: spp/admin/services/General.php
+    method: live_save_module_config
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: save_module_config_raw
+    script: spp/admin/services/General.php
+    method: live_save_module_config_raw
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: toggle_module
+    script: spp/admin/services/General.php
+    method: live_toggle_module

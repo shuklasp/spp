@@ -51,12 +51,12 @@
      * Code Editor (Monaco)
      */
     SPPUX.Code = SPPUX.Bridge.createWrapper({
-        assets: ['https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js'],
+        assets: ['res/spp/js/monaco.js'],
         init(container, props) {
             const content = UI.wrap(container, props.label || 'Code Editor');
             content.style.height = props.height || '400px';
             
-            require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+            require.config({ paths: { vs: 'res/spp/js' }});
             require(['vs/editor/editor.main'], () => {
                 const editor = monaco.editor.create(content, {
                     value: props.value || '',

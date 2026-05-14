@@ -99,9 +99,10 @@ class ViewForm extends ViewTag {
         foreach($this->validators as $val)
         {
             $valRes = $val->validateAll();
-            if(self::$valstatus==true)
+            $isValid = is_object($valRes) && method_exists($valRes, 'isValid') ? $valRes->isValid() : (bool)$valRes;
+            if(self::$valstatus === true)
             {
-                self::$valstatus=$valRes;
+                self::$valstatus = $isValid;
             }
         }
     }
@@ -109,6 +110,46 @@ class ViewForm extends ViewTag {
     public static function isValidated()
     {
         return self::$valstatus;
+    }
+
+    public function getErrors(): array
+    {
+        $errors = [];
+        foreach ($this->validators as $val) {
+            $res = $val->getLastResult();
+            if ($res && !$res->isValid()) {
+                $errors = array_merge_recursive($errors, $res->getErrors());
+            }
+        }
+        return $errors;
+    }
+
+    public function isSubmitted(): bool
+    {
+        return ($_POST['__spp_form'] ?? '') === $this->getAttribute('name');
+    }
+
+    public function isValid(): bool
+    {
+        $this->doValidation();
+        return (bool)self::$valstatus;
+    }
+
+    public function save(): bool
+    {
+        if (($this->entityInstance || $this->entityClass) && ($this->isValid())) {
+            $entity = $this->entityInstance ?: new $this->entityClass();
+            
+            foreach($this->elements as $id => $elem) {
+                $name = $elem->getAttribute('name') ?: $id;
+                $val = $_POST[$name] ?? null;
+                if ($val !== null) {
+                    $entity->set(rtrim($name, '[]'), $val);
+                }
+            }
+            return $entity->save();
+        }
+        return false;
     }
 
 
@@ -132,10 +173,10 @@ class ViewForm extends ViewTag {
 
     public function startForm()
     {
-        echo parent::getHTML();
+        echo $this->getStart();
         
         // Automated CSRF Protection
-        $token = \SPP\Security\CSRF::getToken();
+        $token = \SPP\SPPSession::getCsrfToken();
         echo '<input type="hidden" name="_csrf_token" value="' . $token . '" />';
 
         // The hidden field is only for legacy multi-form-per-page detection in processForms()
@@ -144,7 +185,7 @@ class ViewForm extends ViewTag {
 
     public function endForm()
     {
-        echo '</form>';
+        echo $this->getEnd();
     }
 
     /**
@@ -224,8 +265,23 @@ class ViewForm extends ViewTag {
         }
     }
 
+    public function getHTML(): string
+    {
+        ob_start();
+        $this->startForm();
+        if (isset($this->children)) {
+            echo $this->getChildren();
+        }
+        $this->endForm();
+        return ob_get_clean();
+    }
+
+    private $entityInstance;
+
     public function setEntityClass($class) { $this->entityClass = $class; }
     public function getEntityClass() { return $this->entityClass; }
+    public function setEntityInstance($entity) { $this->entityInstance = $entity; }
+    public function getEntityInstance() { return $this->entityInstance; }
     public function setMatter($title) { $this->matter = $title; }
     public function getMatter() { return $this->matter; }
 

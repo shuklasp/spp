@@ -5,6 +5,7 @@ module:
     version: "1.0"
     pubname: SPP Drupal Bridge
     modgroup: SPP_Optional
+    category: 'Core Optional'
     pubdesc: Integrates Drupal (Content & Auth) into SPP.
     includes:
         - class.sppdrupal.php

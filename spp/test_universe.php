@@ -30,7 +30,7 @@ echo "<link rel='stylesheet' href='modules/spp/sppext/css/sppext-premium.css' />
 echo "<script src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'></script>";
 echo "<script src='https://cdn.jsdelivr.net/npm/flatpickr'></script>";
 echo "<script src='https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'></script>";
-echo "<script src='https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js'></script>";
+echo "<script src='res/spp/js/monaco.js'></script>";
 
 echo "<script src='modules/spp/sppux/js/sppux.js'></script>";
 echo "<script src='modules/spp/sppux/js/sppux-bridge.js'></script>";

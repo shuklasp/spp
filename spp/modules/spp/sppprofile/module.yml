@@ -5,6 +5,7 @@ module:
     author: Satya Prakash Shukla
     pubdesc: Flexible profile extension system for any framework entity, allowing dynamic property expansion without schema alteration.
     modgroup: Core
+    category: 'Core Optional'
     installation:
         tables:
             profiletabs:

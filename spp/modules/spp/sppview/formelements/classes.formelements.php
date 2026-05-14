@@ -97,6 +97,7 @@ class SPPViewForm_Option extends SPPViewForm_Element{
         $this->opttext=$disptext;
         $this->setMatterText($disptext);
         $this->setAttribute('value', $optvalue);
+        $this->setGrouped(false);
     }
 
     public function render()
@@ -170,7 +171,7 @@ class SPPViewForm_Select extends SPPViewForm_Element{
         }
     }
 
-    public function getHTML(): string
+    public function renderRaw(): string
     {
         $prevoptgroup='';
         $htm= $this->getStart();
@@ -219,68 +220,72 @@ class SPPViewForm_SQLDropDown extends SPPViewForm_Select{
 }
 
 class SPPViewForm_Input_Radio extends SPPViewForm_Input{
-    private $values=array();
-    public function  __construct($ename,$val='',$checked=false) {
+    private $options=array();
+    public function  __construct($ename,$val='',$label='',$checked=false) {
         parent::__construct($ename);
         if($val!='')
         {
-            $this->addOption($val,$checked);
+            $this->addOption($val,$label,$checked);
         }
     }
 
-    public function addOption($optval,$checked=false)
+    public function addOption($optval,$label='',$checked=false)
     {
-        $this->values[$optval]=$checked;
+        $this->options[] = ['value' => $optval, 'label' => $label ?: $optval, 'checked' => $checked];
     }
 
-    public function getHTML(): string
+    public function renderRaw(): string
     {
-        $htm='';
-        foreach($this->values as $val=>$checked)
+        $name = $this->getAttribute('name');
+        $id = $this->getAttribute('id');
+        $htm = '<div class="spp-radio-group" style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">';
+        foreach($this->options as $opt)
         {
-            if($checked===true)
-            {
-                $htm.='<input type="radio" name="'.$this->getAttribute('name').'" id="'.$this->getAttribute('id').'" value="'.$val.'" checked="true" />';
-            }
-            else
-            {
-                $htm.='<input type="radio" name="'.$this->getAttribute('name').'" id="'.$this->getAttribute('id').'" value="'.$val.'" />';
-            }
+            $checkedAttr = $opt['checked'] ? 'checked="checked"' : '';
+            $optId = $id . '_' . $opt['value'];
+            $htm .= "
+                <label class=\"spp-radio-label\" style=\"display: flex; align-items: center; gap: 10px; cursor: pointer;\">
+                    <input type=\"radio\" name=\"{$name}\" id=\"{$optId}\" value=\"{$opt['value']}\" {$checkedAttr} style=\"width: 18px; height: 18px; accent-color: var(--accent-primary);\">
+                    <span style=\"color: var(--text-main); font-size: 0.9rem;\">{$opt['label']}</span>
+                </label>";
         }
+        $htm .= '</div>';
         return $htm;
     }
 }
 
 class SPPViewForm_Input_Checkbox extends SPPViewForm_Input{
-    protected $values=array();
-    public function  __construct($ename,$val='',$checked=false) {
+    protected $options=array();
+    public function  __construct($ename,$val='',$label='',$checked=false) {
         parent::__construct($ename);
         $this->setAttribute('type', 'checkbox');
         if($val!='')
         {
-            $this->addOption($val,$checked);
+            $this->addOption($val,$label,$checked);
         }
     }
 
-    public function addOption($optval,$checked=false)
+    public function addOption($optval,$label='',$checked=false)
     {
-        $this->values[$optval]=$checked;
+        $this->options[] = ['value' => $optval, 'label' => $label ?: $optval, 'checked' => $checked];
     }
 
-    public function getHTML(): string
+    public function renderRaw(): string
     {
-        $htm='';
-        foreach($this->values as $val=>$checked)
+        $name = $this->getAttribute('name');
+        $id = $this->getAttribute('id');
+        $htm = '<div class="spp-checkbox-group" style="display: flex; flex-direction: column; gap: 10px; margin-top: 5px;">';
+        foreach($this->options as $opt)
         {
-            if($checked===true)
-            {
-                $htm.='<input type="checkbox" name="'.$this->getAttribute('name').'" id="'.$this->getAttribute('id').'" value="'.$val.'" checked="true" />';
-            }
-            else
-            {
-                $htm.='<input type="checkbox" name="'.$this->getAttribute('name').'" id="'.$this->getAttribute('id').'" value="'.$val.'" />';
-            }
+            $checkedAttr = $opt['checked'] ? 'checked="checked"' : '';
+            $optId = $id . '_' . $opt['value'];
+            $htm .= "
+                <label class=\"spp-checkbox-label\" style=\"display: flex; align-items: center; gap: 10px; cursor: pointer;\">
+                    <input type=\"checkbox\" name=\"{$name}\" id=\"{$optId}\" value=\"{$opt['value']}\" {$checkedAttr} style=\"width: 18px; height: 18px; accent-color: var(--accent-primary);\">
+                    <span style=\"color: var(--text-main); font-size: 0.9rem;\">{$opt['label']}</span>
+                </label>";
         }
+        $htm .= '</div>';
         return $htm;
     }
 }
@@ -291,7 +296,7 @@ class SPPViewForm_File extends SPPViewForm_Input {
         $this->attrlist = array_merge($this->attrlist, ['multiple', 'accept']);
         $this->addClass('spp-file-enhanced');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppfile.js');
         return parent::getHTML();
     }
@@ -315,7 +320,7 @@ class SPPViewForm_Repeater extends SPPViewForm_Element {
         $this->setAttribute('data-repeater-name', $ename);
     }
     public function setTemplate(array $fields) { $this->templateFields = $fields; }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spprepeater.js');
         $html = '<div ' . $this->getAttributesHTML() . '>';
         $html .= '<div class="spp-repeater-list"></div>';
@@ -337,12 +342,14 @@ class SPPViewForm_Repeater extends SPPViewForm_Element {
 }
 
 class SPPViewForm_Toggle extends SPPViewForm_Input_Checkbox {
-    public function getHTML(): string
+    public function renderRaw(): string
     {
         $name = $this->getAttribute('name');
         $id = $this->getAttribute('id');
         $checked = false;
-        foreach($this->values as $val => $c) { if($c) $checked = true; }
+        foreach($this->options as $opt) { 
+            if($opt['checked']) $checked = true; 
+        }
         $checkedAttr = $checked ? 'checked' : '';
         return "
             <div class=\"toggle-container\" style=\"display: inline-flex; align-items: center; gap: 10px;\">
@@ -426,7 +433,7 @@ class SPPViewForm_Autocomplete extends SPPViewForm_Select {
         $this->addClass('spp-autocomplete');
         if ($sourceUrl) $this->setAttribute('data-source', $sourceUrl);
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppautocomplete.js');
         return parent::getHTML();
     }
@@ -439,7 +446,7 @@ class SPPViewForm_Signature extends SPPViewForm_Element {
         $this->addClass('spp-signature-pad');
         $this->setGrouped(true);
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppsignature.js');
         $id = $this->getAttribute('id');
         $html = '<div ' . $this->getAttributesHTML() . ' style="border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 10px; background: var(--input-bg);">';
@@ -461,7 +468,7 @@ class SPPViewForm_Tags extends SPPViewForm_Element {
         $this->addClass('spp-tag-input-container');
         $this->setGrouped(true);
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spptags.js');
         $id = $this->getAttribute('id');
         $val = $this->getAttribute('value') ?: '';
@@ -483,7 +490,7 @@ class SPPViewForm_OTP extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-otp-container');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppotp.js');
         $id = $this->getAttribute('id');
         $html = '<div ' . $this->getAttributesHTML() . ' style="display: flex; gap: 8px;">';
@@ -504,7 +511,7 @@ class SPPViewForm_Rating extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-rating-container');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spprating.js');
         $id = $this->getAttribute('id');
         $val = $this->getAttribute('value') ?: 0;
@@ -528,7 +535,7 @@ class SPPViewForm_Range extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-range-container');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spprange.js');
         $id = $this->getAttribute('id');
         $val = $this->getAttribute('value') ?: $this->min . '-' . $this->max;
@@ -552,7 +559,7 @@ class SPPViewForm_Cropper extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-cropper-container');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppcropper.js');
         $id = $this->getAttribute('id');
         $html = '<div ' . $this->getAttributesHTML() . ' style="border: 1px solid #ddd; padding: 10px; border-radius: 4px;">';
@@ -572,7 +579,7 @@ class SPPViewForm_TreeSelect extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-tree-select');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spptreeselect.js');
         $id = $this->getAttribute('id');
         $html = '<div ' . $this->getAttributesHTML() . ' style="position: relative;">';
@@ -609,7 +616,7 @@ class SPPViewForm_DualList extends SPPViewForm_Element {
         $this->tagname = 'div';
         $this->addClass('spp-dual-list');
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/sppduallist.js');
         $id = $this->getAttribute('id');
         $html = '<div ' . $this->getAttributesHTML() . ' style="display: flex; gap: 10px; align-items: center;">';
@@ -633,7 +640,7 @@ class SPPViewForm_Portability extends SPPViewForm_Element {
         $this->addClass('spp-portability-container');
         $this->setGrouped(false);
     }
-    public function getHTML(): string {
+    public function renderRaw(): string {
         ViewPage::addJsIncludeFile('res/js/spportability.js');
         $html = '<div ' . $this->getAttributesHTML() . ' style="display: flex; gap: 10px; margin-top: 15px; padding: 10px; background: var(--btn-soft-bg); border: 1px dashed var(--glass-border); border-radius: var(--radius-md);">';
         $html .= '<button type="button" class="btn-export-json" style="font-size: 0.8rem; padding: 5px 10px; cursor: pointer;">Download JSON Draft</button>';

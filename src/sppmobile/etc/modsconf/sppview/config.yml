@@ -1,0 +1,3 @@
+variables:
+    page_source_primary: yaml
+    page_source_fallback: none

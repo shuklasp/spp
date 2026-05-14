@@ -23,6 +23,14 @@ class SPPDB
     public ?string $dbname = null;
 
     /**
+     * Returns the current database driver name.
+     */
+    public function getDriver(): ?string
+    {
+        return $this->dbtype;
+    }
+
+    /**
      * Resolves a table name with current context's prefix, supporting shared group inheritance.
      *
      * @param string $tname
@@ -139,33 +147,49 @@ class SPPDB
             if ($dburl == null) {
                 if ($dbOverride) {
                     $dbtype = $dbOverride['dbtype'] ?? \SPP\Module::getConfig('dbtype', 'sppdb');
-                    $dbhost = $dbOverride['dbhost'] ?? \SPP\Module::getConfig('dbhost', 'sppdb');
-                    $dbname = $dbOverride['dbname'] ?? \SPP\Module::getConfig('dbname', 'sppdb');
-                    $url = $dbtype . ':host=' . $dbhost . ';dbname=' . $dbname;
-                    $dbuser = $dbOverride['dbuser'] ?? \SPP\Module::getConfig('dbuser', 'sppdb');
-                    $dbpasswd = $dbOverride['dbpasswd'] ?? \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                    if ($dbtype === 'sqlite') {
+                        $sqlite_path = $dbOverride['sqlite_path'] ?? \SPP\Module::getConfig('sqlite_path', 'sppdb');
+                        $url = 'sqlite:' . SPP_APP_DIR . '/' . ($sqlite_path ?: 'var/db/school.sqlite');
+                        $dbuser = 'root'; // Dummy for SQLite
+                    } else {
+                        $dbhost = $dbOverride['dbhost'] ?? \SPP\Module::getConfig('dbhost', 'sppdb');
+                        $dbname = $dbOverride['dbname'] ?? \SPP\Module::getConfig('dbname', 'sppdb');
+                        $url = $dbtype . ':host=' . $dbhost . ';dbname=' . $dbname;
+                        $dbuser = $dbOverride['dbuser'] ?? \SPP\Module::getConfig('dbuser', 'sppdb');
+                        $dbpasswd = $dbOverride['dbpasswd'] ?? \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                    }
                 } else {
                     $dbtype = \SPP\Module::getConfig('dbtype', 'sppdb');
-                    $dbhost = \SPP\Module::getConfig('dbhost', 'sppdb');
-                    $dbname = \SPP\Module::getConfig('dbname', 'sppdb');
-                    $url = ($dbtype && $dbhost && $dbname) ? ($dbtype . ':host=' . $dbhost . ';dbname=' . $dbname) : null;
-                    $dbuser = \SPP\Module::getConfig('dbuser', 'sppdb');
-                    $dbpasswd = \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                    if ($dbtype === 'sqlite') {
+                        $sqlite_path = \SPP\Module::getConfig('sqlite_path', 'sppdb');
+                        $url = 'sqlite:' . SPP_APP_DIR . '/' . ($sqlite_path ?: 'var/db/school.sqlite');
+                        $dbuser = 'root'; // Dummy for SQLite
+                    } else {
+                        $dbhost = \SPP\Module::getConfig('dbhost', 'sppdb');
+                        $dbname = \SPP\Module::getConfig('dbname', 'sppdb');
+                        $url = ($dbtype && $dbhost && $dbname) ? ($dbtype . ':host=' . $dbhost . ';dbname=' . $dbname) : null;
+                        $dbuser = \SPP\Module::getConfig('dbuser', 'sppdb');
+                        $dbpasswd = \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                    }
                 }
             } else {
                 $url = $dburl;
                 $dbuser = ($dbuser == null) ? \SPP\Module::getConfig('dbuser', 'sppdb') : $dbuser;
                 $dbpasswd = ($dbpasswd == null) ? \SPP\Module::getConfig('dbpasswd', 'sppdb') : $dbpasswd;
-                
-                if (preg_match('/^([a-z0-9]+):/', $url, $m)) {
-                    $this->dbtype = $m[1];
-                }
+            }
+            
+            if ($url && preg_match('/^([a-z0-9]+):/', $url, $m)) {
+                $this->dbtype = $m[1];
+            } elseif ($dbtype) {
+                $this->dbtype = $dbtype;
             }
             
             $this->dbname = $dbname ?: 'default';
 
             // -- Adapter Initialization --
-            if ($this->dbtype === 'xdb') {
+            $dbEngine = \SPP\Module::getConfig('db_engine', 'sppdb');
+            error_log("SPPDB::__construct: Detected engine " . ($dbEngine ?: 'null') . " for dbtype " . ($this->dbtype ?: 'null'));
+            if ($dbEngine === 'sppxdb' || $this->dbtype === 'xdb') {
                 $xdbFile = dirname(__DIR__) . '/sppxdb/class.sppxdb.php';
                 if (file_exists($xdbFile)) require_once $xdbFile;
                 
@@ -276,7 +300,10 @@ class SPPDB
      */
     public function __call($name, $arguments)
     {
-        return call_user_func_array([$this->adapter, $name], $arguments);
+        error_log("SPPDB::__call: " . $name);
+        if (method_exists($this->adapter, $name)) {
+            return call_user_func_array([$this->adapter, $name], $arguments);
+        }
     }
 
     public function prepare(string $query, array $options = [])

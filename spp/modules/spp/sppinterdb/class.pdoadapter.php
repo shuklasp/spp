@@ -65,23 +65,44 @@ class PDOAdapter implements DBAdapter
 
     public function tableExists(string $table): bool
     {
+        $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         $safe_table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
-        $res = $this->pdo->query("SHOW TABLES LIKE '{$safe_table}'");
-        return $res && $res->rowCount() > 0;
+        
+        if ($driver === 'sqlite') {
+            $res = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='{$safe_table}'");
+        } else {
+            $res = $this->pdo->query("SHOW TABLES LIKE '{$safe_table}'");
+        }
+        return $res && $res->fetch() !== false;
     }
 
     public function getSchema(string $table): array
     {
-        $res = $this->query("DESCRIBE {$table}");
-        $columns = [];
-        foreach ($res as $row) {
-            $columns[$row['Field']] = [
-                'type' => $row['Type'],
-                'null' => $row['Null'] === 'YES',
-                'key' => $row['Key'],
-                'default' => $row['Default'],
-                'extra' => $row['Extra']
-            ];
+        $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if ($driver === 'sqlite') {
+            $res = $this->query("PRAGMA table_info({$table})");
+            $columns = [];
+            foreach ($res as $row) {
+                $columns[$row['name']] = [
+                    'type' => $row['type'],
+                    'null' => $row['notnull'] == 0,
+                    'key' => $row['pk'] == 1 ? 'PRI' : '',
+                    'default' => $row['dflt_value'],
+                    'extra' => ''
+                ];
+            }
+        } else {
+            $res = $this->query("DESCRIBE {$table}");
+            $columns = [];
+            foreach ($res as $row) {
+                $columns[$row['Field']] = [
+                    'type' => $row['Type'],
+                    'null' => $row['Null'] === 'YES',
+                    'key' => $row['Key'],
+                    'default' => $row['Default'],
+                    'extra' => $row['Extra']
+                ];
+            }
         }
         return ['columns' => $columns];
     }
@@ -93,4 +114,5 @@ class PDOAdapter implements DBAdapter
     public function beginTransaction(): bool { return $this->pdo->beginTransaction(); }
     public function commit(): bool { return $this->pdo->commit(); }
     public function rollBack(): bool { return $this->pdo->rollBack(); }
+    public function inTransaction(): bool { return $this->pdo->inTransaction(); }
 }

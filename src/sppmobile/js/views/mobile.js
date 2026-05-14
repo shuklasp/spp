@@ -21,29 +21,46 @@ export default class MobileView extends BaseComponent {
             historyIndex: -1,
             contextMenu: { visible: false, x: 0, y: 0, targetId: null },
             zoom: 100,
-            breakpoint: 'mobile',
+            activeBreakpoint: 'mobile', // mobile, tablet, desktop
             librarySearch: '',
             libraryMode: 'components',
             themePresets: [],
+            entities: [],
+            selectedEntity: null,
+            functions: [], // Custom JS functions
             bridgeInfo: null,
-            currentPipelineSteps: []
+            currentPipelineSteps: [],
+            aiRegistry: {},
+            selectedAIProvider: 'google',
+            selectedAIModel: null,
+            commandPalette: { visible: false, query: '', results: [], selectedIndex: 0 },
+            inlineEditingId: null,
+            debugMode: false
         };
 
-        await this.fetchData();
+        // Parallelize independent data fetches
+        await Promise.all([
+            this.fetchData(),
+            this.fetchAiRegistry(),
+            this.fetchEntities(),
+            this.fetchBridgeInfo()
+        ]);
+
         if (config) {
             const migrated = this.migrateConfig(config);
-            this.setState({ 
+            const newState = { 
                 config: migrated, 
                 appState: migrated.state || {},
                 loading: false 
-            });
+            };
+            if (migrated.screens && migrated.screens.length > 0) {
+                newState.activeScreenId = migrated.screens[0].id;
+            }
+            this.setState(newState);
         }
         
-        await this.fetchEntities();
-        this._isHistoryAction = true;
         this.pushHistory(); // Initial state
-        this._isHistoryAction = false;
-        await this.fetchBridgeInfo();
+        
         this.loadGoogleFont(this.getActiveTheme().font);
         await this.triggerOnLoadActions(this.state.activeScreenId);
         window.addEventListener('keydown', (e) => this.handleShortcuts(e));
@@ -71,6 +88,7 @@ export default class MobileView extends BaseComponent {
             });
             
             if (key === 'font') this.loadGoogleFont(val);
+            this.pushHistory();
             this.update(); // Force immediate re-render for UI feedback
         };
 
@@ -234,6 +252,7 @@ export default class MobileView extends BaseComponent {
     }
 
     pushHistory() {
+        if (this._isHistoryAction) return;
         const snapshot = JSON.stringify(this.state.config);
         const history = this.state.history.slice(0, this.state.historyIndex + 1);
         history.push(snapshot);
@@ -245,8 +264,14 @@ export default class MobileView extends BaseComponent {
         if (this.state.historyIndex > 0) {
             const newIndex = this.state.historyIndex - 1;
             const config = JSON.parse(this.state.history[newIndex]);
-            this.setState({ config, historyIndex: newIndex });
-            this.notify('Undo successful', 'info');
+            this._isHistoryAction = true;
+            this.setState({ 
+                config, 
+                historyIndex: newIndex,
+                activeScreenId: config.screens[0]?.id || this.state.activeScreenId
+            });
+            this._isHistoryAction = false;
+            this.notify("Action undone.", "info");
         }
     }
 
@@ -254,16 +279,27 @@ export default class MobileView extends BaseComponent {
         if (this.state.historyIndex < this.state.history.length - 1) {
             const newIndex = this.state.historyIndex + 1;
             const config = JSON.parse(this.state.history[newIndex]);
-            this.setState({ config, historyIndex: newIndex });
+            this._isHistoryAction = true;
+            this.setState({ 
+                config, 
+                historyIndex: newIndex,
+                activeScreenId: config.screens[0]?.id || this.state.activeScreenId
+            });
+            this._isHistoryAction = false;
             this.notify('Redo successful', 'info');
         }
     }
 
     handleShortcuts(e) {
+        if (e.ctrlKey && e.key === 'k') { e.preventDefault(); this.toggleCommandPalette(); }
         if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); }
         if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); }
         if (e.key === 'Delete' && this.state.selectedComponentId) { e.preventDefault(); this.removeComponent(this.state.selectedComponentId); }
         if (e.ctrlKey && e.key === 'd' && this.state.selectedComponentId) { e.preventDefault(); this.duplicateComponent(this.state.selectedComponentId); }
+        if (e.key === 'Escape') {
+            if (this.state.commandPalette.visible) this.toggleCommandPalette();
+            if (this.state.inlineEditingId) this.setState({ inlineEditingId: null });
+        }
     }
 
     duplicateComponent(id) {
@@ -273,6 +309,7 @@ export default class MobileView extends BaseComponent {
             const newComp = BaseComponent.cloneTree(comp, () => 'comp_' + Date.now() + '_' + Math.floor(Math.random()*1000));
             this.addComponentToScreen(newComp);
             this.notify('Component duplicated', 'success');
+            this.pushHistory();
         }
     }
 
@@ -354,7 +391,7 @@ export default class MobileView extends BaseComponent {
     async fetchEntities() {
         const res = await this.api('get_entities');
         if (res.success) {
-            this.setState({ entities: res.data.entities || [] });
+            this.setState({ entities: res.entities || [] });
         }
     }
 
@@ -397,6 +434,26 @@ export default class MobileView extends BaseComponent {
                 grid.style.display = vis.length > 0 ? '' : 'none';
             }
         });
+    }
+
+    resolveProps(comp) {
+        const baseProps = comp.props || {};
+        const bp = this.state.activeBreakpoint;
+        const overrides = comp.overrides?.[bp] || {};
+        return { ...baseProps, ...overrides };
+    }
+
+    updateProp(comp, key, val) {
+        const bp = this.state.activeBreakpoint;
+        if (bp === 'mobile') {
+            comp.props[key] = val;
+        } else {
+            if (!comp.overrides) comp.overrides = {};
+            if (!comp.overrides[bp]) comp.overrides[bp] = {};
+            comp.overrides[bp][key] = val;
+        }
+        this.update();
+        this.pushHistory();
     }
 
     afterUpdate() {
@@ -473,9 +530,9 @@ export default class MobileView extends BaseComponent {
 
                     <div class="header-center" style="display:flex; gap:20px; align-items:center;">
                         <div class="segmented-control" style="display:flex; background: rgba(0,0,0,0.2); padding: 2px; border-radius: 8px; border: 1px solid var(--glass-border);">
-                            <button class="btn ${this.state.breakpoint === 'mobile' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ breakpoint: 'mobile', deviceType: 'ios' })} title="Mobile View">📱 Mobile</button>
-                            <button class="btn ${this.state.breakpoint === 'tablet' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ breakpoint: 'tablet', deviceType: 'android' })} title="Tablet View">📟 Tablet</button>
-                            <button class="btn ${this.state.breakpoint === 'desktop' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ breakpoint: 'desktop' })} title="Desktop View">🖥️ Desktop</button>
+                            <button class="btn ${this.state.activeBreakpoint === 'mobile' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ activeBreakpoint: 'mobile', deviceType: 'ios' })} title="Mobile View">📱 Mobile</button>
+                            <button class="btn ${this.state.activeBreakpoint === 'tablet' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ activeBreakpoint: 'tablet', deviceType: 'android' })} title="Tablet View">📟 Tablet</button>
+                            <button class="btn ${this.state.activeBreakpoint === 'desktop' ? 'primary-btn' : 'ghost-btn'} btn-sm" style="border:none; font-size: 0.7rem; height: 28px; padding: 0 10px;" @click=${() => this.setState({ activeBreakpoint: 'desktop' })} title="Desktop View">🖥️ Desktop</button>
                         </div>
 
                         <div class="zoom-controls" style="display:flex; align-items:center; gap:8px; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 8px; border: 1px solid var(--glass-border); height: 32px;">
@@ -522,13 +579,16 @@ export default class MobileView extends BaseComponent {
                         </div>
 
                         <div class="nav-section mt-4">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                                <h4 style="margin:0;">Library</h4>
-                                <div class="segmented-control" style="display:flex; background: rgba(0,0,0,0.2); padding: 2px; border-radius: 6px;">
-                                    <button class="btn ${this.state.libraryMode !== 'blueprints' && this.state.libraryMode !== 'snapshots' && this.state.libraryMode !== 'data' && this.state.libraryMode !== 'symbols' ? 'primary-btn' : 'ghost-btn'} btn-xs" style="font-size:0.6rem; padding: 2px 8px;" @click=${() => this.setState({ libraryMode: 'components' })}>Atoms</button>
-                                    <button class="btn ${this.state.libraryMode === 'blueprints' ? 'primary-btn' : 'ghost-btn'} btn-xs" style="font-size:0.6rem; padding: 2px 8px;" @click=${() => this.setState({ libraryMode: 'blueprints' })}>Blueprints</button>
-                                    <button class="btn ${this.state.libraryMode === 'symbols' ? 'primary-btn' : 'ghost-btn'} btn-xs" style="font-size:0.6rem; padding: 2px 8px;" @click=${() => this.setState({ libraryMode: 'symbols' })}>Symbols</button>
-                                    <button class="btn ${this.state.libraryMode === 'data' ? 'primary-btn' : 'ghost-btn'} btn-xs" style="font-size:0.6rem; padding: 2px 8px;" @click=${() => this.setState({ libraryMode: 'data' })}>Data</button>
+                            <div class="mb-3">
+                                <div class="segmented-control" style="display:grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: rgba(0,0,0,0.2); padding: 1px; border-radius: 6px; overflow: hidden;">
+                                    <button class="btn ${this.state.libraryMode === 'components' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.55rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'components' })}>Atoms</button>
+                                    <button class="btn ${this.state.libraryMode === 'blueprints' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.55rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'blueprints' })}>BPs</button>
+                                    <button class="btn ${this.state.libraryMode === 'symbols' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.55rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'symbols' })}>Sym</button>
+                                    <button class="btn ${this.state.libraryMode === 'functions' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.55rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'functions' })}>FX</button>
+                                    <button class="btn ${this.state.libraryMode === 'data' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.55rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'data' })}>Data</button>
+                                    <button class="btn ${this.state.libraryMode === 'copilot' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.5rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'copilot' })}>AI</button>
+                                    <button class="btn ${this.state.libraryMode === 'connectors' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.5rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'connectors' })}>API</button>
+                                    <button class="btn ${this.state.libraryMode === 'debug' ? 'primary-btn' : 'ghost-btn'} btn-xxs" style="font-size:0.5rem; padding: 4px 1px; min-width:0; overflow:hidden;" @click=${() => this.setState({ libraryMode: 'debug' })}>Debug</button>
                                 </div>
                             </div>
                             <div class="search-bar mb-3" style="position:relative;">
@@ -567,7 +627,7 @@ export default class MobileView extends BaseComponent {
                                         </div>
                                     `)}
                                 </div>
-                            ` : (this.state.libraryMode === 'data' ? this.renderDataManager() : (this.state.libraryMode === 'symbols' ? this.renderSymbolsLibrary() : html`
+                            ` : (this.state.libraryMode === 'functions' ? this.renderFunctionsLibrary() : (this.state.libraryMode === 'data' ? this.renderDataManager() : (this.state.libraryMode === 'copilot' ? this.renderCopilot() : (this.state.libraryMode === 'connectors' ? this.renderConnectorsManager() : (this.state.libraryMode === 'symbols' ? this.renderSymbolsLibrary() : (this.state.libraryMode === 'debug' ? this.renderStateDebugger() : html`
                                 ${this.getComponentLibrary().map(group => {
                                     return html`
                                         <div class="comp-group-label mt-3 mb-1" style="font-size: 0.55rem; text-transform: uppercase; opacity: 0.5; letter-spacing: 1px; font-weight: bold;">${group.group}</div>
@@ -585,15 +645,15 @@ export default class MobileView extends BaseComponent {
                                         </div>
                                     `;
                                 })}
-                            `)))}
+                            `)))))))}
                         </div>
                     </aside>
 
                     <!-- Center: Preview -->
-                    <main class="studio-preview preview-canvas">
+                    <main class="studio-preview preview-canvas flex-column">
 
                         <div class="zoom-wrapper" style="transform: scale(${this.state.zoom / 100}); transform-origin: top center; transition: transform 0.3s var(--spring); flex-shrink: 0;">
-                            <div class="device-frame ${this.state.deviceType} ${this.state.breakpoint}" id="device-drop-target"
+                            <div class="device-frame ${this.state.deviceType} ${this.state.activeBreakpoint || 'mobile'}" id="device-drop-target"
                                 @dragenter=${(e) => e.preventDefault()}
                                 @dragover=${(e) => { e.dataTransfer.dropEffect = 'copy'; const t = e.target.closest('.device-frame'); if (t) t.classList.add('drag-over'); }}
                                 @dragleave=${(e) => { const t = e.target.closest('.device-frame'); if (t && !t.contains(e.relatedTarget)) t.classList.remove('drag-over'); }}
@@ -622,6 +682,7 @@ export default class MobileView extends BaseComponent {
                             <button class="tab-btn ${this.state.inspectorTab === 'layers' ? 'active' : ''}" style="flex:1;" @click=${() => this.setState({ inspectorTab: 'layers' })}>Layers</button>
                             <button class="tab-btn ${this.state.inspectorTab === 'animations' ? 'active' : ''}" style="flex:1;" @click=${() => this.setState({ inspectorTab: 'animations' })}>Anims</button>
                             <button class="tab-btn ${this.state.inspectorTab === 'actions' ? 'active' : ''}" style="flex:1;" @click=${() => this.setState({ inspectorTab: 'actions' })}>Actions</button>
+                            <button class="tab-btn ${this.state.inspectorTab === 'state' ? 'active' : ''}" style="flex:1;" @click=${() => this.setState({ inspectorTab: 'state' })}>State</button>
                         </div>
 
                         ${this.state.inspectorTab === 'theme' ? this.renderThemeInspector() : ''}
@@ -637,11 +698,11 @@ export default class MobileView extends BaseComponent {
                 <footer class="studio-footer-inner flex-between">
                     <div class="flex-center gap-4">
                         <span class="flex-center gap-2"><span class="text-success">●</span> SYSTEM READY</span>
-                        <span class="opacity-06">CONTEXT: <strong class="text-primary">${this.state.activeScreenId.toUpperCase()}</strong></span>
+                        <span class="opacity-06">CONTEXT: <strong class="text-primary">${(this.state.activeScreenId || 'HOME').toUpperCase()}</strong></span>
                         <span class="opacity-06">SELECTED: <strong class="text-main">${this.state.selectedComponentId || 'NONE'}</strong></span>
                     </div>
                     <div class="flex-center gap-4">
-                        <span class="flex-center gap-2">VIEWPORT: <strong class="text-main">${this.state.breakpoint.toUpperCase()}</strong></span>
+                        <span class="flex-center gap-2">VIEWPORT: <strong class="text-main">${(this.state.activeBreakpoint || 'MOBILE').toUpperCase()}</strong></span>
                         <div class="flex-center gap-2" style="background: rgba(255,255,255,0.05); padding: 2px 8px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
                             <button class="btn-icon btn-xxs" @click=${() => this.setState({ zoom: Math.max(25, this.state.zoom - 10) })}>➖</button>
                             <span style="min-width: 40px; text-align: center;">${this.state.zoom}%</span>
@@ -653,6 +714,7 @@ export default class MobileView extends BaseComponent {
                 </footer>
 
                 ${this.state.contextMenu.visible ? this.renderContextMenu() : ''}
+                ${this.renderCommandPalette()}
             </div>
         `;
     }
@@ -664,13 +726,15 @@ export default class MobileView extends BaseComponent {
         
         return html`
             <div class="glass-panel ctx-menu fade-in" style="position: fixed; top: ${y}px; left: ${x}px; z-index: 9999;">
-                <div class="menu-item" @click=${() => this.duplicateComponent(targetId)}>📦 Duplicate <span class="float-right text-xxs opacity-06">Ctrl+D</span></div>
-                <div class="menu-item" @click=${() => this.copyStyles(targetId)}>🎨 Copy Styles</div>
-                <div class="menu-item" @click=${() => this.pasteStyles(targetId)}>📋 Paste Styles</div>
+                <div class="menu-item" @click=${() => { this.duplicateComponent(targetId); this.hideContextMenu(); }}>📦 Duplicate <span class="float-right text-xxs opacity-06">Ctrl+D</span></div>
+                <div class="menu-item" @click=${() => { this.copyStyles(targetId); this.hideContextMenu(); }}>🎨 Copy Styles</div>
+                <div class="menu-item" @click=${() => { this.pasteStyles(targetId); this.hideContextMenu(); }}>📋 Paste Styles</div>
                 <div class="menu-divider"></div>
-                <div class="menu-item" @click=${() => this.convertToSymbol(targetId)}>💠 Convert to Symbol</div>
+                <div class="menu-item" @click=${() => { this.wrapInContainer(targetId, 'column'); this.hideContextMenu(); }}>↕️ Wrap in Column</div>
+                <div class="menu-item" @click=${() => { this.wrapInContainer(targetId, 'row'); this.hideContextMenu(); }}>↔️ Wrap in Row</div>
+                <div class="menu-item" @click=${() => { this.convertToSymbol(targetId); this.hideContextMenu(); }}>💠 Convert to Symbol</div>
                 <div class="menu-divider"></div>
-                <div class="menu-item danger" @click=${() => this.removeComponent(targetId)}>🗑️ Delete <span class="float-right text-xxs opacity-06">Del</span></div>
+                <div class="menu-item danger" @click=${() => { this.removeComponent(targetId); this.hideContextMenu(); }}>🗑️ Delete <span class="float-right text-xxs opacity-06">Del</span></div>
             </div>
         `;
     }
@@ -682,7 +746,10 @@ export default class MobileView extends BaseComponent {
                     <h3 style="margin:0; font-size: 0.9rem;">Component Tree</h3>
                     <span class="badge primary">${activeScreen.components?.length || 0} ITEMS</span>
                 </div>
-                <div class="layer-tree">
+                <div class="layer-tree" 
+                    @dragover=${(e) => e.preventDefault()}
+                    @dragenter=${(e) => e.preventDefault()}
+                    @drop=${(e) => this.onDrop(e)}>
                     ${activeScreen.components && activeScreen.components.length > 0
                         ? this.renderComponentTree(activeScreen.components)
                         : html`<div class="text-dim text-center py-4" style="font-size:0.7rem;">No components on this screen.</div>`
@@ -698,6 +765,14 @@ export default class MobileView extends BaseComponent {
             return html`
                 <div class="layer-item layer-depth-${depth} ${selected ? 'selected' : ''}" 
                     data-id="${c.id}"
+                    data-type="${c.type}"
+                    draggable="true"
+                    @dragstart=${(e) => this.onComponentDragStart(e, c.id)}
+                    @dragend=${(e) => this.onComponentDragEnd(e)}
+                    @dragenter=${(e) => this.onComponentDragEnter(e)}
+                    @dragover=${(e) => this.onComponentDragOver(e)}
+                    @dragleave=${(e) => this.onComponentDragLeave(e)}
+                    @drop=${(e) => this.onDrop(e)}
                     @click=${() => this.setState({ selectedComponentId: c.id, inspectorTab: 'props' })}
                     style="${c.props?.hidden ? 'opacity: 0.5;' : ''}">
                     <span class="layer-visibility pointer flex-center" @click=${(e) => { e.stopPropagation(); c.props.hidden = !c.props.hidden; this.update(); }}>
@@ -803,6 +878,45 @@ export default class MobileView extends BaseComponent {
                         </select>
                         <div class="text-dim mt-1" style="font-size:0.6rem;">This section and its children will follow the <strong>${selectedComp.props.theme || 'global'}</strong> design system.</div>
                     </div>
+
+                    <!-- Advanced Flexbox Inspector -->
+                    ${['row', 'column', 'container', 'card'].includes(selectedComp.type) ? html`
+                    <div class="style-group mt-4 p-3 glass-panel" style="border-left: 3px solid var(--secondary-color);">
+                        <label class="section-title-sm opacity-08 mb-2">Flexbox Layout</label>
+                        <div class="grid-2 gap-2">
+                            <div class="input-group">
+                                <label>Main Axis</label>
+                                <select @change=${(e) => { selectedComp.props.justifyContent = e.target.value; this.update(); }}>
+                                    <option value="start" ?selected=${selectedComp.props.justifyContent === 'start'}>Start</option>
+                                    <option value="center" ?selected=${selectedComp.props.justifyContent === 'center'}>Center</option>
+                                    <option value="end" ?selected=${selectedComp.props.justifyContent === 'end'}>End</option>
+                                    <option value="space-between" ?selected=${selectedComp.props.justifyContent === 'space-between'}>Between</option>
+                                    <option value="space-around" ?selected=${selectedComp.props.justifyContent === 'space-around'}>Around</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Cross Axis</label>
+                                <select @change=${(e) => { selectedComp.props.alignItems = e.target.value; this.update(); }}>
+                                    <option value="start" ?selected=${selectedComp.props.alignItems === 'start'}>Start</option>
+                                    <option value="center" ?selected=${selectedComp.props.alignItems === 'center'}>Center</option>
+                                    <option value="end" ?selected=${selectedComp.props.alignItems === 'end'}>End</option>
+                                    <option value="stretch" ?selected=${selectedComp.props.alignItems === 'stretch'}>Stretch</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Gap (px)</label>
+                                <input type="number" .value="${selectedComp.props.gap || 0}" @input=${(e) => { selectedComp.props.gap = parseInt(e.target.value); this.update(); }}>
+                            </div>
+                            <div class="input-group">
+                                <label>Wrap</label>
+                                <select @change=${(e) => { selectedComp.props.flexWrap = e.target.value; this.update(); }}>
+                                    <option value="nowrap" ?selected=${selectedComp.props.flexWrap === 'nowrap'}>No Wrap</option>
+                                    <option value="wrap" ?selected=${selectedComp.props.flexWrap === 'wrap'}>Wrap</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    ` : ''}
                     ` : ''}
 
                     <div class="style-group mt-4 p-3 glass-panel">
@@ -1033,7 +1147,7 @@ export default class MobileView extends BaseComponent {
         this.notify(`Theme '${name}' created.`, 'success');
     }
 
-    async duplicateActiveTheme() {
+    async duplicateTheme() {
         const active = this.getActiveTheme();
         const name = await this.prompt("Enter name for the duplicated theme:", active.name + " Copy");
         if (!name) return;
@@ -1048,29 +1162,35 @@ export default class MobileView extends BaseComponent {
         config.themes = [...(config.themes || []), newTheme];
         config.activeTheme = name;
         this.setState({ config });
+        this.pushHistory();
         this.notify(`Theme duplicated as '${name}'.`, 'success');
     }
 
-    async renameActiveTheme() {
-        const active = this.getActiveTheme();
-        const oldName = active.name;
-        const newName = await this.prompt("Enter new name for this theme:", oldName);
-        
-        if (!newName || newName === oldName) return;
+    renameTheme(oldName) {
+        const newName = prompt('Enter new theme name:', oldName);
+        if (!newName || oldName === newName) return;
 
         const config = { ...this.state.config };
-        if (config.themes.find(t => t.name === newName)) {
-            this.notify(`A theme with the name '${newName}' already exists.`, 'error');
-            return;
-        }
-
-        active.name = newName;
-        if (config.activeTheme === oldName) {
-            config.activeTheme = newName;
-        }
-        
+        config.themes = config.themes.map(t => t.name === oldName ? { ...t, name: newName } : t);
+        if (config.activeTheme === oldName) config.activeTheme = newName;
         this.setState({ config });
-        this.notify(`Theme '${oldName}' renamed to '${newName}'.`, 'success');
+        this.pushHistory();
+        this.notify('Theme renamed.', 'success');
+    }
+
+    importTheme() {
+        const data = prompt('Paste theme JSON:');
+        if (!data) return;
+        try {
+            const theme = JSON.parse(data);
+            const config = { ...this.state.config };
+            config.themes.push(theme);
+            this.setState({ config });
+            this.pushHistory();
+            this.notify('Theme imported.', 'success');
+        } catch (e) {
+            alert('Invalid theme data.');
+        }
     }
 
     async saveThemeAsPreset() {
@@ -1108,8 +1228,8 @@ export default class MobileView extends BaseComponent {
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h3 style="margin:0;">Design System</h3>
                     <div style="display:flex; gap:5px;">
-                        <button class="btn ghost-btn btn-xs" title="Rename Theme" @click=${() => this.renameActiveTheme()}>✏️</button>
-                        <button class="btn ghost-btn btn-xs" title="Duplicate Theme" @click=${() => this.duplicateActiveTheme()}>📑</button>
+                        <button class="btn ghost-btn btn-xs" title="Rename Theme" @click=${() => this.renameTheme(theme.name)}>✏️</button>
+                        <button class="btn ghost-btn btn-xs" title="Duplicate Theme" @click=${() => this.duplicateTheme()}>📑</button>
                         <button class="btn primary-btn btn-xs" title="Add Theme" @click=${() => this.addTheme()}>+ New</button>
                     </div>
                 </div>
@@ -1302,41 +1422,65 @@ export default class MobileView extends BaseComponent {
                 
                 <div class="data-section mt-4">
                     <div class="flex-between mb-3">
-                        <h5 class="section-title-sm m-0">System Health</h5>
-                        <button class="btn-icon btn-xs" @click=${() => this.fetchBridgeInfo()}>🔄</button>
+                        <h5 class="section-title-sm m-0">Server Entities (SPP-DB)</h5>
+                        <button class="btn-icon btn-xs" @click=${() => this.fetchEntities()}>🔄</button>
                     </div>
-                    <div class="bridge-status p-3 glass-panel" style="border-radius:10px; background:rgba(0,0,0,0.2);">
-                        ${!this.state.bridgeInfo ? html`<div class="text-center py-2 opacity-05" style="font-size:0.6rem;">Fetching diagnostic data...</div>` : html`
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                                <div class="health-metric">
-                                    <label style="display:block; font-size:0.5rem; opacity:0.5; margin-bottom:2px;">STATUS</label>
-                                    <div style="font-size:0.7rem; font-weight:700; color:${this.state.bridgeInfo.status === 'healthy' ? '#10b981' : '#f59e0b'};">
-                                        ● ${this.state.bridgeInfo.status?.toUpperCase() || 'UNKNOWN'}
+                    <div class="entity-list">
+                        ${this.state.entities.length === 0 ? html`<div class="empty-state">No entities discovered in SPPInterDB</div>` : ''}
+                        ${this.state.entities.map(ent => html`
+                            <div class="entity-card glass-panel p-2 mb-2 pointer" 
+                                style="border-radius:10px; border:1px solid rgba(255,255,255,0.05); transition:all 0.2s;"
+                                @click=${() => this.selectEntity(ent)}>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <div style="font-size:1.2rem;">📦</div>
+                                    <div class="flex-1">
+                                        <div style="font-size:0.7rem; font-weight:700; color:#fff;">${ent.name}</div>
+                                        <div style="font-size:0.55rem; opacity:0.4;">Table: ${ent.table}</div>
                                     </div>
+                                    <button class="btn ghost-btn btn-xxs" @click=${(e) => { e.stopPropagation(); this.bindEntityToListView(ent); }}>Bind List</button>
                                 </div>
-                                <div class="health-metric">
-                                    <label style="display:block; font-size:0.5rem; opacity:0.5; margin-bottom:2px;">BRIDGE VERSION</label>
-                                    <div style="font-size:0.7rem; color:#fff;">v${this.state.bridgeInfo.version || '1.0.0'}</div>
-                                </div>
-                                <div class="health-metric">
-                                    <label style="display:block; font-size:0.5rem; opacity:0.5; margin-bottom:2px;">LATENCY</label>
-                                    <div style="font-size:0.7rem; color:#fff;">${this.state.bridgeInfo.latency || '< 5ms'}</div>
-                                </div>
-                                <div class="health-metric">
-                                    <label style="display:block; font-size:0.5rem; opacity:0.5; margin-bottom:2px;">UPTIME</label>
-                                    <div style="font-size:0.7rem; color:#fff;">${this.state.bridgeInfo.uptime || '99.9%'}</div>
-                                </div>
+                                ${this.state.selectedEntity?.name === ent.name ? this.renderEntitySchema(ent) : ''}
                             </div>
-                        `}
+                        `)}
                     </div>
                 </div>
 
                 <div class="pro-tip mt-4 p-3 glass-panel" style="background:rgba(234, 88, 12, 0.05); border:1px solid rgba(234, 88, 12, 0.1); border-radius:8px;">
                     <div style="font-size:0.65rem; color:var(--primary-color); font-weight:700; margin-bottom:5px;">PRO TIP: Dynamic Binding</div>
-                    <div style="font-size:0.6rem; opacity:0.8; line-height:1.4;">Use <code style="color:var(--primary-color); font-weight:700;">{{state.variableName}}</code> in any text field to bind it to a variable.</div>
+                    <div style="font-size:0.6rem; opacity:0.8; line-height:1.4;">Use <code style="color:var(--primary-color); font-weight:700;">{{state.variableName}}</code> or <code style="color:var(--primary-color); font-weight:700;">{{db.Entity.Field}}</code> for live server data.</div>
                 </div>
             </div>
         `;
+    }
+
+    async selectEntity(ent) {
+        if (this.state.selectedEntity?.name === ent.name) {
+            this.setState({ selectedEntity: null });
+            return;
+        }
+        const res = await this.api('get_schema', { entity: ent.name });
+        if (res.success) {
+            ent.fields = res.fields;
+            this.setState({ selectedEntity: ent });
+        }
+    }
+
+    renderEntitySchema(ent) {
+        return html`
+            <div class="schema-view mt-2 p-2" style="background:rgba(0,0,0,0.2); border-radius:8px; font-size:0.6rem;">
+                ${(ent.fields || []).map(f => html`
+                    <div class="flex-between py-1" style="border-bottom:1px solid rgba(255,255,255,0.03);">
+                        <span style="color:#aaa;">${f.name}</span>
+                        <span style="opacity:0.4;">${f.type}</span>
+                    </div>
+                `)}
+            </div>
+        `;
+    }
+
+    bindEntityToListView(ent) {
+        this.notify(`Auto-generating ListView binding for ${ent.name}...`, 'info');
+        // Logic to inject a ListView bound to this entity would go here
     }
 
     async openApiDesigner() {
@@ -1714,13 +1858,14 @@ export default class MobileView extends BaseComponent {
         e.dataTransfer.setData('text/plain', data);
         this.state.draggedComponent = comp;
         this.state.draggedCanvasId = null;
+        this.state.draggedLayerId = null;
     }
 
     onCanvasDragStart(e, id) {
         e.dataTransfer.setData('spp_canvas_id', id);
         this.state.draggedCanvasId = id;
         this.state.draggedComponent = null;
-        // Visual hint
+        this.state.draggedLayerId = null;
         e.target.style.opacity = '0.5';
     }
 
@@ -1728,17 +1873,36 @@ export default class MobileView extends BaseComponent {
         e.preventDefault();
         e.stopPropagation();
         
-        const targetFrame = e.target.closest('.device-frame');
+        const targetFrame = e.target.closest('.device-frame, .layer-tree');
         if (targetFrame) targetFrame.classList.remove('drag-over');
 
-        // Detect parent container
-        const dropTarget = e.target.closest('.layout-container');
-        const parentId = dropTarget ? dropTarget.dataset.id : null;
+        // Detect parent container or target layer, prioritizing active drop indicators
+        let dropTarget = e.target.closest('.drop-before, .drop-after, .drop-target, .drop-at-start, .drop-at-end');
+        if (!dropTarget) dropTarget = e.target.closest('.layout-container, .layer-item, .canvas-comp, .canvas-render');
+        
+        const parentId = dropTarget ? (dropTarget.dataset.id || dropTarget.getAttribute('data-id')) : null;
+        
+        let dropPosition = 'inside';
+        if (dropTarget) {
+            if (dropTarget.classList.contains('drop-before')) dropPosition = 'before';
+            else if (dropTarget.classList.contains('drop-after')) dropPosition = 'after';
+            else if (dropTarget.classList.contains('drop-target')) dropPosition = 'inside';
+            else if (dropTarget.classList.contains('drop-at-start')) dropPosition = 'start';
+            else if (dropTarget.classList.contains('drop-at-end')) dropPosition = 'end';
+            
+            // Cleanup
+            dropTarget.classList.remove('drop-before', 'drop-after', 'drop-target', 'drop-at-start', 'drop-at-end');
+        }
 
         const draggedCanvasId = this.state.draggedCanvasId || e.dataTransfer.getData('spp_canvas_id');
+        const draggedLayerId = this.state.draggedLayerId || e.dataTransfer.getData('spp_layer_id');
+        const sourceId = draggedCanvasId || draggedLayerId;
         
-        if (draggedCanvasId) {
-            this.moveComponentToPosition(draggedCanvasId, parentId);
+        if (sourceId) {
+            console.log(`[MobileStudio] Reordering Tree: ${sourceId} -> ${parentId} (${dropPosition})`);
+            if (String(sourceId) !== String(parentId)) {
+                this.moveComponentInTree(sourceId, parentId, dropPosition);
+            }
         } else {
             let comp = this.state.draggedComponent;
             if (!comp) {
@@ -1747,7 +1911,7 @@ export default class MobileView extends BaseComponent {
                     try { comp = JSON.parse(compData); } catch (err) {}
                 }
             }
-
+            console.log(`[MobileStudio] Dropping New Component: ${comp?.type} -> ${parentId} (${dropPosition})`);
             if (comp && comp.type) {
                 this.addComponentToScreen(comp, parentId);
             }
@@ -1813,6 +1977,7 @@ export default class MobileView extends BaseComponent {
         }
         
         this.setState({ config: { ...this.state.config } });
+        this.pushHistory();
     }
 
     getDefaultProps(type) {
@@ -1863,48 +2028,47 @@ export default class MobileView extends BaseComponent {
                     </select>
                 </div>
                 
-                <div class="pipeline-designer glass-panel p-4 mb-4">
-                    <h4 class="section-title-sm">Steps in Pipeline</h4>
-                    <div class="current-steps mb-3">
-                        ${this.state.currentPipelineSteps.length === 0 ? html`<div class="empty-state py-2">No steps added yet</div>` : ''}
-                        ${this.state.currentPipelineSteps.map((s, i) => html`
-                            <div class="step-card mb-2 p-2">
-                                <div class="flex-between">
-                                    <span>Step ${i+1}: <strong>${s.type}</strong></span>
-                                    <button class="btn-icon btn-xs" @click=${() => {
-                                        this.state.currentPipelineSteps.splice(i, 1);
-                                        this.renderActionBuilderModal(comp);
-                                    }}>✕</button>
-                                </div>
-                                <div class="text-dim" style="font-size:0.6rem;">Target: ${s.target}</div>
-                            </div>
-                        `)}
+                <div class="pipeline-designer glass-panel p-4 mb-4" style="border: 1px solid rgba(255,255,255,0.05); background: rgba(0,0,0,0.4);">
+                    <h4 class="section-title-sm mb-3">Logic Flow Designer</h4>
+                    <div class="current-steps mb-3" style="display:flex; flex-direction:column; gap:12px;">
+                        ${this.state.currentPipelineSteps.length === 0 ? html`<div class="empty-state py-4">No logic nodes defined</div>` : ''}
+                        ${this.state.currentPipelineSteps.map((s, i) => this.renderActionNode(s, i))}
                     </div>
 
-                    <div class="step-adder p-3 glass-panel" style="background:rgba(255,255,255,0.02); border-radius:8px;">
-                        <div class="input-group mb-2">
-                            <label class="label-dim">Action Type</label>
-                            <select id="action-type" class="glass-input w-full">
-                                ${actionTypes.map(opt => html`<option value="${opt.value}">${opt.label}</option>`)}
-                            </select>
-                        </div>
-                        <div class="input-group mb-2">
-                            <label class="label-dim">Target / Parameter</label>
-                            <input type="text" id="action-target" class="glass-input w-full" placeholder="e.g. screen_id, var=val">
+                    <div class="step-adder p-3 glass-panel" style="background:rgba(99, 102, 241, 0.05); border:1px solid rgba(99, 102, 241, 0.1); border-radius:12px;">
+                        <div style="font-size:0.65rem; font-weight:800; color:var(--primary-color); margin-bottom:12px; text-transform:uppercase; letter-spacing:1px;">Add Logic Node</div>
+                        <div class="grid-2 gap-2 mb-2">
+                            <div class="input-group">
+                                <label class="label-dim">Action</label>
+                                <select id="action-type" class="glass-input w-full" style="font-size:0.7rem;">
+                                    ${actionTypes.map(opt => html`<option value="${opt.value}">${opt.label}</option>`)}
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label class="label-dim">Parameter</label>
+                                <input type="text" id="action-target" class="glass-input w-full" style="font-size:0.7rem;" placeholder="e.g. login_screen">
+                            </div>
                         </div>
                         <div class="input-group mb-3">
-                            <label class="label-dim">Condition (Optional)</label>
-                            <input type="text" id="action-condition" class="glass-input w-full" placeholder="e.g. {{state.count}} > 0">
+                            <label class="label-dim">Condition (optional)</label>
+                            <input type="text" id="action-condition" class="glass-input w-full" style="font-size:0.7rem;" placeholder="e.g. {{state.isLoggedIn}} == true">
                         </div>
-                        <button class="btn ghost-btn btn-sm w-full" @click=${() => {
+                        <button class="btn primary-btn btn-xs w-full" style="height:32px;" @click=${() => {
                             const type = document.getElementById('action-type')?.value;
                             const target = document.getElementById('action-target')?.value;
                             const condition = document.getElementById('action-condition')?.value;
                             if (type && target) {
-                                this.state.currentPipelineSteps.push({ type, target, condition });
+                                this.state.currentPipelineSteps.push({ 
+                                    id: 'step_' + Date.now(),
+                                    type, 
+                                    target, 
+                                    condition,
+                                    onSuccess: [],
+                                    onFailure: []
+                                });
                                 this.renderActionBuilderModal(comp);
                             }
-                        }}>+ Add Step to Pipeline</button>
+                        }}>+ Append to Flow</button>
                     </div>
                 </div>
             </div>
@@ -1934,46 +2098,144 @@ export default class MobileView extends BaseComponent {
     }
 
     async executeAction(step) {
-        const { type, target, condition } = step;
-        console.log(`[ActionEngine] Executing ${type} -> ${target} (Cond: ${condition || 'none'})`);
+        const { type, target, condition, onSuccess, onFailure } = step;
+        console.log(`[ActionEngine] Node: ${type} -> ${target}`);
         
         // Handle Condition
         if (condition) {
             const resolvedCond = this.resolveValue(condition);
             if (!this.evalCondition(resolvedCond)) {
-                console.log(`[ActionEngine] Branch skipped: ${condition} -> false`);
+                console.log(`[ActionEngine] Branch skipped: Condition false`);
                 return;
             }
         }
 
-        switch (type) {
-            case 'navigate':
-                if (target) {
-                    const screen = this.state.config.screens.find(s => s.id === target || s.title === target);
-                    if (screen) {
-                        this.setState({ activeScreenId: screen.id });
-                        this.triggerOnLoadActions(screen.id);
+        let success = true;
+        try {
+            switch (type) {
+                case 'navigate':
+                    if (target) {
+                        const screen = this.state.config.screens.find(s => s.id === target || s.title === target);
+                        if (screen) {
+                            this.setState({ activeScreenId: screen.id });
+                            this.triggerOnLoadActions(screen.id);
+                        } else {
+                            success = false;
+                            this.notify(`Target screen '${target}' not found.`, 'warning');
+                        }
                     }
-                    else this.notify(`Screen '${target}' not found.`, 'warning');
-                }
-                break;
-            case 'setState':
-                if (target && target.includes('=')) {
-                    const [key, val] = target.split('=');
-                    const config = { ...this.state.config };
-                    if (!config.state) config.state = {};
-                    config.state[key.trim()] = val.trim();
-                    this.setState({ config });
-                    this.notify(`State Updated: ${key.trim()} = ${val.trim()}`, 'success');
-                }
-                break;
-            case 'notify':
-                this.notify(target || "Action Triggered", "info");
-                break;
-            case 'callApi':
-                this.notify(`Simulating API Call: ${target}`, "info");
-                break;
+                    break;
+                case 'setState':
+                    if (target && target.includes('=')) {
+                        const [key, val] = target.split('=');
+                        const config = { ...this.state.config };
+                        if (!config.state) config.state = {};
+                        config.state[key.trim()] = this.resolveValue(val.trim());
+                        this.setState({ config });
+                    }
+                    break;
+                case 'notify':
+                    this.notify(this.resolveValue(target) || "Action Triggered", "info");
+                    break;
+                case 'callApi':
+                    this.notify(`Calling API: ${target}...`, "info");
+                    const res = await this.api('mock_api_call', { endpoint: target });
+                    success = res.success;
+                    if (!success) this.notify(res.message || "API Call Failed", "error");
+                    break;
+                case 'wait':
+                    const ms = parseInt(target) || 1000;
+                    await new Promise(r => setTimeout(r, ms));
+                    break;
+                case 'condition':
+                    success = this.evalCondition(target);
+                    break;
+                case 'loop':
+                    const items = this.resolveValue(target);
+                    if (Array.isArray(items)) {
+                        for (const item of items) {
+                            // Set temporary loop item in state
+                            const config = { ...this.state.config };
+                            if (!config.state) config.state = {};
+                            config.state['loopItem'] = item;
+                            this.setState({ config });
+                            
+                            for (const subStep of (step.onEach || [])) {
+                                await this.executeAction(subStep);
+                            }
+                        }
+                    }
+                    break;
+            }
+        } catch (e) {
+            console.error("[ActionEngine] Execution Error:", e);
+            success = false;
         }
+
+        // Handle Branching
+        const nextSteps = success ? (onSuccess || []) : (onFailure || []);
+        for (const nextStep of nextSteps) {
+            await this.executeAction(nextStep);
+        }
+    }
+
+    renderActionNode(s, i, isBranch = false) {
+        return html`
+            <div class="action-node-card glass-panel" style="border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.2);">
+                <div class="node-header p-2 px-3 flex-between" style="background:rgba(255,255,255,0.02); border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:0.6rem; opacity:0.4; font-weight:800;">${i+1}</span>
+                        <span style="font-size:0.7rem; font-weight:700; text-transform:uppercase; color:var(--primary-color);">${s.type}</span>
+                    </div>
+                    <button class="btn-icon btn-xs" style="opacity:0.5;" @click=${() => {
+                        this.state.currentPipelineSteps.splice(i, 1);
+                        this.renderActionBuilderModal(this.state.selectedComponent);
+                    }}>✕</button>
+                </div>
+                <div class="node-body p-3">
+                    <div style="font-size:0.75rem; color:#fff; font-weight:500; margin-bottom:4px;">${s.target}</div>
+                    ${s.condition ? html`<div style="font-size:0.6rem; color:#f59e0b; opacity:0.8;">IF: ${s.condition}</div>` : ''}
+                    
+                    ${s.type === 'callApi' || s.type === 'condition' ? html`
+                        <div class="branches mt-3 pt-2" style="border-top:1px solid rgba(255,255,255,0.03);">
+                            <div class="branch-col">
+                                <div style="font-size:0.55rem; color:#10b981; font-weight:800; margin-bottom:8px;">${s.type === 'condition' ? '✅ IF TRUE' : '✅ ON SUCCESS'}</div>
+                                <div class="branch-drop-zone p-2" style="border:1px dashed rgba(16,185,129,0.2); border-radius:6px; min-height:30px;">
+                                    ${(s.onSuccess || []).map((sub, si) => html`<div class="text-xxs opacity-07 mb-1">→ ${sub.type}: ${sub.target}</div>`)}
+                                    <button class="btn ghost-btn btn-xxs w-full mt-1" style="font-size:0.5rem;" @click=${() => this.addBranchStep(s, 'onSuccess')}>+ Add Step</button>
+                                </div>
+                            </div>
+                            <div class="branch-col mt-2">
+                                <div style="font-size:0.55rem; color:#ef4444; font-weight:800; margin-bottom:8px;">${s.type === 'condition' ? '❌ IF FALSE' : '❌ ON FAILURE'}</div>
+                                <div class="branch-drop-zone p-2" style="border:1px dashed rgba(239,68,68,0.2); border-radius:6px; min-height:30px;">
+                                    ${(s.onFailure || []).map((sub, si) => html`<div class="text-xxs opacity-07 mb-1">→ ${sub.type}: ${sub.target}</div>`)}
+                                    <button class="btn ghost-btn btn-xxs w-full mt-1" style="font-size:0.5rem;" @click=${() => this.addBranchStep(s, 'onFailure')}>+ Add Step</button>
+                                </div>
+                            </div>
+                        </div>
+                    ` : (s.type === 'loop' ? html`
+                        <div class="branches mt-3 pt-2" style="border-top:1px solid rgba(255,255,255,0.03);">
+                            <div style="font-size:0.55rem; color:var(--primary-color); font-weight:800; margin-bottom:8px;">🔄 FOR EACH ITEM</div>
+                            <div class="branch-drop-zone p-2" style="border:1px dashed rgba(99,102,241,0.2); border-radius:6px; min-height:30px;">
+                                ${(s.onEach || []).map((sub, si) => html`<div class="text-xxs opacity-07 mb-1">→ ${sub.type}: ${sub.target}</div>`)}
+                                <button class="btn ghost-btn btn-xxs w-full mt-1" style="font-size:0.5rem;" @click=${() => this.addBranchStep(s, 'onEach')}>+ Add Step</button>
+                            </div>
+                        </div>
+                    ` : '')}
+                </div>
+            </div>
+        `;
+    }
+
+    async addBranchStep(parentStep, branchType) {
+        const type = await this.prompt("Action Type (navigate, setState, notify):", "notify");
+        if (!type) return;
+        const target = await this.prompt("Target / Parameter:", "");
+        if (!target) return;
+        
+        if (!parentStep[branchType]) parentStep[branchType] = [];
+        parentStep[branchType].push({ type, target, onSuccess: [], onFailure: [] });
+        this.renderActionBuilderModal(this.state.selectedComponent);
     }
 
     async onComponentClick(comp) {
@@ -2033,6 +2295,22 @@ export default class MobileView extends BaseComponent {
     setViewMode(mode) {
         this.setState({ viewMode: mode });
         if (mode === 'assets') this.fetchAssets();
+        if (mode === 'code') {
+            setTimeout(() => {
+                const container = document.getElementById('spp-monaco-container');
+                if (container && window.monaco) {
+                    container.innerHTML = '';
+                    this._codeEditorInstance = monaco.editor.create(container, {
+                        value: JSON.stringify(this.state.config, null, 2),
+                        language: 'json'
+                    });
+                    this._codeEditorInstance.onDidChangeModelContent(() => {
+                        const status = document.getElementById('code-status');
+                        if (status) { status.textContent = 'modified'; status.className = 'badge warning'; }
+                    });
+                }
+            }, 50);
+        }
     }
 
     async fetchAssets(path = '') {
@@ -2216,13 +2494,13 @@ export default class MobileView extends BaseComponent {
                             <button class="btn primary-btn btn-sm" @click=${() => this.saveConfig()}>Save</button>
                         </div>
                     </div>
-                    <div class="code-editor-wrap" style="flex: 1; position: relative; overflow: hidden;">
-                        <div class="code-line-numbers" id="code-line-nums" style="position: absolute; left: 0; top: 0; bottom: 0; width: 45px; background: rgba(255,255,255,0.03); border-right: 1px solid var(--glass-border); padding: 12px 0; font-family: 'JetBrains Mono'; font-size: 0.78rem; color: rgba(255,255,255,0.25); text-align: right; overflow: hidden; user-select: none;"></div>
-                        <textarea id="code-editor-area"
-                            style="position: absolute; left: 45px; top: 0; right: 0; bottom: 0; width: calc(100% - 45px); height: 100%; resize: none; border: none; outline: none; padding: 12px 16px; font-family: 'JetBrains Mono'; font-size: 0.78rem; line-height: 1.6; background: #0d0d0d; color: #d4d4d4; tab-size: 2;"
-                            spellcheck="false"
-                            @input=${(e) => this.onCodeEdit(e)}
-                            @scroll=${(e) => this.syncLineNumbers(e)}>${configJson}</textarea>
+                    <div class="code-editor-wrap" style="flex: 1; position: relative; overflow: hidden; display: flex;">
+                        <div id="spp-monaco-container" style="flex: 1; width: 100%; height: 100%;">
+                            <textarea id="code-editor-area"
+                                style="width: 100%; height: 100%; resize: none; border: none; outline: none; padding: 12px 16px; font-family: 'JetBrains Mono'; font-size: 0.78rem; background: #0d0d0d; color: #d4d4d4;"
+                                spellcheck="false"
+                                @input=${(e) => this.onCodeEdit(e)}>${configJson}</textarea>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2246,9 +2524,10 @@ export default class MobileView extends BaseComponent {
 
     applyCodeChanges() {
         const textarea = document.getElementById('code-editor-area');
-        if (!textarea) return;
+        if (!textarea && !this._codeEditorInstance) return;
         try {
-            const parsed = JSON.parse(textarea.value);
+            const val = this._codeEditorInstance ? this._codeEditorInstance.getValue() : textarea.value;
+            const parsed = JSON.parse(val);
             if (!parsed.screens || !Array.isArray(parsed.screens)) {
                 this.notify('Invalid config: missing screens array.', 'error');
                 return;
@@ -2261,10 +2540,6 @@ export default class MobileView extends BaseComponent {
         } catch (err) {
             this.notify(`JSON Parse Error: ${err.message}`, 'error');
         }
-    }
-
-    setViewMode(mode) {
-        this.setState({ viewMode: mode });
     }
 
     getComponentLibrary() {
@@ -2339,7 +2614,12 @@ export default class MobileView extends BaseComponent {
     renderMockContent(screen) {
         const theme = this.getActiveTheme();
         return html`
-            <div class="canvas-render" id="canvas-render" style="display: flex; flex-direction: column; gap: 15px; min-height: 200px; background: ${theme.background || 'transparent'}; font-family: '${theme.font || 'Outfit'}', sans-serif;" @click=${(e) => { if (e.target.id === 'canvas-render') this.setState({selectedComponentId: null}); }}>
+            <div class="canvas-render" id="canvas-render" 
+                style="display: flex; flex-direction: column; gap: 15px; min-height: 200px; position: relative; background: ${theme.background || 'transparent'}; font-family: '${theme.font || 'Outfit'}', sans-serif;" 
+                @dragover=${(e) => this.onComponentDragOver(e)}
+                @dragleave=${(e) => this.onComponentDragLeave(e)}
+                @drop=${(e) => this.onDrop(e)}
+                @click=${(e) => { if (e.target.id === 'canvas-render') this.setState({selectedComponentId: null}); }}>
                 ${screen.components && screen.components.length > 0 
                     ? screen.components.map(c => this.renderComponent(c, theme))
                     : this.renderEmptyPlaceholder(screen)
@@ -2349,17 +2629,21 @@ export default class MobileView extends BaseComponent {
     }
 
     renderEmptyPlaceholder(screen) {
+        const theme = this.getActiveTheme();
+        const placeholderColor = this.state.deviceTheme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+        const borderColor = this.state.deviceTheme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+        
         if (screen.type === 'dashboard') {
             return html`
                 <div class="mock-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; opacity: 0.5;">
-                    <div style="background:#eee; height:80px; border-radius:10px;"></div>
-                    <div style="background:#eee; height:80px; border-radius:10px;"></div>
-                    <div style="background:#eee; height:80px; border-radius:10px;"></div>
-                    <div style="background:#eee; height:80px; border-radius:10px;"></div>
+                    <div style="background:${placeholderColor}; height:80px; border-radius:10px;"></div>
+                    <div style="background:${placeholderColor}; height:80px; border-radius:10px;"></div>
+                    <div style="background:${placeholderColor}; height:80px; border-radius:10px;"></div>
+                    <div style="background:${placeholderColor}; height:80px; border-radius:10px;"></div>
                 </div>
             `;
         }
-        return html`<div class="text-center py-5 text-dim" style="border: 2px dashed #eee; border-radius: 12px;">Drag components here to build your ${screen.type}</div>`;
+        return html`<div class="text-center py-5" style="border: 2px dashed ${borderColor}; border-radius: 12px; color: var(--text-dim);">Drag components here to build your ${screen.type}</div>`;
     }
 
     async createSnapshot() {
@@ -2386,10 +2670,47 @@ export default class MobileView extends BaseComponent {
         return BaseComponent.findInTree(list, id);
     }
 
+    renderFunctionsLibrary() {
+        const funcs = this.state.functions || [];
+        return html`
+            <div class="functions-library fade-in">
+                <div class="flex-between mb-3">
+                    <h5 class="section-title-sm m-0">Custom Logic (FX)</h5>
+                    <button class="btn primary-btn btn-xs" @click=${() => this.addFunction()}>+ New FX</button>
+                </div>
+                ${funcs.length === 0 ? html`<div class="empty-state">No custom functions. Scripts here can be called from any Action node.</div>` : ''}
+                <div class="fx-list">
+                    ${funcs.map(f => html`
+                        <div class="fx-item glass-panel p-2 mb-2" style="border-radius:8px; border:1px solid rgba(255,255,255,0.05);">
+                            <div class="flex-between mb-1">
+                                <span style="font-size:0.7rem; font-weight:700; color:var(--primary-color);">${f.name}()</span>
+                                <span style="font-size:0.5rem; opacity:0.4;">JS</span>
+                            </div>
+                            <div style="font-size:0.6rem; opacity:0.6; font-family:'JetBrains Mono'; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${f.code}
+                            </div>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    async addFunction() {
+        const name = await this.prompt("Function Name (camelCase):");
+        if (name) {
+            this.state.functions.push({ 
+                name, 
+                code: `function ${name}(state) {\n  // Write your logic here\n  return state;\n}` 
+            });
+            this.update();
+        }
+    }
+
     renderComponent(c, inheritedTheme = null) {
         const globalTheme = this.getActiveTheme();
         const { deviceType, config } = this.state;
-        const props = c.props || {};
+        const props = this.resolveProps(c);
 
         // Theme Scoping Logic: Local > Inherited > Global
         let theme = inheritedTheme || globalTheme;
@@ -2447,64 +2768,76 @@ export default class MobileView extends BaseComponent {
         const marginStyle = props.margin !== undefined ? `margin: ${props.margin}px;` : '';
         const selectedStyle = isSelected ? 'border: 2px solid #6366f1; box-shadow: 0 0 10px rgba(99,102,241,0.5); transform: scale(1.02); z-index: 10;' : '';
         
+        const subColor = this.state.deviceTheme === 'light' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.05)';
+        const borderColor = this.state.deviceTheme === 'light' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)';
+        const textColor = theme.text || (this.state.deviceTheme === 'light' ? '#1a1a1a' : '#f0f0f0');
+
         const baseStyles = {
-            row: `display: flex; flex-direction: row; gap: ${props.gap || 0}px; min-height: 40px; border: 1px dashed rgba(255,255,255,0.1); width: 100%; ${fontStyle}`,
-            column: `display: flex; flex-direction: column; gap: ${props.gap || 0}px; min-height: 40px; border: 1px dashed rgba(255,255,255,0.1); width: 100%; ${fontStyle}`,
-            container: `min-height: 40px; border: 1px dashed rgba(255,255,255,0.1); width: 100%; ${fontStyle}`,
+            row: `display: flex; flex-direction: row; gap: ${props.gap || 0}px; min-height: 40px; border: 1px dashed ${borderColor}; width: 100%; ${fontStyle}`,
+            column: `display: flex; flex-direction: column; gap: ${props.gap || 0}px; min-height: 40px; border: 1px dashed ${borderColor}; width: 100%; ${fontStyle}`,
+            container: `min-height: 40px; border: 1px dashed ${borderColor}; width: 100%; ${fontStyle}`,
             stack: `position: relative; min-height: 100px; border: 1px dashed var(--primary-color); width: 100%; ${fontStyle}`,
             grid_view: `display: grid; grid-template-columns: repeat(${props.cols || 2}, 1fr); gap: 10px; width: 100%; ${fontStyle}`,
-            expanded: `flex: 1; min-height: 20px; border: 1px dashed #444; ${fontStyle}`,
+            expanded: `flex: 1; min-height: 20px; border: 1px dashed ${borderColor}; ${fontStyle}`,
             wrap: `display: flex; flex-wrap: wrap; gap: 10px; width: 100%; ${fontStyle}`,
-            bottom_nav: `width: 100%; height: 60px; background: #fff; border-top: 1px solid #eee; display: flex; align-items: center; justify-content: space-around; ${fontStyle}`,
+            bottom_nav: `width: 100%; height: 60px; background: ${theme.background || '#fff'}; border-top: 1px solid ${borderColor}; display: flex; align-items: center; justify-content: space-around; ${fontStyle}`,
             tab_bar: `width: 100%; height: 48px; background: ${theme.primary}; display: flex; align-items: center; ${fontStyle}`,
-            drawer: `width: 280px; height: 100%; background: #fff; position: absolute; left: 0; top: 0; box-shadow: 5px 0 15px rgba(0,0,0,0.2); z-index: 1000; ${fontStyle}`,
+            drawer: `width: 280px; height: 100%; background: ${theme.background || '#fff'}; position: absolute; left: 0; top: 0; box-shadow: 5px 0 15px rgba(0,0,0,0.2); z-index: 1000; ${fontStyle}`,
             app_bar: `width: 100%; height: 56px; background: ${theme.primary}; color: #fff; display: flex; align-items: center; padding: 0 15px; gap: 20px; ${headingFontStyle}`,
-            nav_rail: `width: 72px; height: 100%; background: #fff; border-right: 1px solid #eee; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 30px; ${fontStyle}`,
+            nav_rail: `width: 72px; height: 100%; background: ${theme.background || '#fff'}; border-right: 1px solid ${borderColor}; display: flex; flex-direction: column; align-items: center; padding-top: 20px; gap: 30px; ${fontStyle}`,
             glass: `background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; width: 100%; min-height: 60px; ${fontStyle}`,
             gradient: `background: linear-gradient(135deg, ${theme.primary}, ${theme.secondary}); border-radius: 12px; width: 100%; min-height: 60px; ${fontStyle}`,
-            shimmer: `background: linear-gradient(90deg, #f0f0f0 25%, #f8f8f8 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; width: 100%; min-height: 20px; border-radius: 4px; ${fontStyle}`,
-            shadow: `background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-radius: 16px; width: 100%; min-height: 60px; ${fontStyle}`,
-            segmented: `display: flex; background: #f1f3f4; padding: 4px; border-radius: 20px; width: 100%; ${headingFontStyle}`,
+            shimmer: `background: linear-gradient(90deg, ${subColor} 25%, ${borderColor} 50%, ${subColor} 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; width: 100%; min-height: 20px; border-radius: 4px; ${fontStyle}`,
+            shadow: `background: ${theme.background || '#fff'}; box-shadow: 0 20px 40px rgba(0,0,0,0.1); border-radius: 16px; width: 100%; min-height: 60px; ${fontStyle}`,
+            segmented: `display: flex; background: ${subColor}; padding: 4px; border-radius: 20px; width: 100%; ${headingFontStyle}`,
             rating: `display: flex; gap: 5px; color: #ffc107; font-size: 1.2rem; ${fontStyle}`,
-            signature: `width: 100%; height: 150px; background: #fff; border: 1px solid #ddd; border-radius: 8px; position: relative; ${fontStyle}`,
-            qr_code: `width: 120px; height: 120px; background: #fff; padding: 10px; border: 1px solid #eee; margin: 0 auto; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
-            lottie: `width: 100%; aspect-ratio: 1; background: rgba(0,0,0,0.02); border-radius: 50%; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
+            signature: `width: 100%; height: 150px; background: ${theme.background || '#fff'}; border: 1px solid ${borderColor}; border-radius: 8px; position: relative; ${fontStyle}`,
+            qr_code: `width: 120px; height: 120px; background: #fff; padding: 10px; border: 1px solid ${borderColor}; margin: 0 auto; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
+            lottie: `width: 100%; aspect-ratio: 1; background: ${subColor}; border-radius: 50%; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
             stepper: `width: 100%; padding: 20px 0; ${fontStyle}`,
-            expansion_tile: `width: 100%; border-bottom: 1px solid #eee; background: #fff; ${fontStyle}`,
-            carousel: `width: 100%; aspect-ratio: 16/9; background: #f0f0f0; overflow: hidden; position: relative; ${fontStyle}`,
-            accordion: `width: 100%; border-radius: 8px; border: 1px solid #eee; overflow: hidden; ${fontStyle}`,
-            search_bar: `width: 100%; height: 48px; background: #f1f3f4; border-radius: 24px; padding: 0 20px; display: flex; align-items: center; gap: 10px; ${fontStyle}`,
-            bar_chart: `width: 100%; height: 150px; background: rgba(0,0,0,0.02); display: flex; align-items: flex-end; gap: 8px; padding: 15px; ${fontStyle}`,
-            pie_chart: `width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(${theme.primary} 0% 40%, ${theme.secondary} 40% 70%, #e0e0e0 70% 100%); margin: 0 auto; ${fontStyle}`,
-            data_table: `width: 100%; border-collapse: collapse; background: #fff; border: 1px solid #eee; ${fontStyle}`,
-            text: `font-size: 1rem; color: #333; width: 100%; ${fontStyle}`,
+            expansion_tile: `width: 100%; border-bottom: 1px solid ${borderColor}; background: ${theme.background || '#fff'}; ${fontStyle}`,
+            carousel: `width: 100%; aspect-ratio: 16/9; background: ${subColor}; overflow: hidden; position: relative; ${fontStyle}`,
+            accordion: `width: 100%; border-radius: 8px; border: 1px solid ${borderColor}; overflow: hidden; ${fontStyle}`,
+            search_bar: `width: 100%; height: 48px; background: ${subColor}; border-radius: 24px; padding: 0 20px; display: flex; align-items: center; gap: 10px; ${fontStyle}`,
+            bar_chart: `width: 100%; height: 150px; background: ${subColor}; display: flex; align-items: flex-end; gap: 8px; padding: 15px; ${fontStyle}`,
+            pie_chart: `width: 120px; height: 120px; border-radius: 50%; background: conic-gradient(${theme.primary} 0% 40%, ${theme.secondary} 40% 70%, ${borderColor} 70% 100%); margin: 0 auto; ${fontStyle}`,
+            data_table: `width: 100%; border-collapse: collapse; background: ${theme.background || '#fff'}; border: 1px solid ${borderColor}; ${fontStyle}`,
+            text: `font-size: 1rem; color: ${textColor}; width: 100%; ${fontStyle}`,
             button: `background: ${theme.primary}; color: white; text-align: center; font-weight: bold; cursor: pointer; transition: all 0.2s; width: 100%; ${headingFontStyle}`,
             fab: `background: ${theme.secondary}; color: white; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: absolute; bottom: 20px; right: 20px; z-index: 100; ${headingFontStyle}`,
             icon: `color: ${theme.primary}; font-size: 24px; display: inline-flex; ${fontStyle}`,
-            card: `background: white; width: 100%; ${fontStyle}`,
+            card: `background: ${theme.background || 'white'}; width: 100%; ${fontStyle}`,
             badge: `background: ${theme.secondary}; color: white; font-size: 0.7rem; display: inline-block; ${headingFontStyle}`,
-            avatar: `width: 40px; height: 40px; border-radius: 20px; background: #ddd; overflow: hidden; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
-            input: `width: 100%; border: 1px solid #ddd; background: #f9f9f9; font-size: 0.9rem; color: #333; ${fontStyle}`,
+            avatar: `width: 40px; height: 40px; border-radius: 20px; background: ${borderColor}; overflow: hidden; display: flex; align-items: center; justify-content: center; ${fontStyle}`,
+            input: `width: 100%; border: 1px solid ${borderColor}; background: ${subColor}; font-size: 0.9rem; color: ${textColor}; ${fontStyle}`,
             switch: `display: flex; justify-content: space-between; align-items: center; width: 100%; ${fontStyle}`,
-            slider: `width: 100%; height: 4px; background: #ddd; position: relative; ${fontStyle}`,
-            progress: `width: 100%; height: 8px; background: #eee; overflow: hidden; ${fontStyle}`,
-            progress_bar: `width: 100%; height: 6px; background: #eee; border-radius: 3px; position: relative; ${fontStyle}`,
-            progress_circle: `width: 40px; height: 40px; border: 4px solid #eee; border-top-color: ${theme.primary}; border-radius: 50%; animation: spin 1s linear infinite; ${fontStyle}`,
+            slider: `width: 100%; height: 4px; background: ${borderColor}; position: relative; ${fontStyle}`,
+            progress: `width: 100%; height: 8px; background: ${subColor}; overflow: hidden; ${fontStyle}`,
+            progress_bar: `width: 100%; height: 6px; background: ${subColor}; border-radius: 3px; position: relative; ${fontStyle}`,
+            progress_circle: `width: 40px; height: 40px; border: 4px solid ${subColor}; border-top-color: ${theme.primary}; border-radius: 50%; animation: spin 1s linear infinite; ${fontStyle}`,
             checkbox: `display: flex; align-items: center; gap: 10px; width: 100%; ${fontStyle}`,
             radio: `display: flex; align-items: center; gap: 10px; width: 100%; ${fontStyle}`,
-            image: `width: 100%; overflow: hidden; background: #f0f0f0; display: flex; align-items: center; justify-content: center; aspect-ratio: 16/9; ${fontStyle}`,
+            image: `width: 100%; overflow: hidden; background: ${subColor}; display: flex; align-items: center; justify-content: center; aspect-ratio: 16/9; ${fontStyle}`,
             video: `width: 100%; aspect-ratio: 16/9; background: #000; display: flex; align-items: center; justify-content: center; color: #fff; border-radius: 8px; ${fontStyle}`,
-            audio: `width: 100%; height: 50px; background: #f1f3f4; border-radius: 25px; display: flex; align-items: center; padding: 0 15px; gap: 10px; ${fontStyle}`,
-            divider: `width: 100%; height: 1px; background: #eee; ${fontStyle}`,
+            audio: `width: 100%; height: 50px; background: ${subColor}; border-radius: 25px; display: flex; align-items: center; padding: 0 15px; gap: 10px; ${fontStyle}`,
+            divider: `width: 100%; height: 1px; background: ${borderColor}; ${fontStyle}`,
             spacer: `width: 100%; height: ${props.height || 20}px; ${fontStyle}`
         };
 
         const isContainer = ['row', 'column', 'container', 'stack', 'grid_view', 'expanded', 'wrap', 'drawer', 'accordion', 'expansion_tile', 'app_bar', 'bottom_nav', 'nav_rail', 'glass', 'gradient', 'shadow', 'card', 'list'].includes(c.type);
 
         return html`
-            <div class="canvas-comp ${isContainer ? 'layout-container' : ''}" 
+            <div class="canvas-comp ${isContainer ? 'layout-container' : ''} ${isSelected ? 'selected' : ''}" 
                 data-id="${c.id}"
+                data-type="${c.type}"
+                draggable="true"
                 style="${baseStyles[c.type] || ''} ${tokenStyle} ${paddingStyle} ${marginStyle} ${borderStyle} ${elevationStyle} ${selectedStyle} ${animationStyle}" 
+                @dragstart=${(e) => this.onComponentDragStart(e, c.id)}
+                @dragend=${(e) => this.onComponentDragEnd(e)}
+                @dragenter=${(e) => this.onComponentDragEnter(e)}
+                @dragover=${(e) => this.onComponentDragOver(e)}
+                @dragleave=${(e) => this.onComponentDragLeave(e)}
+                @drop=${(e) => this.onDrop(e)}
                 @click=${(e) => { e.stopPropagation(); this.onComponentClick(c); }}>
                 
                 ${isContainer && c.children && c.children.length > 0
@@ -2540,7 +2873,14 @@ export default class MobileView extends BaseComponent {
         if (c.type === 'rating') return html`<span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span style="opacity:0.3;">⭐</span>`;
         if (c.type === 'signature') return html`<div style="position:absolute; width:100%; height:100%; display:flex; align-items:center; justify-content:center; opacity:0.1; font-size:3rem;">✍️</div>`;
         if (c.type === 'qr_code') return html`<div style="width:100%; height:100%; background:repeating-conic-gradient(#000 0% 25%, #fff 0% 50%) 0/10px 10px;"></div>`;
-        if (c.type === 'lottie') return html`<div style="font-size:2rem; animation: bounce 1s infinite;">🎞️</div>`;
+        if (c.type === 'lottie') return html`<div class="lottie-mockup" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+            <div style="font-size:1.5rem; animation: pulse 2s infinite;">🌀</div>
+            <div style="font-size:0.5rem; opacity:0.4; font-weight:700;">LOTTIE ANIMATION</div>
+        </div>`;
+        if (c.type === 'rive') return html`<div class="rive-mockup" style="width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(0,0,0,0.05); border-radius:12px;">
+            <div style="font-size:1.5rem; animation: float 3s ease-in-out infinite;">🛸</div>
+            <div style="font-size:0.5rem; opacity:0.4; font-weight:700;">RIVE RUNTIME</div>
+        </div>`;
         if (c.type === 'expansion_tile') return html`<div style="display:flex; justify-content:space-between; width:100%; padding:10px;"><span>${this.resolveValue(props.text || 'Expansion Tile')}</span><span>▼</span></div>`;
         if (c.type === 'search_bar') return html`<span>🔍</span><span style="opacity:0.5;">Search...</span>`;
         if (c.type === 'bar_chart') return html`<div style="flex:1; height:40%; background:${theme.primary};"></div><div style="flex:1; height:80%; background:${theme.primary};"></div><div style="flex:1; height:60%; background:${theme.primary};"></div><div style="flex:1; height:90%; background:${theme.secondary};"></div>`;
@@ -2555,7 +2895,15 @@ export default class MobileView extends BaseComponent {
         if (c.type === 'icon') return html`<div style="font-size: 24px;">✨</div>`;
         if (c.type === 'fab') return html`<div style="font-size: 24px;">➕</div>`;
         if (c.type === 'avatar') return props.src ? html`<img src="${props.src}" style="width:100%; height:100%; object-fit:cover;">` : '👤';
-        
+
+        if (this.state.inlineEditingId === c.id) {
+            return html`<input type="text" value="${props.text || props.value || ''}" 
+                style="width:100%; background:rgba(255,255,255,0.1); border:1px solid var(--primary-color); color:#fff; font-size:inherit; font-family:inherit; padding:2px 5px; border-radius:4px;"
+                @blur=${(e) => { this.updateProp(c, 'text', e.target.value); this.setState({ inlineEditingId: null }); }}
+                @keydown=${(e) => e.key === 'Enter' && e.target.blur()}
+                @click=${(e) => e.stopPropagation()}>`;
+        }
+
         if (['text', 'button', 'badge', 'chip', 'input', 'stepper', 'card', 'list'].includes(c.type)) {
             if (props.text) return this.resolveValue(props.text);
         }
@@ -2578,6 +2926,206 @@ export default class MobileView extends BaseComponent {
         activeScreen.components[index] = activeScreen.components[newIndex];
         activeScreen.components[newIndex] = temp;
         this.update();
+        this.pushHistory();
+    }
+
+    onComponentDragStart(e, id) {
+        if (e.stopPropagation) e.stopPropagation();
+        if (e.dataTransfer) {
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('spp_layer_id', id);
+        }
+        this.state.draggedLayerId = id;
+        this.state.draggedComponent = null;
+        this.state.draggedCanvasId = null;
+        
+        const target = e.currentTarget || e.target;
+        if (target && target.classList) target.classList.add('dragging');
+    }
+
+    onComponentDragEnd(e) {
+        const target = e.currentTarget || e.target;
+        if (target && target.classList) target.classList.remove('dragging');
+        this.state.draggedLayerId = null;
+        // Global cleanup
+        document.querySelectorAll('.layer-item, .canvas-comp').forEach(el => el.classList.remove('drop-before', 'drop-after', 'drop-target'));
+    }
+
+    onComponentDragEnter(e) {
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+    }
+
+    onComponentDragLeave(e) {
+        const target = e.currentTarget || e.target;
+        if (target && target.classList) {
+            target.classList.remove('drop-target', 'drop-before', 'drop-after', 'drop-at-start', 'drop-at-end');
+        }
+    }
+
+    onComponentDragOver(e) {
+        const target = e.currentTarget || e.target;
+        if (!target || !target.getBoundingClientRect) return;
+        
+        const rect = target.getBoundingClientRect();
+        const edgeThreshold = 8; // px threshold to trigger escape
+        const isRoot = target.classList.contains('canvas-render') || target.classList.contains('layer-tree');
+        
+        // Root or Container Empty Area logic
+        const isContainer = target.classList.contains('layout-container') || isRoot;
+        
+        if (isContainer) {
+            const children = target.children.length;
+            if (children === 0 || e.clientY > rect.bottom - 40) {
+                if (e.preventDefault) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+                target.classList.add('drop-at-end');
+                target.classList.remove('drop-at-start', 'drop-before', 'drop-after', 'drop-target');
+                return;
+            } else if (e.clientY < rect.top + 40) {
+                if (e.preventDefault) e.preventDefault();
+                if (e.stopPropagation) e.stopPropagation();
+                target.classList.add('drop-at-start');
+                target.classList.remove('drop-at-end', 'drop-before', 'drop-after', 'drop-target');
+                return;
+            }
+        }
+
+        // Edge detection for "escaping" nested containers
+        const isNearTop = e.clientY < rect.top + edgeThreshold;
+        const isNearBottom = e.clientY > rect.bottom - edgeThreshold;
+        
+        if ((isNearTop || isNearBottom) && !isRoot) {
+            target.classList.remove('drop-before', 'drop-after', 'drop-target', 'drop-at-start', 'drop-at-end');
+            return;
+        }
+
+        if (e.preventDefault) e.preventDefault();
+        if (e.stopPropagation) e.stopPropagation();
+        if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+        
+        const midpoint = rect.top + rect.height / 2;
+        
+        if (e.clientY < midpoint) {
+            target.classList.add('drop-before');
+            target.classList.remove('drop-after', 'drop-target', 'drop-at-start', 'drop-at-end');
+        } else {
+            const type = target.dataset.type || '';
+            const isCollapsibleContainer = ['row', 'column', 'container', 'card', 'list', 'grid_view'].includes(type);
+            if (isCollapsibleContainer && e.clientY > rect.bottom - 15) {
+                target.classList.add('drop-target');
+                target.classList.remove('drop-before', 'drop-after', 'drop-at-start', 'drop-at-end');
+            } else {
+                target.classList.add('drop-after');
+                target.classList.remove('drop-before', 'drop-target', 'drop-at-start', 'drop-at-end');
+            }
+        }
+    }
+
+    moveComponentInTree(sourceId, targetId, position = 'inside') {
+        const activeScreen = this.state.config.screens.find(s => String(s.id) === String(this.state.activeScreenId));
+        if (!activeScreen) return;
+
+        let sourceList = null;
+        let sourceIndex = -1;
+        
+        const findAndRemove = (list, id) => {
+            const idx = list.findIndex(c => String(c.id) === String(id));
+            if (idx > -1) {
+                sourceList = list;
+                sourceIndex = idx;
+                return list.splice(idx, 1)[0];
+            }
+            for (const item of list) {
+                if (item.children) {
+                    const found = findAndRemove(item.children, id);
+                    if (found) return found;
+                }
+            }
+            return null;
+        };
+
+        const sourceComp = findAndRemove(activeScreen.components, sourceId);
+        if (!sourceComp) return;
+
+        const insertAt = (list, id, comp) => {
+            const idx = list.findIndex(c => String(c.id) === String(id));
+            if (idx > -1) {
+                if (position === 'before') {
+                    list.splice(idx, 0, comp);
+                } else if (position === 'after') {
+                    list.splice(idx + 1, 0, comp);
+                } else if (position === 'start') {
+                    if (!list[idx].children) list[idx].children = [];
+                    list[idx].children.unshift(comp);
+                } else if (position === 'end') {
+                    if (!list[idx].children) list[idx].children = [];
+                    list[idx].children.push(comp);
+                } else if (['row', 'column', 'container', 'card', 'list', 'grid_view'].includes(list[idx].type)) {
+                    if (!list[idx].children) list[idx].children = [];
+                    list[idx].children.push(comp);
+                } else {
+                    list.splice(idx + 1, 0, comp);
+                }
+                return true;
+            }
+            for (const item of list) {
+                if (item.children && insertAt(item.children, id, comp)) return true;
+            }
+            return false;
+        };
+
+        if (!targetId) {
+            if (position === 'start') {
+                activeScreen.components.unshift(sourceComp);
+            } else {
+                activeScreen.components.push(sourceComp);
+            }
+        } else if (!insertAt(activeScreen.components, targetId, sourceComp)) {
+            if (sourceList) {
+                sourceList.splice(sourceIndex, 0, sourceComp);
+            } else {
+                console.warn('[MobileStudio] Source list not found, unable to revert move');
+            }
+            return;
+        }
+
+        this.setState({ config: { ...this.state.config } });
+        this.pushHistory();
+    }
+
+    wrapInContainer(id, type) {
+        const activeScreen = this.state.config.screens.find(s => String(s.id) === String(this.state.activeScreenId));
+        if (!activeScreen) return;
+
+        let index = -1;
+        let list = null;
+
+        const findComp = (l, targetId) => {
+            const idx = l.findIndex(c => c.id === targetId);
+            if (idx > -1) {
+                index = idx;
+                list = l;
+                return true;
+            }
+            for (const item of l) {
+                if (item.children && findComp(item.children, targetId)) return true;
+            }
+            return false;
+        };
+
+        if (findComp(activeScreen.components, id)) {
+            const comp = list.splice(index, 1)[0];
+            const container = {
+                id: 'comp_' + Date.now(),
+                type: type,
+                props: { padding: 10, gap: 10, justifyContent: 'start', alignItems: 'stretch' },
+                children: [comp]
+            };
+            list.splice(index, 0, container);
+            this.update();
+            this.pushHistory();
+        }
     }
 
     selectComponent(c) {
@@ -2670,6 +3218,7 @@ export default class MobileView extends BaseComponent {
         this.state.config.screens.push(screen);
         this.applyTemplate(screen, type);
         this.setState({ activeScreenId: id });
+        this.pushHistory();
         this.closeModal();
         this.notify(`Screen '${screen.title}' created.`, 'success');
     }
@@ -2690,6 +3239,7 @@ export default class MobileView extends BaseComponent {
 
         this.state.config.screens.push(newScreen);
         this.setState({ activeScreenId: newScreen.id });
+        this.pushHistory();
         this.closeModal();
         this.update();
         this.notify(`Screen '${original.title}' duplicated.`, 'success');
@@ -2798,10 +3348,630 @@ export default class MobileView extends BaseComponent {
         if (!config.state) config.state = {};
         
         config.state[key] = value;
-        this.setState({ config }, () => {
-            this.update();
-            this.pushHistory();
-            console.log(`[Reactivity] State variable '${key}' updated to:`, value);
+        this.setState({ config });
+        this.pushHistory();
+        console.log(`[Reactivity] State variable '${key}' updated to:`, value);
+    }
+
+    bindEntityToListView(ent) {
+        this.notify(`Auto-generating ListView for ${ent.name}...`, "info");
+        
+        const listViewBlueprint = {
+            type: 'listview',
+            props: {
+                title: `${ent.name} List`,
+                dataSource: `db.${ent.name}`,
+                itemTemplate: 'default',
+                padding: 16
+            },
+            children: [
+                {
+                    type: 'text',
+                    props: { text: `{{item.name || item.id}}`, fontSize: 16, fontWeight: 'bold' }
+                },
+                {
+                    type: 'text',
+                    props: { text: `{{item.email || item.description || ''}}`, fontSize: 12, opacity: 0.6 }
+                }
+            ]
+        };
+
+        this.addComponentToScreen(listViewBlueprint);
+        this.setState({ libraryMode: 'components' });
+    }
+
+    renderCopilot() {
+        return html`
+            <div class="copilot-panel fade-in" style="height:100%; display:flex; flex-direction:column;">
+                <div class="glass-panel p-3 mb-3" style="background:rgba(99, 102, 241, 0.05); border-color:rgba(99, 102, 241, 0.2);">
+                    <div style="font-size:0.8rem; font-weight:bold; color:var(--primary-color); display:flex; align-items:center; gap:8px;">
+                        <span>✨</span> AI Copilot
+                    </div>
+                    <div style="font-size:0.6rem; opacity:0.7; margin-top:4px;">Ask me to build screens, fix logic, or generate data.</div>
+                </div>
+
+                <div class="ai-selectors glass-panel p-2 mb-3" style="display:flex; gap:8px; align-items:center;">
+                    <select class="flex-1" style="font-size:0.6rem; padding:4px;" @change=${(e) => this.setState({ selectedAIProvider: e.target.value, selectedAIModel: null })}>
+                        ${Object.entries(this.state.aiRegistry || {}).map(([id, p]) => html`<option value="${id}" ?selected=${this.state.selectedAIProvider === id}>${p.name}</option>`)}
+                    </select>
+                    <select class="flex-1" style="font-size:0.6rem; padding:4px;" @change=${(e) => this.setState({ selectedAIModel: e.target.value })}>
+                        <option value="">Default Model</option>
+                        ${(this.state.aiRegistry[this.state.selectedAIProvider]?.models || []).map(m => html`<option value="${m}" ?selected=${this.state.selectedAIModel === m}>${m}</option>`)}
+                    </select>
+                </div>
+
+                <div class="chat-history" style="flex:1; overflow-y:auto; padding:8px; display:flex; flex-direction:column; gap:12px;">
+                    ${(this.state.aiChat || []).map(msg => html`
+                        <div class="chat-msg ${msg.role}" style="align-self: ${msg.role === 'user' ? 'flex-end' : 'flex-start'}; max-width:90%; padding:8px 12px; border-radius:12px; font-size:0.7rem; background:${msg.role === 'user' ? 'var(--primary-color)' : 'rgba(255,255,255,0.05)'};">
+                            ${msg.content}
+                        </div>
+                    `)}
+                    ${this.state.aiLoading ? html`<div class="skeleton-pulse" style="width:60%; height:40px; border-radius:12px;"></div>` : ''}
+                </div>
+
+                <div class="chat-input-wrap mt-3" style="position:relative;">
+                    <textarea id="ai-prompt-input" placeholder="Try: 'Create a product detail screen with a buy button'..." 
+                        style="width:100%; height:80px; padding:10px; border-radius:12px; background:rgba(0,0,0,0.4); border:1px solid var(--glass-border); color:var(--text-main); font-size:0.75rem; resize:none;"
+                        @keydown=${(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), this.executeAICommand())}></textarea>
+                    <button class="btn primary-btn btn-xs" style="position:absolute; bottom:10px; right:10px; padding:4px 12px;" @click=${() => this.executeAICommand()}>Send</button>
+                </div>
+            </div>
+        `;
+    }
+
+    async executeAICommand() {
+        const input = document.getElementById('ai-prompt-input');
+        const promptText = input.value.trim();
+        if (!promptText) return;
+
+        const history = this.state.aiChat || [];
+        this.setState({ 
+            aiChat: [...history, { role: 'user', content: promptText }],
+            aiLoading: true 
         });
+        input.value = '';
+
+        try {
+            const isFlow = promptText.toLowerCase().includes('flow') || promptText.toLowerCase().includes('screens') || promptText.toLowerCase().includes('app');
+            
+            const systemPrompt = isFlow 
+                ? `You are the Satya Studio App Architect. Generate a full application flow. 
+                   Respond with JSON: { flow: [ { title: string, type: string, components: [] } ] }.`
+                : `You are the Satya Studio AI Architect. Generate a single UI component blueprint. 
+                   Respond with JSON: { blueprint: { name: string, type: string, props: {}, children: [] } }.`;
+
+            const resp = await this.callApi('ai_generate_blueprint', { 
+                description: promptText,
+                system: systemPrompt,
+                context: this.state.config
+            });
+
+            if (resp.success) {
+                if (resp.data.flow) {
+                    resp.data.flow.forEach(screen => {
+                        const id = 'screen_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+                        this.state.config.screens.push({ ...screen, id });
+                    });
+                    this.setState({ 
+                        aiChat: [...this.state.aiChat, { role: 'assistant', content: `Application Flow Synthesized! ${resp.data.flow.length} screens added to your project.` }],
+                        aiLoading: false
+                    });
+                    this.notify("AI Flow Orchestrated.", "success");
+                } else if (resp.data.blueprint) {
+                    this.addComponentToScreen(resp.data.blueprint);
+                    this.setState({ 
+                        aiChat: [...this.state.aiChat, { role: 'assistant', content: `Component synthesized successfully.` }],
+                        aiLoading: false
+                    });
+                }
+                this.update();
+            } else {
+                const chatResp = await this.callApi('ai_complete', { prompt: promptText });
+                this.setState({ 
+                    aiChat: [...this.state.aiChat, { role: 'assistant', content: chatResp.data.result || chatResp.message }],
+                    aiLoading: false
+                });
+            }
+        } catch (e) {
+            this.setState({ aiLoading: false });
+            this.notify("AI Orchestrator is temporarily offline.", "error");
+        }
+    }
+
+    toggleCommandPalette() {
+        const visible = !this.state.commandPalette.visible;
+        this.setState({ commandPalette: { ...this.state.commandPalette, visible, query: '', results: this.getCommandResults('') } });
+        if (visible) {
+            setTimeout(() => document.getElementById('command-palette-input')?.focus(), 50);
+        }
+    }
+
+    getCommandResults(query) {
+        const commands = [
+            { icon: '📱', name: 'New Screen', action: () => this.addScreen() },
+            { icon: '🎨', name: 'Theme Settings', action: () => this.setState({ inspectorTab: 'theme' }) },
+            { icon: '🚀', name: 'Export Project', action: () => this.exportProject() },
+            { icon: '📦', name: 'Library: Components', action: () => this.setState({ libraryMode: 'components' }) },
+            { icon: '🤖', name: 'Copilot AI', action: () => this.setState({ libraryMode: 'copilot' }) },
+            { icon: '🐛', name: 'Open State Debugger', action: () => this.setState({ libraryMode: 'debug' }) }
+        ];
+
+        // Add screen navigation commands
+        this.state.config.screens.forEach(s => {
+            commands.push({ icon: '📄', name: `Goto: ${s.title}`, action: () => this.setState({ activeScreenId: s.id }) });
+        });
+
+        if (!query) return commands;
+        return commands.filter(c => c.name.toLowerCase().includes(query.toLowerCase()));
+    }
+
+    handleCommandKeyDown(e) {
+        const { commandPalette } = this.state;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            this.setState({ commandPalette: { ...commandPalette, selectedIndex: (commandPalette.selectedIndex + 1) % commandPalette.results.length } });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            this.setState({ commandPalette: { ...commandPalette, selectedIndex: (commandPalette.selectedIndex - 1 + commandPalette.results.length) % commandPalette.results.length } });
+        } else if (e.key === 'Enter') {
+            const cmd = commandPalette.results[commandPalette.selectedIndex];
+            if (cmd) {
+                cmd.action();
+                this.toggleCommandPalette();
+            }
+        }
+    }
+
+    renderCommandPalette() {
+        if (!this.state.commandPalette.visible) return '';
+        const { results, selectedIndex, query } = this.state.commandPalette;
+
+        return html`
+            <div class="command-palette-overlay" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(10px); z-index:10000; display:flex; justify-content:center; padding-top:100px;" @click=${() => this.toggleCommandPalette()}>
+                <div class="command-palette glass-panel" style="width:600px; max-height:400px; display:flex; flex-direction:column; overflow:hidden;" @click=${e => e.stopPropagation()}>
+                    <div class="p-3" style="border-bottom:1px solid var(--glass-border);">
+                        <input type="text" id="command-palette-input" placeholder="Search commands, screens, or components..." 
+                            style="background:transparent; border:none; width:100%; font-size:1.1rem; color:#fff; outline:none;"
+                            @input=${(e) => this.setState({ commandPalette: { ...this.state.commandPalette, query: e.target.value, results: this.getCommandResults(e.target.value), selectedIndex: 0 } })}
+                            @keydown=${(e) => this.handleCommandKeyDown(e)}>
+                    </div>
+                    <div class="command-results" style="overflow-y:auto; flex:1;">
+                        ${results.map((c, i) => html`
+                            <div class="command-item p-3 ${i === selectedIndex ? 'active' : ''}" 
+                                style="display:flex; align-items:center; gap:15px; cursor:pointer; background:${i === selectedIndex ? 'rgba(255,255,255,0.05)' : 'transparent'};"
+                                @click=${() => { c.action(); this.toggleCommandPalette(); }}>
+                                <span style="font-size:1.2rem;">${c.icon}</span>
+                                <span style="flex:1; font-weight:600;">${c.name}</span>
+                                ${i === selectedIndex ? html`<span class="text-xxs opacity-04">ENTER</span>` : ''}
+                            </div>
+                        `)}
+                        ${results.length === 0 ? html`<div class="p-4 text-center opacity-04">No matching commands found.</div>` : ''}
+                    </div>
+                    <div class="p-2 bg-dark text-xxs opacity-04 text-center" style="background:rgba(0,0,0,0.2);">
+                        ESC to close • ↑↓ to navigate • ENTER to select
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    renderStateDebugger() {
+        const appState = this.state.appState || {};
+        return html`
+            <div class="debug-monitor fade-in">
+                <div class="flex-between mb-3">
+                    <h4 class="m-0">Live State Monitor</h4>
+                    <button class="btn btn-xs ghost-btn" @click=${() => this.setState({ appState: {} })}>Reset</button>
+                </div>
+                <div class="glass-panel p-3" style="font-family:'JetBrains Mono'; font-size:0.65rem; background:rgba(0,0,0,0.3); max-height:400px; overflow-y:auto;">
+                    ${Object.keys(appState).length === 0 ? html`<div class="opacity-04 text-center py-4">No state variables active. Interact with components to see them change.</div>` : ''}
+                    ${Object.entries(appState).map(([k, v]) => html`
+                        <div class="flex-between py-1 border-bottom" style="border-color:rgba(255,255,255,0.05);">
+                            <span style="color:var(--accent);">${k}</span>
+                            <span style="color:var(--success);">${JSON.stringify(v)}</span>
+                        </div>
+                    `)}
+                </div>
+                <div class="mt-4 p-3 glass-panel" style="font-size:0.6rem; opacity:0.6;">
+                    This monitor shows all dynamic variables stored in the global app context. Components bound to these keys will react instantly to changes.
+                </div>
+            </div>
+        `;
+    }
+
+    convertToSymbol(id) {
+        const activeScreen = this.state.config.screens.find(s => s.id === this.state.activeScreenId);
+        if (!activeScreen) return;
+
+        const comp = this.findComponentById(activeScreen.components, id);
+        if (!comp) return;
+
+        if (!this.state.config.symbols) this.state.config.symbols = [];
+        
+        const symbolName = prompt("Enter a unique name for this Symbol:", comp.name || comp.type);
+        if (!symbolName) return;
+
+        const symbol = {
+            id: 'sym_' + Date.now(),
+            name: symbolName,
+            type: 'symbol',
+            originalType: comp.type,
+            template: JSON.parse(JSON.stringify(comp))
+        };
+
+        this.state.config.symbols.push(symbol);
+        
+        // Transform component into an Instance
+        comp.symbolId = symbol.id;
+        comp.name = `${symbolName} (Instance)`;
+        comp.props = { ...comp.props, _symbolRef: symbol.id };
+        
+        this.update();
+        this.pushHistory();
+        this.notify(`'${symbolName}' symbolized and stored in library.`, 'success');
+    }
+
+    renderSymbolsLibrary() {
+        const symbols = this.state.config.symbols || [];
+        return html`
+            <div class="symbols-library fade-in">
+                <div class="header-row mb-3">
+                    <h5 class="section-title-sm m-0">Symbol Library</h5>
+                    <span class="badge secondary">${symbols.length} REUSABLE</span>
+                </div>
+                ${symbols.length === 0 ? html`<div class="empty-state">No symbols defined. Right-click a component to convert it into a reusable symbol.</div>` : ''}
+                <div class="symbol-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    ${symbols.map(s => html`
+                        <div class="symbol-item glass-panel p-3 pointer" @click=${() => this.addComponentToScreen(s.template)} style="border: 1px solid var(--secondary-color); text-align:center; position:relative;">
+                            <button class="btn-icon btn-xs delete-symbol-btn" style="position:absolute; top:5px; right:5px; opacity:0; background:rgba(0,0,0,0.3); border-radius:4px;" 
+                                @click=${(e) => { e.stopPropagation(); this.removeSymbol(s.id); }}>🗑️</button>
+                            <div style="font-size:1.2rem;">💠</div>
+                            <div style="font-size:0.6rem; font-weight:700; margin-top:5px;">${s.name}</div>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    removeSymbol(id) {
+        if (!confirm('Are you sure you want to delete this symbol?')) return;
+        const symbols = (this.state.config.symbols || []).filter(s => s.id !== id);
+        this.setState({ config: { ...this.state.config, symbols } });
+        this.notify("Symbol removed.", "success");
+        this.pushHistory();
+    }
+
+    renderFunctionsLibrary() {
+        const { config } = this.state;
+        const functions = config.functions || [];
+
+        return html`
+            <div class="functions-library fade-in">
+                <div class="flex-between mb-3">
+                    <h5 class="section-title-sm m-0">Logic & Functions (FX)</h5>
+                    <button class="btn primary-btn btn-xxs" @click=${() => this.createFunction()}>+ New FX</button>
+                </div>
+                ${functions.length === 0 ? html`<div class="empty-state">No custom functions defined. Create one to add dynamic logic.</div>` : ''}
+                <div class="function-list" style="display:flex; flex-direction:column; gap:10px;">
+                    ${functions.map(fx => html`
+                        <div class="fx-item glass-panel p-3" style="border:1px solid rgba(255,255,255,0.05); border-radius:12px; position:relative;">
+                            <div class="flex-between mb-2">
+                                <div style="font-weight:700; color:var(--primary-color); font-size:0.75rem;">${fx.name}</div>
+                                <div style="display:flex; gap:12px; align-items:center;">
+                                    <span class="pointer btn-icon btn-xxs" title="Edit Logic" @click=${() => this.editFunction(fx)}>✏️</span>
+                                    <span class="pointer btn-icon btn-xxs text-danger" title="Delete Function" @click=${(e) => { e.stopPropagation(); this.deleteFunction(fx); }}>🗑️</span>
+                                </div>
+                            </div>
+                            <div style="font-size:0.6rem; opacity:0.4; font-family:monospace; background:rgba(0,0,0,0.2); padding:6px; border-radius:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                ${fx.code.substring(0, 100)}...
+                            </div>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    createFunction() {
+        this.editFunction({ name: 'newFunction', code: 'function newFunction() {\n  // Write your logic here\n  return true;\n}' });
+    }
+
+    editFunction(fx) {
+        const title = `Edit Function: ${fx.name}`;
+        const content = html`
+            <div class="fx-editor-container p-3" style="height:500px; display:flex; flex-direction:column;">
+                <div class="input-group mb-3">
+                    <label>Function Name</label>
+                    <input type="text" id="fx-name-input" .value="${fx.name}" style="width:100%; padding:8px; border-radius:6px; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-main);">
+                </div>
+                <div id="monaco-editor-host" style="flex:1; border-radius:8px; overflow:hidden; border:1px solid var(--glass-border);"></div>
+                <div class="mt-3 flex-between">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <p style="font-size:0.6rem; opacity:0.5; margin:0;">TIP: Use 'state.key' to access global variables.</p>
+                        <button class="btn ghost-btn btn-xxs" style="color:var(--primary-color); border-color:var(--primary-color);" @click=${() => this.aiFixLogic()}>✨ AI Fix Logic</button>
+                    </div>
+                    <button class="btn primary-btn btn-sm" @click=${() => this.saveFunction(fx)}>💾 Save Function</button>
+                </div>
+            </div>
+        `;
+
+        SPPUX.Modal.open(title, content, [{ label: 'Close', type: 'ghost', fn: 'close' }]);
+        
+        // Initialize Monaco after a short delay to ensure DOM is ready
+        setTimeout(() => this.initMonaco(fx.code), 100);
+    }
+
+    initMonaco(code) {
+        if (!window.require) return;
+        
+        window.require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' }});
+        window.require(['vs/editor/editor.main'], () => {
+            this.monacoInstance = monaco.editor.create(document.getElementById('monaco-editor-host'), {
+                value: code,
+                language: 'javascript',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                minimap: { enabled: false },
+                fontSize: 12,
+                fontFamily: 'JetBrains Mono',
+                scrollBeyondLastLine: false,
+                padding: { top: 10 }
+            });
+        });
+    }
+
+    saveFunction(fx) {
+        const newName = document.getElementById('fx-name-input').value;
+        const newCode = this.monacoInstance ? this.monacoInstance.getValue() : fx.code;
+
+        const config = { ...this.state.config };
+        if (!config.functions) config.functions = [];
+        
+        const existingIdx = config.functions.findIndex(f => f.name === fx.name);
+        if (existingIdx >= 0) {
+            config.functions[existingIdx] = { name: newName, code: newCode };
+        } else {
+            config.functions.push({ name: newName, code: newCode });
+        }
+
+        this.setState({ config });
+        this.notify(`Function '${newName}' saved.`, 'success');
+        this.closeModal();
+    }
+
+    deleteFunction(fx) {
+        if (!confirm(`Are you sure you want to delete the function '${fx.name}'? This action cannot be undone.`)) return;
+        
+        const config = { ...this.state.config };
+        const initialCount = (config.functions || []).length;
+        config.functions = (config.functions || []).filter(f => f.name !== fx.name);
+        
+        if (config.functions.length < initialCount) {
+            this.setState({ config });
+            this.notify(`Function '${fx.name}' successfully deleted.`, 'success');
+        } else {
+            this.notify(`Could not find function '${fx.name}' to delete.`, 'error');
+        }
+    }
+
+    renderConnectorsManager() {
+        const { config } = this.state;
+        const connectors = config.connectors || [];
+
+        return html`
+            <div class="connectors-manager fade-in">
+                <div class="flex-between mb-3">
+                    <h5 class="section-title-sm m-0">API Connectors</h5>
+                    <button class="btn primary-btn btn-xxs" @click=${() => this.createConnector()}>+ New API</button>
+                </div>
+                ${connectors.length === 0 ? html`<div class="empty-state">No APIs defined. Connect to external services to hydrate your app with real data.</div>` : ''}
+                <div class="connector-list">
+                    ${connectors.map(c => html`
+                        <div class="connector-item glass-panel p-3 mb-2" style="border:1px solid rgba(255,255,255,0.05); border-radius:12px;">
+                            <div class="flex-between mb-2">
+                                <div style="font-weight:700; color:var(--primary-color); font-size:0.75rem;">${c.name}</div>
+                                <div class="flex gap-2">
+                                    <span class="pointer btn-icon btn-xxs" title="Edit API" @click=${() => this.editConnector(c)}>✏️</span>
+                                    <span class="pointer btn-icon btn-xxs text-danger" title="Delete API" @click=${(e) => { e.stopPropagation(); this.deleteConnector(c); }}>🗑️</span>
+                                </div>
+                            </div>
+                            <div style="font-size:0.6rem; color:var(--primary-color); font-weight:700;">${c.method} ${c.url.substring(0, 30)}${c.url.length > 30 ? '...' : ''}</div>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    createConnector() {
+        this.editConnector({ name: 'New API', method: 'GET', url: 'https://api.example.com/data', headers: {}, body: '', mapping: [] });
+    }
+
+    editConnector(conn) {
+        const title = `API Connector: ${conn.name}`;
+        const content = html`
+            <div class="api-editor p-3" style="max-height:600px; overflow-y:auto;">
+                <div class="grid-2 gap-3 mb-3">
+                    <div class="input-group">
+                        <label>Connector Name</label>
+                        <input type="text" id="conn-name" .value="${conn.name}" style="width:100%; padding:8px; border-radius:6px; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-main);">
+                    </div>
+                    <div class="input-group">
+                        <label>HTTP Method</label>
+                        <select id="conn-method" style="width:100%; padding:8px; border-radius:6px; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-main);">
+                            <option value="GET" ?selected=${conn.method === 'GET'}>GET</option>
+                            <option value="POST" ?selected=${conn.method === 'POST'}>POST</option>
+                            <option value="PUT" ?selected=${conn.method === 'PUT'}>PUT</option>
+                            <option value="DELETE" ?selected=${conn.method === 'DELETE'}>DELETE</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <label>Endpoint URL</label>
+                    <input type="text" id="conn-url" .value="${conn.url}" placeholder="https://api.example.com/v1/..." style="width:100%; padding:8px; border-radius:6px; background:var(--input-bg); border:1px solid var(--glass-border); color:var(--text-main);">
+                </div>
+
+                <div class="mapping-section glass-panel p-3 mb-3">
+                    <div class="flex-between mb-2">
+                        <label style="font-size:0.7rem; font-weight:700;">Response Mapping</label>
+                        <button class="btn ghost-btn btn-xxs" @click=${() => this.addApiMapping(conn)}>+ Add Mapping</button>
+                    </div>
+                    <div id="mapping-list">
+                        ${(conn.mapping || []).map((m, i) => html`
+                            <div class="flex gap-2 mb-2">
+                                <input type="text" placeholder="JSON Path" value="${m.path}" style="flex:1; font-size:0.65rem; padding:4px;">
+                                <span>→</span>
+                                <input type="text" placeholder="State Var" value="${m.variable}" style="flex:1; font-size:0.65rem; padding:4px;">
+                            </div>
+                        `)}
+                    </div>
+                </div>
+
+                <div class="flex-between mt-4">
+                    <button class="btn ghost-btn btn-sm" @click=${() => this.testConnector(conn)}>🧪 Test Request</button>
+                    <button class="btn primary-btn btn-sm" @click=${() => this.saveConnector(conn)}>💾 Save Connector</button>
+                </div>
+            </div>
+        `;
+
+        SPPUX.Modal.open(title, content, [{ label: 'Close', type: 'secondary', fn: 'close' }]);
+    }
+
+    saveConnector(conn) {
+        const config = { ...this.state.config };
+        if (!config.connectors) config.connectors = [];
+
+        const updated = {
+            ...conn,
+            name: document.getElementById('conn-name').value,
+            method: document.getElementById('conn-method').value,
+            url: document.getElementById('conn-url').value
+        };
+
+        const idx = config.connectors.findIndex(c => c.name === conn.name);
+        if (idx >= 0) config.connectors[idx] = updated;
+        else config.connectors.push(updated);
+
+        this.setState({ config });
+        this.notify(`Connector '${updated.name}' saved.`, 'success');
+        this.closeModal();
+    }
+
+    deleteConnector(conn) {
+        if (!confirm(`Delete API connector '${conn.name}'?`)) return;
+        const config = { ...this.state.config };
+        config.connectors = config.connectors.filter(c => c.name !== conn.name);
+        this.setState({ config });
+        this.notify(`Connector '${conn.name}' removed.`, 'success');
+    }
+
+    addApiMapping(conn) {
+        if (!conn.mapping) conn.mapping = [];
+        conn.mapping.push({ path: '', variable: '' });
+        this.editConnector(conn);
+    }
+
+    async testConnector(conn) {
+        this.notify(`Testing connection to ${conn.name}...`, 'info');
+        try {
+            const start = Date.now();
+            const res = await fetch(conn.url, { 
+                method: conn.method,
+                headers: conn.headers
+            });
+            const duration = Date.now() - start;
+            
+            if (res.ok) {
+                const data = await res.json();
+                console.log("[ConnectorTest] Success:", data);
+                this.notify(`Success! Response received in ${duration}ms.`, 'success');
+            } else {
+                this.notify(`API Error: ${res.status} ${res.statusText}`, 'error');
+            }
+        } catch (err) {
+            this.notify(`Connection Failed: ${err.message}`, 'error');
+        }
+    }
+
+    renderStateInspector() {
+        const { config } = this.state;
+        const stateVars = Object.entries(config.state || {});
+
+        return html`
+            <div class="inspector-section fade-in">
+                <div class="flex-between mb-3">
+                    <h3 style="margin:0;">Global State</h3>
+                    <button class="btn primary-btn btn-xxs" @click=${() => this.addStateVar()}>+ Add Var</button>
+                </div>
+                <div class="state-grid" style="display:flex; flex-direction:column; gap:10px;">
+                    ${stateVars.length === 0 ? html`<div class="empty-state">No state variables defined. Use state to store dynamic data.</div>` : ''}
+                    ${stateVars.map(([key, val]) => html`
+                        <div class="state-item glass-panel p-2" style="border-radius:8px;">
+                            <div class="flex-between mb-1">
+                                <input type="text" .value="${key}" style="font-weight:700; color:var(--primary-color); background:transparent; border:none; font-size:0.7rem; width:40%;" @change=${(e) => this.renameStateVar(key, e.target.value)}>
+                                <span class="pointer text-danger" style="font-size:0.6rem;" @click=${() => { delete config.state[key]; this.update(); }}>remove</span>
+                            </div>
+                            <input type="text" .value="${val}" style="width:100%; padding:4px 8px; font-size:0.65rem; background:rgba(0,0,0,0.2); border:1px solid var(--glass-border); border-radius:4px; color:var(--text-main);" @input=${(e) => { config.state[key] = e.target.value; this.update(); }}>
+                        </div>
+                    `)}
+                </div>
+            </div>
+        `;
+    }
+
+    addStateVar() {
+        const { config } = this.state;
+        if (!config.state) config.state = {};
+        const name = 'var_' + Object.keys(config.state).length;
+        config.state[name] = '';
+        this.update();
+    }
+
+    renameStateVar(oldName, newName) {
+        if (!newName || oldName === newName) return;
+        const { config } = this.state;
+        config.state[newName] = config.state[oldName];
+        delete config.state[oldName];
+        this.update();
+    }
+
+    async fetchAiRegistry() {
+        try {
+            const resp = await this.callApi('get_ai_registry');
+            if (resp.success) {
+                this.setState({ aiRegistry: resp.data.registry });
+            }
+        } catch (e) {
+            console.error("Failed to fetch AI registry:", e);
+        }
+    }
+
+    async aiFixLogic() {
+        if (!this.monacoInstance) return;
+        const code = this.monacoInstance.getValue();
+        this.notify("AI is analyzing and fixing your code...", "info");
+        
+        try {
+            const resp = await this.callApi('ai_fix_logic', { 
+                code,
+                provider: this.state.selectedAIProvider 
+            });
+            if (resp.success && resp.data.code) {
+                this.monacoInstance.setValue(resp.data.code);
+                this.notify("Code refactored by AI.", "success");
+            } else {
+                this.notify(resp.message || "AI failed to refactor code.", "error");
+            }
+        } catch (e) {
+            this.notify("AI Logic Engine is offline.", "error");
+        }
+    }
+    
+    async callApi(action, data = {}) {
+        if (this.app && this.app.api) return await this.app.api(action, data);
+        if (window.mobileStudio && window.mobileStudio.api) return await window.mobileStudio.api(action, data);
+        console.error("[MobileView] API orchestrator not found.");
+        return { success: false, message: "Connection Error" };
     }
 }

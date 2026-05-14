@@ -3,13 +3,13 @@
  * Module Management Service Group for SPP Admin
  */
 
-function live_Modules_List($la, $params) {
+function live_List($la, $params) {
     $appname = $params['appname'] ?? 'default';
     $modules = \SPP\Module::listAvailableModules($appname);
     $la->setData(['modules' => $modules]);
 }
 
-function live_Modules_Scan($la, $params) {
+function live_Scan($la, $params) {
     $modname = $params['modname'] ?? '';
     if (!$modname) return $la->setStatus('error')->notify("Module name required.");
     
@@ -22,7 +22,7 @@ function live_Modules_Scan($la, $params) {
     $la->setData(['deltas' => $deltas])->notify("Scan complete.");
 }
 
-function live_Modules_Setup($la, $params) {
+function live_Setup($la, $params) {
     $modname = $params['modname'] ?? '';
     $appname = $params['appname'] ?? 'default';
     if (!$modname) return $la->setStatus('error')->notify("Module name required.");
@@ -37,7 +37,7 @@ function live_Modules_Setup($la, $params) {
     }
 }
 
-function live_Modules_GetConfig($la, $params) {
+function live_GetConfig($la, $params) {
     $modname = $params['modname'] ?? '';
     $appname = $params['appname'] ?? 'default';
     if (!$modname) return $la->setStatus('error')->notify("Module name required.");
@@ -46,21 +46,37 @@ function live_Modules_GetConfig($la, $params) {
     $la->setData(['config' => $config]);
 }
 
-function live_Modules_SaveConfig($la, $params) {
+function live_SaveConfig($la, $params) {
     $modname = $params['modname'] ?? '';
     $appname = $params['appname'] ?? 'default';
     $config = $params['config'] ?? [];
     
     if (is_string($config)) $config = json_decode($config, true);
     
-    if (\SPP\Module::saveAppConfig($modname, $appname, $config)) {
+    $path = \SPP\Module::getExpectedConfigPath($modname, $appname);
+    $path = str_replace('\\', '/', $path);
+
+    $existing = \SPP\Module::getAppConfig($modname, $appname);
+    $finalConfig = array_merge($existing, $config);
+
+    $data = ['variables' => $finalConfig];
+    $yml = \Symfony\Component\Yaml\Yaml::dump($data, 4, 4);
+    
+    $logFile = SPP_LOG_DIR . '/api_debug.log';
+    file_put_contents($logFile, "[Modules] SaveSettings: writing to $path\n", FILE_APPEND);
+
+    $dir = dirname($path);
+    if (!is_dir($dir)) mkdir($dir, 0755, true);
+
+    if (file_put_contents($path, $yml) !== false) {
         $la->notify("Module '$modname' config saved.", "success");
     } else {
-        $la->setStatus('error')->notify("Save failed.");
+        file_put_contents($logFile, "[Modules] SaveSettings: FAILED to write to $path\n", FILE_APPEND);
+        $la->setStatus('error')->notify("Save failed: Could not write to $path");
     }
 }
 
-function live_Modules_SaveConfigRaw($la, $params) {
+function live_SaveConfigRaw($la, $params) {
     $modname = $params['modname'] ?? '';
     $appname = $params['appname'] ?? 'default';
     $content = $params['content'] ?? '';
@@ -77,7 +93,7 @@ function live_Modules_SaveConfigRaw($la, $params) {
         $la->setStatus('error')->notify("Raw save failed.");
     }
 }
-function live_Modules_OpenSettings($la, $params) {
+function live_OpenSettings($la, $params) {
     file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[Modules] OpenSettings called with: " . json_encode($params) . "\n", FILE_APPEND);
     $modname = $params['modname'] ?? '';
     $appname = $params['appname'] ?? 'default';
@@ -108,6 +124,8 @@ function live_Modules_OpenSettings($la, $params) {
         <div class='config-path-banner' style='font-size: 0.75rem; color: #888; margin-bottom: 15px; padding: 8px 12px; background: rgba(0,0,0,0.05); border-radius: 6px; border-left: 3px solid #007bff;'>
             <span style='opacity: 0.7; text-transform: uppercase; font-weight: bold; font-size: 0.65rem; margin-right: 8px;'>Effective Config:</span> 
             <code style='color: #007bff; word-break: break-all;'>$yamlPath</code>
+            <input type='hidden' id='setup-modname' value='$modname'>
+            <input type='hidden' id='setup-appname' value='$appname'>
         </div>
         
         <div class='tabs spp-tabs' style='margin-bottom:15px; border-bottom:1px solid #ddd; display:flex; gap:10px;'>
@@ -136,4 +154,21 @@ function live_Modules_OpenSettings($la, $params) {
         'modname' => $modname,
         'appname' => $appname
     ]);
+}
+
+function live_Toggle($la, $params) {
+    $modname = $params['modname'] ?? ($params['name'] ?? '');
+    $status = $params['status'] ?? ($params['active'] ? 'active' : 'inactive');
+    $appname = $params['appname'] ?? 'default';
+    
+    if (!$modname) return $la->setStatus('error')->notify("Module name required.");
+    
+    try {
+        \SPP\Module::toggleModuleStatus($modname, $status, $appname);
+        $la->notify("Module '$modname' status updated to $status.", "success");
+        // Trigger a list refresh if the component supports it
+        $la->dispatch('refresh');
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify($e->getMessage());
+    }
 }

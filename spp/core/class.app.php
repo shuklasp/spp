@@ -55,7 +55,9 @@ class App extends \SPP\SPPObject
 
         if ($init_level >= 1) {
             \SPP\Scheduler::regProc($this);
-            \SPP\Scheduler::setContext($appname);
+            if (!\SPP\Scheduler::hasContext() || \SPP\Scheduler::getContext() === $appname) {
+                \SPP\Scheduler::setContext($appname);
+            }
         }
 
         \SPP\SPPEvent::registerEvent('event_spp_app_init');
@@ -138,7 +140,7 @@ class App extends \SPP\SPPObject
                                 // Default src_path if still empty
                                 if (empty($settings['apps'][$d]['src_path'])) $settings['apps'][$d]['src_path'] = 'src/' . $d;
                                 // Default etc_path if still empty
-                                if (empty($settings['apps'][$d]['etc_path'])) $settings['apps'][$d]['etc_path'] = 'src/' . $d . '/etc';
+                                if (empty($settings['apps'][$d]['etc_path'])) $settings['apps'][$d]['etc_path'] = 'etc';
 
                                 $settings['apps'][$d] = array_merge($appData, $settings['apps'][$d] ?? []);
                                 error_log("SPP Discovery: Found dynamic app '$d' at $appYml");
@@ -218,13 +220,30 @@ class App extends \SPP\SPPObject
         if (empty($path)) return $baseDir;
         if ($baseDir === '') $baseDir = SPP_APP_DIR;
 
+        // Normalize both to avoid mismatches
+        $path = str_replace('\\', '/', $path);
+        $baseDir = str_replace('\\', '/', $baseDir);
+
+        $isWsl = (PHP_OS === 'Linux' && (str_contains(file_get_contents('/proc/version') ?: '', 'microsoft') || str_contains(file_get_contents('/proc/version') ?: '', 'WSL')));
+
         // 1. Absolute Path Check
-        if (str_starts_with($path, '/') || str_starts_with($path, '\\') || (strlen($path) > 1 && $path[1] === ':')) {
+        if (str_starts_with($path, '/') || (strlen($path) > 1 && $path[1] === ':')) {
+            // If absolute path is Windows-style but we are in WSL, convert to WSL
+            if ($isWsl && strlen($path) > 1 && $path[1] === ':') {
+                return '/mnt/' . strtolower($path[0]) . substr($path, 2);
+            }
             return $path;
         }
 
         // 2. Relative to baseDir
-        return rtrim($baseDir, '/\\') . SPP_DS . ltrim($path, '/\\');
+        $res = rtrim($baseDir, '/') . '/' . ltrim($path, '/');
+        
+        // Final normalization for WSL if needed
+        if ($isWsl && strlen($res) > 1 && $res[1] === ':') {
+            $res = '/mnt/' . strtolower($res[0]) . substr($res, 2);
+        }
+        
+        return $res;
     }
 
     public function getAppConfDir(): string
@@ -232,6 +251,12 @@ class App extends \SPP\SPPObject
         $appname = $this->_attributes['appname'];
         $etcPath = self::getAppConf('etc_path', $appname);
         if ($etcPath !== null && $etcPath !== '') {
+            // If etc_path already contains the app directory prefix (discovery side-effect or explicit), 
+            // resolve from SPP_APP_DIR instead of getAppSrcDir() to avoid double nesting
+            if (str_starts_with($etcPath, 'src/' . $appname) || str_starts_with($etcPath, '/src/' . $appname)) {
+                return $this->resolvePath($etcPath, SPP_APP_DIR);
+            }
+            
             // Absolute if starts with / (relative to SPP_APP_DIR)
             if (str_starts_with($etcPath, '/') || str_starts_with($etcPath, '\\')) {
                 return $this->resolvePath($etcPath, SPP_APP_DIR);
@@ -333,6 +358,32 @@ class App extends \SPP\SPPObject
     public function call($callable, array $parameters = [])
     {
         return $this->container->call($callable, $parameters);
+    }
+
+    /**
+     * Resolves the absolute context-aware base URL for a given application sub-directory context.
+     * Centralizes multi-tenant web routing calculation framework-wide.
+     *
+     * @param string|null $appName The application context name
+     * @return string Fully qualified root URI prefix
+     */
+    public static function getBaseUrl(?string $appName = null): string
+    {
+        $webRoot = defined('APP_BASE_URI') ? APP_BASE_URI : '';
+        $webRoot = rtrim($webRoot, '/\\');
+
+        $appName = $appName ?: (\SPP\Scheduler::getContext() ?: (self::getApp() ? self::getApp()->getName() : ''));
+        if (!$appName || $appName === 'default') {
+            $appName = \SPP\Scheduler::getContext();
+        }
+
+        $appPath = trim(self::getAppConf('base_url', $appName) ?? '', '/\\');
+        if (!$appPath && $appName && $appName !== 'default') {
+            $appPath = $appName;
+        }
+
+        $appRoot = $webRoot . ($appPath ? '/' . $appPath : '');
+        return rtrim($appRoot, '/\\');
     }
 
     /**

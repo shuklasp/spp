@@ -1,0 +1,8 @@
+################################################################################
+# Discovered & Registered Dynamic Services
+################################################################################
+
+services:
+  - name: "hello.greet"
+    script: "src/testapp/serv/greet.php"
+    method: "POST"

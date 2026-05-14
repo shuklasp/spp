@@ -745,10 +745,10 @@ select {
     display: grid;
     grid-template-columns: 280px 1fr 320px;
     gap: 0;
-    /* Removed gaps between columns for a more unified look */
-    height: 100%;
+    flex: 1;
     overflow: hidden;
     min-width: 1000px;
+    min-height: 0;
 }
 
 .studio-navigator,
@@ -910,7 +910,7 @@ select {
     padding: 0 20px;
     align-items: center;
     font-size: 0.65rem;
-    color: #000;
+    color: var(--text-main);
     z-index: 10;
 }
 
@@ -1564,15 +1564,15 @@ select {
 /* === EXTENDED UTILITIES === */
 .preview-canvas {
     background: var(--bg-dark);
-    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(128,128,128,0.1) 1px, transparent 1px);
     background-size: 30px 30px;
-    padding: 60px 40px;
+    padding: 20px 40px;
     min-height: 0;
     overflow: auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start; /* Changed from center to flex-start to prevent top clipping */
+    justify-content: flex-start;
 }
 
 .studio-footer-inner {
@@ -1587,12 +1587,40 @@ select {
 .ctx-menu {
     position: fixed;
     z-index: 9999;
-    min-width: 160px;
-    padding: 5px;
-    border-radius: 10px;
-    background: rgba(15, 15, 25, 0.95);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    min-width: 180px;
+    padding: 6px;
+    border-radius: var(--radius-lg);
+    background: var(--panel-bg-solid);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     border: 1px solid var(--glass-border);
+}
+
+.ctx-menu .menu-item {
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: var(--radius-md);
+    transition: all 0.2s var(--transition);
+}
+
+.ctx-menu .menu-item:hover {
+    background: var(--primary-color);
+    color: #fff !important;
+    transform: translateX(4px);
+}
+
+.ctx-menu .menu-item.danger {
+    color: var(--danger);
+}
+
+.ctx-menu .menu-item.danger:hover {
+    background: var(--danger-bg);
 }
 .menu-divider {
     height: 1px;
@@ -1625,3 +1653,209 @@ select {
 .gap-3 { gap: 12px !important; }
 .ml-2 { margin-left: 8px !important; }
 .text-capitalize { text-transform: capitalize !important; }
+/* === WIDGET TREE DRAG & DROP === */
+.layer-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: grab;
+    transition: all 0.2s var(--transition);
+    user-select: none;
+    border: 1px solid transparent;
+}
+
+.layer-item:active {
+    cursor: grabbing;
+}
+
+.layer-item > *:not(.layer-visibility) {
+    pointer-events: none;
+}
+
+.layer-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.layer-item.selected {
+    background: var(--primary-subtle);
+    border-color: var(--primary-color);
+}
+
+.layer-item.dragging {
+    opacity: 0.4;
+    background: var(--primary-subtle);
+    border: 1px dashed var(--primary-color);
+}
+
+.layer-item.drop-target {
+    background: rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+/* Sliding Reordering Gaps */
+.layer-item.drop-before {
+    margin-top: 24px !important;
+    position: relative;
+}
+
+.layer-item.drop-before::before {
+    content: 'INSERT HERE';
+    position: absolute;
+    top: -18px;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-glow);
+    font-size: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+}
+
+.layer-item.drop-after {
+    margin-bottom: 24px !important;
+    position: relative;
+}
+
+.layer-item.drop-after::after {
+    content: 'INSERT HERE';
+    position: absolute;
+    bottom: -18px;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-glow);
+    font-size: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+}
+
+[data-theme='day'] .layer-item:hover,
+[data-theme='saffron'] .layer-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+[data-theme='day'] .layer-item.selected,
+[data-theme='saffron'] .layer-item.selected {
+    background: var(--primary-subtle);
+}
+
+.layer-depth-1 { padding-left: 20px; }
+.layer-depth-2 { padding-left: 35px; }
+.layer-depth-3 { padding-left: 50px; }
+.layer-depth-4 { padding-left: 65px; }
+
+.layer-icon { font-size: 0.8rem; width: 16px; text-align: center; }
+.layer-name { font-size: 0.65rem; font-weight: 500; }
+.layer-visibility { font-size: 0.7rem; opacity: 0.5; width: 20px; }
+.layer-visibility:hover { opacity: 1; color: var(--primary-color); }
+.canvas-render.drop-at-start::before,
+.layout-container.drop-at-start::before {
+    content: 'PREPEND TO LIST';
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--success);
+    box-shadow: 0 0 10px rgba(52, 211, 153, 0.5);
+    font-size: 8px;
+    color: var(--success);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+    z-index: 100;
+}
+
+.canvas-render.drop-at-end::after,
+.layout-container.drop-at-end::after {
+    content: 'APPEND TO LIST';
+    position: absolute;
+    bottom: 5px;
+    left: 10px;
+    right: 10px;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-glow);
+    font-size: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+    z-index: 100;
+}
+
+.canvas-comp.drop-before {
+    margin-top: 24px !important;
+    position: relative;
+}
+
+.canvas-comp.drop-before::before {
+    content: 'INSERT HERE';
+    position: absolute;
+    top: -18px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-glow);
+    font-size: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+}
+
+.canvas-comp.drop-after {
+    margin-bottom: 24px !important;
+    position: relative;
+}
+
+.canvas-comp.drop-after::after {
+    content: 'INSERT HERE';
+    position: absolute;
+    bottom: -18px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-glow);
+    font-size: 8px;
+    color: var(--primary-color);
+    font-weight: 800;
+    text-align: center;
+    line-height: 2px;
+}
+
+/* === Symbol Library === */
+.symbol-item {
+    transition: all 0.2s var(--transition);
+    position: relative;
+}
+
+.symbol-item:hover {
+    border-color: var(--primary-color) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.symbol-item:hover .delete-symbol-btn {
+    opacity: 1 !important;
+}
+
+.delete-symbol-btn {
+    transition: all 0.2s var(--transition);
+    z-index: 10;
+}
+
+.delete-symbol-btn:hover {
+    background: var(--danger) !important;
+    transform: scale(1.1);
+}

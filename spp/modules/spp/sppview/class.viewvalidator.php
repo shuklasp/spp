@@ -124,6 +124,11 @@ class ViewValidator extends \SPP\SPPObject
         return true;
     }
 
+    public function is_required(): bool
+    {
+        return false;
+    }
+
     /**
      * Attaches this validator to a ViewTag element on a given DOM event.
      *
@@ -201,11 +206,20 @@ class ViewValidator extends \SPP\SPPObject
     /**
      * Resolves a rule string (e.g. 'required') to a validator instance.
      */
-    private function resolveValidator(string $rule): ?ViewValidator
+    private function resolveValidator($rule): ?ViewValidator
     {
-        $parts = explode(':', $rule);
-        $name = strtolower($parts[0]);
-        $param = $parts[1] ?? null;
+        $params = [];
+        $name = '';
+        
+        if (is_array($rule)) {
+            $name = strtolower($rule['type'] ?? '');
+            $params = $rule;
+        } else {
+            $parts = explode(':', $rule);
+            $name = strtolower($parts[0]);
+            $paramStr = $parts[1] ?? null;
+            if ($paramStr) $params['value'] = $paramStr;
+        }
 
         $map = [
             'required' => '\SPPMod\SPPView\SPP_Validator_RequiredValidator',
@@ -245,20 +259,29 @@ class ViewValidator extends \SPP\SPPObject
             // Handle complex constructors if needed, or set properties
             $instance = new $class();
             
-            if ($param !== null) {
-                if ($name === 'min') $instance->minlength = (int)$param;
-                if ($name === 'max') $instance->maxlength = (int)$param;
-                if ($name === 'regex') $instance->pattern = $param;
-                if ($name === 'range') {
-                    $range = explode('-', $param);
-                    $instance->min = (float)($range[0] ?? 0);
-                    $instance->max = (float)($range[1] ?? 100);
+            if (!empty($params)) {
+                foreach ($params as $k => $v) {
+                    if ($k === 'message') { $instance->msg = $v; continue; }
+                    if (property_exists($instance, $k)) $instance->$k = $v;
                 }
-                if ($name === 'in') {
-                    $instance->options = explode(',', $param);
-                }
-                if ($name === 'requiredif' || $name === 'gt') {
-                    $instance->targetField = $param;
+                
+                // Positional / rule-string compatibility
+                $p = $params['value'] ?? null;
+                if ($p !== null) {
+                    if ($name === 'min') $instance->minlength = (int)$p;
+                    if ($name === 'max') $instance->maxlength = (int)$p;
+                    if ($name === 'regex') $instance->pattern = $p;
+                    if ($name === 'range') {
+                        $range = explode('-', $p);
+                        $instance->min = (float)($range[0] ?? 0);
+                        $instance->max = (float)($range[1] ?? 100);
+                    }
+                    if ($name === 'in') {
+                        $instance->options = explode(',', $p);
+                    }
+                    if ($name === 'requiredif' || $name === 'gt') {
+                        $instance->targetField = $p;
+                    }
                 }
             }
             return $instance;

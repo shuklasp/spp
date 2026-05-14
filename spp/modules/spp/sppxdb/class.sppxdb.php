@@ -78,6 +78,10 @@ class SPP_XDB {
         return $this;
     }
 
+    public function getLastInsertId() {
+        return $this->lastInsertId;
+    }
+
     public function getDataDir() {
         return $this->dataDir;
     }
@@ -997,7 +1001,15 @@ class SPP_XDB {
 
             if ($loaded) {
                 $xpath = new DOMXPath($doc);
+                $old_error = libxml_use_internal_errors(true);
                 $nodes = $xpath->query($xpathQuery);
+                if ($nodes === false) {
+                    $errors = libxml_get_errors();
+                    $error_msg = empty($errors) ? "Unknown error" : $errors[0]->message;
+                    error_log("Invalid XPath in queryX: " . $xpathQuery . " Error: " . $error_msg);
+                    libxml_clear_errors();
+                }
+                libxml_use_internal_errors($old_error);
                 if ($nodes) {
                     foreach ($nodes as $node) {
                         $allResults[] = $this->nodeToArray($node);
@@ -1143,6 +1155,7 @@ class SPP_XDB {
      * @return mixed
      */
     public function querySQL($sql, $params = []) {
+        @file_put_contents(SPP_LOG_DIR . '/query_log.txt', date('[Y-m-d H:i:s] ') . $sql . "\n", FILE_APPEND);
         $sql = trim($sql);
         $sql = rtrim($sql, ';');
         $this->trackQuery($sql);
@@ -1349,20 +1362,34 @@ class SPP_XDB {
         }
 
         // -- DDL: CREATE TABLE --
-        if (preg_match('/^CREATE\s+TABLE\s+([a-zA-Z0-9_\.]+)(?:\s*\((.+)\))?$/i', $sql, $m)) {
-            $this->resolveTablePath(trim($m[1]));
+        if (preg_match('/^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_\.\`]+)(?:\s*\((.+)\))?$/is', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $this->resolveTablePath($tableName);
+            
+            if (file_exists($this->filePath)) {
+                return true; // Already exists
+            }
+
             $columns = [];
             if (isset($m[2]) && trim($m[2]) !== '') {
-                $parts = explode(',', $m[2]);
-                foreach ($parts as $part) {
+                $rawCols = $this->smartSplit($m[2]);
+                foreach ($rawCols as $part) {
                     $tokens = preg_split('/\s+/', trim($part), 2);
-                    $colName = $tokens[0];
-                    $colType = isset($tokens[1]) ? $tokens[1] : 'text';
-                    $columns[$colName] = $colType;
+                    $colName = trim($tokens[0], '` ');
+                    $colProps = isset($tokens[1]) ? $tokens[1] : 'text';
+                    
+                    // Simple property mapping
+                    $props = ['type' => 'text'];
+                    if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
+                    if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
+                    if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
+                    if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
+                    if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
+                    
+                    $columns[$colName] = $props;
                 }
             }
-            $this->createTable($this->tableName, $columns);
-            return true;
+            return $this->createTable($this->tableName, $columns);
         }
 
         // -- DDL: DROP TABLE --
@@ -1543,8 +1570,14 @@ class SPP_XDB {
             $data = [];
             foreach ($fields as $i => $f) {
                 $val = $values[$i] ?? null;
-                if ($val === '?' && isset($params[$i])) {
+                if ($val === '?' && array_key_exists($i, $params)) {
                     $val = $params[$i];
+                } elseif (is_string($val) && str_starts_with($val, ':') && array_key_exists($val, $params)) {
+                    $val = $params[$val];
+                }
+                // Optionally strip quotes if it's a literal string and not a parameter
+                if (is_string($val) && preg_match('/^[\'"](.*)[\'"]$/', $val, $m)) {
+                    $val = $m[1];
                 }
                 $data[$f] = $val;
             }
@@ -1563,14 +1596,29 @@ class SPP_XDB {
             // Parse SET clause: field1='val1', field2='val2'
             $updates = [];
             $setParts = explode(',', $setStr);
+            $paramIndex = 0;
             foreach ($setParts as $part) {
                 if (preg_match('/([a-zA-Z0-9_]+)\s*=\s*(.+)/', trim($part), $m)) {
+                    $f = trim($m[1]);
                     $val = trim($m[2], "'\" ");
-                    $updates[trim($m[1])] = $val;
+                    if ($val === '?') {
+                        if (array_key_exists($paramIndex, $params)) {
+                            $val = $params[$paramIndex];
+                        }
+                        $paramIndex++;
+                    } elseif (is_string($val) && str_starts_with($val, ':') && array_key_exists($val, $params)) {
+                        $val = $params[$val];
+                    }
+                    $updates[$f] = $val;
                 }
             }
 
-            return $this->update($updates, $where, $params);
+            $whereParams = $params;
+            if (array_key_exists(0, $params)) {
+                $whereParams = array_slice($params, $paramIndex);
+            }
+
+            return $this->update($updates, $where, $whereParams);
         }
 
         // -- DELETE --
@@ -1582,6 +1630,41 @@ class SPP_XDB {
             return $this->delete($where, $params);
         }
 
+        // -- DDL: ALTER TABLE ADD COLUMN --
+        if (preg_match('/^ALTER\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+ADD\s+(?:COLUMN\s+)?([a-zA-Z0-9_\`]+)\s+(.+)$/i', $sql, $matches)) {
+            $tablePath = trim($matches[1], '` ');
+            $colName = trim($matches[2], '` ');
+            $colProps = trim($matches[3]);
+
+            $this->resolveTablePath($tablePath);
+            
+            if ($this->doc && $this->xpath) {
+                $schemaNode = $this->xpath->query('/database/_schema')->item(0);
+                if ($schemaNode) {
+                    $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);
+                    if (!$colNode) {
+                        $newCol = $this->doc->createElement('column');
+                        $newCol->setAttribute('name', $colName);
+                        
+                        $props = ['type' => 'text'];
+                        if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
+                        if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
+                        if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
+                        if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
+                        if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
+                        
+                        foreach ($props as $k => $v) {
+                            $newCol->setAttribute($k, $v === true ? 'true' : $v);
+                        }
+                        
+                        $schemaNode->appendChild($newCol);
+                        return $this->save();
+                    }
+                }
+            }
+            return true;
+        }
+
         throw new Exception("Unsupported SQL syntax in XDB: " . $sql);
     }
 
@@ -1591,6 +1674,25 @@ class SPP_XDB {
      * 
      * @param string $tablePath
      */
+    protected function smartSplit($string, $delimiter = ',') {
+        $parts = [];
+        $depth = 0;
+        $current = '';
+        for ($i = 0; $i < strlen($string); $i++) {
+            $char = $string[$i];
+            if ($char === '(') $depth++;
+            if ($char === ')') $depth--;
+            if ($char === $delimiter && $depth === 0) {
+                $parts[] = $current;
+                $current = '';
+            } else {
+                $current .= $char;
+            }
+        }
+        $parts[] = $current;
+        return array_map('trim', array_filter($parts));
+    }
+
     protected function resolveTablePath($tablePath) {
         if (strpos($tablePath, '.') !== false) {
             list($db, $table) = explode('.', $tablePath, 2);
@@ -1654,7 +1756,7 @@ class SPP_XDB {
             $type = strtolower($props['type']);
             if ($type === 'int' || $type === 'integer' || $type === 'number') {
                 if ($value !== '' && !is_numeric($value)) {
-                    throw new Exception("Validation Error: Column '$name' must be numeric.");
+                    throw new Exception("Validation Error: Column '$name' must be numeric. Given: " . var_export($value, true));
                 }
             }
 
@@ -2000,13 +2102,22 @@ class SPP_XDB {
         // Handle id field: id = '1' -> @id = '1'
         $translated = preg_replace('/\bid\b(\s*[=<>!]+|(\s+IN\s*\(.*?\)|\s+LIKE\s+.*?))/i', '@id$1', $translated);
 
-        // Handle parameters
+        // Handle positional parameters (?)
         $paramIndex = 0;
         $translated = preg_replace_callback('/\?/', function($m) use (&$params, &$paramIndex) {
             $val = isset($params[$paramIndex]) ? $params[$paramIndex] : '';
             $paramIndex++;
             return "'" . $val . "'";
         }, $translated);
+
+        // Handle named parameters (:name)
+        if (preg_match_all('/(:[a-zA-Z0-9_]+)/', $translated, $namedMatches)) {
+            foreach ($namedMatches[1] as $pName) {
+                if (array_key_exists($pName, $params)) {
+                    $translated = str_replace($pName, "'" . $params[$pName] . "'", $translated);
+                }
+            }
+        }
 
         // Handle LIKE: field LIKE '%val%'
         $translated = preg_replace_callback('/([a-zA-Z0-9_]+)\s+LIKE\s+\'(.+?)\'/i', function($m) {
@@ -2088,6 +2199,12 @@ class SPP_XDB {
                 @unlink($this->filePath);
             }
             $result = @rename($tempFile, $this->filePath);
+            if (!$result) {
+                error_log("SPPXDB::save - FAILED TO RENAME temp file '{$tempFile}' to '{$this->filePath}'");
+            }
+        } else {
+            error_log("SPPXDB::save - DOMDocument::save FAILED for '{$tempFile}'");
+        }
 
             // Horizontal Partitioning: Check if current segment is full
             if ($result !== false) {
@@ -2101,7 +2218,6 @@ class SPP_XDB {
                     $this->createTable($this->tableName);
                 }
             }
-        }
         
         $this->isSaving = false;
         if ($result !== false) {

@@ -4,7 +4,8 @@ module:
     version: 1.2
     author: Satya Prakash Shukla
     pubdesc: Comprehensive grouping system supporting recursive membership and polymorphic entity associations.
-    modgroup: System
+    modgroup: Core
+    category: 'Core Required'
     deps:
         - sppdb
         - sppauth

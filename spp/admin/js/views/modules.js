@@ -44,7 +44,8 @@ export default class ModulesView extends BaseComponent {
         try {
             const res = await this.apiPost('toggle_module', { 
                 modname, 
-                status: newStatus 
+                status: newStatus,
+                appname: this.app.selectedApp
             });
             
             if (res.success) {
@@ -72,23 +73,31 @@ export default class ModulesView extends BaseComponent {
 
         // Filtering
         let filtered = modules;
-        if (filter === 'core') filtered = modules.filter(m => m.type === 'system');
-        if (filter === 'app') filtered = modules.filter(m => m.type === 'user');
+        if (filter !== 'all') {
+            if (filter === 'core') {
+                filtered = modules.filter(m => m.type === 'system');
+            } else if (filter === 'app') {
+                filtered = modules.filter(m => m.type === 'user');
+            } else {
+                filtered = modules.filter(m => (m.module_category || (m.type === 'system' ? 'Core Optional' : 'App Modules')) === filter);
+            }
+        }
 
         // Grouping
         const groups = {};
         filtered.forEach(mod => {
-            const g = mod.module_group || 'General';
+            const g = mod.module_category || (mod.type === 'system' ? 'Core Optional' : 'App Modules');
             if (!groups[g]) groups[g] = [];
             groups[g].push(mod);
         });
 
+        const order = ['Core Required', 'Core Optional', 'App Modules'];
         const groupNames = Object.keys(groups).sort((a, b) => {
-            const coreKeywords = ['spp', 'core', 'system', 'internal'];
-            const aIsCore = coreKeywords.some(k => a.toLowerCase().includes(k));
-            const bIsCore = coreKeywords.some(k => b.toLowerCase().includes(k));
-            if (aIsCore && !bIsCore) return -1;
-            if (!aIsCore && bIsCore) return 1;
+            const idxA = order.indexOf(a);
+            const idxB = order.indexOf(b);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
             return a.localeCompare(b);
         });
 
@@ -193,13 +202,25 @@ export default class ModulesView extends BaseComponent {
         const { modules, filter } = this.state;
         const activeCount = modules.filter(m => m.active).length;
 
+        const categories = Array.from(new Set(modules.map(m => m.module_category || (m.type === 'system' ? 'Core Optional' : 'App Modules'))));
+        const order = ['Core Required', 'Core Optional', 'App Modules'];
+        const sortedCategories = categories.sort((a, b) => {
+            const idxA = order.indexOf(a);
+            const idxB = order.indexOf(b);
+            if (idxA !== -1 && idxB !== -1) return idxA - idxB;
+            if (idxA !== -1) return -1;
+            if (idxB !== -1) return 1;
+            return a.localeCompare(b);
+        });
+
         const headerHtml = html`
             <div class="header-filters" style="display: flex; gap: 12px; align-items: center;">
                 <select id="mod-filter-select" class="btn ghost-btn btn-sm" style="background: var(--bg-card-glass);" 
                     @change=${(e) => this.setFilter(e.target.value)}>
                     <option value="all" ?selected="${filter === 'all'}">📦 All Modules</option>
-                    <option value="core" ?selected="${filter === 'core'}">🛡️ Core Modules</option>
-                    <option value="app" ?selected="${filter === 'app'}">🚀 App Modules</option>
+                    ${sortedCategories.map(c => html`
+                        <option value="${c}" ?selected="${filter === c}">📁 ${c}</option>
+                    `)}
                 </select>
                 <div class="btn-group" style="display: flex; gap: 8px; flex-shrink: 0;">
                     <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.rebuildRegistry()} title="Rebuild High-Performance Cache" style="white-space: nowrap;">⚡ Compile</button>

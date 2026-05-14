@@ -6,6 +6,7 @@ module:
     pubname: SPP Wizard
     modgroup: SPP_Optional
     pubdesc: Handles wizards in SPP.
+    category: 'Core Optional'
     includes:
         - class.sppwizard.php
     deps:

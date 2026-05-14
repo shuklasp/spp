@@ -6,6 +6,7 @@ module:
     pubname: SPP XDB
     modgroup: SPP_Optional
     pubdesc: Handles XML Database in SPP with XQuery and SQL support.
+    category: 'Core Optional'
     includes:
         - sppxdb.php
     deps:

@@ -2,7 +2,8 @@ module:
     name: sppajax
     version: '1.0'
     pubname: 'SPP Ajax / SPA Router'
-    modgroup: SPP_Core
+    modgroup: Core
+    category: 'Core Required'
     pubdesc: 'Single Page Application engine. Handles page fragment and service dispatch via AJAX.'
     includes:
         - class.sppajax.php

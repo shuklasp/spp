@@ -88,7 +88,7 @@ class SPPUX extends \SPP\SPPObject
      */
     public static function registerAssets(?string $appname = null): void
     {
-        if (!class_exists('\SPPMod\SPPView\ViewPage')) {
+        if (!class_exists('\SPPMod\SPPView\ViewPage', true)) {
             return;
         }
 
@@ -115,7 +115,7 @@ class SPPUX extends \SPP\SPPObject
 
     public static function registerBridge(?string $appname = null): void
     {
-        if (!class_exists('\SPPMod\SPPView\ViewPage')) {
+        if (!class_exists('\SPPMod\SPPView\ViewPage', true)) {
             return;
         }
 
@@ -158,6 +158,34 @@ window.spp_admin = window.spp_admin || {
             return result.data !== undefined ? result.data : result;
         }
         throw new Error(result.message || result.data?.message || 'SPP service call failed.');
+    },
+    streamService: (name, params = {}, onMessage = null, onError = null) => {
+        const urlParams = new URLSearchParams({ __spa_stream: name, ...params });
+        const source = new EventSource('?' + urlParams.toString());
+        if (onMessage) {
+            ['start', 'progress', 'complete'].forEach(evt => {
+                source.addEventListener(evt, e => {
+                    try { onMessage(evt, JSON.parse(e.data)); } catch(err) {}
+                    if (evt === 'complete') source.close();
+                });
+            });
+        }
+        source.addEventListener('error', e => {
+            if (onError) onError(e);
+            source.close();
+        });
+        return source;
+    },
+    securePayload: async (plainObject) => {
+        if (!window.crypto || !window.crypto.subtle) return plainObject;
+        try {
+            const encoded = new TextEncoder().encode(JSON.stringify(plainObject));
+            const hash = await window.crypto.subtle.digest('SHA-256', encoded);
+            const hashHex = Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
+            return { __secure: true, digest: hashHex, payload: plainObject };
+        } catch (e) {
+            return plainObject;
+        }
     }
 };
 JS);
@@ -172,16 +200,26 @@ JS);
     public static function component(string $name, array $props = [], ?string $appname = null): string
     {
         $path = self::componentPath($name, $appname);
-        $propsJson = htmlspecialchars(json_encode($props), ENT_QUOTES, 'UTF-8');
-        $pathAttr = htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
-
+        
         // Optional SSR content if provided in props under '__ssr'
         $ssrContent = $props['__ssr'] ?? '';
         unset($props['__ssr']);
+
+        // Optional embedded declarative template if provided under '__template'
+        $templateContent = $props['__template'] ?? '';
+        unset($props['__template']);
+        
+        // Optional Reactivity Islands partial hydration behavior strategy descriptor ('visible', 'idle', 'media')
+        $islandMode = $props['__island'] ?? '';
+        unset($props['__island']);
         
         $propsJson = htmlspecialchars(json_encode($props), ENT_QUOTES, 'UTF-8');
+        $pathAttr = htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
+        $islandAttr = $islandMode ? ' data-spp-island="' . htmlspecialchars($islandMode, ENT_QUOTES, 'UTF-8') . '"' : '';
 
-        return "<div data-spp-component=\"1\" data-spp-type=\"ux\" data-spp-path=\"{$pathAttr}\" data-spp-props=\"{$propsJson}\">{$ssrContent}</div>";
+        $innerTemplate = $templateContent ? "<template data-spp-template=\"1\">{$templateContent}</template>" : '';
+
+        return "<div data-spp-component=\"1\" data-spp-type=\"ux\" data-spp-path=\"{$pathAttr}\" data-spp-props=\"{$propsJson}\"{$islandAttr}>{$ssrContent}{$innerTemplate}</div>";
     }
 
     public static function render(string $name, array $props = [], ?string $appname = null): void

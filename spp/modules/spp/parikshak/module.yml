@@ -3,6 +3,7 @@ module:
   version: 1.0.0
   description: Automated Evolutionary Testing Engine (Evaluator)
   author: Satya Prakash Shukla
+  category: 'Core Optional'
   namespace: SPPMod\Parikshak
   config: config.yml
   dependencies:

@@ -9,6 +9,61 @@ specials:
 
 pages:
   admin-api: { url: resources/admin-api.php, special: 1 }
-  admin: { url: resources/views/standalone-admin.blade.php }
-  home: { url: resources/views/index.blade.php }
-  node: { url: resources/views/node.blade.php }
+
+  # Specific Admin Routes First
+  admin/content:
+    controller: \App\Lekhak\Serv\AdminController@manageContent
+
+  admin/structure/types/add:
+    controller: \App\Lekhak\Serv\AdminController@editContentType
+  admin/structure/types/{bundle}/fields/add:
+    controller: \App\Lekhak\Serv\AdminController@addField
+  admin/structure/types/{bundle}/fields:
+    controller: \App\Lekhak\Serv\AdminController@manageFields
+  admin/structure/types:
+    controller: \App\Lekhak\Serv\AdminController@manageContentTypes
+  
+  admin/structure/fields:
+    controller: \App\Lekhak\Serv\AdminController@manageFieldsGlobal
+
+  admin/landing/create:
+    controller: \App\Lekhak\Serv\LandingDesignerController@create
+  admin/landing/design/{id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@design
+  admin/landing/block/edit/{id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@editBlock
+  admin/landing/block/add/{page_id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@addBlock
+  admin/landing/block/delete/{id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@deleteBlock
+  admin/landing/block/move/{id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@moveBlock
+  admin/landing/layout/update/{page_id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@updateLayout
+  admin/landing/set-default/{id}:
+    controller: \App\Lekhak\Serv\LandingDesignerController@setAsDefault
+  admin/landing:
+    controller: \App\Lekhak\Serv\LandingDesignerController@list
+
+  admin/media:
+    controller: \App\Lekhak\Serv\AdminController@manageMedia
+  admin/settings:
+    controller: \App\Lekhak\Serv\AdminController@settings
+  admin/users:
+    controller: \App\Lekhak\Serv\AdminController@manageUsers
+  admin/login:
+    controller: \App\Lekhak\Serv\AdminController@login
+  admin/logout:
+    controller: \App\Lekhak\Serv\AdminController@logout
+
+  admin:
+    controller: \App\Lekhak\Serv\AdminController@dashboard
+
+  home:
+    controller: \App\Lekhak\Serv\LandingPageController@index
+  node/{slug}:
+    controller: \App\Lekhak\Serv\LandingPageController@show
+  node:
+    controller: \App\Lekhak\Serv\LandingPageController@show
+  page/{slug}:
+    controller: \App\Lekhak\Serv\LandingPageController@show

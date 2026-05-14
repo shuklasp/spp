@@ -1,9 +1,1 @@
-variables:
-    dbtype: mysql
-    dbuser: root
-    dbpasswd: hello123
-    dbhost: localhost
-    dbname: school
-    table_prefix: ''
-    dbport: 3306
-    sqlite_path: var/db/school.sqlite
+variables: {  }

@@ -1,0 +1,16 @@
+################################################################################
+# Application Isolated Routes & Asset Resolvers
+# NOTE: Any route path created below is evaluated relative to the base app route.
+# If an app wants to define a global/absolute route, set absolute: true explicitly.
+################################################################################
+
+routes:
+  - path: "assets/"
+    target: "src/eventapp/assets/"
+    type: "static_asset"
+    absolute: false
+
+  - path: ""
+    target: "src/eventapp/pages/index.php"
+    type: "page_view"
+    absolute: false

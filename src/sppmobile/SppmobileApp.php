@@ -104,6 +104,7 @@ class SppmobileApp extends \SPP\App {
             
             // Register isolated studio assets through framework routines
             \SPPMod\SPPView\ViewPage::addJsIncludeFile('https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js');
+            \SPPMod\SPPView\ViewPage::addJsIncludeFile('res/spp/js/monaco.js');
             \SPPMod\SPPView\ViewPage::addCssIncludeFile('css/mobile.css');
             \SPPMod\SPPView\ViewPage::addJsIncludeFile('js/blueprints.js');
             \SPPMod\SPPView\ViewPage::addJsIncludeFile('js/mobile-app.js', ['type' => 'module']);

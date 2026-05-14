@@ -30,6 +30,7 @@ class XDBAdapter implements DBAdapter
 
     public function insert(string $table, array $data): bool
     {
+        error_log("XDBAdapter::insert into table: " . $table);
         $cols = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO {$table} ({$cols}) VALUES ({$placeholders})";
@@ -78,9 +79,10 @@ class XDBAdapter implements DBAdapter
 
     public function getLastInsertId(): ?string
     {
-        return null; 
+        return (string)$this->xdb->getLastInsertId(); 
     }
     public function beginTransaction(): bool { return true; }
     public function commit(): bool { return true; }
     public function rollBack(): bool { return true; }
+    public function inTransaction(): bool { return false; }
 }

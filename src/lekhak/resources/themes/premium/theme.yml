@@ -1,0 +1,12 @@
+name: "Premium Lekhak Theme"
+description: "A high-end, responsive theme with glassmorphism effects."
+parent: null
+features:
+  - navigation
+  - search
+  - widgets
+JS_DRIVER: sppux
+CSS_VARS:
+  primary: "#6366f1"
+  secondary: "#a855f7"
+  glass_bg: "rgba(255, 255, 255, 0.05)"

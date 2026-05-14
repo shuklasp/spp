@@ -1,13 +1,13 @@
 {
-    "timestamp": 1778376781,
+    "timestamp": 1778734859,
     "spp_version": "0.7",
     "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
-        "dbtype": "mysql",
-        "dbhost": "localhost",
-        "dbname": "school",
-        "dbuser": "root",
-        "dbpasswd": "hello123"
+        "dbtype": "sqlite",
+        "dbhost": false,
+        "dbname": false,
+        "dbuser": false,
+        "dbpasswd": false
     },
     "modules": {
         "sppauth": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppauth",
@@ -18,11 +18,16 @@
         "spphtml": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppview",
         "sppajax": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppajax",
         "sppux": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppux",
-        "marketing": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/marketing",
-        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi",
         "parikshak": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/parikshak",
         "sppblade": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppblade",
-        "sppdrupal": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdrupal"
+        "sppdrupal": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdrupal",
+        "sppai": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppai",
+        "drishyam": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/drishyam",
+        "lekhak": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
+        "lekhak_commerce": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
+        "sppadmin": false,
+        "marketing": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/marketing",
+        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi"
     },
     "runtimes": {
         "python": {

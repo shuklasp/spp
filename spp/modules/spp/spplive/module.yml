@@ -5,6 +5,7 @@ module:
     author: SPP Framework Builder
     version: "1.0"
     description: Progressive Reactive WebSocket LiveView subsystem mapping native HTML streams automatically.
+    category: 'Core Optional'
     namespace: SPPMod\SPPLive
     autoload:
         - { class: SPPLive, file: class.spplive.php }

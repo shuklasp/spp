@@ -1,0 +1,12 @@
+################################################################################
+# Application Isolated Routes & Asset Resolvers
+################################################################################
+
+routes:
+  - path: "/assets/"
+    target: "src/brandedapp/assets/"
+    type: "static_asset"
+
+  - path: "/"
+    target: "src/brandedapp/pages/index.php"
+    type: "page_view"

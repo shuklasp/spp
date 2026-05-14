@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_sppview_specials">
+  <_schema>
+    <column name="id" type="int" notNull="true" primary="true" autoIncrement="true" />
+    <column name="name" type="varchar(100)" notNull="true" unique="true" />
+    <column name="method" type="varchar(100)" notNull="true" />
+  </_schema>
+  <data>
+  </data>
+</database>

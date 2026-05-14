@@ -1,7 +1,7 @@
 app_id: com.spp.firstbook
 version: 1.0.0
 created_at: '2026-05-07 13:11:49'
-app_name: 'First Book'
+app_name: 'My First Book'
 screens:
   -
     id: p1
@@ -43,6 +43,12 @@ screens:
             type: card
             props:
               text: Storage
+          -
+            id: comp_1778553762354_106
+            type: switch
+            props:
+              text: 'New switch'
+            actions: {  }
   -
     id: p2
     title: 'Getting Started'

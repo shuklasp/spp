@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_landing_pages">
+  <_schema>
+    <column name="id" type="int" notNull="true" primary="true" autoIncrement="true"/>
+    <column name="title" type="varchar(255)" notNull="true"/>
+    <column name="alias" type="varchar(255)" notNull="true" unique="true"/>
+    <column name="bundle" type="varchar(50)" notNull="true"/>
+    <column name="body" type="longtext"/>
+    <column name="author_id" type="bigint"/>
+    <column name="status" type="varchar(20)"/>
+    <column name="langcode" type="varchar(10)"/>
+    <column name="translation_id" type="bigint"/>
+    <column name="created" type="datetime"/>
+    <column name="changed" type="datetime"/>
+    <column name="is_default" type="tinyint(1)" default="0"/>
+    <column name="layout_id" type="varchar(50)"/>
+  </_schema>
+  <_meta>
+    <next_id>1</next_id>
+  </_meta>
+  <data>
+  </data>
+<row id="3"><id>3</id><bundle>landing_page</bundle><title>Test</title><alias>test-alias-2</alias><changed>2026-05-12 12:52:59</changed><created>2026-05-12 12:52:59</created><author_id>anonymous</author_id><status>published</status><is_default>0</is_default></row><row id="4"><id>4</id><bundle>landing_page</bundle><title>Final Demo Page</title><alias>final-demo</alias><body/><status>published</status><langcode/><layout_id/><changed>2026-05-12 10:54:50</changed><created>2026-05-12 10:54:50</created><author_id>anonymous</author_id><is_default>0</is_default></row><row id="5"><id>5</id><bundle>landing_page</bundle><title>Debug Page</title><alias>debug-page</alias><body></body><status>published</status><langcode></langcode><layout_id></layout_id><changed>2026-05-12 11:00:31</changed><created>2026-05-12 11:00:31</created><author_id>anonymous</author_id><is_default>0</is_default></row></database>

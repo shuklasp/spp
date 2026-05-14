@@ -1,0 +1,12 @@
+module:
+  name: sppinterdb
+  version: 1.2.0
+  pubname: SPP InterDB
+  pubdesc: Federated Data Orchestrator & GraphQL Gateway
+  category: 'Core Optional'
+  config: etc/config.yml
+  includes:
+    - int.dbadapter.php
+    - class.sppinterdb.php
+    - class.pdoadapter.php
+    - class.xdbadapter.php

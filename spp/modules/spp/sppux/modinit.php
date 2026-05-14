@@ -4,6 +4,6 @@
  * 
  * Automatically boots the SPP-UX runtime and bridge if active.
  */
-if (class_exists('\SPPMod\SPPUX\SPPUX')) {
+\SPP\SPPEvent::registerEventHandler('event_spp_kernel_boot', function() {
     \SPPMod\SPPUX\SPPUX::boot();
-}
+});

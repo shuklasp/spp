@@ -31,7 +31,7 @@ class SPPBlade extends \SPP\SPPObject
 
         $this->ensureDirectories();
 
-        $mode = \SPP\Module::getConfig('mode', 'sppblade') ?: BladeOne::MODE_AUTO;
+        $mode = 5; // Force MODE_DEBUG compilation to guarantee live CSS/layout loading
         
         $this->engine = new BladeOne($this->viewsPath, $this->cachePath, (int)$mode);
 
@@ -217,6 +217,71 @@ class SPPBlade extends \SPP\SPPObject
                 }
             ?>";
         });
+
+        // @sppoffline('key')
+        // Encapsulates template layout structures specifically cached for zero-latency offline client renders
+        $this->engine->directive('sppoffline', function ($expression) {
+            $key = trim($expression, " '\"");
+            return "<?php echo \"<template data-spp-offline='\" . htmlspecialchars(\"{$key}\", ENT_QUOTES, 'UTF-8') . \"'>\"; ?>";
+        });
+
+        // @endsppoffline
+        $this->engine->directive('endsppoffline', function () {
+            return "<?php echo \"</template>\"; ?>";
+        });
+
+        // @load_node
+        // Fully genericized context-aware entity binding adapting seamlessly to multi-tenant runtime targets
+        $this->engine->directive('load_node', function () {
+            return "<?php 
+                if (empty(\$node)) {
+                    \$__nodeId = \$_GET['id'] ?? (\$params[0] ?? null);
+                    if (!empty(\$__nodeId)) {
+                        try {
+                            // Resolve specific database schema tables dynamically respecting global configuration mappings
+                            \$__tbl = \\SPPMod\\SPPDB\\SPPDB::sppTable('nodes');
+                            
+                            \$__db = new \\SPPMod\\SPPDB\\SPPDB();
+                            \$__res = \$__db->execute_query(\"SELECT * FROM {\$__tbl} WHERE id = ? OR alias = ?\", [\$__nodeId, \$__nodeId]);
+                            if (!empty(\$__res)) {
+                                \$node = (object)\$__res[0];
+                            }
+                        } catch (\Exception \$e) {}
+                    }
+                }
+                if (empty(\$node)) {
+                    \$node = (object)['title' => 'Live Declarative Node', 'body' => '<p>Ready-to-mount preview template fragment.</p>', 'created' => date('Y-m-d H:i:s')];
+                }
+            ?>";
+        });
+
+        // @load_page
+        // Fully genericized dynamic landing page layout binding across disparate app namespaces
+        $this->engine->directive('load_page', function () {
+            return "<?php 
+                if (empty(\$page)) {
+                    \$__pageId = \$_GET['id'] ?? (\$params[0] ?? null);
+                    if (!empty(\$__pageId)) {
+                        try {
+                            // Discover available framework or localized target models dynamically
+                            \$__pageClass = '\\\\SPPMod\\\\Lekhak\\\\Core\\\\LandingPage';
+                            \$__ctx = \SPP\Scheduler::getContext();
+                            \$__appClass = \"\\\\App\\\\\" . ucfirst(\$__ctx) . \"\\\\Models\\\\LandingPage\";
+                            
+                            if (class_exists(\$__appClass)) {
+                                \$__pageClass = \$__appClass;
+                            }
+                            if (class_exists(\$__pageClass) && method_exists(\$__pageClass, 'find_one')) {
+                                \$page = \$__pageClass::find_one(is_numeric(\$__pageId) ? ['id' => \$__pageId] : ['alias' => \$__pageId]);
+                            }
+                        } catch (\Exception \$e) {}
+                    }
+                }
+                if (empty(\$page)) {
+                    \$page = (object)['title' => 'Live Scaffolding Screen Layout', 'alias' => 'preview-mode', 'id' => 1];
+                }
+            ?>";
+        });
     }
 
     protected static ?self $instance = null;
@@ -240,12 +305,57 @@ class SPPBlade extends \SPP\SPPObject
         return self::getInstance()->renderInstance($view, $data);
     }
 
-    /**
-     * Internal render logic.
-     */
     public function renderInstance(string $view, array $data = []): string
     {
-        // Support full paths by stripping base view path if present
+        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Starting render for '$view'\n", FILE_APPEND);
+        error_log("SPPBlade: Starting render for '$view'");
+
+        // Support absolute paths
+        if (file_exists($view) && str_ends_with($view, '.blade.php')) {
+            $dir = dirname($view);
+            $viewName = basename($view, '.blade.php');
+            
+            // Build search paths: 
+            // 1. The directory containing the file (for immediate includes)
+            // 2. The 'views' root of the theme (for layouts/extends)
+            // 3. The application's base views (fallback)
+            $paths = [$dir];
+            
+            $themeViewsRoot = $dir;
+            $maxDepth = 5;
+            while ($maxDepth > 0 && basename($themeViewsRoot) !== 'views' && dirname($themeViewsRoot) !== $themeViewsRoot) {
+                $themeViewsRoot = dirname($themeViewsRoot);
+                $maxDepth--;
+            }
+            if (basename($themeViewsRoot) === 'views' && !in_array($themeViewsRoot, $paths)) {
+                $paths[] = $themeViewsRoot;
+            }
+            
+            if (!in_array($this->viewsPath, $paths)) {
+                $paths[] = $this->viewsPath;
+            }
+
+            // Set paths: prioritize the theme directory, then the default views
+            $this->engine->setPath($paths, $this->cachePath);
+            
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Rendering absolute file. ViewName: $viewName, Paths: " . json_encode($paths) . "\n", FILE_APPEND);
+
+            try {
+                $output = $this->engine->run($viewName, $data);
+                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Render successful for $viewName\n", FILE_APPEND);
+                return $output;
+            } catch (\Exception $e) {
+                $msg = "SPPBlade ERROR (Absolute): " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine();
+                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] $msg\n", FILE_APPEND);
+                return "Blade Error: " . $e->getMessage();
+            }
+        }
+
+        // Ensure default paths for relative views
+        $this->engine->setPath($this->viewsPath, $this->cachePath);
+        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Rendering relative view '$view' with paths: " . json_encode($this->viewsPath) . "\n", FILE_APPEND);
+
+        // Support full paths by stripping base view path if present (Legacy/Fallback)
         if (strpos($view, $this->viewsPath) === 0) {
             $view = substr($view, strlen($this->viewsPath));
             $view = ltrim($view, '/\\');
@@ -253,7 +363,13 @@ class SPPBlade extends \SPP\SPPObject
             $view = str_replace(['/', '\\'], '.', $view);
         }
         
-        return $this->engine->run($view, $data);
+        try {
+            return $this->engine->run($view, $data);
+        } catch (\Exception $e) {
+            $msg = "SPPBlade ERROR (Relative): " . $e->getMessage();
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] $msg\n", FILE_APPEND);
+            return "Blade Error: " . $e->getMessage();
+        }
     }
 
     /**

@@ -29,6 +29,7 @@ class Module extends \SPP\SPPObject
         'InstallScript',
         'UninstallScript',
         'ModuleGroup',
+        'ModuleCategory',
         'IncludeFiles',
         'Dependencies',
         'ModPath',
@@ -54,12 +55,25 @@ class Module extends \SPP\SPPObject
         'ModPath',
         'ConfigFile',
         'ModuleGroup',
+        'ModuleCategory',
         'ConfigVariables',
         'Settings',
         'Installation',
         'RuntimeBridgeConfig',
         'Routes'
     ];
+
+    /**
+     * Declared authorized module assets directory list routed statically.
+     * @var array
+     */
+    public array $Assets = [];
+
+    /**
+     * Module category grouping (e.g. Core Required, Core Optional, App Modules)
+     * @var string
+     */
+    public string $ModuleCategory = '';
 
     /**
      * In-memory cache for configuration values to prevent duplicate XML I/O parsing.
@@ -103,6 +117,16 @@ class Module extends \SPP\SPPObject
     /** @var array Runtime bridge configuration */
     public array $RuntimeBridgeConfig = [];
 
+    /**
+     * Disables a module by removing it from the registry.
+     * This prevents isEnabled() checks from returning true.
+     */
+    public static function disableModule(string $name): void
+    {
+        $name = preg_replace('/[^a-zA-Z0-9_\-]/', '', $name);
+        \SPP\Registry::register('__mods=>' . $name, false);
+        \SPP\Registry::register('__modobj=>' . $name, null);
+    }
     /**
      * Module constructor.
      *
@@ -164,6 +188,8 @@ class Module extends \SPP\SPPObject
             } else {
                 $moduleData = $first;
             }
+        } elseif (isset($parsed['name']) || isset($parsed['modname'])) {
+            $moduleData = $parsed;
         } else {
             throw new \SPP\SPPException("Unexpected YAML module format in {$file}");
         }
@@ -245,6 +271,11 @@ class Module extends \SPP\SPPObject
                 case 'modulegroup':
                     $this->ModuleGroup = (string) $val;
                     break;
+                case 'category':
+                case 'modulecategory':
+                case 'module_category':
+                    $this->ModuleCategory = (string) $val;
+                    break;
                 case 'pubdesc':
                 case 'publicdesc':
                     $this->PublicDesc = (string) $val;
@@ -290,6 +321,9 @@ class Module extends \SPP\SPPObject
                     break;
                 case 'routes':
                     $this->Routes = (array) $val;
+                    break;
+                case 'assets':
+                    $this->Assets = (array) $val;
                     break;
                 default:
                     // Ignore unknown keys (keep robust)
@@ -497,7 +531,7 @@ class Module extends \SPP\SPPObject
                                 $cfgData = Yaml::parseFile($cfgFile);
                                 $val = $cfgData['variables'][$varname] ?? ($cfgData[$varname] ?? null);
                                 if ($val !== null) {
-                                    $result = (string) $val;
+                                    $result = $val;
                                     break;
                                 }
                             } else {
@@ -575,8 +609,11 @@ class Module extends \SPP\SPPObject
     {
         $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
         if (file_exists($yamlConfFile)) {
-            $data = Yaml::parseFile($yamlConfFile);
-            return $data['variables'] ?? $data;
+            try {
+                $data = Yaml::parseFile($yamlConfFile);
+                return $data['variables'] ?? $data;
+            } catch (\Exception $e) {
+            }
         }
         return [];
     }
@@ -598,7 +635,8 @@ class Module extends \SPP\SPPObject
         }
         
         $data = ['variables' => $config];
-        return file_put_contents($yamlConfFile, Yaml::dump($data, 4, 4)) !== false;
+        $content = Yaml::dump($data, 4, 4);
+        return file_put_contents($yamlConfFile, $content) !== false;
     }
 
     /**
@@ -679,10 +717,11 @@ class Module extends \SPP\SPPObject
         try {
             $app = \SPP\App::getApp($ctx);
             $baseDir = $app->getModsConfDir();
-            return $baseDir . SPP_DS . $modname . SPP_DS . "config.yml";
+            return $app->resolvePath($modname . "/config.yml", $baseDir);
         } catch (\Exception $e) {
             // Fallback to legacy structure if App cannot be fully initialized
-            return SPP_APP_DIR . "/etc/apps/$ctx/modsconf/$modname/config.yml";
+            $path = SPP_APP_DIR . "/etc/apps/$ctx/modsconf/$modname/config.yml";
+            return str_replace(['\\', '/mnt/c/'], ['/', 'C:/'], $path);
         }
     }
 
@@ -787,6 +826,17 @@ class Module extends \SPP\SPPObject
             // Register semantic validation schema if defined
             if (!empty($this->Settings)) {
                 \SPP\SPPConfig::registerSchema('mod:' . $this->InternalName, $this->Settings);
+            }
+
+            // Automatically scan and register authorized asset routing routes mapping on startup
+            if (!empty($this->Assets)) {
+                $assetDirs = is_array($this->Assets['directories'] ?? null) ? $this->Assets['directories'] : (array) $this->Assets;
+                foreach ($assetDirs as $aDir) {
+                    if (is_string($aDir)) {
+                        $routeKey = 'assets/' . strtolower($this->InternalName) . '/' . trim($aDir, '/');
+                        \SPP\Registry::register('__asset_routes=>' . $routeKey, $this->ModPath . SPP_DS . trim($aDir, '/'));
+                    }
+                }
             }
         }
     }
@@ -1141,6 +1191,21 @@ class Module extends \SPP\SPPObject
     }
 
     /**
+     * Initializes and registers a module by name.
+     */
+    public static function loadModule(string $modname, string $type = 'system', ?string $appname = null): ?\SPP\Module
+    {
+        $manifestPath = self::findManifestPath($modname, $type, $appname);
+        if (!$manifestPath) return null;
+        
+        $module = new self($manifestPath);
+        $module->ModuleType = $type;
+        $module->register();
+        $module->includeFiles();
+        return $module;
+    }
+
+    /**
      * Toggles a module's status in all known modules.xml and modules.yml files
      * (system-level and per-app) to keep them in sync.
      *
@@ -1149,7 +1214,7 @@ class Module extends \SPP\SPPObject
      * @return array List of files that were modified
      * @throws \SPP\SPPException
      */
-    public static function toggleModuleStatus(string $modname, string $status): array
+    public static function toggleModuleStatus(string $modname, string $status, ?string $appname = null): array
     {
         $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
         $status = in_array($status, ['active', 'inactive']) ? $status : 'inactive';
@@ -1161,7 +1226,7 @@ class Module extends \SPP\SPPObject
         $updatedFiles = [];
 
         // Determine app context
-        $appname = \SPP\Scheduler::getContext() ?: ($_REQUEST['appname'] ?? 'default');
+        $appname = $appname ?: (\SPP\Scheduler::getContext() ?: ($_REQUEST['appname'] ?? 'default'));
 
         // 1. Identify all potential manifests for this app
         $candidates = [];
@@ -1198,6 +1263,12 @@ class Module extends \SPP\SPPObject
 
         // 3. Try to update existing entries
         foreach ($candidates as $file) {
+            // Normalize path to avoid C? bug
+            $file = str_replace('\\', '/', $file);
+            if (str_starts_with($file, 'C:/') || str_starts_with($file, 'c:/')) {
+                $file = '/mnt/c/' . substr($file, 3);
+            }
+
             if (!file_exists($file))
                 continue;
 
@@ -1209,6 +1280,12 @@ class Module extends \SPP\SPPObject
 
         // 4. If not found in any file, append to the preferred one
         if (empty($updatedFiles) && $preferred !== '') {
+            // Normalize path to avoid C? bug
+            $preferred = str_replace('\\', '/', $preferred);
+            if (str_starts_with($preferred, 'C:/') || str_starts_with($preferred, 'c:/')) {
+                $preferred = '/mnt/c/' . substr($preferred, 3);
+            }
+
             if (!is_dir(dirname($preferred)))
                 mkdir(dirname($preferred), 0755, true);
 
@@ -1223,7 +1300,8 @@ class Module extends \SPP\SPPObject
                 $data['modules'] = [];
             $data['modules'][] = $entry;
 
-            file_put_contents($preferred, Yaml::dump($data, 4, 4));
+            $yml = Yaml::dump($data, 4, 4);
+            file_put_contents($preferred, $yml);
             $updatedFiles[] = $preferred;
         }
 
@@ -2430,6 +2508,11 @@ class Module extends \SPP\SPPObject
                 $mod = new \SPP\Module($info['file']);
                 $status = self::getModuleStatus($name, $appname);
 
+                $category = $mod->ModuleCategory ?: '';
+                if ($category === '') {
+                    $category = ($info['type'] === 'system') ? 'Core Optional' : 'App Modules';
+                }
+
                 $modules[] = [
                     'name' => $mod->InternalName ?: $name,
                     'public_name' => $mod->PublicName ?: ($mod->InternalName ?: $name),
@@ -2441,6 +2524,7 @@ class Module extends \SPP\SPPObject
                     'path' => $mod->ModPath,
                     'dependencies' => (array) ($mod->Dependencies ?? []),
                     'module_group' => $mod->ModuleGroup ?: 'General',
+                    'module_category' => $category,
                     'has_config' => (!empty($mod->ConfigVariables) || !empty($mod->Settings)),
                     'manifest' => $info['file']
                 ];

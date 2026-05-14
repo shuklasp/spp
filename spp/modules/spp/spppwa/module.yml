@@ -5,6 +5,7 @@ module:
     author: SPP Framework Automator
     version: "1.0"
     description: Progressive Web App module handling Service Workers and Offline execution.
+    category: 'Core Optional'
     namespace: SPPMod\SPPPWA
     autoload:
         - { class: SPPPWA, file: class.spppwa.php }

@@ -388,6 +388,7 @@ if ($action === 'delete_project') {
 // Discovery: Look in local services directory
 $serviceDir = __DIR__ . '/services';
 require_once $serviceDir . '/Mobile.php';
+require_once $serviceDir . '/AI.php';
 
 $la = new class {
     public $success = true;

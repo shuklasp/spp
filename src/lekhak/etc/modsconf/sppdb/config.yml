@@ -1,16 +1,6 @@
 variables:
-    table_prefix: lek_
-    route_entities:
-        nodes:
-            field: alias
-            url: resources/views/node.blade.php
-            id_field: id
-    centralization_test_1777505466: working_1536
-    centralization_test_1777505495: working_1202
-    dbport: '3307'
-    dbtype: mysql
-    dbhost: localhost
-    dbuser: root
-    dbpasswd: hello123
-    dbname: lekhak
-    sqlite_path: var/db/school.sqlite
+    dbtype: sqlite
+    sqlite_path: var/db/merged_fix_verified.sqlite
+    db_engine: sppxdb
+    db_name: spp_main
+    global_table_prefix: final_test_

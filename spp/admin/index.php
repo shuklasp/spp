@@ -61,7 +61,6 @@ if (!checkDevMode()) {
     <link rel="stylesheet" href="<?php echo \SPPMod\SPPUX\SPPUX::cssPath(); ?>?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="../res/css/sppforms.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
-    <link rel="stylesheet" href="css/mobile.css?v=<?php echo time(); ?>">
     
     <!-- SPP Modern Form Engine Master Loader -->
     <script src="../res/js/sppforms.js?v=<?php echo time(); ?>"></script>
@@ -144,11 +143,32 @@ if (!checkDevMode()) {
                     <li><a href="#mobile" class="nav-item" data-view="mobile">
                             <span class="icon">📱</span> Mobile Studio
                         </a></li>
+                    <li><a href="#sppai" class="nav-item" data-view="sppai">
+                            <span class="icon">🤖</span> SPP AI Engine
+                        </a></li>
+                    <li><a href="#marketing" class="nav-item" data-view="marketing">
+                            <span class="icon">📢</span> Marketing
+                        </a></li>
+                    <li><a href="#commerce" class="nav-item" data-view="commerce">
+                            <span class="icon">🛒</span> Commerce
+                        </a></li>
                     <li><a href="#xdb" class="nav-item" data-view="xdb">
                             <span class="icon">🗄️</span> XML Database
                         </a></li>
                     <li><a href="#interdb" class="nav-item" data-view="interdb">
                             <span class="icon">🕸️</span> InterDB Mesh
+                        </a></li>
+                    <li><a href="#middleware" class="nav-item" data-view="middleware">
+                            <span class="icon">🔀</span> Middleware
+                        </a></li>
+                    <li><a href="#queue" class="nav-item" data-view="queue">
+                            <span class="icon">🕒</span> Task Queue
+                        </a></li>
+                    <li><a href="#parikshak" class="nav-item" data-view="parikshak">
+                            <span class="icon">🧪</span> Parikshak
+                        </a></li>
+                    <li><a href="#events" class="nav-item" data-view="events">
+                            <span class="icon">🎯</span> Events
                         </a></li>
                     
                     <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
@@ -228,11 +248,11 @@ if (!checkDevMode()) {
     <div id="global-suggestions" class="suggestions-list"></div>
 
     <!-- Framework Infrastructure (Centralized) -->
-    <script src="<?php echo \SPPMod\SPPUX\SPPUX::runtimePath(); ?>?v=<?php echo time(); ?>"></script>
-    <script src="<?php echo \SPPMod\SPPUX\SPPUX::uiPath(); ?>?v=<?php echo time(); ?>"></script>
-    <script src="js/admin.js?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\SPPUX\SPPUX::runtimePath(); ?>?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\SPPUX\SPPUX::uiPath(); ?>?v=<?php echo time(); ?>"></script>
+    <script type="module" src="js/admin.js?v=<?php echo time(); ?>"></script>
     <!-- Schema-based module settings enhancement (overrides openModuleSettings only) -->
-    <script src="js/admin-settings.js?v=<?php echo time(); ?>"></script>
+    <script type="module" src="js/admin-settings.js?v=<?php echo time(); ?>"></script>
 
     <!-- CSRF Token for Frontend -->
     <script>

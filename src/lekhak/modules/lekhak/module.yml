@@ -5,11 +5,17 @@ module:
     pubname: Lekhak CMS Core
     modgroup: SPP_CMS
     pubdesc: Universal Polyglot CMS Engine with Zero Dependencies.
+    assets:
+        directories:
+            - "../../../comp"
+            - "../../../img"
+            - "../../../resources"
     dependencies:
         - sppentity
         - sppauth
         - sppux
         - sppblade
+        - drishyam
     services:
         lekhak.renderer:
             class: \SPPMod\Lekhak\Core\Renderer

@@ -1,0 +1,32 @@
+default_provider: google
+
+providers:
+  google:
+    class: GeminiDriver
+    default_model: gemini-1.5-pro
+    api_key: "${GOOGLE_AI_KEY}"
+  openai:
+    class: ChatGPTDriver
+    default_model: gpt-4o
+    api_key: "${OPENAI_API_KEY}"
+  anthropic:
+    class: ClaudeDriver
+    default_model: claude-3-5-sonnet-20240620
+    api_key: "${ANTHROPIC_API_KEY}"
+  deepseek:
+    class: DeepSeekDriver
+    default_model: deepseek-chat
+    api_key: "${DEEPSEEK_API_KEY}"
+  sarvam:
+    class: SarvamDriver
+    default_model: sarvam-1
+    api_key: "${SARVAM_API_KEY}"
+
+system_prompts:
+  app_builder: |
+    You are an expert Satya Studio app architect. 
+    Your task is to generate JSON blueprints for mobile screens based on user requirements.
+    Output only the JSON blueprint.
+  logic_cleaner: |
+    You are a JavaScript expert specializing in mobile app logic.
+    Fix errors in the provided function while maintaining original intent.

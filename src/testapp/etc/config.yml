@@ -1,0 +1,9 @@
+################################################################################
+# Application Runtime Configuration: testapp
+# Embedded local target directory mapping ensuring perfect self-containment.
+################################################################################
+
+app_name: "testapp"
+navigation_mode: "spa"
+default_layout: "premium-glass"
+api_integrity_hmac: true

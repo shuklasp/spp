@@ -1,43 +1,24 @@
+import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+
 /**
  * Lekhak Commerce View
- * Placeholder for E-commerce management.
+ * Placeholder for E-commerce management modernized to inherit Drishyam rendering loop.
  */
-export default class CommerceView {
-    constructor(admin, container) {
-        this.admin = admin;
-        this.container = container;
-    }
-
+export default class CommerceView extends BaseComponent {
     async onInit() {
         console.log("Lekhak Commerce View Initialized");
+        
+        window.__spp_handlers = window.__spp_handlers || {};
+        window.__spp_handlers['init-store'] = () => {
+            this.admin?.notify?.('Initializing catalog... please wait.', 'info');
+        };
+        window.__spp_handlers['nav-lekhak'] = () => {
+            location.hash = 'lekhak';
+        };
     }
 
-    async update() {
-        this.container.innerHTML = `
-            <div class="lekhak-admin-commerce">
-                <div class="glass-panel" style="padding: 2rem;">
-                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-                        <span style="font-size: 2.5rem;">🛒</span>
-                        <div>
-                            <h2 style="margin: 0;">Commerce Dashboard</h2>
-                            <p style="margin: 0; color: var(--text-dim);">Manage products, orders, and customer transactions.</p>
-                        </div>
-                    </div>
-
-                    <div class="empty-state" style="padding: 4rem 2rem; background: rgba(0,0,0,0.1); border-radius: 12px; border: 1px dashed rgba(255,255,255,0.1);">
-                        <div style="font-size: 3.5rem; margin-bottom: 1.5rem; opacity: 0.5;">🛍️</div>
-                        <h3>No Active Storefront</h3>
-                        <p style="max-width: 400px; margin: 0 auto 2rem auto; color: var(--text-dim);">
-                            The Lekhak Commerce engine is currently disabled. To start selling products, you must first initialize your product catalog.
-                        </p>
-                        <button class="btn primary-btn" onclick="admin.notify('Initializing catalog... please wait.', 'info')">Initialize Storefront</button>
-                    </div>
-
-                    <div style="margin-top: 2rem;">
-                        <button class="btn secondary-btn" onclick="location.hash = 'lekhak'">&larr; Back to Dashboard</button>
-                    </div>
-                </div>
-            </div>
-        `;
+    render() {
+        // Return blank object trigger instructing BaseComponent to ingest pre-warmed template headers
+        return { content: '' };
     }
 }

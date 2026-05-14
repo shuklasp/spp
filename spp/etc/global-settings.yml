@@ -38,7 +38,7 @@ apps:
         base_url: /spp/admin
         table_prefix: ''
         shared_group: core
-        etc_path: spp/admin/etc
+        etc_path: etc
         src_path: spp/admin
         app_init: init.php
     autodemo:
@@ -117,12 +117,16 @@ apps:
         app_init: init.php
     lekhak:
         base_url: /lekhak
+        table_prefix: lek_
         shared_group: core
         etc_path: src/lekhak/etc
         src_path: src/lekhak
         app_init: init.php
         admin_icon: 🖋️
         admin_title: 'Lekhak'
+        assets:
+            theme-assets: resources/themes
+            comp-assets: comp
     sppmobile:
         base_url: /sppmobile
         table_prefix: ''
@@ -154,6 +158,7 @@ settings:
         - sppdb
         - sppconfig
         - sppview
+        - drishyam
     ui:
         branding:
             color: '#00ff00'

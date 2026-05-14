@@ -55,7 +55,11 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
 
     public function setLabel(string $label) { $this->label = $label; return $this; }
     public function getLabel(): string { return $this->label; }
-    public function setHelpText(string $text) { $this->helpText = $text; return $this; }
+    public function setHelpText(string $text) { 
+        $this->helpText = $text; 
+        $this->setAttribute('help', $text);
+        return $this; 
+    }
     public function setGrouped(bool $grouped) { $this->isGrouped = $grouped; return $this; }
 
     public function addValidator(ViewValidator $validator) {
@@ -73,7 +77,7 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
         if ($this->isGrouped) {
             return self::$activeTheme->renderGroup($this);
         }
-        return parent::getHTML();
+        return $this->renderRaw();
     }
 
     /**

@@ -10,7 +10,7 @@
 
 (function () {
     // Wait for SPPAdmin to be available
-    if (typeof SPPAdmin === 'undefined') {
+    if (typeof window.SPPAdmin === 'undefined') {
         console.warn('admin-settings.js: SPPAdmin not found, skipping enhancement.');
         return;
     }
@@ -66,6 +66,11 @@
      */
     SPPAdmin.prototype.saveModuleSettings = async function (modname, appname, modal = null) {
         try {
+            if (!modname) modname = document.getElementById('setup-modname')?.value;
+            if (!appname) appname = document.getElementById('setup-appname')?.value;
+
+            if (!modname) throw new Error("Module name not found.");
+
             console.log(`[admin-settings.js] saveModuleSettings tab=${this.activeSetupTab} mod=${modname} app=${appname}`);
             
             let res;

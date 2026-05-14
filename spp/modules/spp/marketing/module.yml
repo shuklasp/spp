@@ -6,6 +6,7 @@ module:
     author: SPP Auto-Builder
     version: "1.0"
     description: Auto-generated marketing module.
+    category: 'Core Optional'
     namespace: SPPMod\Marketing
     autoload:
         - { class: Marketing, file: class.marketing.php }

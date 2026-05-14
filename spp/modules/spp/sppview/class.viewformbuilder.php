@@ -14,10 +14,62 @@ use Symfony\Component\Yaml\Yaml;
  */
 class ViewFormBuilder extends \SPP\SPPObject
 {
+    private $entity;
+
+    public function __construct($entity = null)
+    {
+        $this->entity = $entity;
+    }
+
     public static function fromYaml(string $yamlPath): ViewForm
     {
         $config = self::loadConfig($yamlPath);
         return self::fromArray($config, basename($yamlPath, '.yml'));
+    }
+
+    /**
+     * Build a form for the current entity.
+     */
+    public function build(): ViewForm
+    {
+        if (!$this->entity) {
+            throw new \SPP\SPPException("No entity provided for form builder.");
+        }
+
+        $config = [
+            'form' => [
+                'name' => strtolower((new \ReflectionClass($this->entity))->getShortName()) . '_form',
+                'method' => 'post'
+            ],
+            'elements' => []
+        ];
+
+        // Auto-generate fields from entity attributes
+        if (method_exists($this->entity, 'define_attributes')) {
+            $attrs = $this->entity->define_attributes();
+            $metadata = method_exists($this->entity, 'field_metadata') ? $this->entity->field_metadata() : [];
+            
+            foreach ($attrs as $name => $type) {
+                if ($name === 'id' || $name === 'created' || $name === 'updated') continue;
+                
+                $fieldMeta = $metadata[$name] ?? [];
+                $config['elements'][$name] = array_merge([
+                    'name' => $name,
+                    'label' => $fieldMeta['label'] ?? ucfirst(str_replace('_', ' ', $name)),
+                    'type' => $fieldMeta['type'] ?? (str_contains($type, 'text') ? 'textarea' : 'input'),
+                    'help' => $fieldMeta['help'] ?? null
+                ], $fieldMeta);
+            }
+        }
+
+        $form = self::fromArray($config, $config['form']['name']);
+        if ($this->entity instanceof \SPPMod\SPPEntity\SPPEntity) {
+            $form->setEntityInstance($this->entity);
+            $form->setEntityClass(get_class($this->entity));
+            $form->bind($this->entity);
+        }
+
+        return $form;
     }
 
     /**
@@ -289,12 +341,45 @@ class ViewFormBuilder extends \SPP\SPPObject
                     $elem = new SPPViewForm_Input_Password($name);
                 } elseif ($subType === 'submit') {
                     $elem = new SPPViewForm_Input_Submit($name);
-                } elseif ($subType === 'checkbox') {
-                    $elem = new SPPViewForm_Input_Checkbox($name);
-                } elseif ($subType === 'radio') {
-                    $elem = new SPPViewForm_Input_Radio($name);
+                } elseif ($subType === 'checkbox' || $subType === 'radio') {
+                    $cls = ($subType === 'checkbox') ? 'SPPMod\SPPView\SPPViewForm_Input_Checkbox' : 'SPPMod\SPPView\SPPViewForm_Input_Radio';
+                    $elem = new $cls($name);
+                    $options = $field['options'] ?? [];
+                    if (isset($field['source'])) {
+                        $options = self::resolveDataSource($field['source']);
+                    }
+                    foreach ($options as $key => $opt) {
+                        if (is_array($opt)) {
+                            $label = $opt['label'] ?? $opt['value'] ?? $key;
+                            $val = $opt['value'] ?? $opt['id'] ?? $key;
+                        } else {
+                            $val = $key;
+                            $label = $opt;
+                        }
+                        $elem->addOption($val, $label, (isset($field['value']) && $field['value'] == $val));
+                    }
                 } else {
                     $elem = new SPPViewForm_Input_Text($name);
+                }
+                break;
+
+            case 'radio':
+            case 'checkbox':
+                $cls = ($type === 'checkbox') ? 'SPPMod\SPPView\SPPViewForm_Input_Checkbox' : 'SPPMod\SPPView\SPPViewForm_Input_Radio';
+                $elem = new $cls($name);
+                $options = $field['options'] ?? [];
+                if (isset($field['source'])) {
+                    $options = self::resolveDataSource($field['source']);
+                }
+                foreach ($options as $key => $opt) {
+                    if (is_array($opt)) {
+                        $label = $opt['label'] ?? $opt['value'] ?? $key;
+                        $val = $opt['value'] ?? $opt['id'] ?? $key;
+                    } else {
+                        $val = $key;
+                        $label = $opt;
+                    }
+                    $elem->addOption($val, $label, (isset($field['value']) && $field['value'] == $val));
                 }
                 break;
 
@@ -604,6 +689,7 @@ class ViewFormBuilder extends \SPP\SPPObject
         switch ($type) {
             case 'required':
                 $validator = new SPP_Validator_RequiredValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('required', 'required');
                 break;
             case 'numeric':
                 $validator = new SPP_Validator_NumericValidator($elem, $errHolder, $msg);

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_sppview_defaults">
+  <_schema>
+    <column name="id" type="int" notNull="true" primary="true" autoIncrement="true" />
+    <column name="defkey" type="varchar(100)" notNull="true" unique="true" />
+    <column name="defval" type="varchar(500)" notNull="true" />
+  </_schema>
+  <data>
+  </data>
+</database>

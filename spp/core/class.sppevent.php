@@ -15,6 +15,13 @@ class SPPEvent extends \SPP\SPPObject
     private static array $collectedTrace = [];
     private static array $scannedDirs = [];
     private static bool $dirsRegistered = false;
+    private static array $listeners = [];
+
+    public static function registerEventHandler(string $event_name, callable $callback)
+    {
+        self::$listeners[$event_name][] = $callback;
+        self::registerEvent($event_name);
+    }
 
     /**
      * Constructor
@@ -267,7 +274,7 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function fireEvent($event_name, mixed &$params = array(), mixed $inline_handler = null)
     {
-        if (!array_key_exists($event_name, self::$events)) {
+        if (!array_key_exists($event_name, self::$events) && !isset(self::$listeners[$event_name])) {
             return;
         }
 
@@ -278,6 +285,13 @@ class SPPEvent extends \SPP\SPPObject
             'timestamp' => microtime(true),
             'handlers' => []
         ];
+
+        if (isset(self::$listeners[$event_name])) {
+            foreach (self::$listeners[$event_name] as $cb) {
+                self::trace("  -> Executing inline listener closure");
+                $cb($params);
+            }
+        }
 
         $overridden = false;
         $handlers = self::getSortedHandlers($event_name);
@@ -462,6 +476,21 @@ class SPPEvent extends \SPP\SPPObject
                 SPP_BASE_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
                 SPP_APP_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
             ];
+            
+            $context = \SPP\Scheduler::getContext();
+            if ($context !== '') {
+                $candidateDirs[] = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'events' . SPP_DS . $subDir;
+            }
+            
+            $srcBase = SPP_APP_DIR . SPP_DS . 'src';
+            if (is_dir($srcBase)) {
+                foreach (scandir($srcBase) as $d) {
+                    if ($d !== '.' && $d !== '..') {
+                        $candidateDirs[] = $srcBase . SPP_DS . $d . SPP_DS . 'events' . SPP_DS . $subDir;
+                    }
+                }
+            }
+            
             foreach ($candidateDirs as $dir) {
                 $file = $dir . $handler_name . '.php';
                 if (file_exists($file)) {
@@ -489,6 +518,26 @@ class SPPEvent extends \SPP\SPPObject
     {
         self::scanDirectory(SPP_BASE_DIR . SPP_DS . 'events', 'EventHandlers');
         self::scanDirectory(SPP_APP_DIR . SPP_DS . 'events', 'EventHandlers');
+
+        $context = \SPP\Scheduler::getContext();
+        if ($context !== '') {
+            $appEventsDir = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'events';
+            if (is_dir($appEventsDir)) {
+                self::scanDirectory($appEventsDir, 'EventHandlers');
+            }
+        }
+
+        $srcBase = SPP_APP_DIR . SPP_DS . 'src';
+        if (is_dir($srcBase)) {
+            foreach (scandir($srcBase) as $d) {
+                if ($d !== '.' && $d !== '..') {
+                    $evDir = $srcBase . SPP_DS . $d . SPP_DS . 'events';
+                    if (is_dir($evDir)) {
+                        self::scanDirectory($evDir, 'EventHandlers');
+                    }
+                }
+            }
+        }
 
         $mods = \SPP\Registry::get('__mods');
         if (is_array($mods)) {
@@ -547,6 +596,18 @@ class SPPEvent extends \SPP\SPPObject
 
         self::scanAndRegisterDirs(SPP_BASE_DIR . SPP_DS . 'events');
         self::scanAndRegisterDirs(SPP_APP_DIR . SPP_DS . 'events');
+
+        $srcBase = SPP_APP_DIR . SPP_DS . 'src';
+        if (is_dir($srcBase)) {
+            foreach (scandir($srcBase) as $d) {
+                if ($d !== '.' && $d !== '..') {
+                    $evDir = $srcBase . SPP_DS . $d . SPP_DS . 'events';
+                    if (is_dir($evDir)) {
+                        self::scanAndRegisterDirs($evDir);
+                    }
+                }
+            }
+        }
 
         $mods = \SPP\Registry::get('__mods');
         if (is_array($mods)) {

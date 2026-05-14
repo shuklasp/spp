@@ -46,8 +46,48 @@ class Renderer
     /**
      * The main render method.
      */
-    public function render(string $templatePath, array $data = []): string
+    public function render(string $templateName, array $data = []): string
     {
+        // Try Drishyam Theming Engine first
+        if (class_exists('\SPPMod\Drishyam\Drishyam')) {
+            $drishyam = \SPPMod\Drishyam\Drishyam::getInstance();
+            $drishyam->boot();
+            
+            // Resolve base data for all themes
+            $data['app_context'] = \SPP\Scheduler::getContext();
+            
+            try {
+                return \SPPMod\Drishyam\Drishyam::render($templateName, $data);
+            } catch (\Exception $e) {
+                // Fallback to native logic if theme-specific render fails
+                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] DRISHYAM ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
+            }
+        }
+
+        $app = \SPP\App::getApp();
+        $srcDir = $app->getAppSrcDir();
+        $viewsDir = $srcDir . '/resources/views';
+        
+        $templatePath = $templateName;
+        if (!file_exists($templatePath)) {
+            // Try with .blade.php extension
+            $testPath = $viewsDir . '/' . ltrim($templateName, '/') . '.blade.php';
+            if (file_exists($testPath)) {
+                $templatePath = $testPath;
+            } else {
+                // Try as provided
+                $testPath = $viewsDir . '/' . ltrim($templateName, '/');
+                if (file_exists($testPath)) {
+                    $templatePath = $testPath;
+                }
+            }
+        }
+
+        if (!file_exists($templatePath)) {
+             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] RENDERER ERROR: Template not found: {$templateName}\n", FILE_APPEND);
+             return "Template not found: {$templateName}";
+        }
+
         $content = file_get_contents($templatePath);
         $type = pathinfo($templatePath, PATHINFO_EXTENSION);
         if (str_ends_with($templatePath, '.blade.php')) {

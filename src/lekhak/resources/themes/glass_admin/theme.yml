@@ -1,0 +1,8 @@
+name: "Glass Admin Theme"
+description: "Professional glassmorphism administrative interface."
+type: admin
+features:
+  - sidebar
+  - dashboard
+  - forms
+JS_DRIVER: sppux

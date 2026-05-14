@@ -28,16 +28,22 @@ class MobileStudioApp {
 
     async init() {
         try {
-            this.updateLoadingProgress(30, "Discovering Project Blueprints...");
-            await this.refreshProjectList();
+            this.updateLoadingProgress(30, "Synchronizing Workspace...");
             
-            this.updateLoadingProgress(60, "Hydrating Workspace Context...");
+            // Parallelize project discovery and initial hydration
+            const tasks = [this.refreshProjectList()];
             if (this.currentProjectId) {
-                await this.loadProject(this.currentProjectId);
-            } else if (this.projects && this.projects.length > 0) {
-                this.renderPortfolioState();
-            } else {
-                this.renderEmptyState();
+                tasks.push(this.loadProject(this.currentProjectId));
+            }
+            
+            await Promise.all(tasks);
+
+            if (!this.currentProjectId) {
+                if (this.projects && this.projects.length > 0) {
+                    this.renderPortfolioState();
+                } else {
+                    this.renderEmptyState();
+                }
             }
 
             this.updateLoadingProgress(100, "System Ready");

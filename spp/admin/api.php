@@ -391,7 +391,7 @@ try {
     if ($action === 'get_profile') {
         if (\SPPMod\SPPAuth\SPPAuth::check()) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
-            sendResponse(true, $user->getAttributes(), "Profile retrieved.");
+            sendResponse(true, $user->getValues(), "Profile retrieved.");
         }
         sendResponse(false, [], "Profile not found.");
     }

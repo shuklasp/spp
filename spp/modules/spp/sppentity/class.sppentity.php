@@ -536,12 +536,65 @@ class SPPEntity implements \JsonSerializable
   }
 
   /**
-   * Static helper to find all instances of the entity.
+   * Static helper to find all instances of the entity with optional filtering.
    */
-  public static function find_all()
+  public static function find_all(array $conditions = [], string $sort = null, int $limit = null)
   {
       $instance = new static();
-      return $instance->loadAll();
+      return $instance->loadFiltered($conditions, $sort, $limit);
+  }
+
+  /**
+   * Loads entities based on conditions.
+   */
+  public function loadFiltered(array $conditions = [], string $sort = null, int $limit = null): array
+  {
+      $db = new \SPPMod\SPPDB\SPPDB();
+      $sql = 'select * from %tab%';
+      $values = [];
+      
+      if (!empty($conditions)) {
+          $clauses = [];
+          foreach ($conditions as $attr => $val) {
+              $attr = preg_replace('/[^a-zA-Z0-9_]/', '', $attr);
+              $clauses[] = "{$attr} = ?";
+              $values[] = $val;
+          }
+          $sql .= ' where ' . implode(' AND ', $clauses);
+      }
+      
+      if ($sort) {
+          $sql .= ' order by ' . $sort;
+      }
+      
+      if ($limit) {
+          $sql .= ' limit ' . (int)$limit;
+      }
+      
+      $result = $db->exec_squery($sql, $this->getTable(), $values);
+      $entities = [];
+      foreach ($result as $row) {
+          $entity = new static();
+          $entity->setId($row[self::getMetadata('id_field')]);
+          foreach ($row as $attribute => $value) {
+              if (!is_numeric($attribute)) {
+                  $entity->set($attribute, $value);
+              }
+          }
+          $entity->after_load();
+          $entities[] = $entity;
+      }
+      return $entities;
+  }
+
+  /**
+   * Static helper to find a single instance based on conditions.
+   */
+  public static function find_one(array $conditions = [])
+  {
+      $instance = new static();
+      $results = $instance->loadFiltered($conditions, null, 1);
+      return !empty($results) ? $results[0] : null;
   }
 
   /**
@@ -705,7 +758,7 @@ class SPPEntity implements \JsonSerializable
     } else {
       $attributes = $this->getAttributes();
       if (array_key_exists($attribute, $attributes)) {
-        return $this->_values[$attribute];
+        return $this->_values[$attribute] ?? null;
       } else {
         error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
         return null;
@@ -739,14 +792,16 @@ class SPPEntity implements \JsonSerializable
   public static function install()
   {
     $db = new \SPPMod\SPPDB\SPPDB();
-    $table = self::getMetadata('table');
+    $tableBase = self::getMetadata('table');
+    $table = (class_exists('\\SPPMod\\SPPDB\\SPPDB')) ? \SPPMod\SPPDB\SPPDB::sppTable($tableBase) : $tableBase;
+    
     $id_field = self::getMetadata('id_field', 'id');
     $attributes = self::getMetadata('attributes', []);
     $profile = self::getMetadata('profile');
 
     if (!$db->tableExists($table)) {
-      $sql = 'create table %tab% (' . $id_field . ' varchar(20))';
-      $db->exec_squery($sql, $table);
+      $sql = 'create table ' . $table . ' (' . $id_field . ' varchar(20))';
+      $db->exec($sql);
     }
     $db->add_columns($table, $attributes);
     

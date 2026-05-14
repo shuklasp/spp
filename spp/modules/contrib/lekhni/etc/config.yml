@@ -1,0 +1,17 @@
+# Lekhni Editor Specialized Module Configuration Settings
+
+editor:
+  default_mode: "document"      # Workspace mode: "document" or "code"
+  code_language: "html"         # Default language tokenizer when launched in code mode
+  theme: "dark"
+  tab_size: 2
+  auto_save_interval: 2000
+  enable_ai_copilot: true
+  enable_markdown_expansion: true
+  media_upload_path: "var/media/lekhni"
+  categories:
+    - "General"
+    - "News"
+    - "Tutorial"
+    - "Engineering"
+    - "Documentation"

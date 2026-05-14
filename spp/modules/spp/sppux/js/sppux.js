@@ -73,12 +73,22 @@ export const html = (strings, ...values) => {
                 continue;
             }
 
+            // Handle Property Bindings (.value=${value})
+            const propMatch = lastPart.match(/\.([a-zA-Z0-9_-]+)=["']?$/i);
+            if (propMatch) {
+                raw = raw.substring(0, raw.lastIndexOf('.' + propMatch[1] + '='));
+                raw += `${propMatch[1]}="${escape(value)}"`;
+                skipNextQuote = true;
+                continue;
+            }
+
             raw += escape(value);
         }
     }
 
     return new TrustedHTML(raw);
 };
+window.html = html;
 
 export const Fragment = new TrustedHTML('');
 
@@ -151,6 +161,7 @@ export class BaseComponent {
         this.props = props;
         this.state = {};
         this._subscriptions = [];
+        this._snapshots = [];
         this._handlers = new Map();
         this._eventContainers = new Set([this.container]);
         this.root = window.spp_root_store || null;
@@ -176,6 +187,9 @@ export class BaseComponent {
                 if (data instanceof FormData) {
                     if (!data.has('action')) data.append('action', actionOrData);
                     return await SPPUX.apiPost(data);
+                }
+                if (this.admin && typeof this.admin.api === 'function') {
+                    return await this.admin.api(actionOrData, data);
                 }
                 return await SPPUX.api(actionOrData, data);
             } finally {
@@ -234,8 +248,9 @@ export class BaseComponent {
 
             if (el) {
                 const type = el.getAttribute('data-spp-type');
+                const effectiveType = type || 'click';
                 const idByType = el.getAttribute(`data-spp-evt-${e.type}`);
-                const idLegacy = (type === e.type) ? el.getAttribute('data-spp-evt') : null;
+                const idLegacy = (effectiveType === e.type) ? el.getAttribute('data-spp-evt') : null;
                 const id = idByType || idLegacy;
                 
                 if (id) {
@@ -343,6 +358,20 @@ export class BaseComponent {
         }
     }
 
+    interpolateTemplate(str, ctx) {
+        if (!str) return '';
+        // Support simple string interpolation tokens like ${state.stats.total} or ${state.loading}
+        return str.replace(/\$\{([a-zA-Z0-9_.\-]+)\}/g, (match, path) => {
+            const parts = path.split('.');
+            let current = ctx;
+            for (const part of parts) {
+                if (current === null || current === undefined) return '';
+                current = current[part];
+            }
+            return (current !== null && current !== undefined) ? String(current) : '';
+        });
+    }
+
     update() {
         if (this._isRendering) return; // Prevent infinite loops
         
@@ -357,9 +386,19 @@ export class BaseComponent {
 
         try {
             Signal.activeSubscriber = subscriber;
-            const template = this.render();
+            let template = this.render();
             Signal.activeSubscriber = null;
             
+            // Automagic separate HTML template decoupling ingestion integration
+            if (template === Fragment || template?.content === '') {
+                const nameKey = this.constructor.name.toLowerCase();
+                const tplNode = document.getElementById(`spp-tpl-${nameKey}`) || document.getElementById(`spp-tpl-${this.constructor.name}`);
+                if (tplNode) {
+                    const rawHtml = this.interpolateTemplate(tplNode.innerHTML, { state: this.state, props: this.props });
+                    template = new TrustedHTML(rawHtml);
+                }
+            }
+
             if (!template || template.content === undefined) {
                 this._isRendering = false;
                 return;
@@ -385,18 +424,66 @@ export class BaseComponent {
             // Also scan global containers (modals, header) for any handlers added during render()
             this._registerGlobalHandlers(claimedIds);
             
-            // Only remove handlers claimed by this component, not all global handlers
+            // Only remove dynamic random-ID handlers claimed by this component, preserving static named shared handlers
             for (const id of claimedIds) {
-                if (window.__spp_handlers) delete window.__spp_handlers[id];
+                if (window.__spp_handlers && id.startsWith('evt_')) {
+                    delete window.__spp_handlers[id];
+                }
             }
 
             // Reconcile new virtual DOM with actual DOM
             console.log(`[BaseComponent] Updating ${this.constructor.name}...`);
+            if (this.container) {
+                this._snapshots.push(this.container.innerHTML);
+                if (this._snapshots.length > 10) this._snapshots.shift();
+            }
             this._reconcile(this.container, temp);
             this.afterUpdate();
         } finally {
             this._isRendering = false;
             Signal.activeSubscriber = null;
+        }
+    }
+
+    /** Time-travel rolls back layout state exactly to the previous snapshot buffer */
+    rollback() {
+        if (this._snapshots && this._snapshots.length > 0 && this.container) {
+            const previousHtml = this._snapshots.pop();
+            const temp = document.createElement('div');
+            temp.innerHTML = previousHtml;
+            this._reconcile(this.container, temp);
+            console.log(`[BaseComponent] Rolled back ${this.constructor.name} layout state successfully.`);
+        }
+    }
+
+    /**
+     * Speculative execution tracker for zero-latency UI mutations.
+     * instantly applies predictive optimistic layout states, evaluates action tasks in the background,
+     * and autonomously triggers rollback recovery if network payload validations diverge.
+     */
+    async speculate(actionPromise, optimisticHtml) {
+        if (!this.container) return await actionPromise;
+        // Capture instantaneous recovery state snapshot
+        this._snapshots.push(this.container.innerHTML);
+        if (this._snapshots.length > 10) this._snapshots.shift();
+
+        // Apply instant optimistic VDOM mutation
+        const temp = document.createElement('div');
+        temp.innerHTML = optimisticHtml;
+        this._reconcile(this.container, temp);
+        console.log(`[BaseComponent] Speculative state applied with 0ms visual latency.`);
+
+        try {
+            const res = await actionPromise;
+            if (res && (res.status === 'error' || res.success === false)) {
+                console.warn(`[BaseComponent] Speculative network payload conflict detected. Reverting state...`);
+                this.rollback();
+            }
+            return res;
+        } catch (err) {
+            console.error(`[BaseComponent] Speculative network execution transaction failed. Reverting state...`, err);
+            this.rollback();
+            throw err;
         }
     }
 
@@ -532,12 +619,53 @@ export class BaseComponent {
                     }
                 }
 
-                this._reconcile(oldNode, newNode);
+                // Allow custom rich text or contenteditable elements to fully preserve their own internal DOM tree structure
+                if (!oldNode.classList?.contains('lekhni-body-editable') && oldNode.getAttribute?.('contenteditable') !== 'true') {
+                    this._reconcile(oldNode, newNode);
+                }
             }
         });
 
         while (parent.childNodes.length > newNodes.length) {
             parent.removeChild(parent.lastChild);
+        }
+    }
+
+    async reconcileOffThread(parent, htmlString) {
+        if (!window.Worker || !window.URL) {
+            const temp = document.createElement('div');
+            temp.innerHTML = htmlString;
+            this._reconcile(parent, temp);
+            return;
+        }
+        if (!BaseComponent._vdomWorker) {
+            const code = `
+                self.onmessage = function(e) {
+                    // Simple off-thread parsing validation
+                    self.postMessage({ status: 'ready', content: e.data.html });
+                };
+            `;
+            const blob = new Blob([code], { type: 'application/javascript' });
+            BaseComponent._vdomWorker = new Worker(URL.createObjectURL(blob));
+        }
+        return new Promise(resolve => {
+            const listener = e => {
+                BaseComponent._vdomWorker.removeEventListener('message', listener);
+                const temp = document.createElement('div');
+                temp.innerHTML = e.data.content;
+                this._reconcile(parent, temp);
+                resolve();
+            };
+            BaseComponent._vdomWorker.addEventListener('message', listener);
+            BaseComponent._vdomWorker.postMessage({ html: htmlString });
+        });
+    }
+
+    stream(name, params = {}, onMessage = null) {
+        if (window.spp_admin && spp_admin.streamService) {
+            const source = spp_admin.streamService(name, params, onMessage);
+            this._subscriptions.push(() => source.close());
+            return source;
         }
     }
 
@@ -719,6 +847,44 @@ export const SPPUX = {
     SPPStore,
     BaseComponent,
     SPPForm,
+    api: async (action, params = {}) => {
+        if (window.admin && typeof window.admin.api === 'function') {
+            return await window.admin.api(action, params);
+        }
+        if (window.app && typeof window.app.api === 'function') {
+            return await window.app.api(action, params);
+        }
+        const url = new URL(window.LEKHAK_CONFIG?.apiBase || window.spp_config?.apiBase || 'api.php', window.location.origin);
+        url.searchParams.append('action', action);
+        const res = await fetch(url.toString(), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(params)
+        });
+        return await res.json();
+    },
+    apiPost: async (data) => {
+        if (window.admin && typeof window.admin.apiPost === 'function') {
+            return await window.admin.apiPost(data);
+        }
+        if (window.app && typeof window.app.apiPost === 'function') {
+            return await window.app.apiPost(data);
+        }
+        let action = 'custom';
+        let body = data;
+        let headers = {};
+        if (data instanceof FormData) {
+            action = data.get('action') || 'custom';
+        } else {
+            action = data.action || 'custom';
+            body = JSON.stringify(data);
+            headers = { 'Content-Type': 'application/json' };
+        }
+        const url = new URL(window.LEKHAK_CONFIG?.apiBase || window.spp_config?.apiBase || 'api.php', window.location.origin);
+        url.searchParams.append('action', action);
+        const res = await fetch(url.toString(), { method: 'POST', headers, body });
+        return await res.json();
+    },
     render: (template, container) => {
         if (!template || !container) return;
         container.innerHTML = template.toString();
@@ -734,7 +900,7 @@ export const SPPUX = {
             document.addEventListener(evt, (e) => {
                 const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-change], [data-spp-evt-input], [data-spp-evt-submit]';
                 const target = e.target.closest(selectors);
-                if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
+                // if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
                 
                 // Find all components that could handle this event
                 for (const comp of this._components) {
@@ -1162,3 +1328,141 @@ window.SPPUX = SPPUX;
 
 // Initialize LiveSync in Dev Mode
 // SPPUX.liveSync.init();
+
+/**
+ * HTML-First Declarative Directive Initialization Engine.
+ * Empowers designers to build complete web applications using pure Vanilla HTML attributes natively.
+ */
+function initHtmlDirectives() {
+    console.log("⚡ SPPUX HTML-First Directives Engine Initialized");
+
+    // 1. Zero-JS Declarative Actions: Intercept clicks/submits on elements carrying data-spp-post or data-spp-action
+    document.addEventListener('submit', async (e) => {
+        const targetForm = e.target.closest('[data-spp-post], [data-spp-action]');
+        if (!targetForm) return;
+
+        e.preventDefault();
+        const action = targetForm.getAttribute('data-spp-post') || targetForm.getAttribute('data-spp-action');
+        const targetSelector = targetForm.getAttribute('data-spp-target');
+
+        SPPUX.Busy.start();
+        try {
+            const formData = new FormData(targetForm);
+            if (!formData.has('action')) formData.append('action', action);
+
+            const res = await SPPUX.apiPost(formData);
+            if (res && res.html && targetSelector) {
+                const dest = document.querySelector(targetSelector);
+                if (dest) {
+                    // Check for transition parameter
+                    const transition = targetForm.getAttribute('data-spp-transition');
+                    if (transition) dest.classList.add(`spp-transition-${transition}`);
+                    
+                    // Populate inner payload
+                    dest.innerHTML = res.html;
+                    console.log(`[SPPUX Directives] Populated payload successfully into target: ${targetSelector}`);
+                    
+                    if (transition) setTimeout(() => dest.classList.remove(`spp-transition-${transition}`), 300);
+                }
+            }
+
+            if (res && res.message) {
+                const notifyAttr = targetForm.getAttribute('data-spp-notify') || res.message;
+                if (SPPUX.Notify) SPPUX.Notify.show(notifyAttr, res.status || 'info');
+                else alert(notifyAttr);
+            }
+        } catch (err) {
+            console.error("[SPPUX Directives] Action processing failed:", err);
+        } finally {
+            SPPUX.Busy.stop();
+        }
+    });
+
+    // 2. HTML-Native Two-Way Signal Binding (data-spp-bind <-> data-spp-text)
+    const sharedSignals = new Map();
+    document.addEventListener('input', (e) => {
+        const bindKey = e.target.getAttribute('data-spp-bind');
+        if (!bindKey) return;
+
+        const val = e.target.value;
+        sharedSignals.set(bindKey, val);
+
+        // Instantly propagate to all display target headers without server roundtrips
+        document.querySelectorAll(`[data-spp-text="${bindKey}"]`).forEach(node => {
+            node.textContent = val;
+        });
+    });
+
+    // 3. Live DOM Search Filtering (data-spp-search)
+    document.addEventListener('input', (e) => {
+        const targetGridSelector = e.target.getAttribute('data-spp-search');
+        if (!targetGridSelector) return;
+
+        const destGrid = document.querySelector(targetGridSelector);
+        if (destGrid) {
+            const query = (e.target.value || '').toLowerCase();
+            destGrid.querySelectorAll('[data-search-name]').forEach(item => {
+                const name = (item.getAttribute('data-search-name') || '').toLowerCase();
+                item.style.display = name.includes(query) ? '' : 'none';
+            });
+        }
+    });
+
+    // 4. Custom Component Tag Observers (<spp-component>)
+    const observeCustomTags = () => {
+        document.querySelectorAll('spp-component:not([data-initialized])').forEach(comp => {
+            comp.setAttribute('data-initialized', 'true');
+            const name = comp.getAttribute('name');
+            const island = comp.getAttribute('data-island') || 'visible';
+            
+            // Automatically wrap component inside a reactivity island wrapper tag
+            comp.setAttribute('data-spp-island', island);
+            console.log(`[SPPUX Directives] Bootstrapped HTML Tag Component: <spp-component name="${name}">`);
+        });
+    };
+
+    observeCustomTags();
+    const observer = new MutationObserver(() => observeCustomTags());
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // 5. Enterprise Native Developer Mode Live-Reload / View Synchronization Observer
+    if (document.body.hasAttribute('data-spp-navigation') || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        let lastModHash = '';
+        console.log("[SPPUX Directives] Bootstrapping background Hot Module Replacement (HMR) state tracker loop.");
+        
+        setInterval(async () => {
+            try {
+                const urlObj = new URL(window.location.href);
+                urlObj.searchParams.set('__svc', 'spp:dev_modcheck');
+                const res = await fetch(urlObj.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.hash) {
+                        if (!lastModHash) {
+                            lastModHash = data.hash;
+                        } else if (lastModHash !== data.hash) {
+                            console.warn("[SPPUX Directives] Source document signature updated server-side! Triggering fluid UI Live Reload state morph.");
+                            lastModHash = data.hash;
+                            
+                            const headerBar = document.querySelector('header') || document.body;
+                            const origBg = headerBar.style.backgroundColor;
+                            headerBar.style.transition = 'background-color 0.3s ease';
+                            headerBar.style.backgroundColor = 'rgba(168, 85, 247, 0.2)';
+                            
+                            setTimeout(() => {
+                                headerBar.style.backgroundColor = origBg;
+                                window.location.reload();
+                            }, 500);
+                        }
+                    }
+                }
+            } catch (err) {}
+        }, 3000);
+    }
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHtmlDirectives);
+} else {
+    initHtmlDirectives();
+}

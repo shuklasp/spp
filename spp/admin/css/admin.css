@@ -553,6 +553,7 @@ textarea:focus {
 #workspace-layer {
     display: none;
     height: 100vh;
+    width: 100%;
     grid-template-columns: var(--sidebar-width) 1fr;
     opacity: 0;
     transition: opacity 0.4s var(--transition);
@@ -683,6 +684,7 @@ textarea:focus {
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable;
+    min-height: 0;
     padding-right: 0.25rem;
     margin-top: 1.5rem;
 }
@@ -745,6 +747,7 @@ textarea:focus {
     padding-top: 1rem;
     border-top: 1px solid var(--glass-border);
     margin-top: auto;
+    flex-shrink: 0;
 }
 
 .sidebar-footer .user-info {
@@ -785,6 +788,10 @@ textarea:focus {
     font-size: 0.85rem;
     color: var(--text-main);
     font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 .user-role {
@@ -797,6 +804,9 @@ textarea:focus {
     background: var(--bg-surface);
     display: flex;
     flex-direction: column;
+    flex-grow: 1;
+    width: 100%;
+    min-width: 0;
     overflow: hidden;
     position: relative;
 }

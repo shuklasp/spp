@@ -24,6 +24,7 @@
         'sppintelligence.js',
         'sppoffline.js',
         'spportability.js',
+        'sppdependencies.js',
         'sppaudit.js'
     ];
 

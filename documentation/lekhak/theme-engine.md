@@ -1,42 +1,45 @@
-# Lekhak System: Theme Engine
+# Lekhak System: Drishyam Theme Engine
 
-The Lekhak Theme Engine is a professional-grade layout management system that decouples application content from its visual presentation.
+Drishyam is the advanced, polyglot theme engine for Lekhak and other SPP applications. It supports dual-format rendering (Blade & SPPUX) and provides application-level theme isolation.
 
-## 1. How It Works
-The engine uses the SPP Event System to intercept the framework's rendering pipeline.
+## 1. Core Architecture
+Drishyam decouples themes from the core application, allowing multiple themes to coexist and be switched dynamically based on context.
 
-1.  **Event Hook**: The `ThemeEventHandler` listens for the `event_spp_view_render_theme` event fired by `ViewPage`.
-2.  **Layout Selection**: It identifies the active theme from `app.yml`.
-3.  **Content Wrapping**: It captures the raw page HTML and passes it to the `ThemeManager` for layout application.
-4.  **Region Injection**: It injects the content into the theme's `layout.blade.php`.
+*   **Registry**: Automatically scans theme directories defined by the application.
+*   **Negotiation**: Uses context rules (e.g., URL paths) to decide which theme to use (e.g., `admin` vs `site`).
+*   **Dual Formats**: Supports traditional server-side Blade templates and modern client-side SPPUX components.
 
-## 2. Regions & Portals
-Themes can define an unlimited number of regions (e.g., `header`, `sidebar_left`, `footer_scripts`).
+## 2. Configuration (`drishyam.yml`)
+Configure theme behavior at the application level:
 
-**Populating a Region:**
-```php
-use SPPMod\SppTheme\Api\ThemeManager;
-
-ThemeManager::setRegion('sidebar', '<div class="widget">Recent Posts</div>');
+```yaml
+default_theme: premium
+contexts:
+  admin: glass_admin  # Use this theme for administrative paths
+  site: premium       # Use this for public-facing paths
+hooks:
+  drishyam.theme_init: \SPPMod\Lekhak\Hooks\ThemeInit::handle
 ```
 
-**Theme Layout (`layout.blade.php`):**
-```html
-<main>
-    {!! $content !!}  <!-- Main page content automatically injected -->
-</main>
-<aside>
-    {!! $sidebar !!}  <!-- Custom content injected via setRegion -->
-</aside>
+## 3. Creating a Theme
+Themes live in the application's `resources/themes/` folder. Each theme requires a `theme.yml`:
+
+```yaml
+name: "Professional Theme"
+type: site
+JS_DRIVER: sppux  # Prefers SPPUX for dynamic components
 ```
 
-## 3. Theme Portability
-Each theme is a folder within `src/lekhak/themes/`. It contains its own:
-*   `theme.yml`: Metadata and region definitions.
-*   `layout.blade.php`: The master template.
-*   `css/`, `js/`, `images/`: Local theme assets.
+### Supported Templates:
+*   **Blade**: `views/*.blade.php` (Server-side)
+*   **SPPUX**: `comp/*.sppux.js` (Client-side components)
 
-Assets are resolved using the `$theme_path` variable, which points to the theme's public URL regardless of where the app is deployed.
+## 4. Hook System
+Extend theme behavior through event hooks:
+
+*   **`drishyam.boot`**: Fired when the engine starts.
+*   **`drishyam.theme_init`**: Fired when a theme is loaded; ideal for injecting global variables.
+*   **`drishyam.before_render`**: Fired before the rendering starts, allows data modification.
 
 ---
 [Back to Index](index.md)

@@ -9,8 +9,8 @@ require_once('spp/sppinit.php');
 // 1. Context Sync: Ensure 'q' is relative to the detected application base
 $q = $_GET['q'] ?? '';
 $context = \SPP\Scheduler::getContext();
-if ($context !== 'default') {
-    $baseUrl = trim(\SPP\App::getAppConf('base_url'), '/');
+if ($context !== '') {
+    $baseUrl = trim(\SPP\App::getAppConf('base_url') ?: '/' . $context, '/');
     $qPath = trim($q, '/');
     if ($baseUrl !== '' && (str_starts_with($qPath, $baseUrl . '/') || $qPath === $baseUrl)) {
         $_GET['q'] = ltrim(substr($qPath, strlen($baseUrl)), '/');
@@ -20,7 +20,7 @@ if ($context !== 'default') {
 require_once('global.php');
 
 \SPP\Core\MiddlewareKernel::run(function($request) {
-    $context = \SPP\Scheduler::getContext() ?: 'lekhak';
+    $context = \SPP\Scheduler::getContext() ?: 'default';
     \SPP\Scheduler::setContext($context);
     $appBaseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
     $appAsset = function (string $path) use ($appBaseUri): string {
@@ -31,9 +31,32 @@ require_once('global.php');
     \SPPMod\SPPView\ViewPage::addCssIncludeFile($appAsset('res/spp/css/spp.css'));
     \SPPMod\SPPView\ViewPage::addJsIncludeFile($appAsset('res/spp/js/spp.js'));
     \SPPMod\SPPView\ViewPage::addJsIncludeFile($appAsset('res/spp/js/sppvalidations.js'));
+    \SPPMod\SPPView\ViewPage::addJsIncludeFile($appAsset('res/spp/js/monaco.js'));
 
-    if (\SPP\Module::isEnabled('sppux') && class_exists('\SPPMod\SPPUX\SPPUX')) {
-        \SPPMod\SPPUX\SPPUX::boot();
+
+    // Intercept native Hot Module Replacement (HMR) / Live-Reload state check requests
+    $svc = $_GET['__svc'] ?? $_POST['__svc'] ?? '';
+    if ($svc === 'spp:dev_modcheck') {
+        header('Content-Type: application/json');
+        $hashStr = '';
+        $scanTarget = SPP_APP_DIR . '/src/' . $context . '/pages';
+        if (is_dir($scanTarget)) {
+            foreach (scandir($scanTarget) as $f) {
+                if (pathinfo($f, PATHINFO_EXTENSION) === 'php' || pathinfo($f, PATHINFO_EXTENSION) === 'html') {
+                    $hashStr .= filemtime($scanTarget . '/' . $f);
+                }
+            }
+        }
+        $compTarget = SPP_APP_DIR . '/src/' . $context . '/components';
+        if (is_dir($compTarget)) {
+            foreach (scandir($compTarget) as $f) {
+                if (pathinfo($f, PATHINFO_EXTENSION) === 'html') {
+                    $hashStr .= filemtime($compTarget . '/' . $f);
+                }
+            }
+        }
+        echo json_encode(['status' => 'success', 'hash' => md5($hashStr ?: 'static')]);
+        exit(0);
     }
 
     if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAPI') && \SPPMod\SPPAPI\SPPAPI::isApiRequest()) {
@@ -46,14 +69,12 @@ require_once('global.php');
         return;
     }
 
-    \SPPMod\SPPView\ViewPage::processForms();
-    
     $activeProc = \SPP\Scheduler::getActiveProc();
     if (method_exists($activeProc, 'handle')) {
-        file_put_contents(SPP_APP_DIR . '/var/logs/spp_debug.log', "INDEX.PHP DEBUG: activeProc is " . get_class($activeProc) . ". App getName() is " . \SPP\App::getApp()->getName() . "\n", FILE_APPEND);
         $activeProc->handle($request);
         return;
     }
 
+    \SPPMod\SPPView\ViewPage::processForms();
     \SPPMod\SPPView\ViewPage::showPage();
 });

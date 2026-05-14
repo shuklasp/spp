@@ -42,11 +42,14 @@ class SPPSequence extends \SPP\SPPObject
      */
     public static function next($seqname, $fortoday = false)
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
-        self::checkInstall($db);
+            $db = new \SPPMod\SPPDB\SPPDB();
+            self::checkInstall($db);
         try {
             $db->beginTransaction();
-            $sql = 'select * from ' . \SPPMod\SPPDB\SPPDB::sppTable('sequences') . ' where seqname=? FOR UPDATE';
+            $sql = 'select * from ' . \SPPMod\SPPDB\SPPDB::sppTable('sequences') . ' where seqname=?';
+            if ($db->getDriver() !== 'sqlite') {
+                $sql .= ' FOR UPDATE';
+            }
             $result = $db->execute_query($sql, array($seqname));
             if (count($result) > 0) {
                 $res = $result[0];

@@ -47,6 +47,11 @@ class MiddlewareKernel
     public static function run(\Closure $destination)
     {
         self::boot();
+        $context = \SPP\Scheduler::getContext() ?: 'default';
+        \SPP\Scheduler::setContext($context);
+
+        \SPP\SPPEvent::registerEvent('event_spp_kernel_boot');
+        \SPP\SPPEvent::fireEvent('event_spp_kernel_boot');
 
         return (new Pipeline())
             ->send($_REQUEST)

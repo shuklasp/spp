@@ -1,3 +1,7 @@
+<?php
+    $base_url = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '/school1', '/');
+    $admin_url = $base_url . '/spp/admin/';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Core Framework Styles -->
-    <link rel="stylesheet" href="{{ $base_url }}/spp/res/css/spp.css">
+    <link rel="stylesheet" href="<?php echo $base_url; ?>/spp/res/css/spp.css">
     
     <style>
         :root {
@@ -21,12 +25,38 @@
             --border: #334155;
             --text: #f1f5f9;
             --text-dim: #94a3b8;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+        }
+
+        [data-theme="day"] {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --bg: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --header-bg: #ffffff;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --text-dim: #64748b;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 40%);
+        }
+
+        [data-theme="saffron"] {
+            --primary: #f97316;
+            --primary-dark: #ea580c;
+            --bg: #fff7ed;
+            --sidebar-bg: #ffedd5;
+            --header-bg: #ffedd5;
+            --border: #fed7aa;
+            --text: #431407;
+            --text-dim: #9a3412;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(254, 215, 170, 0.25) 0%, transparent 50%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             font-family: 'Inter', sans-serif; 
             background: var(--bg); 
+            background-image: var(--bg-gradient);
             color: var(--text);
             height: 100vh;
             display: flex;
@@ -96,7 +126,7 @@
         }
 
         .nav-link:hover {
-            background: #334155;
+            background: rgba(128, 128, 128, 0.15);
             color: var(--text);
         }
 
@@ -196,37 +226,44 @@
 </head>
 <body>
     <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-icon">L</div>
-            <div class="logo-text">Lekhak <span>CMS</span></div>
+        <div class="sidebar-header" style="justify-content: center; padding: 0; margin-bottom: 30px;">
+            <img src="<?php echo $base_url; ?>/img/lekhak_logo_full.jpg" alt="Lekhak CMS Logo" style="width: 100%; max-width: 180px; height: auto; object-fit: contain; border-radius: 12px;" />
         </div>
         
         <nav class="nav-list">
             <div class="nav-item">
-                <a class="nav-link active" data-view="dashboard">
+                <a class="nav-link active" data-view="dashboard" href="#dashboard">
                     Dashboard
                 </a>
             </div>
             <div class="nav-item">
-                <a class="nav-link" data-view="content">
+                <a class="nav-link" data-view="content" href="#content">
                     Content Manager
                 </a>
             </div>
+            <div class="nav-item" style="margin: 0.75rem 0;">
+                <a class="nav-link cta-link" data-view="editor" href="#editor" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #ffffff !important; font-weight: 700; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; justify-content: center; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                    <span style="font-size: 1.1rem;">＋</span> Create Content
+                </a>
+            </div>
             <div class="nav-item">
-                <a class="nav-link" data-view="canvas">
+                <a class="nav-link" data-view="canvas" href="#canvas">
                     Visual Canvas
                 </a>
             </div>
             <div class="nav-item">
-                <a class="nav-link" data-view="settings">
+                <a class="nav-link" data-view="settings" href="#settings">
                     Setup Engine
                 </a>
             </div>
         </nav>
 
-        <div class="sidebar-footer">
-            <a href="{{ $base_url }}" class="nav-link">
+        <div class="sidebar-footer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <a href="<?php echo $base_url; ?>" class="nav-link">
                 ← Exit Site
+            </a>
+            <a href="<?php echo $base_url; ?>/lekhak/admin/logout" class="nav-link" style="color: #ef4444;">
+                ⏏ Log Out
             </a>
         </div>
     </aside>
@@ -234,7 +271,14 @@
     <main class="main-wrapper">
         <header class="content-header">
             <h2 class="view-title" id="view-title">Dashboard</h2>
-            <div id="header-actions"></div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="theme-switcher" style="display: flex; gap: 6px; background: rgba(128,128,128,0.1); padding: 4px; border-radius: 20px; border: 1px solid var(--border);">
+                    <button onclick="setThemeMode('dark')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #64748b;" title="Night Mode">•</button>
+                    <button onclick="setThemeMode('day')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #cbd5e1;" title="Day Mode">•</button>
+                    <button onclick="setThemeMode('saffron')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #f97316; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #ffedd5;" title="Saffron Mode">•</button>
+                </div>
+                <div id="header-actions"></div>
+            </div>
         </header>
 
         <div class="viewport" id="viewport">
@@ -246,16 +290,53 @@
     <div id="toast-container"></div>
     <div id="modal-container"></div>
 
+    <!-- Pre-warm decoupled UI Component templates natively -->
+    <?php
+        $candidates = [
+            $_SERVER['DOCUMENT_ROOT'] . $base_url . '/src/lekhak/comp/templates',
+            realpath(__DIR__ . '/../../comp/templates'),
+            'c:/projects/apache/school1/src/lekhak/comp/templates'
+        ];
+        $tplDir = false;
+        foreach ($candidates as $c) {
+            if ($c && is_dir($c)) {
+                $tplDir = $c;
+                break;
+            }
+        }
+        if ($tplDir && is_dir($tplDir)) {
+            foreach (scandir($tplDir) as $f) {
+                if (str_ends_with($f, '.html')) {
+                    $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
+                    $tplContent = @file_get_contents($tplDir . '/' . $f);
+                    if ($tplContent) {
+                        echo "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
+                    }
+                }
+            }
+        }
+    ?>
+
     <!-- SPP Infrastructure -->
-    <script src="{{ $base_url }}/spp/res/js/spp.js"></script>
-    <script type="module" src="{{ $base_url }}/src/lekhak/resources/admin/standalone-shell.js"></script>
+    <script src="<?php echo $base_url; ?>/spp/res/js/spp.js?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo $base_url; ?>/src/lekhak/resources/admin/standalone-shell.js?v=<?php echo time(); ?>"></script>
 
     <script>
         window.LEKHAK_CONFIG = {
-            apiBase: '{{ $base_url }}/admin-api',
-            baseUrl: '{{ $base_url }}',
-            adminUrl: '{{ $admin_url }}'
+            apiBase: '<?php echo $base_url; ?>/lekhak/admin-api',
+            baseUrl: '<?php echo $base_url; ?>',
+            adminUrl: '<?php echo $admin_url; ?>'
         };
+        window.SPP_CONFIG = {
+            apiEndpoint: '<?php echo $base_url; ?>/lekhak/admin-api'
+        };
+
+        function setThemeMode(mode) {
+            document.documentElement.setAttribute('data-theme', mode);
+            localStorage.setItem('lekhak-admin-theme', mode);
+        }
+        var savedMode = localStorage.getItem('lekhak-admin-theme') || 'saffron';
+        document.documentElement.setAttribute('data-theme', savedMode);
     </script>
 </body>
 </html>

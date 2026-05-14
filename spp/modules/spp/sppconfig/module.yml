@@ -5,6 +5,7 @@ module:
     author: Satya Prakash Shukla
     pubdesc: Dynamic configuration management for SPP applications.
     modgroup: Core
+    category: 'Core Required'
     installation:
         tables:
             config:

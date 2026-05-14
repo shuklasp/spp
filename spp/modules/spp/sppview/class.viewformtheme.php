@@ -103,7 +103,11 @@ class GlassAdminTheme extends ViewFormTheme {
         $html = '<div class="spp-form-group ' . $this->getColClass((int)$col) . '" id="group_' . $id . '" style="margin-bottom: 20px;">';
         
         if ($elem->getLabel()) {
-            $html .= '<label class="spp-label" for="' . $id . '" style="display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">' . $elem->getLabel() . '</label>';
+            $label = $elem->getLabel();
+            if ($elem->getAttribute('required')) {
+                $label .= ' <span style="color: var(--danger);">*</span>';
+            }
+            $html .= '<label class="spp-label" for="' . $id . '" style="display: block; margin-bottom: 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary);">' . $label . '</label>';
         }
 
         $html .= '<div class="spp-input-wrapper">';

@@ -15,6 +15,7 @@ require_once __DIR__ . '/Forms.php';
 require_once __DIR__ . '/Lifecycle.php';
 require_once __DIR__ . '/Routing.php';
 require_once __DIR__ . '/IAM.php';
+require_once __DIR__ . '/AI.php';
 
 // Auth Redirects
 if (!function_exists('live_login')) { function live_login($la, $p) { live_Auth_Login($la, $p); } }
@@ -47,13 +48,14 @@ if (!function_exists('live_get_global_settings')) { function live_get_global_set
 if (!function_exists('live_save_global_settings')) { function live_save_global_settings($la, $p) { live_Config_SaveGlobalSettings($la, $p); } }
 
 // Module Redirects
-if (!function_exists('live_list_modules')) { function live_list_modules($la, $p) { live_Modules_List($la, $p); } }
-if (!function_exists('live_scan_module')) { function live_scan_module($la, $p) { live_Modules_Scan($la, $p); } }
-if (!function_exists('live_setup_module')) { function live_setup_module($la, $p) { live_Modules_Setup($la, $p); } }
-if (!function_exists('live_get_module_config')) { function live_get_module_config($la, $p) { live_Modules_GetConfig($la, $p); } }
-if (!function_exists('live_save_module_config')) { function live_save_module_config($la, $p) { live_Modules_SaveConfig($la, $p); } }
-if (!function_exists('live_save_module_config_raw')) { function live_save_module_config_raw($la, $p) { live_Modules_SaveConfigRaw($la, $p); } }
-if (!function_exists('live_open_module_settings')) { function live_open_module_settings($la, $p) { live_Modules_OpenSettings($la, $p); } }
+if (!function_exists('live_list_modules')) { function live_list_modules($la, $p) { live_List($la, $p); } }
+if (!function_exists('live_scan_module')) { function live_scan_module($la, $p) { live_Scan($la, $p); } }
+if (!function_exists('live_setup_module')) { function live_setup_module($la, $p) { live_Setup($la, $p); } }
+if (!function_exists('live_get_module_config')) { function live_get_module_config($la, $p) { live_GetConfig($la, $p); } }
+if (!function_exists('live_save_module_config')) { function live_save_module_config($la, $p) { live_SaveConfig($la, $p); } }
+if (!function_exists('live_save_module_config_raw')) { function live_save_module_config_raw($la, $p) { live_SaveConfigRaw($la, $p); } }
+if (!function_exists('live_toggle_module')) { function live_toggle_module($la, $p) { live_Toggle($la, $p); } }
+if (!function_exists('live_open_module_settings')) { function live_open_module_settings($la, $p) { live_OpenSettings($la, $p); } }
 
 // Entity Redirects
 if (!function_exists('live_list_entities')) { function live_list_entities($la, $p) { live_Entities_List($la, $p); } }
@@ -107,6 +109,10 @@ if (!function_exists('live_add_group_member')) { function live_add_group_member(
 if (!function_exists('live_remove_group_member')) { function live_remove_group_member($la, $p) { live_IAM_RemoveGroupMember($la, $p); } }
 if (!function_exists('live_save_group')) { function live_save_group($la, $p) { live_IAM_SaveGroup($la, $p); } }
 if (!function_exists('live_delete_group')) { function live_delete_group($la, $p) { live_IAM_DeleteGroup($la, $p); } }
+
+// AI Redirects
+if (!function_exists('live_get_ai_registry')) { function live_get_ai_registry($la, $p) { live_AI_GetRegistry($la, $p); } }
+if (!function_exists('live_test_ai_prompt')) { function live_test_ai_prompt($la, $p) { live_AI_TestPrompt($la, $p); } }
 
 /**
  * Hybrid View Loader

@@ -4,7 +4,8 @@ module:
     name: sppvalidator
     version: "0.5"
     pubname: SPP Validtor
-    modgroup: SPP_Optional
+    modgroup: Core
+    category: 'Core Required'
     pubdesc: Handles HTML Validators in SPP.
     includes:
         - class.validationresult.php

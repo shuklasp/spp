@@ -5,6 +5,7 @@ module:
     author: 'Antigravity Enterprise Evolution'
     pubdesc: 'Enterprise-grade auditing for entity state changes. Records creation, updates, and deletions with delta tracking.'
     modgroup: Core
+    category: 'Core Optional'
     installation:
         tables:
             audit_logs:

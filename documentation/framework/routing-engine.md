@@ -85,6 +85,37 @@ You can invoke internal framework methods by setting the `special: 1` flag.
     *   `Cache-Control: public, max-age=31536000` for production performance.
     *   404 handling with graceful exits.
 
+## 5. Zero-Direct-Access Infrastructure & Asset Routing
+
+As part of the framework hardening campaign, SPP implements a mandatory **Zero-Direct-Access** security policy governing all external file deliveries.
+
+### A. Centralized Security Manifest (`global-config.yml`)
+Direct web access to framework, application, or module directories is completely blocked at the core boundary level. The access configuration is maintained centrally:
+```yaml
+security:
+  block_direct_access: true
+  authorized_asset_routes:
+    - assets/core
+    - assets/comp
+    - assets/img
+```
+When `block_direct_access` is enabled, any HTTP requests aiming directly at physical disk path resources (e.g., `/src/lekhak/comp/lekhak.js`) are intercepted by the dispatcher and blocked with a `403 Forbidden` response.
+
+### B. Autonomous Module Startup Discovery
+During core system initialization, `SPP\Module::register()` scans each module manifest (`module.yml`) to ingest authorized internal asset mappings automatically:
+```yaml
+module:
+  name: lekhak
+  assets:
+    - comp
+    - js
+    - img
+```
+The framework maps these declarations into its persistent internal virtual route map (`__asset_routes`). Requests for module assets are mapped cleanly via authorized paths:
+*   **Virtual Requested Path**: `/assets/mod/lekhak/comp/lekhak.js`
+*   **Resolved Disk Target**: `[ROOT]/src/lekhak/modules/lekhak/comp/lekhak.js`
+*   **Security Outcome**: Safely delivered via controlled dispatcher streams while maintaining true disk location privacy.
+
 ---
 
 *Documentation maintained by the SPP Framework Team.*

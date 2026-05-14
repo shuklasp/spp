@@ -24,15 +24,15 @@ class SPPUser extends SPPEntity
      */
     public function __construct($unm = null)
     {
+        parent::__construct(); // Initialize metadata and _values
         if ($unm !== null && !is_numeric($unm)) {
             try {
-                parent::__construct();
                 $this->loadByUsername($unm);
             } catch (\Exception $e) {
                 throw new UserNotFoundException("User '{$unm}' not found.");
             }
-        } else {
-            parent::__construct($unm);
+        } elseif ($unm !== null) {
+            $this->load($unm);
         }
     }
     

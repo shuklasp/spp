@@ -87,13 +87,21 @@ class Pages extends \SPP\SPPObject
                 ? rtrim($etcPath, '/\\') 
                 : SPP_APP_DIR . SPP_DS . rtrim($etcPath, '/\\');
             $file = $base . SPP_DS . 'pages.yml';
+            if (!file_exists($file) && file_exists($base . SPP_DS . 'routes.yml')) {
+                return $base . SPP_DS . 'routes.yml';
+            }
         } else {
             $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
+            if (!file_exists($file) && file_exists(APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'routes.yml')) {
+                return APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'routes.yml';
+            }
         }
 
         if (!file_exists($file)) {
             $legacyFile = APP_ETC_DIR . SPP_DS . 'pages.yml';
             if (file_exists($legacyFile)) return $legacyFile;
+            $legacyRoutes = APP_ETC_DIR . SPP_DS . 'routes.yml';
+            if (file_exists($legacyRoutes)) return $legacyRoutes;
         }
         return $file;
     }
@@ -116,9 +124,25 @@ class Pages extends \SPP\SPPObject
         }
 
         try {
-            self::$yamlFileCache[$ymlFile] = Yaml::parseFile($ymlFile);
+            $data = Yaml::parseFile($ymlFile);
+            if (isset($data['routes']) && is_array($data['routes'])) {
+                $pagesMap = [];
+                foreach ($data['routes'] as $r) {
+                    $p = ltrim($r['path'] ?? '', '/');
+                    $t = $r['target'] ?? '';
+                    $type = $r['type'] ?? '';
+                    if ($type === 'static_asset') {
+                        $pagesMap[$p] = ['assets' => $t];
+                    } else {
+                        $pagesMap[$p] = ['url' => $t];
+                    }
+                }
+                $data['pages'] = $pagesMap;
+                unset($data['routes']);
+            }
+            self::$yamlFileCache[$ymlFile] = $data;
         } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
-            throw new \SPP\SPPException('Failed to parse pages.yml (' . $ymlFile . '): ' . $e->getMessage(), 1000, $e);
+            throw new \SPP\SPPException('Failed to parse pages/routes YAML (' . $ymlFile . '): ' . $e->getMessage(), 1000, $e);
         }
 
         return self::$yamlFileCache[$ymlFile];
@@ -209,20 +233,51 @@ class Pages extends \SPP\SPPObject
             return null;
         }
 
-        // Exact match prioritized
+        // 1. Exact match has absolute priority
         if (isset($yaml['pages'][$q])) {
-             $res = self::processRoute($q, $yaml['pages'][$q], $q, $appname, $ymlFile);
-             if ($res) return $res;
+             return self::processRoute($q, $yaml['pages'][$q], $q, $appname, $ymlFile);
         }
 
+        // 1.5. Pattern match for routes with placeholders (e.g., {id})
         foreach ($yaml['pages'] as $name => $routeConfig) {
             $name = (string)$name;
-            // Robust prefix matching for parameters / delegation
-            if ($name !== '' && strpos($q, $name) === 0) {
-                $res = self::processRoute($name, $routeConfig, $q, $appname, $ymlFile);
-                if ($res) return $res;
+            if (str_contains($name, '{')) {
+                $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $name);
+                if (preg_match('#^' . $pattern . '$#', $q, $m)) {
+                    array_shift($m); // Remove full match
+                    $res = self::processRoute($name, $routeConfig, $q, $appname, $ymlFile);
+                    if ($res) {
+                        $res['params'] = $m;
+                    }
+                    return $res;
+                }
             }
         }
+
+        // 2. Find all prefix matches
+        $matches = [];
+        foreach ($yaml['pages'] as $name => $routeConfig) {
+            $name = (string)$name;
+            // A match is valid if q is exactly name OR starts with name followed by a slash
+            if ($name !== '' && (strpos($q, $name . '/') === 0 || $q === $name)) {
+                $matches[$name] = $routeConfig;
+            }
+        }
+
+        if (!empty($matches)) {
+            // Sort by key length descending to find the most specific match
+            uksort($matches, function($a, $b) {
+                return strlen($b) <=> strlen($a);
+            });
+            
+            reset($matches);
+            $bestName = key($matches);
+            $bestConfig = current($matches);
+            
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] DEBUG: Longest match routing: Picked '{$bestName}' for request '{$q}'\n", FILE_APPEND);
+            return self::processRoute($bestName, $bestConfig, $q, $appname, $ymlFile);
+        }
+
         return null;
     }
 
@@ -250,10 +305,27 @@ class Pages extends \SPP\SPPObject
         // Case C: Resolve as a direct page
         if (isset($route['url'])) {
             $resolvedUrl = self::resolveInternalPath($route['url'], $modulePath, $appname);
-            return self::buildPage($name, $resolvedUrl, $q);
+            $pg = self::buildPage($name, $resolvedUrl, $q);
+            if (isset($route['controller'])) {
+                $pg['controller'] = $route['controller'];
+            }
+            if (isset($route['special'])) {
+                $pg['special'] = (int)$route['special'];
+                if (isset($route['method'])) {
+                    $pg['method'] = $route['method'];
+                }
+            }
+            return $pg;
+        }
+
+        // Case D: Controller-only Route
+        if (isset($route['controller'])) {
+            $pg = self::buildPage($name, '', $q);
+            $pg['controller'] = $route['controller'];
+            return $pg;
         }
         
-        // Case D: Asset Directory Support
+        // Case E: Asset Directory Support
         if (isset($route['assets'])) {
             $resolvedAssets = self::resolveInternalPath($route['assets'], $modulePath, $appname);
             return [
@@ -279,8 +351,8 @@ class Pages extends \SPP\SPPObject
      */
     private static function resolveInternalPath(string $path, ?string $modulePath = null, ?string $appname = null): string
     {
-        if (str_starts_with($path, '/') || str_starts_with($path, '\\')) {
-            return ltrim($path, '/\\');
+        if (str_contains($path, ':') || str_starts_with($path, '/') || str_starts_with($path, '\\')) {
+            return $path;
         }
 
         if ($modulePath) {
@@ -288,7 +360,7 @@ class Pages extends \SPP\SPPObject
             $root = realpath(SPP_APP_DIR);
             $mod  = realpath($modulePath);
             
-            if ($root && $mod && str_starts_with($mod, $root)) {
+            if ($root && $mod && stripos($mod, $root) === 0) {
                 $rel = ltrim(substr($mod, strlen($root)), '/\\');
                 return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
             }
@@ -305,7 +377,7 @@ class Pages extends \SPP\SPPObject
         $root = realpath(SPP_APP_DIR);
         $src  = realpath($srcDir);
         
-        if ($root && $src && str_starts_with($src, $root)) {
+        if ($root && $src && stripos($src, $root) === 0) {
             $rel = ltrim(substr($src, strlen($root)), '/\\');
             return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
         }
@@ -480,6 +552,10 @@ class Pages extends \SPP\SPPObject
      */
     private static function resolvePage(string $q, string $appname, string $ymlFile = null): ?array
     {
+        // --- Dynamic Registered Routes ---
+        $result = self::findPageInDynamicRoutes($q, $appname);
+        if ($result !== null) return $result;
+
         [$primary, $fallback] = self::getSources($appname);
         $spl = explode('/', $q)[0];
 
@@ -632,7 +708,13 @@ class Pages extends \SPP\SPPObject
 
     private static function serveFile(string $file, string $q): string
     {
-        $fullPath = SPP_APP_DIR . '/' . ltrim($file, '/\\');
+        $fullPath = (str_contains($file, ':') || str_starts_with($file, '/') || str_starts_with($file, '\\'))
+            ? $file
+            : SPP_APP_DIR . '/' . ltrim($file, '/\\');
+        
+        if (!file_exists($fullPath)) {
+            $fullPath = SPP_APP_DIR . '/' . ltrim($file, '/\\');
+        }
 
         if (file_exists($fullPath) && is_file($fullPath)) {
             $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
@@ -665,6 +747,7 @@ class Pages extends \SPP\SPPObject
             exit;
         }
 
+        @file_put_contents(SPP_LOG_DIR . '/debug_routes.log', "SERVE FILE 404: file={$file}, fullPath={$fullPath}, exists=" . (file_exists($fullPath) ? 'yes' : 'no') . "\n", FILE_APPEND);
         header("HTTP/1.0 404 Not Found");
         echo "Resource not found: " . htmlspecialchars($q);
         exit;
@@ -726,6 +809,41 @@ class Pages extends \SPP\SPPObject
     // -------------------------------------------------------------------------
     // Cache management
     // -------------------------------------------------------------------------
+
+    private static array $dynamicRoutes = [];
+
+    /**
+     * Dynamically registers a runtime routing or asset prefix entry directly into the routing cache buffer.
+     */
+    public static function registerRoute(string $path, array $target, string $appname = ''): void
+    {
+        $appname = $appname ?: \SPP\Scheduler::getContext();
+        if (!isset(self::$dynamicRoutes[$appname])) {
+            self::$dynamicRoutes[$appname] = [];
+        }
+        self::$dynamicRoutes[$appname][$path] = $target;
+
+        $ymlFile = self::getAppPagesFile($appname);
+        self::getYaml($ymlFile);
+        if (!isset(self::$yamlFileCache[$ymlFile]['pages'])) {
+            self::$yamlFileCache[$ymlFile]['pages'] = [];
+        }
+        self::$yamlFileCache[$ymlFile]['pages'][$path] = $target;
+    }
+
+    private static function findPageInDynamicRoutes(string $q, string $appname): ?array
+    {
+        $contexts = array_unique(array_filter([$appname, \SPP\Scheduler::getContext(), 'default']));
+        foreach ($contexts as $ctx) {
+            $routes = self::$dynamicRoutes[$ctx] ?? [];
+            foreach ($routes as $name => $cfg) {
+                if ($q === $name || strpos($q, $name . '/') === 0) {
+                    return self::processRoute($name, $cfg, $q, $ctx, self::getAppPagesFile($ctx), null);
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * Clears all in-memory caches. Call after modifying routes at runtime.

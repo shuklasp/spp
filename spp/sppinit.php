@@ -99,6 +99,7 @@ if (!defined('SPP_VER')) {
     $search_paths = [
       SPP_CORE_DIR . SPP_DS . 'class.' . strtolower($class) . '.php',
       SPP_CORE_DIR . SPP_DS . 'int.' . strtolower($class) . '.php',
+      SPP_CORE_DIR . SPP_DS . 'interface.' . strtolower(str_replace('Interface', '', $class)) . '.php',
       SPP_CORE_DIR . SPP_DS . 'middleware' . SPP_DS . 'class.' . strtolower($class) . '.php'
     ];
     foreach ($search_paths as $file) {
@@ -218,6 +219,12 @@ if (!defined('SPP_VER')) {
             $file = $baseSrc . SPP_DS . 'entities' . SPP_DS . 'entity.' . $name . '.php';
           } elseif ($type === 'components') {
             $file = $baseSrc . SPP_DS . 'components' . SPP_DS . $parts[3] . '.php';
+          } elseif ($type === 'serv') {
+            $file = $baseSrc . SPP_DS . 'serv' . SPP_DS . $parts[3] . '.php';
+          } else {
+            // General PSR-4 fallback within the app's src directory
+            $remaining = array_slice($parts, 2);
+            $file = $baseSrc . SPP_DS . implode(SPP_DS, $remaining) . '.php';
           }
 
           if ($file && file_exists($file)) {

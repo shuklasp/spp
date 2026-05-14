@@ -18,6 +18,9 @@ class SPP_Validator_RequiredValidator extends SPP_Single_validator {
         parent::__construct($elem, $errorholder, $msg, 'validateRequired');
         $this->applicabletags = ['input', 'select', 'textarea'];
     }
+    public function is_required(): bool {
+        return true;
+    }
 
     public function validate(mixed $value): bool {
         if ($value === null || (is_string($value) && trim($value) === '')) {

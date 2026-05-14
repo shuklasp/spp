@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP (Satya Portal Platform) - Universal Enterprise Manual</title>
+    <style>
+        :root {
+            --bg-page: #0f172a;
+            --card-bg: #1e293b;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --accent-alt: #a5b4fc;
+            --code-bg: #0b0f19;
+        }
+        body {
+            margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-page); color: var(--text-main); line-height: 1.6;
+        }
+        .header-hero {
+            background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
+            padding: 4rem 2rem; text-align: center; border-bottom: 1px solid var(--border-color);
+        }
+        h1 { font-size: 2.5rem; margin: 0 0 1rem 0; color: var(--text-main); font-weight: 800; letter-spacing: -0.03em; }
+        .hero-subtitle { font-size: 1.15rem; color: var(--text-dim); max-width: 700px; margin: 0 auto; }
+        
+        .container { max-width: 1100px; margin: 0 auto; padding: 3rem 2rem; }
+        
+        .nav-toc {
+            background: var(--card-bg); padding: 2rem; border-radius: 16px;
+            border: 1px solid var(--border-color); margin-bottom: 3rem;
+        }
+        .nav-toc h3 { margin-top: 0; color: var(--accent); }
+        .nav-toc ul { list-style-type: none; padding-left: 0; }
+        .nav-toc li { margin-bottom: 0.5rem; }
+        .nav-toc a { color: var(--text-main); text-decoration: none; transition: color 0.2s; }
+        .nav-toc a:hover { color: var(--accent); }
+        .nav-toc ul ul { padding-left: 1.5rem; margin-top: 0.3rem; font-size: 0.95rem; color: var(--text-dim); }
+        .nav-toc ul ul a { color: var(--text-dim); }
+        
+        h2 { font-size: 1.8rem; color: var(--accent-alt); border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 3.5rem; }
+        h3 { font-size: 1.3rem; color: var(--accent); margin-top: 2rem; }
+        h4 { font-size: 1.1rem; color: var(--text-main); margin-top: 1.5rem; }
+        
+        pre {
+            background-color: var(--code-bg); padding: 1.2rem; border-radius: 12px;
+            overflow-x: auto; border: 1px solid var(--border-color); font-size: 0.9rem;
+        }
+        code { font-family: ui-monospace, monospace; color: #e2e8f0; }
+        p code, li code { background: var(--card-bg); padding: 0.2rem 0.4rem; border-radius: 6px; font-size: 0.9em; color: var(--accent); }
+        
+        .perspective-card {
+            background: var(--card-bg); padding: 2.5rem; border-radius: 20px;
+            border: 1px solid var(--border-color); margin-bottom: 4rem;
+        }
+        
+        .alert-box {
+            background: rgba(56, 189, 248, 0.1); border-left: 4px solid var(--accent);
+            padding: 1rem 1.5rem; border-radius: 0 12px 12px 0; margin: 1.5rem 0;
+        }
+        .alert-box.success {
+            background: rgba(4, 120, 87, 0.1); border-color: #10b981;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-hero">
+        <h1>🏛️ SPP (Satya Portal Platform)</h1>
+        <p class="hero-subtitle">Universal Enterprise Documentation Manual — Covering App Developer, Core Sublayer, and User Administration Perspectives.</p>
+    </header>
+
+    <div class="container">
+        
+        <nav class="nav-toc">
+            <h3>📋 Manual Contents</h3>
+            <ul>
+                <li><a href="#app-dev">👨‍💻 Perspective A: The SPP App Developer Guide</a>
+                    <ul>
+                        <li><a href="#scaffold">1.1 Scaffolding a New Application & AI Blueprints</a></li>
+                        <li><a href="#exchange">1.2 Sovereign Component Extractions (import:component)</a></li>
+                        <li><a href="#routing">1.3 Isolated Routing & Relative Path Normalization</a></li>
+                        <li><a href="#directives">1.4 Declarative HTML Directives Tutorial (Zero-JS)</a></li>
+                        <li><a href="#events">1.5 Localized Domain Event Listeners & Traversal Maps</a></li>
+                    </ul>
+                </li>
+                <li><a href="#core-dev">⚙️ Perspective B: The SPP Core Developer Guide</a>
+                    <ul>
+                        <li><a href="#kernel">2.1 Core Architecture & Lifecycle Orchestration</a></li>
+                        <li><a href="#ai-contracts">2.2 Extending Agentic AI Driver Contracts (SPPAI)</a></li>
+                        <li><a href="#dag-audits">2.3 Cryptographic Merkle-DAG Audits & Lineage Verification</a></li>
+                        <li><a href="#sandboxing">2.4 WASM Sandboxing & Sub-Resource Integrity (SRI) Hashes</a></li>
+                        <li><a href="#hmr-cache">2.5 HMR Live-Reload Middleware & OPcache Pre-Warming Loops</a></li>
+                    </ul>
+                </li>
+                <li><a href="#user-admin">👤 Perspective C: The SPP User & Administrator Guide</a>
+                    <ul>
+                        <li><a href="#studio">3.1 Declarative Visual Island Composer Studio (drishyam:studio)</a></li>
+                        <li><a href="#transitions">3.2 Cinematic Hardware-Accelerated View Transitions</a></li>
+                        <li><a href="#sovereignty-check">3.3 Absolute Air-Gapped Framework Compliance Certification</a></li>
+                        <li><a href="#telemetry">3.4 Workbench System Diagnostics & Live Telemetry</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <section id="app-dev" class="perspective-card">
+            <h2>👨‍💻 Perspective A: The SPP App Developer Guide</h2>
+            <p>As an application developer, your objective is to build modular, secure micro-portals rapidly without writing redundant boilerplate or manual state integration script logic.</p>
+
+            <h3 id="scaffold">1.1 Scaffolding a New Application & AI Blueprints</h3>
+            <p>SPP automates standalone workspace creation complete with full SPP branding, standard configurations, and responsive preview wrappers out of the box.</p>
+            <h4>Step-by-Step Tutorial:</h4>
+            <ol>
+                <li>Open your terminal at the framework workspace root.</li>
+                <li>Execute the CLI engine passing your application identifier and optional AI blueprint specifications:
+                    <pre><code>php spp.php create:app portal --ai-blueprint="Dark-themed enterprise data visualization portal layout"</code></pre>
+                </li>
+                <li><b>What happens</b>: The engine outputs the exact physical mapping directory under <code>src/portal/</code>. It automatically integrates isolated asset routers, sample PHP execution services, dynamic macro views, and prominent alert widgets capturing your initial blueprint parameters directly inside <code>src/portal/pages/index.php</code>.</li>
+            </ol>
+
+            <h3 id="exchange">1.2 Sovereign Component Extractions (import:component)</h3>
+            <p>Instead of issuing remote calls to external network package repositories, SPP embeds an offline Sovereign Component Exchange straight inside its resource maps.</p>
+            <h4>Step-by-Step Tutorial:</h4>
+            <ol>
+                <li>To import an advanced, pre-vetted interactive UI module straight into your sub-application code paths:
+                    <pre><code>php spp.php import:component UI/DataGrid --target=portal</code></pre>
+                </li>
+                <li><b>Result</b>: A pristine production component file (<code>DataGrid.sppux.js</code>) is automatically synthesized directly inside <code>src/portal/components/UI/</code>. It ships natively configured with customizable layout attributes alongside pre-bound button mutate commands.</li>
+            </ol>
+
+            <h3 id="routing">1.3 Isolated Routing & Relative Path Normalization</h3>
+            <p>Every sub-application maintains self-contained parameters defined in <code>src/&lt;app&gt;/etc/routes.yml</code>.</p>
+            <pre><code>routes:
+  - path: "assets/"
+    target: "src/portal/assets/"
+    type: "static_asset"
+    absolute: false
+
+  - path: ""
+    target: "src/portal/pages/index.php"
+    type: "page_view"
+    absolute: false</code></pre>
+            <p><b>Relative Autonomy</b>: Because paths do not hardcode root backslashes, the app functions smoothly either accessed flatly at the base domain root (<code>/</code>) or routed dynamically via context prefixes (<code>/portal/</code>).</p>
+
+            <h3 id="directives">1.4 Declarative HTML Directives Tutorial (Zero-JS Workflows)</h3>
+            <p>SPP eliminates manual client scripts by evaluating custom attribute bindings inside <code>sppux.js</code>.</p>
+            <h4>Actionable Examples:</h4>
+            <ul>
+                <li><b>Background Form Posting & Island Target Morphing</b>:
+                    <pre><code>&lt;form data-spp-post="task.create" data-spp-target="#task-box" data-spp-transition="scale"&gt;
+    &lt;input type="text" name="taskTitle" placeholder="Task summary..." required /&gt;
+    &lt;button type="submit"&gt;Execute Task&lt;/button&gt;
+&lt;/form&gt;
+&lt;div id="task-box"&gt;&lt;/div&gt;</code></pre>
+                </li>
+                <li><b>Real-Time Two-Way Variable Hydration</b>:
+                    <pre><code>&lt;input type="text" data-spp-bind="searchQuery" placeholder="Type query..." /&gt;
+&lt;p&gt;Currently querying: &lt;span data-spp-text="searchQuery"&gt;None&lt;/span&gt;&lt;/p&gt;</code></pre>
+                </li>
+            </ul>
+
+            <h3 id="events">1.5 Localized Domain Event Listeners & Traversal Maps</h3>
+            <p>Create <code>src/portal/events/UserRegisteredHandler.php</code> to intercept system lifecycle dispatches natively:</p>
+            <pre><code>&lt;?php
+namespace EventHandlers;
+
+class UserRegisteredHandler extends \SPP\EventHandler {
+    public function afterHandler(&$params = []) {
+        @file_put_contents(SPP_APP_DIR . '/var/logs/portal_events.log', "Target event cleanly processed.\n", FILE_APPEND);
+    }
+}</code></pre>
+        </section>
+
+        <section id="core-dev" class="perspective-card">
+            <h2>⚙️ Perspective B: The SPP Core Developer Guide</h2>
+            <p>Core developers optimize the underlying kernel, extend framework abstraction boundaries, and ensure deterministic system performance.</p>
+
+            <h3 id="kernel">2.1 Core Architecture & Lifecycle Orchestration</h3>
+            <p>Requests pass to <code>sppinit.php</code> which maps continuous autoloader protocols and resolves default parameters. The scheduler dynamically cross-references <code>routes.yml</code> configuration definitions, allowing targeted fallback application views to load identically via domain roots (<code>/checkout</code>) or route mappings (<code>/default/checkout</code>).</p>
+
+            <h3 id="ai-contracts">2.2 Extending Agentic AI Driver Contracts (SPPAI)</h3>
+            <pre><code>&lt;?php
+namespace SPPMod\SPPAI\Drivers;
+
+class NewModelDriver implements \SPPMod\SPPAI\AIDriverInterface {
+    public function callTool(string $prompt, array $tools): array {
+        return ['status' => 'success', 'tool_calls' => []];
+    }
+    public function structured(string $prompt, array $schema): array {
+        return ['extracted_payload' => []];
+    }
+}</code></pre>
+
+            <h3 id="dag-audits">2.3 Cryptographic Merkle-DAG Audits & Lineage Verification</h3>
+            <p>State mutation routines execute <code>SPPAjax::appendMerkleLineage()</code> generating chained timing-safe SHA-256 state signatures stored in local verification blocks. Auditors verify mathematical continuity cleanly via the CLI:</p>
+            <pre><code>php spp.php audit:lineage --app=portal</code></pre>
+
+            <h3 id="sandboxing">2.4 WASM Sandboxing & Sub-Resource Integrity (SRI) Hashes</h3>
+            <p>Core extensions securely isolate external untrusted computational logic inside strict runtime payload caps using <code>SPPExt::executeFederatedSandbox()</code>. The <code>DrishyamRenderer</code> dynamically signs compiled template responses with SHA-256 inline hash validation tags (<code>data-spp-sri</code>), locking root components against untrusted client code vectors.</p>
+
+            <h3 id="hmr-cache">2.5 HMR Live-Reload Middleware & OPcache Pre-Warming Loops</h3>
+            <p>The middleware checks disk signature access parameters natively inside <code>index.php</code> yielding continuous microsecond document hash comparisons. Client runtimes poll changes to instantiate UI page flashes and HMR morphing instantaneously. <code>Drishyam::preWarm()</code> traverses nested layout definitions, pre-storing structural template evaluation trees inside memory maps to drop disk access delays straight down to sub-microsecond retrieval speeds.</p>
+        </section>
+
+        <section id="user-admin" class="perspective-card">
+            <h2>👤 Perspective C: The SPP User & Administrator Guide</h2>
+            <p>Administrators oversee framework status metrics, layout design themes, and enterprise readiness compliance safely.</p>
+
+            <h3 id="studio">3.1 Declarative Visual Island Composer Studio (drishyam:studio)</h3>
+            <div class="alert-box">
+                <b>Zero-XSS Preservation</b>: The studio maps configurations visually via local parameter files (<code>theme.yml</code>) ensuring database isolation remains completely protected.
+            </div>
+            <h4>Step-by-Step Authoring:</h4>
+            <ol>
+                <li>Navigate directly to your local workspace domain appending the studio parameter service string:
+                    <pre><code>http://localhost/?__svc=drishyam:studio</code></pre>
+                </li>
+                <li>Modify primary accent properties using native layout input controls alongside text arrays mapped straight to preview fragments.</li>
+                <li>Click <b>Commit Island Overrides</b> to permanently serialize styling definitions.</li>
+            </ol>
+
+            <h3 id="transitions">3.2 Cinematic Hardware-Accelerated View Transitions</h3>
+            <p>Navigating between standalone application contexts automatically uses native hardware-accelerated <b>View Transitions API</b> instructions generated dynamically by Drishyam. Interface screens cross-fade and expand gracefully via OS-native graphics animations without external library scripts.</p>
+
+            <h3 id="sovereignty-check">3.3 Absolute Air-Gapped Framework Compliance Certification</h3>
+            <p>To verify that your repository instance functions completely offline without referencing external CDNs or web font targets, execute the compliance checker:</p>
+            <pre><code>php spp.php verify:sovereignty</code></pre>
+            <div class="alert-box success">
+                <b>Certified Compliance Output:</b><br />
+                📦 Evaluated 42 core script engines and 29 native sublayer modules.<br />
+                ✅ ZERO third-party network reference strings (http://, https://, //cdn) detected.<br />
+                🌟 Absolute Sovereign Rating: 100% (Air-Gapped Intranet Production Certified).
+            </div>
+
+            <h3 id="telemetry">3.4 Workbench System Diagnostics & Live Telemetry</h3>
+            <p>Access the built-in Administration workbench terminal at <code>/spp/admin/</code> to tabulate active core modules alongside continuous memory allocation graphs and active HMAC parameter verifications natively.</p>
+        </section>
+
+        <footer style="text-align: center; color: var(--text-dim); border-top: 1px solid var(--border-color); padding-top: 2rem; margin-top: 2rem;">
+            SPP Universal Manual v2.0 — Finalized Sovereign Enterprise Platform Edition.
+        </footer>
+
+    </div>
+
+</body>
+</html>

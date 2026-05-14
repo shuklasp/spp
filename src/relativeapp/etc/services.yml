@@ -1,0 +1,8 @@
+################################################################################
+# Discovered & Registered Dynamic Services
+################################################################################
+
+services:
+  - name: "task.create"
+    script: "src/relativeapp/serv/task_create.php"
+    method: "POST"
