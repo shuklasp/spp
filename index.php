@@ -36,26 +36,64 @@ require_once('global.php');
 
     // Intercept native Hot Module Replacement (HMR) / Live-Reload state check requests
     $svc = $_GET['__svc'] ?? $_POST['__svc'] ?? '';
-    if ($svc === 'spp:dev_modcheck') {
-        header('Content-Type: application/json');
-        $hashStr = '';
-        $scanTarget = SPP_APP_DIR . '/src/' . $context . '/pages';
-        if (is_dir($scanTarget)) {
-            foreach (scandir($scanTarget) as $f) {
-                if (pathinfo($f, PATHINFO_EXTENSION) === 'php' || pathinfo($f, PATHINFO_EXTENSION) === 'html') {
-                    $hashStr .= filemtime($scanTarget . '/' . $f);
+
+
+    if ($svc === 'drishyam:list') {
+        header('Content-Type: application/json; charset=utf-8');
+        $list = [];
+        $app = class_exists('\SPP\App', false) ? \SPP\App::getApp() : null;
+        $themeDir = ($app ? $app->getAppSrcDir() : SPP_APP_DIR . '/src/' . $context) . '/resources/themes';
+        if (is_dir($themeDir)) {
+            foreach (scandir($themeDir) as $item) {
+                if ($item === '.' || $item === '..') continue;
+                $path = $themeDir . '/' . $item;
+                if (is_dir($path)) {
+                    $isDrishyam = file_exists($path . '/theme.yml');
+                    $isDrupal = !empty(glob($path . '/*.info.yml'));
+                    $isWordPress = file_exists($path . '/style.css');
+                    if ($isDrishyam || $isDrupal || $isWordPress) {
+                        $title = ucfirst($item);
+                        $ver = '1.0.0';
+                        $desc = 'Custom standalone module environment.';
+                        $icon = '📦';
+                        $type = 'site';
+                        if ($isDrishyam) {
+                            $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($path . '/theme.yml');
+                            if (is_array($parsed)) {
+                                $title = $parsed['name'] ?? $title;
+                                $desc = $parsed['description'] ?? $desc;
+                                $type = $parsed['type'] ?? $type;
+                                $icon = $parsed['icon'] ?? '🔮';
+                            }
+                        } elseif ($isDrupal) {
+                            $infoFiles = glob($path . '/*.info.yml');
+                            $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($infoFiles[0]);
+                            if (is_array($parsed)) {
+                                $title = $parsed['name'] ?? $title;
+                                $desc = $parsed['description'] ?? $desc;
+                                $ver = $parsed['version'] ?? $ver;
+                                $icon = '💧';
+                            }
+                        } elseif ($isWordPress) {
+                            $content = @file_get_contents($path . '/style.css', false, null, 0, 1024);
+                            if ($content && preg_match('/Theme Name:\s*(.*)/i', $content, $m)) $title = trim($m[1]);
+                            if ($content && preg_match('/Description:\s*(.*)/i', $content, $m)) $desc = trim($m[1]);
+                            $icon = '📝';
+                        }
+                        if ($item === 'eduxpro') $icon = '💧';
+                        $list[] = [
+                            'id' => $item,
+                            'title' => $title,
+                            'ver' => $ver,
+                            'type' => $type,
+                            'desc' => strip_tags($desc),
+                            'icon' => $icon
+                        ];
+                    }
                 }
             }
         }
-        $compTarget = SPP_APP_DIR . '/src/' . $context . '/components';
-        if (is_dir($compTarget)) {
-            foreach (scandir($compTarget) as $f) {
-                if (pathinfo($f, PATHINFO_EXTENSION) === 'html') {
-                    $hashStr .= filemtime($compTarget . '/' . $f);
-                }
-            }
-        }
-        echo json_encode(['status' => 'success', 'hash' => md5($hashStr ?: 'static')]);
+        echo json_encode($list);
         exit(0);
     }
 

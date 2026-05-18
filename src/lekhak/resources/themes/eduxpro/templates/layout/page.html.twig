@@ -1,0 +1,41 @@
+{% include '@eduxpro/template-parts/header/header.html.twig' %}
+{% if page.page_header %}
+  {% include '@eduxpro/template-parts/header/header-page.html.twig' %}
+{% endif %}
+{% if page.slider %}
+  {% include '@eduxpro/template-parts/slider.html.twig' %}
+{% endif %}
+{% if page.highlighted %}
+  {% include '@eduxpro/template-parts/highlighted.html.twig' %}
+{% endif %}
+<div class="main-wrapper">
+  <div class="container">
+    <div class="main-container">
+      <main id="main" class="main">
+        <a id="main-content" tabindex="-1"></a>
+        {% if page.content_top %}
+          {% include '@eduxpro/template-parts/content-parts/content_top.html.twig' %}
+        {% endif %}
+        <div class="node-content">
+          {{ page.content }}
+        </div>
+        {% if page.content_bottom %}
+          {% include '@eduxpro/template-parts/content-parts/content_bottom.html.twig' %}
+        {% endif %}
+        {% if page_share_all %}
+          {% include '@eduxpro/template-parts/components/share-node-options.html.twig' %}
+        {% endif %}
+      </main>
+      {% if page.sidebar_first %}
+        {% include '@eduxpro/template-parts/sidebar/sidebar_left.html.twig' %}
+      {% endif %}
+      {% if page.sidebar_second %}
+        {% include '@eduxpro/template-parts/sidebar/sidebar_right.html.twig' %}
+      {% endif %}
+    </div><!--/main-container -->
+  </div><!--/container -->
+</div><!--/main-wrapper -->
+{% if sliding_sidebar %}
+  {% include '@eduxpro/template-parts/sidebar/sidebar_sliding.html.twig' %}
+{% endif %}
+{% include '@eduxpro/template-parts/footer/footer.html.twig' %}

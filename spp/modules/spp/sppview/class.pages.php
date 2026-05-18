@@ -139,6 +139,17 @@ class Pages extends \SPP\SPPObject
                 }
                 $data['pages'] = $pagesMap;
                 unset($data['routes']);
+            } elseif (isset($data['pages']) && is_array($data['pages'])) {
+                $pagesMap = [];
+                foreach ($data['pages'] as $k => $pageObj) {
+                    if (is_array($pageObj) && isset($pageObj['name'])) {
+                        $name = (string)$pageObj['name'];
+                        $pagesMap[$name] = $pageObj;
+                    } else {
+                        $pagesMap[$k] = $pageObj;
+                    }
+                }
+                $data['pages'] = $pagesMap;
             }
             self::$yamlFileCache[$ymlFile] = $data;
         } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {
@@ -199,13 +210,22 @@ class Pages extends \SPP\SPPObject
         $specials = $db->execute_query('SELECT name, method FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_specials'));
 
         // Normalise into the same shape getYaml() returns
+        $pagesMap = [];
+        if (is_array($pages)) {
+            foreach ($pages as $row) {
+                if (isset($row['name'])) {
+                    $pagesMap[(string)$row['name']] = $row;
+                }
+            }
+        }
+
         $defaultsMap = [];
         foreach ($defaults as $row) {
             $defaultsMap[$row['defkey']] = $row['defval'];
         }
 
         self::$dbAppCache[$appname] = [
-            'pages'    => $pages,
+            'pages'    => $pagesMap,
             'defaults' => $defaultsMap,
             'specials' => $specials,
         ];

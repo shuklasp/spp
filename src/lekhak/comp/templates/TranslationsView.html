@@ -1,50 +1,144 @@
-<div class="lekhak-admin-translations">
-    <div class="glass-panel" style="padding: 2rem;">
-        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
-            <span style="font-size: 2.5rem;">🌍</span>
-            <div>
-                <h2 style="margin: 0;">Translation Center</h2>
-                <p style="margin: 0; color: var(--text-dim);">Manage multi-language support and interface strings.</p>
+<div class="lekhak-translations-repository-shell">
+    <!-- Ceiling Sticky Admin Ribbon -->
+    <div class="lekhak-admin-toolbar">
+        <div class="toolbar-brand">
+            <span class="logo-icon" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; vertical-align: middle; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">🌍</span>
+            <span class="brand-label">Lekhak Polyglot Translation Center</span>
+        </div>
+        <div class="toolbar-links">
+            <a class="toolbar-tab" data-spp-evt="nav-lekhak" data-spp-type="click">Dashboard</a>
+            <a class="toolbar-tab" data-spp-evt="nav-content" data-spp-type="click">Content List</a>
+            <a class="toolbar-tab" data-spp-evt="nav-canvas" data-spp-type="click">Visual Layouts</a>
+            <a class="toolbar-tab" data-spp-evt="nav-commerce" data-spp-type="click">Catalog</a>
+            <a class="toolbar-tab active" data-spp-evt="nav-translations" data-spp-type="click">Translations</a>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn-toolbar-primary" id="spp-translations-add-btn">＋ New Locale</button>
+        </div>
+    </div>
+
+    <div class="lekhak-main-container">
+        <header class="repository-header">
+            <div class="header-main">
+                <h1>Multi-Language Strings Engine</h1>
+                <p class="desc">Map native text components, evaluate locale completion stats, and compile internationalization dictionaries.</p>
             </div>
-        </div>
+            
+            <div class="lekhak-local-tasks">
+                <button class="task-pill active" id="spp-trans-pill-all">
+                    Registered Locales <span class="pill-badge" id="spp-trans-count">0</span>
+                </button>
+                <button class="task-pill" id="spp-trans-pill-scan">
+                    🔄 Rescan Native Bundles
+                </button>
+            </div>
+        </header>
 
-        <div class="alert info-alert" style="margin-bottom: 2rem;">
-            The Translation engine is currently scanning your application sources for translatable strings.
-        </div>
-
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Locale</th>
-                    <th>Progress</th>
-                    <th>Status</th>
-                    <th class="text-right">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>🇺🇸 English (US)</td>
-                    <td>100%</td>
-                    <td><span class="badge success">Active</span></td>
-                    <td class="text-right"><button class="btn ghost-btn btn-sm">Edit</button></td>
-                </tr>
-                <tr>
-                    <td>🇫🇷 French</td>
-                    <td>65%</td>
-                    <td><span class="badge warning">In Progress</span></td>
-                    <td class="text-right"><button class="btn ghost-btn btn-sm">Resume</button></td>
-                </tr>
-                <tr>
-                    <td>🇮🇳 Hindi</td>
-                    <td>0%</td>
-                    <td><span class="badge ghost">Not Started</span></td>
-                    <td class="text-right"><button class="btn primary-btn btn-sm">Initialize</button></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <div style="margin-top: 2rem;">
-            <button class="btn secondary-btn" data-spp-evt="nav-lekhak" data-spp-type="click">&larr; Back to Dashboard</button>
+        <!-- Dynamic Locale Arrays Table Target -->
+        <div class="lekhak-table-card" style="margin-top: 1.5rem;">
+            <div class="table-responsive-wrapper">
+                <table class="lekhak-data-table">
+                    <thead>
+                        <tr>
+                            <th class="col-indicator"></th>
+                            <th class="col-title">Target Locale Array</th>
+                            <th class="col-status">Translation Status</th>
+                            <th class="col-date">Completion Percentage</th>
+                            <th class="col-actions" style="text-align: right;">Operations</th>
+                        </tr>
+                    </thead>
+                    <tbody id="spp-translations-container-body">
+                        <!-- Dynamic locale array targeting stream slots -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .lekhak-translations-repository-shell { font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; background: transparent; }
+    
+    .lekhak-admin-toolbar {
+        position: sticky; top: 0; z-index: 1000;
+        background: var(--header-bg); border-bottom: 2px solid var(--border);
+        padding: 0 1.5rem; height: 50px;
+        display: flex; justify-content: space-between; align-items: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .toolbar-brand { display: flex; align-items: center; gap: 8px; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--text); }
+    .toolbar-links { display: flex; height: 100%; }
+    .toolbar-tab {
+        padding: 0 1rem; display: flex; align-items: center;
+        color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
+        text-decoration: none; cursor: pointer; transition: all 0.2s;
+        border-bottom: 2px solid transparent; height: 100%;
+    }
+    .toolbar-tab:hover, .toolbar-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(128,128,128,0.05); }
+    .btn-toolbar-primary {
+        background: var(--primary); color: white; border: none;
+        padding: 6px 14px; border-radius: 6px; font-size: 0.8rem;
+        font-weight: 800; cursor: pointer; transition: opacity 0.15s;
+    }
+    .btn-toolbar-primary:hover { opacity: 0.9; }
+
+    .lekhak-main-container { padding: 2.5rem 2rem; max-width: 1400px; margin: 0 auto; }
+    
+    .repository-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
+    .header-main h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; margin: 0; color: var(--text); }
+    .header-main .desc { color: var(--text-dim); font-size: 0.95rem; margin-top: 4px; }
+
+    .lekhak-local-tasks { display: flex; gap: 8px; margin-top: 1.5rem; flex-wrap: wrap; }
+    .task-pill {
+        background: var(--sidebar-bg); border: 1px solid var(--border);
+        color: var(--text); padding: 6px 14px; border-radius: 20px;
+        font-size: 0.8rem; font-weight: 600; cursor: pointer;
+        display: flex; align-items: center; gap: 8px; transition: all 0.15s;
+    }
+    .task-pill:hover, .task-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .pill-badge { background: var(--header-bg); color: var(--text-dim); font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
+    .task-pill.active .pill-badge { background: rgba(255,255,255,0.25); color: white; }
+
+    .lekhak-table-card {
+        background: var(--sidebar-bg); border: 1px solid var(--border);
+        border-radius: 8px; overflow: hidden;
+    }
+    .table-responsive-wrapper { width: 100%; overflow-x: auto; }
+    
+    .lekhak-data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .lekhak-data-table th {
+        background: var(--header-bg); color: var(--text-dim); font-size: 0.75rem;
+        text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;
+        padding: 14px 16px; border-bottom: 1px solid var(--border); white-space: nowrap;
+    }
+    .lekhak-data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    
+    .data-row { cursor: default; transition: background 0.15s; }
+    .data-row:hover { background: rgba(128,128,128,0.05); }
+
+    .col-indicator { width: 24px; padding-right: 0 !important; }
+    .row-marker { width: 8px; height: 8px; border-radius: 50%; background: #64748b; }
+    .row-marker.active { background: #4ade80; }
+    .row-marker.warning { background: #f59e0b; }
+
+    .title-text { font-weight: 700; font-size: 1rem; color: var(--text); font-family: 'Outfit', sans-serif; display: flex; align-items: center; gap: 8px; }
+    .locale-code { font-size: 0.7rem; background: var(--header-bg); padding: 2px 6px; border-radius: 4px; color: var(--text-dim); font-family: monospace; }
+
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+    .badge-success { background: rgba(74,222,128,0.1); color: #4ade80; }
+    .badge-warning { background: rgba(245,158,11,0.1); color: #f59e0b; }
+    .badge-ghost { background: var(--header-bg); color: var(--text-dim); }
+
+    .progress-bar-container { width: 100%; max-width: 150px; background: var(--header-bg); border-radius: 10px; height: 8px; overflow: hidden; display: flex; }
+    .progress-fill { background: var(--primary); height: 100%; transition: width 0.3s; }
+
+    .lekhak-operations-group { display: flex; gap: 6px; justify-content: flex-end; }
+    .btn-operation {
+        background: transparent; border: 1px solid var(--border);
+        color: var(--text); padding: 4px 10px; border-radius: 4px;
+        font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    }
+    .btn-operation:hover { background: var(--header-bg); color: var(--text); }
+    .btn-operation.highlight { border-color: var(--primary); color: white; background: var(--primary); }
+    .btn-operation.highlight:hover { opacity: 0.9; }
+</style>

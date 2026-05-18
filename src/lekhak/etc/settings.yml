@@ -1,1 +1,7 @@
 theme: ocean
+enable_edge_consensus: true
+enable_merkle_trace: false
+speculative_offline: true
+strict_sri: false
+ambient_scale: '1.05'
+primary_accent: '#f97316'

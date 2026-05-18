@@ -1,0 +1,36 @@
+<header class="header">
+  <div class="container">
+    <div class="header-container">
+      {% if page.header %}
+        <div class="site-brand">
+          {{ page.header }}
+        </div> <!--/.site-branding -->
+      {% endif %}
+      {% if page.primary_menu or page.search_box %}
+      <div class="header-right">
+        {% if page.primary_menu %}
+          <div class="mobile-menu">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="primary-menu-wrapper">
+            <div class="menu-wrap">
+              <div class="close-mobile-menu"><i class="ficon-close"></i></div>
+              {{ page.primary_menu }}
+            </div>
+          </div>
+        {% endif %}
+        {% if page.search_box %}
+          {% include '@eduxpro/template-parts/header/search.html.twig' %}
+        {% endif %}
+        {% if sliding_sidebar %}
+          <div class="sliding-sidebar-menu">
+            <div class="sliding-sidebar-icon"><span></span></div>
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
+    </div>
+  </div>
+</header>

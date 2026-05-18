@@ -13,7 +13,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     
     <!-- Core Framework Styles -->
+    <link rel="preload" href="<?php echo $base_url; ?>/spp/res/css/spp.css" as="style">
     <link rel="stylesheet" href="<?php echo $base_url; ?>/spp/res/css/spp.css">
+    <script>
+        // Execute synchronously in head to prevent Flash of Unstyled Content (FOUC)
+        var savedMode = localStorage.getItem('lekhak-admin-theme') || 'saffron';
+        document.documentElement.setAttribute('data-theme', savedMode);
+    </script>
     
     <style>
         :root {
@@ -43,13 +49,13 @@
         [data-theme="saffron"] {
             --primary: #f97316;
             --primary-dark: #ea580c;
-            --bg: #fff7ed;
+            --bg: #fffaf5;
             --sidebar-bg: #ffedd5;
             --header-bg: #ffedd5;
             --border: #fed7aa;
             --text: #431407;
             --text-dim: #9a3412;
-            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.15) 0%, transparent 50%), radial-gradient(circle at 90% 80%, rgba(254, 215, 170, 0.25) 0%, transparent 50%);
+            --bg-gradient: linear-gradient(135deg, #fffaf5 0%, #fff7ed 50%, #ffedd5 100%), radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.12) 0%, transparent 50%);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -252,6 +258,31 @@
                 </a>
             </div>
             <div class="nav-item">
+                <a class="nav-link" data-view="commerce" href="#commerce">
+                    eCommerce Store
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" data-view="translations" href="#translations">
+                    Translation Center
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" data-view="media" href="#media">
+                    Media Library
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" data-view="structure" href="#structure">
+                    Structure Manager
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" data-view="blocks" href="#blocks">
+                    Blocks & Views
+                </a>
+            </div>
+            <div class="nav-item">
                 <a class="nav-link" data-view="settings" href="#settings">
                     Setup Engine
                 </a>
@@ -335,8 +366,6 @@
             document.documentElement.setAttribute('data-theme', mode);
             localStorage.setItem('lekhak-admin-theme', mode);
         }
-        var savedMode = localStorage.getItem('lekhak-admin-theme') || 'saffron';
-        document.documentElement.setAttribute('data-theme', savedMode);
     </script>
 </body>
 </html>

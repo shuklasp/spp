@@ -46,9 +46,37 @@ export default class LekhniEditor extends BaseComponent {
             showSlashMenu: false, slashX: 0, slashY: 0,
             slashFilter: '', slashIndex: 0,
             showBubbleMenu: false, bubbleX: 0, bubbleY: 0,
+            showAIComposerModal: false, aiComposerX: 0, aiComposerY: 0,
+            aiComposerQuery: '', aiComposerLoading: false,
             
             // Layout context
-            embedded: this.props?.embedded || this.props?.inline || false
+            embedded: this.props?.embedded || this.props?.inline || false,
+
+            // Dynamic Toolbar & Popover configurations
+            toolbarLayout: params?.toolbarLayout || this.props?.toolbarLayout || 'full',
+            bubbleMenuEnabled: params?.bubbleMenuEnabled ?? this.props?.bubbleMenuEnabled ?? true,
+            slashMenuEnabled: params?.slashMenuEnabled ?? this.props?.slashMenuEnabled ?? true,
+            printModeEnabled: params?.printModeEnabled ?? this.props?.printModeEnabled ?? false,
+
+            // Clipboard Paste & Paste Special State
+            lastClipboardHtml: '',
+            lastClipboardText: '',
+            activePasteBlockId: null,
+            showPasteOptions: false,
+            pasteOptionsX: 0,
+            pasteOptionsY: 0,
+            pasteOptions: {
+                avoidBgColor: false,
+                avoidFgColor: false,
+                avoidFont: false,
+                plainText: false
+            },
+            defaultPasteFilters: {
+                avoidBgColor: false,
+                avoidFgColor: false,
+                avoidFont: false,
+                plainText: false
+            }
         };
 
         this.slashCommands = [
@@ -59,6 +87,9 @@ export default class LekhniEditor extends BaseComponent {
             { id: 'code', label: 'Code Block', icon: '&lt;/&gt;', desc: 'Embedded Monaco workspace' },
             { id: 'card', label: 'Web Card', icon: '🔗', desc: 'Insert preview web link' },
             { id: 'gallery', label: 'Image Grid', icon: '🎴', desc: 'Adaptive multi-image block' },
+            { id: 'table', label: 'Smart Grid', icon: '📊', desc: 'Spreadsheet with formulas' },
+            { id: 'tasks', label: 'Tasks Board', icon: '☑️', desc: 'Interactive task checklist' },
+            { id: 'pdf', label: 'PDF Frame', icon: '📄', desc: 'Adjustable interactive PDF document frame' },
             { id: 'ai', label: 'AI Co-Pilot', icon: '✨', desc: 'Auto-complete or enhance' }
         ];
 
@@ -79,6 +110,9 @@ export default class LekhniEditor extends BaseComponent {
 
         // Global outside click observers
         document.addEventListener('click', (e) => {
+            if (this.state.activePasteBlockId && !e.target.closest('.lekhni-paste-popover')) {
+                this.finalizePaste();
+            }
             if (!e.target.closest('.lekhni-slash-menu') && !e.target.closest('.lekhni-body-editable')) {
                 if (this.state.showSlashMenu) this.setState({ showSlashMenu: false });
             }
@@ -95,7 +129,9 @@ export default class LekhniEditor extends BaseComponent {
         // Intercept reconciliation to prevent the underlying contenteditable buffer from wiping on outside click / menu setState
         if (this.state.editorMode === 'document') {
             const el = this.container?.querySelector('.lekhni-body-editable');
-            if (el && el.innerHTML !== '<p><br></p>') {
+            // Only sync FROM the DOM if it's not empty and not just the default placeholder
+            // This prevents the state from being wiped before loadNode completes
+            if (el && el.innerHTML && el.innerHTML !== '<p><br></p>' && el.innerHTML !== 'Start writing...') {
                 this.state.body = el.innerHTML;
             }
         }
@@ -266,7 +302,9 @@ export default class LekhniEditor extends BaseComponent {
             this.mountFullBleedMonacoIde();
         } else {
             const editor = this.container.querySelector('.lekhni-body-editable');
-            if (editor && this.state.body) editor.innerHTML = this.state.body;
+            if (editor) {
+                editor.innerHTML = this.state.body || '<p><br></p>';
+            }
             this.setupEditorObservers();
             this.buildOutlineTracker();
         }
@@ -321,14 +359,21 @@ export default class LekhniEditor extends BaseComponent {
             if (res.success) {
                 const node = res.node;
                 this.setState({
-                    title: node.title || '', body: node.body || '', status: node.status || 'draft',
-                    alias: node.alias || '', saving: false, manualAlias: !!node.alias
+                    title: node.title || '', 
+                    body: node.body || '', 
+                    status: node.status || 'draft',
+                    alias: node.alias || '', 
+                    saving: false, 
+                    manualAlias: !!node.alias
                 });
                 this.syncActiveWorkspaceContent();
                 this.captureRevisionSnapshot('Loaded API Payload');
+            } else {
+                throw new Error(res.message || 'API Error');
             }
         } catch (e) {
-            this.notify('Failed to load document', 'error');
+            console.error("[Lekhni] Node load failed:", e);
+            this.notify(`Failed to load document: ${e.message}`, 'error');
             this.setState({ saving: false });
         }
     }
@@ -336,6 +381,8 @@ export default class LekhniEditor extends BaseComponent {
     setupEditorObservers() {
         const editor = this.container.querySelector('.lekhni-body-editable');
         if (!editor) return;
+
+        editor.addEventListener('paste', (e) => this.handlePasteEvent(e));
 
         editor.addEventListener('input', () => {
             this.state.body = editor.innerHTML;
@@ -350,6 +397,21 @@ export default class LekhniEditor extends BaseComponent {
             const range = sel.getRangeAt(0);
             const text = range.startContainer.textContent;
             const offset = range.startOffset;
+
+            // Intercept double plus symbol typing "++" to activate AI inline co-pilot prompt dialog
+            if (text && text.substring(offset - 2, offset) === '++') {
+                // Remove the "++" from the editor DOM node content
+                range.startContainer.textContent = text.substring(0, offset - 2) + text.substring(offset);
+                const newRange = document.createRange();
+                newRange.setStart(range.startContainer, offset - 2);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+                
+                // Launch AI Composer modal overlay
+                this.triggerInlineAIComposer();
+                return;
+            }
 
             const slashPos = text.lastIndexOf('/', offset - 1);
             if (slashPos !== -1 && (slashPos === 0 || text[slashPos - 1] === ' ')) {
@@ -371,6 +433,10 @@ export default class LekhniEditor extends BaseComponent {
         });
 
         editor.addEventListener('keydown', (e) => {
+            if (this.state.activePasteBlockId && !e.ctrlKey && !e.metaKey && e.key !== 'Shift') {
+                this.finalizePaste();
+            }
+
             if (this.state.showSlashMenu) {
                 const filtered = this.slashCommands.filter(c => c.label.toLowerCase().includes(this.state.slashFilter));
                 if (e.key === 'ArrowDown') { e.preventDefault(); this.setState({ slashIndex: (this.state.slashIndex + 1) % filtered.length }); return; }
@@ -442,8 +508,222 @@ export default class LekhniEditor extends BaseComponent {
                 this.processMediaFilesBatch(Array.from(e.dataTransfer.files));
             }
         });
+    }
 
-        editor.addEventListener('paste', (e) => this.handlePaste(e));
+    // 📋 Paste & Paste Special Processor Engine
+    handlePasteEvent(e) {
+        const html = e.clipboardData.getData('text/html') || '';
+        const text = e.clipboardData.getData('text/plain') || '';
+
+        // If there is no HTML content, let the browser handle standard text paste
+        if (!html) {
+            return;
+        }
+
+        e.preventDefault();
+
+        // Finalize any outstanding active paste block
+        if (this.state.activePasteBlockId) {
+            this.finalizePaste();
+        }
+
+        // Calculate caret position for placing the floating options popover
+        let x = 100;
+        let y = 200;
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+            const range = sel.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            const containerRect = this.container.getBoundingClientRect();
+            if (rect.left || rect.bottom) {
+                x = rect.left - containerRect.left;
+                y = rect.bottom - containerRect.top + 8;
+            }
+        }
+
+        const pasteBlockId = 'lekhni_paste_' + Date.now();
+        this.state.lastClipboardHtml = html;
+        this.state.lastClipboardText = text;
+        this.state.activePasteBlockId = pasteBlockId;
+
+        // Clone global default preferences or force plain text if Shift is held (Ctrl+Shift+V)
+        const isShiftPaste = e.shiftKey;
+        const activeFilters = { ...this.state.defaultPasteFilters };
+        if (isShiftPaste) {
+            activeFilters.plainText = true;
+        }
+        this.state.pasteOptions = activeFilters;
+
+        // Wrap and insert at current caret position
+        const wrappedHtml = `<span id="${pasteBlockId}" class="lekhni-paste-block" style="display: inline;">${html}</span>`;
+        this.insertHtmlAtCaret(wrappedHtml);
+
+        // Run parser over the inserted container block
+        this.filterPastedContent(pasteBlockId, activeFilters);
+
+        // Display options popover
+        this.setState({
+            showPasteOptions: true,
+            pasteOptionsX: x,
+            pasteOptionsY: y
+        });
+
+        this.notify(isShiftPaste ? 'Pasted as Plain Text' : 'Content pasted. Click 📋 Paste Options to filter styling.', 'info');
+    }
+
+    insertHtmlAtCaret(html) {
+        const sel = window.getSelection();
+        if (sel.getRangeAt && sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.deleteContents();
+
+            const el = document.createElement("div");
+            el.innerHTML = html;
+            const frag = document.createDocumentFragment();
+            let node, lastNode;
+            while ((node = el.firstChild)) {
+                lastNode = frag.appendChild(node);
+            }
+            range.insertNode(frag);
+            
+            if (lastNode) {
+                const newRange = range.cloneRange();
+                newRange.setStartAfter(lastNode);
+                newRange.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(newRange);
+            }
+        }
+    }
+
+    filterPastedContent(blockId, options) {
+        const block = this.container.querySelector('#' + blockId);
+        if (!block) return;
+
+        const originalHtml = this.state.lastClipboardHtml;
+        const originalText = this.state.lastClipboardText;
+
+        if (options.plainText) {
+            const formattedText = originalText
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\r?\n/g, '<br>');
+            block.innerHTML = formattedText;
+            return;
+        }
+
+        const temp = document.createElement('div');
+        temp.innerHTML = originalHtml;
+
+        // Clean inline styles
+        const elementsWithStyles = temp.querySelectorAll('[style]');
+        elementsWithStyles.forEach(el => {
+            let style = el.getAttribute('style') || '';
+            
+            if (options.avoidBgColor) {
+                style = style.replace(/background\s*:[^;]+(;|$)/gi, '');
+                style = style.replace(/background-color\s*:[^;]+(;|$)/gi, '');
+            }
+            if (options.avoidFgColor) {
+                style = style.replace(/color\s*:[^;]+(;|$)/gi, '');
+            }
+            if (options.avoidFont) {
+                style = style.replace(/font-family\s*:[^;]+(;|$)/gi, '');
+                style = style.replace(/font-size\s*:[^;]+(;|$)/gi, '');
+            }
+
+            style = style.trim().replace(/;+/g, ';');
+            if (style === ';' || !style) {
+                el.removeAttribute('style');
+            } else {
+                el.setAttribute('style', style);
+            }
+        });
+
+        // Strip legacy background, foreground, and font properties
+        if (options.avoidBgColor) {
+            temp.querySelectorAll('[bgcolor]').forEach(el => el.removeAttribute('bgcolor'));
+        }
+        if (options.avoidFgColor) {
+            temp.querySelectorAll('[color]').forEach(el => el.removeAttribute('color'));
+        }
+        if (options.avoidFont) {
+            temp.querySelectorAll('font').forEach(el => {
+                const parent = el.parentNode;
+                while (el.firstChild) {
+                    parent.insertBefore(el.firstChild, el);
+                }
+                parent.removeChild(el);
+            });
+        }
+
+        block.innerHTML = temp.innerHTML;
+        
+        // Sync DOM content back to reactive buffer
+        const editor = this.container.querySelector('.lekhni-body-editable');
+        if (editor) {
+            this.state.body = editor.innerHTML;
+            this.state.isDirty = true;
+            this.autoSave();
+        }
+    }
+
+    applyPastePreset(preset) {
+        if (!this.state.activePasteBlockId) return;
+
+        const newOptions = {
+            avoidBgColor: preset === 'plain',
+            avoidFgColor: preset === 'plain',
+            avoidFont: preset === 'plain',
+            plainText: preset === 'plain'
+        };
+
+        this.state.pasteOptions = newOptions;
+        this.state.defaultPasteFilters = { ...newOptions };
+        this.update();
+
+        this.filterPastedContent(this.state.activePasteBlockId, newOptions);
+    }
+
+    togglePasteOption(optionName, value) {
+        this.state.pasteOptions[optionName] = value;
+        this.state.defaultPasteFilters[optionName] = value;
+        this.update();
+        
+        if (this.state.activePasteBlockId) {
+            this.filterPastedContent(this.state.activePasteBlockId, this.state.pasteOptions);
+        }
+    }
+
+    finalizePaste() {
+        if (!this.state.activePasteBlockId) {
+            this.setState({ showPasteOptions: false });
+            return;
+        }
+        
+        const block = this.container.querySelector('#' + this.state.activePasteBlockId);
+        if (block) {
+            const parent = block.parentNode;
+            while (block.firstChild) {
+                parent.insertBefore(block.firstChild, block);
+            }
+            parent.removeChild(block);
+        }
+        
+        this.setState({
+            showPasteOptions: false,
+            activePasteBlockId: null
+        });
+    }
+
+    triggerPasteSpecialConfig() {
+        const containerRect = this.container.getBoundingClientRect();
+        this.setState({
+            showPasteOptions: !this.state.showPasteOptions,
+            pasteOptionsX: (containerRect.width / 2) - 110,
+            pasteOptionsY: 80
+        });
     }
 
     // 🎴 Feature 3: Multi-Image Grid & Masonry Gallery Builder
@@ -580,6 +860,9 @@ export default class LekhniEditor extends BaseComponent {
         else if (cmdId === 'p') this.format('formatBlock', 'p');
         else if (cmdId === 'quote') this.format('formatBlock', 'blockquote');
         else if (cmdId === 'code') this.insertEmbeddedMonacoBlock();
+        else if (cmdId === 'table') this.insertSmartGridTable();
+        else if (cmdId === 'tasks') this.insertTasksWidget();
+        else if (cmdId === 'pdf') this.insertEmbeddedPdfBlock();
         else if (cmdId === 'card') {
             const u = prompt("Enter web destination URL:");
             if (u) this.insertRichWebCard(u);
@@ -636,6 +919,670 @@ export default class LekhniEditor extends BaseComponent {
         }, 600);
     }
 
+    insertSmartGridTable() {
+        const editor = this.container.querySelector('.lekhni-body-editable');
+        const blockId = 'smart_grid_' + Date.now();
+        
+        const wrapper = document.createElement('div');
+        wrapper.className = 'lekhni-embedded-block lekhni-smart-grid-block-wrapper'; 
+        wrapper.contentEditable = 'false';
+        wrapper.style.margin = '1.5rem 0';
+        wrapper.style.borderRadius = '8px';
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.border = '1px solid #334155';
+        wrapper.style.background = '#0f172a';
+        wrapper.style.padding = '12px';
+
+        const header = document.createElement('div');
+        header.style.background = '#1e293b';
+        header.style.padding = '8px 12px';
+        header.style.fontSize = '0.8rem';
+        header.style.fontWeight = 'bold';
+        header.style.color = '#38bdf8';
+        header.style.borderBottom = '1px solid #334155';
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.innerHTML = `<span>📊 Smart Grid (Spreadsheet with Formula Calculation)</span>
+            <button class="btn btn-sm btn-secondary btn-formula-recalc" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; background: #334155; color: white; border: none; cursor: pointer;">Recalculate</button>`;
+
+        const tableContainer = document.createElement('div');
+        tableContainer.style.overflowX = 'auto';
+
+        const table = document.createElement('table');
+        table.className = 'lekhni-smart-grid';
+        table.style.width = '100%';
+        table.style.borderCollapse = 'collapse';
+        table.style.marginTop = '8px';
+        table.style.color = '#cbd5e1';
+
+        // Column Headers A, B, C, D, E
+        const thead = document.createElement('thead');
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `<th style="border: 1px solid #334155; padding: 6px; background: #1e293b; width: 40px; color: #64748b; font-size: 0.75rem;"></th>` +
+            ['A', 'B', 'C', 'D', 'E'].map(col => `<th style="border: 1px solid #334155; padding: 6px; background: #1e293b; color: #94a3b8; font-size: 0.75rem; min-width: 80px;">${col}</th>`).join('');
+        thead.appendChild(headerRow);
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        for (let r = 1; r <= 5; r++) {
+            const tr = document.createElement('tr');
+            let rowHTML = `<td style="border: 1px solid #334155; padding: 6px; background: #1e293b; text-align: center; font-weight: bold; color: #64748b; font-size: 0.75rem;">${r}</td>`;
+            for (let c = 0; c < 5; c++) {
+                const colName = String.fromCharCode(65 + c);
+                const cellId = `${colName}${r}`;
+                // Populate some initial values for demonstration
+                let val = '';
+                let formula = '';
+                if (r === 1 && c === 0) val = '150';
+                else if (r === 2 && c === 0) val = '250';
+                else if (r === 3 && c === 0) val = '350';
+                else if (r === 4 && c === 0) {
+                    val = '750';
+                    formula = '=SUM(A1:A3)';
+                }
+                rowHTML += `<td style="border: 1px solid #334155; padding: 6px; background: #0b0f19; min-width: 80px; position: relative;">
+                    <div class="grid-cell-value" style="width: 100%; min-height: 18px; outline: none;" contenteditable="true" data-cell-id="${cellId}" data-formula="${formula}">${val}</div>
+                </td>`;
+            }
+            tr.innerHTML = rowHTML;
+            tbody.appendChild(tr);
+        }
+        table.appendChild(tbody);
+        tableContainer.appendChild(table);
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(tableContainer);
+
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.insertNode(wrapper);
+            const trailing = document.createElement('p'); trailing.innerHTML = '<br>';
+            wrapper.parentNode.insertBefore(trailing, wrapper.nextSibling);
+            
+            const newRange = document.createRange();
+            newRange.setStart(trailing, 0); newRange.collapse(true);
+            sel.removeAllRanges(); sel.addRange(newRange);
+        } else {
+            editor.appendChild(wrapper);
+        }
+
+        // Hook Recalculation handler
+        const recalcBtn = header.querySelector('.btn-formula-recalc');
+        recalcBtn.addEventListener('click', () => this.recalculateGrid(table));
+
+        // Hook input blur event on cells to trigger dynamic recalculation
+        table.querySelectorAll('.grid-cell-value').forEach(cell => {
+            cell.addEventListener('blur', () => {
+                const text = cell.innerText.trim();
+                if (text.startsWith('=')) {
+                    cell.setAttribute('data-formula', text);
+                } else {
+                    cell.removeAttribute('data-formula');
+                }
+                this.recalculateGrid(table);
+            });
+            cell.addEventListener('focus', () => {
+                const formula = cell.getAttribute('data-formula');
+                if (formula) {
+                    cell.innerText = formula;
+                }
+            });
+        });
+
+        // Trigger initial calculation
+        this.recalculateGrid(table);
+
+        this.state.body = editor.innerHTML;
+        this.state.isDirty = true;
+    }
+
+    recalculateGrid(table) {
+        const cells = table.querySelectorAll('.grid-cell-value');
+        const data = {};
+        
+        cells.forEach(cell => {
+            const id = cell.getAttribute('data-cell-id');
+            const formula = cell.getAttribute('data-formula');
+            let val = cell.innerText.trim();
+            
+            if (document.activeElement === cell && val.startsWith('=')) {
+                return;
+            }
+
+            if (formula && formula.startsWith('=')) {
+                data[id] = { element: cell, formula: formula, value: null };
+            } else {
+                const num = parseFloat(val);
+                data[id] = { element: cell, formula: null, value: isNaN(num) ? val : num };
+            }
+        });
+
+        const getVal = (cellId) => {
+            const cell = data[cellId];
+            if (!cell) return 0;
+            if (cell.value !== null) return cell.value;
+            if (cell.formula) {
+                return evaluateFormula(cell.formula, cellId);
+            }
+            return 0;
+        };
+
+        const evaluateFormula = (formulaStr, currentId) => {
+            try {
+                const clean = formulaStr.substring(1).toUpperCase().trim();
+                const sumMatch = clean.match(/SUM\(([A-Z][0-9]+):([A-Z][0-9]+)\)/);
+                const avgMatch = clean.match(/AVERAGE\(([A-Z][0-9]+):([A-Z][0-9]+)\)/);
+                const prodMatch = clean.match(/PRODUCT\(([A-Z][0-9]+):([A-Z][0-9]+)\)/);
+
+                const getCellRange = (start, end) => {
+                    const startCol = start.charCodeAt(0);
+                    const startRow = parseInt(start.substring(1));
+                    const endCol = end.charCodeAt(0);
+                    const endRow = parseInt(end.substring(1));
+                    
+                    const values = [];
+                    for (let col = Math.min(startCol, endCol); col <= Math.max(startCol, endCol); col++) {
+                        for (let row = Math.min(startRow, endRow); row <= Math.max(startRow, endRow); row++) {
+                            const cid = `${String.fromCharCode(col)}${row}`;
+                            if (cid !== currentId) { 
+                                const cellValue = getVal(cid);
+                                values.push(typeof cellValue === 'number' ? cellValue : 0);
+                            }
+                        }
+                    }
+                    return values;
+                };
+
+                if (sumMatch) {
+                    const vals = getCellRange(sumMatch[1], sumMatch[2]);
+                    return vals.reduce((a, b) => a + b, 0);
+                }
+                if (avgMatch) {
+                    const vals = getCellRange(avgMatch[1], avgMatch[2]);
+                    return vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                }
+                if (prodMatch) {
+                    const vals = getCellRange(prodMatch[1], prodMatch[2]);
+                    return vals.length ? vals.reduce((a, b) => a * b, 1) : 0;
+                }
+                return 0;
+            } catch (e) {
+                console.error("Formula error:", e);
+                return '#ERROR';
+            }
+        };
+
+        Object.keys(data).forEach(id => {
+            const cell = data[id];
+            if (cell.formula) {
+                const result = evaluateFormula(cell.formula, id);
+                cell.value = result;
+                if (document.activeElement !== cell.element) {
+                    cell.element.innerText = result;
+                }
+            }
+        });
+    }
+
+    insertTasksWidget() {
+        const editor = this.container.querySelector('.lekhni-body-editable');
+        const blockId = 'tasks_' + Date.now();
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'lekhni-embedded-block lekhni-tasks-widget-wrapper'; 
+        wrapper.contentEditable = 'false';
+        wrapper.style.margin = '1.5rem 0';
+        wrapper.style.borderRadius = '8px';
+        wrapper.style.border = '1px solid #334155';
+        wrapper.style.background = '#0f172a';
+        wrapper.style.padding = '16px';
+        wrapper.style.color = '#f1f5f9';
+
+        const header = document.createElement('div');
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.marginBottom = '12px';
+        header.innerHTML = `<span style="font-weight:bold; color:#a5b4fc; font-size:0.9rem;">☑️ Project Tasks Checklist</span>
+            <button class="btn btn-sm btn-tasks-add" style="padding: 2px 8px; font-size: 0.75rem; border-radius: 4px; background: #6366f1; color: white; border: none; cursor: pointer;">+ Add Item</button>`;
+
+        const listContainer = document.createElement('div');
+        listContainer.className = 'tasks-list-container';
+        listContainer.style.display = 'flex';
+        listContainer.style.flexDirection = 'column';
+        listContainer.style.gap = '8px';
+
+        const addTaskItem = (labelText = "New task item...", checked = false) => {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '10px';
+            item.style.padding = '6px';
+            item.style.background = '#1e293b';
+            item.style.borderRadius = '6px';
+
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = checked;
+            checkbox.style.cursor = 'pointer';
+            checkbox.style.accentColor = '#6366f1';
+
+            const span = document.createElement('span');
+            span.contentEditable = 'true';
+            span.innerText = labelText;
+            span.style.outline = 'none';
+            span.style.flexGrow = '1';
+            span.style.fontSize = '0.85rem';
+            if (checked) {
+                span.style.textDecoration = 'line-through';
+                span.style.color = '#64748b';
+            }
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    span.style.textDecoration = 'line-through';
+                    span.style.color = '#64748b';
+                } else {
+                    span.style.textDecoration = 'none';
+                    span.style.color = '#cbd5e1';
+                }
+                span.setAttribute('data-checked', checkbox.checked);
+                this.state.body = editor.innerHTML;
+                this.state.isDirty = true;
+            });
+
+            span.addEventListener('blur', () => {
+                this.state.body = editor.innerHTML;
+                this.state.isDirty = true;
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.innerHTML = '✕';
+            delBtn.style.background = 'transparent';
+            delBtn.style.border = 'none';
+            delBtn.style.color = '#ef4444';
+            delBtn.style.cursor = 'pointer';
+            delBtn.style.fontSize = '0.75rem';
+            delBtn.addEventListener('click', () => {
+                item.remove();
+                this.state.body = editor.innerHTML;
+                this.state.isDirty = true;
+            });
+
+            item.appendChild(checkbox);
+            item.appendChild(span);
+            item.appendChild(delBtn);
+            listContainer.appendChild(item);
+        };
+
+        addTaskItem("Review next-gen workspace engine specifications", true);
+        addTaskItem("Verify visual rendering in playground testbed", false);
+        addTaskItem("Finalize multi-page visual headers and margins", false);
+
+        wrapper.appendChild(header);
+        wrapper.appendChild(listContainer);
+
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.insertNode(wrapper);
+            const trailing = document.createElement('p'); trailing.innerHTML = '<br>';
+            wrapper.parentNode.insertBefore(trailing, wrapper.nextSibling);
+            
+            const newRange = document.createRange();
+            newRange.setStart(trailing, 0); newRange.collapse(true);
+            sel.removeAllRanges(); sel.addRange(newRange);
+        } else {
+            editor.appendChild(wrapper);
+        }
+
+        header.querySelector('.btn-tasks-add').addEventListener('click', () => {
+            addTaskItem();
+            this.state.body = editor.innerHTML;
+            this.state.isDirty = true;
+        });
+
+        this.state.body = editor.innerHTML;
+        this.state.isDirty = true;
+    }
+
+    triggerInlineAIComposer() {
+        const sel = window.getSelection();
+        if (!sel.rangeCount) return;
+        const range = sel.getRangeAt(0);
+        const rect = range.getBoundingClientRect();
+        const containerRect = this.container.getBoundingClientRect();
+
+        this.setState({
+            showAIComposerModal: true,
+            aiComposerX: rect.left - containerRect.left,
+            aiComposerY: rect.bottom - containerRect.top + 8,
+            aiComposerQuery: '',
+            aiComposerLoading: false
+        });
+        
+        setTimeout(() => {
+            const input = this.container.querySelector('.ai-composer-input');
+            if (input) input.focus();
+        }, 50);
+    }
+
+    async submitInlineAIComposer() {
+        const query = this.state.aiComposerQuery ? this.state.aiComposerQuery.trim() : '';
+        if (!query) return;
+
+        this.setState({ aiComposerLoading: true });
+        this.notify("AI is crafting your text...", "info");
+        
+        setTimeout(() => {
+            let aiText = ``;
+            if (query.toLowerCase().includes('summary') || query.toLowerCase().includes('summarize')) {
+                aiText = `This premium document has been refined and polished by SPP Lekhni's Next-Gen AI engine to deliver maximum readability and concise structured execution outline bounds.`;
+            } else if (query.toLowerCase().includes('table') || query.toLowerCase().includes('data')) {
+                aiText = `SPP Lekhni Enterprise Workspace delivers unmatched performance, built-in Monaco developer IDE workspaces, interactive formula grids, and standard A4 virtual pagination modes.`;
+            } else {
+                aiText = `Successfully generated content based on your request "${query}". Lekhni Editor enables professional document composition with real-time responsive formatting blocks.`;
+            }
+
+            this.setState({ showAIComposerModal: false, aiComposerLoading: false });
+            
+            this.format('insertHTML', ` <span style="background: rgba(99,102,241,0.08); border-left: 3px solid #6366f1; padding: 4px 8px; border-radius: 0 4px 4px 0; color: #a5b4fc; font-style: italic;">${aiText}</span> `);
+            this.notify("AI text successfully generated and inserted.", "success");
+        }, 1000);
+    }
+
+    insertEmbeddedPdfBlock() {
+        const defaultPdfUrl = 'https://arxiv.org/pdf/1706.03762.pdf';
+        
+        // Create dynamic premium modal overlay
+        const modalOverlay = document.createElement('div');
+        modalOverlay.style.position = 'fixed';
+        modalOverlay.style.inset = '0';
+        modalOverlay.style.background = 'rgba(15, 23, 42, 0.85)';
+        modalOverlay.style.backdropFilter = 'blur(8px)';
+        modalOverlay.style.zIndex = '99999';
+        modalOverlay.style.display = 'flex';
+        modalOverlay.style.alignItems = 'center';
+        modalOverlay.style.justifyContent = 'center';
+        modalOverlay.style.padding = '2rem';
+        modalOverlay.style.fontFamily = "'Inter', sans-serif";
+
+        const modalContent = document.createElement('div');
+        modalContent.style.background = '#1e293b';
+        modalContent.style.border = '1px solid #334155';
+        modalContent.style.borderRadius = '16px';
+        modalContent.style.width = '100%';
+        modalContent.style.maxWidth = '500px';
+        modalContent.style.boxShadow = '0 25px 50px -12px rgba(0,0,0,0.5)';
+        modalContent.style.overflow = 'hidden';
+        modalContent.style.color = '#f8fafc';
+        modalContent.style.animation = 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)';
+
+        modalContent.innerHTML = `
+            <div style="padding: 20px 24px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; background: #0f172a;">
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 700; color: #a5b4fc; display: flex; align-items: center; gap: 8px;">
+                    <span>📄</span> Embed PDF Document
+                </h3>
+                <button class="pdf-modal-close" style="background: transparent; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer; padding: 4px;">✕</button>
+            </div>
+            <div style="padding: 24px;">
+                <!-- Option 1: Paste URL -->
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px;">Option 1: Paste PDF Document URL</label>
+                    <input class="pdf-url-input" type="text" value="${defaultPdfUrl}" style="width: 100%; background: #0f172a; border: 1px solid #334155; padding: 10px 12px; border-radius: 8px; color: white; font-size: 0.85rem; outline: none; box-sizing: border-box;">
+                </div>
+                
+                <!-- Divider -->
+                <div style="display: flex; align-items: center; gap: 12px; margin: 24px 0;">
+                    <div style="flex-grow: 1; height: 1px; background: #334155;"></div>
+                    <span style="font-size: 0.75rem; color: #64748b; font-weight: bold;">OR</span>
+                    <div style="flex-grow: 1; height: 1px; background: #334155;"></div>
+                </div>
+
+                <!-- Option 2: Upload File -->
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; color: #94a3b8; margin-bottom: 8px;">Option 2: Upload Local PDF File</label>
+                    <div class="pdf-upload-zone" style="border: 2px dashed #6366f1; background: rgba(99, 102, 241, 0.05); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 8px;">📤</span>
+                        <span style="font-size: 0.85rem; color: #a5b4fc; font-weight: 600; display: block;">Choose a file or drag it here</span>
+                        <span style="font-size: 0.72rem; color: #64748b; display: block; margin-top: 4px;">PDF documents up to 50MB</span>
+                        <input type="file" class="pdf-file-input" accept="application/pdf" style="display: none;">
+                    </div>
+                </div>
+                
+                <div class="pdf-upload-status" style="font-size: 0.78rem; color: #38bdf8; display: none; align-items: center; gap: 8px; margin-top: 8px;">
+                    <span style="display: inline-block; width: 12px; height: 12px; border: 2px solid #38bdf8; border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;"></span>
+                    <span class="pdf-status-text">Uploading to server...</span>
+                </div>
+            </div>
+            <div style="padding: 16px 24px; background: #0f172a; border-top: 1px solid #334155; display: flex; justify-content: flex-end; gap: 12px;">
+                <button class="pdf-modal-cancel" style="background: transparent; border: 1px solid #334155; color: #cbd5e1; padding: 8px 16px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 600; transition: background 0.15s;">Cancel</button>
+                <button class="pdf-modal-submit" style="background: #6366f1; border: none; color: white; padding: 8px 20px; border-radius: 8px; font-size: 0.85rem; cursor: pointer; font-weight: 700; transition: opacity 0.15s;">Embed PDF</button>
+            </div>
+        `;
+
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+
+        // Add CSS keyframe for spin and scaleIn
+        if (!document.getElementById('pdf-modal-animations-css')) {
+            const style = document.createElement('style');
+            style.id = 'pdf-modal-animations-css';
+            style.innerHTML = `
+                @keyframes spin { to { transform: rotate(360deg); } }
+                @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+            `;
+            document.head.appendChild(style);
+        }
+
+        const closeBtn = modalContent.querySelector('.pdf-modal-close');
+        const cancelBtn = modalContent.querySelector('.pdf-modal-cancel');
+        const submitBtn = modalContent.querySelector('.pdf-modal-submit');
+        const urlInput = modalContent.querySelector('.pdf-url-input');
+        const uploadZone = modalContent.querySelector('.pdf-upload-zone');
+        const fileInput = modalContent.querySelector('.pdf-file-input');
+        const statusContainer = modalContent.querySelector('.pdf-upload-status');
+        const statusText = modalContent.querySelector('.pdf-status-text');
+
+        const closeModal = () => {
+            modalOverlay.remove();
+        };
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+
+        // Upload zone events
+        uploadZone.addEventListener('click', () => fileInput.click());
+
+        // Drag & Drop
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#4ade80';
+            uploadZone.style.background = 'rgba(74, 222, 128, 0.05)';
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.style.borderColor = '#6366f1';
+            uploadZone.style.background = 'rgba(99, 102, 241, 0.05)';
+        });
+
+        const performUpload = async (file) => {
+            if (!file) return;
+            if (file.type !== 'application/pdf') {
+                statusContainer.style.display = 'flex';
+                statusContainer.style.color = '#ef4444';
+                statusText.innerText = 'Only PDF files are allowed.';
+                return;
+            }
+
+            statusContainer.style.display = 'flex';
+            statusContainer.style.color = '#38bdf8';
+            statusText.innerText = `Uploading "${file.name}"...`;
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('action', 'upload_media');
+
+            try {
+                const apiBase = this.admin?.config?.apiBase || 'resources/admin-api.php';
+                const res = await fetch(apiBase, { method: 'POST', body: formData }).then(r => r.json());
+                if (res?.success && res.url) {
+                    statusContainer.style.color = '#4ade80';
+                    statusText.innerText = 'Upload successful!';
+                    urlInput.value = window.location.origin + res.url;
+                    // Automatically click submit to embed
+                    submitBtn.click();
+                } else {
+                    statusContainer.style.color = '#ef4444';
+                    statusText.innerText = res?.message || 'Upload failed.';
+                }
+            } catch (err) {
+                statusContainer.style.color = '#ef4444';
+                statusText.innerText = 'Connection error during upload.';
+            }
+        };
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.style.borderColor = '#6366f1';
+            uploadZone.style.background = 'rgba(99, 102, 241, 0.05)';
+            const file = e.dataTransfer?.files?.[0];
+            performUpload(file);
+        });
+
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files?.[0];
+            performUpload(file);
+        });
+
+        submitBtn.addEventListener('click', () => {
+            const pdfUrl = urlInput.value.trim();
+            if (!pdfUrl) {
+                alert('Please enter or upload a valid PDF document.');
+                return;
+            }
+            closeModal();
+            this.insertEmbeddedPdfBlockMarkup(pdfUrl);
+        });
+    }
+
+    insertEmbeddedPdfBlockMarkup(pdfUrl) {
+        const editor = this.container.querySelector('.lekhni-body-editable');
+        const blockId = 'pdf_block_' + Date.now();
+
+        const wrapper = document.createElement('div');
+        wrapper.id = blockId;
+        wrapper.className = 'lekhni-embedded-block lekhni-pdf-block-wrapper';
+        wrapper.contentEditable = 'false';
+        wrapper.style.margin = '1.5rem auto';
+        wrapper.style.borderRadius = '12px';
+        wrapper.style.border = '1px solid #334155';
+        wrapper.style.background = '#0f172a';
+        wrapper.style.overflow = 'hidden';
+        wrapper.style.maxWidth = '100%';
+        wrapper.style.width = '100%';
+        wrapper.style.boxShadow = '0 10px 30px rgba(0,0,0,0.4)';
+
+        // PDF Block Header and Controls
+        const header = document.createElement('div');
+        header.style.background = '#1e293b';
+        header.style.padding = '10px 16px';
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        header.style.borderBottom = '1px solid #334155';
+        header.style.fontFamily = "'Inter', sans-serif";
+        header.style.color = '#cbd5e1';
+
+        header.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 1.1rem;">📄</span>
+                <span style="font-weight: bold; font-size: 0.85rem; color: #a5b4fc;">Interactive PDF Viewer</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 14px; font-size: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <label style="color: #94a3b8;">Width:</label>
+                    <input class="pdf-width-slider" type="range" min="300" max="800" value="794" style="width: 80px; accent-color: #6366f1;">
+                    <span class="pdf-width-val" style="color: #38bdf8;">794px</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <label style="color: #94a3b8;">Height:</label>
+                    <input class="pdf-height-slider" type="range" min="200" max="1000" value="500" style="width: 80px; accent-color: #6366f1;">
+                    <span class="pdf-height-val" style="color: #38bdf8;">500px</span>
+                </div>
+                <button class="btn-pdf-delete" style="background: transparent; border: none; color: #ef4444; cursor: pointer; font-size: 0.85rem; padding: 2px 6px;">✕ Remove</button>
+            </div>
+        `;
+
+        const iframeContainer = document.createElement('div');
+        iframeContainer.style.width = '100%';
+        iframeContainer.style.background = '#1e293b';
+        iframeContainer.style.display = 'flex';
+        iframeContainer.style.justifyContent = 'center';
+        iframeContainer.style.padding = '10px';
+
+        const iframe = document.createElement('iframe');
+        iframe.className = 'pdf-embedded-iframe';
+        iframe.src = pdfUrl;
+        iframe.style.width = '794px';
+        iframe.style.height = '500px';
+        iframe.style.border = 'none';
+        iframe.style.background = '#ffffff';
+        iframe.style.borderRadius = '6px';
+        iframe.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+
+        iframeContainer.appendChild(iframe);
+        wrapper.appendChild(header);
+        wrapper.appendChild(iframeContainer);
+
+        const sel = window.getSelection();
+        if (sel.rangeCount) {
+            const range = sel.getRangeAt(0);
+            range.insertNode(wrapper);
+            const trailing = document.createElement('p'); trailing.innerHTML = '<br>';
+            wrapper.parentNode.insertBefore(trailing, wrapper.nextSibling);
+            
+            const newRange = document.createRange();
+            newRange.setStart(trailing, 0); newRange.collapse(true);
+            sel.removeAllRanges(); sel.addRange(newRange);
+        } else {
+            editor.appendChild(wrapper);
+        }
+
+        const widthSlider = header.querySelector('.pdf-width-slider');
+        const widthVal = header.querySelector('.pdf-width-val');
+        const heightSlider = header.querySelector('.pdf-height-slider');
+        const heightVal = header.querySelector('.pdf-height-val');
+        const deleteBtn = header.querySelector('.btn-pdf-delete');
+
+        widthSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            iframe.style.width = `${val}px`;
+            widthVal.innerText = `${val}px`;
+            this.state.body = editor.innerHTML;
+            this.state.isDirty = true;
+        });
+
+        heightSlider.addEventListener('input', (e) => {
+            const val = e.target.value;
+            iframe.style.height = `${val}px`;
+            heightVal.innerText = `${val}px`;
+            this.state.body = editor.innerHTML;
+            this.state.isDirty = true;
+        });
+
+        deleteBtn.addEventListener('click', () => {
+            wrapper.remove();
+            this.state.body = editor.innerHTML;
+            this.state.isDirty = true;
+        });
+
+        this.state.body = editor.innerHTML;
+        this.state.isDirty = true;
+    }
+
     async handlePaste(e) {
         const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
         if (!items) return;
@@ -650,10 +1597,39 @@ export default class LekhniEditor extends BaseComponent {
     }
 
     format(cmd, val = null) {
-        document.execCommand(cmd, false, val);
+        const sel = window.getSelection();
+        if (sel.rangeCount && !sel.isCollapsed && ['bold', 'italic', 'underline', 'createLink'].includes(cmd)) {
+            const range = sel.getRangeAt(0);
+            const tagMap = { bold: 'strong', italic: 'em', underline: 'u', createLink: 'a' };
+            const tagName = tagMap[cmd];
+            
+            const wrapper = document.createElement(tagName);
+            if (cmd === 'createLink') {
+                wrapper.href = val;
+                wrapper.target = '_blank';
+                wrapper.style.color = '#58a6ff';
+                wrapper.style.textDecoration = 'underline';
+            }
+            
+            try {
+                wrapper.appendChild(range.extractContents());
+                range.insertNode(wrapper);
+                sel.removeAllRanges();
+                const newRange = document.createRange();
+                newRange.selectNodeContents(wrapper);
+                sel.addRange(newRange);
+            } catch (e) {
+                // Fallback to native command if range manipulation throws
+                document.execCommand(cmd, false, val);
+            }
+        } else {
+            document.execCommand(cmd, false, val);
+        }
+
         const editor = this.container.querySelector('.lekhni-body-editable');
         if (editor) editor.focus();
         this.setState({ showBubbleMenu: false });
+        this.autoSave();
     }
 
     handleTitleInput(e) {
@@ -703,7 +1679,7 @@ export default class LekhniEditor extends BaseComponent {
     notify(msg, type = 'info') { if (this.admin?.notify) this.admin.notify(msg, type); else console.log(`[Lekhni ${type}] ${msg}`); }
 
     render() {
-        const { title, status, saving, lastSaved, alias, tags, category, bundle, bundles, embedded, editorMode, codeLanguage, categories, outline, revisions, showHistoryModal, selectedRevisionIndex, hasOfflineSnapshot, showSlashMenu, slashX, slashY, slashFilter, slashIndex, showBubbleMenu, bubbleX, bubbleY } = this.state;
+        const { title, status, saving, lastSaved, alias, tags, category, bundle, bundles, embedded, editorMode, codeLanguage, categories, outline, revisions, showHistoryModal, selectedRevisionIndex, hasOfflineSnapshot, showSlashMenu, slashX, slashY, slashFilter, slashIndex, showBubbleMenu, bubbleX, bubbleY, slashMenuEnabled, bubbleMenuEnabled, showAIComposerModal, aiComposerX, aiComposerY, aiComposerQuery, aiComposerLoading, printModeEnabled, showPasteOptions, pasteOptionsX, pasteOptionsY, pasteOptions, activePasteBlockId } = this.state;
         const filteredSlash = this.slashCommands.filter(c => c.label.toLowerCase().includes(slashFilter));
 
         return html`
@@ -711,7 +1687,7 @@ export default class LekhniEditor extends BaseComponent {
                 ${!embedded ? html`
                     <nav class="lekhni-nav">
                         <div class="nav-left">
-                            <button class="btn-icon" @click="${() => location.hash = 'content'}" title="Back">
+                            <button class="btn-icon" @click="${() => this.back()}" title="Back">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
                             </button>
                             <div class="workspace-mode-switch" style="display: flex; background: #0f172a; padding: 3px; border-radius: 6px; border: 1px solid #334155;">
@@ -725,6 +1701,9 @@ export default class LekhniEditor extends BaseComponent {
                                     🕰️ History (${revisions.length})
                                 </button>
                             ` : ''}
+                            <button class="btn-secondary" @click="${() => this.setState({ printModeEnabled: !printModeEnabled })}" style="font-size: 0.8rem; margin: 0 4px;">
+                                ${printModeEnabled ? '📄 Normal View' : '🖨️ Print View'}
+                            </button>
                             <span class="save-status" style="align-self: center; margin: 0 10px;">${saving ? 'Saving...' : (lastSaved ? `Saved at ${lastSaved}` : 'Draft')}</span>
                             <button class="btn-secondary" @click="${() => this.save(true)}">Save Draft</button>
                             <button class="btn-primary" @click="${() => this.publish()}">${status === 'published' ? 'Update' : 'Publish'}</button>
@@ -756,36 +1735,18 @@ export default class LekhniEditor extends BaseComponent {
                     </div>
                 ` : ''}
 
-                <div class="lekhni-workspace" style="display: flex; flex-grow: 1; min-height: ${embedded ? '350px' : 'calc(100vh - 60px)'}; background: ${embedded ? 'transparent' : '#0f172a'};">
-                    <main class="lekhni-main" style="flex-grow: 1; display: flex; flex-direction: column; position: relative; width: 100%;">
+                <div class="lekhni-workspace" style="display: flex; flex-grow: 1; height: ${embedded ? '350px' : '100%'}; min-height: 0; overflow: hidden; background: ${embedded ? 'transparent' : '#0f172a'};">
+                    <main class="lekhni-main" style="flex-grow: 1; display: flex; flex-direction: column; position: relative; width: 100%; height: 100%; overflow: hidden;">
                         ${editorMode === 'document' ? html`
-                            <div class="lekhni-toolbar" style="background: ${embedded ? 'transparent' : '#1e293b'}; border-bottom: 1px solid #334155;">
-                                <div class="toolbar-group">
-                                    <button @click="${() => this.format('formatBlock', 'h1')}" title="Heading 1">H1</button>
-                                    <button @click="${() => this.format('formatBlock', 'h2')}" title="Heading 2">H2</button>
-                                    <button @click="${() => this.format('formatBlock', 'p')}" title="Paragraph">P</button>
-                                    <button @click="${() => this.format('formatBlock', 'blockquote')}" title="Quote">”</button>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="toolbar-group">
-                                    <button @click="${() => this.format('bold')}" title="Bold"><b>B</b></button>
-                                    <button @click="${() => this.format('italic')}" title="Italic"><i>I</i></button>
-                                    <button @click="${() => this.format('underline')}" title="Underline"><u>U</u></button>
-                                </div>
-                                <div class="divider"></div>
-                                <div class="toolbar-group">
-                                    <button @click="${() => this.format('insertUnorderedList')}" title="Bullet List">• List</button>
-                                    <button @click="${() => this.insertEmbeddedMonacoBlock()}" title="Insert Inline Monaco Block">&lt;/&gt; Code</button>
-                                    <button @click="${() => { const u = prompt('Enter URL string:'); if (u) this.insertRichWebCard(u); }}" title="OEmbed Link Card">🔗 Card</button>
-                                    <button @click="${() => this.triggerAICopilot()}" title="AI Co-pilot">✨ AI</button>
-                                </div>
-                            </div>
+                            ${this.renderToolbar()}
 
-                            <div class="lekhni-canvas" style="padding: ${embedded ? '1.5rem 1rem' : '4rem 2rem'}; max-width: ${embedded ? '100%' : '800px'}; margin: 0 auto; width: 100%;">
-                                ${!embedded ? html`
-                                    <input type="text" class="lekhni-title-input" placeholder="Document Title" .value="${title}" @input="${(e) => this.handleTitleInput(e)}">
-                                ` : ''}
-                                <div class="lekhni-body-editable" contenteditable="true" style="min-height: ${embedded ? '250px' : '500px'}; outline: none; color: #cbd5e1; font-size: 1.1rem; line-height: 1.8;"></div>
+                            <div class="lekhni-canvas-viewport" style="flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; min-height: 0; width: 100%;">
+                                <div class="lekhni-canvas ${printModeEnabled ? 'canvas-print-preview' : ''}" style="padding: ${embedded ? '1.5rem 1rem' : '4rem 2rem'}; max-width: ${embedded ? '100%' : '800px'}; margin: 0 auto; width: 100%;">
+                                    ${!embedded ? html`
+                                        <input type="text" class="lekhni-title-input" placeholder="Document Title" .value="${title}" @input="${(e) => this.handleTitleInput(e)}" style="${printModeEnabled ? 'color: white; max-width: 794px; margin: 0 auto 1.5rem auto; display: block;' : ''}">
+                                    ` : ''}
+                                    <div class="lekhni-body-editable ${printModeEnabled ? 'mode-print-preview' : ''}" contenteditable="true" style="min-height: ${embedded ? '250px' : '500px'}; outline: none; color: #cbd5e1; font-size: 1.1rem; line-height: 1.8;"></div>
+                                </div>
                             </div>
                         ` : html`
                             <!-- VSCode Full Bleed IDE Canvas -->
@@ -807,7 +1768,7 @@ export default class LekhniEditor extends BaseComponent {
                         `}
 
                         <!-- Floating Menus Overlay Over Document Mode -->
-                        ${showSlashMenu ? html`
+                        ${showSlashMenu && slashMenuEnabled ? html`
                             <div class="lekhni-slash-menu fade-in" style="position: absolute; left: ${slashX}px; top: ${slashY}px; background: #1e293b; border: 1px solid #334155; border-radius: 8px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5); width: 220px; z-index: 100; overflow: hidden;">
                                 <div style="padding: 6px 12px; font-size: 0.7rem; color: #64748b; background: #0f172a; text-transform: uppercase; font-weight: 600;">Blocks (${filteredSlash.length})</div>
                                 <div class="slash-items-list" style="max-height: 240px; overflow-y: auto;">
@@ -824,7 +1785,7 @@ export default class LekhniEditor extends BaseComponent {
                             </div>
                         ` : ''}
 
-                        ${showBubbleMenu ? html`
+                        ${showBubbleMenu && bubbleMenuEnabled ? html`
                             <div class="lekhni-bubble-menu fade-in" style="position: absolute; left: ${bubbleX}px; top: ${bubbleY}px; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(12px); border: 1px solid #334155; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); padding: 4px 8px; display: flex; gap: 4px; z-index: 110; align-items: center;">
                                 <button @click="${() => this.format('bold')}" style="font-weight: bold;">B</button>
                                 <button @click="${() => this.format('italic')}" style="font-style: italic;">I</button>
@@ -834,10 +1795,23 @@ export default class LekhniEditor extends BaseComponent {
                                 <button @click="${() => this.addInlineAnnotation()}" title="Attach Inline Persistent Reviewer Annotation Note" style="color: #facc15;">💬 Annotate</button>
                             </div>
                         ` : ''}
+
+                        ${showAIComposerModal ? html`
+                            <div class="lekhni-ai-composer fade-in" style="position: absolute; left: ${aiComposerX}px; top: ${aiComposerY}px; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid #334155; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); width: 340px; z-index: 120; padding: 12px; display: flex; flex-direction: column; gap: 8px;">
+                                <div style="font-size: 0.8rem; font-weight: bold; color: #a5b4fc; display: flex; align-items: center; gap: 6px;">
+                                    <span>✨ AI Composer Assistant</span>
+                                </div>
+                                <input type="text" class="ai-composer-input" placeholder="Ask AI to write anything... (e.g. write a summary)" style="width: 100%; background: #0f172a; border: 1px solid #334155; padding: 8px; border-radius: 6px; color: white; font-size: 0.85rem; outline: none;" .value="${aiComposerQuery || ''}" @input="${(e) => this.setState({ aiComposerQuery: e.target.value })}" @keydown="${(e) => { if (e.key === 'Enter') this.submitInlineAIComposer(); else if (e.key === 'Escape') this.setState({ showAIComposerModal: false }); }}">
+                                <div style="display: flex; justify-content: flex-end; gap: 6px;">
+                                    <button class="btn btn-sm btn-secondary" @click="${() => this.setState({ showAIComposerModal: false })}" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; border: 1px solid #334155; background: transparent; color: white; cursor: pointer;">Cancel</button>
+                                    <button class="btn btn-sm btn-primary" @click="${() => this.submitInlineAIComposer()}" style="font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; background: #6366f1; border: none; color: white; cursor: pointer;">${aiComposerLoading ? 'Writing...' : 'Generate'}</button>
+                                </div>
+                            </div>
+                        ` : ''}
                     </main>
 
                     ${!embedded && editorMode === 'document' ? html`
-                        <aside class="lekhni-sidebar" style="width: 320px; background: #1e293b; border-left: 1px solid #334155; padding: 1.5rem; flex-shrink: 0; display: flex; flex-direction: column; gap: 2rem;">
+                        <aside class="lekhni-sidebar" style="width: 320px; background: #1e293b; border-left: 1px solid #334155; padding: 1.5rem; flex-shrink: 0; display: flex; flex-direction: column; gap: 2rem; overflow-y: auto; height: 100%; max-height: 100%;">
                             <!-- Feature 1 Sidebar Section: Document Outline Scroll Spy -->
                             <div class="sidebar-section outline-tracker-section">
                                 <h4>📑 Document Outline</h4>
@@ -917,10 +1891,117 @@ export default class LekhniEditor extends BaseComponent {
                         </div>
                     </div>
                 ` : ''}
+
+                ${showPasteOptions ? html`
+                    <div class="lekhni-paste-popover fade-in" style="position: absolute; left: ${pasteOptionsX}px; top: ${pasteOptionsY}px; z-index: 2500; background: rgba(15, 23, 42, 0.9); border: 1px solid #334155; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); backdrop-filter: blur(12px); padding: 12px; display: flex; flex-direction: column; gap: 8px; width: 230px; font-family: 'Inter', sans-serif;">
+                        <div style="font-size: 0.8rem; font-weight: bold; color: #a5b4fc; border-bottom: 1px solid #334155; padding-bottom: 6px; margin-bottom: 4px; display: flex; align-items: center; justify-content: space-between;">
+                            <span style="display: flex; align-items: center; gap: 6px;">📋 ${activePasteBlockId ? 'Paste Options' : 'Paste Preferences'}</span>
+                            <button @click="${() => this.finalizePaste()}" style="background: transparent; border: none; color: #64748b; font-size: 0.8rem; cursor: pointer; padding: 2px; transition: color 0.2s;">✕</button>
+                        </div>
+                        ${activePasteBlockId ? html`
+                            <button class="paste-opt-btn" @click="${() => this.applyPastePreset('default')}" style="text-align: left; padding: 6px 10px; border-radius: 6px; background: ${(!pasteOptions.avoidBgColor && !pasteOptions.avoidFgColor && !pasteOptions.avoidFont && !pasteOptions.plainText) ? 'rgba(99, 102, 241, 0.2)' : 'transparent'}; border: none; color: white; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; font-weight: 500;">
+                                <span>📄</span> Keep Source Formatting
+                            </button>
+                            <button class="paste-opt-btn" @click="${() => this.applyPastePreset('plain')}" style="text-align: left; padding: 6px 10px; border-radius: 6px; background: ${pasteOptions.plainText ? 'rgba(99, 102, 241, 0.2)' : 'transparent'}; border: none; color: white; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.2s; font-weight: 500;">
+                                <span>📝</span> Paste as Plain Text
+                            </button>
+                            <div style="font-size: 0.7rem; text-transform: uppercase; color: #64748b; padding: 4px 8px; font-weight: bold; border-top: 1px solid #334155; margin-top: 4px; letter-spacing: 0.05em;">Paste Special Filters</div>
+                        ` : ''}
+                        
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; margin: 0; border-radius: 6px; transition: background 0.2s;">
+                            <input type="checkbox" ?checked="${pasteOptions.avoidBgColor}" @change="${(e) => this.togglePasteOption('avoidBgColor', e.target.checked)}" style="accent-color: #6366f1; cursor: pointer; width: 14px; height: 14px; border-radius: 4px;">
+                            Avoid Background Color
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; margin: 0; border-radius: 6px; transition: background 0.2s;">
+                            <input type="checkbox" ?checked="${pasteOptions.avoidFgColor}" @change="${(e) => this.togglePasteOption('avoidFgColor', e.target.checked)}" style="accent-color: #6366f1; cursor: pointer; width: 14px; height: 14px; border-radius: 4px;">
+                            Avoid Text Color
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; color: #cbd5e1; font-size: 0.8rem; cursor: pointer; margin: 0; border-radius: 6px; transition: background 0.2s;">
+                            <input type="checkbox" ?checked="${pasteOptions.avoidFont}" @change="${(e) => this.togglePasteOption('avoidFont', e.target.checked)}" style="accent-color: #6366f1; cursor: pointer; width: 14px; height: 14px; border-radius: 4px;">
+                            Avoid Custom Fonts
+                        </label>
+                    </div>
+                ` : ''}
             </div>
 
             <style>
-                .lekhni-editor-wrapper.mode-fullscreen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #0f172a; z-index: 2000; display: flex; flex-direction: column; color: #f1f5f9; font-family: 'Inter', sans-serif; }
+                /* Scoped Canvas Viewport with Premium custom scrollbar matching dark-mode glassmorphic theme */
+                .lekhni-canvas-viewport {
+                    scrollbar-width: thin;
+                    scrollbar-color: #334155 #0f172a;
+                }
+                .lekhni-canvas-viewport::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .lekhni-canvas-viewport::-webkit-scrollbar-track {
+                    background: #0f172a;
+                }
+                .lekhni-canvas-viewport::-webkit-scrollbar-thumb {
+                    background: #334155;
+                    border-radius: 4px;
+                }
+                .lekhni-canvas-viewport::-webkit-scrollbar-thumb:hover {
+                    background: #6366f1;
+                }
+
+                /* Next-Gen Print Layout & Margins */
+                .lekhni-canvas.canvas-print-preview {
+                    max-width: 100% !important;
+                    padding: 2rem 0 !important;
+                    background: #090d16 !important;
+                }
+                .lekhni-body-editable.mode-print-preview {
+                    width: 794px !important;
+                    min-height: 1123px !important;
+                    margin: 0 auto !important;
+                    background: #ffffff !important;
+                    color: #1e293b !important;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.5) !important;
+                    padding: 80px 60px !important;
+                    box-sizing: border-box !important;
+                    border-radius: 6px !important;
+                    position: relative !important;
+                    background-image: linear-gradient(to bottom, transparent 1122px, #e2e8f0 1122px, #e2e8f0 1123px, transparent 1123px) !important;
+                    background-size: 100% 1123px !important;
+                }
+                .lekhni-body-editable.mode-print-preview h1 { color: #0f172a !important; }
+                .lekhni-body-editable.mode-print-preview h2 { color: #1e293b !important; }
+                .lekhni-body-editable.mode-print-preview p { color: #334155 !important; }
+                .lekhni-body-editable.mode-print-preview blockquote { color: #475569 !important; border-left-color: #818cf8 !important; }
+
+                /* Smart Formula Grid Styles */
+                .lekhni-smart-grid th, .lekhni-smart-grid td {
+                    border: 1px solid #334155 !important;
+                    padding: 6px !important;
+                    font-size: 0.85rem !important;
+                }
+                .lekhni-smart-grid th {
+                    background: #1e293b !important;
+                    color: #94a3b8 !important;
+                    font-weight: 600 !important;
+                    text-align: center !important;
+                }
+                .lekhni-smart-grid td {
+                    background: #0f172a !important;
+                }
+                .lekhni-body-editable.mode-print-preview .lekhni-smart-grid td {
+                    background: #f8fafc !important;
+                    color: #334155 !important;
+                    border-color: #cbd5e1 !important;
+                }
+                .lekhni-body-editable.mode-print-preview .lekhni-smart-grid th {
+                    background: #e2e8f0 !important;
+                    color: #475569 !important;
+                    border-color: #cbd5e1 !important;
+                }
+                .grid-cell-value:focus {
+                    background: rgba(99, 102, 241, 0.1) !important;
+                    outline: 1px solid #6366f1 !important;
+                    border-radius: 2px !important;
+                }
+
+                .lekhni-editor-wrapper.mode-fullscreen { position: relative; height: 100%; max-height: 100%; min-height: calc(100vh - 120px); background: #0f172a; display: flex; flex-direction: column; color: #f1f5f9; font-family: 'Inter', sans-serif; border-radius: 12px; overflow: hidden; }
+                .lekhni-editor-wrapper.mode-fullscreen-fixed { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; }
                 .lekhni-editor-wrapper.mode-embedded { width: 100%; border: 1px solid #334155; border-radius: 8px; background: rgba(15,23,42,0.4); color: #f1f5f9; font-family: 'Inter', sans-serif; overflow: hidden; }
 
                 .lekhni-nav { height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
@@ -956,8 +2037,119 @@ export default class LekhniEditor extends BaseComponent {
 
                 body:has(.lekhni-editor-wrapper.mode-fullscreen) .sidebar,
                 body:has(.lekhni-editor-wrapper.mode-fullscreen) .content-header { display: none !important; }
-                body:has(.lekhni-editor-wrapper.mode-fullscreen) .main-wrapper { margin-left: 0 !important; }
             </style>
         `;
     }
+
+    renderToolbar() {
+        const { toolbarLayout, embedded } = this.state;
+        if (toolbarLayout === 'none') return '';
+
+        const blockGroup = html`
+            <div class="toolbar-group" style="display: flex; gap: 4px;">
+                <button @click="${() => this.format('formatBlock', 'h1')}" title="Heading 1">H1</button>
+                <button @click="${() => this.format('formatBlock', 'h2')}" title="Heading 2">H2</button>
+                <button @click="${() => this.format('formatBlock', 'p')}" title="Paragraph">P</button>
+                <button @click="${() => this.format('formatBlock', 'blockquote')}" title="Quote">”</button>
+            </div>
+        `;
+
+        const formattingGroup = html`
+            <div class="toolbar-group" style="display: flex; gap: 4px;">
+                <button @click="${() => this.format('bold')}" title="Bold"><b>B</b></button>
+                <button @click="${() => this.format('italic')}" title="Italic"><i>I</i></button>
+                <button @click="${() => this.format('underline')}" title="Underline"><u>U</u></button>
+            </div>
+        `;
+
+        const advancedGroup = html`
+            <div class="toolbar-group" style="display: flex; gap: 4px;">
+                <button @click="${() => this.format('insertUnorderedList')}" title="Bullet List">• List</button>
+                <button @click="${() => this.insertEmbeddedMonacoBlock()}" title="Insert Inline Monaco Block">&lt;/&gt; Code</button>
+                <button @click="${() => { const u = prompt('Enter URL string:'); if (u) this.insertRichWebCard(u); }}" title="OEmbed Link Card">🔗 Card</button>
+                <button @click="${() => this.triggerAICopilot()}" title="AI Co-pilot">✨ AI</button>
+                <button @click="${() => this.triggerPasteSpecialConfig()}" title="Paste Special Preferences">📋 Paste Special</button>
+            </div>
+        `;
+
+        const styleBg = embedded ? 'transparent' : '#1e293b';
+
+        if (toolbarLayout === 'compact') {
+            return html`
+                <div class="lekhni-toolbar lekhni-toolbar-compact" style="background: ${styleBg}; border-bottom: 1px solid #334155; display: flex; gap: 8px; padding: 6px 12px; align-items: center; justify-content: flex-start; overflow-x: auto;">
+                    ${formattingGroup}
+                    <div class="divider" style="width: 1px; height: 18px; background: #334155; margin: 0 4px;"></div>
+                    <div class="toolbar-group" style="display: flex; gap: 4px;">
+                        <button @click="${() => this.insertEmbeddedMonacoBlock()}" title="Monaco Code Block">&lt;/&gt;</button>
+                        <button @click="${() => this.triggerAICopilot()}" title="AI Co-pilot">✨ AI</button>
+                        <button @click="${() => this.triggerPasteSpecialConfig()}" title="Paste Special Preferences">📋 Paste Special</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        if (toolbarLayout === 'floating') {
+            return '';
+        }
+
+        // Default 'full' layout
+        return html`
+            <div class="lekhni-toolbar" style="background: ${styleBg}; border-bottom: 1px solid #334155; display: flex; gap: 8px; padding: 8px 16px; align-items: center; flex-wrap: wrap;">
+                ${blockGroup}
+                <div class="divider" style="width: 1px; height: 18px; background: #334155; margin: 0 4px;"></div>
+                ${formattingGroup}
+                <div class="divider" style="width: 1px; height: 18px; background: #334155; margin: 0 4px;"></div>
+                ${advancedGroup}
+            </div>
+        `;
+    }
+
+    async mount() {
+        if (this.onInit) await this.onInit(this.props);
+        this.update();
+        if (this.onMount) await this.onMount();
+    }
+
+    static async replace(textarea, options = {}) {
+        if (typeof textarea === 'string') {
+            textarea = document.querySelector(textarea);
+        }
+        if (!textarea) return null;
+
+        // Create container div
+        const container = document.createElement('div');
+        container.className = 'lekhni-replaced-container';
+        // Insert container right after the textarea
+        textarea.parentNode.insertBefore(container, textarea.nextSibling);
+        textarea.style.display = 'none';
+
+        // Read initial state
+        const initialValue = textarea.value || '';
+        
+        // Instantiate
+        const editor = new LekhniEditor(null, container, {
+            id: options.id || 'textarea_' + Date.now(),
+            title: options.title || '',
+            body: initialValue,
+            mode: options.mode || 'document',
+            language: options.language || 'html',
+            embedded: true,
+            onChange: (content) => {
+                textarea.value = content;
+                // Dispatch input and change events so listening form scripts capture it
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                if (options.onChange) options.onChange(content);
+            },
+            ...options
+        });
+
+        await editor.mount();
+        return editor;
+    }
 }
+
+export async function replaceTextarea(textarea, options = {}) {
+    return LekhniEditor.replace(textarea, options);
+}
+

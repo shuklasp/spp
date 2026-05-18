@@ -1,0 +1,258 @@
+<?php
+/**
+ * @file
+ * Extra Functions for Edu X Pro theme.
+ */
+use Drupal\file\Entity\File;
+/**
+ * Sanitise input urls.
+ */
+function santise_val_url($url) {
+	if ($url != '') {
+
+		// Sanitise (remove all illegal characters) from url.
+		$url = filter_var($url, FILTER_SANITIZE_URL);
+
+		// Validate url.
+		if (filter_var($url, FILTER_VALIDATE_URL) == TRUE) {
+			$url = $url;
+		} else {
+			$url = '#';
+		}
+		return $url;
+	}
+}
+function eduxpro_preprocess_page(array &$variables) {
+  $config = \Drupal::config('system.site');
+  $variables['site_name'] = $config->get('name');
+  $variables['site_slogan'] = $config->get('slogan');
+  $variables['base_path'] = base_path();
+  $variables['scrolltotop_on'] = 1;
+	$variables['page_eduxpro_path'] = \Drupal::service('extension.list.theme')->getPath('eduxpro');
+	// Layout
+	$variables['container_width'] = theme_get_setting('container_width', 'eduxpro');
+	$variables['header_width'] = theme_get_setting('header_width', 'eduxpro');
+	$variables['main_width'] = theme_get_setting('main_width', 'eduxpro');
+	$variables['footer_width'] = theme_get_setting('footer_width', 'eduxpro');
+	
+	// Header
+	$variables['sticky_header_mobile'] = theme_get_setting('sticky_header_mobile', 'eduxpro');
+	$variables['sticky_header_desktop'] = theme_get_setting('sticky_header_desktop', 'eduxpro');
+	$variables['header_main_padding_top'] = theme_get_setting('header_main_padding_top', 'eduxpro');
+	$variables['header_main_padding_bottom'] = theme_get_setting('header_main_padding_bottom', 'eduxpro');
+	$variables['header_page_padding_top'] = theme_get_setting('header_page_padding_top', 'eduxpro');
+	$variables['header_page_padding_bottom'] = theme_get_setting('header_page_padding_bottom', 'eduxpro');
+	$variables['header_page_content_position'] = theme_get_setting('header_page_content_position', 'eduxpro');
+	$variables['header_login_links'] = theme_get_setting('header_login_links', 'eduxpro');
+
+	// Sidebar
+	$variables['sliding_sidebar'] = theme_get_setting('sliding_sidebar', 'eduxpro');
+	$variables['front_sidebar'] = theme_get_setting('front_sidebar', 'eduxpro');
+	$variables['sidebar_width_default'] = theme_get_setting('sidebar_width_default', 'eduxpro');
+	$variables['sidebar_width_left'] = theme_get_setting('sidebar_width_left', 'eduxpro');
+	$variables['sidebar_width_right'] = theme_get_setting('sidebar_width_right', 'eduxpro');
+	$variables['sidebar_block_default'] = theme_get_setting('sidebar_block_default', 'eduxpro');	
+	$variables['sidebar_padding'] = theme_get_setting('sidebar_padding', 'eduxpro');
+	$variables['sidebar_radius'] = theme_get_setting('sidebar_radius', 'eduxpro');
+	$variables['sidebar_margin'] = theme_get_setting('sidebar_margin', 'eduxpro');
+	$variables['sidebar_title_font_size'] = theme_get_setting('sidebar_title_font_size', 'eduxpro');
+	$variables['sidebar_title_transform'] = theme_get_setting('sidebar_title_transform', 'eduxpro');
+	$variables['copyright_text'] = theme_get_setting('copyright_text', 'eduxpro');
+	$variables['copyright_custom'] = theme_get_setting('copyright_custom', 'eduxpro');
+
+	// content
+	$variables['animated_content'] = theme_get_setting('animated_content', 'eduxpro');
+	$variables['rtl'] = theme_get_setting('rtl', 'eduxpro');
+
+	// Social
+	$variables['all_icons_show'] = theme_get_setting('all_icons_show', 'eduxpro');
+	$variables['facebook_url'] = santise_val_url(theme_get_setting('facebook_url', 'eduxpro'));
+	$variables['twitter_url'] = santise_val_url(theme_get_setting('twitter_url', 'eduxpro'));
+	$variables['instagram_url'] = santise_val_url(theme_get_setting('instagram_url', 'eduxpro'));
+	$variables['linkedin_url'] = santise_val_url(theme_get_setting('linkedin_url', 'eduxpro'));
+	$variables['youtube_url'] = santise_val_url(theme_get_setting('youtube_url', 'eduxpro'));
+	$variables['vimeo_url'] = santise_val_url(theme_get_setting('vimeo_url', 'eduxpro'));
+  $variables['telegram_url'] = santise_val_url(theme_get_setting('telegram_url', 'eduxpro'));
+  $variables['whatsapp_url'] = santise_val_url(theme_get_setting('whatsapp_url', 'eduxpro'));
+  $variables['github_url'] = santise_val_url(theme_get_setting('github_url', 'eduxpro'));
+	$variables['vk_url'] = santise_val_url(theme_get_setting('vk_url', 'eduxpro'));
+
+	// Share page
+	$variables['page_share_all'] = theme_get_setting('page_share_all', 'eduxpro');
+	$variables['page_share_front'] = theme_get_setting('page_share_front', 'eduxpro');
+	$variables['page_share_page'] = theme_get_setting('page_share_page', 'eduxpro');
+	$variables['page_share_article'] = theme_get_setting('page_share_article', 'eduxpro');
+	$variables['page_share_book'] = theme_get_setting('page_share_book', 'eduxpro');
+	$variables['page_share_other'] = theme_get_setting('page_share_other', 'eduxpro');
+	
+	// components
+	$variables['preloader_option'] = theme_get_setting('preloader_option', 'eduxpro');
+
+	// Typography
+	$variables['body_font_size'] = theme_get_setting('body_font_size', 'eduxpro');
+	$variables['body_line_height'] = theme_get_setting('body_line_height', 'eduxpro');
+	$variables['paragraph_bottom'] = theme_get_setting('paragraph_bottom', 'eduxpro');
+	$variables['headings_default'] = theme_get_setting('headings_default', 'eduxpro');
+	$variables['h1_size'] = theme_get_setting('h1_size', 'eduxpro');
+	$variables['h1_weight'] = theme_get_setting('h1_weight', 'eduxpro');
+	$variables['h1_transform'] = theme_get_setting('h1_transform', 'eduxpro');
+	$variables['h1_height'] = theme_get_setting('h1_height', 'eduxpro');
+	$variables['h2_size'] = theme_get_setting('h2_size', 'eduxpro');
+	$variables['h2_weight'] = theme_get_setting('h2_weight', 'eduxpro');
+	$variables['h2_transform'] = theme_get_setting('h2_transform', 'eduxpro');
+	$variables['h2_height'] = theme_get_setting('h2_height', 'eduxpro');
+	$variables['h3_size'] = theme_get_setting('h3_size', 'eduxpro');
+	$variables['h3_weight'] = theme_get_setting('h3_weight', 'eduxpro');
+	$variables['h3_transform'] = theme_get_setting('h3_transform', 'eduxpro');
+	$variables['h3_height'] = theme_get_setting('h3_height', 'eduxpro');
+	$variables['h4_size'] = theme_get_setting('h4_size', 'eduxpro');
+	$variables['h4_weight'] = theme_get_setting('h4_weight', 'eduxpro');
+	$variables['h4_transform'] = theme_get_setting('h4_transform', 'eduxpro');
+	$variables['h4_height'] = theme_get_setting('h4_height', 'eduxpro');
+	$variables['h5_size'] = theme_get_setting('h5_size', 'eduxpro');
+	$variables['h5_weight'] = theme_get_setting('h5_weight', 'eduxpro');
+	$variables['h5_transform'] = theme_get_setting('h5_transform', 'eduxpro');
+	$variables['h5_height'] = theme_get_setting('h5_height', 'eduxpro');
+	$variables['h6_size'] = theme_get_setting('h6_size', 'eduxpro');
+	$variables['h6_weight'] = theme_get_setting('h6_weight', 'eduxpro');
+	$variables['h6_transform'] = theme_get_setting('h6_transform', 'eduxpro');
+	$variables['h6_height'] = theme_get_setting('h6_height', 'eduxpro');
+
+	// Element -> Logo
+	$variables['logo_default'] = theme_get_setting('logo_default', 'eduxpro');
+	$variables['site_name_size'] = theme_get_setting('site_name_size', 'eduxpro');
+	$variables['site_name_weight'] = theme_get_setting('site_name_weight', 'eduxpro');
+	$variables['site_name_transform'] = theme_get_setting('site_name_transform', 'eduxpro');
+	$variables['site_name_height'] = theme_get_setting('site_name_height', 'eduxpro');
+	$variables['slogan_size'] = theme_get_setting('slogan_size', 'eduxpro');
+	$variables['slogan_transform'] = theme_get_setting('slogan_transform', 'eduxpro');
+	$variables['slogan_height'] = theme_get_setting('slogan_height', 'eduxpro');
+	$variables['slogan_style'] = theme_get_setting('slogan_style', 'eduxpro');
+	$variables['main_menu_default'] = theme_get_setting('main_menu_default', 'eduxpro');
+	$variables['main_menu_top_size'] = theme_get_setting('main_menu_top_size', 'eduxpro');
+	$variables['main_menu_top_weight'] = theme_get_setting('main_menu_top_weight', 'eduxpro');
+	$variables['main_menu_top_transform'] = theme_get_setting('main_menu_top_transform', 'eduxpro');
+	$variables['main_menu_sub_size'] = theme_get_setting('main_menu_sub_size', 'eduxpro');
+	$variables['main_menu_sub_weight'] = theme_get_setting('main_menu_sub_weight', 'eduxpro');
+	$variables['main_menu_sub_transform'] = theme_get_setting('main_menu_sub_transform', 'eduxpro');
+	
+	// Element -> Page title
+	$variables['page_title_default'] = theme_get_setting('page_title_default', 'eduxpro');
+	$variables['page_title_size_desktop'] = theme_get_setting('page_title_size_desktop', 'eduxpro');
+	$variables['page_title_size_mobile'] = theme_get_setting('page_title_size_mobile', 'eduxpro');
+	$variables['page_title_transform'] = theme_get_setting('page_title_transform', 'eduxpro');
+
+	// Element -> Button
+	$variables['button_default'] = theme_get_setting('button_default', 'eduxpro');
+	$variables['button_padding'] = theme_get_setting('button_padding', 'eduxpro');
+	$variables['button_radius'] = theme_get_setting('button_radius', 'eduxpro');
+
+	// Components -> Font icons
+	$variables['fontawesome_four'] = theme_get_setting('fontawesome_four', 'eduxpro');
+	$variables['fontawesome_five'] = theme_get_setting('fontawesome_five', 'eduxpro');
+	$variables['fontawesome_six'] = theme_get_setting('fontawesome_six', 'eduxpro');
+	$variables['bootstrapicons'] = theme_get_setting('bootstrapicons', 'eduxpro');
+	$variables['material_icon_outlined'] = theme_get_setting('material_icon_outlined', 'eduxpro');
+	$variables['material_icon_filled'] = theme_get_setting('material_icon_filled', 'eduxpro');
+	$variables['material_icon_round'] = theme_get_setting('material_icon_round', 'eduxpro');
+	$variables['material_icon_sharp'] = theme_get_setting('material_icon_sharp', 'eduxpro');
+	$variables['material_icon_tone'] = theme_get_setting('material_icon_tone', 'eduxpro');
+	
+	// Components -> scroll to top
+	$variables['scrolltotop'] = theme_get_setting('scrolltotop', 'eduxpro');
+	// components -> cookie message
+	$variables['cookie_message'] = theme_get_setting('cookie_message', 'eduxpro');
+	$variables['cookie_custom'] = theme_get_setting('cookie_custom', 'eduxpro');
+
+	// Comment
+	$variables['highlight_author_comment'] = theme_get_setting('highlight_author_comment', 'eduxpro');
+
+	// Color -> Use a color scheme
+	$variables['color_theme_theme'] = theme_get_setting('color_theme_theme', 'eduxpro');
+
+	// Color -> Select a color scheme
+	$variables['color_scheme'] = theme_get_setting('color_scheme', 'eduxpro');
+	
+	// Color -> Set custom theme base colors
+	$variables['theme_color_one'] = theme_get_setting('theme_color_one', 'eduxpro');
+	$variables['theme_color_two'] = theme_get_setting('theme_color_two', 'eduxpro');
+	$variables['theme_color_dark'] = theme_get_setting('theme_color_dark', 'eduxpro');
+	$variables['theme_color_light'] = theme_get_setting('theme_color_light', 'eduxpro');
+	$variables['theme_color_border'] = theme_get_setting('theme_color_border', 'eduxpro');
+
+	// Color -> Body
+	$variables['color_body_theme'] = theme_get_setting('color_body_theme', 'eduxpro');
+	$variables['color_bodybg'] = theme_get_setting('color_bodybg', 'eduxpro');
+	$variables['color_bodytext'] = theme_get_setting('color_bodytext', 'eduxpro');
+
+	// color -> Typography
+	$variables['color_typography_theme'] = theme_get_setting('color_typography_theme', 'eduxpro');
+	$variables['color_bold'] = theme_get_setting('color_bold', 'eduxpro');
+	
+	// color -> Footer
+	$variables['color_footer_theme'] = theme_get_setting('color_footer_theme', 'eduxpro');
+	$variables['color_footer_topbg'] = theme_get_setting('color_footer_topbg', 'eduxpro');
+
+
+	// Color -> comment
+	$variables['color_comment_theme'] = theme_get_setting('color_comment_theme', 'eduxpro');
+	$variables['color_comment_bg'] = theme_get_setting('color_comment_bg', 'eduxpro');
+	$variables['color_comment_head'] = theme_get_setting('color_comment_head', 'eduxpro');
+	$variables['color_comment_authorbg'] = theme_get_setting('color_comment_authorbg', 'eduxpro');
+}
+
+function eduxpro_preprocess_html(&$variables) {
+	$variables['is_front'] = \Drupal::service('path.matcher')->isFrontPage();
+	$variables['base_path'] = base_path();
+  $variables['eduxpro_path'] = \Drupal::service('extension.list.theme')->getPath('eduxpro');
+	$variables['insert_head'] = theme_get_setting('insert_head', 'eduxpro');
+	$variables['head_code'] = theme_get_setting('head_code', 'eduxpro');
+	$variables['insert_body_start'] = theme_get_setting('insert_body_start', 'eduxpro');
+	$variables['body_start_code'] = theme_get_setting('body_start_code', 'eduxpro');
+	$variables['insert_body_end'] = theme_get_setting('insert_body_end', 'eduxpro');
+	$variables['body_end_code'] = theme_get_setting('body_end_code', 'eduxpro');
+	$variables['styling'] = theme_get_setting('styling', 'eduxpro');
+	$variables['styling_code'] = theme_get_setting('styling_code', 'eduxpro');
+}
+/**
+ * Node preprocess.
+ */
+function eduxpro_preprocess_node(array &$variables) {
+	$variables['node_author_pic'] = theme_get_setting('node_author_pic', 'eduxpro');
+	$variables['node_tags'] = theme_get_setting('node_tags', 'eduxpro');
+}
+
+/**
+ * Comment preprocess.
+ */
+function eduxpro_preprocess_comment(array &$variables) {
+	$variables['comment_user_pic'] = theme_get_setting('comment_user_pic', 'eduxpro');
+}
+/**
+ * Add current page to breadcrumb.
+ */
+function eduxpro_preprocess_breadcrumb(&$variables) {
+	$request = \Drupal::request();
+	$route_match = \Drupal::routeMatch();
+	$page_title = \Drupal::service('title_resolver')->getTitle($request, $route_match->getRouteObject());
+	if (!empty($page_title)) {
+		$variables['breadcrumb'][] = [
+			'text' => $page_title,
+		];
+		// Add cache context based on url.
+		$variables['#cache']['contexts'][] = 'url';
+	}
+  $variables['breadcrumb_icon_style'] = '/';
+}
+/**
+ * Implements THEME_preprocess_HOOK() for system messages block.
+ * 10.3 upgrade now missing status-message theme suggestions
+ * and outputs multiple messages on page load.
+ * see https://www.drupal.org/project/drupal/issues/3456176
+ */
+use Drupal\Core\Render\Element\StatusMessages;
+
+function eduxpro_preprocess_block__system_messages_block(&$variables) {
+  $variables['content'] = StatusMessages::renderMessages();
+	$variables['#cache']['max-age'] = 0;
+}

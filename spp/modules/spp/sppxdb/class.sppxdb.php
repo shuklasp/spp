@@ -1399,15 +1399,15 @@ class SPP_XDB {
         }
 
         // -- SELECT (with optional ORDER BY / LIMIT) --
-        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+([a-zA-Z0-9_]+)(?:\s+(ASC|DESC))?)?(?:\s+LIMIT\s+(\d+))?$/i', $sql, $matches)) {
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/i', $sql, $matches)) {
             $isDistinct = !empty($matches[1]);
             $fields    = trim($matches[2]);
             $tablePath = trim($matches[3]);
             $where     = isset($matches[4]) ? trim($matches[4]) : null;
             $groupBy   = isset($matches[5]) ? trim($matches[5]) : null;
-            $orderBy   = isset($matches[6]) ? trim($matches[6]) : null;
-            $orderDir  = isset($matches[7]) ? strtoupper(trim($matches[7])) : 'ASC';
-            $limit     = isset($matches[8]) ? (int) $matches[8] : null;
+            $orderByStr = isset($matches[6]) ? trim($matches[6]) : null;
+            $limit     = isset($matches[7]) ? (int) $matches[7] : null;
+            $offset    = isset($matches[8]) ? (int) $matches[8] : null;
 
             $this->resolveTablePath($tablePath);
             
@@ -1523,21 +1523,48 @@ class SPP_XDB {
                 $results = $uniqueResults;
             }
 
-            // ORDER BY
-            if ($orderBy) {
-                usort($results, function($a, $b) use ($orderBy, $orderDir) {
-                    $va = $a[$orderBy] ?? '';
-                    $vb = $b[$orderBy] ?? '';
-                    $cmp = is_numeric($va) && is_numeric($vb)
-                        ? ($va - $vb)
-                        : strcmp($va, $vb);
-                    return $orderDir === 'DESC' ? -$cmp : $cmp;
+            // ORDER BY (Multi-column support)
+            $sortCriteria = [];
+            if ($orderByStr) {
+                $parts = explode(',', $orderByStr);
+                foreach ($parts as $part) {
+                    $part = trim($part);
+                    if (preg_match('/^([a-zA-Z0-9_\.]+)(?:\s+(ASC|DESC))?$/i', $part, $pm)) {
+                        $sortCriteria[] = [
+                            'field' => trim($pm[1]),
+                            'dir' => isset($pm[2]) ? strtoupper($pm[2]) : 'ASC'
+                        ];
+                    }
+                }
+            }
+            if (!empty($sortCriteria)) {
+                usort($results, function($a, $b) use ($sortCriteria) {
+                    foreach ($sortCriteria as $criteria) {
+                        $field = $criteria['field'];
+                        $dir = $criteria['dir'];
+                        
+                        $va = $a[$field] ?? '';
+                        $vb = $b[$field] ?? '';
+                        
+                        if (is_numeric($va) && is_numeric($vb)) {
+                            $cmp = $va - $vb;
+                        } else {
+                            $cmp = strcmp((string)$va, (string)$vb);
+                        }
+                        
+                        if ($cmp !== 0) {
+                            return $dir === 'DESC' ? -$cmp : $cmp;
+                        }
+                    }
+                    return 0;
                 });
             }
 
-            // LIMIT
-            if ($limit !== null) {
-                $results = array_slice($results, 0, $limit);
+            // LIMIT and OFFSET pagination
+            if ($limit !== null || $offset !== null) {
+                $start = $offset !== null ? $offset : 0;
+                $len = $limit !== null ? $limit : null;
+                $results = array_slice($results, $start, $len);
             }
 
             if (stripos($sql, 'SELECT') === 0) {
@@ -1747,7 +1774,9 @@ class SPP_XDB {
             
             // 1. Check NOT NULL / Required
             if ($props['notNull'] && $value === null && $isInsert && $props['default'] === null) {
-                throw new Exception("Validation Error: Column '$name' cannot be null.");
+                if (empty($props['primary']) && empty($props['autoIncrement'])) {
+                    throw new Exception("Validation Error: Column '$name' cannot be null.");
+                }
             }
 
             if ($value === null) continue;
@@ -1970,14 +1999,6 @@ class SPP_XDB {
      * @return bool
      */
     public function insert($data) {
-        $this->validateData($data, true);
-        $this->fireHook('beforeInsert', $data);
-        
-        $triggerData = ['table' => $this->tableName, 'data' => &$data];
-        if (class_exists('\\SPP\\SPPEvent')) {
-            \SPP\SPPEvent::fireEvent('xdb.before_insert', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_insert", $triggerData);
-        }
         $root = $this->doc->documentElement;
         
         // Handle auto-increment ID
@@ -1993,6 +2014,15 @@ class SPP_XDB {
             $id = $meta->nodeValue;
             $data['id'] = $id;
             $meta->nodeValue = $id + 1;
+        }
+
+        $this->validateData($data, true);
+        $this->fireHook('beforeInsert', $data);
+        
+        $triggerData = ['table' => $this->tableName, 'data' => &$data];
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::fireEvent('xdb.before_insert', $triggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_insert", $triggerData);
         }
         
         $this->lastInsertId = $data['id'];

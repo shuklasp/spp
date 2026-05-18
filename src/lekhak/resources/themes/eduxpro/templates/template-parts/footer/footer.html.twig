@@ -1,0 +1,85 @@
+{% if page.footer_top %}
+  {% include '@eduxpro/template-parts/footer/footer-top.html.twig' %}
+{% endif %}
+{% if page.footer_one or page.footer_two or page.footer_three or page.footer_four %}
+  {% include '@eduxpro/template-parts/footer/footer-blocks.html.twig' %}
+{% endif %}
+{% if page.footer_bottom_left or page.footer_bottom_right %}
+  {% include '@eduxpro/template-parts/footer/footer-bottom-blocks.html.twig' %}
+{% endif %}
+{% if all_icons_show %}
+<div class="footer footer-social">
+  <div class="container text-center">
+    {% include '@eduxpro/template-parts/components/social-icons.html.twig' %}
+  </div><!-- /container -->
+</div>
+{% endif %}
+{% if copyright_text or page.footer_bottom_last %}
+  <footer class="footer-bottom footer">
+    <div class="container">
+      <div class="footer-bottom-container">
+        {% if copyright_text %}
+          {% include '@eduxpro/template-parts/footer/footer-copyright.html.twig' %}
+        {% endif %}
+        {% if page.footer_bottom_last %}
+          {% include '@eduxpro/template-parts/footer/footer-bottom-last.html.twig' %}
+        {% endif %}
+      </div><!-- /footer-bottom-container -->
+    </div><!-- /container -->
+  </footer><!-- /footer-bottom -->
+{% endif %}
+{% if scrolltotop %}
+  <div class="scrolltop"><i class="ficon-arrow-up"></i></div>
+{% endif %}
+{% if cookie_message %}
+  {{ attach_library('eduxpro/cookiealert-scripts') }}
+  {% include '@eduxpro/template-parts/components/cookie.html.twig' %}
+{% endif %}
+<style>
+{% if color_theme_theme %}
+  {% include '@eduxpro/template-parts/color-scheme/' ~ color_scheme ~ '.html.twig' %}
+{% else %}
+  :root {
+    --theme-color: {{ theme_color_one }};
+    --theme-color-two: {{ theme_color_two }};
+    --dark: {{ theme_color_dark }};
+    --light: {{ theme_color_light }};
+    --border: {{ theme_color_border }};
+    --primary: {{ theme_color_one }};
+    --secondary: {{ theme_color_two }};
+  }
+{% endif %}
+</style>
+{% include '@eduxpro/template-parts/style.html.twig' %}
+{% include '@eduxpro/template-parts/stylepro.html.twig' %}
+{% include '@eduxpro/template-parts/color.html.twig' %}
+{% if fontawesome_four %}
+  {{ attach_library('eduxpro/fontawesome4') }}
+{% endif %}
+{% if fontawesome_five %}
+  {{ attach_library('eduxpro/fontawesome5') }}
+{% endif %}
+{% if fontawesome_six %}
+  {{ attach_library('eduxpro/fontawesome6') }}
+{% endif %}
+{% if bootstrapicons %}
+  {{ attach_library('eduxpro/bootstrap-icons') }}
+{% endif %}
+{% if material_icon_outlined %}
+  {{ attach_library('eduxpro/material-outlined') }}
+{% endif %}
+{% if material_icon_filled %}
+  {{ attach_library('eduxpro/material-filled') }}
+{% endif %}
+{% if material_icon_round %}
+  {{ attach_library('eduxpro/material-round') }}
+{% endif %}
+{% if material_icon_sharp %}
+  {{ attach_library('eduxpro/material-sharp') }}
+{% endif %}
+{% if material_icon_tone %}
+  {{ attach_library('eduxpro/material-tone') }}
+{% endif %}
+{% if animated_content %}
+  {{ attach_library('eduxpro/animated-content') }}
+{% endif %}

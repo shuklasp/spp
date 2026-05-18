@@ -16,6 +16,7 @@ class DrishyamRenderer
         $drishyam = Drishyam::getInstance();
         $theme = $drishyam->getActiveTheme();
 
+
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'drishyam:studio') {
             $safeTheme = htmlspecialchars($theme?->getName() ?? 'default', ENT_QUOTES);
             $safeView = htmlspecialchars($view, ENT_QUOTES);
@@ -68,8 +69,57 @@ STUDIO;
             $htmlOutput = self::renderBlade($templatePath, $data);
         } elseif (str_ends_with($templatePath, '.sppux.js')) {
             $htmlOutput = self::renderSPPUX($view, $data);
+        } elseif (str_ends_with($templatePath, '.html.twig')) {
+            $content = file_get_contents($templatePath);
+            $driver = new \SPPMod\Lekhak\Drivers\TwigShimDriver();
+            $htmlOutput = $driver->parse($content, $data, function($incPath, $data) use ($theme) {
+                $themeName = $theme->getName();
+                $incPath = str_replace('\\', '/', $incPath);
+                if (str_contains($incPath, '/')) {
+                    $parts = explode('/', $incPath);
+                    $first = $parts[0];
+                    if (str_starts_with($first, '@') || strtolower($first) === strtolower($themeName)) {
+                        array_shift($parts);
+                    }
+                    $incPath = implode('/', $parts);
+                } else {
+                    if (str_starts_with($incPath, '@') || strtolower($incPath) === strtolower($themeName)) {
+                        $incPath = '';
+                    }
+                }
+                
+                $fullIncPath = rtrim($theme->getPath(), '/\\') . '/templates/' . ltrim($incPath, '/\\');
+                if (file_exists($fullIncPath)) {
+                    return self::render($incPath, $data); // Recursive render for includes
+                }
+                return "<!-- Missing include: $incPath -->";
+            });
+        } elseif (str_ends_with($templatePath, '.php')) {
+            ob_start();
+            extract($data);
+            include $templatePath;
+            $htmlOutput = ob_get_clean();
         } else {
             throw new \Exception("Template format not supported for: " . $templatePath);
+        }
+
+        // Intercept output buffer to natively transfer anti-FOUC script and CSS preload headers
+        if (str_contains($htmlOutput, '</head>')) {
+            $baseUri = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '/school1', '/');
+            $appContextName = class_exists('\SPP\Scheduler', false) ? \SPP\Scheduler::getContext() : 'lekhak';
+            $headInjections = <<<HEAD_INJ
+    <!-- Drishyam Universal Anti-FOUC Context Mapping -->
+    <script>
+        (() => {
+            // Synchronously apply active context theme map before layout render
+            const appCtx = '{$appContextName}';
+            const themeKey = localStorage.getItem(appCtx + '-admin-theme') || localStorage.getItem('spp-admin-theme') || localStorage.getItem('lekhak-admin-theme') || 'saffron';
+            document.documentElement.setAttribute('data-theme', themeKey);
+        })();
+    </script>
+
+HEAD_INJ;
+            $htmlOutput = str_replace('</head>', $headInjections . '</head>', $htmlOutput);
         }
 
         if ($theme->getConfig('enable_edge_consensus', false) || \SPP\Module::getConfig('enable_edge_consensus', 'drishyam')) {
@@ -194,25 +244,79 @@ STUDIO;
 </script>
 SPA;
 
-        // Pre-warm client templates by automatically scanning and embedding decoupled HTML components
         $preWarmedTemplates = "";
-        $tplDirs = [
-            (defined('SPP_APP_DIR') ? SPP_APP_DIR : '') . '/comp/templates',
-            (defined('SPP_APP_DIR') ? SPP_APP_DIR : '') . '/components/templates',
-            (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : __DIR__ . '/../../../../../') . '/src/lekhak/comp/templates'
-        ];
-        foreach ($tplDirs as $tplDir) {
-            if (!empty($tplDir) && is_dir($tplDir)) {
-                foreach (scandir($tplDir) as $f) {
-                    if (str_ends_with($f, '.html') || str_ends_with($f, '.blade.php')) {
-                        $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
-                        $tplContent = @file_get_contents($tplDir . '/' . $f);
-                        if ($tplContent) {
-                            $preWarmedTemplates .= "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
+        $ctx = class_exists('\SPP\Scheduler', false) ? \SPP\Scheduler::getContext() : 'lekhak';
+        $srcRelative = 'src/' . $ctx;
+        if (class_exists('\SPP\App', false)) {
+            $configuredSrc = \SPP\App::getGlobalSettings("apps.{$ctx}.src_path");
+            if (!empty($configuredSrc)) {
+                $srcRelative = rtrim($configuredSrc, '/\\');
+            }
+        }
+        $upperCtx = strtoupper($ctx);
+
+        $baseUriPath = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '/school1', '/');
+        $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+        $templatePath = $theme->resolveTemplate($view) ?: '';
+        $isLoginView = str_contains($reqUri, '/login') || str_contains($reqUri, '/logout') || str_contains($view, 'login');
+        $isAdmin = !$isLoginView && (str_contains($reqUri, '/admin') || (str_contains($view, 'admin') && !str_contains($view, 'landing-page')) || str_contains($templatePath, 'glass_admin'));
+        
+        @file_put_contents(SPP_LOG_DIR . '/debug_drishyam.log', "[".date('Y-m-d H:i:s')."] URI: {$reqUri}, VIEW: {$view}, PATH: {$templatePath}, IS_ADMIN: " . ($isAdmin ? 'YES' : 'NO') . "\n", FILE_APPEND);
+
+        if ($isAdmin) {
+            $appDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : '';
+            $tplDirs = [
+                $appDir . '/comp/templates',
+                $appDir . '/components/templates',
+                $appDir . '/' . $srcRelative . '/comp/templates'
+            ];
+            foreach ($tplDirs as $tplDir) {
+                if (!empty($tplDir) && is_dir($tplDir)) {
+                    foreach (scandir($tplDir) as $f) {
+                        if (str_ends_with($f, '.html') || str_ends_with($f, '.blade.php')) {
+                            $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
+                            $tplContent = @file_get_contents($tplDir . '/' . $f);
+                            if ($tplContent) {
+                                $preWarmedTemplates .= "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
+                            }
                         }
                     }
                 }
             }
+        }
+
+        $adminShellVer = '2026_05_15_v2';
+        if ($isAdmin && str_contains($htmlOutput, '</body>')) {
+            $adminUrlPath = $baseUriPath . '/' . $ctx . '/admin';
+            $shellInjection = <<<SHELL_INJ
+{$preWarmedTemplates}
+<script>
+    window.LEKHAK_CONFIG = {
+        apiBase: '{$baseUriPath}/{$ctx}/admin-api',
+        baseUrl: '{$baseUriPath}',
+        adminUrl: '{$adminUrlPath}'
+    };
+    window.{$upperCtx}_CONFIG = {
+        apiBase: '{$baseUriPath}/{$ctx}/admin-api',
+        baseUrl: '{$baseUriPath}',
+        adminUrl: '{$adminUrlPath}'
+    };
+    window.SPP_CONFIG = {
+        apiEndpoint: '{$baseUriPath}/{$ctx}/admin-api'
+    };
+</script>
+<script type="module" src="{$baseUriPath}/{$srcRelative}/resources/admin/standalone-shell.js?v={$adminShellVer}"></script>
+</body>
+SHELL_INJ;
+            $htmlOutput = str_replace('</body>', $shellInjection, $htmlOutput);
+            $preWarmedTemplates = "";
+            
+            // Disable generic Drishyam SPA engine in Admin context to prevent routing conflicts
+            $spaEngineScript = "";
+        }
+
+        if (str_contains(strtolower($htmlOutput), '<html')) {
+            return $preWarmedTemplates . $htmlOutput . "\n" . $spaEngineScript;
         }
 
         return $preWarmedTemplates . "<div class=\"drishyam-orchestrated-layout\" {$wrapperStyle}{$sriIntegrityAttr}>\n" . $htmlOutput . "\n</div>\n" . $spaEngineScript;

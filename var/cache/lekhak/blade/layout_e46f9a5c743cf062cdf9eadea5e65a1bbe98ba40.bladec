@@ -5,7 +5,13 @@
  <meta name="viewport" content="width=device-width, initial-scale=1.0">
  <title><?php echo \htmlentities($title ?? 'Lekhak Admin'??'', ENT_QUOTES, 'UTF-8', false); ?></title>
  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+ <link rel="preload" href="<?php echo \htmlentities(\SPP\App::getBaseUrl()??'', ENT_QUOTES, 'UTF-8', false); ?>/theme-assets/glass_admin/theme.css" as="style">
  <link rel="stylesheet" href="<?php echo \htmlentities(\SPP\App::getBaseUrl()??'', ENT_QUOTES, 'UTF-8', false); ?>/theme-assets/glass_admin/theme.css">
+ <script>
+ // Synchronous layout pre-warm to prevent Flash of Unstyled Content (FOUC)
+ var savedTheme = localStorage.getItem('lekhak-admin-theme') || 'saffron';
+ document.documentElement.setAttribute('data-theme', savedTheme);
+ </script>
 </head>
 <body>
  <!-- Persistent Ceiling-Mounted Lekhak Admin Toolbar -->
@@ -22,6 +28,7 @@
  <a href="<?php echo \htmlentities($admin_root??'', ENT_QUOTES, 'UTF-8', false); ?>/settings" class="lekhak-toolbar-link <?php echo \htmlentities(str_contains($view_name ?? '', 'settings') ? 'active' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>">Configuration</a>
  </div>
  <div class="lekhak-toolbar-right">
+ <button onclick="document.querySelector('.lekhak-admin-toolbar-global').style.display='none'; document.querySelector('.admin-wrapper').style.paddingTop='0'; document.querySelector('.sidebar').style.top='0'; document.querySelector('.sidebar').style.height='100vh';" class="lekhak-btn-action" title="Hides the top global admin bar to inspect the page natively">👁️ Hide Bar</button>
  <button onclick="window.location.reload();" class="lekhak-btn-action" title="Flushes precompiled layout cache files">⚡ Clear Cache</button>
  <button onclick="alert('Index rebuilt across relational database keys.');" class="lekhak-btn-action">🔄 Rebuild Registry</button>
  </div>
@@ -96,11 +103,27 @@
  </div>
  </div>
 
+ <div class="nav-group" data-group="features">
+ <div class="nav-group-header" onclick="toggleGroup(this)">Features</div>
+ <div class="nav-group-content">
+ <div class="nav-item">
+ <a href="<?php echo \htmlentities($app_root??'', ENT_QUOTES, 'UTF-8', false); ?>/admin#commerce" class="<?php echo \htmlentities($v == 'commerce' ? 'active' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>">
+ <span class="nav-icon">🛒</span> eCommerce Store
+ </a>
+ </div>
+ <div class="nav-item">
+ <a href="<?php echo \htmlentities($app_root??'', ENT_QUOTES, 'UTF-8', false); ?>/admin#translations" class="<?php echo \htmlentities($v == 'translations' ? 'active' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>">
+ <span class="nav-icon">🌍</span> Translation Center
+ </a>
+ </div>
+ </div>
+ </div>
+
  <div class="nav-group" data-group="system">
  <div class="nav-group-header" onclick="toggleGroup(this)">System</div>
  <div class="nav-group-content">
  <div class="nav-item">
- <a href="<?php echo \htmlentities($admin_root??'', ENT_QUOTES, 'UTF-8', false); ?>/settings" class="<?php echo \htmlentities(str_contains($v, 'settings') ? 'active' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>">
+ <a href="<?php echo \htmlentities($app_root??'', ENT_QUOTES, 'UTF-8', false); ?>/admin#settings" class="<?php echo \htmlentities(str_contains($v, 'settings') ? 'active' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>">
  <span class="nav-icon">⚙️</span> Configuration
  </a>
  </div>
@@ -387,10 +410,6 @@
  }
  });
  }
-
- // Initialize theme
- var savedTheme = localStorage.getItem('lekhak-admin-theme') || 'saffron';
- setTheme(savedTheme);
 
  // Initialize menu states
  var collapsedGroups = JSON.parse(localStorage.getItem('collapsed-menu-groups') || '[]');

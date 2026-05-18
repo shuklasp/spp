@@ -1,0 +1,122 @@
+.sidebar .block {
+  background-color: var(--light);
+  padding: 20px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 2px var(--border);
+}
+.sidebar .block-title {
+  font-size: 1.6rem;
+  text-transform: none;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+.sidebar .block-title::before,
+.sidebar .block-title::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  height: 2px;
+}
+.sidebar .block-title::before {
+  background: var(--primary);
+  width: 20px;
+  bottom: 6px;
+}
+.sidebar .block-title::after {
+  background: var(--secondary);
+  width: 40px;
+  bottom: 0;
+}
+/*
+ * Sliding sidebar
+ */
+ .sliding-sidebar-icon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  cursor: pointer;
+}
+.sliding-sidebar {
+  position: relative;
+  visibility: hidden;
+  z-index: 110;
+  transition: visibility 0s 0.4s;
+}
+.sliding-sidebar.animated-panel-is-visible {
+  visibility: visible;
+  transition: visibility 0s 0s;
+}
+.sliding-sidebar-container {
+  position: fixed;
+  top: 0;
+  width: 90%;
+  max-width: 360px;
+  height: 100%;
+  padding: 16px 20px;
+  overflow-x: auto;
+  transition: transform 0.4s 0s;
+}
+.animated-panel-from-right .sliding-sidebar-container {
+  right: 0;
+  transform: translate(100%, 0);
+}
+.animated-panel-from-left .sliding-sidebar-container {
+  left: 0;
+  transform: translate3d(-100%, 0, 0);
+}
+.animated-panel-is-visible .sliding-sidebar-container {
+  transition-delay: 0s;
+  transform: translate(0, 0);
+}
+.close-sliding-sidebar {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  z-index: 120;
+}
+.sliding-sidebar-container .block {
+  padding: 0 0 1.6em 0;
+}
+.sliding-sidebar-container h2 {
+  font-size: 1.6em;
+}
+
+.sliding-sidebar-icon {
+  margin-left: 20px;
+  border-top: 2px solid #ffffff;
+  border-bottom: 2px solid #ffffff;
+}
+.sliding-sidebar-icon span {
+  height: 2px;
+  width: 70%;
+  background-color: var(--primary);
+  transition: width 0.3s ease;
+}
+.sliding-sidebar-icon:hover span {
+  width: 100%;
+}
+.sliding-sidebar-container {
+  background: var(--light);
+  color: var(--text-color);
+  box-shadow: -2px 0 14px var(--dark);
+}
+.sliding-sidebar-container .block-title {
+  text-align: center;
+}
+.sliding-sidebar-container .block-title::before,
+.sliding-sidebar-container .block-title::after {
+  position: absolute;
+  content: '';
+  top: 50%;
+  width: 24px;
+  height: 2px;
+  background-color: var(--secondary);
+}
+.sliding-sidebar-container .block-title::before {
+  transform: translateX(-34px);
+}
+.sliding-sidebar-container .block-title::after {
+  transform: translateX(10px);
+}

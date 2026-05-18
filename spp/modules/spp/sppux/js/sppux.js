@@ -399,7 +399,7 @@ export class BaseComponent {
                 }
             }
 
-            if (!template || template.content === undefined) {
+            if (!template || template.content === undefined || (template.content === '' && !template.__isTrusted)) {
                 this._isRendering = false;
                 return;
             }
@@ -1426,6 +1426,7 @@ function initHtmlDirectives() {
     observer.observe(document.body, { childList: true, subtree: true });
 
     // 5. Enterprise Native Developer Mode Live-Reload / View Synchronization Observer
+    /*
     if (document.body.hasAttribute('data-spp-navigation') || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         let lastModHash = '';
         console.log("[SPPUX Directives] Bootstrapping background Hot Module Replacement (HMR) state tracker loop.");
@@ -1459,6 +1460,7 @@ function initHtmlDirectives() {
             } catch (err) {}
         }, 3000);
     }
+    */
 }
 
 if (document.readyState === 'loading') {

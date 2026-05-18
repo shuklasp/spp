@@ -37,6 +37,29 @@ class Drishyam extends \SPP\SPPObject
         $themeDir = $app->getAppSrcDir() . '/resources/themes';
         $this->scanThemes($themeDir);
         
+        if (isset($_GET['__svc']) && $_GET['__svc'] === 'drishyam:list') {
+            header('Content-Type: application/json; charset=utf-8');
+            $list = [];
+            foreach ($this->getThemes() as $name => $tObj) {
+                $desc = $tObj->getConfig('description', 'Custom dynamic presentation workspace.');
+                $origInfo = $tObj->getConfig('original_info');
+                $ver = $origInfo ? ($origInfo['version'] ?? '1.0.0') : '1.0.0';
+                $icon = $tObj->getConfig('ENGINE_MODE') === 'drupal' ? '💧' : ($tObj->getConfig('ENGINE_MODE') === 'wordpress' ? '📝' : '🔮');
+                if ($name === 'eduxpro') $icon = '💧';
+                
+                $list[] = [
+                    'id' => $name,
+                    'title' => $tObj->getConfig('name', ucfirst($name)),
+                    'ver' => $ver,
+                    'type' => $tObj->getConfig('type', 'site'),
+                    'desc' => strip_tags($desc),
+                    'icon' => $icon
+                ];
+            }
+            echo json_encode($list);
+            exit;
+        }
+        
         $configPath = $app->getAppConfDir() . '/drishyam.yml';
         if (file_exists($configPath)) {
             $config = \Symfony\Component\Yaml\Yaml::parseFile($configPath);
@@ -87,8 +110,14 @@ class Drishyam extends \SPP\SPPObject
         foreach ($items as $item) {
             if ($item === '.' || $item === '..') continue;
             $path = $dir . '/' . $item;
-            if (is_dir($path) && file_exists($path . '/theme.yml')) {
-                $this->themes[$item] = new Theme($item, $path);
+            if (is_dir($path)) {
+                $isDrishyam = file_exists($path . '/theme.yml');
+                $isDrupal = !empty(glob($path . '/*.info.yml'));
+                $isWordPress = file_exists($path . '/style.css');
+                
+                if ($isDrishyam || $isDrupal || $isWordPress) {
+                    $this->themes[$item] = new Theme($item, $path);
+                }
             }
         }
     }
@@ -133,6 +162,16 @@ class Drishyam extends \SPP\SPPObject
 
         // Negotiate by context (e.g. if we are in /admin)
         $context = $this->determineContext();
+        
+        // Dynamically resolve mapped user layout engine via synchronized presentation cookies
+        if ($context === 'admin' && !empty($_COOKIE['lekhak_admin_theme_engine'])) {
+            $cookieTheme = $_COOKIE['lekhak_admin_theme_engine'];
+            if (isset($this->themes[$cookieTheme])) return $this->themes[$cookieTheme];
+        } elseif ($context === 'site' && !empty($_COOKIE['lekhak_site_theme_engine'])) {
+            $cookieTheme = $_COOKIE['lekhak_site_theme_engine'];
+            if (isset($this->themes[$cookieTheme])) return $this->themes[$cookieTheme];
+        }
+
         if (isset($this->contextThemes[$context])) {
             $themeName = $this->contextThemes[$context];
             return $this->themes[$themeName] ?? $this->themes[$this->defaultTheme] ?? null;

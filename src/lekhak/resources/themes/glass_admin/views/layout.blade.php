@@ -5,7 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Lekhak Admin' }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="preload" href="{{ \SPP\App::getBaseUrl() }}/theme-assets/glass_admin/theme.css" as="style">
     <link rel="stylesheet" href="{{ \SPP\App::getBaseUrl() }}/theme-assets/glass_admin/theme.css">
+    <script>
+        // Synchronous layout pre-warm to prevent Flash of Unstyled Content (FOUC)
+        var savedTheme = localStorage.getItem('lekhak-admin-theme') || 'saffron';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+    </script>
 </head>
 <body>
     <!-- Persistent Ceiling-Mounted Lekhak Admin Toolbar -->
@@ -22,6 +28,7 @@
             <a href="{{ $admin_root }}/settings" class="lekhak-toolbar-link {{ str_contains($view_name ?? '', 'settings') ? 'active' : '' }}">Configuration</a>
         </div>
         <div class="lekhak-toolbar-right">
+            <button onclick="document.querySelector('.lekhak-admin-toolbar-global').style.display='none'; document.querySelector('.admin-wrapper').style.paddingTop='0'; document.querySelector('.sidebar').style.top='0'; document.querySelector('.sidebar').style.height='100vh';" class="lekhak-btn-action" title="Hides the top global admin bar to inspect the page natively">👁️ Hide Bar</button>
             <button onclick="window.location.reload();" class="lekhak-btn-action" title="Flushes precompiled layout cache files">⚡ Clear Cache</button>
             <button onclick="alert('Index rebuilt across relational database keys.');" class="lekhak-btn-action">🔄 Rebuild Registry</button>
         </div>
@@ -96,11 +103,27 @@
                     </div>
                 </div>
 
+                <div class="nav-group" data-group="features">
+                    <div class="nav-group-header" onclick="toggleGroup(this)">Features</div>
+                    <div class="nav-group-content">
+                        <div class="nav-item">
+                            <a href="{{ $app_root }}/admin#commerce" class="{{ $v == 'commerce' ? 'active' : '' }}">
+                                <span class="nav-icon">🛒</span> eCommerce Store
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ $app_root }}/admin#translations" class="{{ $v == 'translations' ? 'active' : '' }}">
+                                <span class="nav-icon">🌍</span> Translation Center
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="nav-group" data-group="system">
                     <div class="nav-group-header" onclick="toggleGroup(this)">System</div>
                     <div class="nav-group-content">
                         <div class="nav-item">
-                            <a href="{{ $admin_root }}/settings" class="{{ str_contains($v, 'settings') ? 'active' : '' }}">
+                            <a href="{{ $app_root }}/admin#settings" class="{{ str_contains($v, 'settings') ? 'active' : '' }}">
                                 <span class="nav-icon">⚙️</span> Configuration
                             </a>
                         </div>
@@ -387,10 +410,6 @@
                 }
             });
         }
-
-        // Initialize theme
-        var savedTheme = localStorage.getItem('lekhak-admin-theme') || 'saffron';
-        setTheme(savedTheme);
 
         // Initialize menu states
         var collapsedGroups = JSON.parse(localStorage.getItem('collapsed-menu-groups') || '[]');

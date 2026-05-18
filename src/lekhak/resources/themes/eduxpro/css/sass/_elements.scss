@@ -1,0 +1,24 @@
+/* Elements -> Close Drupal System Message */
+.message-close {
+  position: absolute;
+  right: 4px;
+  top: 8px;
+}
+/* Elements -> Admin tabs */
+.page-tabs li a {
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.page-tabs li.active-page-tab a, 
+.page-tabs li a:hover {
+  color: var(--primary);
+}
+/* Elements -> Table */
+.table {
+  box-shadow: var(--shadow);
+}
+/* Breadcrumb */
+.breadcrumb-item i {
+  font-size: 12px;
+}

@@ -15,7 +15,8 @@ class MiddlewareKernel
      */
     public static function boot()
     {
-        if (self::$isInitialized) return;
+        if (self::$isInitialized)
+            return;
 
         // 1. Load from Registry (Programmatic registration)
         $registered = \SPP\Registry::get('__middleware=>global') ?: [];
@@ -27,7 +28,7 @@ class MiddlewareKernel
             $config = \Symfony\Component\Yaml\Yaml::parseFile($globalPath);
             self::$middleware = array_merge(self::$middleware, $config['global'] ?? []);
         }
-        
+
         // 3. Load from App Config
         $context = \SPP\Scheduler::getContext();
         if ($context && $context !== 'default') {
@@ -37,7 +38,7 @@ class MiddlewareKernel
                 self::$middleware = array_merge(self::$middleware, $appConfig['global'] ?? []);
             }
         }
-        
+
         self::$isInitialized = true;
     }
 

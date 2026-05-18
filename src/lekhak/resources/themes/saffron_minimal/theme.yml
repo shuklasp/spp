@@ -1,0 +1,13 @@
+name: "Saffron Aura Sovereign"
+description: "A complete standalone presentation engine centered around linear-radial ambient saffron light profiles."
+type: both
+parent: null
+features:
+  - sidebar
+  - dashboard
+  - responsive-grid
+JS_DRIVER: sppux
+CSS_VARS:
+  primary: "#f97316"
+  secondary: "#ea580c"
+  glass_bg: "rgba(255, 250, 245, 0.9)"

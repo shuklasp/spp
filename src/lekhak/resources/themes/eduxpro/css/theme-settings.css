@@ -1,0 +1,32 @@
+label[for="edit-eduxpro"] {
+	width: 100%;
+	text-align: center;
+}
+
+.settings-form-title {
+	background-color: #222222;
+	background-image: url("../logo.svg");
+	background-size: auto 70%;
+	background-position: calc(50% - 180px) center;
+	background-repeat: no-repeat;
+	padding: 2rem 2rem 2rem 5rem;
+	color: #ffffff;
+	margin: 0 auto;
+}
+/* Form */
+label {
+	margin-bottom: 10px;
+}
+
+/* Fieldset */
+fieldset.set-default-fieldset,
+details.set-default-fieldset {
+	background-color: #ffeaa7;
+}
+/* Color Configuration */
+.form-color {
+  width: 150px;
+	height: 40px;
+	padding: 2px;
+}
+

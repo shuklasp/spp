@@ -1,0 +1,5 @@
+# Schema for the configuration files of the Edu X Pro theme.
+
+eduxpro.settings:
+  type: theme_settings
+  label: 'Edu X Pro Settings'

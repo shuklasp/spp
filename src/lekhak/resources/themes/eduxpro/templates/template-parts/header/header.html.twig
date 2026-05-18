@@ -1,0 +1,24 @@
+{% if preloader_option %}
+  <div class="loader">
+    <div class="loader-inner">
+      <div class="loader-icon">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% if page.header_top_left or page.header_top_right or header_login_links %}
+  <div class="header-top">
+    <div class="container">
+      <div class="header-top-container">
+        {% include '@eduxpro/template-parts/header/header-top-left.html.twig' %}
+        {% include '@eduxpro/template-parts/header/header-top-right.html.twig' %}
+        {%  if header_login_links %}
+          {% include '@eduxpro/template-parts/header/header-login.html.twig' %}
+        {% endif %}
+      </div><!-- /header-top-container -->
+    </div><!-- /container -->
+  </div><!-- /header-top -->
+{% endif %}
+{% include '@eduxpro/template-parts/header/header-main.html.twig' %}

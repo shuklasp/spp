@@ -1,0 +1,13 @@
+name: "Deep Slate Terminal"
+description: "High-contrast development presentation workspace optimized for real-time diagnostics and hardware terminal streams."
+type: admin
+parent: null
+features:
+  - buffer-dump
+  - high-contrast
+  - dark-mode
+JS_DRIVER: sppux
+CSS_VARS:
+  primary: "#10b981"
+  secondary: "#059669"
+  glass_bg: "#0f172a"

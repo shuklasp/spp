@@ -4,7 +4,7 @@ app_init: init.php
 etc_path: etc
 var_path: var
 modules_path: modules
-theme: premium
+theme: eduxpro
 lekhni:
     media_path: var/media/lekhni
 admin_icon: 🖋️

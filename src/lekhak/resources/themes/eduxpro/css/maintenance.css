@@ -1,0 +1,24 @@
+.header {
+  padding: 2rem 0;
+}
+.site-name {
+  font-size: 1.2rem;
+}
+#maintenance {
+  padding: 2rem 0;
+}
+.maintenance {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+}
+.maintenance-title,
+.maintenance-message {
+  text-align: center;
+}
+.maintenance-icon {
+  margin: 2rem auto;
+}
+.maintenance-icon img {
+  max-height: 60vh;
+}

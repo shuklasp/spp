@@ -1,0 +1,113 @@
++===============================+
+Version 8.0.0
+25 Jan, 2021
++===============================+
+# Initial version
+
+
++===============================+
+Version 8.0.1
+09 Mar, 2021
++===============================+
+# Added a section to check theme updates in theme settings.
+# Added layered slider sytyle.
+# Fixed sticky header issue.
+# Added missing sliding sidebar block region.
+# New grid based layout for main and sidebars.
+# Introduced sass for better css.
+
+
++===============================+
+Version 8.0.2
+17 Mar, 2021
++===============================+
+# Fixed minor known bugs.
+# Added many new shortcode.
+
+
++===============================+
+version 8.0.3
+31 Mar 2021
++===============================+
+# Fixed minor knonw bugs.
+# Added new shortcodes.
+# Added default block regions for system blocks.
+
+
++===============================+
+version 8.0.4
+10 May, 2021
++===============================+
+# Fixed minor known bugs.
+# Fixed mobile menu issue when sticky header is enabled.
+# Added Google material font icons version 4.0
+# Improved user interface.
+# Added feature to close sliding search form using Esc key press.
+
+
++===============================+
+version 8.1.0
+27 June, 2021
++===============================+
+# Fixed bug in animated page content.
+# Added new shortcode - Disabled
+# Fixed share node on twitter issue.
+# Share node will now open in new browser tab.
+# Added option to upload images for layered slider.
+# Removed animate.css external file from library.
+
+
++===============================+
+version 8.1.1
+23 Feb, 2022
++===============================+
+# Fixed slider issue div issue in new Drupal  versions.
+
+
++===============================+
+version 8.1.2
+30 Sep, 2022
++===============================+
+# Fixed compatibility issue with Drupal 9.4.7
+# Fixed display issue of auto-complete fields.
+
+
++===============================+
+Version 10.1.0
+09 Jan, 2023
++===============================+
+# Initial release of 10.x.x series.
+# Theme is now compatible with Drupal 10
+
+
++===============================+
+Version 10.1.1
+22 Jan, 2023
++===============================+
+# Fixed Slider image upload issue.
+
+
++===============================+
+Version 11.0.0
+03 Nov, 2024
++===============================+
+# Initial release of 11.x.x series.
+# Drupal 11 compatible.
+# Removed dependency of thexpro base theme.
+# Theme now uses stable9 as the base theme.
+# Removed support for Drupal 8. Theme no longer is compatible with Drupal 8
+# New block region 'Slider'. Slider should now be created using blocks.
+# New block region 'Footer Copyright' Custom copyright text should now be created using blocks.
+# New block region 'Cookie Consent Message'. Custom cookie consent message should now be created using blocks.
+# Unlimited slides can now be created.
+# Slider can now be placed in inner pages.
+# Removed styling options for scroll to top icon.
+# Added styling for 'EU Cookie Compliance' module.
+
++===============================+
+Version 11.0.1
+05 Nov, 2024
++===============================+
+# Fixed status message display in Drupal 11
+# Added login icons in header top.
+# Fixed minor known bugs.

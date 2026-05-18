@@ -1,1 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_landing_blocks">
+  <_schema>
+    <column name="id" type="int" notNull="true" primary="true" autoIncrement="true"/>
+    <column name="page_id" type="bigint" notNull="true"/>
+    <column name="block_type" type="varchar(50)" notNull="true"/>
+    <column name="data" type="longtext"/>
+    <column name="weight" type="int" default="0"/>
+    <column name="region" type="varchar(50)"/>
+    <column name="created" type="datetime"/>
+  </_schema>
+  <_meta>
+    <next_id>5</next_id>
+  </_meta>
+  <data>
+  </data>
+<row id="12"><id>12</id><page_id>3</page_id><block_type>hero</block_type><data>{"title":"Stabilized Lekhak Ecosystem","subtitle":"The rendering pipeline is now fully operational with Drupal theme support.","button_text":"Explore CMS"}</data><weight>0</weight><region>main</region></row><row id="1"><block_type>custom_html</block_type><region>header</region><weight>0</weight><page_id>0</page_id><data>{"title":"Test Block Title","text":"","html":"This is a test block content to verify custom HTML block creation."}</data><created>2026-05-18 10:26:03</created><changed>2026-05-18 10:59:56</changed><id>1</id><history timestamp="2026-05-18 10:59:56"><block_type>custom_html</block_type><region>sidebar_first</region><weight>0</weight><page_id>0</page_id><data>{"title":"Test Block Title","text":"","html":"This is a test block content to verify custom HTML block creation."}</data><created>2026-05-18 10:26:03</created><changed>2026-05-18 10:26:03</changed><id>1</id></history><last_modified>2026-05-18 10:59:56</last_modified></row><row id="2"><block_type>custom_html</block_type><region>sidebar_first</region><weight>0</weight><page_id>0</page_id><data>{"title":"Test Block Title","text":"","html":"This is a test block content to verify custom HTML block creation."}</data><created>2026-05-18 10:26:26</created><changed>2026-05-18 10:26:26</changed><id>2</id></row><row id="3"><block_type>custom_html</block_type><region>sidebar_first</region><weight>0</weight><page_id>0</page_id><data>{"title":"Test Block Title","text":"","html":"&lt;div class=\"test-block-content\"&gt;This is a test block content to verify custom HTML block creation.&lt;\/div&gt;"}</data><created>2026-05-18 10:47:54</created><changed>2026-05-18 10:47:54</changed><id>3</id></row><row id="4"><block_type>custom_html</block_type><region>sidebar_first</region><weight>0</weight><page_id>0</page_id><data>{"title":"Test Block Title","text":"","html":"&lt;div class=\"test-block-content\"&gt;This is a test block content to verify custom HTML block creation.&lt;\/div&gt;"}</data><created>2026-05-18 10:48:02</created><changed>2026-05-18 10:48:02</changed><id>4</id></row></database>

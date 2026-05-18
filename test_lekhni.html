@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lekhni Toolbar & Modular Layout Testbed</title>
+    <!-- Modern Outfit & Inter Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: #111827;
+            --text-color: #f3f4f6;
+            --text-muted: #9ca3af;
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --border: #374151;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .header {
+            max-width: 1200px;
+            margin: 0 auto 3rem auto;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem;
+            margin: 0 0 0.5rem 0;
+            background: linear-gradient(135deg, #a5b4fc, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .test-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .test-card h3 {
+            margin: 0;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .test-card h3 span {
+            font-size: 0.8rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: var(--primary);
+            padding: 2px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .test-card p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: #070a13;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: #cbd5e1;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        /* Lekhni replaced container styling */
+        .lekhni-replaced-container {
+            margin-top: 0.5rem;
+        }
+    </style>
+
+    <!-- Configure dummy SPPUX root for autonomous rendering without framework backend -->
+    <script>
+        window.spp_root_store = {
+            get: () => ({ selectedApp: 'default' }),
+            subscribe: () => () => {}
+        };
+        window.app = {
+            api: async (action, data) => {
+                console.log(`[Mock API] action: ${action}`, data);
+                return { success: true, message: "Operation completed successfully" };
+            },
+            notify: (msg, type) => {
+                console.log(`[Notification ${type}] ${msg}`);
+            }
+        };
+        window.admin = window.app;
+    </script>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Lekhni Modular Playground</h1>
+        <p>Real-time visual verification of the dynamic Lekhni replacement and pluggable toolbar layout configurations</p>
+    </div>
+
+    <div class="test-grid">
+        <!-- Test 1: Full Layout -->
+        <div class="test-card">
+            <h3>Standard Editor <span>toolbarLayout: 'full'</span></h3>
+            <p>Renders the complete visual content workspace equipped with headers, styles, formatting triggers, lists, annotations, and AI helpers.</p>
+            <textarea id="editor-full"><h1>The Grand Architect</h1><p>We are building a beautiful, unified developer workspace ecosystem.</p></textarea>
+        </div>
+
+        <!-- Test 2: Compact Layout -->
+        <div class="test-card">
+            <h3>Compact Editor <span>toolbarLayout: 'compact'</span></h3>
+            <p>Optimized for quick messaging, inline comment blocks, and micro-editing. Displays basic style triggers along with inline Monaco block options.</p>
+            <textarea id="editor-compact"><p>A <strong>compact</strong> inline document block.</p></textarea>
+        </div>
+
+        <!-- Test 3: Floating Layout -->
+        <div class="test-card">
+            <h3>Floating Editor <span>toolbarLayout: 'floating'</span></h3>
+            <p>Hides the persistent top toolbar completely, relying purely on the floating Contextual Bubble Menu (highlight text) and Slash commands (type /).</p>
+            <textarea id="editor-floating"><p>Highlight a word or type <em>/</em> in this block to activate formatting controls.</p></textarea>
+        </div>
+
+        <!-- Test 4: No Toolbar Layout -->
+        <div class="test-card">
+            <h3>Minimalist Editor <span>toolbarLayout: 'none'</span></h3>
+            <p>A pure, ultra-distraction-free visual field with all toolbars and floating menus completely deactivated. Ideal for plain structured inputs.</p>
+            <textarea id="editor-none"><p>Completely distraction-free writing canvas.</p></textarea>
+        </div>
+    </div>
+
+    <!-- Load and mount Lekhni replacements dynamically -->
+    <script type="module">
+        import { replaceTextarea } from './spp/modules/contrib/lekhni/js/lekhni-editor.js?v=2026_05_13_v1';
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Full Layout replacement
+            await replaceTextarea('#editor-full', {
+                toolbarLayout: 'full',
+                bubbleMenuEnabled: true,
+                slashMenuEnabled: true
+            });
+
+            // 2. Compact Layout replacement
+            await replaceTextarea('#editor-compact', {
+                toolbarLayout: 'compact',
+                bubbleMenuEnabled: true,
+                slashMenuEnabled: true
+            });
+
+            // 3. Floating Layout replacement
+            await replaceTextarea('#editor-floating', {
+                toolbarLayout: 'floating',
+                bubbleMenuEnabled: true,
+                slashMenuEnabled: true
+            });
+
+            // 4. No Toolbar Layout replacement
+            await replaceTextarea('#editor-none', {
+                toolbarLayout: 'none',
+                bubbleMenuEnabled: false,
+                slashMenuEnabled: false
+            });
+        });
+    </script>
+</body>
+</html>

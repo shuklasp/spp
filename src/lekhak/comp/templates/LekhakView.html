@@ -1,119 +1,128 @@
 <div class="lekhak-inspired-shell">
-    <!-- Sticky Ceil Admin Toolbar Ribbon -->
     <div class="lekhak-admin-toolbar">
         <div class="toolbar-brand">
             <span class="logo-icon" style="background: linear-gradient(135deg, var(--primary), #a855f7); color: white; width: 24px; height: 24px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.8rem; vertical-align: middle; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">✍️</span>
-            <span class="brand-label">Lekhak CMS System Base</span>
+            <span class="brand-label">Lekhak CMS</span>
         </div>
         <div class="toolbar-links">
-            <a class="toolbar-tab active" data-spp-evt="nav-lekhak" data-spp-type="click">Manage Content</a>
-            <a class="toolbar-tab" data-spp-evt="nav-canvas" data-spp-type="click">Structure / Design</a>
-            <a class="toolbar-tab" data-spp-evt="nav-settings" data-spp-type="click">Configuration</a>
-            <a class="toolbar-tab" data-spp-evt="nav-clear-cache" data-spp-type="click">Clear Cache</a>
+            <a class="toolbar-tab active" data-spp-evt="nav-lekhak" data-spp-type="click">Dashboard</a>
+            <a class="toolbar-tab" data-spp-evt="nav-content" data-spp-type="click">Content</a>
+            <a class="toolbar-tab" data-spp-evt="nav-canvas" data-spp-type="click">Pages</a>
+            <a class="toolbar-tab" data-spp-evt="nav-media" data-spp-type="click">Media</a>
+            <a class="toolbar-tab" data-spp-evt="nav-structure" data-spp-type="click">Structure</a>
+            <a class="toolbar-tab" data-spp-evt="nav-commerce" data-spp-type="click">Commerce</a>
+            <a class="toolbar-tab" data-spp-evt="nav-translations" data-spp-type="click">Translations</a>
+            <a class="toolbar-tab" data-spp-evt="nav-settings" data-spp-type="click">Appearance</a>
         </div>
         <div class="toolbar-actions">
-            <button class="btn-toolbar-primary" data-spp-evt="nav-editor" data-spp-type="click">＋ Add Content</button>
+            <button class="btn-toolbar-primary" data-spp-evt="nav-editor" data-spp-type="click">＋ New Content</button>
         </div>
     </div>
 
     <div class="lekhak-main-container">
-        <!-- Local Tasks Unified Navigation Header -->
         <header class="workspace-page-header">
             <div class="header-titles">
-                <h1>Content Workbench</h1>
-                <p class="subtitle">Comprehensive dynamic administration for your nodes and content collections.</p>
+                <h1>Dashboard</h1>
+                <p class="subtitle">Welcome back. Here's an overview of your content workspace.</p>
             </div>
-            
-            <!-- Secondary Nav-Pills (Local Tasks) -->
             <div class="lekhak-local-tasks">
                 <button class="task-pill active" data-spp-evt="tab-overview" data-spp-type="click">
-                    Overview Streams <span class="pill-badge">${state.stats.total}</span>
+                    All Content <span class="pill-badge" id="spp-stat-total-pill">${state.stats.total}</span>
                 </button>
                 <button class="task-pill" data-spp-evt="tab-published" data-spp-type="click">
                     Published <span class="pill-badge success">${state.stats.published}</span>
                 </button>
                 <button class="task-pill" data-spp-evt="tab-drafts" data-spp-type="click">
-                    Workspace Buffers <span class="pill-badge warning">${state.stats.drafts}</span>
+                    Drafts <span class="pill-badge warning">${state.stats.drafts}</span>
                 </button>
                 <button class="task-pill" data-spp-evt="nav-master" data-spp-type="click">
-                    🗂️ View Master Grid ↗
+                    🗂️ Full Content List ↗
                 </button>
             </div>
         </header>
 
-        <!-- Responsive Metrics Grid Block -->
+        <!-- Metrics Grid -->
         <div class="lekhak-metrics-grid">
             <div class="metric-card">
                 <div class="metric-header">
-                    <span class="metric-title">Total Entities</span>
+                    <span class="metric-title">Total Content</span>
                     <span class="metric-icon">📄</span>
                 </div>
-                <div class="metric-value">${state.stats.total}</div>
-                <div class="metric-footer">Active schema mapped nodes</div>
+                <div class="metric-value" id="spp-stat-total">${state.stats.total}</div>
+                <div class="metric-footer">All content items</div>
             </div>
             <div class="metric-card" style="border-top-color: #4ade80;">
                 <div class="metric-header">
-                    <span class="metric-title">Published Stream</span>
+                    <span class="metric-title">Published</span>
                     <span class="metric-icon">🚀</span>
                 </div>
-                <div class="metric-value" style="color: #4ade80;">${state.stats.published}</div>
-                <div class="metric-footer">Visible worldwide synchronously</div>
+                <div class="metric-value" style="color: #4ade80;" id="spp-stat-published">${state.stats.published}</div>
+                <div class="metric-footer">Live and visible</div>
             </div>
             <div class="metric-card" style="border-top-color: #facc15;">
                 <div class="metric-header">
-                    <span class="metric-title">Pending Revision States</span>
+                    <span class="metric-title">Drafts</span>
                     <span class="metric-icon">⏳</span>
                 </div>
-                <div class="metric-value" style="color: #facc15;">${state.stats.drafts}</div>
-                <div class="metric-footer">Secured offline buffers ready</div>
+                <div class="metric-value" style="color: #facc15;" id="spp-stat-drafts">${state.stats.drafts}</div>
+                <div class="metric-footer">Pending review</div>
+            </div>
+            <div class="metric-card" style="border-top-color: #38bdf8;">
+                <div class="metric-header">
+                    <span class="metric-title">Engagement</span>
+                    <span class="metric-icon">📊</span>
+                </div>
+                <div class="metric-value" style="color: #38bdf8;" id="spp-stat-engagement">${state.stats.engagement}%</div>
+                <div class="metric-footer">Content performance score</div>
             </div>
         </div>
 
-        <!-- Layout Content Column Blocks -->
+        <!-- Split Layout -->
         <div class="lekhak-responsive-split">
             <section class="primary-content-column">
                 <div class="column-card-shell">
                     <div class="card-header-bar">
-                        <h3>Filtered Operations Stream: <span style="text-transform: capitalize; color: #38bdf8;">${state.activeTab}</span></h3>
-                        <span style="font-size: 0.75rem; color: #64748b;">Active items viewport array</span>
+                        <h3>Recent Activity</h3>
+                        <span style="font-size:0.75rem; color:var(--text-dim);">Last 10 updates</span>
                     </div>
                     <div class="lekhak-stream-list" id="spp-lekhak-stream-rows">
-                        <!-- Dynamic items reconciliation target -->
                         <div class="lekhak-empty-stream">
-                            <span style="font-size: 1.5rem; margin-bottom: 8px; display: block;">📭</span>
-                            <span>Stream filtered outputs dynamic view reconciliation buffer active.</span>
+                            <span style="font-size:1.5rem; margin-bottom:8px; display:block;">⏳</span>
+                            <span>Loading recent activity...</span>
                         </div>
                     </div>
                 </div>
             </section>
 
             <aside class="secondary-tools-column">
-                <div class="column-card-shell">
-                    <div class="card-header-bar">
-                        <h3>System Framework Base</h3>
-                    </div>
+                <!-- Quick Actions -->
+                <div class="column-card-shell" style="margin-bottom:1.5rem;">
+                    <div class="card-header-bar"><h3>Quick Actions</h3></div>
                     <div class="lekhak-tools-list">
+                        <div class="tool-item" data-spp-evt="qa-new-article">
+                            <div class="tool-icon">📝</div>
+                            <div class="tool-text"><h4>New Article</h4><p>Create a new content item</p></div>
+                        </div>
                         <div class="tool-item" data-spp-evt="nav-canvas">
                             <div class="tool-icon">🎨</div>
-                            <div class="tool-text">
-                                <h4>Visual Page Canvas</h4>
-                                <p>Manage dynamic landing layouts</p>
-                            </div>
+                            <div class="tool-text"><h4>Landing Pages</h4><p>Design visual page layouts</p></div>
                         </div>
-                        <div class="tool-item" data-spp-evt="nav-settings">
-                            <div class="tool-icon">⚙️</div>
-                            <div class="tool-text">
-                                <h4>Workspace Configuration</h4>
-                                <p>Database bindings & Media routing</p>
-                            </div>
+                        <div class="tool-item" data-spp-evt="nav-media">
+                            <div class="tool-icon">🖼️</div>
+                            <div class="tool-text"><h4>Media Library</h4><p>Manage uploads and assets</p></div>
                         </div>
-                        <div class="tool-item" data-spp-evt="tool-rebuild">
-                            <div class="tool-icon">🔍</div>
-                            <div class="tool-text">
-                                <h4>Rebuild Storage Tables</h4>
-                                <p>Optimize underlying sequence pointers</p>
-                            </div>
+                        <div class="tool-item" data-spp-evt="qa-view-site">
+                            <div class="tool-icon">🌐</div>
+                            <div class="tool-text"><h4>View Site</h4><p>Open the public website</p></div>
                         </div>
+                    </div>
+                </div>
+
+                <!-- System Status -->
+                <div class="column-card-shell">
+                    <div class="card-header-bar"><h3>System Status</h3></div>
+                    <div id="spp-system-status" class="system-status-list">
+                        <div class="status-row"><span>Loading...</span><span class="status-val">—</span></div>
                     </div>
                 </div>
             </aside>
@@ -123,8 +132,6 @@
 
 <style>
     .lekhak-inspired-shell { font-family: 'Inter', sans-serif; color: var(--text); min-height: 100vh; background: transparent; }
-    
-    /* 1. Ceil Sticky Admin Ribbon */
     .lekhak-admin-toolbar {
         position: sticky; top: 0; z-index: 1000;
         background: var(--header-bg); border-bottom: 2px solid var(--border);
@@ -135,117 +142,58 @@
     .toolbar-brand { display: flex; align-items: center; gap: 8px; font-weight: bold; font-family: 'Outfit', sans-serif; font-size: 1rem; color: var(--text); }
     .toolbar-links { display: flex; height: 100%; }
     .toolbar-tab {
-        padding: 0 1rem; display: flex; align-items: center;
-        color: var(--text-dim); font-size: 0.8rem; font-weight: 600;
+        padding: 0 0.75rem; display: flex; align-items: center;
+        color: var(--text-dim); font-size: 0.78rem; font-weight: 600;
         text-decoration: none; cursor: pointer; transition: all 0.2s;
         border-bottom: 2px solid transparent; height: 100%;
     }
     .toolbar-tab:hover, .toolbar-tab.active { color: var(--primary); border-bottom-color: var(--primary); background: rgba(128,128,128,0.05); }
-    .btn-toolbar-primary {
-        background: var(--primary); color: white; border: none;
-        padding: 6px 14px; border-radius: 6px; font-size: 0.8rem;
-        font-weight: 800; cursor: pointer; transition: opacity 0.15s;
-    }
-    .btn-toolbar-primary:hover { opacity: 0.9; }
-
-    /* 2. Main Workspace Flow Layouts */
-    .lekhak-main-container { padding: 2.5rem 2rem; max-width: 1400px; margin: 0 auto; }
-    
-    .workspace-page-header { margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; }
-    .header-titles h1 { font-family: 'Outfit', sans-serif; font-size: 2.2rem; font-weight: 800; margin: 0; color: var(--text); }
-    .header-titles .subtitle { color: var(--text-dim); font-size: 0.95rem; margin-top: 4px; }
-
-    /* Unified Local Tasks Pill Ribbons */
-    .lekhak-local-tasks { display: flex; gap: 8px; margin-top: 1.5rem; flex-wrap: wrap; }
-    .task-pill {
-        background: var(--sidebar-bg); border: 1px solid var(--border);
-        color: var(--text); padding: 6px 14px; border-radius: 20px;
-        font-size: 0.8rem; font-weight: 600; cursor: pointer;
-        display: flex; align-items: center; gap: 8px; transition: all 0.15s;
-    }
+    .btn-toolbar-primary { background: var(--primary); color: white; border: none; padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: 800; cursor: pointer; }
+    .lekhak-main-container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+    .workspace-page-header { margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1.25rem; }
+    .header-titles h1 { font-family: 'Outfit', sans-serif; font-size: 2rem; font-weight: 800; margin: 0; color: var(--text); }
+    .header-titles .subtitle { color: var(--text-dim); font-size: 0.9rem; margin-top: 4px; }
+    .lekhak-local-tasks { display: flex; gap: 8px; margin-top: 1.25rem; flex-wrap: wrap; }
+    .task-pill { background: var(--sidebar-bg); border: 1px solid var(--border); color: var(--text); padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.15s; }
     .task-pill:hover, .task-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
     .pill-badge { background: var(--header-bg); color: var(--text-dim); font-size: 0.7rem; padding: 2px 6px; border-radius: 10px; font-weight: bold; }
     .task-pill.active .pill-badge { background: rgba(255,255,255,0.25); color: white; }
-    
-    /* 3. Responsive Metrics Flex Blocks */
-    .lekhak-metrics-grid {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem; margin-bottom: 2.5rem;
-    }
-    .metric-card {
-        background: var(--sidebar-bg); border: 1px solid var(--border);
-        border-top: 3px solid var(--primary); border-radius: 8px;
-        padding: 1.25rem; display: flex; flex-direction: column;
-    }
-    .metric-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; text-transform: uppercase; color: var(--text-dim); font-weight: bold; }
-    .metric-value { font-size: 2.2rem; font-weight: 800; font-family: 'Outfit', sans-serif; margin: 8px 0; color: var(--text); }
-    .metric-footer { font-size: 0.75rem; color: var(--text-dim); }
-
-    /* 4. Adaptive Split Content Columns */
-    .lekhak-responsive-split {
-        display: grid; grid-template-columns: 1fr 340px; gap: 2rem;
-    }
-    @media (max-width: 1024px) {
-        .lekhak-responsive-split { grid-template-columns: 1fr; }
-        .lekhak-admin-toolbar { padding: 0 1rem; }
-        .toolbar-links { display: none; } /* Hide secondary links on narrow mobile viewports gracefully */
-    }
-
-    .column-card-shell {
-        background: var(--sidebar-bg); border: 1px solid var(--border);
-        border-radius: 8px; overflow: hidden;
-    }
-    .card-header-bar {
-        background: var(--header-bg); padding: 12px 16px;
-        display: flex; justify-content: space-between; align-items: center;
-        border-bottom: 1px solid var(--border);
-    }
-    .card-header-bar h3 { font-size: 0.95rem; font-weight: 700; margin: 0; color: var(--text); font-family: 'Outfit', sans-serif; }
-
+    .lekhak-metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
+    .metric-card { background: var(--sidebar-bg); border: 1px solid var(--border); border-top: 3px solid var(--primary); border-radius: 8px; padding: 1.25rem; }
+    .metric-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.72rem; text-transform: uppercase; color: var(--text-dim); font-weight: bold; }
+    .metric-value { font-size: 2rem; font-weight: 800; font-family: 'Outfit', sans-serif; margin: 6px 0; color: var(--text); }
+    .metric-footer { font-size: 0.72rem; color: var(--text-dim); }
+    .lekhak-responsive-split { display: grid; grid-template-columns: 1fr 340px; gap: 1.5rem; }
+    @media (max-width: 1024px) { .lekhak-responsive-split { grid-template-columns: 1fr; } .toolbar-links { display: none; } }
+    .column-card-shell { background: var(--sidebar-bg); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .card-header-bar { background: var(--header-bg); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+    .card-header-bar h3 { font-size: 0.9rem; font-weight: 700; margin: 0; color: var(--text); font-family: 'Outfit', sans-serif; }
     .lekhak-stream-list { display: flex; flex-direction: column; }
-    .stream-row {
-        display: flex; align-items: center; gap: 12px;
-        padding: 14px 16px; border-bottom: 1px solid var(--border);
-        cursor: pointer; transition: background 0.15s;
-    }
-    .stream-row:hover { background: rgba(128,128,128,0.1); }
+    .stream-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+    .stream-row:hover { background: rgba(128,128,128,0.08); }
     .stream-row:last-child { border-bottom: none; }
-
     .status-marker { width: 8px; height: 8px; border-radius: 50%; background: #64748b; flex-shrink: 0; }
     .status-marker.published { background: #4ade80; }
-    
     .stream-info { flex-grow: 1; min-width: 0; }
-    .stream-title { font-weight: 600; font-size: 0.95rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .stream-meta { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
-
-    .badge-status {
-        font-size: 0.65rem; font-weight: bold; text-transform: uppercase;
-        padding: 2px 6px; border-radius: 4px; background: var(--header-bg); color: var(--text-dim);
-    }
+    .stream-title { font-weight: 600; font-size: 0.9rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stream-meta { font-size: 0.72rem; color: var(--text-dim); margin-top: 2px; }
+    .badge-status { font-size: 0.62rem; font-weight: bold; text-transform: uppercase; padding: 2px 6px; border-radius: 4px; background: var(--header-bg); color: var(--text-dim); }
     .badge-status.published { background: rgba(74,222,128,0.1); color: #4ade80; }
-
     .lekhak-actions-dropdown { display: flex; gap: 6px; }
-    .btn-action-pill {
-        background: transparent; border: 1px solid var(--border);
-        color: var(--text); padding: 4px 10px; border-radius: 4px;
-        font-size: 0.75rem; text-decoration: none; cursor: pointer;
-        transition: all 0.15s;
-    }
-    .btn-action-pill:hover { background: var(--header-bg); color: var(--text); }
+    .btn-action-pill { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 4px 10px; border-radius: 4px; font-size: 0.72rem; text-decoration: none; cursor: pointer; transition: all 0.15s; }
+    .btn-action-pill:hover { background: var(--header-bg); }
     .btn-action-pill.highlight { border-color: var(--primary); color: var(--primary); }
     .btn-action-pill.highlight:hover { background: var(--primary); color: white; }
-
-    .lekhak-empty-stream { padding: 4rem; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
-
+    .lekhak-empty-stream { padding: 3rem; text-align: center; color: var(--text-dim); font-size: 0.85rem; }
     .lekhak-tools-list { display: flex; flex-direction: column; }
-    .tool-item {
-        display: flex; align-items: center; gap: 14px;
-        padding: 14px 16px; border-bottom: 1px solid var(--border);
-        cursor: pointer; transition: background 0.15s;
-    }
-    .tool-item:hover { background: rgba(128,128,128,0.1); }
+    .tool-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; }
+    .tool-item:hover { background: rgba(128,128,128,0.08); }
     .tool-item:last-child { border-bottom: none; }
-    .tool-icon { font-size: 1.5rem; width: 40px; height: 40px; border-radius: 8px; background: var(--header-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .tool-text h4 { font-size: 0.9rem; font-weight: 600; margin: 0; color: var(--text); }
-    .tool-text p { font-size: 0.75rem; color: var(--text-dim); margin: 2px 0 0 0; }
+    .tool-icon { font-size: 1.3rem; width: 36px; height: 36px; border-radius: 8px; background: var(--header-bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .tool-text h4 { font-size: 0.85rem; font-weight: 600; margin: 0; color: var(--text); }
+    .tool-text p { font-size: 0.72rem; color: var(--text-dim); margin: 2px 0 0 0; }
+    .system-status-list { padding: 12px 16px; }
+    .status-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 0.8rem; color: var(--text-dim); }
+    .status-row:last-child { border-bottom: none; }
+    .status-val { font-weight: 600; color: var(--text); font-family: monospace; font-size: 0.75rem; }
 </style>

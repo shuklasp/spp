@@ -315,5 +315,13 @@ if ($appinit !== '') {
     }
 }
 \SPP\SPPEvent::registerEvent('event_spp_module_install');
+
+// Universally guarantee cross-context registration for presentation layout overriding hooks
+$themeEvtPath = SPP_APP_DIR . '/src/lekhak/modules/spptheme/events/ThemeEventHandler.php';
+if (file_exists($themeEvtPath)) {
+    require_once $themeEvtPath;
+    \SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
+}
+
 register_shutdown_function(['\\SPP\\SPPEvent', 'persistTrace']);
 ?>

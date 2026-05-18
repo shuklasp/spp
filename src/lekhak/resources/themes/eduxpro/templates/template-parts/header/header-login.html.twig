@@ -1,0 +1,9 @@
+<ul class="header-login">
+  {% if logged_in %}
+    <li><a href="{{ front_page }}user"><i class="ficon-user"></i> {{ "My Account"|t }}</a></li>
+    <li><a href="{{ front_page }}user/logout"><i class="ficon-logout"></i> {{ "Logout"|t }}</a></li>    
+  {% else %}
+    <li><a href="{{ front_page }}user/login"><i class="ficon-login"></i> {{ "Login"|t }}</a></li>
+    <li><a href="{{ front_page }}user/register"><i class="ficon-user"></i> {{ "Register"|t }}</a></li>    
+  {% endif %}
+</ul><!-- /header-login -->

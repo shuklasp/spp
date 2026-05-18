@@ -20,9 +20,10 @@ class AdminController
             @session_start();
         }
 
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
         $q = $_GET['q'] ?? '';
         // Skip login/logout routes from authentication check
-        if (str_ends_with($q, 'login') || str_ends_with($q, 'logout')) {
+        if (str_ends_with($uri, 'login') || str_ends_with($uri, 'logout') || str_ends_with($q, 'login') || str_ends_with($q, 'logout')) {
             return;
         }
 

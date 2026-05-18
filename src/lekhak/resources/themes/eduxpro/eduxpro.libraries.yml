@@ -1,0 +1,126 @@
+global-styling:
+  version: 11.0.1
+  css:
+    theme:
+      css/tiny-slider.css: {}
+      css/style.css: {}
+  js:
+    js/tiny-slider.js: {}
+    js/eduxpro.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+
+# Load jQuery in head
+header-scripts:
+  header: true
+  version: 11.0.1
+  js:
+    js/header.js: {}
+  dependencies:
+    - core/jquery
+
+# Google Fonts from CDN
+googlefontscdn:
+  css:
+    base:
+      https//fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700: { type: external }
+
+# maintenance page
+maintenance:
+  version: 11.0.1
+  css:
+    theme:
+      css/maintenance.css: {}
+
+# Theme settings page 
+theme-settings:
+  version: 11.0.1
+  css:
+    theme:
+      css/theme-settings.css: {}
+
+# Book
+book:
+  version: 11.0.1
+  css:
+    component:
+      css/book.css: {}
+
+# cookiealert script
+cookiealert-scripts:
+  version: 11.0.1
+  js:
+    js/cookiealert.js: {}
+
+# FontAwesome 4
+fontawesome4:
+  version: 4.7.0
+  css:
+    component:
+      css/font-awesome4.css: {}
+
+# FontAwesome 5
+fontawesome5:
+  version: 5.15.4
+  css:
+    component:
+      css/fontawesome5.css: {weight: -10}
+
+# FontAwesome 6
+fontawesome6:
+  version: 6.5.2
+  css:
+    component:
+      css/fontawesome6.css: {weight: -10}
+
+# Bootstrap Icons
+bootstrap-icons:
+  version: 1.11.3
+  css:
+    component:
+      css/bootstrap-icons.css: {}
+
+# Google Material font Icons
+material-outlined:
+  version: 4.0.0
+  css:
+    component:
+      css/material-outlined.css: {}
+
+# Google Material font Icons
+material-filled:
+  version: 4.0.0
+  css:
+    component:
+      css/material-filled.css: {}
+
+# Google Material font Icons
+material-round:
+  version: 4.0.0
+  css:
+    component:
+      css/material-round.css: {}
+
+# Google Material font Icons
+material-sharp:
+  version: 4.0.0
+  css:
+    component:
+      css/material-sharp.css: {}
+
+# Google Material font Icons
+material-tone:
+  version: 4.0.0
+  css:
+    component:
+      css/material-tone.css: {}
+
+# Animated content
+animated-content:
+  version: 11.0.1
+  js:
+    js/animate.js: {}
+  css:
+    component:
+      css/animate.css: {}

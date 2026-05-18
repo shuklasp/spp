@@ -1,0 +1,24 @@
+Google web font
++---------------------------+
+https://fonts.google.com/
+
+
+Slider demo image
++---------------------------+
+https://undraw.co/
+
+
+FontAwesome font icons
++---------------------------+
+https://fontawesome.com
+
+
+Google Material Font Icons
++---------------------------+
+https://fonts.google.com/icons?selected=Material+Icons
+
+
+Icofonts - Font icons
++---------------------------+
+https://icofont.com/
+https://iconly.io/

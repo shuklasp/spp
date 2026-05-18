@@ -92,8 +92,8 @@ class ViewPage extends \SPP\SPPObject
 
         // Configuration defaults - Force true for sppux apps to ensure the loader and runtime always initialize
         $isSppUx = (\SPP\App::getApp()->type === 'sppux');
-        $doAugment = $options['augment'] ?? ($isSppUx ?: (bool)\SPP\Module::getConfig('auto_page_augmentation', 'sppview'));
-        $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool)\SPP\Module::getConfig('auto_js_injection', 'sppview'));
+        $doAugment = $options['augment'] ?? ($isSppUx ?: (bool)(\SPP\Module::getConfig('auto_page_augmentation', 'spphtml') ?? \SPP\Module::getConfig('auto_page_augmentation', 'sppview') ?? true));
+        $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool)(\SPP\Module::getConfig('auto_js_injection', 'spphtml') ?? \SPP\Module::getConfig('auto_js_injection', 'sppview') ?? true));
 
         if ($pageData['special'] == 1) {
             if (isset($pageData['method'])) {

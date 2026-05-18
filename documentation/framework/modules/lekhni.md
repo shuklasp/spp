@@ -78,6 +78,53 @@ class ScreenController {
 }
 ```
 
+### Example 3: Dynamic Textarea Auto-Replacement
+
+To turn any standard HTML `<textarea>` field on a page into a feature-rich, high-performance Lekhni editor workspace, use the static `replace` method or the imported `replaceTextarea` helper. The editor automatically hides the textarea, injects a gorgeous container, reads the initial value, and synchronizes subsequent visual changes back into the hidden form field seamlessly while dispatching default events:
+
+```javascript
+import { replaceTextarea } from '../../../../spp/modules/contrib/lekhni/js/lekhni-editor.js';
+
+// Convert a single element
+const editorInstance = await replaceTextarea('#my-textarea-id', {
+    toolbarLayout: 'compact', // Compact layouts are highly optimized for inline fields
+    onChange: (content) => {
+        console.log("Updated HTML serialized value:", content);
+    }
+});
+```
+
+### Pluggable Toolbar Preset Profiles
+
+Lekhni Editor supports highly configurable visual profiles designed to match the specific UI context of your downstream application. You can pass these declarative properties when instantiating the class or calling the dynamic `replaceTextarea` helper:
+
+* **`toolbarLayout`**: Specifies the layout profile of the top editor toolbar.
+  * `'full'` (Default): Standard multi-group toolbar featuring all block styles, text formats, and advanced Monaco/AI shortcuts.
+  * `'compact'`: Modern, narrow formatting bar showing basic formatting controls plus quick Monaco code and AI shortcuts. Ideal for inline comments, forum posts, or small textareas.
+  * `'floating'`: Hides the top toolbar completely, relying entirely on hover bubble menus and Slash commands for a distraction-free writing field.
+  * `'none'`: Completely disables and hides the top toolbar.
+* **`bubbleMenuEnabled`** (`true` / `false`): Enables or disables the contextual floating popover menu that appears when a user highlights text.
+* **`slashMenuEnabled`** (`true` / `false`): Enables or disables the interactive popover command list triggered by typing `/` in a new paragraph.
+
+#### Example 4: Mounting with a Compact and Distraction-free Layout
+```javascript
+const editor = await replaceTextarea('#my-comment-field', {
+    toolbarLayout: 'compact',
+    bubbleMenuEnabled: true,
+    slashMenuEnabled: false  // Suppress slash commands for standard comments
+});
+```
+
+### High-Fidelity Selection-Range Format Dispatcher
+
+To provide a visual authoring experience that matches industry leaders like TinyMCE and CKEditor without introducing heavy, bloated third-party bundles, Lekhni features a modern, safe **Selection-Range Format Dispatcher** under the hood.
+
+Instead of relying on the deprecated and buggy browser-native `document.execCommand` APIs, which generate chaotic, non-semantic HTML markup (such as browser-specific inline span stylings), Lekhni directly interacts with the browser's DOM Range API:
+1. It intercepts standard formatting calls (`bold`, `italic`, `underline`, `createLink`).
+2. Extracts the exact character and element bounds of the user's active highlight range.
+3. Dynamically wraps the selected document nodes in clean, standard, semantic elements (`<strong>`, `<em>`, `<u>`, `<a>`).
+4. Re-injects the wrapped fragment and restores the selection bounds seamlessly, ensuring perfect visual markup.
+
 ### Configuring Default Behavior via App Manifests
 Downstream apps can override initialization settings by appending declarative configurations directly inside their custom `module.yml` manifests:
 ```yaml

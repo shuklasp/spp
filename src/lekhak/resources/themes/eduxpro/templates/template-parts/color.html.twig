@@ -1,0 +1,32 @@
+<style>
+{% if not color_body_theme %}
+body {
+  background: {{ color_bodybg }};
+  color: {{ color_bodytext }};
+}
+{% endif %} {# end color_body_theme #}
+{% if not color_typography_theme %}
+:root {
+   --bold-color: {{ color_bold }};
+}
+{% endif %} {# end color_typography_theme #}
+{% if not color_comment_theme %}
+.comment {
+  background-color: {{ color_comment_bg }};
+}
+.comment-header {
+  background-color: {{ color_comment_head }};
+}
+  {% if highlight_author_comment %}
+  .comment-by-author {
+    background-color: {{ color_comment_authorbg }};
+  }
+  {% endif %}
+{% endif %}
+
+{% if not color_footer_theme %}
+.footer-top {
+  background-color: {{ color_footer_topbg }};
+}
+{% endif %}
+</style>

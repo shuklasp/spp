@@ -7,10 +7,14 @@
 class LekhakAdminShell {
     constructor() {
         this.config = window.LEKHAK_CONFIG || {};
-        this.container = document.getElementById('view-container');
-        this.loader = document.getElementById('view-loader');
-        this.titleEl = document.getElementById('view-title');
-        this.headerActions = document.getElementById('header-actions');
+        this.container = document.getElementById('view-container') || 
+                         document.querySelector('.main-content') || 
+                         document.querySelector('main') || 
+                         document.querySelector('.animate-fade') || 
+                         document.body;
+        this.loader = document.getElementById('view-loader') || { style: {} };
+        this.titleEl = document.getElementById('view-title') || { textContent: '' };
+        this.headerActions = document.getElementById('header-actions') || { innerHTML: '' };
         
         this.selectedApp = 'lekhak';
         this.currentView = null;
@@ -32,21 +36,34 @@ class LekhakAdminShell {
 
     setupNavigation() {
         document.addEventListener('click', (e) => {
-            const link = e.target.closest('.nav-link[data-view], [data-spp-evt="nav-editor"], [data-spp-evt="nav-content"], [data-spp-evt="nav-canvas"], [data-spp-evt="nav-settings"], [data-spp-evt="nav-lekhak"]');
+            const link = e.target.closest('a');
             if (!link) return;
             
-            const view = link.getAttribute('data-view') || link.getAttribute('data-spp-evt')?.replace('nav-', '');
-            if (view) {
+            const href = link.getAttribute('href');
+            if (!href) return;
+            
+            const possibleViews = ['dashboard', 'lekhak', 'content', 'canvas', 'commerce', 'translations', 'editor', 'settings', 'media', 'structure'];
+            let targetView = null;
+            
+            for (const v of possibleViews) {
+                if (link.getAttribute('data-view') === v || link.getAttribute('data-spp-evt')?.replace('nav-', '') === v || href.endsWith('#' + v) || href === '#' + v) {
+                    targetView = v;
+                    break;
+                }
+            }
+            
+            if (targetView) {
                 e.preventDefault();
-                const targetHash = view === 'lekhak' ? 'dashboard' : view;
-                location.hash = targetHash;
-                this.handleInitialRoute();
+                const targetHash = targetView === 'dashboard' ? 'dashboard' : targetView;
+                if (location.hash.replace('#', '') !== targetHash) {
+                    location.hash = targetHash;
+                }
             }
         });
     }
 
     handleInitialRoute() {
-        const fullHash = location.hash.replace('#', '') || 'dashboard';
+        const fullHash = location.hash.replace('#', '') || 'lekhak';
         const [view, query] = fullHash.split('?');
         
         const params = {};
@@ -61,17 +78,32 @@ class LekhakAdminShell {
     }
 
     async loadView(view, params = {}) {
-        this.showLoader(true);
+        if (this.loader && this.loader.style) {
+            this.showLoader(true);
+        }
+        if (this.activeComponent && typeof this.activeComponent.dispose === 'function') {
+            console.log(`[StandaloneShell] Disposing previous component: ${this.activeComponent.constructor.name}`);
+            this.activeComponent.dispose();
+        }
+
         this.currentView = view;
         this.updateNavUI(view);
+
+        if (view === 'dashboard') view = 'lekhak';
 
         try {
             const viewMap = {
                 'dashboard': 'lekhak',
+                'lekhak': 'lekhak',
                 'content': 'content',
                 'canvas': 'canvas',
+                'commerce': 'commerce',
+                'translations': 'translations',
                 'editor': 'editor',
-                'settings': 'lekhak'
+                'settings': 'settings',
+                'media': 'media',
+                'structure': 'structure',
+                'blocks': 'blocks'
             };
 
             const compName = viewMap[view] || 'lekhak';
@@ -82,8 +114,12 @@ class LekhakAdminShell {
             const ComponentClass = module.default;
 
             // Clear previous actions and container contents
-            this.headerActions.innerHTML = '';
-            this.container.innerHTML = '';
+            if (this.headerActions && this.headerActions.innerHTML !== undefined) {
+                this.headerActions.innerHTML = '';
+            }
+            if (this.container) {
+                this.container.innerHTML = '';
+            }
             
             // Instantiate and mount
             this.activeComponent = new ComponentClass(this, this.container, params);
@@ -127,19 +163,28 @@ class LekhakAdminShell {
     }
 
     notify(message, type = 'info') {
-        const container = document.getElementById('toast-container');
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:10000; display:flex; flex-direction:column; gap:12px; pointer-events:none;';
+            document.body.appendChild(container);
+        }
+
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
+        toast.style.cssText = 'background:#1e293b; color:#f8fafc; padding:12px 20px; border-radius:8px; border-left:4px solid ' + (type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#38bdf8')) + '; box-shadow:0 10px 25px rgba(0,0,0,0.3); display:flex; align-items:center; gap:10px; font-family:system-ui,sans-serif; font-size:0.9rem; transition:opacity 0.3s, transform 0.3s; pointer-events:all;';
         
         const icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
-        toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+        toast.innerHTML = `<span style="font-size:1.1rem;">${icon}</span> <span>${message}</span>`;
         
         container.appendChild(toast);
         
         setTimeout(() => {
             toast.style.opacity = '0';
+            toast.style.transform = 'translateY(10px)';
             setTimeout(() => toast.remove(), 300);
-        }, 4000);
+        }, 3000);
     }
 
     openAppView(view) {

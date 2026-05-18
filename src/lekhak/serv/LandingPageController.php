@@ -77,7 +77,12 @@ HTML;
             }
         }
 
-        return "404 - Resource stream or preview entity ID '{$slug}' could not be resolved.";
+        // 3. Final Fallback: Graceful 404
+        return $this->render("404", [
+            'title' => 'Content Not Found',
+            'message' => "The resource or preview entity '{$slug}' could not be resolved in the current workspace.",
+            'slug' => $slug
+        ]);
     }
 
     protected function renderLandingPage(LandingPage $page)
@@ -91,6 +96,7 @@ HTML;
         
         return $this->render("landing-page", [
             'page' => $page,
+            'blocks' => $blocks,
             'regions' => $regions
         ]);
     }
@@ -98,8 +104,18 @@ HTML;
     protected function render($view, $data = [])
     {
         $renderer = \SPPMod\Lekhak\Core\Renderer::getInstance();
-        $app = \SPP\App::getApp();
-        $templatePath = $app->getAppSrcDir() . '/resources/views/' . $view . '.blade.php';
-        return $renderer->render($templatePath, $data);
+        $appRoot = \SPP\App::getBaseUrl('lekhak');
+        
+        $data['web_root'] = defined('APP_BASE_URI') ? APP_BASE_URI : '';
+        $data['app_root'] = $appRoot;
+        $data['base_url'] = $appRoot;
+        $data['admin_root'] = $appRoot . '/admin';
+        $data['view_name'] = $view;
+        
+        if (class_exists('\SPPMod\Drishyam\Drishyam')) {
+            \SPPMod\Drishyam\Drishyam::getInstance()->setContext('site');
+        }
+        
+        return $renderer->render($view, $data);
     }
 }

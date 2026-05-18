@@ -1,0 +1,61 @@
+/*
+* Layout
+*/
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 575px;
+  margin: 0 auto;
+  padding: 0 10px;
+}
+/* Layout -> Main wrapper (Main + Sidebar) */
+.main-wrapper {
+  position: relative;
+  display: block;
+  padding: 2rem 0;
+}
+.main-container {
+  position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+  -ms-flex-direction: column;
+  flex-direction: column;
+}
+#main {
+  order: 1;
+}
+#sidebar-left {
+  order: 2;
+  padding: 0;
+  padding: 1rem 0 0 0;
+}
+#sidebar-right {
+  order: 3;
+  padding: 0;
+  padding: 1rem 0 0 0;
+}
+
+/* sidebar + main */
+.no-sidebar #main,
+.sidebar-left #main,
+.sidebar-right #main,
+.two-sidebar #main {
+ -webkit-box-flex: 1;
+     -ms-flex: 1 1 100%;
+         flex: 1 1 100%;
+ width: 100%;
+ margin: 0 0 2em 0;
+}
+.no-sidebar #main {
+ margin: 0;
+}
+#front-main {
+ -webkit-box-flex: 1;
+     -ms-flex: 1 1 100%;
+         flex: 1 1 100%;
+ width: 100%;
+ margin: 0;
+}
