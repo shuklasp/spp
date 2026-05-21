@@ -1,4 +1,5 @@
 import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+import { registerNavHandlers, setPageMeta } from './lekhak-nav.js';
 
 /**
  * Lekhak Settings View Controller (Drupal Appearance / Theme Engine)
@@ -44,12 +45,9 @@ export default class SettingsView extends BaseComponent {
             console.error("Failed to load settings from API:", e);
         }
 
-        window.__spp_handlers = window.__spp_handlers || {};
-        window.__spp_handlers['nav-lekhak'] = () => location.hash = 'lekhak';
-        window.__spp_handlers['nav-content'] = () => location.hash = 'content';
-        window.__spp_handlers['nav-canvas'] = () => location.hash = 'canvas';
-        window.__spp_handlers['nav-commerce'] = () => location.hash = 'commerce';
-        window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
+        // SPPEX: Shared navigation handlers (replaces duplicated lines)
+        registerNavHandlers();
+        setPageMeta('Appearance', 'Theme registry and visual configuration');
 
         // Dynamically poll backend Drishyam engine directory mapping service to discover freshly unpacked physical modules
         setTimeout(async () => {
@@ -523,5 +521,10 @@ export default class SettingsView extends BaseComponent {
                 this.state.configs[key] = chk.checked;
             };
         });
+
+        // SPPEX.ColorPicker: Enhanced color input styling
+        if (typeof SPPEX !== 'undefined' && SPPEX.ColorPicker) {
+            SPPEX.ColorPicker.init('input[type="color"]');
+        }
     }
 }

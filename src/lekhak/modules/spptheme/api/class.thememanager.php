@@ -21,15 +21,28 @@ class ThemeManager {
         $app = \SPP\App::getApp();
         $baseDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 4);
         
-        // Resolve Theme Directory across universal context locations
-        $candidates = [
-            $app->getAppSrcDir() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName,
-            $app->getAppSrcDir() . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName,
-            $baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lekhak' . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName,
-            $baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lekhak' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName,
-            $baseDir . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName,
-            $baseDir . DIRECTORY_SEPARATOR . 'themes' . DIRECTORY_SEPARATOR . $themeName
+        // Resolve Theme Directory across universal context locations, including categorized subdirectories
+        $baseDirs = [
+            $app->getAppSrcDir() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes',
+            $app->getAppSrcDir() . DIRECTORY_SEPARATOR . 'themes',
+            $baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lekhak' . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes',
+            $baseDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'lekhak' . DIRECTORY_SEPARATOR . 'themes',
+            $baseDir . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes',
+            $baseDir . DIRECTORY_SEPARATOR . 'themes'
         ];
+
+        $subDirs = ['', 'drupal_themes', 'lekhak_themes', 'wp_themes'];
+        $candidates = [];
+
+        foreach ($baseDirs as $bd) {
+            foreach ($subDirs as $sd) {
+                if ($sd === '') {
+                    $candidates[] = $bd . DIRECTORY_SEPARATOR . $themeName;
+                } else {
+                    $candidates[] = $bd . DIRECTORY_SEPARATOR . $sd . DIRECTORY_SEPARATOR . $themeName;
+                }
+            }
+        }
 
         $resolvedDir = null;
         foreach ($candidates as $dir) {
@@ -696,6 +709,62 @@ DRUPAL_FOOTER;
                     }
                 }
             }
+            
+            // Module C & B: Fetch blocks from the new "blocks" table and apply dynamic path visibility & Views queries
+            $blocksNewTable = \SPPMod\SPPDB\SPPDB::sppTable('blocks');
+            if ($db->tableExists($blocksNewTable)) {
+                $newRows = $db->execute_query("SELECT * FROM {$blocksNewTable} ORDER BY weight ASC");
+                $currentPath = $_SERVER['REQUEST_URI'] ?? '/lekhak';
+                foreach ($newRows as $row) {
+                    $region = $row['region'];
+                    if (array_key_exists($region, $drupalRegions)) {
+                        $visible = true;
+                        if (!empty($row['visibility_paths'])) {
+                            $visible = false;
+                            $patterns = explode("\n", str_replace("\r", "", $row['visibility_paths']));
+                            foreach ($patterns as $pattern) {
+                                $pattern = trim($pattern);
+                                if (empty($pattern)) continue;
+                                if ($pattern === '<front>' && ($currentContextPath === 'home' || $currentContextPath === 'lekhak')) {
+                                    $visible = true;
+                                    break;
+                                }
+                                $regex = '#^' . str_replace('\*', '.*', preg_quote($pattern, '#')) . '$#';
+                                if (preg_match($regex, $currentPath)) {
+                                    $visible = true;
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        if ($visible) {
+                            $blockContent = '';
+                            if ($row['type'] === 'html') {
+                                $blockContent = $row['content'];
+                            } elseif ($row['type'] === 'view') {
+                                $viewResults = \SPPMod\Lekhak\Core\ViewsEngine::executeView($row['name']);
+                                if (!empty($viewResults)) {
+                                    $blockContent .= '<div class="views-block-' . htmlspecialchars($row['name']) . '" style="margin-bottom: 2rem;">';
+                                    if (!empty($row['title'])) {
+                                        $blockContent .= '<h3 style="font-family:\'Outfit\',sans-serif;font-weight:700;margin-bottom:1rem;font-size:1.4rem;">' . htmlspecialchars($row['title']) . '</h3>';
+                                    }
+                                    $blockContent .= '<ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">';
+                                    foreach ($viewResults as $item) {
+                                        if (is_object($item)) {
+                                            $url = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '', '/') . '/lekhak/node/' . ($item->alias ?? $item->id);
+                                            $blockContent .= '<li><a href="' . $url . '" style="color:#f97316;text-decoration:none;font-weight:600;">' . htmlspecialchars($item->title) . '</a></li>';
+                                        }
+                                    }
+                                    $blockContent .= '</ul></div>';
+                                }
+                            }
+                            if (!empty($blockContent)) {
+                                $drupalRegions[$region] .= "\n" . $blockContent;
+                            }
+                        }
+                    }
+                }
+            }
         } catch (\Exception $e) {
             @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "Block loading failed: " . $e->getMessage() . "\n", FILE_APPEND);
         }
@@ -714,7 +783,7 @@ DRUPAL_FOOTER;
         @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[".date('Y-m-d H:i:s')."] REGION CONTENT LENGTH: " . strlen($drupalRegions['content'] ?? '') . "\n", FILE_APPEND);
         @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[".date('Y-m-d H:i:s')."] VARS PAGE CONTENT LENGTH: " . strlen($vars['page']['content'] ?? '') . "\n", FILE_APPEND);
         $vars['theme_path'] = self::getThemePublicPath();
-        $vars['assets_root'] = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '', '/') . '/src/lekhak/resources/themes';
+        $vars['assets_root'] = str_replace('\\', '/', dirname(self::getThemePublicPath()));
         $vars['original_head'] = $originalHead;
         $vars['logged_in'] = \SPPMod\SPPAuth\SPPAuth::authSessionExists() ?? false;
         $vars['root_path'] = \SPP\Scheduler::getContext() ?: 'home';

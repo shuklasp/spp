@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_spp_entity_fields">
+  <_schema>
+    <column name="id" type="INTEGER" primary="true" />
+    <column name="entity_type" type="TEXT" notNull="true" />
+    <column name="entity_id" type="INTEGER" notNull="true" />
+    <column name="field_name" type="TEXT" notNull="true" />
+    <column name="value_string" type="TEXT" />
+    <column name="value_int" type="INTEGER" />
+    <column name="value_decimal" type="REAL" />
+  </_schema>
+  <data>
+  </data>
+</database>

@@ -398,7 +398,19 @@ class SPPDB
     {
         // This is engine specific (DDL), so we pass to execute
         foreach ($cols as $col => $type) {
-            $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
+            if ($this->columnExists($table, $col)) {
+                continue;
+            }
+
+            try {
+                $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
+            } catch (\Exception $e) {
+                $message = $e->getMessage();
+                if (stripos($message, 'Duplicate column') !== false || stripos($message, 'already exists') !== false) {
+                    continue;
+                }
+                throw $e;
+            }
         }
     }
 

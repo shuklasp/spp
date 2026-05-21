@@ -22,6 +22,22 @@ class DrupalAttribute
         return $this;
     }
 
+    public function removeClass($classes): self
+    {
+        if (is_string($classes)) {
+            $classes = explode(' ', $classes);
+        }
+        if (is_array($classes)) {
+            $this->classes = array_diff($this->classes, $classes);
+        }
+        return $this;
+    }
+
+    public function hasClass(string $class): bool
+    {
+        return in_array($class, $this->classes);
+    }
+
     public function setAttribute(string $name, $value): self
     {
         $this->attrs[$name] = $value;
@@ -32,6 +48,11 @@ class DrupalAttribute
     {
         unset($this->attrs[$name]);
         return $this;
+    }
+
+    public function hasAttribute(string $name): bool
+    {
+        return isset($this->attrs[$name]);
     }
 
     public function __toString(): string
@@ -65,6 +86,61 @@ class TwigShimDriver
     /**
      * Parses the Twig template content.
      */
+    private function findNextTag(string $content, int $start): ?array
+    {
+        $posComment = strpos($content, '{#', $start);
+        $posStatement = strpos($content, '{%', $start);
+        $posExpression = strpos($content, '{{', $start);
+
+        $minPos = false;
+        $type = null;
+
+        if ($posComment !== false) {
+            $minPos = $posComment;
+            $type = 'comment';
+        }
+        if ($posStatement !== false && ($minPos === false || $posStatement < $minPos)) {
+            $minPos = $posStatement;
+            $type = 'statement';
+        }
+        if ($posExpression !== false && ($minPos === false || $posExpression < $minPos)) {
+            $minPos = $posExpression;
+            $type = 'expression';
+        }
+
+        if ($minPos === false) return null;
+        return ['pos' => $minPos, 'type' => $type];
+    }
+
+    private function findClosingDelimiter(string $content, int $startPos, string $openDelim, string $closeDelim): int
+    {
+        $len = strlen($content);
+        $inString = false;
+        $strChar = '';
+        $i = $startPos + strlen($openDelim);
+        
+        while ($i < $len) {
+            $char = $content[$i];
+            if ($inString) {
+                if ($char === $strChar && ($i === 0 || $content[$i - 1] !== '\\')) {
+                    $inString = false;
+                }
+            } else {
+                if ($char === "'" || $char === '"') {
+                    $inString = true;
+                    $strChar = $char;
+                } elseif (substr($content, $i, strlen($closeDelim)) === $closeDelim) {
+                    return $i + strlen($closeDelim);
+                }
+            }
+            $i++;
+        }
+        return $len; // Fallback
+    }
+
+    /**
+     * Parses the Twig template content.
+     */
     public function parse(string $content, array $data, ?callable $includeCallback = null): string
     {
         // Automatically inject standard Drupal variables if not present
@@ -78,94 +154,188 @@ class TwigShimDriver
             $data['content_attributes'] = new DrupalAttribute();
         }
 
-        // 1. Strip Twig Comments {# ... #}
-        $content = preg_replace('/\{#.*?#\}/s', '', $content);
+        $result = '';
+        $i = 0;
+        $len = strlen($content);
 
-        // 2. Resolve Inclusions {% include '...' %}
-        $content = preg_replace_callback('/\{%\s*include\s*[\'"]@?([^\'"]+)[\'"]\s*%\}/', function($m) use ($data, $includeCallback) {
-            if ($includeCallback) {
-                return $includeCallback($m[1], $data);
+        while ($i < $len) {
+            $next = $this->findNextTag($content, $i);
+            if (!$next) {
+                $result .= substr($content, $i);
+                break;
             }
-            return "<!-- Include callback missing for: " . htmlspecialchars($m[1]) . " -->";
-        }, $content);
 
-        // 3. Resolve Set Arrays & Variables {% set classes = [ ... ] %}
-        $content = preg_replace_callback('/\{%\s*set\s+([a-zA-Z0-9_]+)\s*=\s*(.*?)\s*%\}/s', function($m) use (&$data) {
-            $varName = $m[1];
-            $expr = trim($m[2]);
-            $data[$varName] = $this->evaluateExpression($expr, $data);
-            return '';
-        }, $content);
+            // Append text before the tag
+            $result .= substr($content, $i, $next['pos'] - $i);
 
-        // 4. Resolve Non-Greedy Innermost For Loops {% for item in items %} ... {% endfor %}
-        $evalFor = function($text) use (&$evalFor, &$data, $includeCallback) {
-            $pattern = '/\{%\s*for\s+([a-zA-Z0-9_]+)\s+in\s+(.*?)\s*%\}((?:(?!\{%\s*for\s+).)*?)\{%\s*endfor\s*%\}/is';
-            if (preg_match($pattern, $text)) {
-                $processed = preg_replace_callback($pattern, function($m) use (&$data, $includeCallback) {
-                    $itemName = $m[1];
-                    $itemsExpr = trim($m[2]);
-                    $inner = $m[3];
-                    
-                    $items = $this->evaluateExpression($itemsExpr, $data);
-                    if (!is_iterable($items)) return '';
-                    
-                    $out = '';
-                    foreach ($items as $item) {
-                        $itemData = array_merge($data, [$itemName => $item]);
-                        $out .= $this->parse($inner, $itemData, $includeCallback);
-                    }
-                    return $out;
-                }, $text);
-                return $evalFor($processed);
+            if ($next['type'] === 'comment') {
+                $endPos = $this->findClosingDelimiter($content, $next['pos'], '{#', '#}');
+                $i = $endPos;
+            } elseif ($next['type'] === 'expression') {
+                $endPos = $this->findClosingDelimiter($content, $next['pos'], '{{', '}}');
+                $expr = trim(substr($content, $next['pos'] + 2, $endPos - $next['pos'] - 4));
+                $val = $this->evaluateExpression($expr, $data);
+                if (is_scalar($val) || (is_object($val) && method_exists($val, '__toString'))) {
+                    $result .= (string)$val;
+                }
+                $i = $endPos;
+            } elseif ($next['type'] === 'statement') {
+                $endPos = $this->findClosingDelimiter($content, $next['pos'], '{%', '%}');
+                $tagContent = trim(substr($content, $next['pos'] + 2, $endPos - $next['pos'] - 4));
+
+                if (preg_match('/^set\s+([a-zA-Z0-9_]+)\s*=\s*(.*)$/s', $tagContent, $m)) {
+                     $varName = $m[1];
+                     $expr = trim($m[2]);
+                     $data[$varName] = $this->evaluateExpression($expr, $data);
+                     $i = $endPos;
+                } elseif (preg_match('/^include\s+[\'"]@?([^\'"]+)[\'"]/', $tagContent, $m)) {
+                     if ($includeCallback) {
+                         $result .= $includeCallback($m[1], $data);
+                     } else {
+                         $result .= "<!-- Include callback missing for: " . htmlspecialchars($m[1]) . " -->";
+                     }
+                     $i = $endPos;
+                } elseif (preg_match('/^for\b/', $tagContent)) {
+                     // Scan for endfor
+                     $depth = 1;
+                     $scanPos = $endPos;
+                     $matchingEndStart = -1;
+                     $matchingEndPos = -1;
+
+                     while ($scanPos < $len) {
+                         $sub = $this->findNextTag($content, $scanPos);
+                         if (!$sub) break;
+
+                         if ($sub['type'] === 'statement') {
+                             $subEnd = $this->findClosingDelimiter($content, $sub['pos'], '{%', '%}');
+                             $subTagContent = trim(substr($content, $sub['pos'] + 2, $subEnd - $sub['pos'] - 4));
+
+                             if (preg_match('/^for\b/', $subTagContent)) {
+                                 $depth++;
+                             } elseif ($subTagContent === 'endfor') {
+                                 $depth--;
+                                 if ($depth === 0) {
+                                     $matchingEndStart = $sub['pos'];
+                                     $matchingEndPos = $subEnd;
+                                     break;
+                                 }
+                             }
+                             $scanPos = $subEnd;
+                         } else {
+                             $scanPos = $sub['pos'] + 2;
+                         }
+                     }
+
+                     if ($matchingEndPos !== -1) {
+                         // Parse for header
+                         if (preg_match('/^for\s+([a-zA-Z0-9_]+)\s+in\s+(.*)$/s', $tagContent, $m)) {
+                             $itemName = $m[1];
+                             $itemsExpr = trim($m[2]);
+                             $body = substr($content, $endPos, $matchingEndStart - $endPos);
+
+                             $items = $this->evaluateExpression($itemsExpr, $data);
+                             if (is_iterable($items)) {
+                                 foreach ($items as $item) {
+                                     $itemData = array_merge($data, [$itemName => $item]);
+                                     $result .= $this->parse($body, $itemData, $includeCallback);
+                                 }
+                             }
+                         }
+                         $i = $matchingEndPos;
+                     } else {
+                         // Fallback if no endfor
+                         $i = $endPos;
+                     }
+                } elseif (preg_match('/^if\b/', $tagContent)) {
+                     // Scan for endif, branches
+                     $depth = 1;
+                     $scanPos = $endPos;
+                     $branches = [];
+                     
+                     if (preg_match('/^if\s+(.*)$/s', $tagContent, $m)) {
+                         $currentBranchCond = trim($m[1]);
+                     } else {
+                         $currentBranchCond = 'false';
+                     }
+                     $currentBranchStart = $endPos;
+
+                     $matchingEndStart = -1;
+                     $matchingEndPos = -1;
+
+                     while ($scanPos < $len) {
+                         $sub = $this->findNextTag($content, $scanPos);
+                         if (!$sub) break;
+
+                         if ($sub['type'] === 'statement') {
+                             $subEnd = $this->findClosingDelimiter($content, $sub['pos'], '{%', '%}');
+                             $subTagContent = trim(substr($content, $sub['pos'] + 2, $subEnd - $sub['pos'] - 4));
+
+                             if (preg_match('/^if\b/', $subTagContent)) {
+                                 $depth++;
+                                 $scanPos = $subEnd;
+                             } elseif ($subTagContent === 'endif') {
+                                 $depth--;
+                                 if ($depth === 0) {
+                                     $matchingEndStart = $sub['pos'];
+                                     $matchingEndPos = $subEnd;
+                                     $branches[] = [
+                                         'cond' => $currentBranchCond,
+                                         'body' => substr($content, $currentBranchStart, $sub['pos'] - $currentBranchStart)
+                                     ];
+                                     break;
+                                 }
+                                 $scanPos = $subEnd;
+                             } elseif (preg_match('/^elseif\s+(.*)$/s', $subTagContent, $m) && $depth === 1) {
+                                 $branches[] = [
+                                     'cond' => $currentBranchCond,
+                                     'body' => substr($content, $currentBranchStart, $sub['pos'] - $currentBranchStart)
+                                 ];
+                                 $currentBranchCond = trim($m[1]);
+                                 $currentBranchStart = $subEnd;
+                                 $scanPos = $subEnd;
+                             } elseif ($subTagContent === 'else' && $depth === 1) {
+                                 $branches[] = [
+                                     'cond' => $currentBranchCond,
+                                     'body' => substr($content, $currentBranchStart, $sub['pos'] - $currentBranchStart)
+                                 ];
+                                 $currentBranchCond = null;
+                                 $currentBranchStart = $subEnd;
+                                 $scanPos = $subEnd;
+                             } else {
+                                 $scanPos = $subEnd;
+                             }
+                         } else {
+                             $scanPos = $sub['pos'] + 2;
+                         }
+                     }
+
+                     if ($matchingEndPos !== -1) {
+                         $winningBody = '';
+                         foreach ($branches as $branch) {
+                             if ($branch['cond'] === null) {
+                                 $winningBody = $branch['body'];
+                                 break;
+                             } else {
+                                 $condVal = $this->evaluateExpression($branch['cond'], $data);
+                                 if (!empty($condVal)) {
+                                     $winningBody = $branch['body'];
+                                     break;
+                                 }
+                             }
+                         }
+                         $result .= $this->parse($winningBody, $data, $includeCallback);
+                         $i = $matchingEndPos;
+                     } else {
+                         // Fallback if no endif
+                         $i = $endPos;
+                     }
+                } else {
+                     // Unhandled statement block, skip it
+                     $i = $endPos;
+                }
             }
-            return $text;
-        };
-        $content = $evalFor($content);
-
-        // 5. Resolve Non-Greedy Innermost If/Else Conditions {% if condition %} ... {% endif %}
-        $evalIf = function($text) use (&$evalIf, &$data, $includeCallback) {
-            $pattern = '/\{%\s*if\s+(.*?)\s*%\}((?:(?!\{%\s*if\s+).)*?)\{%\s*endif\s*%\}/is';
-            if (preg_match($pattern, $text)) {
-                $processed = preg_replace_callback($pattern, function($m) use (&$data, $includeCallback) {
-                    $condExpr = trim($m[1]);
-                    $inner = $m[2];
-                    
-                    $isTruthy = false;
-                    if (str_contains($condExpr, ' or ')) {
-                        foreach (explode(' or ', $condExpr) as $tok) {
-                            if ($this->evaluateExpression(trim($tok), $data)) { $isTruthy = true; break; }
-                        }
-                    } elseif (str_contains($condExpr, ' and ')) {
-                        $isTruthy = true;
-                        foreach (explode(' and ', $condExpr) as $tok) {
-                            if (!$this->evaluateExpression(trim($tok), $data)) { $isTruthy = false; break; }
-                        }
-                    } else {
-                        $isTruthy = (bool)$this->evaluateExpression($condExpr, $data);
-                    }
-                    
-                    if (str_contains($inner, '{% else %}')) {
-                        $parts = explode('{% else %}', $inner, 2);
-                        $body = $isTruthy ? $parts[0] : $parts[1];
-                    } else {
-                        $body = $isTruthy ? $inner : '';
-                    }
-                    return $this->parse($body, $data, $includeCallback);
-                }, $text);
-                return $evalIf($processed);
-            }
-            return $text;
-        };
-        $content = $evalIf($content);
-
-        // 6. Resolve Output {{ var.property }}
-        $content = preg_replace_callback('/\{\{\s*(.*?)\s*\}\}/s', function($m) use (&$data) {
-            $expr = trim($m[1]);
-            $val = $this->evaluateExpression($expr, $data);
-            return is_scalar($val) || (is_object($val) && method_exists($val, '__toString')) ? (string)$val : '';
-        }, $content);
-
-        return $content;
+        }
+        return $result;
     }
 
     /**
@@ -176,7 +346,53 @@ class TwigShimDriver
         $expr = trim($expr);
         if ($expr === '') return null;
 
-        // Parentheses grouping check or Not Operator
+        // Check for ' or ' at depth 0
+        $depth = 0;
+        $inString = false;
+        $strChar = '';
+        for ($i = 0; $i < strlen($expr); $i++) {
+            $char = $expr[$i];
+            if ($inString) {
+                if ($char === $strChar && ($i === 0 || $expr[$i - 1] !== '\\')) $inString = false;
+            } else {
+                if ($char === "'" || $char === '"') {
+                    $inString = true;
+                    $strChar = $char;
+                } elseif (in_array($char, ['[', '{', '('])) {
+                    $depth++;
+                } elseif (in_array($char, [']', '}', ')'])) {
+                    $depth--;
+                } elseif ($depth === 0 && substr($expr, $i, 4) === ' or ') {
+                    return $this->evaluateExpression(substr($expr, 0, $i), $data) ||
+                           $this->evaluateExpression(substr($expr, $i + 4), $data);
+                }
+            }
+        }
+
+        // Check for ' and ' at depth 0
+        $depth = 0;
+        $inString = false;
+        $strChar = '';
+        for ($i = 0; $i < strlen($expr); $i++) {
+            $char = $expr[$i];
+            if ($inString) {
+                if ($char === $strChar && ($i === 0 || $expr[$i - 1] !== '\\')) $inString = false;
+            } else {
+                if ($char === "'" || $char === '"') {
+                    $inString = true;
+                    $strChar = $char;
+                } elseif (in_array($char, ['[', '{', '('])) {
+                    $depth++;
+                } elseif (in_array($char, [']', '}', ')'])) {
+                    $depth--;
+                } elseif ($depth === 0 && substr($expr, $i, 5) === ' and ') {
+                    return $this->evaluateExpression(substr($expr, 0, $i), $data) &&
+                           $this->evaluateExpression(substr($expr, $i + 5), $data);
+                }
+            }
+        }
+
+        // Not Operator
         if (str_starts_with($expr, 'not ')) {
             return !$this->evaluateExpression(substr($expr, 4), $data);
         }
@@ -238,6 +454,7 @@ class TwigShimDriver
         $strChar = '';
         $qPos = -1;
         $colonPos = -1;
+        $ternaryDepth = 0;
         
         for ($i = 0; $i < strlen($expr); $i++) {
             $char = $expr[$i];
@@ -251,10 +468,19 @@ class TwigShimDriver
                     $depth++;
                 } elseif (in_array($char, [']', '}', ')'])) {
                     $depth--;
-                } elseif ($char === '?' && $depth === 0 && $qPos === -1) {
-                    $qPos = $i;
-                } elseif ($char === ':' && $depth === 0 && $qPos !== -1 && $colonPos === -1) {
-                    $colonPos = $i;
+                } elseif ($depth === 0) {
+                    if ($char === '?') {
+                        if ($qPos === -1) {
+                            $qPos = $i;
+                        }
+                        $ternaryDepth++;
+                    } elseif ($char === ':') {
+                        $ternaryDepth--;
+                        if ($ternaryDepth === 0 && $qPos !== -1) {
+                            $colonPos = $i;
+                            break;
+                        }
+                    }
                 }
             }
         }

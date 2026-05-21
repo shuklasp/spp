@@ -305,6 +305,7 @@ export class BaseComponent {
     }
 
     setState(newState) {
+        if (this.isDisposed) return;
         this.state = { ...this.state, ...newState };
         this.update();
     }
@@ -373,6 +374,7 @@ export class BaseComponent {
     }
 
     update() {
+        if (this.isDisposed) return;
         if (this._isRendering) return; // Prevent infinite loops
         
         this._isRendering = true;
@@ -620,7 +622,11 @@ export class BaseComponent {
                 }
 
                 // Allow custom rich text or contenteditable elements to fully preserve their own internal DOM tree structure
-                if (!oldNode.classList?.contains('lekhni-body-editable') && oldNode.getAttribute?.('contenteditable') !== 'true') {
+                if (!oldNode.classList?.contains('lekhni-body-editable') && 
+                    !oldNode.classList?.contains('lekhni-full-ide-host') && 
+                    !oldNode.classList?.contains('lekhni-embedded-block') && 
+                    oldNode.getAttribute?.('contenteditable') !== 'true' && 
+                    oldNode.getAttribute?.('data-spp-preserve') !== 'true') {
                     this._reconcile(oldNode, newNode);
                 }
             }
@@ -675,6 +681,7 @@ export class BaseComponent {
     }
 
     dispose() {
+        this.isDisposed = true;
         this._subscriptions.forEach(unsubscribe => unsubscribe());
         this._signalUnsubscribes.forEach(unsub => unsub());
         
@@ -1322,6 +1329,123 @@ export const SPPUX = {
                 } catch(e) {}
             }, 1000);
         }
+    },
+    createStore: (initialState = {}) => {
+        const listeners = new Set();
+        const notify = () => listeners.forEach(fn => fn());
+        const proxy = new Proxy(initialState, {
+            get(target, prop) {
+                if (prop === 'subscribe') return (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
+                if (prop === 'get') return () => target;
+                if (prop === 'set') return (newState) => { Object.assign(target, newState); notify(); };
+                return Reflect.get(target, prop);
+            },
+            set(target, prop, value) {
+                const res = Reflect.set(target, prop, value);
+                notify();
+                return res;
+            }
+        });
+        return proxy;
+    },
+    Router: {
+        routes: [],
+        currentView: null,
+        init(routes) {
+            this.routes = routes;
+            window.addEventListener('popstate', () => this.handleRoute());
+            document.body.addEventListener('click', (e) => {
+                const link = e.target.closest('a[data-spp-route]');
+                if (link) {
+                    e.preventDefault();
+                    this.push(link.getAttribute('href'));
+                }
+            });
+            this.handleRoute();
+        },
+        push(path) {
+            window.history.pushState({}, '', path);
+            this.handleRoute();
+        },
+        async handleRoute() {
+            const path = window.location.pathname;
+            const route = this.routes.find(r => {
+                // Simple param matching, e.g. /user/:id
+                const routeParts = r.path.split('/');
+                const pathParts = path.split('/');
+                if (routeParts.length !== pathParts.length) return false;
+                for (let i = 0; i < routeParts.length; i++) {
+                    if (routeParts[i].startsWith(':')) continue;
+                    if (routeParts[i] !== pathParts[i]) return false;
+                }
+                return true;
+            }) || this.routes.find(r => r.path === '*');
+
+            const container = document.querySelector('spp-router-view') || document.querySelector('#spp-app-root');
+            if (!container || !route) return;
+
+            if (this.currentView && this.currentView.dispose) this.currentView.dispose();
+            container.innerHTML = '<div class="sppux-spinner"></div>';
+
+            try {
+                const componentDef = await route.component();
+                const ComponentClass = componentDef.default || componentDef;
+                
+                // Extract params
+                const params = {};
+                const routeParts = route.path.split('/');
+                const pathParts = path.split('/');
+                routeParts.forEach((part, i) => {
+                    if (part.startsWith(':')) params[part.substring(1)] = pathParts[i];
+                });
+
+                container.innerHTML = '';
+                this.currentView = new ComponentClass(null, container, { ...params });
+                this.currentView.update();
+            } catch (e) {
+                container.innerHTML = `<div class="sppux-error">Failed to load route: ${e.message}</div>`;
+            }
+        }
+    },
+    await: (promise, successTpl, loadingTpl = html`<div class="sppux-spinner"></div>`, errorTpl = (err) => html`<div class="sppux-error">${err.message}</div>`) => {
+        const id = 'spp-await-' + Math.random().toString(36).substr(2, 9);
+        promise.then(data => {
+            const el = document.getElementById(id);
+            if (el) {
+                const temp = document.createElement('div');
+                const tpl = successTpl(data);
+                temp.innerHTML = typeof tpl === 'string' ? tpl : tpl.content;
+                el.replaceWith(...temp.childNodes);
+            }
+        }).catch(err => {
+            const el = document.getElementById(id);
+            if (el) {
+                const temp = document.createElement('div');
+                const tpl = typeof errorTpl === 'function' ? errorTpl(err) : errorTpl;
+                temp.innerHTML = typeof tpl === 'string' ? tpl : tpl.content;
+                el.replaceWith(...temp.childNodes);
+            }
+        });
+        return html`<span id="${id}">${loadingTpl}</span>`;
+    },
+    defineElement: (tagName, ComponentClass) => {
+        if (customElements.get(tagName)) return;
+        class SPPUXElement extends HTMLElement {
+            connectedCallback() {
+                if (this._comp) return;
+                const props = {};
+                for (let attr of this.attributes) props[attr.name] = attr.value;
+                this._comp = new ComponentClass(null, this, props);
+                this._comp.update();
+            }
+            disconnectedCallback() {
+                if (this._comp && this._comp.dispose) {
+                    this._comp.dispose();
+                    this._comp = null;
+                }
+            }
+        }
+        customElements.define(tagName, SPPUXElement);
     }
 }; 
 window.SPPUX = SPPUX;

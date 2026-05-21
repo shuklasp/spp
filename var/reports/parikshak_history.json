@@ -1,1 +1,2073 @@
-[{"timestamp":"2026-04-26 15:21:28","summary":{"total":6,"passed":0,"failed":3,"skipped":3}},{"timestamp":"2026-04-26 15:25:57","summary":{"total":6,"passed":0,"failed":3,"skipped":3}},{"timestamp":"2026-04-26 13:30:31","summary":{"total":0,"passed":0,"failed":0}},{"timestamp":"2026-04-26 15:30:44","summary":{"total":6,"passed":0,"failed":2,"skipped":4}},{"timestamp":"2026-04-26 13:30:40","summary":{"total":6,"passed":0,"failed":3,"skipped":3}},{"timestamp":"2026-04-26 15:34:21","summary":{"total":6,"passed":0,"failed":3,"skipped":3}},{"timestamp":"2026-04-26 15:35:19","summary":{"total":6,"passed":3,"failed":0,"skipped":3}},{"timestamp":"2026-04-26 15:40:16","summary":{"total":6,"passed":3,"failed":0,"skipped":3}},{"timestamp":"2026-04-26 13:46:37","summary":{"total":6,"passed":0,"failed":0,"skipped":6}},{"timestamp":"2026-04-26 13:47:27","summary":{"total":6,"passed":0,"failed":0,"skipped":6}},{"timestamp":"2026-04-27 12:15:31","summary":{"total":0,"passed":0,"failed":0}},{"timestamp":"2026-04-27 12:15:47","summary":{"total":0,"passed":0,"failed":0}}]
+[
+    {
+        "timestamp": "2026-04-26 15:21:28",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 3,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 15:25:57",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 3,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 13:30:31",
+        "summary": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0
+        }
+    },
+    {
+        "timestamp": "2026-04-26 15:30:44",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 2,
+            "skipped": 4
+        }
+    },
+    {
+        "timestamp": "2026-04-26 13:30:40",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 3,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 15:34:21",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 3,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 15:35:19",
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 15:40:16",
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 3
+        }
+    },
+    {
+        "timestamp": "2026-04-26 13:46:37",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        }
+    },
+    {
+        "timestamp": "2026-04-26 13:47:27",
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        }
+    },
+    {
+        "timestamp": "2026-04-27 12:15:31",
+        "summary": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0
+        }
+    },
+    {
+        "timestamp": "2026-04-27 12:15:47",
+        "summary": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0
+        }
+    },
+    {
+        "app": "lekhak",
+        "timestamp": "2026-05-19 02:29:34",
+        "seed": 2478,
+        "entities": [
+            {
+                "class": "App\\Lekhak\\Entities\\Block",
+                "name": "Block",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 484.65
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'blocks' is missing columns defined in metadata: name, title, region, visibility_paths, content, type, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'blocks' is missing columns defined in metadata: name, title, region, visibility_paths, content, type, weight",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Contenttype",
+                "name": "ContentType",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 480.69
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3.2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Field",
+                "name": "Field",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "failed",
+                        "error": "Value mismatch on 'required': Expected '', got 'false'",
+                        "diagnostics": []
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Value mismatch on 'required': Expected '', got 'false'",
+                    "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Node",
+                "name": "Node",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 572.73
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.6
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Term",
+                "name": "Term",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 436.39
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'terms' is missing columns defined in metadata: vid, name, parent_id, description, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3.2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'terms' is missing columns defined in metadata: vid, name, parent_id, description, weight",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Vocabulary",
+                "name": "Vocabulary",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 562.33
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'vocabularies' is missing columns defined in metadata: name, label, description"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'vocabularies' is missing columns defined in metadata: name, label, description",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 6
+        }
+    },
+    {
+        "app": "lekhak",
+        "timestamp": "2026-05-19 02:35:46",
+        "seed": 7537,
+        "entities": [
+            {
+                "class": "App\\Lekhak\\Entities\\Block",
+                "name": "Block",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 444.12
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Contenttype",
+                "name": "ContentType",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 484.85
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.9
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Field",
+                "name": "Field",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 483.1
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Node",
+                "name": "Node",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 591.91
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.6
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Term",
+                "name": "Term",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 514.71
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.8
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Vocabulary",
+                "name": "Vocabulary",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 548.96
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.6
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 3
+        }
+    },
+    {
+        "app": "lekhak",
+        "timestamp": "2026-05-19 02:40:59",
+        "seed": 8764,
+        "entities": [
+            {
+                "class": "App\\Lekhak\\Entities\\Block",
+                "name": "Block",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 458.59
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.9
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Contenttype",
+                "name": "ContentType",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 577.98
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.8
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Field",
+                "name": "Field",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 540.22
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.7
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Node",
+                "name": "Node",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 690.05
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Term",
+                "name": "Term",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 595.62
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.5
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Vocabulary",
+                "name": "Vocabulary",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 960.85
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.5
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 3
+        }
+    },
+    {
+        "app": "lekhak",
+        "timestamp": "2026-05-19 02:46:06",
+        "seed": 5610,
+        "entities": [
+            {
+                "class": "App\\Lekhak\\Entities\\Block",
+                "name": "Block",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 501.81
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.5
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Contenttype",
+                "name": "ContentType",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 591.39
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.6
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Field",
+                "name": "Field",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 646.56
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.5
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Node",
+                "name": "Node",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 669.46
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Term",
+                "name": "Term",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 709.69
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Vocabulary",
+                "name": "Vocabulary",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 615.96
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.1
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 3
+        }
+    },
+    {
+        "app": "lekhak",
+        "timestamp": "2026-05-19 02:55:02",
+        "seed": 7432,
+        "entities": [
+            {
+                "class": "App\\Lekhak\\Entities\\Block",
+                "name": "Block",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 556.21
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Contenttype",
+                "name": "ContentType",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 671.08
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'content_types' is missing columns defined in metadata: name, label, description, storage_strategy, help_text",
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Field",
+                "name": "Field",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 699.95
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2.2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'fields' is missing columns defined in metadata: bundle, field_name, label, type, settings, required, weight"
+                ],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Node",
+                "name": "Node",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 1055.57
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "failed",
+                        "error": "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 1.6
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Schema Drift Detected: Table 'nodes' is missing columns defined in metadata: title, alias, bundle, body, author_id, status, langcode, translation_id, created, changed"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Term",
+                "name": "Term",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 678.35
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            },
+            {
+                "class": "App\\Lekhak\\Entities\\Vocabulary",
+                "name": "Vocabulary",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 717.69
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 1.9
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [
+                        "define_attributes"
+                    ],
+                    "coverage_pct": 20
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 3,
+            "failed": 3
+        }
+    }
+]

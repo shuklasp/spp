@@ -4,7 +4,7 @@
  * Converts Markdown to Premium HTML with SATYA STUDIO PRO styling.
  */
 
-$rootDir = __DIR__;
+$rootDir = dirname(__DIR__);
 $files = getMarkdownFiles($rootDir);
 
 $template = <<<HTML

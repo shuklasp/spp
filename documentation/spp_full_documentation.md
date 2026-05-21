@@ -12,7 +12,8 @@ This manual is segmented into three dedicated perspectives to provide step-by-st
    - 1.2 [Sovereign Component Extractions (`import:component`)](#exchange)
    - 1.3 [Isolated Routing & Relative Path Normalization](#routing)
    - 1.4 [Declarative HTML Directives Tutorial (Zero-JS Workflows)](#directives)
-   - 1.5 [Localized Domain Event Listeners & Traversal Maps](#events)
+   - 1.5 [SPPUX Next & SPPEX: The Native UI Ecosystem](#sppux-next)
+   - 1.6 [Localized Domain Event Listeners & Traversal Maps](#events)
 2. [Perspective B: The SPP Core Developer Guide](#core-dev)
    - 2.1 [Core Architecture & Lifecycle Orchestration](#kernel)
    - 2.2 [Extending Agentic AI Driver Contracts (`SPPAI`)](#ai-contracts)
@@ -20,6 +21,8 @@ This manual is segmented into three dedicated perspectives to provide step-by-st
    - 2.4 [WASM Sandboxing & Sub-Resource Integrity (SRI) Hashes](#sandboxing)
    - 2.5 [HMR Live-Reload Middleware & OPcache Pre-Warming Loops](#hmr-cache)
    - 2.6 [Zero-Direct-Access Security Enforcement & Drishyam Component Decoupling](#zero-direct-access)
+   - 2.7 [XDB Embedded Database & Safe MySQL Parity](#xdb-core)
+   - 2.8 [Dynamic Translations, Virtual Fields, and sppdiff Revisions](#translations-virtual-revisions)
 3. [Perspective C: The SPP User & Administrator Guide](#user-admin)
    - 3.1 [Declarative Visual Island Composer Studio (`drishyam:studio`)](#studio)
    - 3.2 [Cinematic Hardware-Accelerated View Transitions](#transitions)
@@ -103,8 +106,22 @@ SPP eliminates manual client scripts by evaluating custom attribute bindings ins
   </div>
   ```
 
+<a name="sppux-next"></a>
+### 1.5 SPPUX Next & SPPEX: The Native UI Ecosystem
+SPP includes a built-in, zero-build frontend framework that mirrors the capabilities of React and Vue, executing entirely natively via `<script type="module">`. The ecosystem comprises 4 tiers totalling **35 native modules** in under 45KB:
+
+* **SPPUX Next** (`sppux.js`): The core runtime offering a **Proxy-based Global Store**, **HTML5 Client-Side Router**, **Native Suspense** (`SPPUX.await`), and a **Web Components Compiler** (`SPPUX.defineElement`).
+* **SPPEX** (`sppex.js`): 5 modules porting the top React ecosystem packages:
+  * `Query` (React Query), `Form` (React Hook Form), `Motion` (Framer Motion), `Helmet` (React Helmet), `DnD` (dnd-kit).
+* **SPPEX Pro** (`sppex-pro.js`): 10 structural primitives:
+  * `VirtualList` (react-window), `InfiniteScroll`, `StoreSync` (useLocalStorage), `Machine` (xstate), `Carousel` (react-slick), `Floating` (@floating-ui), `Select` (react-select), `DatePicker`, `Markdown` (react-markdown), `i18n` (react-i18next).
+* **SPPEX Ultra** (`sppex-ultra.js`): 20 advanced UI and utility modules:
+  * `DataGrid` (ag-grid), `Masonry`, `Resizable`, `Tree`, `Dropzone`, `ContextMenu`, `ColorPicker`, `RangeSlider`, `Rating`, `Skeleton`, `Accordion`, `Timeline`, `Highlight` (syntax highlighter), `AvatarGroup`, `ProgressBar`, `Badge`, `Pagination`, `Breadcrumbs`, `CopyToClipboard`, `WebSocket` (auto-reconnecting).
+
+> All modules are **zero-dependency** and fully **air-gapped sovereign**. See `documentation/framework/sppux.md` for complete API reference.
+
 <a name="events"></a>
-### 1.5 Localized Domain Event Listeners & Traversal Maps
+### 1.6 Localized Domain Event Listeners & Traversal Maps
 SPP applications encapsulate independent lifecycle listeners natively discovered under `src/<app>/events/`.
 
 #### Creating a Local Interceptor Hook:
@@ -191,6 +208,46 @@ During startup, `SPP\Module::register()` scans enabled manifests to build the in
 Inline multi-line HTML string literals are completely decoupled from UI component classes. Markup blueprints are maintained in standalone files (e.g., `comp/templates/LekhakView.html`).
 * **Pre-Warmed Ceiling Embeds**: `DrishyamRenderer` scans component subfolders to inject extracted markup directly inside top-level hidden document ceiling wrappers (`<template id="spp-tpl-[component]">`).
 * **Automagic Hydration**: `BaseComponent::update()` intercepts components returning empty stubs from `render()`, automatically cloning pre-warmed template buffers and interpolating state data via lightweight DOM tokens (`interpolateTemplate`), keeping JavaScript logic layers completely clean and maximizing rendering speed.
+
+<a name="xdb-core"></a>
+### 2.7 XDB Embedded Database & Safe MySQL Parity
+The framework features **SPP XDB**, a high-performance, self-contained in-memory XML database engine mapping enterprise storage schemas dynamically to secure local XML structures. XDB implements extensive safe SQL subset features to emulate full MySQL operational parity without requiring heavy server processes.
+
+#### 1. SQL Compatibility Features
+* **Set Operations (`UNION` / `UNION ALL`)**: Quote-aware sub-query parsing allows complex data set combinations with optional deduplication.
+* **Derived Subqueries inside `FROM`**: Supports executing nested SELECT sub-queries to form derived virtual datasets.
+* **Successive Join Chains**: Process any number of successive `JOIN` / `LEFT JOIN` operations with multi-level table aliases, automatically matching fields with prefixed references (`e.id = d.id`).
+* **Write Integrity validation (`NOT NULL` & `DEFAULT`)**: Dynamic schemas enforce precise nullability constraints on `INSERT` and `UPDATE` operations, including translation of bareword `NULL` query variables to PHP native nulls.
+
+#### 2. CLI Compatibility Verification Suite
+Core developers can audit and run the complete database verification suite through the CLI:
+```powershell
+php spp.php db:verify
+```
+Runs arithmetic updates, transactional rollback/commits, schema modifications (Alter column, Drop column, Rename, Modify, NOT NULL constraints), joins, unions, and virtual views in real-time.
+
+<a name="translations-virtual-revisions"></a>
+### 2.8 Dynamic Translations, Virtual Fields, and sppdiff Revisions
+SPP incorporates advanced modules for local database-driven translation management, schema-less virtual entity fields, and base64-encoded, Gzip-compressed delta-based audit history tracking.
+
+#### 1. Dynamic Translation Engine & spplang Scanner
+The `SPPLang` module introduces a sovereign dynamic translation and fallback framework that allows instant translation updates without altering template structures:
+* **spplang Directory Scanner**: The static scanner `SPPLang::scanDirectory($scanDir, $locale)` parses files recursively, extracting all translatable string matches wrapped in the standard `__("...")` helper. Extracted keys are automatically registered and persisted to the local sqlite database table (`spp_translations` / `lek_translations`).
+* **Universal Global Helper**: The global translation helper `__($key, $locale = null)` is registered universally in the `sppinit.php` bootstrap file. This guarantees global scope availability (`\__`) immediately upon framework boot, preventing any namespace or load-order initialization failures.
+* **Fallback Database Override Lookup**: When called, the helper searches the localized translations table for a matching custom translation override with status `active`. If an active override is found, it is returned; otherwise, the lookup gracefully falls back to returning the bare key code.
+
+#### 2. SPPEntity & LekhakNode Virtual Fields
+To support rich, custom meta configurations (such as visual design settings or content rating tags) without repeatedly mutating physical database tables, the core `SPPEntity` class implements seamless **Virtual Fields**:
+* **Dynamic Property Interception**: Any attribute assigned to an entity that is not defined in the physical schema model is automatically intercepted by the core `__get` and `__set` methods.
+* **Fields Data Compression**: Intercepted attributes are packed dynamically inside a single JSON-serialized physical database column named `fields_data`.
+* **Transparent Attribute Access**: Upon loading database records (`find_one` / `load`), packed JSON arrays inside the `fields_data` column are transparently unpacked, exposing all dynamic virtual attributes as native object attributes.
+
+#### 3. sppdiff Revisions & Delta Reconstruction Engine
+SPP guarantees enterprise-grade historical accountability and auditability for all core entities via the **sppdiff Revisions** engine:
+* **Dynamic Table Initialization**: Calling `RevisionManager::boot()` automatically guarantees that the structured audit revision table (`spp_entity_history` / `lek_entity_history`) is fully verified and constructed without manual migrations.
+* **Granular Lifecycle Event Interceptors**: Revision tracking hooks cleanly into `entity:before_save` and `entity:after_save` event broadcasts.
+* **Gzip-Compressed Delta Storage**: The `RevisionManager::auditEntity()` method automatically decodes the `fields_data` JSON column for both the loaded database copy and the new active entity state, including virtual fields in the computed diff. After filtering out ephemeral columns and the raw `fields_data` string, the remaining granular changes are compressed via `gzcompress` and stored as base64-encoded delta buffers in the history table.
+* **Deterministic Reverse Reconstruction**: The high-performance `DeltaEngine::patch($current, $delta)` allows developers to pass any present entity state and revert it backwards to a precise past revision by applying computed deltas in reverse.
 
 ---
 

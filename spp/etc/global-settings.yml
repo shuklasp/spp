@@ -123,7 +123,7 @@ apps:
         src_path: src/lekhak
         app_init: init.php
         admin_icon: 🖋️
-        admin_title: 'Lekhak'
+        admin_title: Lekhak
         assets:
             theme-assets: resources/themes
             comp-assets: comp
@@ -147,11 +147,7 @@ dev:
         auto_generate_tests: true
         fuzz_intensity: 10
 settings:
-# Example settings (can be used or deleted):
-#    Key2:
-#        skey1: 'new value'
-#    Key3: Val3
-    site_name: Vidyalaya
+    site_name: 'Lekhak Portal'
     debug: true
     compulsory_modules:
         - sppauth

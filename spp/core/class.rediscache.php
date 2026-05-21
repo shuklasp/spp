@@ -95,4 +95,26 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
         $redis = self::getConnection();
         return $redis->flushDB();
     }
+
+    public function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool
+    {
+        $redis = self::getConnection();
+        $result = $redis->set($key, serialize($value), $ttl);
+        foreach ($tags as $tag) {
+            $redis->sAdd('_tag:' . $tag, $key);
+        }
+        return $result;
+    }
+
+    public function invalidateTag(string $tag): bool
+    {
+        $redis = self::getConnection();
+        $members = $redis->sMembers('_tag:' . $tag);
+        if (!empty($members)) {
+            $redis->del($members);
+        }
+        $redis->del('_tag:' . $tag);
+        return true;
+    }
 }
+

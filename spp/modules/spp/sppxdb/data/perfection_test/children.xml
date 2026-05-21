@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<database table="children">
-  <_schema>
-    <column name="id" type="int"/>
-    <column name="parent_id" type="int"/>
-  </_schema>
-<row id="1"><id>1</id><parent_id>999</parent_id></row></database>

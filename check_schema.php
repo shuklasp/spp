@@ -1,17 +1,5 @@
 <?php
-require_once('spp/sppinit.php');
-require_once('global.php');
-require_once('vendor/autoload.php');
-
-$db = new \SPPMod\SPPDB\SPPDB();
-$tables = $db->execute_query("SHOW TABLES");
-echo "Tables in DB:\n";
-print_r($tables);
-
-try {
-    $res = $db->execute_query("DESCRIBE users");
-    echo "Columns in 'users':\n";
-    print_r($res);
-} catch (Exception $e) {
-    echo "Error describing 'users': " . $e->getMessage() . "\n";
-}
+$pdo = new PDO('sqlite:var/db/merged_fix_verified.sqlite');
+$stmt = $pdo->query('PRAGMA table_info(lek_nodes);');
+$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+print_r($result);

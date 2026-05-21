@@ -1,4 +1,5 @@
 import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+import { registerNavHandlers, setPageMeta, renderBreadcrumbs } from './lekhak-nav.js';
 
 /**
  * ContentView - Content Management Repository for Lekhak CMS
@@ -25,16 +26,10 @@ export default class ContentView extends BaseComponent {
             bundles: []
         };
 
-        window.__spp_handlers = window.__spp_handlers || {};
-        window.__spp_handlers['nav-lekhak'] = () => location.hash = 'lekhak';
-        window.__spp_handlers['nav-content'] = () => location.hash = 'content';
-        window.__spp_handlers['nav-canvas'] = () => location.hash = 'canvas';
-        window.__spp_handlers['nav-settings'] = () => location.hash = 'settings';
-        window.__spp_handlers['nav-editor'] = () => location.hash = 'editor';
-        window.__spp_handlers['nav-commerce'] = () => location.hash = 'commerce';
-        window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
-        window.__spp_handlers['nav-media'] = () => location.hash = 'media';
-        window.__spp_handlers['nav-structure'] = () => location.hash = 'structure';
+        // SPPEX: Shared navigation handlers (replaces 9 duplicated lines)
+        registerNavHandlers();
+        setPageMeta('Content', 'Manage all content items in Lekhak CMS');
+
         window.__spp_handlers['status-all'] = () => this.setState({ statusTab: 'all', page: 1 });
         window.__spp_handlers['status-published'] = () => this.setState({ statusTab: 'published', page: 1 });
         window.__spp_handlers['status-draft'] = () => this.setState({ statusTab: 'draft', page: 1 });
@@ -148,6 +143,22 @@ export default class ContentView extends BaseComponent {
     }
 
     afterUpdate() {
+        // SPPEX.Skeleton: Show shimmering loaders while data is loading
+        if (this.state.loading && typeof SPPEX !== 'undefined' && SPPEX.Skeleton) {
+            const tableRows = document.getElementById('spp-content-table-rows');
+            if (tableRows && !tableRows.querySelector('.sppex-skeleton')) {
+                tableRows.innerHTML = `<tr><td colspan="6">${SPPEX.Skeleton.render(8)}</td></tr>`;
+            }
+            return;
+        }
+
+        // SPPEX.Breadcrumbs: Render navigation trail
+        const breadcrumbSlot = document.getElementById('spp-content-breadcrumbs');
+        if (breadcrumbSlot && !breadcrumbSlot._rendered) {
+            breadcrumbSlot.innerHTML = renderBreadcrumbs('Content');
+            breadcrumbSlot._rendered = true;
+        }
+
         const searchInput = document.getElementById('spp-content-filter-input');
         if (searchInput && !searchInput._bound) {
             searchInput.value = this.state.filter || '';

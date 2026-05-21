@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lekhni Editor: Enterprise WYSIWYG & Block Document Engine | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+        }
+
+        th {
+            background-color: var(--code-bg);
+            color: var(--accent);
+            font-weight: 700;
+        }
+
+        td {
+            color: var(--text-dim);
+        }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Lekhni Editor: Enterprise WYSIWYG & Block Document Engine</h1>
+            <p>Lekhni is the next-generation dual-mode visual publishing engine integrated directly within Lekhak CMS. It functions as both a rich block-based document editor and a raw source stream Monaco IDE, providing authors with offline database safety buffers, real-time revision timelines, and interactive document objects.</p>
+
+            <h2>1. Interactive Block Elements & Slash Commands</h2>
+            <p>Lekhni treats documents as structures of interactive components. Authors can invoke the floating <strong>Slash Menu</strong> by typing <code>/</code> on a new line or within any editable paragraph.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Command</th>
+                        <th>Element Name</th>
+                        <th>Technical Implementation</th>
+                        <th>Visual Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>/table</code></td>
+                        <td><strong>Smart Spreadsheet Grid</strong></td>
+                        <td><code>.lekhni-smart-grid</code> with custom data formulas</td>
+                        <td>In-document tabular calculations (<code>SUM</code>, <code>AVERAGE</code>, <code>PRODUCT</code>).</td>
+                    </tr>
+                    <tr>
+                        <td><code>/tasks</code></td>
+                        <td><strong>Tasks Checklist Board</strong></td>
+                        <td><code>.lekhni-tasks-container</code> row checklist</td>
+                        <td>Dynamic project task tracking with strike-through visual states.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/pdf</code></td>
+                        <td><strong>Adjustable PDF Frame</strong></td>
+                        <td><code>.lekhni-pdf-block-wrapper</code> housing an iframe</td>
+                        <td>Interactive document viewer with built-in dimension sliders.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/gallery</code></td>
+                        <td><strong>Adaptive Image Grid</strong></td>
+                        <td><code>.lekhni-gallery-grid</code> with flex-wrapping</td>
+                        <td>Responsive multi-image arrays with drop-zone support.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/code</code></td>
+                        <td><strong>Embedded Monaco Snippet</strong></td>
+                        <td><code>.lekhni-embedded-block</code> hosting Monaco IDE</td>
+                        <td>Direct code snippet editing and rendering.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/card</code></td>
+                        <td><strong>Rich Web Destination Card</strong></td>
+                        <td><code>.lekhni-web-card</code> with dynamic launch link</td>
+                        <td>Previews external links with dynamic favicon and domains.</td>
+                    </tr>
+                    <tr>
+                        <td><code>/ai</code></td>
+                        <td><strong>AI Co-Pilot Composer</strong></td>
+                        <td>Inline co-pilot overlay (activated via <code>++</code>)</td>
+                        <td>Automated outline writing, summarization, and tone enhancement.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h2>2. In-Depth Component Specifications</h2>
+            <h3>📊 Smart Formula Spreadsheet Grids</h3>
+            <p>The Smart Grid creates a fully functional tabular cell framework inside the content.</p>
+            <ul>
+                <li><strong>Coordinate Architecture</strong>: Generates cells tagged with IDs from <code>A1</code> to <code>E5</code>.</li>
+                <li><strong>Formula Parsing Engine</strong>: Uses cell observers to evaluate mathematical formulas beginning with <code>=</code>. Supports scope-wide functions: <code>SUM</code>, <code>AVERAGE</code>, and <code>PRODUCT</code>.</li>
+                <li><strong>Reactive Recalculation</strong>: Binds custom blur and focus listeners to coordinate cells, enabling a cascading recalculation chain.</li>
+            </ul>
+
+            <h3>☑️ Tasks Board Checklist</h3>
+            <p>Allows list arrays to function as interactive trackers.</p>
+            <ul>
+                <li><strong>Dual-Mode Interaction</strong>: Readers and writers can toggle item checked states.</li>
+                <li><strong>Visual Transitions</strong>: Checking a task applies interactive strike-through typography and transition animations dynamically.</li>
+            </ul>
+
+            <h3>📄 Adjustable PDF Document Frame</h3>
+            <p>Provides embedded PDF viewing without leaving the page.</p>
+            <ul>
+                <li><strong>Rich Control Interface</strong>: Renders responsive slider controls inside the block header.</li>
+                <li><strong>Dynamic Resizing</strong>: Listening to range sliders automatically applies corresponding pixel dimensions to the PDF iframe in real time.</li>
+            </ul>
+
+            <h3>🎴 Adaptive Multi-Image Gallery</h3>
+            <p>Enables quick layout construction of media grids.</p>
+            <ul>
+                <li><strong>Drop-Zone Support</strong>: Seamlessly intercept files dragged into the editor and post them to the Lekhni media upload API.</li>
+                <li><strong>CSS Flex Layout</strong>: Arranges multiple uploaded media items cleanly in responsive dark galleries.</li>
+            </ul>
+
+            <h2>3. Offline Safety & IndexedDB Buffer Architecture</h2>
+            <p>Lekhni implements continuous data safety mechanisms to prevent data loss:</p>
+            <ul>
+                <li><strong>IndexedDB Safety Store</strong>: Mounts an IndexedDB database named <code>LekhniEnterpriseStore</code>.</li>
+                <li><strong>State Restoration</strong>: Detects offline local snapshots upon load and displays an intuitive recovery modal.</li>
+                <li><strong>Continuous Buffering</strong>: Keystrokes trigger debounced local commits of the current title and body layout.</li>
+            </ul>
+
+            <h2>4. Read-Mode Client Interactive Binders</h2>
+            <p>To preserve complete block interactivity for public page views, Lekhak's <code>node.blade.php</code> registers key event loops at runtime:</p>
+            <ol>
+                <li><strong>PDF Resize</strong>: Readers can adjust slide dimensions locally.</li>
+                <li><strong>Task checklist</strong>: Toggling checklist states operates dynamically.</li>
+                <li><strong>Spreadsheet formula engine</strong>: Recalculates cells immediately upon blurred input fields.</li>
+            </ol>
+
+            <hr>
+            <p><a href="index.html">Back to Index</a></p>
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

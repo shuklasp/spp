@@ -16,6 +16,7 @@ require_once __DIR__ . '/Lifecycle.php';
 require_once __DIR__ . '/Routing.php';
 require_once __DIR__ . '/IAM.php';
 require_once __DIR__ . '/AI.php';
+require_once __DIR__ . '/spplang.php';
 
 // Auth Redirects
 if (!function_exists('live_login')) { function live_login($la, $p) { live_Auth_Login($la, $p); } }

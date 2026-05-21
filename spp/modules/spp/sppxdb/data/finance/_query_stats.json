@@ -4,5 +4,8 @@
     "insert into invoices values(?, ?, ?, ?)": 4,
     "show tabbles;": 1,
     "show tables;": 1,
-    "select * from invoices;": 2
+    "select * from invoices;": 2,
+    "INSERT INTO finance.invoices (id, customer, amount, status) VALUES (?, ?, ?, ?)": 2,
+    "SELECT * FROM finance.invoices": 2,
+    "SELECT COUNT(*) FROM school.students": 2
 }

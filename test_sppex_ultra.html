@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPPEX Ultra Test Playground</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .dropzone { border: 2px dashed #ccc; padding: 40px; text-align: center; color: #666; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>SPPEX Ultra (Air-Gapped) Playground</h1>
+    
+    <div id="breadcrumbs"></div>
+    <br>
+
+    <div class="grid">
+        <!-- 1. DataGrid -->
+        <div class="card">
+            <h2>1. DataGrid (ag-grid)</h2>
+            <div id="grid-container"></div>
+        </div>
+
+        <!-- 2. Masonry -->
+        <div class="card">
+            <h2>2. Masonry</h2>
+            <div id="masonry-container">
+                <div style="background:#ff9999; height: 100px;">Block 1</div>
+                <div style="background:#99ccff; height: 150px;">Block 2</div>
+                <div style="background:#99ff99; height: 80px;">Block 3</div>
+                <div style="background:#ffcc99; height: 120px;">Block 4</div>
+            </div>
+        </div>
+
+        <!-- 4. Tree -->
+        <div class="card">
+            <h2>4. Tree (react-treebeard)</h2>
+            <div id="tree-container"></div>
+        </div>
+
+        <!-- 5. Dropzone -->
+        <div class="card">
+            <h2>5. Dropzone (react-dropzone)</h2>
+            <div id="my-dropzone" class="dropzone">Drop files here</div>
+        </div>
+
+        <!-- 6. Context Menu -->
+        <div class="card" id="context-area" style="background:#e0f7fa; padding:40px; text-align:center;">
+            <h2>6. ContextMenu</h2>
+            Right-click me!
+        </div>
+
+        <!-- 7. Color Picker & 8. Range Slider -->
+        <div class="card">
+            <h2>7 & 8. Color Picker & Range Slider</h2>
+            <input type="color" class="color-picker" value="#6366f1">
+            <br><br>
+            <input type="range" class="range-slider" min="0" max="100" value="50">
+        </div>
+
+        <!-- 9. Rating -->
+        <div class="card">
+            <h2>9. Rating (react-rating)</h2>
+            <div id="rating-container"></div>
+        </div>
+
+        <!-- 10. Skeleton -->
+        <div class="card">
+            <h2>10. Skeleton Loader</h2>
+            <div id="skeleton-container"></div>
+        </div>
+
+        <!-- 13. Highlight -->
+        <div class="card">
+            <h2>13. Syntax Highlight</h2>
+            <pre style="background:#222; padding:10px; border-radius:4px;" id="highlight-container"></pre>
+        </div>
+
+        <!-- 14. AvatarGroup & 16. Badge -->
+        <div class="card">
+            <h2>14 & 16. Avatar Group & Badge</h2>
+            <div id="avatar-container"></div>
+            <br>
+            <div id="badge-container"></div>
+        </div>
+
+        <!-- 15. ProgressBar -->
+        <div class="card">
+            <h2>15. ProgressBar</h2>
+            <div id="progress-container"></div>
+        </div>
+
+        <!-- 17. Pagination -->
+        <div class="card">
+            <h2>17. Pagination</h2>
+            <div id="pagination-container"></div>
+            <p>Current Page: <span id="page-display">1</span></p>
+        </div>
+
+        <!-- 19. CopyToClipboard -->
+        <div class="card">
+            <h2>19. CopyToClipboard</h2>
+            <button id="copy-btn">Copy Secret Token</button>
+        </div>
+
+    </div>
+
+    <!-- SPPEX Ultra Core -->
+    <script src="spp/modules/spp/sppux/js/sppex-ultra.js"></script>
+    
+    <script>
+        // 1. DataGrid
+        new SPPEX.DataGrid('#grid-container', 
+            [{field:'id', headerName:'ID'}, {field:'name', headerName:'Name'}], 
+            [{id:1, name:'Alice'}, {id:2, name:'Bob'}, {id:3, name:'Charlie'}]
+        );
+
+        // 2. Masonry
+        SPPEX.Masonry.init('#masonry-container', 2);
+
+        // 4. Tree
+        new SPPEX.Tree('#tree-container', {
+            name: 'Root',
+            children: [
+                { name: 'Folder A', children: [{name: 'File 1'}, {name: 'File 2'}] },
+                { name: 'File 3' }
+            ]
+        });
+
+        // 5. Dropzone
+        SPPEX.Dropzone.init('#my-dropzone', (files) => {
+            alert(`Dropped ${files.length} files!`);
+        });
+
+        // 6. ContextMenu
+        SPPEX.ContextMenu.init('#context-area', [
+            { label: 'Edit', onClick: () => alert('Edit clicked') },
+            { label: 'Delete', onClick: () => alert('Delete clicked') }
+        ]);
+
+        // 7 & 8. ColorPicker & RangeSlider
+        SPPEX.ColorPicker.init('.color-picker');
+        SPPEX.RangeSlider.init('.range-slider');
+
+        // 9. Rating
+        new SPPEX.Rating('#rating-container', 5, (val) => console.log('Rated:', val));
+
+        // 10. Skeleton
+        document.getElementById('skeleton-container').innerHTML = SPPEX.Skeleton.render(3);
+
+        // 13. Highlight
+        document.getElementById('highlight-container').innerHTML = SPPEX.Highlight.json('{"key": "value", "num": 42}');
+
+        // 14. AvatarGroup
+        document.getElementById('avatar-container').innerHTML = SPPEX.AvatarGroup.render([
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="red"/></svg>',
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="blue"/></svg>',
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="green"/></svg>',
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="yellow"/></svg>',
+            'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="purple"/></svg>'
+        ], 3);
+
+        // 16. Badge
+        document.getElementById('badge-container').innerHTML = SPPEX.Badge.wrap('<div style="width:50px; height:50px; background:#ddd;">Box</div>', '99+');
+
+        // 15. ProgressBar
+        SPPEX.ProgressBar.linear('#progress-container', 75);
+
+        // 17. Pagination
+        new SPPEX.Pagination('#pagination-container', 10, (page) => {
+            document.getElementById('page-display').innerText = page;
+        });
+
+        // 18. Breadcrumbs
+        document.getElementById('breadcrumbs').innerHTML = SPPEX.Breadcrumbs.render([
+            {name: 'Home', url: '/'}, {name: 'Dashboard', url: '/dash'}, {name: 'Settings'}
+        ]);
+
+        // 19. CopyToClipboard
+        SPPEX.CopyToClipboard.attach('#copy-btn', 'SECRET_TOKEN_123');
+
+    </script>
+</body>
+</html>

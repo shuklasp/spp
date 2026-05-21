@@ -31,12 +31,129 @@ class LekhakNode extends SPPEntity
             $this->created = $now;
             if (!$this->author_id && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
                 $user = \SPPMod\SPPAuth\SPPAuth::user();
-                if ($user) $this->author_id = $user->id;
+                $userId = $user->id ?? (method_exists($user, 'getId') ? $user->getId() : null);
+                if (is_numeric($userId)) {
+                    $this->author_id = (int) $userId;
+                }
             }
             if (!$this->status) {
                 $this->status = 'published';
             }
         }
+    }
+
+    public function after_save()
+    {
+        parent::after_save();
+        // Automatically write default grant if node_access table exists
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('node_access');
+        if ($db->tableExists($table)) {
+            $db->exec_squery("DELETE FROM %tab% WHERE nid = ? AND gid = ? AND realm = ?", $table, [$this->id, 0, 'all']);
+            $db->exec_squery("INSERT INTO %tab% (nid, gid, realm, grant_view, grant_update, grant_delete) VALUES (?, ?, ?, ?, ?, ?)",
+                $table, [$this->id, 0, 'all', 1, 0, 0]);
+        }
+    }
+
+    /**
+     * Transition the publishing status of this node utilizing the WorkflowManager.
+     */
+    public function transitionStatus(string $newStatus, $user = null): bool
+    {
+        if (class_exists('\\SPP\\Core\\WorkflowManager')) {
+            if (\SPP\Core\WorkflowManager::validateTransition($this, $this->status ?? 'draft', $newStatus, $user)) {
+                $this->status = $newStatus;
+                $this->save();
+                return true;
+            }
+        } else {
+            $this->status = $newStatus;
+            $this->save();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Add a taxonomy term to this node.
+     */
+    public function addTerm(int $tid)
+    {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('node_terms');
+        if (!$db->tableExists($table)) {
+            $db->exec_squery("CREATE TABLE %tab% (
+                nid BIGINT,
+                tid BIGINT,
+                PRIMARY KEY (nid, tid)
+            )", $table);
+        }
+        $db->exec_squery("DELETE FROM %tab% WHERE nid = ? AND tid = ?", $table, [$this->id, $tid]);
+        $db->exec_squery("INSERT INTO %tab% (nid, tid) VALUES (?, ?)", $table, [$this->id, $tid]);
+    }
+
+    /**
+     * Get all terms attached to this node.
+     */
+    public function getTerms(): array
+    {
+        if (!$this->id) return [];
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('node_terms');
+        if (!$db->tableExists($table)) return [];
+        
+        $res = $db->exec_squery("SELECT tid FROM %tab% WHERE nid = ?", $table, [$this->id]);
+        $terms = [];
+        foreach ($res as $row) {
+            $term = \App\Lekhak\Entities\Term::find_one(['id' => $row['tid']]);
+            if ($term) {
+                $terms[] = $term;
+            }
+        }
+        return $terms;
+    }
+
+    /**
+     * Check if a given user has access to a specific operation on this node.
+     */
+    public function checkAccess(string $op, $user = null): bool
+    {
+        if ($user === null && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
+            $user = \SPPMod\SPPAuth\SPPAuth::user();
+        }
+        
+        // Admin user has all access
+        if ($user && isset($user->roles) && in_array('administrator', $user->roles)) {
+            return true;
+        }
+
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('node_access');
+        if (!$db->tableExists($table)) {
+            return true; // Default fallback to open access if no matrix is setup
+        }
+
+        $gids = [0]; // "all" anonymous/authenticated group
+        if ($user) {
+            $gids[] = (int)$user->id;
+            if (isset($user->groups) && is_array($user->groups)) {
+                foreach ($user->groups as $grp) {
+                    $gids[] = (int)$grp;
+                }
+            }
+        }
+
+        $opCol = 'grant_view';
+        if ($op === 'update') $opCol = 'grant_update';
+        if ($op === 'delete') $opCol = 'grant_delete';
+
+        $placeholders = implode(',', array_fill(0, count($gids), '?'));
+        $sql = "SELECT COUNT(*) as cnt FROM %tab% WHERE nid = ? AND {$opCol} = 1 AND gid IN ({$placeholders})";
+        
+        $params = array_merge([$this->id], $gids);
+        $res = $db->exec_squery($sql, $table, $params);
+        
+        return (int)($res[0]['cnt'] ?? 0) > 0;
     }
 
     /**
@@ -91,7 +208,8 @@ class LekhakNode extends SPPEntity
             'langcode' => 'varchar(10)',
             'translation_id' => 'bigint',
             'created' => 'datetime',
-            'changed' => 'datetime'
+            'changed' => 'datetime',
+            'fields_data' => 'longtext'
         ];
     }
     

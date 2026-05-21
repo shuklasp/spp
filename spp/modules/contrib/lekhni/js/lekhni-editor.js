@@ -1,5 +1,5 @@
-import BaseComponent from '../../../spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
-import { LekhniMonaco } from './monaco-engine.js?v=2026_05_13_v1';
+import BaseComponent from '../../../spp/sppux/js/BaseComponent.js?v=2026_05_20_v1';
+import { LekhniMonaco } from './monaco-engine.js?v=2026_05_20_v1';
 
 /**
  * Lekhni - Ultimate Modular Block, Dual-Mode IDE & Enterprise Document Engine
@@ -95,21 +95,46 @@ export default class LekhniEditor extends BaseComponent {
 
         this._monacoIdeInstance = null;
         this._db = null;
+        this._documentClickHandler = null;
+        this._outlineInterval = null;
+        this._contentLoadedFromPromise = false;
+
+        if (this.props?.contentPromise && this.state.id) {
+            this.state.saving = true;
+            try {
+                const res = await this.props.contentPromise;
+                if (res.success) {
+                    const node = res.node;
+                    this.state.title = node.title || '';
+                    this.state.body = node.body || '';
+                    this.state.status = node.status || 'draft';
+                    this.state.alias = node.alias || '';
+                    this.state.saving = false;
+                    this.state.manualAlias = !!node.alias;
+                    this._contentLoadedFromPromise = true;
+                } else {
+                    this.state.saving = false;
+                }
+            } catch (e) {
+                console.error("[Lekhni] Node load from promise failed:", e);
+                this.state.saving = false;
+            }
+        }
     }
 
     async onMount() {
         await this.loadModuleSettings();
         await this.initOfflineIndexedDB();
 
-        if (this.state.id && !this.state.body) {
+        if (this.state.id && !this._contentLoadedFromPromise && !this.state.body) {
             await this.loadNode();
         } else {
             this.syncActiveWorkspaceContent();
-            this.captureRevisionSnapshot('Initial Launch');
+            this.captureRevisionSnapshot(this._contentLoadedFromPromise ? 'Loaded API Payload' : 'Initial Launch');
         }
 
         // Global outside click observers
-        document.addEventListener('click', (e) => {
+        this._documentClickHandler = (e) => {
             if (this.state.activePasteBlockId && !e.target.closest('.lekhni-paste-popover')) {
                 this.finalizePaste();
             }
@@ -119,10 +144,17 @@ export default class LekhniEditor extends BaseComponent {
             if (!e.target.closest('.lekhni-bubble-menu') && !e.target.closest('.lekhni-body-editable')) {
                 if (this.state.showBubbleMenu) this.setState({ showBubbleMenu: false });
             }
-        });
+        };
+        document.addEventListener('click', this._documentClickHandler);
 
         // Trigger sequential debounced outline extractions
-        setInterval(() => this.buildOutlineTracker(), 1500);
+        this._outlineInterval = setInterval(() => this.buildOutlineTracker(), 1500);
+    }
+
+    onDestroy() {
+        if (this._documentClickHandler) document.removeEventListener('click', this._documentClickHandler);
+        if (this._outlineInterval) clearInterval(this._outlineInterval);
+        if (this._db) this._db.close();
     }
 
     update() {
@@ -297,6 +329,44 @@ export default class LekhniEditor extends BaseComponent {
         } catch (e) {}
     }
 
+    getCleanBodyHtml() {
+        const editor = this.container.querySelector('.lekhni-body-editable');
+        if (!editor) return this.state.body || '';
+        
+        // Clone the editor DOM to avoid visual flicker during cleanup
+        const clone = editor.cloneNode(true);
+        
+        // Find all hydrated code blocks in the clone
+        clone.querySelectorAll('[id^="monaco_node_"]').forEach(targetHost => {
+            // Get the value from the active editor instance in the real DOM if it exists
+            const realHost = editor.querySelector(`#${targetHost.id}`);
+            let val = '';
+            if (realHost) {
+                const ta = realHost.querySelector('textarea');
+                if (ta) val = ta.value;
+            } else {
+                const ta = targetHost.querySelector('textarea');
+                if (ta) val = ta.value || ta.textContent;
+            }
+            val = LekhniMonaco.stripSyntaxHighlighting(val);
+            
+            // Clean the targetHost in the clone
+            targetHost.innerHTML = '';
+            targetHost.removeAttribute('data-lekhni-hydrated');
+            const cleanTa = document.createElement('textarea');
+            cleanTa.value = val;
+            cleanTa.textContent = val;
+            targetHost.appendChild(cleanTa);
+        });
+        
+        return clone.innerHTML;
+    }
+
+    syncBodyState() {
+        this.state.body = this.getCleanBodyHtml();
+        this.state.isDirty = true;
+    }
+
     syncActiveWorkspaceContent() {
         if (this.state.editorMode === 'code') {
             this.mountFullBleedMonacoIde();
@@ -319,7 +389,7 @@ export default class LekhniEditor extends BaseComponent {
             this._monacoIdeInstance = null;
         } else {
             const editor = this.container.querySelector('.lekhni-body-editable');
-            if (editor) this.state.body = editor.innerHTML;
+            if (editor) this.state.body = this.getCleanBodyHtml();
         }
 
         this.setState({ 
@@ -333,7 +403,16 @@ export default class LekhniEditor extends BaseComponent {
         const ideContainer = this.container.querySelector('.lekhni-full-ide-host');
         if (!ideContainer) return;
         
+        if (ideContainer.hasAttribute('data-lekhni-hydrated') && this._monacoIdeInstance) {
+            const currentVal = this._monacoIdeInstance.getValue();
+            if (currentVal !== this.state.body) {
+                this._monacoIdeInstance.setValue(this.state.body || '');
+            }
+            return;
+        }
+
         ideContainer.innerHTML = '';
+        ideContainer.setAttribute('data-lekhni-hydrated', 'true');
         let startVal = this.state.body;
         if (!startVal && this.state.title) {
             startVal = `<!-- Lekhni Source Stream: ${this.state.title} -->\n<div class="document-section">\n  <p>Start coding source blocks directly...</p>\n</div>`;
@@ -382,10 +461,78 @@ export default class LekhniEditor extends BaseComponent {
         const editor = this.container.querySelector('.lekhni-body-editable');
         if (!editor) return;
 
+        // Rehydrate embedded code blocks
+        editor.querySelectorAll('.lekhni-embedded-block').forEach(wrapper => {
+            const targetHost = wrapper.querySelector('[id^="monaco_node_"]');
+            if (!targetHost || targetHost.hasAttribute('data-lekhni-hydrated')) return;
+
+            const ta = targetHost.querySelector('textarea');
+            if (ta) {
+                targetHost.setAttribute('data-lekhni-hydrated', 'true');
+                const rawVal = ta.textContent || ta.value;
+                const val = LekhniMonaco.stripSyntaxHighlighting(rawVal);
+                
+                const select = wrapper.querySelector('select');
+                const lang = targetHost.getAttribute('data-language') || (select ? select.value : 'javascript');
+                targetHost.setAttribute('data-language', lang);
+                if (select) select.value = lang;
+                
+                targetHost.innerHTML = '';
+                let instance = LekhniMonaco.create(targetHost, { language: lang, value: val });
+                
+                const newTa = targetHost.querySelector('textarea');
+                if (newTa) newTa.textContent = val;
+
+                const bindListeners = (inst) => {
+                    inst.onDidChangeContent((newVal) => {
+                        const currentTa = targetHost.querySelector('textarea');
+                        if (currentTa) currentTa.textContent = newVal;
+                        this.state.body = this.getCleanBodyHtml();
+                        this.state.isDirty = true;
+                        if (typeof this.autoSave === 'function') this.autoSave();
+                    });
+                };
+                
+                bindListeners(instance);
+                
+                if (select) {
+                    select.addEventListener('change', (e) => {
+                        const newLang = e.target.value;
+                        targetHost.setAttribute('data-language', newLang);
+                        const currentVal = instance.getValue();
+                        instance.dispose();
+                        targetHost.innerHTML = '';
+                        instance = LekhniMonaco.create(targetHost, { language: newLang, value: currentVal });
+                        
+                        const updatedTa = targetHost.querySelector('textarea');
+                        if (updatedTa) updatedTa.textContent = currentVal;
+                        
+                        bindListeners(instance);
+                        this.state.body = this.getCleanBodyHtml();
+                        this.state.isDirty = true;
+                        if (typeof this.autoSave === 'function') this.autoSave();
+                    });
+                }
+                
+                const copyBtn = wrapper.querySelector('.lekhni-monaco-copy-btn');
+                if (copyBtn) {
+                    copyBtn.onclick = () => {
+                        const currentTa = targetHost.querySelector('textarea');
+                        if (currentTa) {
+                            navigator.clipboard.writeText(currentTa.value || currentTa.textContent).then(() => {
+                                copyBtn.textContent = '✅ Copied';
+                                setTimeout(() => copyBtn.textContent = '📋 Copy', 2000);
+                            });
+                        }
+                    };
+                }
+            }
+        });
+
         editor.addEventListener('paste', (e) => this.handlePasteEvent(e));
 
         editor.addEventListener('input', () => {
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
             this.autoSave();
 
@@ -663,7 +810,7 @@ export default class LekhniEditor extends BaseComponent {
         // Sync DOM content back to reactive buffer
         const editor = this.container.querySelector('.lekhni-body-editable');
         if (editor) {
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
             this.autoSave();
         }
@@ -738,10 +885,8 @@ export default class LekhniEditor extends BaseComponent {
         for (const file of imageFiles) {
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('action', 'lekhni_upload_media');
             try {
-                const apiBase = this.admin?.config?.apiBase || '?action=lekhni_upload_media';
-                const res = await fetch(apiBase, { method: 'POST', body: formData }).then(r => r.json());
+                const res = await this.uploadMediaForm(formData);
                 if (res?.success && res.url) uploadedUrls.push(res.url);
             } catch (e) {}
         }
@@ -883,12 +1028,88 @@ export default class LekhniEditor extends BaseComponent {
         wrapper.style.margin = '1.5rem 0'; wrapper.style.borderRadius = '8px'; wrapper.style.overflow = 'hidden';
 
         const header = document.createElement('div');
-        header.style.background = '#21262d'; header.style.padding = '6px 12px'; header.style.fontSize = '0.75rem';
-        header.style.color = '#8b949e'; header.style.fontFamily = "'JetBrains Mono', monospace";
-        header.innerHTML = `<span>Inline Code Workspace</span><span style="color:#58a6ff; float:right;">javascript</span>`;
+        header.style.background = '#21262d'; 
+        header.style.padding = '6px 12px'; 
+        header.style.fontSize = '0.75rem';
+        header.style.color = '#8b949e'; 
+        header.style.fontFamily = "'JetBrains Mono', monospace";
+        header.style.display = 'flex';
+        header.style.justifyContent = 'space-between';
+        header.style.alignItems = 'center';
+        
+        const titleSpan = document.createElement('span');
+        titleSpan.textContent = 'Inline Code Workspace';
+        
+        const select = document.createElement('select');
+        select.style.background = 'transparent';
+        select.style.color = '#58a6ff';
+        select.style.border = 'none';
+        select.style.outline = 'none';
+        select.style.fontFamily = 'inherit';
+        select.style.fontSize = 'inherit';
+        select.style.cursor = 'pointer';
+        
+        const languages = [
+            { value: 'javascript', label: 'JavaScript' },
+            { value: 'html', label: 'HTML / Layout' },
+            { value: 'css', label: 'CSS' },
+            { value: 'php', label: 'PHP' },
+            { value: 'python', label: 'Python' },
+            { value: 'sql', label: 'SQL' },
+            { value: 'yaml', label: 'YAML' },
+            { value: 'json', label: 'JSON' },
+            { value: 'markdown', label: 'Markdown' },
+            { value: 'typescript', label: 'TypeScript' },
+            { value: 'bash', label: 'Shell / Bash' },
+            { value: 'rust', label: 'Rust' },
+            { value: 'go', label: 'Go' }
+        ];
+        
+        languages.forEach(l => {
+            const opt = document.createElement('option');
+            opt.value = l.value;
+            opt.textContent = l.label;
+            opt.style.background = '#161b22';
+            opt.style.color = '#c9d1d9';
+            select.appendChild(opt);
+        });
+        
+        const controlsGroup = document.createElement('div');
+        controlsGroup.style.display = 'flex';
+        controlsGroup.style.alignItems = 'center';
+        controlsGroup.style.gap = '8px';
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'lekhni-monaco-copy-btn';
+        copyBtn.textContent = '📋 Copy';
+        copyBtn.style.background = 'transparent';
+        copyBtn.style.color = '#8b949e';
+        copyBtn.style.border = 'none';
+        copyBtn.style.cursor = 'pointer';
+        copyBtn.style.fontSize = '12px';
+        copyBtn.style.padding = '2px 6px';
+        copyBtn.style.borderRadius = '4px';
+        
+        // This onclick won't survive serialization, but the rehydration will pick it up
+        copyBtn.onclick = () => {
+            const ta = wrapper.querySelector('textarea');
+            if (ta) {
+                navigator.clipboard.writeText(ta.value || ta.textContent).then(() => {
+                    copyBtn.textContent = '✅ Copied';
+                    setTimeout(() => copyBtn.textContent = '📋 Copy', 2000);
+                });
+            }
+        };
+
+        controlsGroup.appendChild(select);
+        controlsGroup.appendChild(copyBtn);
+
+        header.appendChild(titleSpan);
+        header.appendChild(controlsGroup);
 
         const targetHost = document.createElement('div');
         targetHost.id = blockId; targetHost.style.width = '100%';
+        targetHost.setAttribute('data-language', 'javascript');
 
         wrapper.appendChild(header); wrapper.appendChild(targetHost);
 
@@ -906,8 +1127,43 @@ export default class LekhniEditor extends BaseComponent {
             editor.appendChild(wrapper);
         }
 
-        LekhniMonaco.create(targetHost, { language: 'javascript', value: '// Code snippet logic...\n' });
-        this.state.body = editor.innerHTML;
+        const initVal = '// Code snippet logic...\n';
+        targetHost.setAttribute('data-lekhni-hydrated', 'true');
+        let instance = LekhniMonaco.create(targetHost, { language: 'javascript', value: initVal });
+        
+        const ta = targetHost.querySelector('textarea');
+        if (ta) ta.textContent = initVal;
+
+        const bindListeners = (inst) => {
+            inst.onDidChangeContent((val) => {
+                const currentTa = targetHost.querySelector('textarea');
+                if (currentTa) currentTa.textContent = val;
+                this.state.body = this.getCleanBodyHtml();
+                this.state.isDirty = true;
+                if (typeof this.autoSave === 'function') this.autoSave();
+            });
+        };
+
+        bindListeners(instance);
+
+        select.addEventListener('change', (e) => {
+            const newLang = e.target.value;
+            targetHost.setAttribute('data-language', newLang);
+            const currentVal = instance.getValue();
+            instance.dispose();
+            targetHost.innerHTML = '';
+            instance = LekhniMonaco.create(targetHost, { language: newLang, value: currentVal });
+            
+            const updatedTa = targetHost.querySelector('textarea');
+            if (updatedTa) updatedTa.textContent = currentVal;
+            
+            bindListeners(instance);
+            this.state.body = this.getCleanBodyHtml();
+            this.state.isDirty = true;
+            if (typeof this.autoSave === 'function') this.autoSave();
+        });
+
+        this.state.body = this.getCleanBodyHtml();
         this.state.isDirty = true;
     }
 
@@ -1034,7 +1290,7 @@ export default class LekhniEditor extends BaseComponent {
         // Trigger initial calculation
         this.recalculateGrid(table);
 
-        this.state.body = editor.innerHTML;
+        this.state.body = this.getCleanBodyHtml();
         this.state.isDirty = true;
     }
 
@@ -1189,12 +1445,12 @@ export default class LekhniEditor extends BaseComponent {
                     span.style.color = '#cbd5e1';
                 }
                 span.setAttribute('data-checked', checkbox.checked);
-                this.state.body = editor.innerHTML;
+                this.state.body = this.getCleanBodyHtml();
                 this.state.isDirty = true;
             });
 
             span.addEventListener('blur', () => {
-                this.state.body = editor.innerHTML;
+                this.state.body = this.getCleanBodyHtml();
                 this.state.isDirty = true;
             });
 
@@ -1207,7 +1463,7 @@ export default class LekhniEditor extends BaseComponent {
             delBtn.style.fontSize = '0.75rem';
             delBtn.addEventListener('click', () => {
                 item.remove();
-                this.state.body = editor.innerHTML;
+                this.state.body = this.getCleanBodyHtml();
                 this.state.isDirty = true;
             });
 
@@ -1240,11 +1496,11 @@ export default class LekhniEditor extends BaseComponent {
 
         header.querySelector('.btn-tasks-add').addEventListener('click', () => {
             addTaskItem();
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
         });
 
-        this.state.body = editor.innerHTML;
+        this.state.body = this.getCleanBodyHtml();
         this.state.isDirty = true;
     }
 
@@ -1423,11 +1679,9 @@ export default class LekhniEditor extends BaseComponent {
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('action', 'upload_media');
 
             try {
-                const apiBase = this.admin?.config?.apiBase || 'resources/admin-api.php';
-                const res = await fetch(apiBase, { method: 'POST', body: formData }).then(r => r.json());
+                const res = await this.uploadMediaForm(formData);
                 if (res?.success && res.url) {
                     statusContainer.style.color = '#4ade80';
                     statusText.innerText = 'Upload successful!';
@@ -1561,7 +1815,7 @@ export default class LekhniEditor extends BaseComponent {
             const val = e.target.value;
             iframe.style.width = `${val}px`;
             widthVal.innerText = `${val}px`;
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
         });
 
@@ -1569,17 +1823,17 @@ export default class LekhniEditor extends BaseComponent {
             const val = e.target.value;
             iframe.style.height = `${val}px`;
             heightVal.innerText = `${val}px`;
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
         });
 
         deleteBtn.addEventListener('click', () => {
             wrapper.remove();
-            this.state.body = editor.innerHTML;
+            this.state.body = this.getCleanBodyHtml();
             this.state.isDirty = true;
         });
 
-        this.state.body = editor.innerHTML;
+        this.state.body = this.getCleanBodyHtml();
         this.state.isDirty = true;
     }
 
@@ -1661,7 +1915,9 @@ export default class LekhniEditor extends BaseComponent {
                 id: this.state.id, title: this.state.title, body: this.state.body, status: this.state.status, alias: this.state.alias, bundle: this.state.bundle
             });
             if (res.success) {
-                this.setState({ id: res.id, saving: false, lastSaved: new Date().toLocaleTimeString(), isDirty: false });
+                const savedId = res.id ?? res.data?.id ?? this.state.id;
+                const savedAlias = res.alias ?? res.data?.alias ?? this.state.alias;
+                this.setState({ id: savedId, alias: savedAlias, saving: false, lastSaved: new Date().toLocaleTimeString(), isDirty: false });
                 if (showNotify) this.notify(res.message || "Document saved", 'success');
                 // Store permanent sequential revision entry milestone
                 this.captureRevisionSnapshot('Server Save');
@@ -1673,6 +1929,15 @@ export default class LekhniEditor extends BaseComponent {
             this.setState({ saving: false });
             if (showNotify) this.notify('Save failure', 'error');
         }
+    }
+
+    async uploadMediaForm(formData) {
+        const apiBase = this.admin?.config?.apiBase || 'resources/admin-api.php';
+        const url = new URL(apiBase, window.location.href);
+        url.searchParams.set('action', 'lekhni_upload_media');
+        const response = await fetch(url.toString(), { method: 'POST', body: formData });
+        if (!response.ok) throw new Error(`Upload failed with HTTP ${response.status}`);
+        return response.json();
     }
 
     async publish() { this.state.status = 'published'; this.state.isDirty = true; await this.save(true); }
@@ -1692,7 +1957,7 @@ export default class LekhniEditor extends BaseComponent {
                             </button>
                             <div class="workspace-mode-switch" style="display: flex; background: #0f172a; padding: 3px; border-radius: 6px; border: 1px solid #334155;">
                                 <button class="mode-tab ${editorMode === 'document' ? 'active' : ''}" @click="${() => this.setEditorMode('document')}">📝 Document</button>
-                                <button class="mode-tab ${editorMode === 'code' ? 'active' : ''}" @click="${() => this.setEditorMode('code')}">💻 VSCode IDE</button>
+                                <button class="mode-tab ${editorMode === 'code' ? 'active' : ''}" @click="${() => this.setEditorMode('code')}">💻 Code Editor</button>
                             </div>
                         </div>
                         <div class="nav-actions">
@@ -1718,7 +1983,7 @@ export default class LekhniEditor extends BaseComponent {
                             ` : ''}
                             <div class="workspace-mode-switch" style="display: flex; background: #0f172a; padding: 2px; border-radius: 4px;">
                                 <button class="mode-tab btn-sm ${editorMode === 'document' ? 'active' : ''}" @click="${() => this.setEditorMode('document')}">Document</button>
-                                <button class="mode-tab btn-sm ${editorMode === 'code' ? 'active' : ''}" @click="${() => this.setEditorMode('code')}">VSCode IDE</button>
+                                <button class="mode-tab btn-sm ${editorMode === 'code' ? 'active' : ''}" @click="${() => this.setEditorMode('code')}">Code Editor</button>
                             </div>
                         </div>
                     </div>
@@ -1761,6 +2026,15 @@ export default class LekhniEditor extends BaseComponent {
                                         <option value="json" ?selected="${codeLanguage==='json'}">JSON / Blueprint</option>
                                         <option value="javascript" ?selected="${codeLanguage==='javascript'}">JavaScript</option>
                                         <option value="yaml" ?selected="${codeLanguage==='yaml'}">YAML</option>
+                                        <option value="css" ?selected="${codeLanguage==='css'}">CSS</option>
+                                        <option value="php" ?selected="${codeLanguage==='php'}">PHP</option>
+                                        <option value="python" ?selected="${codeLanguage==='python'}">Python</option>
+                                        <option value="sql" ?selected="${codeLanguage==='sql'}">SQL</option>
+                                        <option value="markdown" ?selected="${codeLanguage==='markdown'}">Markdown</option>
+                                        <option value="typescript" ?selected="${codeLanguage==='typescript'}">TypeScript</option>
+                                        <option value="bash" ?selected="${codeLanguage==='bash'}">Shell / Bash</option>
+                                        <option value="rust" ?selected="${codeLanguage==='rust'}">Rust</option>
+                                        <option value="go" ?selected="${codeLanguage==='go'}">Go</option>
                                     </select>
                                 </div>
                                 <div class="lekhni-full-ide-host" style="flex-grow: 1; width: 100%;"></div>

@@ -1,3 +1,18 @@
 {
-    "SELECT * FROM students LIMIT ?": 1
+    "SELECT * FROM students LIMIT ?": 1,
+    "CREATE TABLE school.students (id int, name varchar, grade varchar, score int)": 3,
+    "CREATE TABLE school.teachers (id int, name varchar, subject varchar)": 2,
+    "SHOW TABLES": 4,
+    "INSERT INTO school.students (id, name, grade, score) VALUES (?, ?, ?, ?)": 10,
+    "SELECT * FROM school.students": 2,
+    "SELECT name, score FROM school.students WHERE grade=?": 2,
+    "SELECT COUNT(*) FROM school.students": 4,
+    "SELECT COUNT(*) FROM school.students WHERE grade=?": 2,
+    "SELECT name, score FROM school.students ORDER BY score DESC": 2,
+    "SELECT name, score FROM school.students ORDER BY score DESC LIMIT ?": 2,
+    "UPDATE school.students SET grade=? WHERE name=?": 2,
+    "SELECT name, grade FROM school.students WHERE name=?": 2,
+    "DELETE FROM school.students WHERE name=?": 2,
+    "INSERT INTO finance.invoices (id, customer, amount, status) VALUES (?, ?, ?, ?)": 2,
+    "SELECT COUNT(*) FROM finance.invoices": 2
 }

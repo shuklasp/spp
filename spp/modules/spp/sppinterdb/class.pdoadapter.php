@@ -16,13 +16,17 @@ class PDOAdapter implements DBAdapter
 
     public function query(string $sql, array $params = []): array
     {
-        if (empty($params)) {
-            $stmt = $this->pdo->query($sql);
-            return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
+        try {
+            if (empty($params)) {
+                $stmt = $this->pdo->query($sql);
+                return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
+            }
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new \PDOException($e->getMessage() . " (SQL: " . $sql . ")", (int)$e->getCode(), $e);
         }
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function execute(string $sql, array $params = []): int

@@ -90,6 +90,165 @@ class SPP_XDB {
         return is_dir($this->baseDataDir . '/' . $db);
     }
 
+    public function tableExists($table, $db = null) {
+        $db = $db ?: $this->dbName;
+        return file_exists($this->baseDataDir . '/' . $db . '/' . $table . '.xml');
+    }
+
+    public function dropIndex($column) {
+        if (!$this->tableName) return false;
+        $file = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $column . '.json';
+        if (file_exists($file)) {
+            @unlink($file);
+            unset($this->indexes[$column]);
+            return true;
+        }
+        return false;
+    }
+
+    public function dropView($name) {
+        if (isset($this->views[$name])) {
+            unset($this->views[$name]);
+            $viewPath = $this->dataDir . '/_views.json';
+            file_put_contents($viewPath, json_encode($this->views, JSON_PRETTY_PRINT));
+            
+            $cachePath = $this->dataDir . '/_mview_' . $name . '.json';
+            if (file_exists($cachePath)) @unlink($cachePath);
+            return true;
+        }
+        return false;
+    }
+
+    public function truncateTable($tableName) {
+        $this->resolveTablePath($tableName);
+        if ($this->doc && $this->xpath) {
+            $nodes = $this->xpath->query("//row");
+            foreach ($nodes as $node) {
+                $node->parentNode->removeChild($node);
+            }
+            $dir = $this->dataDir . '/_indexes/' . $this->tableName;
+            if (is_dir($dir)) {
+                foreach (glob($dir . '/*.json') as $file) {
+                    file_put_contents($file, json_encode([]));
+                }
+            }
+            $this->indexes = [];
+            return $this->save();
+        }
+        return false;
+    }
+
+    public function renameTable($oldName, $newName) {
+        $this->resolveTablePath($oldName);
+        $oldPath = $this->dataDir . '/' . $this->tableName . '.xml';
+        
+        $newDb = $this->dbName;
+        $newTable = $newName;
+        if (strpos($newName, '.') !== false) {
+            list($newDb, $newTable) = explode('.', $newName, 2);
+        }
+        $newPath = $this->baseDataDir . '/' . $newDb . '/' . $newTable . '.xml';
+        
+        if (file_exists($oldPath)) {
+            // Rename XML
+            @rename($oldPath, $newPath);
+            // Rename segments
+            foreach (glob($this->dataDir . '/' . $this->tableName . '.*.xml') as $seg) {
+                $newSeg = str_replace($this->tableName . '.', $newTable . '.', basename($seg));
+                @rename($seg, $this->baseDataDir . '/' . $newDb . '/' . $newSeg);
+            }
+            // Rename indexes
+            $oldIdxDir = $this->dataDir . '/_indexes/' . $this->tableName;
+            $newIdxDir = $this->baseDataDir . '/' . $newDb . '/_indexes/' . $newTable;
+            if (is_dir($oldIdxDir)) {
+                if (!is_dir(dirname($newIdxDir))) mkdir(dirname($newIdxDir), 0777, true);
+                @rename($oldIdxDir, $newIdxDir);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public function dropColumn($tableName, $colName) {
+        $this->resolveTablePath($tableName);
+        if ($this->doc && $this->xpath) {
+            $schemaNode = $this->xpath->query('/database/_schema')->item(0);
+            if ($schemaNode) {
+                $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);
+                if ($colNode) {
+                    $schemaNode->removeChild($colNode);
+                    
+                    $rows = $this->xpath->query("//row/{$colName}");
+                    foreach ($rows as $row) {
+                        $row->parentNode->removeChild($row);
+                    }
+                    
+                    $this->dropIndex($colName);
+                    return $this->save();
+                }
+            }
+        }
+        return false;
+    }
+
+    public function renameColumn($tableName, $oldCol, $newCol) {
+        $this->resolveTablePath($tableName);
+        if ($this->doc && $this->xpath) {
+            $schemaNode = $this->xpath->query('/database/_schema')->item(0);
+            if ($schemaNode) {
+                $colNode = $this->xpath->query("column[@name='{$oldCol}']", $schemaNode)->item(0);
+                if ($colNode) {
+                    $colNode->setAttribute('name', $newCol);
+                    
+                    $rows = $this->xpath->query("//row/{$oldCol}");
+                    foreach ($rows as $row) {
+                        $newEl = $this->doc->createElement($newCol);
+                        while ($row->firstChild) {
+                            $newEl->appendChild($row->firstChild);
+                        }
+                        $row->parentNode->replaceChild($newEl, $row);
+                    }
+                    
+                    $oldIdx = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $oldCol . '.json';
+                    $newIdx = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $newCol . '.json';
+                    if (file_exists($oldIdx)) {
+                        @rename($oldIdx, $newIdx);
+                    }
+                    return $this->save();
+                }
+            }
+        }
+        return false;
+    }
+
+    public function modifyColumn($tableName, $colName, $colProps) {
+        $this->resolveTablePath($tableName);
+        if ($this->doc && $this->xpath) {
+            $schemaNode = $this->xpath->query('/database/_schema')->item(0);
+            if ($schemaNode) {
+                $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);
+                if ($colNode) {
+                    $props = ['type' => 'text'];
+                    if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
+                    if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
+                    if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
+                    if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
+                    if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
+                    
+                    foreach (['type', 'notNull', 'primary', 'autoIncrement', 'unique'] as $attr) {
+                        $colNode->removeAttribute($attr);
+                    }
+                    
+                    foreach ($props as $k => $v) {
+                        $colNode->setAttribute($k, $v === true ? 'true' : $v);
+                    }
+                    return $this->save();
+                }
+            }
+        }
+        return false;
+    }
+
 
     /**
      * Backups a database to a ZIP file.
@@ -380,12 +539,26 @@ class SPP_XDB {
     public function dropDatabase($dbName) {
         $path = $this->baseDataDir . '/' . $dbName;
         if (is_dir($path)) {
-            foreach (glob($path . '/*') as $file) {
-                if (is_file($file)) unlink($file);
-            }
-            return rmdir($path);
+            $this->recursiveDelete($path);
+            return true;
         }
         return false;
+    }
+
+    protected function recursiveDelete($dir) {
+        if (!is_dir($dir)) {
+            return;
+        }
+        $files = array_diff(scandir($dir), ['.', '..']);
+        foreach ($files as $file) {
+            $filePath = $dir . '/' . $file;
+            if (is_dir($filePath)) {
+                $this->recursiveDelete($filePath);
+            } else {
+                @unlink($filePath);
+            }
+        }
+        @rmdir($dir);
     }
 
     /**
@@ -1155,9 +1328,398 @@ class SPP_XDB {
      * @return mixed
      */
     public function querySQL($sql, $params = []) {
-        @file_put_contents(SPP_LOG_DIR . '/query_log.txt', date('[Y-m-d H:i:s] ') . $sql . "\n", FILE_APPEND);
+        $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : dirname(dirname(dirname(__DIR__))) . '/var/logs';
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+        @file_put_contents($logDir . '/query_log.txt', date('[Y-m-d H:i:s] ') . $sql . "\n", FILE_APPEND);
         $sql = trim($sql);
         $sql = rtrim($sql, ';');
+        $this->trackQuery($sql);
+
+        // -- SET OPERATIONS (UNION / UNION ALL) --
+        if (preg_match('/\s+UNION\s+(ALL\s+)?/i', $sql)) {
+            // Smart split of query string by UNION (excluding inside quotes)
+            $subQueries = [];
+            $inQuote = false;
+            $quoteChar = '';
+            $current = '';
+            $unionTypes = []; // 'UNION' or 'UNION ALL'
+            
+            $i = 0;
+            $len = strlen($sql);
+            while ($i < $len) {
+                $char = $sql[$i];
+                if (($char === "'" || $char === '"') && ($i === 0 || $sql[$i-1] !== '\\')) {
+                    if ($inQuote && $char === $quoteChar) {
+                        $inQuote = false;
+                    } else if (!$inQuote) {
+                        $inQuote = true;
+                        $quoteChar = $char;
+                    }
+                }
+                
+                if (!$inQuote && substr($sql, $i, 5) === 'UNION') {
+                    // Check if it's UNION ALL or UNION
+                    $isAll = false;
+                    $unionLen = 5;
+                    $rest = substr($sql, $i + 5);
+                    if (preg_match('/^\s+ALL\s+/i', $rest, $am)) {
+                        $isAll = true;
+                        $unionLen += strlen($am[0]);
+                    }
+                    
+                    $subQueries[] = trim($current);
+                    $unionTypes[] = $isAll ? 'UNION ALL' : 'UNION';
+                    $current = '';
+                    $i += $unionLen;
+                    continue;
+                }
+                
+                $current .= $char;
+                $i++;
+            }
+            $subQueries[] = trim($current);
+            
+            // Execute first query
+            $results = $this->querySQL($subQueries[0], $params);
+            if (!is_array($results)) $results = [];
+            
+            // Execute subsequent queries and combine
+            for ($k = 1; $k < count($subQueries); $k++) {
+                $subRes = $this->querySQL($subQueries[$k], $params);
+                if (!is_array($subRes)) $subRes = [];
+                
+                $type = $unionTypes[$k - 1];
+                if ($type === 'UNION ALL') {
+                    $results = array_merge($results, $subRes);
+                } else {
+                    // UNION (Unique result set)
+                    $combined = array_merge($results, $subRes);
+                    $seen = [];
+                    $unique = [];
+                    foreach ($combined as $row) {
+                        $key = serialize($row);
+                        if (!isset($seen[$key])) {
+                            $seen[$key] = true;
+                            $unique[] = $row;
+                        }
+                    }
+                    $results = $unique;
+                }
+            }
+            return $results;
+        }
+
+        // -- Derived Table Subqueries in FROM --
+        // Pattern: SELECT ... FROM (SELECT ...) [AS] alias [WHERE ...]
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s*\(\s*(SELECT.*?)\s*\)\s*(?:AS\s+)?([a-zA-Z0-9_]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/is', $sql, $m)) {
+            $isDistinct = !empty($m[1]);
+            $fields     = trim($m[2]);
+            $innerSql   = trim($m[3]);
+            $alias      = trim($m[4]);
+            $where      = isset($m[5]) ? trim($m[5]) : null;
+            $groupBy    = isset($m[6]) ? trim($m[6]) : null;
+            $orderByStr = isset($m[7]) ? trim($m[7]) : null;
+            $limit      = isset($m[8]) ? (int)$m[8] : null;
+            $offset     = isset($m[9]) ? (int)$m[9] : null;
+            
+            // 1. Run the inner query
+            $results = $this->querySQL($innerSql, $params);
+            if (!is_array($results)) $results = [];
+            
+            // 2. Perform WHERE filtering on PHP array using evaluateExpression
+            if ($where) {
+                $results = array_filter($results, function($row) use ($where) {
+                    return (bool)$this->evaluateExpression($where, $row);
+                });
+            }
+            
+            // 3. Smart field splitting for outer fields
+            $fieldArray = [];
+            $depth = 0;
+            $inQuote = false;
+            $quoteChar = '';
+            $current = '';
+            for ($i = 0; $i < strlen($fields); $i++) {
+                $char = $fields[$i];
+                if (($char === "'" || $char === '"') && ($i === 0 || $fields[$i-1] !== '\\')) {
+                    if ($inQuote && $char === $quoteChar) {
+                        $inQuote = false;
+                    } else if (!$inQuote) {
+                        $inQuote = true;
+                        $quoteChar = $char;
+                    }
+                }
+                if (!$inQuote) {
+                    if ($char === '(') $depth++;
+                    if ($char === ')') $depth--;
+                }
+                if ($char === ',' && $depth === 0 && !$inQuote) {
+                    $fieldArray[] = trim($current);
+                    $current = '';
+                } else {
+                    $current .= $char;
+                }
+            }
+            $fieldArray[] = trim($current);
+            $fieldArray = array_filter(array_map('trim', $fieldArray));
+            
+            // 4. GROUP BY on PHP array
+            if ($groupBy) {
+                $grouped = [];
+                foreach ($results as $row) {
+                    $key = $row[$groupBy] ?? 'NULL';
+                    if (!isset($grouped[$key])) $grouped[$key] = [];
+                    $grouped[$key][] = $row;
+                }
+                
+                $finalResults = [];
+                foreach ($grouped as $key => $rows) {
+                    $item = [$groupBy => $key];
+                    foreach ($fieldArray as $f) {
+                        if (preg_match('/^(COUNT|SUM|AVG|MIN|MAX)\s*\(\s*(.*?)\s*\)$/i', $f, $aggMatches)) {
+                            $func = strtoupper($aggMatches[1]);
+                            $afield = trim($aggMatches[2]);
+                            
+                            if ($func === 'COUNT') {
+                                $item[$f] = count($rows);
+                            } else {
+                                $vals = [];
+                                foreach ($rows as $r) {
+                                    if (isset($r[$afield]) && is_numeric($r[$afield])) $vals[] = $r[$afield];
+                                }
+                                $val = 0;
+                                if (!empty($vals)) {
+                                    switch ($func) {
+                                        case 'SUM': $val = array_sum($vals); break;
+                                        case 'AVG': $val = array_sum($vals) / count($vals); break;
+                                        case 'MIN': $val = min($vals); break;
+                                        case 'MAX': $val = max($vals); break;
+                                    }
+                                }
+                                $item[$f] = $val;
+                            }
+                        } else if ($f !== $groupBy && $f !== '*') {
+                            $item[$f] = $rows[0][$f] ?? null;
+                        }
+                    }
+                    $finalResults[] = $item;
+                }
+                $results = $finalResults;
+            } else if ($fields !== '*') {
+                // 5. Outer Field projection
+                $filteredResults = [];
+                foreach ($results as $row) {
+                    $filteredRow = [];
+                    foreach ($fieldArray as $f) {
+                        if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
+                            $expr = trim($aliasMatch[1]);
+                            $al = trim($aliasMatch[2]);
+                            $filteredRow[$al] = $this->evaluateExpression($expr, $row);
+                        } else {
+                            $filteredRow[$f] = $this->evaluateExpression($f, $row);
+                        }
+                    }
+                    $filteredResults[] = $filteredRow;
+                }
+                $results = $filteredResults;
+            }
+            
+            // 6. DISTINCT
+            if ($isDistinct) {
+                $seen = [];
+                $uniqueResults = [];
+                foreach ($results as $row) {
+                    $key = serialize($row);
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $uniqueResults[] = $row;
+                    }
+                }
+                $results = $uniqueResults;
+            }
+            
+            // 7. ORDER BY
+            if ($orderByStr) {
+                $parts = explode(',', $orderByStr);
+                usort($results, function($a, $b) use ($parts) {
+                    foreach ($parts as $part) {
+                        $tokens = preg_split('/\s+/', trim($part));
+                        $col = trim($tokens[0]);
+                        $dir = isset($tokens[1]) ? strtoupper(trim($tokens[1])) : 'ASC';
+                        
+                        $valA = $a[$col] ?? null;
+                        $valB = $b[$col] ?? null;
+                        
+                        if ($valA != $valB) {
+                            if (is_numeric($valA) && is_numeric($valB)) {
+                                return $dir === 'ASC' ? ($valA - $valB) : ($valB - $valA);
+                            }
+                            return $dir === 'ASC' ? strcmp((string)$valA, (string)$valB) : strcmp((string)$valB, (string)$valA);
+                        }
+                    }
+                    return 0;
+                });
+            }
+            
+            // 8. LIMIT / OFFSET
+            if ($offset !== null || $limit !== null) {
+                $offset = $offset ?? 0;
+                $results = array_slice($results, $offset, $limit);
+            }
+            
+            return $results;
+        }
+
+        // -- SELECT with successive JOIN chains --
+        if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+([a-zA-Z0-9_]+))?\s+((?:(?:INNER|LEFT)\s+)?JOIN\s+.*)$/is', $sql, $m)) {
+            $isDistinct = !empty($m[1]);
+            $fields     = trim($m[2]);
+            $baseTable  = trim($m[3]);
+            $baseAlias  = !empty($m[4]) ? trim($m[4]) : $baseTable;
+            $joinsStr   = trim($m[5]);
+            
+            // Extract optional WHERE, ORDER BY, LIMIT, OFFSET from the end of the joins string
+            $where = null;
+            $orderByStr = null;
+            $limit = null;
+            $offset = null;
+            
+            if (preg_match('/^(.*?)(\s+WHERE\s+(.+?))?(\s+ORDER\s+BY\s+(.+?))?(\s+LIMIT\s+(\d+))?(\s+OFFSET\s+(\d+))?$/is', $joinsStr, $extraMatch)) {
+                $joinsStr = trim($extraMatch[1]);
+                $where = !empty($extraMatch[3]) ? trim($extraMatch[3]) : null;
+                $orderByStr = !empty($extraMatch[5]) ? trim($extraMatch[5]) : null;
+                $limit = !empty($extraMatch[7]) ? (int)$extraMatch[7] : null;
+                $offset = !empty($extraMatch[9]) ? (int)$extraMatch[9] : null;
+            }
+            
+            // Parse successive joins
+            // Pattern to match each JOIN segment: (INNER|LEFT) JOIN table [alias] ON on1 = on2
+            preg_match_all('/(?:(INNER|LEFT)\s+)?JOIN\s+([a-zA-Z0-9_\.]+)(?:\s+([a-zA-Z0-9_]+))?\s+ON\s+([a-zA-Z0-9_\.\`]+)\s*=\s*([a-zA-Z0-9_\.\`]+)/i', $joinsStr, $joinMatches, PREG_SET_ORDER);
+            
+            if (!empty($joinMatches)) {
+                // 1. Load base table rows
+                $this->resolveTablePath($baseTable);
+                $results = $this->queryX("//row");
+                
+                // Prefix columns of the base table with "baseTable." and "baseAlias."
+                $prefixedResults = [];
+                foreach ($results as $row) {
+                    $prefRow = [];
+                    foreach ($row as $k => $v) {
+                        $prefRow[$baseTable . '.' . $k] = $v;
+                        $prefRow[$baseAlias . '.' . $k] = $v;
+                        if (!isset($prefRow[$k])) $prefRow[$k] = $v;
+                    }
+                    $prefixedResults[] = $prefRow;
+                }
+                $results = $prefixedResults;
+                
+                // 2. Process joins sequentially
+                foreach ($joinMatches as $jm) {
+                    $joinType = !empty($jm[1]) ? strtoupper(trim($jm[1])) : 'INNER';
+                    $joinTable = trim($jm[2]);
+                    $joinAlias = !empty($jm[3]) ? trim($jm[3]) : $joinTable;
+                    $on1 = trim($jm[4], '` ');
+                    $on2 = trim($jm[5], '` ');
+                    
+                    // Load join table rows
+                    $subXdb = new self($this->dbName, $joinTable);
+                    $joinRows = $subXdb->querySQL("SELECT * FROM $joinTable");
+                    if (!is_array($joinRows)) $joinRows = [];
+                    
+                    $nextResults = [];
+                    foreach ($results as $r1) {
+                        $matchFound = false;
+                        foreach ($joinRows as $origR2) {
+                            $r2 = [];
+                            foreach ($origR2 as $k => $v) {
+                                $r2[$joinTable . '.' . $k] = $v;
+                                $r2[$joinAlias . '.' . $k] = $v;
+                                if (!isset($r2[$k])) $r2[$k] = $v;
+                            }
+                            
+                            $v1 = $r1[$on1] ?? ($r1[strpos($on1, '.') !== false ? explode('.', $on1)[1] : $on1] ?? null);
+                            $v2 = $r2[$on2] ?? ($r2[strpos($on2, '.') !== false ? explode('.', $on2)[1] : $on2] ?? null);
+                            
+                            if ($v1 !== null && $v1 == $v2) {
+                                $combined = $r1;
+                                foreach ($r2 as $k => $v) {
+                                    if (!isset($combined[$k])) $combined[$k] = $v;
+                                }
+                                $nextResults[] = $combined;
+                                $matchFound = true;
+                            }
+                        }
+                        
+                        if (!$matchFound && $joinType === 'LEFT') {
+                            $combined = $r1;
+                            $sample = $joinRows[0] ?? [];
+                            foreach ($sample as $k => $v) {
+                                $combined[$joinTable . '.' . $k] = null;
+                                $combined[$joinAlias . '.' . $k] = null;
+                            }
+                            $nextResults[] = $combined;
+                        }
+                    }
+                    $results = $nextResults;
+                }
+                
+                // 3. Filter using WHERE
+                if ($where) {
+                    $results = array_filter($results, function($row) use ($where) {
+                        return (bool)$this->evaluateExpression($where, $row);
+                    });
+                }
+                
+                // 4. Project fields
+                if ($fields !== '*') {
+                    $fieldArray = array_map('trim', explode(',', $fields));
+                    $filteredResults = [];
+                    foreach ($results as $row) {
+                        $filteredRow = [];
+                        foreach ($fieldArray as $f) {
+                            if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
+                                $expr = trim($aliasMatch[1]);
+                                $al = trim($aliasMatch[2]);
+                                $filteredRow[$al] = $row[$expr] ?? ($row[$this->evaluateExpression($expr, $row)] ?? null);
+                            } else {
+                                $bareField = strpos($f, '.') !== false ? explode('.', $f)[1] : $f;
+                                $val = $row[$f] ?? ($row[$this->evaluateExpression($f, $row)] ?? null);
+                                $filteredRow[$f] = $val;
+                                $filteredRow[$bareField] = $val;
+                            }
+                        }
+                        $filteredResults[] = $filteredRow;
+                    }
+                    $results = $filteredResults;
+                }
+                
+                // 5. DISTINCT
+                if ($isDistinct) {
+                    $seen = [];
+                    $uniqueResults = [];
+                    foreach ($results as $row) {
+                        $key = serialize($row);
+                        if (!isset($seen[$key])) {
+                            $seen[$key] = true;
+                            $uniqueResults[] = $row;
+                        }
+                    }
+                    $results = $uniqueResults;
+                }
+                
+                // 6. LIMIT / OFFSET
+                if ($offset !== null || $limit !== null) {
+                    $offset = $offset ?? 0;
+                    $results = array_slice($results, $offset, $limit);
+                }
+                
+                return $results;
+            }
+        }
+
         $this->trackQuery($sql);
 
         // -- System Introspection Commands --
@@ -1187,17 +1749,14 @@ class SPP_XDB {
         }
 
         // DESCRIBE table / DESC table
-        if (preg_match('/^(?:DESCRIBE|DESC)\s+([a-zA-Z0-9_]+)/i', $sql, $m)) {
-            $tableName = $m[1];
-            $path = $this->dataDir . '/' . $tableName . '.xml';
-            if (!file_exists($path)) {
-                throw new Exception("Table '$tableName' not found in database '{$this->dbName}'");
+        if (preg_match('/^(?:DESCRIBE|DESC)\s+([a-zA-Z0-9_\.\`]+)/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $this->resolveTablePath($tableName);
+            if (!file_exists($this->filePath)) {
+                throw new Exception("Table '{$this->tableName}' not found in database '{$this->dbName}'");
             }
             
-            $doc = new DOMDocument();
-            $doc->load($path);
-            $xp = new DOMXPath($doc);
-            $cols = $xp->query("//_schema/column");
+            $cols = $this->xpath->query("//_schema/column");
             $results = [];
             foreach ($cols as $col) {
                 $results[] = [
@@ -1212,6 +1771,232 @@ class SPP_XDB {
             return $results;
         }
 
+        // -- Transaction Lifecycle --
+        // START TRANSACTION or BEGIN
+        if (preg_match('/^(?:START\s+TRANSACTION|BEGIN)/i', $sql)) {
+            $this->beginTransaction();
+            return true;
+        }
+
+        // COMMIT
+        if (preg_match('/^COMMIT/i', $sql)) {
+            return $this->commit();
+        }
+
+        // ROLLBACK
+        if (preg_match('/^ROLLBACK/i', $sql)) {
+            return $this->rollback();
+        }
+
+        // -- EXPLAIN --
+        if (preg_match('/^EXPLAIN\s+(.+)$/is', $sql, $m)) {
+            return $this->explain($m[1]);
+        }
+
+        // -- Database Lifecycle --
+        // CREATE DATABASE
+        if (preg_match('/^CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_]+)$/i', $sql, $m)) {
+            $db = trim($m[1]);
+            if (!$this->databaseExists($db)) {
+                $this->createDatabase($db);
+            }
+            return true;
+        }
+
+        // DROP DATABASE
+        if (preg_match('/^DROP\s+DATABASE\s+(?:IF\s+EXISTS\s+)?([a-zA-Z0-9_]+)$/i', $sql, $m)) {
+            $db = trim($m[1]);
+            if ($this->databaseExists($db)) {
+                return $this->dropDatabase($db);
+            }
+            return true;
+        }
+
+        // -- Table Lifecycle --
+        // CREATE TABLE
+        if (preg_match('/^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_\.\`]+)(?:\s*\((.+)\))?$/is', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            
+            $dbName = $this->dbName;
+            $tableBaseName = $tableName;
+            if (strpos($tableName, '.') !== false) {
+                list($dbName, $tableBaseName) = explode('.', $tableName, 2);
+            }
+            
+            if ($this->tableExists($tableBaseName, $dbName)) {
+                $this->resolveTablePath($tableName);
+                return true; // Already exists
+            }
+
+            $this->selectDatabase($dbName);
+
+            $columns = [];
+            if (isset($m[2]) && trim($m[2]) !== '') {
+                $rawCols = $this->smartSplit($m[2]);
+                foreach ($rawCols as $part) {
+                    $tokens = preg_split('/\s+/', trim($part), 2);
+                    $colName = trim($tokens[0], '` ');
+                    $colProps = isset($tokens[1]) ? $tokens[1] : 'text';
+                    
+                    // Simple property mapping
+                    $props = ['type' => 'text'];
+                    if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
+                    if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
+                    if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
+                    if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
+                    if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
+                    
+                    $columns[$colName] = $props;
+                }
+            }
+            $created = $this->createTable($tableBaseName, $columns);
+            if ($created) {
+                $this->connect($tableBaseName);
+            }
+            return $created;
+        }
+        // DROP TABLE
+        if (preg_match('/^DROP\s+TABLE\s+(?:IF\s+EXISTS\s+)?([a-zA-Z0-9_\.\`]+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $this->resolveTablePath($tableName);
+            if (file_exists($this->filePath)) {
+                return $this->dropTable($this->tableName);
+            }
+            return true;
+        }
+
+        // TRUNCATE TABLE
+        if (preg_match('/^TRUNCATE\s+(?:TABLE\s+)?([a-zA-Z0-9_\.\`]+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            return $this->truncateTable($tableName);
+        }
+
+        // RENAME TABLE
+        if (preg_match('/^RENAME\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+TO\s+([a-zA-Z0-9_\.\`]+)$/i', $sql, $m)) {
+            $oldName = trim($m[1], '` ');
+            $newName = trim($m[2], '` ');
+            return $this->renameTable($oldName, $newName);
+        }
+
+        // -- Index Management --
+        // CREATE INDEX
+        if (preg_match('/^CREATE\s+(?:UNIQUE\s+)?INDEX\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_\`]+)?\s*ON\s+([a-zA-Z0-9_\.\`]+)\s*\(\s*([a-zA-Z0-9_\`]+)\s*\)/i', $sql, $m)) {
+            $indexName = isset($m[1]) ? trim($m[1], '` ') : null;
+            $tablePath = trim($m[2], '` ');
+            $column = trim($m[3], '` ');
+            $this->resolveTablePath($tablePath);
+            $this->createIndex($column);
+            
+            if ($indexName) {
+                $metaPath = $this->dataDir . '/_indexes/' . $this->tableName . '/_index_meta.json';
+                $meta = [];
+                if (file_exists($metaPath)) {
+                    $meta = json_decode(file_get_contents($metaPath), true) ?: [];
+                }
+                $meta[$indexName] = $column;
+                if (!is_dir(dirname($metaPath))) mkdir(dirname($metaPath), 0777, true);
+                file_put_contents($metaPath, json_encode($meta, JSON_PRETTY_PRINT));
+            }
+            return true;
+        }
+
+        // DROP INDEX
+        if (preg_match('/^DROP\s+INDEX\s+([a-zA-Z0-9_\`]+)\s+ON\s+([a-zA-Z0-9_\.\`]+)/i', $sql, $m)) {
+            $idxName = trim($m[1], '` ');
+            $tablePath = trim($m[2], '` ');
+            $this->resolveTablePath($tablePath);
+            
+            $column = null;
+            $metaPath = $this->dataDir . '/_indexes/' . $this->tableName . '/_index_meta.json';
+            if (file_exists($metaPath)) {
+                $meta = json_decode(file_get_contents($metaPath), true) ?: [];
+                if (isset($meta[$idxName])) {
+                    $column = $meta[$idxName];
+                    unset($meta[$idxName]);
+                    file_put_contents($metaPath, json_encode($meta, JSON_PRETTY_PRINT));
+                }
+            }
+            
+            if ($column) {
+                $file = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $column . '.json';
+                if (file_exists($file)) {
+                    @unlink($file);
+                }
+                unset($this->indexes[$column]);
+                return true;
+            }
+            
+            $file = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $idxName . '.json';
+            if (file_exists($file)) {
+                @unlink($file);
+                unset($this->indexes[$idxName]);
+                return true;
+            }
+            return true;
+        }
+
+        // -- View Management --
+        // CREATE VIEW
+        if (preg_match('/^CREATE\s+(?:OR\s+REPLACE\s+)?(?:MATERIALIZED\s+)?VIEW\s+([a-zA-Z0-9_\.\`]+)\s+AS\s+(.+)$/is', $sql, $m)) {
+            $viewName = trim($m[1], '` ');
+            $viewSql = trim($m[2]);
+            $isMaterialized = stripos($sql, 'MATERIALIZED') !== false;
+            
+            if (strpos($viewName, '.') !== false) {
+                list($db, $viewName) = explode('.', $viewName, 2);
+                $this->selectDatabase($db);
+            }
+            
+            $this->createView($viewName, $viewSql, $isMaterialized);
+            return true;
+        }
+
+        // DROP VIEW
+        if (preg_match('/^DROP\s+VIEW\s+(?:IF\s+EXISTS\s+)?([a-zA-Z0-9_\.\`]+)/i', $sql, $m)) {
+            $viewName = trim($m[1], '` ');
+            if (strpos($viewName, '.') !== false) {
+                list($db, $viewName) = explode('.', $viewName, 2);
+                $this->selectDatabase($db);
+            }
+            return $this->dropView($viewName);
+        }
+
+        // -- Alter Actions --
+        // ALTER TABLE DROP COLUMN
+        if (preg_match('/^ALTER\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+DROP\s+(?:COLUMN\s+)?([a-zA-Z0-9_\`]+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $colName = trim($m[2], '` ');
+            return $this->dropColumn($tableName, $colName);
+        }
+
+        // ALTER TABLE RENAME COLUMN
+        if (preg_match('/^ALTER\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+RENAME\s+(?:COLUMN\s+)?([a-zA-Z0-9_\`]+)\s+TO\s+([a-zA-Z0-9_\`]+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $oldCol = trim($m[2], '` ');
+            $newCol = trim($m[3], '` ');
+            return $this->renameColumn($tableName, $oldCol, $newCol);
+        }
+
+        // ALTER TABLE MODIFY COLUMN
+        if (preg_match('/^ALTER\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+MODIFY\s+(?:COLUMN\s+)?([a-zA-Z0-9_\`]+)\s+(.+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $colName = trim($m[2], '` ');
+            $colProps = trim($m[3]);
+            return $this->modifyColumn($tableName, $colName, $colProps);
+        }
+
+        // ALTER TABLE CHANGE COLUMN
+        if (preg_match('/^ALTER\s+TABLE\s+([a-zA-Z0-9_\.\`]+)\s+CHANGE\s+(?:COLUMN\s+)?([a-zA-Z0-9_\`]+)\s+([a-zA-Z0-9_\`]+)\s+(.+)$/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            $oldCol = trim($m[2], '` ');
+            $newCol = trim($m[3], '` ');
+            $colProps = trim($m[4]);
+            if ($oldCol !== $newCol) {
+                $this->renameColumn($tableName, $oldCol, $newCol);
+            }
+            return $this->modifyColumn($tableName, $newCol, $colProps);
+        }
+
         // -- Distributed Merge --
         $remoteData = [];
         if (!empty($this->remoteNodes) && stripos($sql, 'SELECT') === 0) {
@@ -1219,8 +2004,11 @@ class SPP_XDB {
         }
 
         // -- View Resolution --
-        if (preg_match('/FROM\s+([a-zA-Z0-9_]+)/i', $sql, $m)) {
-            $tableName = $m[1];
+        if (preg_match('/FROM\s+([a-zA-Z0-9_\.\`]+)/i', $sql, $m)) {
+            $tableName = trim($m[1], '` ');
+            if (strpos($tableName, '.') !== false) {
+                list($db, $tableName) = explode('.', $tableName, 2);
+            }
             if (isset($this->views[$tableName])) {
                 $v = $this->views[$tableName];
                 if (is_array($v) && $v['materialized']) {
@@ -1340,63 +2128,7 @@ class SPP_XDB {
             return $results;
         }
 
-        // -- DDL: SHOW DATABASES --
-        if (preg_match('/^SHOW\s+DATABASES$/i', $sql)) {
-            return $this->listDatabases();
-        }
 
-        // -- DDL: SHOW TABLES --
-        if (preg_match('/^SHOW\s+TABLES$/i', $sql)) {
-            return $this->listTables();
-        }
-
-        // -- DDL: CREATE DATABASE --
-        if (preg_match('/^CREATE\s+DATABASE\s+([a-zA-Z0-9_]+)$/i', $sql, $m)) {
-            $this->createDatabase(trim($m[1]));
-            return true;
-        }
-
-        // -- DDL: DROP DATABASE --
-        if (preg_match('/^DROP\s+DATABASE\s+([a-zA-Z0-9_]+)$/i', $sql, $m)) {
-            return $this->dropDatabase(trim($m[1]));
-        }
-
-        // -- DDL: CREATE TABLE --
-        if (preg_match('/^CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([a-zA-Z0-9_\.\`]+)(?:\s*\((.+)\))?$/is', $sql, $m)) {
-            $tableName = trim($m[1], '` ');
-            $this->resolveTablePath($tableName);
-            
-            if (file_exists($this->filePath)) {
-                return true; // Already exists
-            }
-
-            $columns = [];
-            if (isset($m[2]) && trim($m[2]) !== '') {
-                $rawCols = $this->smartSplit($m[2]);
-                foreach ($rawCols as $part) {
-                    $tokens = preg_split('/\s+/', trim($part), 2);
-                    $colName = trim($tokens[0], '` ');
-                    $colProps = isset($tokens[1]) ? $tokens[1] : 'text';
-                    
-                    // Simple property mapping
-                    $props = ['type' => 'text'];
-                    if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
-                    if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
-                    if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
-                    if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
-                    if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
-                    
-                    $columns[$colName] = $props;
-                }
-            }
-            return $this->createTable($this->tableName, $columns);
-        }
-
-        // -- DDL: DROP TABLE --
-        if (preg_match('/^DROP\s+TABLE\s+([a-zA-Z0-9_\.]+)$/i', $sql, $m)) {
-            $this->resolveTablePath(trim($m[1]));
-            return $this->dropTable($this->tableName);
-        }
 
         // -- SELECT (with optional ORDER BY / LIMIT) --
         if (preg_match('/^SELECT\s+(DISTINCT\s+)?(.+?)\s+FROM\s+([a-zA-Z0-9_\.]+)(?:\s+WHERE\s+(.+?))?(?:\s+GROUP\s+BY\s+([a-zA-Z0-9_]+))?(?:\s+ORDER\s+BY\s+(.+?))?(?:\s+LIMIT\s+(\d+))?(?:\s+OFFSET\s+(\d+))?$/i', $sql, $matches)) {
@@ -1448,7 +2180,34 @@ class SPP_XDB {
 
             $results = $this->queryX($xpath);
             $results = array_merge($results, $remoteData);
-            $fieldArray = array_map('trim', explode(',', $fields));
+            $fieldArray = [];
+            $depth = 0;
+            $inQuote = false;
+            $quoteChar = '';
+            $current = '';
+            for ($i = 0; $i < strlen($fields); $i++) {
+                $char = $fields[$i];
+                if (($char === "'" || $char === '"') && ($i === 0 || $fields[$i-1] !== '\\')) {
+                    if ($inQuote && $char === $quoteChar) {
+                        $inQuote = false;
+                    } else if (!$inQuote) {
+                        $inQuote = true;
+                        $quoteChar = $char;
+                    }
+                }
+                if (!$inQuote) {
+                    if ($char === '(') $depth++;
+                    if ($char === ')') $depth--;
+                }
+                if ($char === ',' && $depth === 0 && !$inQuote) {
+                    $fieldArray[] = trim($current);
+                    $current = '';
+                } else {
+                    $current .= $char;
+                }
+            }
+            $fieldArray[] = trim($current);
+            $fieldArray = array_filter(array_map('trim', $fieldArray));
 
             // GROUP BY
             if ($groupBy) {
@@ -1500,8 +2259,12 @@ class SPP_XDB {
                 foreach ($results as $row) {
                     $filteredRow = [];
                     foreach ($fieldArray as $f) {
-                        if (isset($row[$f])) {
-                            $filteredRow[$f] = $row[$f];
+                        if (preg_match('/^(.*?)\s+AS\s+([a-zA-Z0-9_]+)$/i', $f, $aliasMatch)) {
+                            $expr = trim($aliasMatch[1]);
+                            $alias = trim($aliasMatch[2]);
+                            $filteredRow[$alias] = $this->evaluateExpression($expr, $row);
+                        } else {
+                            $filteredRow[$f] = $this->evaluateExpression($f, $row);
                         }
                     }
                     $filteredResults[] = $filteredRow;
@@ -1576,16 +2339,11 @@ class SPP_XDB {
         } 
         
         // -- INSERT --
-        if (preg_match('/^INSERT\s+INTO\s+([a-zA-Z0-9_\.]+)\s*(?:\((.+?)\))?\s*VALUES\s*\((.+?)\)$/i', $sql, $matches)) {
+        if (preg_match('/^INSERT\s+INTO\s+([a-zA-Z0-9_\.]+)\s*(?:\((.+?)\))?\s*VALUES\s*(.+)$/is', $sql, $matches)) {
             $tablePath = trim($matches[1]);
             $hasCols = !empty($matches[2]);
+            $valuesPart = trim($matches[3]);
             
-            // Smarter comma splitting (handles commas inside quotes)
-            $splitCsv = function($str) {
-                return str_getcsv($str, ',', "'");
-            };
-
-            $values = array_map('trim', $splitCsv($matches[3]));
             $this->resolveTablePath($tablePath);
 
             if ($hasCols) {
@@ -1594,22 +2352,57 @@ class SPP_XDB {
                 $fields = $this->getTableColumns($this->tableName);
             }
 
-            $data = [];
-            foreach ($fields as $i => $f) {
-                $val = $values[$i] ?? null;
-                if ($val === '?' && array_key_exists($i, $params)) {
-                    $val = $params[$i];
-                } elseif (is_string($val) && str_starts_with($val, ':') && array_key_exists($val, $params)) {
-                    $val = $params[$val];
-                }
-                // Optionally strip quotes if it's a literal string and not a parameter
-                if (is_string($val) && preg_match('/^[\'"](.*)[\'"]$/', $val, $m)) {
-                    $val = $m[1];
-                }
-                $data[$f] = $val;
+            // Smarter comma splitting (handles commas inside quotes)
+            $splitCsv = function($str) {
+                return str_getcsv($str, ',', "'");
+            };
+
+            // Extract all value blocks: (val1, val2), (val3, val4)
+            preg_match_all('/\((.*?)\)/s', $valuesPart, $valueBlocks);
+            
+            if (empty($valueBlocks[1])) {
+                throw new Exception("Invalid INSERT syntax: no values block found.");
             }
 
-            return $this->insert($data);
+            $lastId = null;
+            $this->beginTransaction();
+            try {
+                foreach ($valueBlocks[1] as $blockIndex => $block) {
+                    $values = array_map('trim', $splitCsv($block));
+                    $data = [];
+                    foreach ($fields as $i => $f) {
+                        $val = $values[$i] ?? null;
+                        
+                        // Positional parameter resolution
+                        if ($val === '?') {
+                            $paramIdx = ($blockIndex * count($fields)) + $i;
+                            if (array_key_exists($paramIdx, $params)) {
+                                $val = $params[$paramIdx];
+                            }
+                        } elseif (is_string($val) && str_starts_with($val, ':') && array_key_exists($val, $params)) {
+                            $val = $params[$val];
+                        }
+                        
+                        // Optionally strip quotes if it's a literal string and not a parameter
+                        if (is_string($val) && preg_match('/^[\'"](.*)[\'"]$/', $val, $m)) {
+                            $val = $m[1];
+                        }
+                        if ($val !== null && strcasecmp($val, 'NULL') === 0) {
+                            $val = null;
+                        }
+                        $data[$f] = $val;
+                    }
+                    $this->insert($data);
+                    $lastId = $this->lastInsertId;
+                }
+                $this->commit();
+            } catch (Exception $e) {
+                $this->rollback();
+                throw $e;
+            }
+            
+            $this->lastInsertId = $lastId;
+            return true;
         }
 
         // -- UPDATE --
@@ -1628,6 +2421,9 @@ class SPP_XDB {
                 if (preg_match('/([a-zA-Z0-9_]+)\s*=\s*(.+)/', trim($part), $m)) {
                     $f = trim($m[1]);
                     $val = trim($m[2], "'\" ");
+                    if (strcasecmp($val, 'NULL') === 0) {
+                        $val = null;
+                    }
                     if ($val === '?') {
                         if (array_key_exists($paramIndex, $params)) {
                             $val = $params[$paramIndex];
@@ -1667,26 +2463,41 @@ class SPP_XDB {
             
             if ($this->doc && $this->xpath) {
                 $schemaNode = $this->xpath->query('/database/_schema')->item(0);
-                if ($schemaNode) {
-                    $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);
-                    if (!$colNode) {
-                        $newCol = $this->doc->createElement('column');
-                        $newCol->setAttribute('name', $colName);
-                        
-                        $props = ['type' => 'text'];
-                        if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
-                        if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
-                        if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
-                        if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
-                        if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
-                        
-                        foreach ($props as $k => $v) {
-                            $newCol->setAttribute($k, $v === true ? 'true' : $v);
+                if (!$schemaNode) {
+                    $schemaNode = $this->doc->createElement('_schema');
+                    $root = $this->doc->documentElement;
+                    $dataNode = $this->xpath->query('/database/data')->item(0);
+                    if ($dataNode) {
+                        $root->insertBefore($schemaNode, $dataNode);
+                    } else {
+                        $rowNode = $this->xpath->query('/database/row')->item(0);
+                        if ($rowNode) {
+                            $root->insertBefore($schemaNode, $rowNode);
+                        } else {
+                            $root->appendChild($schemaNode);
                         }
-                        
-                        $schemaNode->appendChild($newCol);
-                        return $this->save();
                     }
+                    $this->xpath = new DOMXPath($this->doc);
+                }
+                
+                $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);
+                if (!$colNode) {
+                    $newCol = $this->doc->createElement('column');
+                    $newCol->setAttribute('name', $colName);
+                    
+                    $props = ['type' => 'text'];
+                    if (preg_match('/^([a-z]+)/i', $colProps, $pm)) $props['type'] = $pm[1];
+                    if (stripos($colProps, 'NOT NULL') !== false) $props['notNull'] = true;
+                    if (stripos($colProps, 'PRIMARY KEY') !== false) $props['primary'] = true;
+                    if (stripos($colProps, 'AUTO_INCREMENT') !== false) $props['autoIncrement'] = true;
+                    if (stripos($colProps, 'UNIQUE') !== false) $props['unique'] = true;
+                    
+                    foreach ($props as $k => $v) {
+                        $newCol->setAttribute($k, $v === true ? 'true' : $v);
+                    }
+                    
+                    $schemaNode->appendChild($newCol);
+                    return $this->save();
                 }
             }
             return true;
@@ -1773,8 +2584,12 @@ class SPP_XDB {
             $value = $data[$name] ?? null;
             
             // 1. Check NOT NULL / Required
-            if ($props['notNull'] && $value === null && $isInsert && $props['default'] === null) {
-                if (empty($props['primary']) && empty($props['autoIncrement'])) {
+            if ($props['notNull'] && $value === null) {
+                if ($isInsert && $props['default'] === null) {
+                    if (empty($props['primary']) && empty($props['autoIncrement'])) {
+                        throw new Exception("Validation Error: Column '$name' cannot be null.");
+                    }
+                } else if (!$isInsert && array_key_exists($name, $data)) {
                     throw new Exception("Validation Error: Column '$name' cannot be null.");
                 }
             }
@@ -1784,7 +2599,8 @@ class SPP_XDB {
             // 2. Check Type
             $type = strtolower($props['type']);
             if ($type === 'int' || $type === 'integer' || $type === 'number') {
-                if ($value !== '' && !is_numeric($value)) {
+                $isExpression = is_string($value) && preg_match('/^([a-zA-Z0-9_]+)\s*([\+\-\*\/])\s*([a-zA-Z0-9_\.\'\"]+)$/', trim($value));
+                if (!$isExpression && $value !== '' && !is_numeric($value)) {
                     throw new Exception("Validation Error: Column '$name' must be numeric. Given: " . var_export($value, true));
                 }
             }
@@ -1897,19 +2713,50 @@ class SPP_XDB {
                 // Schema Validation
                 $schema = $this->getSchema();
                 
+                $rowComputed = [];
                 foreach ($data as $key => $value) {
                     $valToSave = $value;
+                    
+                    // Evaluate arithmetic expression
+                    if (is_string($value) && preg_match('/^([a-zA-Z0-9_]+)\s*([\+\-\*\/])\s*([a-zA-Z0-9_\.\'\"]+)$/', trim($value), $expMatch)) {
+                        $colName = $expMatch[1];
+                        $op = $expMatch[2];
+                        $operandStr = trim($expMatch[3], "'\" ");
+                        
+                        $currentVal = 0;
+                        $fieldNode = $this->xpath->query($colName, $node)->item(0);
+                        if ($fieldNode) {
+                            $currentVal = (float)$fieldNode->nodeValue;
+                        }
+                        
+                        if (is_numeric($operandStr)) {
+                            $operand = (float)$operandStr;
+                        } else {
+                            $opNode = $this->xpath->query($operandStr, $node)->item(0);
+                            $operand = $opNode ? (float)$opNode->nodeValue : 0;
+                        }
+                        
+                        switch ($op) {
+                            case '+': $valToSave = $currentVal + $operand; break;
+                            case '-': $valToSave = $currentVal - $operand; break;
+                            case '*': $valToSave = $currentVal * $operand; break;
+                            case '/': $valToSave = $operand != 0 ? $currentVal / $operand : 0; break;
+                        }
+                    }
+                    
                     // Apply type coercion if schema exists
                     if (isset($schema['columns'][$key])) {
                         $stype = strtolower($schema['columns'][$key]['type']);
-                        if ($stype === 'int') $valToSave = (int)$value;
-                        elseif ($stype === 'float' || $stype === 'double') $valToSave = (float)$value;
-                        elseif ($stype === 'bool' || $stype === 'boolean') $valToSave = $value ? 'true' : 'false';
+                        if ($stype === 'int') $valToSave = (int)$valToSave;
+                        elseif ($stype === 'float' || $stype === 'double') $valToSave = (float)$valToSave;
+                        elseif ($stype === 'bool' || $stype === 'boolean') $valToSave = $valToSave ? 'true' : 'false';
                     }
 
                     if (in_array($key, $this->encryptedFields)) {
                         $valToSave = $this->encrypt($valToSave);
                     }
+                    
+                    $rowComputed[$key] = $valToSave;
                     
                     $field = $this->xpath->query($key, $node)->item(0);
                     if ($field) {
@@ -1923,7 +2770,7 @@ class SPP_XDB {
                 
                 // Update indexes
                 $this->updateIndexes($rowId, $oldData, 'remove');
-                $updatedData = array_merge($oldData, $data);
+                $updatedData = array_merge($oldData, $rowComputed);
                 $this->updateIndexes($rowId, $updatedData, 'add');
             }
         }
@@ -2279,6 +3126,165 @@ class SPP_XDB {
                 }
             }
         }
+    }
+
+    /**
+     * Recursively evaluates a SQL-like expression (functions, literals, fields)
+     * against a specific row data array.
+     * 
+     * @param string $expr
+     * @param array $row
+     * @return mixed
+     */
+    protected function evaluateExpression($expr, $row) {
+        $expr = trim($expr);
+        
+        // 1. Check if it's a literal string
+        if (preg_match('/^[\'"](.*)[\'"]$/', $expr, $m)) {
+            return $m[1];
+        }
+        
+        // 2. Check if it's a numeric constant
+        if (is_numeric($expr)) {
+            return (float)$expr;
+        }
+        
+        // 3. Check for NULL
+        if (strcasecmp($expr, 'NULL') === 0) {
+            return null;
+        }
+        
+        // 4. Check for constant/zero-arg date-time functions
+        if (strcasecmp($expr, 'NOW()') === 0) {
+            return date('Y-m-d H:i:s');
+        }
+        if (strcasecmp($expr, 'CURDATE()') === 0 || strcasecmp($expr, 'CURRENT_DATE()') === 0) {
+            return date('Y-m-d');
+        }
+        if (strcasecmp($expr, 'CURTIME()') === 0 || strcasecmp($expr, 'CURRENT_TIME()') === 0) {
+            return date('H:i:s');
+        }
+        
+        // 5. Check for function calls e.g. FUNC(args)
+        if (preg_match('/^([a-zA-Z0-9_]+)\s*\((.*)\)$/is', $expr, $m)) {
+            $func = strtoupper($m[1]);
+            $argsStr = trim($m[2]);
+            
+            // Smart split arguments taking commas inside brackets and quotes into account
+            $args = [];
+            if ($argsStr !== '') {
+                $depth = 0;
+                $inQuote = false;
+                $quoteChar = '';
+                $current = '';
+                for ($i = 0; $i < strlen($argsStr); $i++) {
+                    $char = $argsStr[$i];
+                    if (($char === "'" || $char === '"') && ($i === 0 || $argsStr[$i-1] !== '\\')) {
+                        if ($inQuote && $char === $quoteChar) {
+                            $inQuote = false;
+                        } else if (!$inQuote) {
+                            $inQuote = true;
+                            $quoteChar = $char;
+                        }
+                    }
+                    if (!$inQuote) {
+                        if ($char === '(') $depth++;
+                        if ($char === ')') $depth--;
+                    }
+                    if ($char === ',' && $depth === 0 && !$inQuote) {
+                        $args[] = $this->evaluateExpression($current, $row);
+                        $current = '';
+                    } else {
+                        $current .= $char;
+                    }
+                }
+                $args[] = $this->evaluateExpression($current, $row);
+            }
+            
+            switch ($func) {
+                // String Functions
+                case 'CONCAT':
+                    return implode('', array_map(fn($a) => $a ?? '', $args));
+                case 'UPPER':
+                    return strtoupper((string)($args[0] ?? ''));
+                case 'LOWER':
+                    return strtolower((string)($args[0] ?? ''));
+                case 'LENGTH':
+                    return strlen((string)($args[0] ?? ''));
+                case 'TRIM':
+                    return trim((string)($args[0] ?? ''));
+                case 'REVERSE':
+                    return strrev((string)($args[0] ?? ''));
+                case 'MD5':
+                    return md5((string)($args[0] ?? ''));
+                case 'SUBSTR':
+                case 'SUBSTRING':
+                    $str = (string)($args[0] ?? '');
+                    $start = isset($args[1]) ? (int)$args[1] - 1 : 0; // SQL is 1-indexed
+                    if ($start < 0) $start = 0;
+                    $len = isset($args[2]) ? (int)$args[2] : null;
+                    return $len !== null ? substr($str, $start, $len) : substr($str, $start);
+                
+                // Logic & Control Flow
+                case 'COALESCE':
+                case 'IFNULL':
+                    foreach ($args as $arg) {
+                        if ($arg !== null && $arg !== '') return $arg;
+                    }
+                    return null;
+                case 'IF':
+                    return ($args[0] ?? false) ? ($args[1] ?? null) : ($args[2] ?? null);
+                
+                // Math / Numeric Functions
+                case 'ABS':
+                    return abs((float)($args[0] ?? 0));
+                case 'ROUND':
+                    return round((float)($args[0] ?? 0), isset($args[1]) ? (int)$args[1] : 0);
+                case 'CEIL':
+                case 'CEILING':
+                    return ceil((float)($args[0] ?? 0));
+                case 'FLOOR':
+                    return floor((float)($args[0] ?? 0));
+                case 'POW':
+                case 'POWER':
+                    return pow((float)($args[0] ?? 0), (float)($args[1] ?? 0));
+                case 'SQRT':
+                    return sqrt((float)($args[0] ?? 0));
+                case 'RAND':
+                    return mt_rand() / mt_getrandmax();
+                
+                // Date Extraction Functions
+                case 'YEAR':
+                    $time = strtotime((string)($args[0] ?? ''));
+                    return $time !== false ? (int)date('Y', $time) : null;
+                case 'MONTH':
+                    $time = strtotime((string)($args[0] ?? ''));
+                    return $time !== false ? (int)date('m', $time) : null;
+                case 'DAY':
+                    $time = strtotime((string)($args[0] ?? ''));
+                    return $time !== false ? (int)date('d', $time) : null;
+            }
+        }
+        
+        // 6. Check for comparisons (e.g. A >= B) but only when not inside quotes
+        if (preg_match('/^(.*?)\s*(>=|<=|!=|<>|>|<|=)\s*(.*)$/', $expr, $compMatch)) {
+            $left = $this->evaluateExpression($compMatch[1], $row);
+            $op = $compMatch[2];
+            $right = $this->evaluateExpression($compMatch[3], $row);
+            
+            switch ($op) {
+                case '=':   return $left == $right;
+                case '!=':
+                case '<>':  return $left != $right;
+                case '>':   return $left > $right;
+                case '<':   return $left < $right;
+                case '>=':  return $left >= $right;
+                case '<=':  return $left <= $right;
+            }
+        }
+        
+        // 7. Fallback: Treat as a column name
+        return $row[$expr] ?? null;
     }
 
     public function getNumRows() {

@@ -110,13 +110,6 @@
                 <img src="../assets/spp-logo.png" alt="SPP">
                 <span>SATYA STUDIO PRO</span>
             </div>
-            <div class="card">
-                <div class="badge badge-accent">Rule 02</div>
-                <h3>Application & Module Context</h3>
-                <p>Routes declared within a <code>module.yml</code> are scoped to the module directory. Application routes resolve to the app-specific <code>src/</code> subfolder.</p>
-                <pre><code>url: views/dash.php  => [ROOT]/modules/my_mod/views/dash.php
-url: index.php       => [ROOT]/src/my_app/index.php</code></pre>
-            </div>
             <div class="meta">DOCS V2.0</div>
         </header>
         
@@ -133,7 +126,7 @@ url: index.php       => [ROOT]/src/my_app/index.php</code></pre>
 <p>#### I. Module Context If a route is declared in a <code>module.yml</code> file, it is considered &quot;Module-Local&quot;. </p>
 <ul><li><strong>Syntax</strong>: <code>views/dashboard.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/modules/[MODULE_NAME]/views/dashboard.php</code></li><li><strong>Nerd Note</strong>: The router automatically calculates the relative offset from the root using <code>realpath</code> resolution to ensure symlinks don&#039;t break the pathing.</li></ul>
 <p>#### II. Application Context If a route is declared in the application&#039;s <code>pages.yml</code> or via <code>App::getAppConf(&#039;routes&#039;)</code>, it is considered &quot;App-Source&quot;. </p>
-<ul><li><strong>Syntax</strong>: <code>profile.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/src/profile.php</code></li><li><strong>Default Behavior</strong>: Non-slashed paths always default to the <code>src/</code> directory for standard app logic.</li></ul>
+<ul><li><strong>Syntax</strong>: <code>profile.php</code></li><li><strong>Resolved to</strong>: <code>[ROOT]/src/[APP_NAME]/profile.php</code></li><li><strong>Nerd Note</strong>: This ensures application isolation while allowing simple relative file names.</li></ul>
 <hr>
 <h2>2. Route Types</h2>
 <h3>Static URL Mapping</h3>
@@ -153,6 +146,17 @@ url: index.php       => [ROOT]/src/my_app/index.php</code></pre>
 <h2>4. Advanced: Special Route Methods</h2>
 <p>You can invoke internal framework methods by setting the <code>special: 1</code> flag. </p>
 <ul><li><strong><code>serveResource</code></strong>: Serves files from the configured <code>resdir</code>.</li><li><strong><code>serveDirectory</code></strong>: The internal engine used for directory mapping. It handles:</li><li><code>Content-Type</code> detection for over 15 modern formats.</li><li><code>Cache-Control: public, max-age=31536000</code> for production performance.</li><li>404 handling with graceful exits.</li></ul>
+<h2>5. Zero-Direct-Access Infrastructure &amp; Asset Routing</h2>
+<p>As part of the framework hardening campaign, SPP implements a mandatory <strong>Zero-Direct-Access</strong> security policy governing all external file deliveries. </p>
+<h3>A. Centralized Security Manifest (<code>global-config.yml</code>)</h3>
+<p>Direct web access to framework, application, or module directories is completely blocked at the core boundary level. The access configuration is maintained centrally: </p>
+<pre><code>security:
+<p>block_direct_access: true authorized_asset_routes: - assets/core - assets/comp - assets/img</code></pre> When <code>block_direct_access</code> is enabled, any HTTP requests aiming directly at physical disk path resources (e.g., <code>/src/lekhak/comp/lekhak.js</code>) are intercepted by the dispatcher and blocked with a <code>403 Forbidden</code> response. </p>
+<h3>B. Autonomous Module Startup Discovery</h3>
+<p>During core system initialization, <code>SPP\Module::register()</code> scans each module manifest (<code>module.yml</code>) to ingest authorized internal asset mappings automatically: </p>
+<pre><code>module:
+<p>name: lekhak assets: - comp - js - img</code></pre> The framework maps these declarations into its persistent internal virtual route map (<code>__asset_routes</code>). Requests for module assets are mapped cleanly via authorized paths: </p>
+<ul><li><strong>Virtual Requested Path</strong>: <code>/assets/mod/lekhak/comp/lekhak.js</code></li><li><strong>Resolved Disk Target</strong>: <code>[ROOT]/src/lekhak/modules/lekhak/comp/lekhak.js</code></li><li><strong>Security Outcome</strong>: Safely delivered via controlled dispatcher streams while maintaining true disk location privacy.</li></ul>
 <hr>
 <p>*Documentation maintained by the SPP Framework Team.* </p>
 

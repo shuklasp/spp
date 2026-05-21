@@ -323,5 +323,13 @@ if (file_exists($themeEvtPath)) {
     \SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
 }
 
+// Universally expose global translation shorthand helper
+if (!function_exists('__')) {
+    function __($key, $locale = null)
+    {
+        return \SPP\Core\Translation::translate($key, $locale);
+    }
+}
+
 register_shutdown_function(['\\SPP\\SPPEvent', 'persistTrace']);
 ?>

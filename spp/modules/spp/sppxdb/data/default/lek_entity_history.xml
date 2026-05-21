@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_entity_history"><_meta><next_id>5</next_id></_meta>
+  <_schema>
+    <column name="id" type="INTEGER" primary="true"/>
+    <column name="entity_type" type="VARCHAR"/>
+    <column name="entity_id" type="BIGINT"/>
+    <column name="delta" type="TEXT"/>
+    <column name="created_at" type="DATETIME"/>
+    <column name="user_id" type="VARCHAR"/>
+  </_schema>
+  <data>
+  </data>
+<row id="1"><entity_type>SPPMod\Lekhak\Core\LekhakNode</entity_type><entity_id>652</entity_id><delta>eNo9zEEOQDAQQNG7zBphh8s0owYT7VRqSkR6dxZi/fPfDQdHTeiMJ0WjC3mC/obgRughJJ1Yy9nhvvsQt4UtFCB0vk0oSGmvgeKWZIVc/NJ4CXq2JqKyzL/WVe33NnXOD5y4Ky0=</delta><created_at>2026-05-19 04:57:41</created_at><user_id>anonymous</user_id><id>1</id></row><row id="2"><entity_type>SPPMod\Lekhak\Core\LekhakNode</entity_type><entity_id>653</entity_id><delta>eNo9zEEOQDAQQNG7zBphh8s0owYT7VRqSkR6dxZi/fPfDQdHTeiMJ0WjC3mC/obgRughJJ1Yy9nhvvsQt4UtFCB0vk0oSGmvgeKWZIVc/NJ4CXq2JqKyzL/WVe33NnXOD5y4Ky0=</delta><created_at>2026-05-19 05:00:54</created_at><user_id>anonymous</user_id><id>2</id></row><row id="3"><entity_type>SPPMod\Lekhak\Core\LekhakNode</entity_type><entity_id>654</entity_id><delta>eNo9zEEOQDAQQNG7zBphh8s0owYT7VRqSkR6dxZi/fPfDQdHTeiMJ0WjC3mC/obgRughJJ1Yy9nhvvsQt4UtFCB0vk0oSGmvgeKWZIVc/NJ4CXq2JqKyzL/WVe33NnXOD5y4Ky0=</delta><created_at>2026-05-19 05:02:25</created_at><user_id>anonymous</user_id><id>3</id></row><row id="4"><entity_type>SPPMod\Lekhak\Core\LekhakNode</entity_type><entity_id>655</entity_id><delta>eNo9zEEOQDAQQNG7zBphh8s0owYT7VRqSkR6dxZi/fPfDQdHTeiMJ0WjC3mC/obgRughJJ1Yy9nhvvsQt4UtFCB0vk0oSGmvgeKWZIVc/NJ4CXq2JqKyzL/WVe33NnXOD5y4Ky0=</delta><created_at>2026-05-19 05:04:09</created_at><user_id>anonymous</user_id><id>4</id></row></database>

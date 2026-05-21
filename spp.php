@@ -137,6 +137,17 @@ if ($command === 'module:list') {
     exit(0);
 }
 
+if ($command === 'db:verify') {
+    echo "🗄️ Initializing SPP XDB MySQL Compatibility Verification Suite...\n";
+    $testScript = __DIR__ . '/spp/modules/spp/sppxdb/test_mysql_compatibility.php';
+    if (file_exists($testScript)) {
+        passthru("php " . escapeshellarg($testScript));
+    } else {
+        echo "  ❌ Verification script not found at {$testScript}\n";
+    }
+    exit(0);
+}
+
 if ($command === 'verify:sovereignty') {
     echo "🛡️ Auditing Absolute Air-Gapped Sovereign Compliance Across Stack...\n";
     echo "  🔍 Traversing native framework extension trees and JavaScript components...\n";
@@ -162,11 +173,13 @@ function showHelp(): void {
     echo "  audit:lineage [--app=<name>]               Traverses and verifies cryptographic Merkle-DAG trace logs\n";
     echo "  manifest:export                            Exports tool autodiscovery definitions for AI Copilots\n";
     echo "  module:list                                Discovers and tabulates active kernel framework modules\n";
+    echo "  db:verify                                  Runs the SPP XDB MySQL Compatibility Verification Suite\n";
     echo "  verify:sovereignty                         Validates complete stack self-containment/zero external links\n";
     echo "\nExamples:\n";
     echo "  php spp.php create:app myapp --ai-blueprint=\"Analytics Portal\"\n";
     echo "  php spp.php import:component UI/DataGrid --target=myapp\n";
     echo "  php spp.php audit:lineage\n";
+    echo "  php spp.php db:verify\n";
     echo "  php spp.php verify:sovereignty\n";
     echo "================================================================================\n";
 }

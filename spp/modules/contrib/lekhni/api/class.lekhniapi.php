@@ -6,6 +6,8 @@ namespace SPPMod\Lekhni\Api;
  * Manages media uploads and specialized generic editor services out of contrib layer.
  */
 class LekhniApi {
+    private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'pdf'];
+
     public static function handleRequest($action, $params) {
         switch ($action) {
             case 'get_settings':
@@ -33,8 +35,13 @@ class LekhniApi {
         $modConfig = __DIR__ . '/../module.yml';
         
         $targetFile = file_exists($etcConfig) ? $etcConfig : (file_exists($modConfig) ? $modConfig : null);
-        if ($targetFile && function_exists('yaml_parse_file')) {
-            $parsed = yaml_parse_file($targetFile);
+        if ($targetFile) {
+            $parsed = [];
+            if (class_exists('\Symfony\Component\Yaml\Yaml')) {
+                $parsed = \Symfony\Component\Yaml\Yaml::parseFile($targetFile) ?: [];
+            } elseif (function_exists('yaml_parse_file')) {
+                $parsed = yaml_parse_file($targetFile) ?: [];
+            }
             if (!empty($parsed['editor'])) {
                 $settings = array_merge($settings, $parsed['editor']);
             } elseif (!empty($parsed['settings']['editor'])) {
@@ -50,39 +57,29 @@ class LekhniApi {
         }
 
         $file = $_FILES['file'];
-        
-        // Resolve Upload Directory from Active App's Data Dir (var/)
-        $dataDir = \SPP\App::getApp()->getDataDir();
-        $customPath = \SPP\App::getGlobalSettings('lekhni.media_path');
-        
-        if ($customPath) {
-            // If custom path starts with /, assume absolute, otherwise relative to App Src Root
-            if (str_starts_with($customPath, '/') || str_starts_with($customPath, '\\') || (strlen($customPath) > 1 && $customPath[1] === ':')) {
-                $uploadDir = $customPath;
-            } else {
-                $uploadDir = \SPP\App::getApp()->getAppSrcDir() . DIRECTORY_SEPARATOR . $customPath;
-            }
-        } else {
-            $uploadDir = $dataDir . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'lekhni';
-        }
-        
-        if (!is_dir($uploadDir)) mkdir($uploadDir, 0777, true);
 
-        $filename = time() . '_' . basename($file['name']);
+        if (!empty($file['error'])) {
+            return ['success' => false, 'message' => self::uploadErrorMessage((int)$file['error'])];
+        }
+
+        $ext = strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION));
+        if (!in_array($ext, self::ALLOWED_EXTENSIONS, true)) {
+            return ['success' => false, 'message' => 'File type not allowed.'];
+        }
+
+        $uploadDir = self::getUploadDir();
+        if (!is_dir($uploadDir) && !mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+            return ['success' => false, 'message' => 'Upload directory could not be created.'];
+        }
+
+        $filename = self::uniqueFilename($file['name']);
         $target = $uploadDir . DIRECTORY_SEPARATOR . $filename;
 
         if (move_uploaded_file($file['tmp_name'], $target)) {
-            $baseUrl = defined('APP_BASE_URI') ? APP_BASE_URI : '';
-            
-            // Resolve public URL: Need to make sure it's accessible. 
-            // In self-contained mode, var/ might be inside src/lekhak.
-            // We need a path relative to project root for the browser.
-            $relPath = substr($target, strlen(SPP_APP_DIR));
-            $publicUrl = rtrim($baseUrl, '/') . '/' . ltrim(str_replace('\\', '/', $relPath), '/');
-
             return [
                 'success' => true,
-                'url' => $publicUrl,
+                'url' => self::publicUrl($target),
+                'filename' => $filename,
                 'name' => $file['name'],
                 'type' => $file['type']
             ];
@@ -92,29 +89,73 @@ class LekhniApi {
     }
 
     private static function listMedia() {
-        $dataDir = \SPP\App::getApp()->getDataDir();
-        $uploadDir = $dataDir . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'lekhni';
+        $uploadDir = self::getUploadDir();
         if (!is_dir($uploadDir)) return ['success' => true, 'files' => []];
 
         $files = array_diff(scandir($uploadDir), ['.', '..']);
-        $baseUrl = defined('APP_BASE_URI') ? APP_BASE_URI : '';
         
         $result = [];
         foreach ($files as $f) {
             $fullPath = $uploadDir . DIRECTORY_SEPARATOR . $f;
-            $relPath = substr($fullPath, strlen(SPP_APP_DIR));
+            if (!is_file($fullPath)) continue;
             $result[] = [
                 'name' => $f,
-                'url' => rtrim($baseUrl, '/') . '/' . ltrim(str_replace('\\', '/', $relPath), '/')
+                'url' => self::publicUrl($fullPath),
+                'size' => filesize($fullPath),
+                'modified' => filemtime($fullPath)
             ];
         }
 
         return ['success' => true, 'files' => $result];
     }
 
+    private static function getUploadDir() {
+        $app = \SPP\App::getApp();
+        $lekhniConfig = \SPP\App::getAppConf('lekhni') ?: [];
+        $customPath = is_array($lekhniConfig) ? ($lekhniConfig['media_path'] ?? '') : '';
+
+        if ($customPath) {
+            if (str_starts_with($customPath, '/') || str_starts_with($customPath, '\\') || (strlen($customPath) > 1 && $customPath[1] === ':')) {
+                return $customPath;
+            }
+            return $app->getAppSrcDir() . DIRECTORY_SEPARATOR . trim($customPath, '/\\');
+        }
+
+        return $app->getDataDir() . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'lekhni';
+    }
+
+    private static function uniqueFilename($name) {
+        $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+        $base = pathinfo($name, PATHINFO_FILENAME);
+        $base = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $base);
+        $base = trim($base, '.-_') ?: 'upload';
+        $random = bin2hex(random_bytes(6));
+        return time() . '_' . $random . '_' . $base . '.' . $ext;
+    }
+
+    private static function publicUrl($path) {
+        $baseUrl = defined('APP_BASE_URI') ? APP_BASE_URI : '';
+        $root = rtrim(str_replace('\\', '/', SPP_APP_DIR), '/');
+        $normalized = str_replace('\\', '/', $path);
+        $relPath = str_starts_with($normalized, $root)
+            ? substr($normalized, strlen($root))
+            : '/' . basename($normalized);
+        return rtrim($baseUrl, '/') . '/' . ltrim($relPath, '/');
+    }
+
+    private static function uploadErrorMessage($code) {
+        return match ($code) {
+            UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'Uploaded file is too large.',
+            UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
+            UPLOAD_ERR_NO_FILE => 'No file uploaded.',
+            default => 'Upload failed.'
+        };
+    }
+
     private static function slugify($text) {
         $text = preg_replace('~[^\pL\d]+~u', '-', $text);
-        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        $converted = function_exists('iconv') ? @iconv('utf-8', 'us-ascii//TRANSLIT', $text) : false;
+        if ($converted !== false) $text = $converted;
         $text = preg_replace('~[^-\w]+~', '', $text);
         $text = trim($text, '-');
         $text = preg_replace('~-+~', '-', $text);

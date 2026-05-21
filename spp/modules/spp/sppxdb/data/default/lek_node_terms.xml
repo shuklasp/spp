@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_node_terms"><_meta><next_id>7</next_id></_meta>
+  <_schema>
+    <column name="nid" type="BIGINT"/>
+    <column name="tid" type="BIGINT"/>
+    <column name="PRIMARY" type="KEY"/>
+  </_schema>
+  <data>
+  </data>
+<row id="1"><nid>%d</nid><tid>%d</tid><id>1</id></row><row id="2"><nid>22</nid><tid>6</tid><id>2</id></row><row id="3"><nid>23</nid><tid>8</tid><id>3</id></row><row id="4"><nid>544</nid><tid>530</tid><id>4</id></row><row id="5"><nid>649</nid><tid>636</tid><id>5</id></row><row id="6"><nid>656</nid><tid>638</tid><id>6</id></row></database>

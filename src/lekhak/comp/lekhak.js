@@ -1,4 +1,5 @@
 import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+import { registerNavHandlers, setPageMeta, renderBreadcrumbs } from './lekhak-nav.js';
 
 /**
  * LekhakView - Dashboard for Lekhak CMS
@@ -22,16 +23,10 @@ export default class LekhakView extends BaseComponent {
             this.admin.onAppContextChange?.('lekhak');
         }
 
-        window.__spp_handlers = window.__spp_handlers || {};
-        window.__spp_handlers['nav-lekhak'] = () => location.hash = 'lekhak';
-        window.__spp_handlers['nav-content'] = () => location.hash = 'content';
-        window.__spp_handlers['nav-canvas'] = () => location.hash = 'canvas';
-        window.__spp_handlers['nav-settings'] = () => location.hash = 'settings';
-        window.__spp_handlers['nav-editor'] = () => location.hash = 'editor';
-        window.__spp_handlers['nav-commerce'] = () => location.hash = 'commerce';
-        window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
-        window.__spp_handlers['nav-media'] = () => location.hash = 'media';
-        window.__spp_handlers['nav-structure'] = () => location.hash = 'structure';
+        // SPPEX: Shared navigation handlers (replaces 9 duplicated lines)
+        registerNavHandlers();
+        setPageMeta('Dashboard', 'Lekhak CMS administration dashboard');
+
         window.__spp_handlers['tab-overview'] = () => this.setState({ activeTab: 'overview' });
         window.__spp_handlers['tab-published'] = () => this.setState({ activeTab: 'published' });
         window.__spp_handlers['tab-drafts'] = () => this.setState({ activeTab: 'drafts' });
@@ -53,20 +48,40 @@ export default class LekhakView extends BaseComponent {
     async onMount() { await this.fetchData(); }
 
     async fetchData() {
-        try {
-            const [statsRes, statusRes] = await Promise.all([
-                this.api.getDashboardStats(),
-                this.api.getSystemStatus({}, { lock: false })
-            ]);
-            this.setState({
-                stats: statsRes?.stats || this.state.stats,
-                recent: statsRes?.recent || [],
-                systemStatus: statusRes?.status || null,
-                loading: false
-            });
-        } catch (e) {
-            console.error('Dashboard fetch error:', e);
-            this.setState({ loading: false });
+        // SPPEX.Query: Cached data fetching with stale-while-revalidate
+        if (typeof SPPEX !== 'undefined' && SPPEX.Query) {
+            try {
+                const [statsQuery, statusQuery] = await Promise.all([
+                    SPPEX.Query.use('dashboard-stats', () => this.api.getDashboardStats(), { staleTime: 10000, component: this }),
+                    SPPEX.Query.use('system-status', () => this.api.getSystemStatus({}, { lock: false }), { staleTime: 30000, component: this })
+                ]);
+                this.setState({
+                    stats: statsQuery.data?.stats || this.state.stats,
+                    recent: statsQuery.data?.recent || [],
+                    systemStatus: statusQuery.data?.status || null,
+                    loading: false
+                });
+            } catch (e) {
+                console.error('Dashboard fetch error:', e);
+                this.setState({ loading: false });
+            }
+        } else {
+            // Fallback: original fetch logic
+            try {
+                const [statsRes, statusRes] = await Promise.all([
+                    this.api.getDashboardStats(),
+                    this.api.getSystemStatus({}, { lock: false })
+                ]);
+                this.setState({
+                    stats: statsRes?.stats || this.state.stats,
+                    recent: statsRes?.recent || [],
+                    systemStatus: statusRes?.status || null,
+                    loading: false
+                });
+            } catch (e) {
+                console.error('Dashboard fetch error:', e);
+                this.setState({ loading: false });
+            }
         }
     }
 
@@ -83,6 +98,22 @@ export default class LekhakView extends BaseComponent {
     render() { return { content: '' }; }
 
     afterUpdate() {
+        // SPPEX.Skeleton: Show shimmering loaders while data is loading
+        if (this.state.loading && typeof SPPEX !== 'undefined' && SPPEX.Skeleton) {
+            const skelTarget = document.getElementById('spp-lekhak-stream-rows');
+            if (skelTarget && !skelTarget.querySelector('.sppex-skeleton')) {
+                skelTarget.innerHTML = SPPEX.Skeleton.render(4);
+            }
+            return; // Don't render real data yet
+        }
+
+        // SPPEX.Breadcrumbs: Render navigation trail
+        const breadcrumbSlot = document.getElementById('spp-dashboard-breadcrumbs');
+        if (breadcrumbSlot && !breadcrumbSlot._rendered) {
+            breadcrumbSlot.innerHTML = renderBreadcrumbs('Dashboard');
+            breadcrumbSlot._rendered = true;
+        }
+
         // Stats cards
         const elTotal = document.getElementById('spp-stat-total');
         const elPub = document.getElementById('spp-stat-published');

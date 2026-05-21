@@ -134,6 +134,8 @@ class AdminController
 
     public function dashboard()
     {
+        $this->ensureDashboardSchema();
+
         // Advanced Stats
         $stats = [
             'nodes' => LekhakNode::count(),
@@ -150,6 +152,78 @@ class AdminController
             'stats' => $stats,
             'recent_nodes' => $recent_nodes
         ]);
+    }
+
+    protected function ensureDashboardSchema(): void
+    {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $isSqlite = $db->getDriver() === 'sqlite';
+
+        ContentType::ensureSchema();
+        \SPPMod\Lekhak\Core\LandingPage::ensureSchema();
+
+        $users = \SPPMod\SPPDB\SPPDB::sppTable('users');
+        $roles = \SPPMod\SPPDB\SPPDB::sppTable('roles');
+        $rights = \SPPMod\SPPDB\SPPDB::sppTable('rights');
+        $userRoles = \SPPMod\SPPDB\SPPDB::sppTable('userroles');
+        $roleRight = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
+
+        if ($isSqlite) {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$users} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                email VARCHAR(255),
+                password_hash VARCHAR(255),
+                password VARCHAR(255),
+                role_id INT,
+                status VARCHAR(20),
+                created_at DATETIME,
+                updated_at DATETIME
+            )");
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$roles} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                role_name VARCHAR(100) NOT NULL UNIQUE,
+                description TEXT
+            )");
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$rights} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name VARCHAR(100) NOT NULL UNIQUE,
+                description TEXT
+            )");
+        } else {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$users} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                username VARCHAR(100) NOT NULL UNIQUE,
+                email VARCHAR(255),
+                password_hash VARCHAR(255),
+                password VARCHAR(255),
+                role_id INT,
+                status VARCHAR(20),
+                created_at DATETIME,
+                updated_at DATETIME
+            )");
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$roles} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                role_name VARCHAR(100) NOT NULL UNIQUE,
+                description TEXT
+            )");
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$rights} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(100) NOT NULL UNIQUE,
+                description TEXT
+            )");
+        }
+
+        $db->execute_query("CREATE TABLE IF NOT EXISTS {$userRoles} (
+            userid INT NOT NULL,
+            roleid INT NOT NULL,
+            PRIMARY KEY (userid, roleid)
+        )");
+        $db->execute_query("CREATE TABLE IF NOT EXISTS {$roleRight} (
+            roleid INT NOT NULL,
+            rightid INT NOT NULL,
+            PRIMARY KEY (roleid, rightid)
+        )");
     }
 
     public function manageContentTypes()
@@ -260,9 +334,39 @@ class AdminController
 
     public function settings()
     {
-        return $this->render("placeholder", [
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $settings = [
+                'lekhni_default_mode' => $_POST['lekhni_default_mode'] ?? 'document',
+                'lekhni_ai_copilot' => isset($_POST['lekhni_ai_copilot']) ? true : false,
+                'lekhni_code_language' => $_POST['lekhni_code_language'] ?? 'html',
+                'designer_grid_snap' => isset($_POST['designer_grid_snap']) ? true : false,
+                'designer_autosave' => (int)($_POST['designer_autosave'] ?? 30),
+                'structure_strict_schema' => isset($_POST['structure_strict_schema']) ? true : false,
+                'content_default_status' => $_POST['content_default_status'] ?? 'draft',
+                'content_revision_tracking' => isset($_POST['content_revision_tracking']) ? true : false,
+            ];
+
+            foreach ($settings as $key => $val) {
+                \SPP\SPPConfig::set('app:' . $key, $val);
+            }
+
+            header("Location: " . $this->getAppRoot() . "/admin/settings?saved=1");
+            exit;
+        }
+
+        return $this->render("settings", [
             'title' => 'System Settings',
-            'subtitle' => 'Global configuration for Lekhak CMS.'
+            'subtitle' => 'Global configuration for Lekhak CMS.',
+            'settings' => [
+                'lekhni_default_mode' => \SPP\SPPConfig::get('app:lekhni_default_mode', 'document'),
+                'lekhni_ai_copilot' => \SPP\SPPConfig::get('app:lekhni_ai_copilot', true),
+                'lekhni_code_language' => \SPP\SPPConfig::get('app:lekhni_code_language', 'html'),
+                'designer_grid_snap' => \SPP\SPPConfig::get('app:designer_grid_snap', true),
+                'designer_autosave' => \SPP\SPPConfig::get('app:designer_autosave', 30),
+                'structure_strict_schema' => \SPP\SPPConfig::get('app:structure_strict_schema', true),
+                'content_default_status' => \SPP\SPPConfig::get('app:content_default_status', 'draft'),
+                'content_revision_tracking' => \SPP\SPPConfig::get('app:content_revision_tracking', true),
+            ]
         ]);
     }
 

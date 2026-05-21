@@ -305,7 +305,6 @@ SPA;
         apiEndpoint: '{$baseUriPath}/{$ctx}/admin-api'
     };
 </script>
-<script type="module" src="{$baseUriPath}/{$srcRelative}/resources/admin/standalone-shell.js?v={$adminShellVer}"></script>
 </body>
 SHELL_INJ;
             $htmlOutput = str_replace('</body>', $shellInjection, $htmlOutput);

@@ -1967,3 +1967,21 @@
 [2026-05-13 13:26:58] Context set to sppadmin
 [2026-05-14 11:19:04] Context set to sppadmin
 [2026-05-15 05:38:00] Context set to sppadmin
+[2026-05-19 08:06:35] Context set to sppadmin
+[2026-05-19 08:06:48] Context set to sppadmin
+[2026-05-19 08:06:51] Context set to sppadmin
+[2026-05-19 08:06:51] Context set to sppadmin
+[2026-05-19 08:06:57] Context set to sppadmin
+[2026-05-19 08:06:57] Context set to sppadmin
+[2026-05-19 08:06:58] Context set to sppadmin
+[2026-05-19 08:07:01] Context set to sppadmin
+[2026-05-19 08:09:12] Context set to sppadmin
+[2026-05-19 08:09:41] Context set to sppadmin
+[2026-05-19 08:10:04] Context set to sppadmin
+[2026-05-19 08:10:18] Context set to sppadmin
+[2026-05-19 08:10:31] Context set to sppadmin
+[2026-05-19 08:10:42] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1779178239536","modname":"sppdb","public_name":"SPP Database Core","appname":"lekhak","csrf_token":"62c0a24c7b23a205106ff0b034a7dde4cc8a76bb37396c3a7e5492a8a48b54dd"}
+[Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
+[Modules] Generated HTML length: 7005
+[2026-05-21 07:11:06] Context set to sppadmin

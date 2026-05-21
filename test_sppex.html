@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPPEX Test Playground</title>
+    <link rel="stylesheet" href="spp/modules/spp/sppux/css/sppux.css">
+    <style>
+        .playground-container { max-width: 800px; margin: 40px auto; font-family: sans-serif; }
+        .card { padding: 20px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 20px; background: white; }
+        .form-group { margin-bottom: 15px; }
+        .error-msg { color: red; font-size: 12px; margin-top: 5px; }
+        .drag-item { padding: 15px; margin-bottom: 10px; background: #f0f0f0; border: 1px dashed #ccc; cursor: grab; }
+    </style>
+</head>
+<body style="background: #fafafa;">
+
+    <div class="playground-container" id="app-root"></div>
+
+    <script src="spp/modules/spp/sppux/js/sppux.js"></script>
+    <script src="spp/modules/spp/sppux/js/sppex.js"></script>
+    
+    <script>
+        class AppPlayground extends BaseComponent {
+            onInit() {
+                // Initialize Helmet (React Helmet equivalent)
+                SPPEX.Helmet.set({
+                    title: "SPPEX Demo Dashboard",
+                    meta: { description: "Testing all 5 SPPEX packages at once!" }
+                });
+
+                // Initialize Form (React Hook Form equivalent)
+                this.myForm = new SPPEX.Form({
+                    component: this,
+                    defaultValues: { username: '', email: '' },
+                    schema: {
+                        username: { required: true, minLength: 3 },
+                        email: { required: true, email: true }
+                    },
+                    onSubmit: (data) => {
+                        alert("Form Valid and Submitted: " + JSON.stringify(data));
+                    }
+                });
+
+                // Initialize DnD state (dnd-kit equivalent)
+                this.sortableItems = ['Task 1: Build Query', 'Task 2: Build Form', 'Task 3: Build Motion', 'Task 4: Build Helmet', 'Task 5: Build DnD'];
+                SPPEX.DnD.initSortable(this.sortableItems, (newOrder) => {
+                    this.sortableItems = newOrder;
+                    this.update();
+                });
+            }
+
+            render() {
+                return html`
+                    <div>
+                        <h1 data-sppex-motion="slide-in">SPPEX Dashboard</h1>
+                        
+                        <!-- 1. SPPEX.Query Example -->
+                        <div class="card" data-sppex-motion="fade-in">
+                            <h2>1. SPPEX.Query (React Query)</h2>
+                            ${SPPUX.await(
+                                SPPEX.Query.use('mock_users', async () => {
+                                    return new Promise(res => setTimeout(() => res(["Alice", "Bob", "Charlie"]), 1000));
+                                }),
+                                (query) => html`
+                                    <ul>${query.data.map(user => html`<li>${user}</li>`)}</ul>
+                                `,
+                                html`<div class="sppux-spinner"></div>`
+                            )}
+                        </div>
+
+                        <!-- 2. SPPEX.Form Example -->
+                        <div class="card" data-sppex-motion="slide-in">
+                            <h2>2. SPPEX.Form (React Hook Form)</h2>
+                            <form @submit="${(e) => this.myForm.handleSubmit(e)}">
+                                <div class="form-group">
+                                    <label>Username</label><br>
+                                    <input type="text" ${this.myForm.register('username')}>
+                                    ${this.myForm.errors.username ? html`<div class="error-msg">${this.myForm.errors.username}</div>` : ''}
+                                </div>
+                                <div class="form-group">
+                                    <label>Email</label><br>
+                                    <input type="text" ${this.myForm.register('email')}>
+                                    ${this.myForm.errors.email ? html`<div class="error-msg">${this.myForm.errors.email}</div>` : ''}
+                                </div>
+                                <button type="submit" class="sppux-btn sppux-btn-primary">Submit</button>
+                            </form>
+                        </div>
+
+                        <!-- 3. SPPEX.DnD Example -->
+                        <div class="card" data-sppex-motion="slide-in">
+                            <h2>3. SPPEX.DnD (dnd-kit / React DnD)</h2>
+                            <p>Drag to reorder:</p>
+                            <div>
+                                ${this.sortableItems.map((item, index) => html`
+                                    <div class="drag-item" ${SPPEX.DnD.props(index)}>
+                                        ☰ ${item}
+                                    </div>
+                                `)}
+                            </div>
+                        </div>
+
+                    </div>
+                `;
+            }
+        }
+
+        const app = new AppPlayground(null, document.getElementById('app-root'));
+        app.update();
+
+    </script>
+</body>
+</html>

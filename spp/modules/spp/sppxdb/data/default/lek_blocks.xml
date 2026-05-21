@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_blocks">
+  <_schema>
+    <column name="id" type="INT" primary="true"/>
+    <column name="name" type="VARCHAR"/>
+    <column name="title" type="VARCHAR"/>
+    <column name="region" type="VARCHAR"/>
+    <column name="visibility_paths" type="TEXT"/>
+    <column name="content" type="LONGTEXT"/>
+    <column name="type" type="VARCHAR"/>
+    <column name="weight" type="INT"/>
+  </_schema>
+  <data>
+  </data>
+<row id="739"><id>739</id><name>test_sidebar_html</name><title>Sidebar HTML</title><region>sidebar_first</region><visibility_paths>/lekhak*</visibility_paths><content>&lt;div class="test-html-block"&gt;Hello from Sidebar First!&lt;/div&gt;</content><type>html</type><weight>5</weight></row><row id="740"><id>740</id><name>test_recent_view</name><title>Recent Test Nodes</title><region>sidebar_first</region><visibility_paths>/lekhak*</visibility_paths><content></content><type>view</type><weight>10</weight></row></database>

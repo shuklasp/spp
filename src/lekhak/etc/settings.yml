@@ -5,3 +5,11 @@ speculative_offline: true
 strict_sri: false
 ambient_scale: '1.05'
 primary_accent: '#f97316'
+lekhni_default_mode: document
+lekhni_ai_copilot: false
+lekhni_code_language: html
+designer_grid_snap: true
+designer_autosave: 60
+structure_strict_schema: false
+content_default_status: draft
+content_revision_tracking: false

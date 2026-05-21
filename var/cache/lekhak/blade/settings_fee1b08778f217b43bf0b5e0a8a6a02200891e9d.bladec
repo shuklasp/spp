@@ -1,0 +1,112 @@
+<?php $_shouldextend[1]=1; ?>
+
+<?php $this->startSection('content'); ?>
+<div class="lekhak-local-tasks-header" style="margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+ <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-main);"><?php echo \htmlentities($title??'', ENT_QUOTES, 'UTF-8', false); ?></h2>
+ <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: var(--text-dim);"><?php echo \htmlentities($subtitle??'', ENT_QUOTES, 'UTF-8', false); ?></p>
+</div>
+
+<?php if(isset($_GET['saved'])): ?>
+<div style="background: rgba(46, 160, 67, 0.15); border: 1px solid var(--success); color: var(--success); padding: 12px 20px; border-radius: 8px; margin-bottom: 25px;">
+ ✅ Configuration saved successfully!
+</div>
+<?php endif; ?>
+
+<form method="POST" action="">
+ <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px;">
+ 
+ <!-- Lekhni Editor Settings -->
+ <div class="glass-panel" style="padding: 20px;">
+ <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--accent-primary);">Lekhni Editor Settings</h3>
+ 
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Default Workspace Mode</label>
+ <select name="lekhni_default_mode" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+ <option value="document" <?php echo \htmlentities(($settings['lekhni_default_mode'] ?? '') == 'document' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>📝 Document Mode</option>
+ <option value="code" <?php echo \htmlentities(($settings['lekhni_default_mode'] ?? '') == 'code' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>💻 Code Editor</option>
+ </select>
+ </div>
+
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+ <input type="checkbox" name="lekhni_ai_copilot" value="1" <?php echo \htmlentities(!empty($settings['lekhni_ai_copilot']) ? 'checked' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>
+ <span style="color: var(--text-main);">Enable AI Co-Pilot Widget</span>
+ </label>
+ <div style="font-size: 0.8rem; color: var(--text-dim); margin-left: 24px;">Allows intelligent content generation within the editor.</div>
+ </div>
+
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Default Code Language</label>
+ <select name="lekhni_code_language" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+ <option value="html" <?php echo \htmlentities(($settings['lekhni_code_language'] ?? '') == 'html' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>HTML</option>
+ <option value="css" <?php echo \htmlentities(($settings['lekhni_code_language'] ?? '') == 'css' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>CSS</option>
+ <option value="javascript" <?php echo \htmlentities(($settings['lekhni_code_language'] ?? '') == 'javascript' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>JavaScript</option>
+ <option value="php" <?php echo \htmlentities(($settings['lekhni_code_language'] ?? '') == 'php' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>PHP</option>
+ <option value="json" <?php echo \htmlentities(($settings['lekhni_code_language'] ?? '') == 'json' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>JSON</option>
+ </select>
+ </div>
+ </div>
+
+ <!-- Visual Designer Settings -->
+ <div class="glass-panel" style="padding: 20px;">
+ <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--accent-secondary);">Visual Designer Settings</h3>
+ 
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+ <input type="checkbox" name="designer_grid_snap" value="1" <?php echo \htmlentities(!empty($settings['designer_grid_snap']) ? 'checked' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>
+ <span style="color: var(--text-main);">Enable Drag & Drop Grid Snapping</span>
+ </label>
+ </div>
+
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Autosave Interval (Seconds)</label>
+ <input type="number" name="designer_autosave" value="<?php echo \htmlentities($settings['designer_autosave'] ?? 30??'', ENT_QUOTES, 'UTF-8', false); ?>" min="10" max="600" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+ <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">How often to save visual drafts.</div>
+ </div>
+ </div>
+
+ <!-- Structure Architect Settings -->
+ <div class="glass-panel" style="padding: 20px;">
+ <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: #d2a8ff;">Structure Architect</h3>
+ 
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+ <input type="checkbox" name="structure_strict_schema" value="1" <?php echo \htmlentities(!empty($settings['structure_strict_schema']) ? 'checked' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>
+ <span style="color: var(--text-main);">Enforce Strict Schema Validation</span>
+ </label>
+ <div style="font-size: 0.8rem; color: var(--text-dim); margin-left: 24px;">Block saving nodes if they violate field constraints.</div>
+ </div>
+ </div>
+
+ <!-- Content Management -->
+ <div class="glass-panel" style="padding: 20px;">
+ <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--success);">Content Management</h3>
+ 
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Default Node Status</label>
+ <select name="content_default_status" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+ <option value="draft" <?php echo \htmlentities(($settings['content_default_status'] ?? '') == 'draft' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>Draft (Hidden)</option>
+ <option value="published" <?php echo \htmlentities(($settings['content_default_status'] ?? '') == 'published' ? 'selected' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>Published (Live)</option>
+ </select>
+ </div>
+
+ <div class="form-group" style="margin-bottom: 15px;">
+ <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+ <input type="checkbox" name="content_revision_tracking" value="1" <?php echo \htmlentities(!empty($settings['content_revision_tracking']) ? 'checked' : ''??'', ENT_QUOTES, 'UTF-8', false); ?>>
+ <span style="color: var(--text-main);">Enable Revision History</span>
+ </label>
+ <div style="font-size: 0.8rem; color: var(--text-dim); margin-left: 24px;">Maintain previous versions of nodes for rollback.</div>
+ </div>
+ </div>
+
+ </div>
+
+ <div style="text-align: right;">
+ <button type="submit" class="btn btn-primary" style="padding: 10px 24px; font-size: 1rem; border-radius: 8px; background: var(--accent-primary); border: none; color: white; cursor: pointer; font-weight: 600;">
+ 💾 Save Configuration
+ </button>
+ </div>
+</form>
+<?php $this->stopSection(); ?>
+
+<?php if (isset($_shouldextend[1])) { echo $this->runChild('layout'); } ?>

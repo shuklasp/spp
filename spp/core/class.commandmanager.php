@@ -80,9 +80,19 @@ class CommandManager
             $modules = \SPP\Registry::get('__modobj');
             if (is_array($modules)) {
                 foreach ($modules as $modSlug => $modObj) {
+                    if ($modObj === null || $modObj === false || !\SPP\Module::isEnabled($modSlug)) {
+                        continue;
+                    }
                     if (!($modObj instanceof \SPP\Module)) {
                         // Handle case where Registry stores indices instead of objects
-                        $modObj = \SPP\Module::getModule($modSlug);
+                        try {
+                            $modObj = \SPP\Module::getModule($modSlug);
+                        } catch (\Throwable $t) {
+                            continue;
+                        }
+                    }
+                    if (!($modObj instanceof \SPP\Module)) {
+                        continue;
                     }
                     
                     $modDir = $modObj->ModPath ?? null;

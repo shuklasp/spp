@@ -31,5 +31,11 @@ class RenderPipelineHandler extends EventHandler
         if (class_exists(WPSimDriver::class)) {
             WPSimDriver::register($renderer);
         }
+
+        // Register Filters (Wiki, Math/MiKTeX, SEO, I18n)
+        $renderer->addFilter(new \SPPMod\Lekhak\Filters\WikiFilter());
+        $renderer->addFilter(new \SPPMod\Lekhak\Filters\MathFilter());
+        $renderer->addFilter(new \SPPMod\Lekhak\Filters\SEOFilter());
+        $renderer->addFilter(new \SPPMod\Lekhak\Filters\I18nFilter());
     }
 }

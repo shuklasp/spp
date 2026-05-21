@@ -86,6 +86,20 @@ function _lekhak_ensure_table($db, $table, $schema) {
 }
 }
 
+if (!function_exists('_lekhak_slugify')) {
+function _lekhak_slugify($text) {
+    $text = trim((string)$text);
+    if ($text === '') return '';
+    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+    $converted = function_exists('iconv') ? @iconv('utf-8', 'us-ascii//TRANSLIT', $text) : false;
+    if ($converted !== false) $text = $converted;
+    $text = preg_replace('~[^-\w]+~', '', $text);
+    $text = trim($text, '-');
+    $text = preg_replace('~-+~', '-', $text);
+    return strtolower($text);
+}
+}
+
 try {
     // Handle JSON input
     if (str_contains($_SERVER['CONTENT_TYPE'] ?? '', 'application/json')) {
@@ -217,10 +231,14 @@ try {
             $body = $_POST['body'] ?? '';
             $status = $_POST['status'] ?? 'draft';
             $bundle = $_POST['bundle'] ?? null;
+            $postedAlias = trim((string)($_POST['alias'] ?? ''));
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             $node->title = $title;
             $node->body = $body;
             $node->status = $status;
+            if ($postedAlias !== '') {
+                $node->alias = _lekhak_slugify($postedAlias);
+            }
             if ($bundle) {
                 $node->bundle = $bundle;
             } elseif (!$id && empty($node->bundle)) {
@@ -229,14 +247,16 @@ try {
             $node->changed = date("Y-m-d H:i:s");
             if (!$id) {
                 $node->created = date("Y-m-d H:i:s");
-                $slug = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '-', $title));
-                $node->alias = $slug . '-' . time();
+                if (empty($node->alias)) {
+                    $slug = _lekhak_slugify($title) ?: 'untitled-document';
+                    $node->alias = $slug . '-' . time();
+                }
             }
             try {
                 $node->save();
                 $baseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
                 $publicUrl = rtrim($baseUri, '/') . '/lekhak/node/' . $node->alias;
-                sendResponse(true, ['id' => $node->id, 'url' => $publicUrl],
+                sendResponse(true, ['id' => $node->id, 'alias' => $node->alias, 'url' => $publicUrl],
                     "Document " . ($status === 'published' ? 'published' : 'saved') . " successfully.");
             } catch (\Exception $e) {
                 sendResponse(false, [], "Save failed: " . $e->getMessage());
@@ -487,7 +507,7 @@ try {
             sendResponse(true, [
                 'types' => [
                     ['id' => 'custom_html', 'name' => 'Custom HTML Block', 'description' => 'Render arbitrary HTML markup directly into a template region.'],
-                    ['id' => 'dynamic_view', 'name' => 'Drupal Views Dynamic Query', 'description' => 'Fetch Lekhak CMS Nodes dynamically with sorting, limit, and responsive layouts.'],
+                    ['id' => 'dynamic_view', 'name' => 'Lekhak Views Dynamic Query', 'description' => 'Fetch Lekhak CMS Nodes dynamically with sorting, limit, and responsive layouts.'],
                     ['id' => 'text', 'name' => 'Simple Markdown/Text', 'description' => 'A basic textual element matching system aesthetic guidelines.']
                 ]
             ]);

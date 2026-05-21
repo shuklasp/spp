@@ -169,24 +169,45 @@ class Pages extends \SPP\SPPObject
     public static function ensureDbSchema(): void
     {
         $db = new \SPPMod\SPPDB\SPPDB();
+        $isSqlite = ($db->getDriver() === 'sqlite');
 
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_pages') . ' (
-            id    INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            name  VARCHAR(255) NOT NULL UNIQUE,
-            url   VARCHAR(500) NOT NULL
-        )');
+        if ($isSqlite) {
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_pages') . ' (
+                id    INTEGER PRIMARY KEY AUTOINCREMENT,
+                name  VARCHAR(255) NOT NULL UNIQUE,
+                url   VARCHAR(500) NOT NULL
+            )');
 
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_defaults') . ' (
-            id     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            defkey VARCHAR(100) NOT NULL UNIQUE,
-            defval VARCHAR(500) NOT NULL
-        )');
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_defaults') . ' (
+                id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                defkey VARCHAR(100) NOT NULL UNIQUE,
+                defval VARCHAR(500) NOT NULL
+            )');
 
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_specials') . ' (
-            id     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            name   VARCHAR(100) NOT NULL UNIQUE,
-            method VARCHAR(100) NOT NULL
-        )');
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_specials') . ' (
+                id     INTEGER PRIMARY KEY AUTOINCREMENT,
+                name   VARCHAR(100) NOT NULL UNIQUE,
+                method VARCHAR(100) NOT NULL
+            )');
+        } else {
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_pages') . ' (
+                id    INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name  VARCHAR(255) NOT NULL UNIQUE,
+                url   VARCHAR(500) NOT NULL
+            )');
+
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_defaults') . ' (
+                id     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                defkey VARCHAR(100) NOT NULL UNIQUE,
+                defval VARCHAR(500) NOT NULL
+            )');
+
+            $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_specials') . ' (
+                id     INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name   VARCHAR(100) NOT NULL UNIQUE,
+                method VARCHAR(100) NOT NULL
+            )');
+        }
     }
 
     /**

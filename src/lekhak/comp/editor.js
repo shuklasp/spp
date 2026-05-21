@@ -32,11 +32,12 @@ export default class EditorView extends LekhniEditor {
 
     _setupKeyboardShortcuts() {
         this._keyHandler = (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            const key = (e.key || '').toLowerCase();
+            if ((e.ctrlKey || e.metaKey) && key === 's') {
                 e.preventDefault();
                 this.save(true);
             }
-            if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+            if ((e.ctrlKey || e.metaKey) && e.shiftKey && key === 'p') {
                 e.preventDefault();
                 this.publish();
             }
@@ -74,6 +75,7 @@ export default class EditorView extends LekhniEditor {
         if (this._keyHandler) document.removeEventListener('keydown', this._keyHandler);
         if (this._beforeUnload) window.removeEventListener('beforeunload', this._beforeUnload);
         if (this._wcInterval) clearInterval(this._wcInterval);
+        super.onDestroy();
     }
 
     openPreview() {
@@ -92,17 +94,19 @@ export default class EditorView extends LekhniEditor {
         if (cmdId === 'lekhak_product') {
             const productTitle = prompt("Product Name:") || "Premium Plan";
             const productPrice = prompt("Product Price:") || "$99.00/yr";
+            const safeTitle = this.escapeHtml(productTitle);
+            const safePrice = this.escapeHtml(productPrice);
             const productHtml = `
                 <div class="lekhak-app-product-card" contenteditable="false" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;margin:1.5rem 0;border:2px solid #6366f1;border-radius:12px;background:linear-gradient(135deg,#1e293b,#0f172a);box-shadow:0 10px 15px -3px rgba(0,0,0,0.3);">
                     <div style="display:flex;align-items:center;gap:16px;">
                         <div style="width:48px;height:48px;border-radius:8px;background:rgba(99,102,241,0.2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">🛍️</div>
                         <div>
                             <div style="font-size:0.75rem;text-transform:uppercase;color:#a5b4fc;font-weight:bold;letter-spacing:0.05em;">Commerce</div>
-                            <div style="font-size:1.1rem;color:white;font-weight:800;font-family:'Outfit',sans-serif;">${productTitle}</div>
+                            <div style="font-size:1.1rem;color:white;font-weight:800;font-family:'Outfit',sans-serif;">${safeTitle}</div>
                         </div>
                     </div>
                     <div style="display:flex;align-items:center;gap:12px;">
-                        <span style="font-size:1.25rem;font-weight:bold;color:#4ade80;">${productPrice}</span>
+                        <span style="font-size:1.25rem;font-weight:bold;color:#4ade80;">${safePrice}</span>
                         <button style="background:#6366f1;color:white;border:none;padding:8px 16px;border-radius:6px;font-weight:bold;cursor:pointer;">Buy Now</button>
                     </div>
                 </div><p><br></p>`;
@@ -153,5 +157,14 @@ export default class EditorView extends LekhniEditor {
             if (!confirm('You have unsaved changes. Leave anyway?')) return;
         }
         location.hash = 'content';
+    }
+
+    escapeHtml(value) {
+        return String(value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
     }
 }

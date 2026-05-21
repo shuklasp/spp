@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_vocabularies">
+  <_schema>
+    <column name="id" type="INT" primary="true"/>
+    <column name="name" type="VARCHAR"/>
+    <column name="label" type="VARCHAR"/>
+    <column name="description" type="TEXT"/>
+  </_schema>
+  <data>
+  </data>
+<row id="631"><id>631</id><name>test_tags</name><label>Test Tags</label><description>Test Vocabulary</description></row></database>

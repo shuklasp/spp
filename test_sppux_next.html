@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPPUX Next Test</title>
+    <!-- Use local relative paths assuming it's served from root, or use simple path adjustment -->
+    <link rel="stylesheet" href="spp/modules/spp/sppux/css/sppux.css">
+</head>
+<body>
+
+    <div style="padding: 20px; background: #eee; margin-bottom: 20px;">
+        <h2>Global Theme Store Test</h2>
+        <button onclick="SPPUX.Theme.set('night')">Night</button>
+        <button onclick="SPPUX.Theme.set('day')">Day</button>
+        <button onclick="SPPUX.Theme.set('cyberpunk')">Cyberpunk</button>
+    </div>
+
+    <div style="padding: 20px;">
+        <h2>Router & Web Components Test</h2>
+        
+        <!-- Using the new Web Component -->
+        <spp-router-link to="/home" text="Go Home"></spp-router-link> | 
+        <spp-router-link to="/user/42" text="User 42"></spp-router-link> | 
+        <spp-router-link to="/async" text="Async Page"></spp-router-link>
+
+        <hr>
+        
+        <!-- Router Mount Point -->
+        <spp-router-view style="display: block; padding: 20px; border: 2px dashed #ccc; min-height: 100px;"></spp-router-view>
+    </div>
+
+    <script src="spp/modules/spp/sppux/js/sppux.js"></script>
+    <script src="spp/modules/spp/sppux/js/sppux-ui.js"></script>
+    
+    <script>
+        // Setup a global store to test
+        const store = SPPUX.createStore({ counter: 0 });
+
+        // Define route components
+        class HomeView extends BaseComponent {
+            onInit() {
+                this.unsub = store.subscribe(() => this.update());
+            }
+            dispose() {
+                this.unsub();
+            }
+            render() {
+                return html`
+                    <div>
+                        <h3>Home View</h3>
+                        <p>Global Counter: ${store.counter}</p>
+                        <button class="sppux-btn sppux-btn-primary" @click=${() => store.counter++}>Increment</button>
+                    </div>
+                `;
+            }
+        }
+
+        class UserView extends BaseComponent {
+            render() {
+                return html`
+                    <div>
+                        <h3>User View</h3>
+                        <p>Showing profile for User ID: <strong>${this.props.id}</strong></p>
+                        <button class="sppux-btn" @click=${() => alert('Hello ' + this.props.id)}>Say Hi</button>
+                    </div>
+                `;
+            }
+        }
+
+        class AsyncView extends BaseComponent {
+            render() {
+                // Simulate an API call
+                const fakeApi = new Promise(resolve => setTimeout(() => resolve("Async Data Loaded Successfully!"), 1500));
+
+                return html`
+                    <div>
+                        <h3>Async / Suspense View</h3>
+                        <p>Testing SPPUX.await...</p>
+                        <div style="padding: 10px; border: 1px solid blue; background: #eef;">
+                            ${SPPUX.await(
+                                fakeApi, 
+                                (data) => html`<strong style="color: green;">${data}</strong>`,
+                                html`<em>Loading data...</em>`
+                            )}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize Router
+        SPPUX.Router.init([
+            { path: '/home', component: HomeView },
+            { path: '/user/:id', component: UserView },
+            { path: '/async', component: AsyncView },
+            { path: '*', component: HomeView } // Default route
+        ]);
+    </script>
+</body>
+</html>

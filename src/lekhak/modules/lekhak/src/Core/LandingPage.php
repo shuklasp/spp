@@ -37,6 +37,7 @@ class LandingPage extends LekhakNode
      */
     public function setAsDefault(): void
     {
+        static::ensureSchema();
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable($this->table);
         $db->execute_query("UPDATE {$table} SET is_default = 0");
@@ -49,7 +50,116 @@ class LandingPage extends LekhakNode
      */
     public static function getDefault(): ?LandingPage
     {
+        static::ensureSchema();
         return static::find_one(['is_default' => 1]);
+    }
+
+    public static function find_one(array $conditions = [])
+    {
+        static::ensureSchema();
+        return parent::find_one($conditions);
+    }
+
+    public static function find_all(array $conditions = [], string $sort = null, int $limit = null)
+    {
+        static::ensureSchema();
+        return parent::find_all($conditions, $sort, $limit);
+    }
+
+    public static function ensureSchema(): void
+    {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('landing_pages');
+        $blocksTable = \SPPMod\SPPDB\SPPDB::sppTable('landing_blocks');
+        $isSqlite = $db->getDriver() === 'sqlite';
+
+        if ($isSqlite) {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$table} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title VARCHAR(255) NOT NULL,
+                alias VARCHAR(255),
+                body TEXT,
+                bundle VARCHAR(50) NOT NULL DEFAULT 'landing_page',
+                author_id INTEGER,
+                status VARCHAR(20),
+                langcode VARCHAR(10),
+                translation_id INTEGER,
+                created DATETIME,
+                changed DATETIME,
+                fields_data TEXT,
+                is_default INTEGER DEFAULT 0,
+                layout_id VARCHAR(50)
+            )");
+            $columns = [
+                'alias' => 'VARCHAR(255)',
+                'body' => 'TEXT',
+                'bundle' => "VARCHAR(50) DEFAULT 'landing_page'",
+                'author_id' => 'INTEGER',
+                'status' => 'VARCHAR(20)',
+                'langcode' => 'VARCHAR(10)',
+                'translation_id' => 'INTEGER',
+                'created' => 'DATETIME',
+                'changed' => 'DATETIME',
+                'fields_data' => 'TEXT',
+                'is_default' => 'INTEGER DEFAULT 0',
+                'layout_id' => 'VARCHAR(50)'
+            ];
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$blocksTable} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page_id INTEGER DEFAULT 0,
+                block_type VARCHAR(50),
+                data TEXT,
+                weight INTEGER DEFAULT 0,
+                region VARCHAR(50),
+                created DATETIME
+            )");
+        } else {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$table} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                title VARCHAR(255) NOT NULL,
+                alias VARCHAR(255),
+                body LONGTEXT,
+                bundle VARCHAR(50) NOT NULL DEFAULT 'landing_page',
+                author_id BIGINT,
+                status VARCHAR(20),
+                langcode VARCHAR(10),
+                translation_id BIGINT,
+                created DATETIME,
+                changed DATETIME,
+                fields_data LONGTEXT,
+                is_default TINYINT(1) DEFAULT 0,
+                layout_id VARCHAR(50)
+            )");
+            $columns = [
+                'alias' => 'VARCHAR(255)',
+                'body' => 'LONGTEXT',
+                'bundle' => "VARCHAR(50) DEFAULT 'landing_page'",
+                'author_id' => 'BIGINT',
+                'status' => 'VARCHAR(20)',
+                'langcode' => 'VARCHAR(10)',
+                'translation_id' => 'BIGINT',
+                'created' => 'DATETIME',
+                'changed' => 'DATETIME',
+                'fields_data' => 'LONGTEXT',
+                'is_default' => 'TINYINT(1) DEFAULT 0',
+                'layout_id' => 'VARCHAR(50)'
+            ];
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$blocksTable} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                page_id BIGINT DEFAULT 0,
+                block_type VARCHAR(50),
+                data LONGTEXT,
+                weight INT DEFAULT 0,
+                region VARCHAR(50),
+                created DATETIME
+            )");
+        }
+
+        foreach ($columns as $column => $type) {
+            if (!$db->columnExists($table, $column)) {
+                $db->exec("ALTER TABLE {$table} ADD {$column} {$type}");
+            }
+        }
     }
 
     public function field_metadata()

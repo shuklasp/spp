@@ -12,36 +12,37 @@
     }
 
     /**
-     * Theme Manager (Legendary)
+     * Theme Manager (Legendary) - Upgraded to SPPUX Global Store
      */
-    SPPUX.Theme = {
-        current: 'midnight',
-        schemes: {
-            night: { primary: '#6366f1', panel: 'rgba(15, 23, 42, 0.98)', glow: 'rgba(99, 102, 241, 0.4)', text: '#f3f4f6' },
-            day: { primary: '#2563eb', panel: '#ffffff', glow: 'rgba(37, 99, 235, 0.15)', text: '#0f172a' },
-            emerald: { primary: '#10b981', panel: 'rgba(6, 78, 59, 0.98)', glow: 'rgba(16, 185, 129, 0.4)', text: '#f3f4f6' },
-            royal: { primary: '#8b5cf6', panel: 'rgba(46, 16, 101, 0.98)', glow: 'rgba(139, 92, 246, 0.4)', text: '#f3f4f6' },
-            cyberpunk: { primary: '#ff00ff', panel: 'rgba(20, 0, 40, 0.98)', glow: 'rgba(255, 0, 255, 0.4)', text: '#ffffff' },
-            ocean: { primary: '#0ea5e9', panel: 'rgba(7, 89, 133, 0.98)', glow: 'rgba(14, 165, 233, 0.4)', text: '#f3f4f6' },
-            saffron: { primary: '#ff9933', panel: 'rgba(255, 247, 237, 0.98)', glow: 'rgba(255, 153, 51, 0.4)', text: '#431407' }
-        },
-        set(name) {
-            const theme = this.schemes[name];
-            if (!theme) return;
-            this.current = name;
-            const root = document.documentElement;
-            root.style.setProperty('--sppux-primary', theme.primary);
-            root.style.setProperty('--sppux-panel', theme.panel);
-            root.style.setProperty('--sppux-primary-glow', theme.glow);
-            root.style.setProperty('--sppux-text', theme.text || '#f3f4f6');
-            document.body.classList.add('sppux-theme-transitioning');
-            setTimeout(() => document.body.classList.remove('sppux-theme-transitioning'), 600);
-            localStorage.setItem('sppux_theme', name);
-        },
-        init() {
-            const saved = localStorage.getItem('sppux_theme');
-            if (saved) this.set(saved);
-        }
+    const _themeSchemes = {
+        night: { primary: '#6366f1', panel: 'rgba(15, 23, 42, 0.98)', glow: 'rgba(99, 102, 241, 0.4)', text: '#f3f4f6' },
+        day: { primary: '#2563eb', panel: '#ffffff', glow: 'rgba(37, 99, 235, 0.15)', text: '#0f172a' },
+        emerald: { primary: '#10b981', panel: 'rgba(6, 78, 59, 0.98)', glow: 'rgba(16, 185, 129, 0.4)', text: '#f3f4f6' },
+        royal: { primary: '#8b5cf6', panel: 'rgba(46, 16, 101, 0.98)', glow: 'rgba(139, 92, 246, 0.4)', text: '#f3f4f6' },
+        cyberpunk: { primary: '#ff00ff', panel: 'rgba(20, 0, 40, 0.98)', glow: 'rgba(255, 0, 255, 0.4)', text: '#ffffff' },
+        ocean: { primary: '#0ea5e9', panel: 'rgba(7, 89, 133, 0.98)', glow: 'rgba(14, 165, 233, 0.4)', text: '#f3f4f6' },
+        saffron: { primary: '#ff9933', panel: 'rgba(255, 247, 237, 0.98)', glow: 'rgba(255, 153, 51, 0.4)', text: '#431407' }
+    };
+
+    SPPUX.Theme = (SPPUX.createStore ? SPPUX.createStore({ current: 'midnight' }) : { current: 'midnight' });
+    
+    SPPUX.Theme.schemes = _themeSchemes;
+    SPPUX.Theme.set = function(name) {
+        const theme = _themeSchemes[name];
+        if (!theme) return;
+        this.current = name; // If it's a proxy store, this triggers reactivity globally!
+        const root = document.documentElement;
+        root.style.setProperty('--sppux-primary', theme.primary);
+        root.style.setProperty('--sppux-panel', theme.panel);
+        root.style.setProperty('--sppux-primary-glow', theme.glow);
+        root.style.setProperty('--sppux-text', theme.text || '#f3f4f6');
+        document.body.classList.add('sppux-theme-transitioning');
+        setTimeout(() => document.body.classList.remove('sppux-theme-transitioning'), 600);
+        localStorage.setItem('sppux_theme', name);
+    };
+    SPPUX.Theme.init = function() {
+        const saved = localStorage.getItem('sppux_theme');
+        if (saved) this.set(saved);
     };
 
     /**
@@ -359,5 +360,16 @@
     SPPUX.Theme.init();
     SPPUX.Tooltip.init();
     window.admin_notify = SPPUX.Notify.show;
+
+    // Web Component Registrations
+    if (SPPUX.defineElement) {
+        class RouterLinkComponent extends BaseComponent {
+            render() {
+                const path = this.props.to || this.props.href || '#';
+                return html`<a href="${path}" data-spp-route="true" class="${this.props.class || ''}">${this.props.text || this.container.innerHTML}</a>`;
+            }
+        }
+        SPPUX.defineElement('spp-router-link', RouterLinkComponent);
+    }
 
 })(window.SPPUX);

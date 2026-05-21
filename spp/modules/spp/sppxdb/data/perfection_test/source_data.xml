@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<database table="source_data">
-  <_schema>
-    <column name="id" type="int"/>
-    <column name="val" type="varchar"/>
-  </_schema>
-<row id="1"><id>1</id><val>Updated</val></row></database>

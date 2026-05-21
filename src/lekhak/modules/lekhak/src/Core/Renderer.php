@@ -73,15 +73,20 @@ class Renderer
             
             $templatePath = $templateName;
             if (!file_exists($templatePath)) {
-                // Try with .blade.php extension
-                $testPath = $viewsDir . '/' . ltrim($templateName, '/') . '.blade.php';
-                if (file_exists($testPath)) {
-                    $templatePath = $testPath;
-                } else {
-                    // Try as provided
-                    $testPath = $viewsDir . '/' . ltrim($templateName, '/');
+                $viewName = ltrim($templateName, '/');
+                $candidatePaths = [
+                    $viewsDir . '/' . $viewName . '.blade.php',
+                    $viewsDir . '/admin/' . $viewName . '.blade.php',
+                    $srcDir . '/resources/themes/lekhak_themes/glass_admin/views/' . $viewName . '.blade.php',
+                    $srcDir . '/resources/themes/glass_admin/views/' . $viewName . '.blade.php',
+                    $viewsDir . '/' . $viewName,
+                    $viewsDir . '/admin/' . $viewName,
+                ];
+
+                foreach ($candidatePaths as $testPath) {
                     if (file_exists($testPath)) {
                         $templatePath = $testPath;
+                        break;
                     }
                 }
             }
@@ -112,6 +117,16 @@ class Renderer
             $output = $this->dispatchRendering($content, $context);
 
             // 3. Post-Processing
+            foreach ($this->filters as $filter) {
+                $filter->postProcess($output, $context);
+            }
+        } else {
+            // Run post-processing on Drishyam's rendered output
+            $context = [
+                'path' => $templateName,
+                'type' => 'drishyam',
+                'data' => $data
+            ];
             foreach ($this->filters as $filter) {
                 $filter->postProcess($output, $context);
             }

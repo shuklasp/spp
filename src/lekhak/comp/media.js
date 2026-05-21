@@ -1,4 +1,5 @@
 import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+import { registerNavHandlers, setPageMeta, renderBreadcrumbs } from './lekhak-nav.js';
 
 /**
  * Lekhak Media Library
@@ -8,15 +9,9 @@ export default class MediaView extends BaseComponent {
     async onInit() {
         this.state = { files: [], loading: true, total: 0, uploading: false };
 
-        window.__spp_handlers = window.__spp_handlers || {};
-        window.__spp_handlers['nav-lekhak'] = () => location.hash = 'lekhak';
-        window.__spp_handlers['nav-content'] = () => location.hash = 'content';
-        window.__spp_handlers['nav-canvas'] = () => location.hash = 'canvas';
-        window.__spp_handlers['nav-media'] = () => location.hash = 'media';
-        window.__spp_handlers['nav-structure'] = () => location.hash = 'structure';
-        window.__spp_handlers['nav-commerce'] = () => location.hash = 'commerce';
-        window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
-        window.__spp_handlers['nav-settings'] = () => location.hash = 'settings';
+        // SPPEX: Shared navigation handlers
+        registerNavHandlers();
+        setPageMeta('Media Library', 'Browse, upload, and manage media files');
     }
 
     async onMount() { await this.fetchMedia(); }
@@ -128,5 +123,37 @@ export default class MediaView extends BaseComponent {
                 b._bound = true;
             }
         });
+
+        // SPPEX.Dropzone: Initialize drag-and-drop zone on the media grid area
+        if (typeof SPPEX !== 'undefined' && SPPEX.Dropzone) {
+            const dropTarget = document.querySelector('.lekhak-media-shell .lekhak-main-container') || document.querySelector('.lekhak-media-shell');
+            if (dropTarget && !dropTarget._dropzoneInit) {
+                SPPEX.Dropzone.init('.lekhak-media-shell .lekhak-main-container', async (files) => {
+                    this.setState({ uploading: true });
+                    for (const file of files) {
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        fd.append('action', 'upload_media');
+                        try {
+                            const apiUrl = this.admin?.config?.apiBase || 'admin-api.php';
+                            const res = await fetch(new URL(apiUrl, window.location.origin).toString(), { method: 'POST', body: fd }).then(r => r.json());
+                            if (res?.success) this.admin?.notify?.(`Uploaded: ${file.name}`, 'success');
+                        } catch (e) {}
+                    }
+                    this.setState({ uploading: false });
+                    await this.fetchMedia();
+                });
+                dropTarget._dropzoneInit = true;
+            }
+        }
+
+        // SPPEX.Masonry: Apply fluid Pinterest-style layout to the media grid
+        if (typeof SPPEX !== 'undefined' && SPPEX.Masonry) {
+            const mediaGrid = document.querySelector('.media-grid-container');
+            if (mediaGrid && !mediaGrid._masonryInit) {
+                SPPEX.Masonry.init('.media-grid-container', 4);
+                mediaGrid._masonryInit = true;
+            }
+        }
     }
 }

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lekhni Editor: Ultimate Framework Contrib Generic Workspace Engine | SPP Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #38bdf8;
+            --code-bg: #020617;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 2rem;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-box { display: flex; align-items: center; gap: 1rem; }
+        .logo-box img { width: 40px; height: 40px; }
+        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+
+        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
+        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
+        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+
+        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+
+        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+
+        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
+        a:hover { color: var(--primary); text-decoration: underline; }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.3rem;
+            color: var(--accent);
+            font-size: 0.9em;
+        }
+
+        pre {
+            background: var(--code-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+        }
+
+        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+
+        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: var(--text-dim);
+        }
+
+        footer {
+            margin-top: 5rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-box">
+                <img src="../../assets/spp-logo.png" alt="SPP">
+                <span>SATYA STUDIO PRO</span>
+            </div>
+            <div class="meta">DOCS V2.0</div>
+        </header>
+        
+        <main>
+            <h1>Lekhni Editor: Ultimate Framework Contrib Generic Workspace Engine</h1>
+<p><strong>Lekhni</strong> is an advanced, framework-level rich text block and code editing workspace housed natively inside the central contrib directory (<code>spp/modules/contrib/lekhni/</code>). Designed to enforce complete application neutrality, it provides a fully autonomous, zero-dependency engine capable of side-by-side dual-mode editing (VSCode-style IDE vs. Block-based Rich Text) out of the box across any application context. </p>
+<p>This manual documents Lekhni from three distinct perspectives: <strong>SPP Core Developers</strong>, <strong>SPP Application Developers</strong>, and <strong>End-Users / Content Creators</strong>, complete with concrete code integrations and step-by-step usage tutorials. </p>
+<hr>
+<h2>🛠️ Perspective 1: SPP Core Developer Architecture</h2>
+<p>From the core framework layer, Lekhni operates as an isolated, self-contained sovereign workspace. It completely purges third-party external CDN requirements (<code>cdnjs</code>) by bundling all necessary syntax parsing, custom styles, and reactive components directly within its package space. </p>
+<h3>Physical Package Layout (<code>spp/modules/contrib/lekhni/</code>)</h3>
+<pre><code>spp/modules/contrib/lekhni/
+<p>├── api/ │   └── class.lekhniapi.php     # Namespace SPPMod\Lekhni\Api; Handles uploads &amp; get_settings ├── etc/ │   └── config.yml              # Local declarative configuration fallbacks ├── js/ │   ├── lekhni-editor.js        # The primary reactive UI shell inheriting from BaseComponent │   └── monaco-engine.js        # Built-in lightweight multi-language syntax tokenizer └── module.yml                  # Standard module declarative package manifest</code></pre> </p>
+<h3>Component Inheritance &amp; Internal Architecture</h3>
+<p>1. <strong><code>BaseComponent</code> Foundation</strong>: <code>LekhniEditor</code> inherits directly from <code>spp/modules/spp/sppux/js/BaseComponent.js</code>, utilizing lightweight <strong>lit-html</strong> string directives to manage state reactivity symmetrically. 2. <strong>Sovereign Code Engine</strong>: The internal tokenizer (<code>monaco-engine.js</code>) intercepts plain code inputs, escaping raw characters and wrapping syntax structures (<code>const</code>, <code>function</code>, <code>&lt;tags&gt;</code>, <code>properties:</code>) in highly tailored inline CSS highlight sets. 3. <strong>Storage Abstraction</strong>: Inline features such as Gallery Grids, Monaco code snippets, and review Tooltips utilize pure HTML5 tags and descriptive <code>data-</code> attributes, ensuring the storage framework serializes documents cleanly as valid XHTML strings. 4. <strong>Backend API Isolation</strong>: Requests routing through <code>class.lekhniapi.php</code> parse global defaults and local <code>module.yml</code> settings dynamically, isolating database path logic securely within <code>\SPP\App::getApp()-&gt;getDataDir()</code> relative paths. </p>
+<hr>
+<h2>💻 Perspective 2: SPP Application Developer Integration Guide</h2>
+<p>Application developers can instantiate high-fidelity Lekhni editors dynamically on the fly within custom application layouts, forms, or standalone single-page views without introducing static cross-app dependencies. </p>
+<h3>Example 1: Basic Custom Component Integration</h3>
+<p>To embed Lekhni inside a custom app view (e.g., <code>src/lekhak/comp/editor.js</code>), simply inherit from the generic contrib path: </p>
+<pre><code>import LekhniEditor from &#039;../../../../spp/modules/contrib/lekhni/js/lekhni-editor.js&#039;;
+<p>export default class CustomAppEditor extends LekhniEditor { // Inherits all core enterprise frameworks automatically }</code></pre> </p>
+<h3>Example 2: Mounting Inline on the Fly via Component Props</h3>
+<p>When mounting Lekhni dynamically inside another screen controller, use configuration props to enable inline mode and capture output payload strings continuously: </p>
+<pre><code>import LekhniEditor from &#039;../../../../spp/modules/contrib/lekhni/js/lekhni-editor.js&#039;;
+<p>class ScreenController { renderForm(container) { const editorHost = document.createElement(&#039;div&#039;); container.appendChild(editorHost); </p>
+<p>// Instantiate the generic workspace cleanly const editor = new LekhniEditor(editorHost, { id: &#039;doc_101&#039;, title: &#039;Quarterly Architecture Strategy&#039;, body: &#039;&lt;p&gt;Initial layout draft strings...&lt;/p&gt;&#039;, mode: &#039;document&#039;,             // Initialize in &quot;document&quot; mode or &quot;code&quot; mode language: &#039;html&#039;,             // Default tokenizer syntax target embedded: true,               // Disables fullscreen sidebars/nav overlays onChange: (outputPayload) =&gt; { console.log(&quot;Real-time serialized string capture:&quot;, outputPayload); // Dispatch update to custom controller layers } }); </p>
+<p>editor.mount(); } }</code></pre> </p>
+<h3>Example 3: Dynamic Textarea Auto-Replacement</h3>
+<p>To turn any standard HTML <code>&lt;textarea&gt;</code> field on a page into a feature-rich, high-performance Lekhni editor workspace, use the static <code>replace</code> method or the imported <code>replaceTextarea</code> helper. The editor automatically hides the textarea, injects a gorgeous container, reads the initial value, and synchronizes subsequent visual changes back into the hidden form field seamlessly while dispatching default events: </p>
+<pre><code>import { replaceTextarea } from &#039;../../../../spp/modules/contrib/lekhni/js/lekhni-editor.js&#039;;
+<p>// Convert a single element const editorInstance = await replaceTextarea(&#039;#my-textarea-id&#039;, { toolbarLayout: &#039;compact&#039;, // Compact layouts are highly optimized for inline fields onChange: (content) =&gt; { console.log(&quot;Updated HTML serialized value:&quot;, content); } });</code></pre> </p>
+<h3>Pluggable Toolbar Preset Profiles</h3>
+<p>Lekhni Editor supports highly configurable visual profiles designed to match the specific UI context of your downstream application. You can pass these declarative properties when instantiating the class or calling the dynamic <code>replaceTextarea</code> helper: </p>
+<ul><li><strong><code>toolbarLayout</code></strong>: Specifies the layout profile of the top editor toolbar.</li><li><code>&#039;full&#039;</code> (Default): Standard multi-group toolbar featuring all block styles, text formats, and advanced Monaco/AI shortcuts.</li><li><code>&#039;compact&#039;</code>: Modern, narrow formatting bar showing basic formatting controls plus quick Monaco code and AI shortcuts. Ideal for inline comments, forum posts, or small textareas.</li><li><code>&#039;floating&#039;</code>: Hides the top toolbar completely, relying entirely on hover bubble menus and Slash commands for a distraction-free writing field.</li><li><code>&#039;none&#039;</code>: Completely disables and hides the top toolbar.</li><li><strong><code>bubbleMenuEnabled</code></strong> (<code>true</code> / <code>false</code>): Enables or disables the contextual floating popover menu that appears when a user highlights text.</li><li><strong><code>slashMenuEnabled</code></strong> (<code>true</code> / <code>false</code>): Enables or disables the interactive popover command list triggered by typing <code>/</code> in a new paragraph.</li></ul>
+<p>#### Example 4: Mounting with a Compact and Distraction-free Layout </p>
+<pre><code>const editor = await replaceTextarea(&#039;#my-comment-field&#039;, {
+<p>toolbarLayout: &#039;compact&#039;, bubbleMenuEnabled: true, slashMenuEnabled: false  // Suppress slash commands for standard comments });</code></pre> </p>
+<h3>High-Fidelity Selection-Range Format Dispatcher</h3>
+<p>To provide a visual authoring experience that matches industry leaders like TinyMCE and CKEditor without introducing heavy, bloated third-party bundles, Lekhni features a modern, safe <strong>Selection-Range Format Dispatcher</strong> under the hood. </p>
+<p>Instead of relying on the deprecated and buggy browser-native <code>document.execCommand</code> APIs, which generate chaotic, non-semantic HTML markup (such as browser-specific inline span stylings), Lekhni directly interacts with the browser&#039;s DOM Range API: 1. It intercepts standard formatting calls (<code>bold</code>, <code>italic</code>, <code>underline</code>, <code>createLink</code>). 2. Extracts the exact character and element bounds of the user&#039;s active highlight range. 3. Dynamically wraps the selected document nodes in clean, standard, semantic elements (<code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;u&gt;</code>, <code>&lt;a&gt;</code>). 4. Re-injects the wrapped fragment and restores the selection bounds seamlessly, ensuring perfect visual markup. </p>
+<h3>Configuring Default Behavior via App Manifests</h3>
+<p>Downstream apps can override initialization settings by appending declarative configurations directly inside their custom <code>module.yml</code> manifests: </p>
+<pre><code>settings:
+<p>editor: default_mode: &quot;document&quot; theme: &quot;dark&quot; auto_save_interval: 3000 media_upload_path: &quot;var/custom_app/media&quot; categories: - &quot;Internal Report&quot; - &quot;Technical Spec&quot;</code></pre> </p>
+<hr>
+<h2>✍️ Perspective 3: End-User &amp; Content Creator Guide</h2>
+<p>Lekhni delivers an intuitive, beautifully structured Notion/VSCode workspace combining immediate block flexibility with absolute document safety. </p>
+<h3>Core Authoring Interface Features</h3>
+<p>#### 1. The Floating Slash Command Palette (<code>/</code>) Simply type <code>/</code> anywhere inline inside a document paragraph to launch an instant popover menu floating immediately above your cursor. Use the arrow keys or keep typing to filter blocks instantly: </p>
+<ul><li><strong>Heading 1 (<code>/h1</code>)</strong> &amp; <strong>Heading 2 (<code>/h2</code>)</strong>: Structural document anchor points.</li><li><strong>Quote (<code>/quote</code>)</strong>: Highlighted side-bordered italic callouts.</li><li><strong>Code Block (<code>/code</code>)</strong>: Instantly injects an embedded programming canvas snippet directly inline.</li><li><strong>Web Card (<code>/card</code>)</strong>: Creates interactive domain overview boxes.</li><li><strong>Image Grid (<code>/gallery</code>)</strong>: Inserts layout array dropzones.</li><li><strong>AI Co-Pilot (<code>/ai</code>)</strong>: Augments active writing with background synthesis strings.</li></ul>
+<p>#### 2. Native Markdown Shortcuts Keep your fingers directly on your keys. Lekhni processes standard keyboard input actions continuously: </p>
+<ul><li>Type <code># </code> followed by space to convert a line into an <strong>H1 Header</strong>.</li><li>Type <code>## </code> followed by space to create an <strong>H2 Sub-header</strong>.</li><li>Type <code>&gt; </code> followed by space to convert into a <strong>Blockquote</strong>.</li><li>Type <code>`</code><code> </code><code>` </code><code>`</code> followed by space or Enter to embed an <strong>Inline Monaco Code Block</strong>.</li></ul>
+<p>#### 3. Contextual Formatting Bubble Menu Highlight any text string snippet to instantly reveal a sleek glassmorphic popover providing one-click options for <strong>Bold</strong>, <strong>Italic</strong>, <strong>Underline</strong>, and inserting hyperlinked references seamlessly. </p>
+<hr>
+<h3>🏢 Ultimate Enterprise Capabilities Workflow Tutorials</h3>
+<p>#### Tutorial 1: Building a Multi-Image Grid Gallery 1. Open your document in <strong>📝 Document Mode</strong>. 2. Select multiple image files directly from your computer&#039;s native file explorer. 3. <strong>Drag and drop</strong> the entire batch straight onto the active editor writing area. 4. Lekhni displays an immediate real-time upload status notification. Once processed, it automatically wraps the entire array inside a beautiful responsive <strong>CSS Flexbox Grid</strong> block rather than messy line breaks. </p>
+<p>#### Tutorial 2: Creating Glassmorphic OEmbed Web Cards 1. Locate any external webpage address (e.g., <code>https://github.com/spp-framework</code>). 2. Paste the full secure URL string directly into your document paragraph. 3. <strong>Press the Spacebar</strong>. Lekhni immediately intercepts the raw text, querying domain labels to replace the text with a gorgeous bounding preview box featuring automated launch action handles. </p>
+<p>#### Tutorial 3: Adding Persistent Reviewer Annotations 1. Highlight a specific sentence or code string that requires collaboration or feedback. 2. In the resulting floating Bubble Menu, click the <strong>💬 Annotate</strong> button. 3. An input prompt requests your specific auditing notes. Enter your review string (e.g., *&quot;Verify database connection retry logic here&quot;*). 4. Lekhni immediately wraps the highlighted subset securely inside stylized permanent <code>&lt;mark&gt;</code> bounding structures carrying explicit review tooltips visible on hover. </p>
+<p>#### Tutorial 4: Recovering Data from Offline Database Caches 1. Begin writing content normally. Lekhni captures background continuous snapshots directly into your browser&#039;s persistent <strong>IndexedDB</strong> (<code>LekhniEnterpriseStore</code>) on every keystroke. 2. Simulate a browser termination or network crash by reloading your browser window without clicking save. 3. Upon launching, Lekhni detects the orphaned draft snapshot buffer, rendering an elegant <strong>yellow warning recovery bar</strong> across the top of the interface. 4. Click <strong>&quot;Restore Data&quot;</strong> to immediately dump the captured offline strings safely back into the active editing view. </p>
+<p>#### Tutorial 5: Using the Historical Revision Time Machine 1. Commit multiple consecutive server updates by clicking the <strong>&quot;Save Draft&quot;</strong> or <strong>&quot;Publish&quot;</strong> actions over time. 2. Click the <strong>🕰️ History</strong> top header button. 3. An immersive popover overlay opens, rendering a side-by-side snapshot browser. 4. Select any chronological timestamp item from the left-hand index list to inspect past file layouts. Click <strong>&quot;Restore This Revision Buffer&quot;</strong> to automatically rollback document states instantly. </p>
+<p>#### Tutorial 6: Dual-Mode Workspace Pivoting 1. Start authoring standard rich sections visually inside <strong>📝 Document Mode</strong>. 2. Click the top header tab switcher labeled <strong>💻 VSCode IDE Mode</strong>. 3. Lekhni instantly maps your document markup strings straight into a sovereign code editor equipped with complete live syntax highlighters and line numbering frames. Edit deep document architectures, then pivot back instantaneously without breaking element nodes. </p>
+
+        </main>
+
+        <footer>
+            &copy; 2026 Satya Studio Framework Documentation. Parallel Maintenance Active.
+        </footer>
+    </div>
+</body>
+</html>

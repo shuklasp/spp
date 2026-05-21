@@ -19,15 +19,15 @@ class Parikshak
     private string $storageStrategy = 'same_db';
     private ?int $seed = null;
 
-    public function __construct(\SPPMod\SPPDB\SPPDB $db, ?int $seed = null)
+    public function __construct(?\SPPMod\SPPDB\SPPDB $db = null, ?int $seed = null)
     {
-        $this->db = $db;
+        $this->db = $db ?? (class_exists('\SPPMod\SPPDB\SPPDB') ? new \SPPMod\SPPDB\SPPDB() : null);
         $this->seed = $seed ?? mt_rand(1000, 9999);
         mt_srand($this->seed);
 
         // Modern Config Integration
         $this->tablePrefix = \SPP\SPPConfig::get('parikshak.table_prefix', 'spptest__');
-        $this->storageStrategy = \SPP\SPPConfig::get('parikshak.storage_strategy', 'same_db');
+        $this->storageStrategy = \SPP\SPPConfig::get('parikshak.table_prefix', 'same_db'); // or spptest__
     }
 
     /**
@@ -40,7 +40,8 @@ class Parikshak
              throw new \Exception("Parikshak (Evaluation) module is currently inactive.");
         }
 
-        \SPP\SPPEvent::fireEvent('parikshak.suite_started', ['app' => $appname]);
+        $evtSuiteStart = ['app' => $appname];
+        \SPP\SPPEvent::fireEvent('parikshak.suite_started', $evtSuiteStart);
 
         $appEntitiesDir = SPP_APP_DIR . '/src/' . $appname . '/entities';
         $files = glob($appEntitiesDir . '/entity.*.php');
@@ -71,15 +72,64 @@ class Parikshak
 
         $this->saveHistoricalResult($this->results);
         
-        \SPP\SPPEvent::fireEvent('parikshak.suite_completed', [
+        $evtSuiteComp = [
             'app' => $appname, 
             'summary' => $this->results['summary']
-        ]);
+        ];
+        \SPP\SPPEvent::fireEvent('parikshak.suite_completed', $evtSuiteComp);
 
         return $this->results;
     }
 
-    // ... (saveHistoricalResult remains same)
+    /**
+     * Resolves the full class name for an entity file.
+     */
+    private function resolveEntityClass(string $file, string $appname): ?string
+    {
+        $baseName = basename($file, '.php');
+        if (str_starts_with($baseName, 'entity.')) {
+            $entityName = substr($baseName, 7);
+        } else {
+            $entityName = $baseName;
+        }
+
+        $className = "App\\" . ucfirst($appname) . "\\Entities\\" . ucfirst($entityName);
+        if (class_exists($className)) {
+            return $className;
+        }
+
+        // Try requiring the file if class doesn't exist
+        try {
+            require_once $file;
+            if (class_exists($className)) {
+                return $className;
+            }
+        } catch (\Throwable $e) {}
+
+        return null;
+    }
+
+    /**
+     * Saves the historical test results for the Oracle analysis.
+     */
+    private function saveHistoricalResult(array $results): void
+    {
+        $dir = SPP_APP_DIR . "/var/reports";
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+        $historyPath = $dir . "/parikshak_history.json";
+        $history = [];
+        if (file_exists($historyPath)) {
+            $history = json_decode(file_get_contents($historyPath), true) ?: [];
+        }
+        $history[] = $results;
+        // Keep last 50 runs to save memory/space
+        if (count($history) > 50) {
+            $history = array_slice($history, -50);
+        }
+        @file_put_contents($historyPath, json_encode($history, JSON_PRETTY_PRINT));
+    }
 
     /**
      * Main testing logic for a specific entity.
@@ -321,8 +371,19 @@ class Parikshak
                 foreach ($testData as $name => $val) {
                     $lowName = strtolower(trim($name));
                     if ($lowName === 'password' || $lowName === 'passwd' || $lowName === 'password_hash') continue;
-                    if ($loaded->get($name) != $val) {
-                        throw new \Exception("Value mismatch on '$name': Expected '$val', got '" . $loaded->get($name) . "'");
+                    
+                    $loadedVal = $loaded->get($name);
+                    $expectedVal = $val;
+
+                    // Normalize boolean values across drivers (XDB strings 'true'/'false', PDO ints 1/0, bools)
+                    $attrType = strtolower($attributes[$name] ?? '');
+                    if (strpos($attrType, 'bool') !== false || strpos($attrType, 'boolean') !== false) {
+                        $loadedVal = ($loadedVal === 'true' || $loadedVal == 1 || $loadedVal === true) ? 'true' : 'false';
+                        $expectedVal = ($expectedVal === 'true' || $expectedVal == 1 || $expectedVal === true) ? 'true' : 'false';
+                    }
+
+                    if ($loadedVal != $expectedVal) {
+                        throw new \Exception("Value mismatch on '$name': Expected '" . (is_bool($val) ? ($val ? 'true' : 'false') : $val) . "', got '" . (is_bool($loaded->get($name)) ? ($loaded->get($name) ? 'true' : 'false') : $loaded->get($name)) . "'");
                     }
                 }
 
@@ -339,8 +400,19 @@ class Parikshak
                 foreach ($updateData as $name => $val) {
                     $lowName = strtolower(trim($name));
                     if ($lowName === 'password' || $lowName === 'passwd' || $lowName === 'password_hash') continue;
-                    if ($reloaded->get($name) != $val) {
-                        throw new \Exception("Update mismatch on '$name': Expected '$val', got '" . $reloaded->get($name) . "'");
+                    
+                    $reloadedVal = $reloaded->get($name);
+                    $expectedVal = $val;
+
+                    // Normalize boolean values across drivers
+                    $attrType = strtolower($attributes[$name] ?? '');
+                    if (strpos($attrType, 'bool') !== false || strpos($attrType, 'boolean') !== false) {
+                        $reloadedVal = ($reloadedVal === 'true' || $reloadedVal == 1 || $reloadedVal === true) ? 'true' : 'false';
+                        $expectedVal = ($expectedVal === 'true' || $expectedVal == 1 || $expectedVal === true) ? 'true' : 'false';
+                    }
+
+                    if ($reloadedVal != $expectedVal) {
+                        throw new \Exception("Update mismatch on '$name': Expected '" . (is_bool($val) ? ($val ? 'true' : 'false') : $val) . "', got '" . (is_bool($reloaded->get($name)) ? ($reloaded->get($name) ? 'true' : 'false') : $reloaded->get($name)) . "'");
                     }
                 }
             });
@@ -368,16 +440,13 @@ class Parikshak
     {
         $res = ['name' => $scenarioName, 'status' => 'passed'];
         $metaAttributes = $entityClass::getMetadata('attributes', []);
-        $table = $entityClass::getMetadata('table');
+        $originalTable = $entityClass::getMetadata('table');
+        $resolvedTable = \SPPMod\SPPDB\SPPDB::sppTable($originalTable);
         $db = new \SPPMod\SPPDB\SPPDB();
 
         try {
-            $dbCols = [];
-            // Use standard SQL to get column names for the REAL table
-            $rows = $db->execute_query("DESCRIBE `{$table}`");
-            foreach ($rows as $row) {
-                $dbCols[] = strtolower($row['Field'] ?? $row['column_name'] ?? '');
-            }
+            $schema = $db->getAdapter()->getSchema($resolvedTable);
+            $dbCols = array_map('strtolower', array_keys($schema['columns'] ?? []));
 
             $missing = [];
             foreach (array_keys($metaAttributes) as $attr) {
@@ -388,7 +457,7 @@ class Parikshak
 
             if (!empty($missing)) {
                 $res['status'] = 'failed';
-                $res['error'] = "Schema Drift Detected: Table '{$table}' is missing columns defined in metadata: " . implode(', ', $missing);
+                $res['error'] = "Schema Drift Detected: Table '{$originalTable}' is missing columns defined in metadata: " . implode(', ', $missing);
             }
         } catch (\Exception $e) {
             $res['status'] = 'failed';
@@ -448,7 +517,8 @@ class Parikshak
 
                 // Query the audit log for this operation
                 $db = new \SPPMod\SPPDB\SPPDB();
-                $audit = $db->execute_query("SELECT * FROM audit_logs WHERE entity_type = ? AND entity_id = ? AND action = 'create' ORDER BY id DESC LIMIT 1", [
+                $auditTable = \SPPMod\SPPDB\SPPDB::sppTable('audit_logs');
+                $audit = $db->exec_squery("SELECT * FROM %tab% WHERE entity_type = ? AND entity_id = ? AND action = 'create' ORDER BY id DESC LIMIT 1", $auditTable, [
                     $entityClass, (string)$id
                 ]);
 

@@ -20,6 +20,14 @@ class SPPUser extends SPPEntity
     protected $rights = [];
 
     /**
+     * Map to existing table name.
+     */
+    public function getTable()
+    {
+        return SPPDB::sppTable('users');
+    }
+
+    /**
      * Entity constructor. Supports loading by username or ID.
      */
     public function __construct($unm = null)

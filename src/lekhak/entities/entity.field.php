@@ -20,7 +20,11 @@ class Field extends SPPEntity
             'type' => 'varchar(50)', // text, integer, image, etc.
             'settings' => 'text', // JSON settings
             'required' => 'boolean',
-            'weight' => 'int'
+            'weight' => 'int',
+            'widget_type' => 'varchar(50)',
+            'widget_settings' => 'text',
+            'formatter_type' => 'varchar(50)',
+            'formatter_settings' => 'text'
         ];
     }
     public function field_metadata()

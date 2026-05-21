@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_terms">
+  <_schema>
+    <column name="id" type="INT" primary="true"/>
+    <column name="vid" type="VARCHAR"/>
+    <column name="name" type="VARCHAR"/>
+    <column name="parent_id" type="INT"/>
+    <column name="description" type="TEXT"/>
+    <column name="weight" type="INT"/>
+  </_schema>
+  <data>
+  </data>
+<row id="637"><id>637</id><vid>test_tags</vid><name>test_science</name><weight>0</weight></row><row id="638"><id>638</id><vid>test_tags</vid><name>test_physics</name><parent_id>637</parent_id><weight>10</weight></row></database>

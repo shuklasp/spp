@@ -1,6 +1,10 @@
 variables:
-    dbtype: sqlite
+    dbtype: mysql
     sqlite_path: var/db/merged_fix_verified.sqlite
-    db_engine: sppxdb
-    db_name: spp_main
-    global_table_prefix: final_test_
+    db_engine: pdo
+    dbname: lekhak1
+    dbhost: 127.0.0.1
+    dbuser: root
+    dbpasswd: hello123
+    global_table_prefix: lek_
+    installed: true

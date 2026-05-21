@@ -17,7 +17,8 @@ try {
     $xdb->querySQL("CREATE DATABASE school");
     $xdb->querySQL("CREATE DATABASE finance");
     $dbs = $xdb->querySQL("SHOW DATABASES");
-    echo "   Databases: " . implode(', ', $dbs) . "\n";
+    $dbList = array_map(fn($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
+    echo "   Databases: " . implode(', ', $dbList) . "\n";
 
     // 2. CREATE TABLE with schema via SQL
     echo "\n2. Testing CREATE TABLE via SQL...\n";
@@ -25,14 +26,17 @@ try {
     $xdb->querySQL("CREATE TABLE school.students (id int, name varchar, grade varchar, score int)");
     $xdb->querySQL("CREATE TABLE school.teachers (id int, name varchar, subject varchar)");
     $tables = $xdb->querySQL("SHOW TABLES");
-    echo "   Tables in 'school': " . implode(', ', $tables) . "\n";
+    $tableList = array_map(fn($t) => is_array($t) ? reset($t) : $t, $tables);
+    echo "   Tables in 'school': " . implode(', ', $tableList) . "\n";
 
     // 3. Schema introspection
     echo "\n3. Testing schema introspection...\n";
     $xdb->connect('students');
     $schema = $xdb->getSchema();
     echo "   Schema for 'students': ";
-    foreach ($schema as $col => $type) {
+    $columns = isset($schema['columns']) ? $schema['columns'] : $schema;
+    foreach ($columns as $col => $props) {
+        $type = is_array($props) ? ($props['type'] ?? 'text') : $props;
         echo "$col($type) ";
     }
     echo "\n";
@@ -122,14 +126,16 @@ try {
     echo "\n15. Testing SHOW DATABASES...\n";
     $xdb->selectDatabase('default');
     $dbs = $xdb->querySQL("SHOW DATABASES");
-    echo "    All databases: " . implode(', ', $dbs) . "\n";
+    $dbList = array_map(fn($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
+    echo "    All databases: " . implode(', ', $dbList) . "\n";
 
     // 16. DROP TABLE via SQL
     echo "\n16. Testing DROP TABLE via SQL...\n";
     $xdb->querySQL("DROP TABLE school.teachers");
     $xdb->selectDatabase('school');
     $tables = $xdb->querySQL("SHOW TABLES");
-    echo "    Tables in school after drop: " . implode(', ', $tables) . "\n";
+    $tableList = array_map(fn($t) => is_array($t) ? reset($t) : $t, $tables);
+    echo "    Tables in school after drop: " . implode(', ', $tableList) . "\n";
 
     // 17. Table/Database existence checks
     echo "\n17. Testing existence checks...\n";

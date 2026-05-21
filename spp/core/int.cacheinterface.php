@@ -42,4 +42,24 @@ interface CacheInterface
      * @return bool
      */
     public function has(string $key): bool;
+
+    /**
+     * Store a value in the cache and associate it with one or more tags.
+     * Tags allow grouped invalidation (e.g., all entries tagged 'node:42').
+     *
+     * @param string   $key
+     * @param mixed    $value
+     * @param string[] $tags  Tags to associate with this entry.
+     * @param int      $ttl   Time-to-live in seconds.
+     * @return bool
+     */
+    public function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool;
+
+    /**
+     * Invalidate all cache entries associated with the given tag.
+     *
+     * @param string $tag
+     * @return bool
+     */
+    public function invalidateTag(string $tag): bool;
 }

@@ -117,6 +117,8 @@ class Drishyam extends \SPP\SPPObject
                 
                 if ($isDrishyam || $isDrupal || $isWordPress) {
                     $this->themes[$item] = new Theme($item, $path);
+                } else {
+                    $this->scanThemes($path);
                 }
             }
         }

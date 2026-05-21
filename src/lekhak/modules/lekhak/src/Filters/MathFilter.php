@@ -21,28 +21,38 @@ class MathFilter implements FilterInterface
 
     public function postProcess(string &$output, array &$context): void
     {
-        // 1. Detect if math exists
-        if (strpos($output, '$') === false && strpos($output, '$$') === false) {
+        $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+        $view = $context['data']['view_name'] ?? ($context['path'] ?? '');
+        if (str_contains($reqUri, '/admin') || str_contains((string) $view, 'admin')) {
             return;
         }
 
-        // 2. Inject Local KaTeX assets (Zero Dependency)
-        // We assume assets are in the lekhak module's res folder
-        $base = defined('APP_BASE_URI') ? rtrim(APP_BASE_URI, '/') : '';
-        $jsPath = $base . '/res/spp/lekhak/js/katex.min.js';
-        $cssPath = $base . '/res/spp/lekhak/css/katex.min.css';
-        $renderPath = $base . '/res/spp/lekhak/js/auto-render.min.js';
+        // Detect real math delimiters without being fooled by ordinary CSS/JS dollar signs.
+        if (!preg_match('/(?:\$\$.*?\$\$|\$[^$\n]+\$|\\\\\(|\\\\\[)/s', $output)) {
+            return;
+        }
+
+        if (str_contains($output, 'renderMathInElement(') || str_contains($output, 'katex.min.js')) {
+            return;
+        }
+
+        $cssPath = 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css';
+        $jsPath = 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js';
+        $renderPath = 'https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js';
 
         $injection = "
             <link rel='stylesheet' href='$cssPath'>
-            <script src='$jsPath'></script>
-            <script src='$renderPath'></script>
+            <script defer src='$jsPath'></script>
+            <script defer src='$renderPath'></script>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
+                    if (typeof renderMathInElement !== 'function') return;
                     renderMathInElement(document.body, {
                         delimiters: [
                             {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false}
+                            {left: '$', right: '$', display: false},
+                            {left: '\\\\[', right: '\\\\]', display: true},
+                            {left: '\\\\(', right: '\\\\)', display: false}
                         ]
                     });
                 });

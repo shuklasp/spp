@@ -1,0 +1,23 @@
+name: Blog Starter Kit
+description: A standard blog configuration with articles, tags, and native theme.
+version: 1.0.0
+
+theme:
+  adapter: native
+
+content_types:
+  article:
+    label: Article
+    description: Use for time-sensitive content like news, press releases or blog posts.
+  page:
+    label: Basic Page
+    description: Use for static content, such as an 'About us' page.
+  tag:
+    label: Tag
+    description: Taxonomy vocabulary for categorizing articles.
+
+views:
+  recent_articles:
+    base_table: nodes
+    pagination: 10
+    display_format: list

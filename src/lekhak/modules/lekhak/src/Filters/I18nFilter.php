@@ -36,6 +36,7 @@ class I18nFilter implements FilterInterface
 
     public function postProcess(string &$output, array &$context): void
     {
+        $this->preProcess($output, $context);
         // Add lang attribute to html tag if possible
         $output = preg_replace('/<html(.*?)>/', "<html$1 lang='{$this->lang}'>", $output);
     }

@@ -19,6 +19,7 @@ class LekhakAdminShell {
         this.selectedApp = 'lekhak';
         this.currentView = null;
         this.activeComponent = null;
+        this.version = '2026_05_20_v1';
 
         // Compatibility mapping for existing components
         window.admin = this; 
@@ -32,6 +33,19 @@ class LekhakAdminShell {
         
         window.addEventListener('hashchange', () => this.handleInitialRoute());
         console.log("Lekhak Standalone Shell Initialized.");
+        
+        // Preload key views in background after a short delay
+        setTimeout(() => this.preloadViews(), 1500);
+    }
+
+    preloadViews() {
+        const components = ['lekhak', 'content', 'editor'];
+        const nocache = new URLSearchParams(window.location.search).has('nocache') || this.config.debug;
+        const cacheBuster = nocache ? `t=${Date.now()}` : `v=${this.version}`;
+        components.forEach(comp => {
+            const modulePath = `../../comp/${comp}.js?${cacheBuster}`;
+            import(modulePath).catch(() => {});
+        });
     }
 
     setupNavigation() {
@@ -40,13 +54,12 @@ class LekhakAdminShell {
             if (!link) return;
             
             const href = link.getAttribute('href');
-            if (!href) return;
             
-            const possibleViews = ['dashboard', 'lekhak', 'content', 'canvas', 'commerce', 'translations', 'editor', 'settings', 'media', 'structure'];
+            const possibleViews = ['dashboard', 'lekhak', 'content', 'canvas', 'commerce', 'translations', 'editor', 'settings', 'media', 'structure', 'blocks'];
             let targetView = null;
             
             for (const v of possibleViews) {
-                if (link.getAttribute('data-view') === v || link.getAttribute('data-spp-evt')?.replace('nav-', '') === v || href.endsWith('#' + v) || href === '#' + v) {
+                if (link.getAttribute('data-view') === v || link.getAttribute('data-spp-evt')?.replace('nav-', '') === v || (href && (href.endsWith('#' + v) || href === '#' + v))) {
                     targetView = v;
                     break;
                 }
@@ -107,8 +120,17 @@ class LekhakAdminShell {
             };
 
             const compName = viewMap[view] || 'lekhak';
-            const modulePath = `../../comp/${compName}.js?t=${Date.now()}`;
+            const nocache = new URLSearchParams(window.location.search).has('nocache') || this.config.debug;
+            const cacheBuster = nocache ? `t=${Date.now()}` : `v=${this.version}`;
+            const modulePath = `../../comp/${compName}.js?${cacheBuster}`;
             
+            // Start fetching content in parallel if we have an ID for the editor
+            let contentPromise = null;
+            if (view === 'editor' && params.id) {
+                console.log(`[StandaloneShell] Initiating parallel content fetch for ID: ${params.id}`);
+                contentPromise = this.api('get_node', { id: params.id });
+            }
+
             console.log(`[StandaloneShell] Loading module: ${modulePath}`);
             const module = await import(modulePath);
             const ComponentClass = module.default;
@@ -121,6 +143,11 @@ class LekhakAdminShell {
                 this.container.innerHTML = '';
             }
             
+            // Pass the in-progress promise to component props
+            if (contentPromise) {
+                params.contentPromise = contentPromise;
+            }
+
             // Instantiate and mount
             this.activeComponent = new ComponentClass(this, this.container, params);
             
@@ -147,14 +174,18 @@ class LekhakAdminShell {
 
     async api(action, params = {}) {
         const url = new URL(this.config.apiBase, window.location.origin);
-        url.searchParams.append('action', action);
+        url.searchParams.set('action', action);
         
         const response = await fetch(url.toString(), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(params)
         });
-        
+
+        if (!response.ok) {
+            return { success: false, message: `API request failed with HTTP ${response.status}` };
+        }
+
         return await response.json();
     }
 

@@ -93,3 +93,19 @@ modules:
         deps:
             - sppblade
             - sppux
+    -
+        name: lekhni
+        path: contrib/lekhni
+        status: active
+    -
+        name: sppinterdb
+        path: spp/sppinterdb
+        status: active
+    -
+        name: sppxdb
+        path: spp/sppxdb
+        status: active
+    -
+        name: sppsetting
+        path: spp/sppsetting
+        status: active

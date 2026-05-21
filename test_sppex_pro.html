@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPPEX Pro Test Playground</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        
+        /* Virtual List Base */
+        #virtual-list { height: 200px; border: 1px solid #ddd; background: #fff; }
+        
+        /* Carousel Base */
+        #carousel-demo div { height: 150px; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        #carousel-demo div:nth-child(even) { background: #10b981; }
+    </style>
+</head>
+<body>
+
+    <h1>SPPEX Pro (Air-Gapped) Playground</h1>
+    
+    <div class="grid">
+        <!-- 1. Virtual List -->
+        <div class="card">
+            <h2>1. SPPEX.VirtualList (10,000 items)</h2>
+            <div id="virtual-list"></div>
+        </div>
+
+        <!-- 4. Machine -->
+        <div class="card">
+            <h2>4. SPPEX.Machine (Finite State Machine)</h2>
+            <div id="fsm-status" style="font-weight: bold; margin-bottom: 10px;">Status: IDLE</div>
+            <button onclick="myMachine.transition('FETCH')">Fetch</button>
+            <button onclick="myMachine.transition('RESOLVE')">Resolve</button>
+            <button onclick="myMachine.transition('REJECT')">Reject</button>
+        </div>
+
+        <!-- 5. Carousel -->
+        <div class="card">
+            <h2>5. SPPEX.Carousel (Native Scroll-Snap)</h2>
+            <div id="carousel-demo" style="width: 100%;">
+                <div>Slide 1</div>
+                <div>Slide 2</div>
+                <div>Slide 3</div>
+            </div>
+            <button onclick="myCarousel.prev()" style="margin-top:10px;">Prev</button>
+            <button onclick="myCarousel.next()" style="margin-top:10px;">Next</button>
+        </div>
+
+        <!-- 6. Floating -->
+        <div class="card">
+            <h2>6. SPPEX.Floating (Tooltips)</h2>
+            <button data-sppex-float="I am an edge-aware tooltip! Very long text to test boundary flipping.">Hover Me</button>
+            <button data-sppex-float="Short one">Or Me</button>
+        </div>
+
+        <!-- 7. Select -->
+        <div class="card">
+            <h2>7. SPPEX.Select (Typeahead Multi)</h2>
+            <select id="my-select" multiple>
+                <option value="1">React</option>
+                <option value="2">Vue</option>
+                <option value="3">SPPUX</option>
+                <option value="4">Svelte</option>
+            </select>
+        </div>
+
+        <!-- 8. DatePicker -->
+        <div class="card">
+            <h2>8. SPPEX.DatePicker</h2>
+            <input type="text" class="date-input" />
+        </div>
+
+        <!-- 9. Markdown -->
+        <div class="card">
+            <h2>9. SPPEX.Markdown</h2>
+            <div id="md-output" style="border-left: 4px solid #6366f1; padding-left: 10px;"></div>
+        </div>
+
+        <!-- 10. i18n -->
+        <div class="card">
+            <h2>10. SPPEX.i18n</h2>
+            <p id="i18n-text"></p>
+            <button onclick="changeLang('en')">EN</button>
+            <button onclick="changeLang('fr')">FR</button>
+        </div>
+    </div>
+
+    <!-- SPPUX Core (Required for StoreSync if used) -->
+    <!-- <script src="spp/modules/spp/sppux/js/sppux.js"></script> -->
+    <script src="spp/modules/spp/sppux/js/sppex-pro.js"></script>
+    
+    <script>
+        // 1. Virtual List
+        new SPPEX.VirtualList('#virtual-list', 40, 10000, (index) => {
+            return `<div style="padding: 10px; border-bottom: 1px solid #eee;">Virtual Item #${index}</div>`;
+        });
+
+        // 4. Machine
+        const myMachine = new SPPEX.Machine({
+            initial: 'idle',
+            states: {
+                idle: { on: { FETCH: 'loading' } },
+                loading: { on: { RESOLVE: 'success', REJECT: 'error' } },
+                success: { on: { FETCH: 'loading' } },
+                error: { on: { FETCH: 'loading' } }
+            }
+        });
+        myMachine.subscribe((state) => {
+            document.getElementById('fsm-status').innerText = 'Status: ' + state.toUpperCase();
+        });
+
+        // 5. Carousel
+        const myCarousel = new SPPEX.Carousel('#carousel-demo');
+
+        // 7. Select
+        new SPPEX.Select('#my-select');
+
+        // 8. DatePicker
+        SPPEX.DatePicker.init('.date-input');
+
+        // 9. Markdown
+        const mdText = `
+# Hello SPPEX
+**This is bold**, *this is italic*.
+[Click Here](https://spp.dev)
+        `;
+        document.getElementById('md-output').innerHTML = SPPEX.Markdown.parse(mdText);
+
+        // 10. i18n
+        SPPEX.i18n.init({
+            en: { welcome: "Welcome to SPPEX Pro!" },
+            fr: { welcome: "Bienvenue sur SPPEX Pro!" }
+        });
+        const updateLangText = () => document.getElementById('i18n-text').innerText = SPPEX.i18n.t('welcome');
+        SPPEX.i18n.subscribe(updateLangText);
+        updateLangText();
+
+        window.changeLang = (lang) => SPPEX.i18n.changeLanguage(lang);
+
+    </script>
+</body>
+</html>

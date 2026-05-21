@@ -1,7 +1,0 @@
-{
-    "CREATE TABLE source_data (id int, val varchar)": 1,
-    "SELECT * FROM source_data": 2,
-    "SELECT * FROM mv_test": 2,
-    "CREATE TABLE parents (id int, name varchar)": 1,
-    "CREATE TABLE children (id int, parent_id int)": 1
-}

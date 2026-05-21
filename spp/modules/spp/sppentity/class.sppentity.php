@@ -17,6 +17,7 @@ class SPPEntity implements \JsonSerializable
   protected static $_metadata = array();         /** Static registry for entity configuration */
 
   protected $_values = array();                      /** attribute-value pairs */
+  protected $_dynamic_values = array();              /** dynamic polymorphic field values */
   protected $_snapshot = array();                    /** data snapshot for auditing */
   protected $_relatedCaches = array();               /** lazy-loaded relations cache */
 
@@ -97,6 +98,13 @@ class SPPEntity implements \JsonSerializable
           if (isset($ymlData['attributes']) && is_array($ymlData['attributes'])) {
               foreach ($ymlData['attributes'] as $k => $v) {
                   $config['attributes'][$k] = $v;
+              }
+          }
+
+          if (isset($ymlData['dynamic_attributes']) && is_array($ymlData['dynamic_attributes'])) {
+              $config['dynamic_attributes'] = [];
+              foreach ($ymlData['dynamic_attributes'] as $k => $v) {
+                  $config['dynamic_attributes'][$k] = $v;
               }
           }
 
@@ -349,22 +357,7 @@ class SPPEntity implements \JsonSerializable
     return $this->_values;
   }
 
-  /**
-   * public function setValues($values)
-   * Sets the values of the entity
-   * @param array $values
-   */
-  public function setValues($values)
-  {
-    $attributes = $this->getAttributes();
-    foreach ($values as $att => $val) {
-      if (array_key_exists($att, $attributes)) {
-        $this->_values[$att] = $val;
-      } else {
-        throw new AttributeNotFoundException('Wrong attribute ' . $att . ' accessed');
-      }
-    }
-  }
+
 
   /****************************************************************
    * STATIC METHODS
@@ -581,8 +574,14 @@ class SPPEntity implements \JsonSerializable
                   $entity->set($attribute, $value);
               }
           }
-          $entity->after_load();
           $entities[] = $entity;
+      }
+      if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+          \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
+      }
+      foreach ($entities as $entity) {
+          $entity->after_load();
+          \SPP\Core\EventManager::trigger('entity:after_load', $entity);
       }
       return $entities;
   }
@@ -671,15 +670,31 @@ class SPPEntity implements \JsonSerializable
    */
   public function set($attribute, $value)
   {
-    //print('setting '.$attribute.' to '.$value);
-    //var_dump(static::$_attributes);
     $classVar = get_object_vars($this);
     if (array_key_exists($attribute, $classVar)) {
       $this->$attribute = $value;
+      return true;
     } else {
       $attributes = $this->getAttributes();
+      $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
         $this->_values[$attribute] = $value;
+        return true;
+      } elseif (array_key_exists($attribute, $dynamicAttributes)) {
+        $this->_dynamic_values[$attribute] = $value;
+        return true;
+      } elseif (array_key_exists('fields_data', $attributes)) {
+        $fieldsData = $this->_values['fields_data'] ?? '';
+        if (is_string($fieldsData)) {
+          $decoded = json_decode($fieldsData, true);
+        } else {
+          $decoded = $fieldsData;
+        }
+        if (!is_array($decoded)) {
+          $decoded = [];
+        }
+        $decoded[$attribute] = $value;
+        $this->_values['fields_data'] = json_encode($decoded, JSON_UNESCAPED_UNICODE);
         return true;
       } else {
         error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
@@ -702,8 +717,23 @@ class SPPEntity implements \JsonSerializable
       $this->$attribute = $value;
     } else {
       $attributes = $this->getAttributes();
+      $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
         $this->_values[$attribute] = $value;
+      } elseif (array_key_exists($attribute, $dynamicAttributes)) {
+        $this->_dynamic_values[$attribute] = $value;
+      } elseif (array_key_exists('fields_data', $attributes)) {
+        $fieldsData = $this->_values['fields_data'] ?? '';
+        if (is_string($fieldsData)) {
+          $decoded = json_decode($fieldsData, true);
+        } else {
+          $decoded = $fieldsData;
+        }
+        if (!is_array($decoded)) {
+          $decoded = [];
+        }
+        $decoded[$attribute] = $value;
+        $this->_values['fields_data'] = json_encode($decoded, JSON_UNESCAPED_UNICODE);
       } else {
         error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
       }
@@ -719,6 +749,26 @@ class SPPEntity implements \JsonSerializable
     return $this->id;
   }
 
+  public function setValues($values)
+  {
+    $attributes = $this->getAttributes();
+    $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+    foreach ($values as $att => $val) {
+      if (array_key_exists($att, $attributes)) {
+        $this->_values[$att] = $val;
+      } elseif (array_key_exists($att, $dynamicAttributes)) {
+        $this->_dynamic_values[$att] = $val;
+      } else {
+        throw new AttributeNotFoundException('Wrong attribute ' . $att . ' accessed');
+      }
+    }
+  }
+
+  public function _setDynamicFields(array $fields)
+  {
+      $this->_dynamic_values = $fields;
+  }
+
 
   /**
    * public function attributeExists($attribute)
@@ -730,15 +780,23 @@ class SPPEntity implements \JsonSerializable
   {
     $exists = false;
     $classVar = get_object_vars($this);
-    //print_r($classVar);
     if (array_key_exists($attribute, $classVar)) {
       $exists = true;
     } else {
       $attributes = $this->getAttributes();
-      if (array_key_exists($attribute, $attributes)) {
+      $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+      if (array_key_exists($attribute, $attributes) || array_key_exists($attribute, $dynamicAttributes)) {
         $exists = true;
-      } else {
-        $exists = false;
+      } elseif (array_key_exists('fields_data', $attributes)) {
+        $fieldsData = $this->_values['fields_data'] ?? '';
+        if (is_string($fieldsData)) {
+          $decoded = json_decode($fieldsData, true);
+        } else {
+          $decoded = $fieldsData;
+        }
+        if (is_array($decoded) && array_key_exists($attribute, $decoded)) {
+          $exists = true;
+        }
       }
     }
     return $exists;
@@ -757,8 +815,22 @@ class SPPEntity implements \JsonSerializable
       return $this->$attribute;
     } else {
       $attributes = $this->getAttributes();
+      $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
         return $this->_values[$attribute] ?? null;
+      } elseif (array_key_exists($attribute, $dynamicAttributes)) {
+        return $this->_dynamic_values[$attribute] ?? null;
+      } elseif (array_key_exists('fields_data', $attributes)) {
+        $fieldsData = $this->_values['fields_data'] ?? '';
+        if (is_string($fieldsData)) {
+          $decoded = json_decode($fieldsData, true);
+        } else {
+          $decoded = $fieldsData;
+        }
+        if (is_array($decoded) && array_key_exists($attribute, $decoded)) {
+          return $decoded[$attribute];
+        }
+        return null;
       } else {
         error_log("SPPEntity Warning: Wrong attribute " . $attribute . " accessed on " . get_class($this));
         return null;
@@ -834,10 +906,11 @@ class SPPEntity implements \JsonSerializable
    * Save the current entity.
    * Insert if new entity.
    */
-  public function save()
+   public function save()
   {
     $this->defensiveCleanup();
     $this->before_save();
+    \SPP\Core\EventManager::trigger('entity:before_save', $this);
 
     // Model-level Validation
     $vResult = $this->validate();
@@ -849,11 +922,13 @@ class SPPEntity implements \JsonSerializable
       $new_id = $this->insert();
       \SPPMod\SPPAudit\SPPAudit::log(static::class, $new_id, 'create', null, $this->_values);
       $this->after_save();
+      \SPP\Core\EventManager::trigger('entity:after_save', $this);
       return $new_id;
     } else {
       \SPPMod\SPPAudit\SPPAudit::log(static::class, $this->id, 'update', $this->_snapshot, $this->_values);
       $this->update();
       $this->after_save();
+      \SPP\Core\EventManager::trigger('entity:after_save', $this);
       return $this->id;
     }
   }
@@ -916,6 +991,9 @@ class SPPEntity implements \JsonSerializable
     }
     
     $db->insertValues($this->getTable(), $val_array);
+    if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+        \SPPMod\SPPEntity\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
+    }
     return $new_id;
   }
 
@@ -1014,6 +1092,9 @@ class SPPEntity implements \JsonSerializable
       $values = array_values($this->_values);
       $values[] = $this->id;
       $db->updateValues($this->getTable(), array_keys($this->_values), self::getMetadata('id_field') . '=?', $values);
+      if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+          \SPPMod\SPPEntity\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
+      }
       return true;
     } else {
       return false;
@@ -1027,6 +1108,9 @@ class SPPEntity implements \JsonSerializable
   public function delete()
   {
     \SPPMod\SPPAudit\SPPAudit::log(static::class, $this->id, 'delete', $this->_values, null);
+    if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+        \SPPMod\SPPEntity\SppDynamicFieldHandler::deleteFields($this);
+    }
     $db = new \SPPMod\SPPDB\SPPDB();
     $sql = 'delete from %tab% where ' . self::getMetadata('id_field') . '=?';
     $db->exec_squery($sql, $this->getTable(), array($this->id));
@@ -1053,7 +1137,11 @@ class SPPEntity implements \JsonSerializable
           $this->set($attribute, $value);
         }
       }
+      if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+          \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields([$this]);
+      }
       $this->after_load();
+      \SPP\Core\EventManager::trigger('entity:after_load', $this);
     } else {
       throw new EntityNotFoundException('Entity with id ' . $id . ' not found');
     }
@@ -1080,8 +1168,12 @@ class SPPEntity implements \JsonSerializable
           $this->set($attribute, $value);
         }
       }
+      if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+          \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields([$this]);
+      }
       $this->after_load();
       $this->_snapshot = $this->_values;
+      \SPP\Core\EventManager::trigger('entity:after_load', $this);
     } else {
       throw new EntityNotFoundException('Entity with ' . $attribute . '=' . $value . ' not found');
     }
@@ -1106,8 +1198,14 @@ class SPPEntity implements \JsonSerializable
           $entity->set($attribute, $value);
         }
       }
-      $entity->after_load();
       $entities[] = $entity;
+    }
+    if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+        \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
+    }
+    foreach ($entities as $entity) {
+      $entity->after_load();
+      \SPP\Core\EventManager::trigger('entity:after_load', $entity);
     }
     return $entities;
   }
@@ -1137,8 +1235,14 @@ class SPPEntity implements \JsonSerializable
           $entity->set($attribute, $value);
         }
       }
-      $entity->after_load();
       $entities[] = $entity;
+    }
+    if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
+        \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
+    }
+    foreach ($entities as $entity) {
+      $entity->after_load();
+      \SPP\Core\EventManager::trigger('entity:after_load', $entity);
     }
     return $entities;
   }

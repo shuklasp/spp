@@ -84,4 +84,41 @@ class FileCache implements CacheInterface
         }
         return rmdir($dir);
     }
+
+    public function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool
+    {
+        $result = $this->set($key, $value, $ttl);
+        foreach ($tags as $tag) {
+            $tagFile = $this->getTagFilePath($tag);
+            $dir = dirname($tagFile);
+            if (!is_dir($dir)) mkdir($dir, 0777, true);
+
+            $existing = file_exists($tagFile) ? unserialize(file_get_contents($tagFile)) : [];
+            $existing[] = $key;
+            $existing = array_unique($existing);
+            file_put_contents($tagFile, serialize($existing), LOCK_EX);
+        }
+        return $result;
+    }
+
+    public function invalidateTag(string $tag): bool
+    {
+        $tagFile = $this->getTagFilePath($tag);
+        if (!file_exists($tagFile)) return true;
+
+        $keys = unserialize(file_get_contents($tagFile));
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                $this->delete($key);
+            }
+        }
+        @unlink($tagFile);
+        return true;
+    }
+
+    protected function getTagFilePath(string $tag): string
+    {
+        return $this->path . SPP_DS . '_tags' . SPP_DS . md5($tag) . '.tag';
+    }
 }
+

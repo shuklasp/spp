@@ -1,5 +1,5 @@
 <?php
-namespace SPP\Commands;
+namespace SPP\CLI\Commands;
 
 use SPP\SPPConfig;
 

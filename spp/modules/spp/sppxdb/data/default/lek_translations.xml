@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="lek_translations"><_meta><next_id>10</next_id></_meta>
+  <_schema>
+    <column name="id" type="INTEGER" primary="true"/>
+    <column name="key_code" type="TEXT" notNull="true"/>
+    <column name="locale" type="VARCHAR" notNull="true"/>
+    <column name="translation" type="TEXT"/>
+    <column name="status" type="VARCHAR"/>
+  </_schema>
+  <data>
+  </data>
+<row id="8"><key_code>Translation Scan Validation Trigger String</key_code><locale>en</locale><translation>Translation Scan Validation Trigger String</translation><status>active</status><id>8</id></row><row id="9"><key_code>Translation Scan Validation Trigger String</key_code><locale>es</locale><translation>Cadena del disparador de validacion de escaneo de traduccion</translation><status>active</status><id>9</id></row></database>

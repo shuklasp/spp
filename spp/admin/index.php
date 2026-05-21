@@ -167,6 +167,9 @@ if (!checkDevMode()) {
                     <li><a href="#parikshak" class="nav-item" data-view="parikshak">
                             <span class="icon">🧪</span> Parikshak
                         </a></li>
+                    <li><a href="#spplang" class="nav-item" data-view="spplang">
+                            <span class="icon">🌐</span> Translations
+                        </a></li>
                     <li><a href="#events" class="nav-item" data-view="events">
                             <span class="icon">🎯</span> Events
                         </a></li>

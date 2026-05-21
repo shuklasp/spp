@@ -65,4 +65,15 @@ class Cache extends \SPP\SPPObject
     {
         return self::driver()->clear();
     }
+
+    public static function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool
+    {
+        return self::driver()->setWithTags($key, $value, $tags, $ttl);
+    }
+
+    public static function invalidateTag(string $tag): bool
+    {
+        return self::driver()->invalidateTag($tag);
+    }
 }
+

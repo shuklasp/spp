@@ -52,6 +52,7 @@ class SPPAdmin {
             'marketing': '📢',
             'commerce': '🛒',
             'parikshak': '🧪',
+            'spplang': '🌐',
             'events': '🎯',
             'mobile': '📱'
         };
@@ -78,6 +79,7 @@ class SPPAdmin {
             'marketing': 'Marketing Automation',
             'commerce': 'Lekhak Commerce',
             'parikshak': 'Parikshak Evaluator',
+            'spplang': 'Translation Workbench',
             'events': 'Event Dispatcher',
             'mobile': 'Mobile Studio'
         };

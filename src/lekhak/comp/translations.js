@@ -1,4 +1,5 @@
 import BaseComponent from '../../../spp/modules/spp/sppux/js/BaseComponent.js?v=2026_05_13_v1';
+import { registerNavHandlers, setPageMeta, renderBreadcrumbs } from './lekhak-nav.js';
 
 /**
  * Lekhak Translations View Controller
@@ -8,15 +9,9 @@ export default class TranslationsView extends BaseComponent {
     async onInit(params = {}) {
         this.state = { locales: [], loading: true };
 
-        window.__spp_handlers = window.__spp_handlers || {};
-        window.__spp_handlers['nav-lekhak'] = () => location.hash = 'lekhak';
-        window.__spp_handlers['nav-content'] = () => location.hash = 'content';
-        window.__spp_handlers['nav-canvas'] = () => location.hash = 'canvas';
-        window.__spp_handlers['nav-commerce'] = () => location.hash = 'commerce';
-        window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
-        window.__spp_handlers['nav-settings'] = () => location.hash = 'settings';
-        window.__spp_handlers['nav-media'] = () => location.hash = 'media';
-        window.__spp_handlers['nav-structure'] = () => location.hash = 'structure';
+        // SPPEX: Shared navigation handlers (replaces 9 duplicated lines)
+        registerNavHandlers();
+        setPageMeta('Translations', 'Manage locales and translation progress');
     }
 
     async onMount() { await this.fetchLocales(); }
@@ -84,6 +79,13 @@ export default class TranslationsView extends BaseComponent {
         const countEl = document.getElementById('spp-trans-count');
         if (countEl) countEl.textContent = this.state.locales.length;
 
+        // SPPEX.Breadcrumbs: Render navigation trail
+        const breadcrumbSlot = document.getElementById('spp-translations-breadcrumbs');
+        if (breadcrumbSlot && !breadcrumbSlot._rendered) {
+            breadcrumbSlot.innerHTML = renderBreadcrumbs('Translations');
+            breadcrumbSlot._rendered = true;
+        }
+
         const bodyEl = document.getElementById('spp-translations-container-body');
         if (!bodyEl) return;
 
@@ -107,7 +109,7 @@ export default class TranslationsView extends BaseComponent {
                 <td class="col-status"><span class="badge ${badgeClass}">${loc.statusLabel || loc.status}</span></td>
                 <td class="col-date">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <div class="progress-bar-container"><div class="progress-fill" style="width:${loc.progress}%;"></div></div>
+                        <div id="sppex-progress-${loc.id}" style="flex:1;"></div>
                         <span style="font-size:0.8rem;font-weight:600;color:var(--text-dim);">${loc.progress}%</span>
                     </div>
                 </td>
@@ -120,6 +122,11 @@ export default class TranslationsView extends BaseComponent {
             tr.querySelector('.translate-btn').onclick = () => this.updateProgress(loc);
             tr.querySelector('.del-loc').onclick = () => this.deleteLocale(loc.id);
             bodyEl.appendChild(tr);
+
+            // SPPEX.ProgressBar: Replace manual progress bar with native module
+            if (typeof SPPEX !== 'undefined' && SPPEX.ProgressBar) {
+                SPPEX.ProgressBar.linear(`#sppex-progress-${loc.id}`, loc.progress);
+            }
         });
     }
 }

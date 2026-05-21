@@ -13,33 +13,163 @@ export const LekhniMonaco = {
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
 
-        // Strings
-        html = html.replace(/(&quot;.*?&quot;|'.*?'|".*?")/g, '<span style="color: #a5d6ff;">$1</span>');
-        
-        // Keywords
-        html = html.replace(/\b(true|false|null|const|let|var|function|return|import|export|class|extends|if|else|async|await|switch|case|default|break|continue)\b/g, '<span style="color: #ff7b72; font-weight: 600;">$1</span>');
-        
-        // Numbers
-        html = html.replace(/\b(\d+)\b/g, '<span style="color: #79c0ff;">$1</span>');
+        const tokens = [];
+        const addToken = (value) => {
+            const tokenChar = String.fromCharCode(0xE000 + tokens.length);
+            tokens.push(value);
+            return tokenChar;
+        };
 
-        // JSON/YAML Properties
-        if (language === 'json' || language === 'yaml' || language === 'yml') {
-            html = html.replace(/^(\s*)([a-zA-Z0-9_]+):/gm, '$1<span style="color: #d2a8ff; font-weight: 500;">$2</span>:');
-            html = html.replace(/(&quot;[a-zA-Z0-9_]+&quot;):/g, '<span style="color: #d2a8ff; font-weight: 500;">$1</span>:');
+        const lang = (language || 'javascript').toLowerCase();
+
+        // 1. Multi-line Comments
+        if (['javascript', 'js', 'typescript', 'ts', 'css', 'php', 'rust', 'go', 'sql'].includes(lang)) {
+            html = html.replace(/(\/\*[\s\S]*?\*\/)/g, (_, match) => 
+                addToken(`<span style="color: #8b949e; font-style: italic;">${match}</span>`)
+            );
         }
 
-        // HTML Tags
-        if (language === 'html' || language === 'xml') {
-            html = html.replace(/(&lt;\/?[a-zA-Z0-9\-]+)/g, '<span style="color: #7ee787; font-weight: 500;">$1</span>');
-            html = html.replace(/([a-zA-Z0-9\-]+)=/g, '<span style="color: #d2a8ff;">$1</span>=');
+        // 2. HTML/XML/Markdown comments
+        if (['html', 'xml', 'markdown', 'md', 'php'].includes(lang)) {
+            html = html.replace(/(&lt;!--[\s\S]*?--&gt;)/g, (_, match) => 
+                addToken(`<span style="color: #8b949e; font-style: italic;">${match}</span>`)
+            );
         }
 
-        // Comments
-        html = html.replace(/(\/\/.*$)/gm, '<span style="color: #8b949e; font-style: italic;">$1</span>');
-        html = html.replace(/(#.*$)/gm, '<span style="color: #8b949e; font-style: italic;">$1</span>');
-        html = html.replace(/(&lt;!--.*?--&gt;)/g, '<span style="color: #8b949e; font-style: italic;">$1</span>');
+        // 3. Single Line Comments
+        if (['javascript', 'js', 'typescript', 'ts', 'php', 'rust', 'go', 'css'].includes(lang)) {
+            html = html.replace(/(\/\/.*$)/gm, (_, match) => 
+                addToken(`<span style="color: #8b949e; font-style: italic;">${match}</span>`)
+            );
+        }
+        if (['python', 'py', 'ruby', 'rb', 'bash', 'sh', 'yaml', 'yml', 'php'].includes(lang)) {
+            html = html.replace(/(#.*$)/gm, (_, match) => 
+                addToken(`<span style="color: #8b949e; font-style: italic;">${match}</span>`)
+            );
+        }
+        if (lang === 'sql') {
+            html = html.replace(/(--.*$)/gm, (_, match) => 
+                addToken(`<span style="color: #8b949e; font-style: italic;">${match}</span>`)
+            );
+        }
+
+        // 4. Strings
+        html = html.replace(/(&quot;.*?&quot;|'.*?')/g, (_, match) => 
+            addToken(`<span style="color: #a5d6ff;">${match}</span>`)
+        );
+        if (['javascript', 'js', 'typescript', 'ts', 'go'].includes(lang)) {
+            html = html.replace(/(`[\s\S]*?`)/g, (_, match) => 
+                addToken(`<span style="color: #a5d6ff;">${match}</span>`)
+            );
+        }
+
+        // 5. PHP Tags
+        if (lang === 'php') {
+            html = html.replace(/(&lt;\?php|\?&gt;)/g, (_, match) => 
+                addToken(`<span style="color: #ff7b72; font-weight: bold;">${match}</span>`)
+            );
+        }
+
+        // 6. Keywords
+        const keywords = [
+            'const', 'let', 'var', 'function', 'func', 'fn', 'return', 'import', 'export', 
+            'class', 'extends', 'if', 'else', 'elif', 'elseif', 'async', 'await', 'switch', 
+            'case', 'default', 'break', 'continue', 'for', 'while', 'foreach', 'as', 'in', 
+            'try', 'catch', 'finally', 'throw', 'new', 'struct', 'impl', 'interface', 
+            'package', 'namespace', 'use', 'public', 'private', 'protected', 'echo', 'print', 
+            'global', 'static', 'def', 'from', 'with', 'lambda', 'except', 'raise', 'yield', 
+            'assert', 'del', 'pass', 'type', 'select', 'where', 'from', 'insert', 'into', 
+            'values', 'update', 'delete', 'create', 'table', 'alter', 'drop', 'and', 'or', 'not'
+        ];
+        const keywordRegex = new RegExp(`\\b(${keywords.join('|')})\\b`, 'gi');
+        html = html.replace(keywordRegex, (_, match) => 
+            addToken(`<span style="color: #ff7b72; font-weight: 600;">${match}</span>`)
+        );
+
+        const types = [
+            'int', 'float', 'string', 'bool', 'boolean', 'number', 'any', 'void', 'nil', 
+            'null', 'true', 'false', 'undefined', 'self', 'this', 'None'
+        ];
+        const typesRegex = new RegExp(`\\b(${types.join('|')})\\b`, 'gi');
+        html = html.replace(typesRegex, (_, match) => 
+            addToken(`<span style="color: #79c0ff;">${match}</span>`)
+        );
+
+        // 7. Numbers
+        html = html.replace(/\b(\d+)\b/g, (_, match) => 
+            addToken(`<span style="color: #79c0ff;">${match}</span>`)
+        );
+
+        // 8. Properties / Selectors / Keys
+        if (['json', 'yaml', 'yml'].includes(lang)) {
+            html = html.replace(/^(\s*)([a-zA-Z0-9_\-]+):/gm, (_, space, prop) => 
+                space + addToken(`<span style="color: #d2a8ff; font-weight: 500;">${prop}</span>`) + ':'
+            );
+            html = html.replace(/(&quot;[a-zA-Z0-9_\-]+&quot;):/g, (_, prop) => 
+                addToken(`<span style="color: #d2a8ff; font-weight: 500;">${prop}</span>`) + ':'
+            );
+        }
+        if (lang === 'css') {
+            html = html.replace(/^(\s*)([a-zA-Z0-9_\-\.\#\:\s,>+]+)\s*\{/gm, (_, space, selector) => 
+                space + addToken(`<span style="color: #7ee787; font-weight: bold;">${selector}</span>`) + ' {'
+            );
+            html = html.replace(/([a-zA-Z0-9\-]+)\s*:/g, (_, prop) => 
+                addToken(`<span style="color: #ff7b72;">${prop}</span>`) + ':'
+            );
+            html = html.replace(/(#[0-9a-fA-F]{3,8})\b/g, (_, match) => 
+                addToken(`<span style="color: #79c0ff;">${match}</span>`)
+            );
+        }
+
+        // 9. HTML/XML Tags and Attributes
+        if (['html', 'xml', 'php'].includes(lang)) {
+            html = html.replace(/(&lt;\/?[a-zA-Z0-9\-:]+)/g, (_, tag) => 
+                addToken(`<span style="color: #7ee787; font-weight: 500;">${tag}</span>`)
+            );
+            html = html.replace(/\b([a-zA-Z0-9\-]+)=/g, (_, attr) => 
+                addToken(`<span style="color: #d2a8ff;">${attr}</span>`) + '='
+            );
+        }
+
+        // 10. Markdown Headers & Accents
+        if (['markdown', 'md'].includes(lang)) {
+            html = html.replace(/^(#+\s+.*)$/gm, (_, match) => 
+                addToken(`<span style="color: #7ee787; font-weight: bold;">${match}</span>`)
+            );
+            html = html.replace(/^(\s*[\*\-\+]\s+|\s*\d+\.\s+)/gm, (_, match) => 
+                addToken(`<span style="color: #ff7b72; font-weight: bold;">${match}</span>`)
+            );
+            html = html.replace(/(\*\*.*?\*\*)/g, (_, match) => 
+                addToken(`<span style="color: #ff7b72; font-weight: bold;">${match}</span>`)
+            );
+            html = html.replace(/(\*.*?\*|_.*?_)/g, (_, match) => 
+                addToken(`<span style="color: #d2a8ff; font-style: italic;">${match}</span>`)
+            );
+        }
+
+        // 11. Reconstruction
+        for (let i = tokens.length - 1; i >= 0; i--) {
+            const tokenChar = String.fromCharCode(0xE000 + i);
+            html = html.replace(tokenChar, tokens[i]);
+        }
 
         return html;
+    },
+
+    stripSyntaxHighlighting(html) {
+        if (!html) return '';
+        let clean = html;
+        clean = clean
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/<span[^>]*>/gi, '')
+            .replace(/<\/span>/gi, '')
+            .replace(/<div[^>]*>/gi, '')
+            .replace(/<\/div>/gi, '\n')
+            .replace(/<br\s*\/?>/gi, '\n');
+        return clean;
     },
 
     create(container, options = {}) {
@@ -112,6 +242,47 @@ export const LekhniMonaco = {
 
         textarea.value = contentValue;
 
+        // --- Autocomplete Setup ---
+        const autocompleteWrap = document.createElement('div');
+        autocompleteWrap.style.position = 'absolute';
+        autocompleteWrap.style.display = 'none';
+        autocompleteWrap.style.background = '#161b22';
+        autocompleteWrap.style.border = '1px solid #30363d';
+        autocompleteWrap.style.borderRadius = '6px';
+        autocompleteWrap.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)';
+        autocompleteWrap.style.zIndex = '100';
+        autocompleteWrap.style.maxHeight = '150px';
+        autocompleteWrap.style.overflowY = 'auto';
+        autocompleteWrap.style.color = '#c9d1d9';
+        autocompleteWrap.style.fontSize = '12px';
+        autocompleteWrap.style.minWidth = '120px';
+
+        const keywords = [
+            'const', 'let', 'var', 'function', 'return', 'import', 'export', 
+            'class', 'extends', 'if', 'else', 'async', 'await', 'switch', 
+            'case', 'default', 'break', 'continue', 'for', 'while', 'try', 
+            'catch', 'finally', 'throw', 'new', 'public', 'private', 'static',
+            'int', 'float', 'string', 'boolean', 'null', 'true', 'false', 'undefined'
+        ];
+        
+        let autocompleteItems = [];
+        let selectedIndex = 0;
+        let currentWordStart = 0;
+        let currentWordEnd = 0;
+
+        const mirrorDiv = document.createElement('div');
+        mirrorDiv.style.position = 'absolute';
+        mirrorDiv.style.top = '0'; mirrorDiv.style.left = '0';
+        mirrorDiv.style.visibility = 'hidden';
+        mirrorDiv.style.whiteSpace = 'pre-wrap';
+        mirrorDiv.style.wordWrap = 'break-word';
+        mirrorDiv.style.padding = '12px 16px';
+        mirrorDiv.style.fontSize = '13px';
+        mirrorDiv.style.lineHeight = '1.6';
+        mirrorDiv.style.fontFamily = "'JetBrains Mono', 'Consolas', monospace";
+        editorWrap.appendChild(mirrorDiv);
+        editorWrap.appendChild(autocompleteWrap);
+
         const updateView = () => {
             const lines = textarea.value.split('\n').length;
             let lineStr = '';
@@ -126,7 +297,70 @@ export const LekhniMonaco = {
             contentValue = textarea.value;
             updateView();
             listeners.forEach(fn => fn(contentValue));
+
+            // Autocomplete logic
+            const pos = textarea.selectionStart;
+            const textBefore = contentValue.substring(0, pos);
+            const match = textBefore.match(/([a-zA-Z_]\w*)$/);
+            
+            if (match) {
+                const currentWord = match[1];
+                currentWordStart = pos - currentWord.length;
+                currentWordEnd = pos;
+                
+                autocompleteItems = keywords.filter(k => k.toLowerCase().startsWith(currentWord.toLowerCase()) && k !== currentWord);
+                
+                if (autocompleteItems.length > 0) {
+                    // Update mirror to find caret pos
+                    mirrorDiv.style.width = textarea.clientWidth + 'px';
+                    const textUpToWord = contentValue.substring(0, currentWordStart);
+                    mirrorDiv.textContent = textUpToWord;
+                    const span = document.createElement('span');
+                    span.textContent = currentWord;
+                    mirrorDiv.appendChild(span);
+                    
+                    const spanRect = span.getBoundingClientRect();
+                    const wrapRect = editorWrap.getBoundingClientRect();
+                    
+                    autocompleteWrap.style.left = (spanRect.left - wrapRect.left) + 'px';
+                    autocompleteWrap.style.top = (spanRect.bottom - wrapRect.top - textarea.scrollTop + 4) + 'px';
+                    
+                    renderAutocomplete();
+                    autocompleteWrap.style.display = 'block';
+                } else {
+                    autocompleteWrap.style.display = 'none';
+                }
+            } else {
+                autocompleteWrap.style.display = 'none';
+            }
         });
+
+        const renderAutocomplete = () => {
+            autocompleteWrap.innerHTML = '';
+            autocompleteItems.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.style.padding = '4px 12px';
+                el.style.cursor = 'pointer';
+                el.style.background = idx === selectedIndex ? '#1f6feb' : 'transparent';
+                el.style.color = idx === selectedIndex ? '#ffffff' : '#c9d1d9';
+                el.textContent = item;
+                el.onmousedown = (e) => {
+                    e.preventDefault();
+                    applyAutocomplete(item);
+                };
+                autocompleteWrap.appendChild(el);
+            });
+        };
+
+        const applyAutocomplete = (word) => {
+            const before = textarea.value.substring(0, currentWordStart);
+            const after = textarea.value.substring(currentWordEnd);
+            textarea.value = before + word + after;
+            textarea.selectionStart = textarea.selectionEnd = currentWordStart + word.length;
+            autocompleteWrap.style.display = 'none';
+            textarea.dispatchEvent(new Event('input'));
+            textarea.focus();
+        };
 
         textarea.addEventListener('scroll', () => {
             lineNums.scrollTop = textarea.scrollTop;
@@ -135,6 +369,30 @@ export const LekhniMonaco = {
         });
 
         textarea.addEventListener('keydown', (e) => {
+            if (autocompleteWrap.style.display === 'block') {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex + 1) % autocompleteItems.length;
+                    renderAutocomplete();
+                    return;
+                }
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    selectedIndex = (selectedIndex - 1 + autocompleteItems.length) % autocompleteItems.length;
+                    renderAutocomplete();
+                    return;
+                }
+                if (e.key === 'Enter' || e.key === 'Tab') {
+                    e.preventDefault();
+                    applyAutocomplete(autocompleteItems[selectedIndex]);
+                    return;
+                }
+                if (e.key === 'Escape') {
+                    autocompleteWrap.style.display = 'none';
+                    return;
+                }
+            }
+
             if (e.key === 'Tab') {
                 e.preventDefault();
                 const start = textarea.selectionStart;
