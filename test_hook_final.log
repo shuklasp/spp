@@ -1,0 +1,5 @@
+onPostTheme called with occurence: before
+Passed occurence check
+Invoking alter!
+onPostTheme called with occurence: override
+onPostTheme called with occurence: after

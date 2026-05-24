@@ -52,10 +52,16 @@ class LekhakAdminShell {
         document.addEventListener('click', (e) => {
             const link = e.target.closest('a');
             if (!link) return;
+
+            // Allow PHP-backed routes to pass through for full page navigation
+            if (link.getAttribute('data-php-route') === 'true') {
+                // Let the browser handle this link naturally (full page load)
+                return;
+            }
             
             const href = link.getAttribute('href');
             
-            const possibleViews = ['dashboard', 'lekhak', 'content', 'canvas', 'commerce', 'translations', 'editor', 'settings', 'media', 'structure', 'blocks'];
+            const possibleViews = ['dashboard', 'lekhak', 'content', 'canvas', 'commerce', 'translations', 'editor', 'settings', 'media', 'structure', 'blocks', 'views', 'lekhak_forum', 'lekhak_community', 'lekhak_qa', 'lekhak_newsletter', 'lekhak_popups', 'lekhak_academy', 'lekhak_helpdesk', 'lekhak_events', 'lekhak_classifieds', 'lekhak_realestate', 'lekhak_healthcare', 'lekhak_donations', 'lekhak_gallery', 'lekhak_portfolio', 'lekhak_documents', 'lekhak_widgets', 'lekhak_lightbox', 'lekhak_subscriptions', 'lekhak_memberships', 'lekhak_backend_shield', 'lekhak_journal', 'lekhak_reviews', 'lekhak_glossary', 'lekhak_reading_time', 'lekhak_authors', 'lekhak_migrations', 'lekhak_webhooks', 'lekhak_ab_testing', 'lekhak_audit_trail', 'lekhak_pwa', 'lekhak_pdf', 'lekhak_watermark', 'lekhak_affiliates', 'lekhak_gdpr', 'lekhak_search_pro'];
             let targetView = null;
             
             for (const v of possibleViews) {
@@ -116,7 +122,43 @@ class LekhakAdminShell {
                 'settings': 'settings',
                 'media': 'media',
                 'structure': 'structure',
-                'blocks': 'blocks'
+                'blocks': 'blocks',
+                'views': 'views',
+                'lekhak_forum': 'lekhak_forum',
+                'lekhak_community': 'lekhak_community',
+                'lekhak_qa': 'lekhak_qa',
+                'lekhak_newsletter': 'lekhak_newsletter',
+                'lekhak_popups': 'lekhak_popups',
+                'lekhak_academy': 'lekhak_academy',
+                'lekhak_helpdesk': 'lekhak_helpdesk',
+                'lekhak_events': 'lekhak_events',
+                'lekhak_classifieds': 'lekhak_classifieds',
+                'lekhak_realestate': 'lekhak_realestate',
+                'lekhak_healthcare': 'lekhak_healthcare',
+                'lekhak_donations': 'lekhak_donations',
+                'lekhak_gallery': 'lekhak_gallery',
+                'lekhak_portfolio': 'lekhak_portfolio',
+                'lekhak_documents': 'lekhak_documents',
+                'lekhak_widgets': 'lekhak_widgets',
+                'lekhak_lightbox': 'lekhak_lightbox',
+                'lekhak_subscriptions': 'lekhak_subscriptions',
+                'lekhak_memberships': 'lekhak_memberships',
+                'lekhak_backend_shield': 'lekhak_backend_shield',
+                'lekhak_journal': 'lekhak_journal',
+                'lekhak_reviews': 'lekhak_reviews',
+                'lekhak_glossary': 'lekhak_glossary',
+                'lekhak_reading_time': 'lekhak_reading_time',
+                'lekhak_authors': 'lekhak_authors',
+                'lekhak_migrations': 'lekhak_migrations',
+                'lekhak_webhooks': 'lekhak_webhooks',
+                'lekhak_ab_testing': 'lekhak_ab_testing',
+                'lekhak_audit_trail': 'lekhak_audit_trail',
+                'lekhak_pwa': 'lekhak_pwa',
+                'lekhak_pdf': 'lekhak_pdf',
+                'lekhak_watermark': 'lekhak_watermark',
+                'lekhak_affiliates': 'lekhak_affiliates',
+                'lekhak_gdpr': 'lekhak_gdpr',
+                'lekhak_search_pro': 'lekhak_search_pro'
             };
 
             const compName = viewMap[view] || 'lekhak';

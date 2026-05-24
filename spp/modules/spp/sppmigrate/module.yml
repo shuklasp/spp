@@ -1,0 +1,7 @@
+name: "SPPMigrate"
+description: "Lifecycle deployment and migration module."
+version: "1.0.0"
+author: "Antigravity"
+type: "module"
+core_version_requirement: ">=1.0.0"
+dependencies: []

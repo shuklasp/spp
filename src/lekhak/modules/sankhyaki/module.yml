@@ -1,0 +1,5 @@
+name: 'Sankhyaki Analytics'
+description: 'Advanced real-time analytics module featuring device detection, geolocation, UTM tracking, and exact time-on-page.'
+package: 'Core'
+version: '1.0.0'
+configure: 'admin/sankhyaki'

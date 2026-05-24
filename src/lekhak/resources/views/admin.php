@@ -164,18 +164,63 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-view="canvas">
-                        <i class="fas fa-palette"></i> Lekhak Canvas
+                    <a class="nav-link" data-view="editor" style="background: var(--primary); color: white;">
+                        <i class="fas fa-plus"></i> Create Content
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" data-view="translations">
-                        <i class="fas fa-language"></i> Translations
+                    <a class="nav-link" data-view="canvas">
+                        <i class="fas fa-palette"></i> Visual Canvas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../admin/landing">
+                        <i class="fas fa-rocket"></i> Landing Pages
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="media">
+                        <i class="fas fa-photo-film"></i> Media Library
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="structure">
+                        <i class="fas fa-cubes"></i> Content Types
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../admin/structure/views">
+                        <i class="fas fa-eye"></i> Views Builder
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="blocks">
+                        <i class="fas fa-th-large"></i> Blocks & Views
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" data-view="commerce">
-                        <i class="fas fa-cart-shopping"></i> Commerce
+                        <i class="fas fa-cart-shopping"></i> eCommerce Store
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="translations">
+                        <i class="fas fa-language"></i> Translation Center
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-view="settings">
+                        <i class="fas fa-paint-brush"></i> Themes & Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../admin/settings">
+                        <i class="fas fa-cog"></i> Configuration
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="../admin/users">
+                        <i class="fas fa-users"></i> Users & Roles
                     </a>
                 </li>
             </ul>

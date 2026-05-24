@@ -12,5 +12,10 @@ class LekhakApp extends \SPP\App {
         
         // Ensure isolation from sppadmin
         \SPP\Module::disableModule('sppadmin');
+
+        // Boot Ecosystem Registry
+        if (class_exists('\\SPPMod\\Lekhak\\Core\\ModuleRegistry')) {
+            \SPPMod\Lekhak\Core\ModuleRegistry::init();
+        }
     }
 }

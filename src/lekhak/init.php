@@ -11,6 +11,16 @@
 require_once __DIR__ . '/modules/spptheme/events/ThemeEventHandler.php';
 \SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
 
+// ── Module Registry Initialization ──────────────────────────────────────
+require_once __DIR__ . '/ModuleRegistry.php';
+if (php_sapi_name() !== 'cli') {
+    \Lekhak\ModuleRegistry::invokeAll('request_init');
+}
+
+// Register PageRenderHookEventHandler
+require_once __DIR__ . '/events/PageRenderHookEventHandler.php';
+\SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\EventHandlers\\PageRenderHookEventHandler', false, 'onPostTheme', 100);
+
 // ── Content Workflow Registration ──────────────────────────────────────
 // Register editorial workflow states and transitions with the core engine.
 if (class_exists('\\SPP\\Core\\WorkflowManager')) {
@@ -36,7 +46,7 @@ if (php_sapi_name() !== 'cli' && class_exists('\\SPP\\I18n\\LanguageManager')) {
         $langManager = new \SPP\I18n\LanguageManager($db->getPDO());
         require_once __DIR__ . '/ui/LanguageSwitcher.php';
         \App\Lekhak\UI\LanguageSwitcher::handleRequest($langManager);
-    } catch (\Exception $e) {
+    } catch (\Throwable $e) {
         // Language support not available — continue without it
     }
 }

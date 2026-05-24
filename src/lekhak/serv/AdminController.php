@@ -249,7 +249,13 @@ class AdminController
         if (!$db->tableExists($table)) {
             ContentType::install();
         }
-        $type = new ContentType($name);
+        $type = new ContentType();
+        if ($name && $name !== 'add') {
+            $existing = ContentType::find_one(['name' => $name]);
+            if ($existing) {
+                $type = $existing;
+            }
+        }
         
         $builder = new ViewFormBuilder($type);
         $form = $builder->build();
@@ -326,21 +332,26 @@ class AdminController
 
     public function manageMedia()
     {
-        return $this->render("placeholder", [
-            'title' => 'Media Library',
-            'subtitle' => 'Asset and file management.'
-        ]);
+        header("Location: " . $this->getAppRoot() . "/admin#media");
+        exit;
     }
 
     public function settings()
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $settings = [
+                'theme' => $_POST['theme'] ?? 'dark',
+                'enable_edge_consensus' => isset($_POST['enable_edge_consensus']) ? true : false,
+                'enable_merkle_trace' => isset($_POST['enable_merkle_trace']) ? true : false,
+                'speculative_offline' => isset($_POST['speculative_offline']) ? true : false,
+                'strict_sri' => isset($_POST['strict_sri']) ? true : false,
+                'ambient_scale' => $_POST['ambient_scale'] ?? '1.05',
+                'primary_accent' => $_POST['primary_accent'] ?? '#f97316',
                 'lekhni_default_mode' => $_POST['lekhni_default_mode'] ?? 'document',
                 'lekhni_ai_copilot' => isset($_POST['lekhni_ai_copilot']) ? true : false,
                 'lekhni_code_language' => $_POST['lekhni_code_language'] ?? 'html',
                 'designer_grid_snap' => isset($_POST['designer_grid_snap']) ? true : false,
-                'designer_autosave' => (int)($_POST['designer_autosave'] ?? 30),
+                'designer_autosave' => (int)($_POST['designer_autosave'] ?? 300),
                 'structure_strict_schema' => isset($_POST['structure_strict_schema']) ? true : false,
                 'content_default_status' => $_POST['content_default_status'] ?? 'draft',
                 'content_revision_tracking' => isset($_POST['content_revision_tracking']) ? true : false,
@@ -358,12 +369,19 @@ class AdminController
             'title' => 'System Settings',
             'subtitle' => 'Global configuration for Lekhak CMS.',
             'settings' => [
+                'theme' => \SPP\SPPConfig::get('app:theme', 'dark'),
+                'enable_edge_consensus' => \SPP\SPPConfig::get('app:enable_edge_consensus', true),
+                'enable_merkle_trace' => \SPP\SPPConfig::get('app:enable_merkle_trace', false),
+                'speculative_offline' => \SPP\SPPConfig::get('app:speculative_offline', true),
+                'strict_sri' => \SPP\SPPConfig::get('app:strict_sri', false),
+                'ambient_scale' => \SPP\SPPConfig::get('app:ambient_scale', '1.05'),
+                'primary_accent' => \SPP\SPPConfig::get('app:primary_accent', '#f97316'),
                 'lekhni_default_mode' => \SPP\SPPConfig::get('app:lekhni_default_mode', 'document'),
                 'lekhni_ai_copilot' => \SPP\SPPConfig::get('app:lekhni_ai_copilot', true),
                 'lekhni_code_language' => \SPP\SPPConfig::get('app:lekhni_code_language', 'html'),
                 'designer_grid_snap' => \SPP\SPPConfig::get('app:designer_grid_snap', true),
-                'designer_autosave' => \SPP\SPPConfig::get('app:designer_autosave', 30),
-                'structure_strict_schema' => \SPP\SPPConfig::get('app:structure_strict_schema', true),
+                'designer_autosave' => \SPP\SPPConfig::get('app:designer_autosave', 300),
+                'structure_strict_schema' => \SPP\SPPConfig::get('app:structure_strict_schema', false),
                 'content_default_status' => \SPP\SPPConfig::get('app:content_default_status', 'draft'),
                 'content_revision_tracking' => \SPP\SPPConfig::get('app:content_revision_tracking', true),
             ]
@@ -372,9 +390,162 @@ class AdminController
 
     public function manageUsers()
     {
-        return $this->render("placeholder", [
+        $this->ensureDashboardSchema();
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $usersTable = \SPPMod\SPPDB\SPPDB::sppTable('users');
+        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('roles');
+
+        // Populate default roles if empty
+        $roles = $db->execute_query("SELECT * FROM {$rolesTable}");
+        if (empty($roles)) {
+            $db->execute_query("INSERT INTO {$rolesTable} (role_name, description) VALUES (?, ?)", ['Administrator', 'Full system access and configurations.']);
+            $db->execute_query("INSERT INTO {$rolesTable} (role_name, description) VALUES (?, ?)", ['Editor', 'Manage content, fields, and taxonomies.']);
+            $db->execute_query("INSERT INTO {$rolesTable} (role_name, description) VALUES (?, ?)", ['Contributor', 'Create and edit own content.']);
+            $roles = $db->execute_query("SELECT * FROM {$rolesTable}");
+        }
+
+        // Handle POST requests for user actions (Create user, Update role/status, Delete user)
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+            
+            if ($action === 'create') {
+                $username = trim($_POST['username'] ?? '');
+                $email = trim($_POST['email'] ?? '');
+                $password = $_POST['password'] ?? '';
+                $role_id = (int)($_POST['role_id'] ?? 0);
+                $status = $_POST['status'] ?? 'active';
+                
+                if (!empty($username) && !empty($password)) {
+                    $hash = password_hash($password, PASSWORD_DEFAULT);
+                    $db->execute_query("INSERT INTO {$usersTable} (username, email, password, password_hash, role_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                        [$username, $email, $hash, $hash, $role_id, $status, date("Y-m-d H:i:s")]);
+                    $_SESSION['flash_success'] = "User '{$username}' created successfully.";
+                }
+            } elseif ($action === 'update') {
+                $uid = (int)($_POST['user_id'] ?? 0);
+                $role_id = (int)($_POST['role_id'] ?? 0);
+                $status = $_POST['status'] ?? 'active';
+                $email = trim($_POST['email'] ?? '');
+                $password = $_POST['password'] ?? '';
+                
+                if ($uid > 0) {
+                    if (!empty($password)) {
+                        $hash = password_hash($password, PASSWORD_DEFAULT);
+                        $db->execute_query("UPDATE {$usersTable} SET email = ?, password = ?, password_hash = ?, role_id = ?, status = ?, updated_at = ? WHERE id = ?",
+                            [$email, $hash, $hash, $role_id, $status, date("Y-m-d H:i:s"), $uid]);
+                    } else {
+                        $db->execute_query("UPDATE {$usersTable} SET email = ?, role_id = ?, status = ?, updated_at = ? WHERE id = ?",
+                            [$email, $role_id, $status, date("Y-m-d H:i:s"), $uid]);
+                    }
+                    $_SESSION['flash_success'] = "User updated successfully.";
+                }
+            } elseif ($action === 'delete') {
+                $uid = (int)($_POST['user_id'] ?? 0);
+                if ($uid > 0) {
+                    $db->execute_query("DELETE FROM {$usersTable} WHERE id = ?", [$uid]);
+                    $_SESSION['flash_success'] = "User deleted successfully.";
+                }
+            }
+            
+            header("Location: " . $this->getAppRoot() . "/admin/users");
+            exit;
+        }
+
+        // Fetch users and link their role_name
+        $users = $db->execute_query("SELECT u.*, r.role_name FROM {$usersTable} u LEFT JOIN {$rolesTable} r ON u.role_id = r.id");
+        if (empty($users)) {
+            // Seed a default admin if table was empty
+            $adminRole = $db->execute_query("SELECT id FROM {$rolesTable} WHERE role_name = 'Administrator' LIMIT 1")[0]['id'] ?? 1;
+            $adminHash = password_hash('admin', PASSWORD_DEFAULT);
+            $db->execute_query("INSERT INTO {$usersTable} (username, email, password, password_hash, role_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                ['admin', 'admin@lekhak.local', $adminHash, $adminHash, $adminRole, 'active', date("Y-m-d H:i:s")]);
+            
+            $users = $db->execute_query("SELECT u.*, r.role_name FROM {$usersTable} u LEFT JOIN {$rolesTable} r ON u.role_id = r.id");
+        }
+
+        return $this->render("users", [
             'title' => 'User Management',
-            'subtitle' => 'Control access and permissions.'
+            'subtitle' => 'Control access, roles, and status of Lekhak administrators.',
+            'users' => $users,
+            'roles' => $roles
+        ]);
+    }
+
+    public function manageRoles()
+    {
+        $this->ensureDashboardSchema();
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('roles');
+        $rightsTable = \SPPMod\SPPDB\SPPDB::sppTable('rights');
+        $roleRightTable = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
+
+        // Populate default rights if empty
+        $rights = $db->execute_query("SELECT * FROM {$rightsTable}");
+        if (empty($rights)) {
+            $defaultRights = [
+                ['name' => 'administer site configuration', 'description' => 'Change global settings, themes, and configuration.'],
+                ['name' => 'administer content types', 'description' => 'Manage structural schema, fields, and views.'],
+                ['name' => 'administer users', 'description' => 'Manage user accounts and roles.'],
+                ['name' => 'bypass node access', 'description' => 'View, edit, and delete all content regardless of author.'],
+                ['name' => 'create content', 'description' => 'Create new content nodes.'],
+                ['name' => 'edit own content', 'description' => 'Edit content created by the user.'],
+                ['name' => 'delete own content', 'description' => 'Delete content created by the user.']
+            ];
+            foreach ($defaultRights as $right) {
+                $db->execute_query("INSERT INTO {$rightsTable} (name, description) VALUES (?, ?)", [$right['name'], $right['description']]);
+            }
+            $rights = $db->execute_query("SELECT * FROM {$rightsTable}");
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $action = $_POST['action'] ?? '';
+
+            if ($action === 'create_role') {
+                $role_name = trim($_POST['role_name'] ?? '');
+                $description = trim($_POST['description'] ?? '');
+                if (!empty($role_name)) {
+                    $db->execute_query("INSERT INTO {$rolesTable} (role_name, description) VALUES (?, ?)", [$role_name, $description]);
+                    $_SESSION['flash_success'] = "Role '{$role_name}' created successfully.";
+                }
+            } elseif ($action === 'update_rights') {
+                $role_id = (int)($_POST['role_id'] ?? 0);
+                $assigned_rights = $_POST['rights'] ?? [];
+                
+                if ($role_id > 0) {
+                    $db->execute_query("DELETE FROM {$roleRightTable} WHERE roleid = ?", [$role_id]);
+                    foreach ($assigned_rights as $right_id) {
+                        $db->execute_query("INSERT INTO {$roleRightTable} (roleid, rightid) VALUES (?, ?)", [$role_id, (int)$right_id]);
+                    }
+                    $_SESSION['flash_success'] = "Permissions updated successfully.";
+                }
+            } elseif ($action === 'delete_role') {
+                $role_id = (int)($_POST['role_id'] ?? 0);
+                if ($role_id > 0 && $role_id !== 1) { // Prevent deleting default Administrator
+                    $db->execute_query("DELETE FROM {$rolesTable} WHERE id = ?", [$role_id]);
+                    $db->execute_query("DELETE FROM {$roleRightTable} WHERE roleid = ?", [$role_id]);
+                    $_SESSION['flash_success'] = "Role deleted successfully.";
+                }
+            }
+            
+            header("Location: " . $this->getAppRoot() . "/admin/roles");
+            exit;
+        }
+
+        $roles = $db->execute_query("SELECT * FROM {$rolesTable}");
+        $roleRightsMap = [];
+        $roleRightsRaw = $db->execute_query("SELECT roleid, rightid FROM {$roleRightTable}");
+        if ($roleRightsRaw) {
+            foreach ($roleRightsRaw as $rr) {
+                $roleRightsMap[$rr['roleid']][] = $rr['rightid'];
+            }
+        }
+
+        return $this->render("roles", [
+            'title' => 'Roles & Permissions',
+            'subtitle' => 'Define access control levels across the CMS.',
+            'roles' => $roles,
+            'rights' => $rights,
+            'roleRightsMap' => $roleRightsMap
         ]);
     }
 

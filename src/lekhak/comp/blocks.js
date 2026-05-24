@@ -19,7 +19,7 @@ export default class BlocksView extends BaseComponent {
                 { id: 'footer', name: 'Footer Region' }
             ],
             loading: true,
-            activeTab: 'layout', // layout, library, designer
+            activeTab: 'library', // library, designer
             editingBlock: null, // block structure for create/edit
             designer: {
                 title: 'Recent Articles View',
@@ -86,7 +86,7 @@ export default class BlocksView extends BaseComponent {
             const res = await this.api.saveBlock({
                 id: block.id || null,
                 block_type: block.block_type || 'custom_html',
-                region: block.region || 'sidebar_first',
+                region: block.region || 'global',
                 weight: parseInt(block.weight || 0, 10),
                 page_id: 0,
                 data: block.data || {}
@@ -144,7 +144,7 @@ export default class BlocksView extends BaseComponent {
         this.setState({
             editingBlock: {
                 block_type: type,
-                region: 'sidebar_first',
+                region: 'global',
                 weight: 0,
                 data: {
                     title: type === 'custom_html' ? 'New HTML Block' : 'New Text Block',
@@ -223,7 +223,7 @@ export default class BlocksView extends BaseComponent {
 
             if (res.success) {
                 this.admin?.notify?.("Dynamic view query block saved successfully!", "success");
-                this.setTab('layout');
+                this.setTab('library');
                 await this.fetchData();
             } else {
                 this.admin?.notify?.(res.message || "Failed to save designer block.", "error");
@@ -287,95 +287,9 @@ export default class BlocksView extends BaseComponent {
                 <div style="padding:2rem;max-width:1400px;margin:0 auto;">
                     <!-- Inner Page Tabs -->
                     <div style="display:flex;border-bottom:1px solid var(--border);margin-bottom:2rem;gap:1rem;">
-                        <span style="${tabStyle('layout')}" id="tab-layout">Layout & Regions</span>
                         <span style="${tabStyle('library')}" id="tab-library">Custom Blocks Library</span>
                         <span style="${tabStyle('designer')}" id="tab-designer">Drupal Views Designer</span>
                     </div>
-
-                    <!-- Layout Tab Content -->
-                    ${activeTab === 'layout' ? html`
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
-                            <!-- Theme regions list -->
-                            <div>
-                                <h2 style="font-family:'Outfit',sans-serif;font-weight:800;color:var(--text);margin-bottom:1.5rem;font-size:1.4rem;display:flex;align-items:center;gap:8px;">
-                                    <span>🎨</span> Active Layout Regions
-                                </h2>
-                                
-                                <div style="display:flex;flex-direction:column;gap:1.5rem;">
-                                    ${regions.map(reg => html`
-                                        <div style="background:rgba(30,41,59,0.4);border:1px solid var(--border);border-radius:12px;padding:1.5rem;backdrop-filter:blur(8px);">
-                                            <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,0.06);padding-bottom:0.75rem;margin-bottom:1rem;">
-                                                <div style="display:flex;align-items:center;gap:8px;">
-                                                    <span style="font-size:1.1rem;color:#f97316;">📍</span>
-                                                    <span style="font-family:'Outfit',sans-serif;font-weight:700;font-size:1.05rem;">${reg.name}</span>
-                                                    <span style="font-size:0.7rem;color:var(--text-dim);background:rgba(255,255,255,0.04);padding:2px 8px;border-radius:4px;font-family:monospace;">${reg.id}</span>
-                                                </div>
-                                                <span style="font-size:0.75rem;color:var(--text-dim);font-weight:600;">${regionBlocksMap[reg.id]?.length || 0} blocks</span>
-                                            </div>
-
-                                            ${regionBlocksMap[reg.id]?.length === 0 ? html`
-                                                <p style="color:var(--text-dim);font-size:0.85rem;font-style:italic;margin:0;">No blocks assigned to this region.</p>
-                                            ` : html`
-                                                <div style="display:flex;flex-direction:column;gap:0.75rem;">
-                                                    ${regionBlocksMap[reg.id].map(b => html`
-                                                        <div style="background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);border-radius:8px;padding:0.75rem 1rem;display:flex;justify-content:space-between;align-items:center;">
-                                                            <div style="display:flex;flex-direction:column;gap:4px;">
-                                                                <div style="font-weight:600;font-size:0.9rem;display:flex;align-items:center;gap:6px;">
-                                                                    <span>${b.data?.title || 'Untitled Block'}</span>
-                                                                    <span style="font-size:0.65rem;text-transform:uppercase;background:rgba(249,115,22,0.15);color:#f97316;padding:2px 6px;border-radius:4px;font-weight:700;letter-spacing:0.05em;">${b.block_type}</span>
-                                                                </div>
-                                                                <span style="font-size:0.75rem;color:var(--text-dim);">Weight: ${b.weight}</span>
-                                                            </div>
-                                                            <div style="display:flex;align-items:center;gap:6px;">
-                                                                <!-- Up/Down Weight controls -->
-                                                                <button class="btn-weight-up" data-id="${b.id}" style="background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border);border-radius:4px;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.75rem;">▲</button>
-                                                                <button class="btn-weight-down" data-id="${b.id}" style="background:rgba(255,255,255,0.05);color:var(--text);border:1px solid var(--border);border-radius:4px;width:24px;height:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.75rem;">▼</button>
-                                                                <!-- Delete block -->
-                                                                <button class="btn-remove-block" data-id="${b.id}" style="background:transparent;color:#ef4444;border:none;margin-left:8px;cursor:pointer;font-size:0.85rem;font-weight:600;">Remove</button>
-                                                            </div>
-                                                        </div>
-                                                    `)}
-                                                </div>
-                                            `}
-                                        </div>
-                                    `)}
-                                </div>
-                            </div>
-
-                            <!-- Layout instructions & visual schema map -->
-                            <div>
-                                <div style="background:linear-gradient(135deg,rgba(249,115,22,0.1) 0%,transparent 100%);border:1px solid rgba(249,115,22,0.2);border-radius:12px;padding:1.5rem;margin-bottom:1.5rem;">
-                                    <h3 style="font-family:'Outfit',sans-serif;font-weight:700;color:#f97316;margin-bottom:0.75rem;font-size:1.1rem;">Template Block Injection</h3>
-                                    <p style="color:var(--text-dim);font-size:0.88rem;line-height:1.6;margin:0 0 1rem 0;">
-                                        Lekhak CMS layout templates automatically compile with the upgraded Twig parsing engine. Region content assigned here dynamically merges directly inside the theme layout HTML structure.
-                                    </p>
-                                    <ul style="color:var(--text-dim);font-size:0.85rem;line-height:1.6;padding-left:1.25rem;">
-                                        <li>Assign blocks to regions like Sidebar First or Slider.</li>
-                                        <li>Sort rendering precedence dynamically by adjusting weights.</li>
-                                        <li>Use Drupal-style views to build powerful queries without code.</li>
-                                    </ul>
-                                </div>
-
-                                <!-- Theme Region Diagram Grid Map -->
-                                <div style="background:rgba(30,41,59,0.3);border:1px solid var(--border);border-radius:12px;padding:1.5rem;">
-                                    <h4 style="font-family:'Outfit',sans-serif;font-weight:700;color:var(--text);margin-bottom:1rem;font-size:1rem;">Theme Layout Region Mockup</h4>
-                                    
-                                    <div style="display:flex;flex-direction:column;gap:8px;font-family:monospace;font-size:0.8rem;text-align:center;">
-                                        <div style="background:rgba(249,115,22,0.15);border:1px solid #f97316;padding:8px;border-radius:6px;color:#f97316;font-weight:700;">[Header Region]</div>
-                                        <div style="background:rgba(99,102,241,0.15);border:1px solid #6366f1;padding:8px;border-radius:6px;color:#6366f1;font-weight:700;">[Primary Navigation Menu]</div>
-                                        <div style="background:rgba(168,85,247,0.15);border:1px solid #a855f7;padding:8px;border-radius:6px;color:#a855f7;font-weight:700;">[Hero / Slider Area]</div>
-                                        
-                                        <div style="display:grid;grid-template-columns:1fr 2fr;gap:8px;height:120px;">
-                                            <div style="background:rgba(236,72,153,0.15);border:1px solid #ec4899;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#ec4899;font-weight:700;padding:4px;">[Sidebar First]</div>
-                                            <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-weight:700;">[Main Content Region]</div>
-                                        </div>
-
-                                        <div style="background:rgba(16,185,129,0.15);border:1px solid #10b981;padding:8px;border-radius:6px;color:#10b981;font-weight:700;">[Footer Region]</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    ` : ''}
 
                     <!-- Blocks Library Tab Content -->
                     ${activeTab === 'library' ? html`
@@ -388,30 +302,20 @@ export default class BlocksView extends BaseComponent {
                                     </h3>
 
                                     <form id="block-editor-form" style="display:flex;flex-direction:column;gap:1.25rem;">
-                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                        <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
                                             <div style="display:flex;flex-direction:column;gap:6px;">
                                                 <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Block Title</label>
                                                 <input type="text" id="edit-title" value="${editingBlock.data?.title || ''}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;" required />
                                             </div>
-                                            <div style="display:flex;flex-direction:column;gap:6px;">
-                                                <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Target Region</label>
-                                                <select id="edit-region" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;">
-                                                    ${regions.map(r => html`<option value="${r.id}" ?selected=${editingBlock.region === r.id}>${r.name}</option>`)}
-                                                </select>
-                                            </div>
                                         </div>
 
-                                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                                        <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
                                             <div style="display:flex;flex-direction:column;gap:6px;">
                                                 <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Block Type</label>
                                                 <select id="edit-type" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;">
                                                     <option value="custom_html" ?selected=${editingBlock.block_type === 'custom_html'}>Custom HTML Block</option>
                                                     <option value="text" ?selected=${editingBlock.block_type === 'text'}>Simple Text Block</option>
                                                 </select>
-                                            </div>
-                                            <div style="display:flex;flex-direction:column;gap:6px;">
-                                                <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Weight</label>
-                                                <input type="number" id="edit-weight" value="${editingBlock.weight || 0}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;" />
                                             </div>
                                         </div>
 
@@ -438,15 +342,13 @@ export default class BlocksView extends BaseComponent {
                                             <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);width:30px;">#</th>
                                             <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);">Block Title</th>
                                             <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);">Type</th>
-                                            <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);">Assigned Region</th>
-                                            <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);">Weight</th>
                                             <th style="padding:1rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;color:var(--text-dim);text-align:right;">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         ${blocks.length === 0 ? html`
                                             <tr>
-                                                <td colspan="6" style="padding:2rem;text-align:center;color:var(--text-dim);font-style:italic;">No blocks created yet. Click "+ HTML Block" to create one.</td>
+                                                <td colspan="4" style="padding:2rem;text-align:center;color:var(--text-dim);font-style:italic;">No blocks created yet. Click "+ HTML Block" to create one.</td>
                                             </tr>
                                         ` : blocks.map((b, idx) => html`
                                             <tr style="border-bottom:1px solid rgba(255,255,255,0.04);transition:background 0.2s;" class="data-row">
@@ -457,10 +359,6 @@ export default class BlocksView extends BaseComponent {
                                                 <td style="padding:1rem 1.5rem;">
                                                     <span style="font-size:0.7rem;text-transform:uppercase;background:rgba(99,102,241,0.15);color:#818cf8;padding:2px 8px;border-radius:4px;font-weight:700;letter-spacing:0.05em;">${b.block_type}</span>
                                                 </td>
-                                                <td style="padding:1rem 1.5rem;">
-                                                    <span style="font-size:0.8rem;background:rgba(255,255,255,0.04);padding:4px 8px;border-radius:6px;color:var(--text-dim);border:1px solid rgba(255,255,255,0.08);">${b.region}</span>
-                                                </td>
-                                                <td style="padding:1rem 1.5rem;color:var(--text-dim);">${b.weight}</td>
                                                 <td style="padding:1rem 1.5rem;text-align:right;">
                                                     <div style="display:flex;gap:10px;justify-content:flex-end;">
                                                         <button class="btn-edit-block-lib" data-id="${b.id}" style="background:transparent;color:#f97316;border:none;cursor:pointer;font-weight:600;font-size:0.85rem;">Edit</button>
@@ -490,19 +388,9 @@ export default class BlocksView extends BaseComponent {
                                             <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">View Block Title</label>
                                             <input type="text" id="design-title" value="${designer.title}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;" />
                                         </div>
-                                        <div style="display:flex;flex-direction:column;gap:6px;">
-                                            <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Target Region</label>
-                                            <select id="design-region" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;">
-                                                ${regions.map(r => html`<option value="${r.id}" ?selected=${designer.region === r.id}>${r.name}</option>`)}
-                                            </select>
-                                        </div>
                                     </div>
 
-                                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-                                        <div style="display:flex;flex-direction:column;gap:6px;">
-                                            <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Weight</label>
-                                            <input type="number" id="design-weight" value="${designer.weight}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;" />
-                                        </div>
+                                    <div style="display:grid;grid-template-columns:1fr;gap:1rem;">
                                         <div style="display:flex;flex-direction:column;gap:6px;">
                                             <label style="font-size:0.85rem;font-weight:700;color:var(--text-dim);">Entity Type</label>
                                             <select id="design-entity" style="background:rgba(0,0,0,0.3);border:1px solid var(--border);padding:8px 12px;border-radius:8px;color:var(--text);outline:none;font-size:0.9rem;">

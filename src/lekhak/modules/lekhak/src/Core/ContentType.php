@@ -14,8 +14,8 @@ class ContentType extends SPPEntity
     public function define_attributes()
     {
         return [
-            'name' => 'varchar(100)',
-            'bundle' => 'varchar(50)',
+            'name' => 'varchar(50)',
+            'label' => 'varchar(255)',
             'description' => 'text',
             'storage_strategy' => 'varchar(20)',
             'is_revisionable' => 'tinyint(1)',
@@ -26,11 +26,11 @@ class ContentType extends SPPEntity
     public function field_metadata()
     {
         return [
-            'name' => [
+            'label' => [
                 'label' => 'Display Name',
                 'help' => 'The human-readable name for this content type (e.g. Article, Page).'
             ],
-            'bundle' => [
+            'name' => [
                 'label' => 'Machine Name',
                 'help' => 'A unique identifier using only lowercase letters, numbers, and underscores.'
             ],

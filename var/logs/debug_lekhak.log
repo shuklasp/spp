@@ -16878,3 +16878,640 @@ TEST[2026-05-10 23:36:23] SPPINIT: Context is lekhak, AppClass is \App\Lekhak\Le
 [2026-05-21 08:39:07] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
 [2026-05-21 08:39:07] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
 [2026-05-21 08:39:07] SPPBlade: Render successful for dashboard
+[2026-05-21 08:50:34] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-21 08:50:34] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:50:34] SPPBlade: Render successful for list
+[2026-05-21 08:50:52] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/placeholder.blade.php'
+[2026-05-21 08:50:52] SPPBlade: Rendering absolute file. ViewName: placeholder, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:50:52] SPPBlade: Render successful for placeholder
+[2026-05-21 08:52:30] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-21 08:52:30] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:52:31] SPPBlade: Render successful for content-types
+[2026-05-21 08:52:40] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/fields.blade.php'
+[2026-05-21 08:52:40] SPPBlade: Rendering absolute file. ViewName: fields, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:52:41] SPPBlade: Render successful for fields
+[2026-05-21 08:53:01] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/placeholder.blade.php'
+[2026-05-21 08:53:01] SPPBlade: Rendering absolute file. ViewName: placeholder, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:53:01] SPPBlade: Render successful for placeholder
+[2026-05-21 08:53:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 08:53:14] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:53:14] SPPBlade: Render successful for dashboard
+[2026-05-21 08:53:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/settings.blade.php'
+[2026-05-21 08:53:27] SPPBlade: Rendering absolute file. ViewName: settings, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:53:27] SPPBlade: Render successful for settings
+[2026-05-21 08:54:16] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 08:54:16] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:54:16] SPPBlade: Render successful for dashboard
+[2026-05-21 08:54:17] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 08:54:17] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 08:54:17] SPPBlade: Render successful for dashboard
+[2026-05-21 12:11:19] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-21 12:11:19] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:11:19] SPPBlade: Render successful for login
+[2026-05-21 12:16:10] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 12:16:10] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:16:11] SPPBlade: Render successful for dashboard
+[2026-05-21 12:20:36] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 12:20:37] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:20:37] SPPBlade: Render successful for dashboard
+[2026-05-21 12:35:09] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-21 12:35:09] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:35:09] SPPBlade: Render successful for list
+[2026-05-21 12:35:30] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/form.blade.php'
+[2026-05-21 12:35:30] SPPBlade: Rendering absolute file. ViewName: form, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:35:30] SPPBlade: Render successful for form
+[2026-05-21 12:52:01] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-21 12:52:01] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:52:01] SPPBlade: Render successful for dashboard
+[2026-05-21 12:52:28] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-21 12:52:28] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-21 12:52:28] SPPBlade: Render successful for views_admin
+[2026-05-22 05:07:18] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-22 05:07:18] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 05:07:18] SPPBlade: Render successful for login
+[2026-05-22 05:07:32] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 05:07:32] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 05:07:32] SPPBlade: Render successful for dashboard
+[2026-05-22 11:22:34] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-22 11:22:34] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 11:22:34] SPPBlade: Render successful for login
+[2026-05-22 11:22:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 11:22:48] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 11:22:48] SPPBlade: Render successful for dashboard
+[2026-05-22 11:24:02] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-22 11:24:02] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 11:24:02] SPPBlade: Render successful for list
+[2026-05-22 23:33:40] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-22 23:33:40] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:33:40] SPPBlade: Render successful for login
+[2026-05-22 23:33:43] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-22 23:33:43] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:33:43] SPPBlade: Render successful for login
+[2026-05-22 23:33:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-22 23:33:48] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:33:48] SPPBlade: Render successful for login
+[2026-05-22 23:34:03] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 23:34:03] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:34:04] SPPBlade: Render successful for dashboard
+[2026-05-22 23:34:39] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/settings.blade.php'
+[2026-05-22 23:34:39] SPPBlade: Rendering absolute file. ViewName: settings, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:34:39] SPPBlade: Render successful for settings
+[2026-05-22 23:38:39] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 23:38:39] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:38:39] SPPBlade: Render successful for dashboard
+[2026-05-22 23:39:52] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-22 23:39:52] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:39:52] SPPBlade: Render successful for views_admin
+[2026-05-22 23:40:05] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/fields.blade.php'
+[2026-05-22 23:40:05] SPPBlade: Rendering absolute file. ViewName: fields, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:40:05] SPPBlade: Render successful for fields
+[2026-05-22 23:40:16] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-22 23:40:16] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:40:16] SPPBlade: Render successful for content-types
+[2026-05-22 23:41:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-22 23:41:27] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:41:27] SPPBlade: Render successful for list
+[2026-05-22 23:41:56] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-22 23:41:56] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:41:56] SPPBlade: Render successful for content
+[2026-05-22 23:42:09] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 23:42:09] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:42:09] SPPBlade: Render successful for dashboard
+[2026-05-22 23:57:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-22 23:57:48] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-22 23:57:49] SPPBlade: Render successful for dashboard
+[2026-05-23 00:17:26] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 00:17:26] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:17:26] SPPBlade: Render successful for dashboard
+[2026-05-23 00:18:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/settings.blade.php'
+[2026-05-23 00:18:14] SPPBlade: Rendering absolute file. ViewName: settings, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:18:15] SPPBlade: Render successful for settings
+[2026-05-23 00:19:39] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/settings.blade.php'
+[2026-05-23 00:19:39] SPPBlade: Rendering absolute file. ViewName: settings, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:19:40] SPPBlade: Render successful for settings
+[2026-05-23 00:19:45] DEBUG: Longest match routing: Picked 'admin' for request 'admin/undefined'
+[2026-05-23 00:19:46] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 00:19:46] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:19:46] SPPBlade: Render successful for dashboard
+[2026-05-23 00:20:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 00:20:00] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:20:00] SPPBlade: Render successful for dashboard
+[2026-05-23 00:22:02] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 00:22:02] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 00:22:02] SPPBlade: Render successful for dashboard
+[2026-05-23 01:11:41] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 01:11:41] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 01:11:41] SPPBlade: Render successful for login
+[2026-05-23 01:11:57] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 01:11:57] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 01:11:57] SPPBlade: Render successful for dashboard
+[2026-05-23 02:33:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 02:33:11] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 02:33:11] SPPBlade: Render successful for login
+[2026-05-23 02:33:29] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 02:33:29] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 02:33:29] SPPBlade: Render successful for dashboard
+[2026-05-23 02:33:57] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 02:33:57] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 02:33:57] SPPBlade: Render successful for views_admin
+[2026-05-23 02:52:15] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 02:52:15] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 02:52:15] SPPBlade: Render successful for views_admin
+[2026-05-23 03:14:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 03:14:25] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 03:14:25] SPPBlade: Render successful for views_admin
+[2026-05-23 03:17:18] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 03:17:18] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 03:17:18] SPPBlade: Render successful for views_admin
+[2026-05-23 04:54:59] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 04:54:59] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 04:54:59] SPPBlade: Render successful for views_admin
+[2026-05-23 05:03:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 05:03:27] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 05:03:27] SPPBlade: Render successful for views_admin
+[2026-05-23 05:04:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 05:04:21] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 05:04:21] SPPBlade: Render successful for login
+[2026-05-23 05:04:42] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 05:04:42] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 05:04:42] SPPBlade: Render successful for dashboard
+[2026-05-23 05:05:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/roles.blade.php'
+[2026-05-23 05:05:14] SPPBlade: Rendering absolute file. ViewName: roles, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 05:05:14] SPPBlade: Render successful for roles
+[2026-05-23 06:04:46] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 06:04:46] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 06:04:46] SPPBlade: Render successful for login
+[2026-05-23 06:05:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 06:05:00] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 06:05:01] SPPBlade: Render successful for dashboard
+[2026-05-23 06:33:04] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 06:33:04] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 06:33:04] SPPBlade: Render successful for login
+[2026-05-23 07:10:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 07:10:00] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:10:00] SPPBlade: Render successful for login
+[2026-05-23 07:10:17] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 07:10:17] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:10:17] SPPBlade: Render successful for dashboard
+[2026-05-23 07:16:13] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-23 07:16:13] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:16:13] SPPBlade: Render successful for content-types
+[2026-05-23 07:23:42] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-23 07:23:42] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:23:42] SPPBlade: Render successful for content-types
+[2026-05-23 07:34:30] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-23 07:34:30] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:34:30] SPPBlade: Render successful for content-types
+[2026-05-23 07:35:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:35:48] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:35:48] SPPBlade: Render successful for content
+[2026-05-23 07:42:28] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 07:42:28] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:42:29] SPPBlade: Render successful for login
+[2026-05-23 07:42:55] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 07:42:55] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:42:55] SPPBlade: Render successful for dashboard
+[2026-05-23 07:43:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:43:21] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:43:22] SPPBlade: Render successful for content
+[2026-05-23 07:43:52] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 07:43:52] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:43:52] SPPBlade: Render successful for login
+[2026-05-23 07:44:15] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 07:44:15] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:44:15] SPPBlade: Render successful for dashboard
+[2026-05-23 07:44:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:44:49] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:44:49] SPPBlade: Render successful for content
+[2026-05-23 07:45:50] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 07:45:50] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:45:50] SPPBlade: Render successful for login
+[2026-05-23 07:49:30] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 07:49:30] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:49:31] SPPBlade: Render successful for dashboard
+[2026-05-23 07:49:53] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:49:53] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:49:53] SPPBlade: Render successful for content
+[2026-05-23 07:55:33] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/revisions_list.blade.php'
+[2026-05-23 07:55:33] SPPBlade: Rendering absolute file. ViewName: revisions_list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:55:33] SPPBlade: Render successful for revisions_list
+[2026-05-23 07:55:56] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:55:56] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:55:56] SPPBlade: Render successful for content
+[2026-05-23 07:56:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:56:00] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:56:00] SPPBlade: Render successful for content
+[2026-05-23 07:56:05] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 07:56:05] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:56:05] SPPBlade: Render successful for content
+[2026-05-23 07:58:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/translate.blade.php'
+[2026-05-23 07:58:48] SPPBlade: Rendering absolute file. ViewName: translate, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:58:48] SPPBlade: Render successful for translate
+[2026-05-23 07:59:13] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/translate.blade.php'
+[2026-05-23 07:59:13] SPPBlade: Rendering absolute file. ViewName: translate, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 07:59:13] SPPBlade: Render successful for translate
+[2026-05-23 08:11:37] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 08:11:37] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:11:37] SPPBlade: Render successful for content
+[2026-05-23 08:12:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 08:12:00] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:12:00] SPPBlade: Render successful for content
+[2026-05-23 08:13:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/translate.blade.php'
+[2026-05-23 08:13:00] SPPBlade: Rendering absolute file. ViewName: translate, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:13:00] SPPBlade: Render successful for translate
+[2026-05-23 08:13:38] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/translate.blade.php'
+[2026-05-23 08:13:38] SPPBlade: Rendering absolute file. ViewName: translate, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:13:38] SPPBlade: Render successful for translate
+[2026-05-23 08:26:09] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/translate.blade.php'
+[2026-05-23 08:26:09] SPPBlade: Rendering absolute file. ViewName: translate, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:26:10] SPPBlade: Render successful for translate
+[2026-05-23 08:26:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 08:26:27] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:26:27] SPPBlade: Render successful for content
+[2026-05-23 08:34:23] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-23 08:34:23] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:34:23] SPPBlade: Render successful for list
+[2026-05-23 08:34:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/form.blade.php'
+[2026-05-23 08:34:49] SPPBlade: Rendering absolute file. ViewName: form, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:34:50] SPPBlade: Render successful for form
+[2026-05-23 08:36:20] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-23 08:36:20] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 08:36:20] SPPBlade: Render successful for content-types
+[2026-05-23 15:58:37] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-23 15:58:37] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:58:37] SPPBlade: Render successful for index
+[2026-05-23 15:59:04] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-23 15:59:04] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:59:04] SPPBlade: Render successful for index
+[2026-05-23 14:03:05] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 14:03:05] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:03:05] SPPBlade: Render successful for login
+[2026-05-23 14:03:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 14:03:27] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:03:27] SPPBlade: Render successful for dashboard
+[2026-05-23 14:17:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 14:17:25] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:17:25] SPPBlade: Render successful for dashboard
+[2026-05-23 14:56:51] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 14:56:51] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:56:51] SPPBlade: Render successful for login
+[2026-05-23 14:57:06] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 14:57:06] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:57:07] SPPBlade: Render successful for dashboard
+[2026-05-23 14:59:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 14:59:48] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 14:59:48] SPPBlade: Render successful for dashboard
+[2026-05-23 15:00:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 15:00:27] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:00:27] SPPBlade: Render successful for dashboard
+[2026-05-23 15:01:07] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:01:07] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:01:07] SPPBlade: Render successful for content
+[2026-05-23 15:01:32] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:01:32] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:01:33] SPPBlade: Render successful for content
+[2026-05-23 15:16:03] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:16:03] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:16:03] SPPBlade: Render successful for content
+[2026-05-23 15:16:41] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:16:41] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:16:41] SPPBlade: Render successful for content
+[2026-05-23 15:40:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:40:49] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:40:49] SPPBlade: Render successful for content
+[2026-05-23 15:49:10] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:49:10] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:49:10] SPPBlade: Render successful for content
+[2026-05-23 15:51:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php'
+[2026-05-23 15:51:25] SPPBlade: Rendering absolute file. ViewName: content, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:51:25] SPPBlade: Render successful for content
+[2026-05-23 15:52:50] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/list.blade.php'
+[2026-05-23 15:52:50] SPPBlade: Rendering absolute file. ViewName: list, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:52:50] SPPBlade: Render successful for list
+[2026-05-23 15:53:33] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/landing/form.blade.php'
+[2026-05-23 15:53:33] SPPBlade: Rendering absolute file. ViewName: form, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views\/landing","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:53:33] SPPBlade: Render successful for form
+[2026-05-23 15:53:57] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content-types.blade.php'
+[2026-05-23 15:53:57] SPPBlade: Rendering absolute file. ViewName: content-types, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:53:57] SPPBlade: Render successful for content-types
+[2026-05-23 15:54:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/fields.blade.php'
+[2026-05-23 15:54:14] SPPBlade: Rendering absolute file. ViewName: fields, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:54:15] SPPBlade: Render successful for fields
+[2026-05-23 15:54:34] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/field-form.blade.php'
+[2026-05-23 15:54:34] SPPBlade: Rendering absolute file. ViewName: field-form, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 15:54:34] SPPBlade: Render successful for field-form
+[2026-05-23 16:01:30] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/field-form.blade.php'
+[2026-05-23 16:01:30] SPPBlade: Rendering absolute file. ViewName: field-form, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:01:30] SPPBlade: Render successful for field-form
+[2026-05-23 16:03:40] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/views_admin.blade.php'
+[2026-05-23 16:03:40] SPPBlade: Rendering absolute file. ViewName: views_admin, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:03:40] SPPBlade: Render successful for views_admin
+[2026-05-23 16:09:01] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:09:01] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:09:01] SPPBlade: Render successful for modules
+[2026-05-23 16:11:53] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:11:53] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:11:53] SPPBlade: Render successful for modules
+[2026-05-23 16:16:05] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:16:05] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:16:05] SPPBlade: Render successful for modules
+[2026-05-23 16:20:02] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:20:02] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:20:02] SPPBlade: Render successful for modules
+[2026-05-23 16:24:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:24:25] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:24:25] SPPBlade: Render successful for modules
+[2026-05-23 16:25:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:25:11] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:25:11] SPPBlade: Render successful for modules
+[2026-05-23 16:41:08] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:41:08] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:41:08] SPPBlade: Render successful for modules
+[2026-05-23 16:41:33] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:41:33] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:41:34] SPPBlade: Render successful for modules
+[2026-05-23 16:48:47] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:48:47] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:48:47] SPPBlade: Render successful for modules
+[2026-05-23 16:49:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:49:11] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:49:11] SPPBlade: Render successful for modules
+[2026-05-23 16:49:37] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:49:37] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:49:37] SPPBlade: Render successful for modules
+[2026-05-23 16:51:59] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:51:59] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:51:59] SPPBlade: Render successful for modules
+[2026-05-23 16:52:50] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules_update.blade.php'
+[2026-05-23 16:52:50] SPPBlade: Rendering absolute file. ViewName: modules_update, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:52:50] SPPBlade: Render successful for modules_update
+[2026-05-23 16:53:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:53:11] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:53:11] SPPBlade: Render successful for modules
+[2026-05-23 16:54:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 16:54:00] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 16:54:00] SPPBlade: Render successful for modules
+[2026-05-23 22:57:19] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-23 22:57:19] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 22:57:19] SPPBlade: Render successful for login
+[2026-05-23 22:57:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 22:57:49] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 22:57:49] SPPBlade: Render successful for dashboard
+[2026-05-23 22:58:23] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 22:58:23] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 22:58:23] SPPBlade: Render successful for modules
+[2026-05-23 23:10:08] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 23:10:08] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:10:08] SPPBlade: Render successful for modules
+[2026-05-23 23:10:58] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 23:10:58] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:10:58] SPPBlade: Render successful for modules
+[2026-05-23 23:11:28] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 23:11:28] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:11:28] SPPBlade: Render successful for modules
+[2026-05-23 23:12:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 23:12:11] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:12:11] SPPBlade: Render successful for modules
+[2026-05-23 23:18:51] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-23 23:18:51] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:18:51] SPPBlade: Render successful for modules
+[2026-05-23 23:19:18] DEBUG: Longest match routing: Picked 'admin' for request 'admin/config/automated_logout'
+[2026-05-23 23:19:19] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-23 23:19:19] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:19:19] SPPBlade: Render successful for dashboard
+[2026-05-23 23:47:06] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-23 23:47:06] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-23 23:47:06] SPPBlade: Render successful for config
+[2026-05-24 00:09:37] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:09:37] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:09:37] SPPBlade: Render successful for config
+[2026-05-24 00:10:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:10:14] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:10:14] SPPBlade: Render successful for modules
+[2026-05-24 00:11:56] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:11:56] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:11:56] SPPBlade: Render successful for config
+[2026-05-24 00:12:17] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:12:17] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:12:17] SPPBlade: Render successful for modules
+[2026-05-24 00:12:37] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:12:37] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:12:37] SPPBlade: Render successful for config
+[2026-05-24 00:13:27] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:13:27] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:13:27] SPPBlade: Render successful for modules
+[2026-05-24 00:13:48] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:13:48] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:13:48] SPPBlade: Render successful for config
+[2026-05-24 00:16:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:16:49] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:16:50] SPPBlade: Render successful for modules
+[2026-05-24 00:17:43] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:17:43] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:17:44] SPPBlade: Render successful for modules
+[2026-05-24 00:18:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:18:11] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:18:11] SPPBlade: Render successful for modules
+[2026-05-24 00:24:18] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:24:18] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:24:18] SPPBlade: Render successful for modules
+[2026-05-24 00:24:39] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:24:39] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:24:39] SPPBlade: Render successful for modules
+[2026-05-24 00:24:58] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:24:58] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:24:58] SPPBlade: Render successful for modules
+[2026-05-24 00:25:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:25:21] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:25:21] SPPBlade: Render successful for modules
+[2026-05-24 00:25:47] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:25:47] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:25:47] SPPBlade: Render successful for modules
+[2026-05-24 00:26:17] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:26:17] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:26:17] SPPBlade: Render successful for modules
+[2026-05-24 00:26:40] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:26:40] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:26:41] SPPBlade: Render successful for modules
+[2026-05-24 00:26:59] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:26:59] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:26:59] SPPBlade: Render successful for modules
+[2026-05-24 00:27:31] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:27:31] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:27:31] SPPBlade: Render successful for modules
+[2026-05-24 00:28:47] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:28:47] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:28:48] SPPBlade: Render successful for modules
+[2026-05-24 00:29:54] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:29:54] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:29:54] SPPBlade: Render successful for config
+[2026-05-24 00:51:29] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:51:29] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:51:30] SPPBlade: Render successful for modules
+[2026-05-24 00:51:47] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:51:47] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:51:47] SPPBlade: Render successful for config
+[2026-05-24 00:52:04] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:52:04] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:52:04] SPPBlade: Render successful for modules
+[2026-05-24 00:52:19] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:52:19] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:52:19] SPPBlade: Render successful for config
+[2026-05-24 00:52:37] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:52:38] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:52:38] SPPBlade: Render successful for modules
+[2026-05-24 00:52:54] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:52:54] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:52:54] SPPBlade: Render successful for modules
+[2026-05-24 00:53:15] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:53:15] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:53:15] SPPBlade: Render successful for modules
+[2026-05-24 00:53:36] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:53:36] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:53:36] SPPBlade: Render successful for config
+[2026-05-24 00:54:15] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:54:15] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:54:16] SPPBlade: Render successful for modules
+[2026-05-24 00:57:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:57:25] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:57:26] SPPBlade: Render successful for modules
+[2026-05-24 00:57:42] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:57:42] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:57:42] SPPBlade: Render successful for config
+[2026-05-24 00:58:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:58:00] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:58:01] SPPBlade: Render successful for modules
+[2026-05-24 00:58:23] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:58:23] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:58:24] SPPBlade: Render successful for modules
+[2026-05-24 00:58:49] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 00:58:49] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:58:49] SPPBlade: Render successful for config
+[2026-05-24 00:59:05] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 00:59:05] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 00:59:05] SPPBlade: Render successful for modules
+[2026-05-24 01:17:35] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 01:17:35] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 01:17:36] SPPBlade: Render successful for modules
+[2026-05-24 02:02:00] DEBUG: Longest match routing: Picked 'admin' for request 'admin/config/drupal_test/settings'
+[2026-05-24 02:02:04] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-24 02:02:04] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 02:02:04] SPPBlade: Render successful for login
+[2026-05-24 05:57:37] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 05:57:37] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:57:37] SPPBlade: Render successful for index
+[2026-05-24 05:58:06] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 05:58:06] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:58:06] SPPBlade: Render successful for index
+[2026-05-24 05:59:18] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 05:59:18] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:59:18] SPPBlade: Render successful for index
+[2026-05-24 04:01:28] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-24 04:01:28] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 04:01:28] SPPBlade: Render successful for login
+[2026-05-24 04:01:50] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 04:01:50] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 04:01:52] SPPBlade: Render successful for dashboard
+[2026-05-24 04:02:53] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 04:02:53] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 04:02:53] SPPBlade: Render successful for modules
+[2026-05-24 06:06:49] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:06:49] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:06:49] SPPBlade: Render successful for index
+[2026-05-24 06:07:14] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:07:14] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:07:14] SPPBlade: Render successful for index
+[2026-05-24 06:07:35] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:07:35] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:07:35] SPPBlade: Render successful for index
+[2026-05-24 06:08:00] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:08:00] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:08:00] SPPBlade: Render successful for index
+[2026-05-24 06:08:32] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:08:32] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:08:32] SPPBlade: Render successful for index
+[2026-05-24 06:09:25] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:09:25] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:09:25] SPPBlade: Render successful for index
+[2026-05-24 06:12:09] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:12:09] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:12:09] SPPBlade: Render successful for index
+[2026-05-24 06:15:45] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:15:45] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:15:45] SPPBlade: Render successful for index
+[2026-05-24 06:16:05] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:16:05] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:16:05] SPPBlade: Render successful for index
+[2026-05-24 06:26:46] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:26:46] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:26:46] SPPBlade: Render successful for index
+[2026-05-24 06:27:13] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:27:13] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:27:13] SPPBlade: Render successful for index
+[2026-05-24 06:27:49] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:27:49] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:27:49] SPPBlade: Render successful for index
+[2026-05-24 06:29:14] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 06:29:14] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:29:14] SPPBlade: Render successful for index
+[2026-05-24 05:03:13] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 05:03:13] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:03:13] SPPBlade: Render successful for index
+[2026-05-24 05:29:50] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-24 05:29:50] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:29:50] SPPBlade: Render successful for login
+[2026-05-24 05:30:07] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 05:30:07] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:30:07] SPPBlade: Render successful for dashboard
+[2026-05-24 05:49:00] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 05:49:00] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 05:49:00] SPPBlade: Render successful for config
+[2026-05-24 06:11:01] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/config.blade.php'
+[2026-05-24 06:11:01] SPPBlade: Rendering absolute file. ViewName: config, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:11:01] SPPBlade: Render successful for config
+[2026-05-24 06:11:40] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 06:11:41] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:11:41] SPPBlade: Render successful for dashboard
+[2026-05-24 06:12:42] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 06:12:42] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:12:42] SPPBlade: Render successful for modules
+[2026-05-24 06:16:09] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 06:16:09] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:16:09] SPPBlade: Render successful for dashboard
+[2026-05-24 06:16:17] DEBUG: Longest match routing: Picked 'admin' for request 'admin/sankhyaki'
+[2026-05-24 06:16:18] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 06:16:18] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 06:16:18] SPPBlade: Render successful for dashboard
+[2026-05-24 08:57:57] DEBUG: Longest match routing: Picked 'admin' for request 'admin/sankhyaki'
+[2026-05-24 08:58:02] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-24 08:58:02] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 08:58:02] SPPBlade: Render successful for login
+[2026-05-24 08:58:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 08:58:21] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 08:58:21] SPPBlade: Render successful for dashboard
+[2026-05-24 08:59:03] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 08:59:03] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 08:59:04] SPPBlade: Render successful for modules
+[2026-05-24 09:05:10] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/modules.blade.php'
+[2026-05-24 09:05:10] SPPBlade: Rendering absolute file. ViewName: modules, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 09:05:10] SPPBlade: Render successful for modules
+[2026-05-24 09:06:00] DEBUG: Longest match routing: Picked 'admin' for request 'admin/sankhyaki'
+[2026-05-24 09:06:01] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 09:06:01] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 09:06:01] SPPBlade: Render successful for dashboard
+[2026-05-24 09:12:09] DEBUG: Longest match routing: Picked 'admin' for request 'admin/sankhyaki'
+[2026-05-24 09:12:10] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 09:12:10] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 09:12:10] SPPBlade: Render successful for dashboard
+[2026-05-24 11:58:50] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 11:58:50] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 11:58:50] SPPBlade: Render successful for index
+[2026-05-24 11:59:33] SPPBlade: Starting render for 'C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-24 11:59:33] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\\projects\\apache\\school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 11:59:33] SPPBlade: Render successful for index
+[2026-05-24 10:10:14] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-05-24 10:10:14] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 10:10:14] SPPBlade: Render successful for login
+[2026-05-24 11:01:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
+[2026-05-24 11:01:21] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-24 11:01:21] SPPBlade: Render successful for dashboard

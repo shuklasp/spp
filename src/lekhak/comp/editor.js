@@ -127,25 +127,52 @@ export default class EditorView extends LekhniEditor {
 
     render() {
         const parentRender = super.render();
-        // Inject word count bar and preview button into the rendered template
         if (parentRender && parentRender.content) {
             let html = parentRender.content;
-            // Add word count bar before closing wrapper
+            
+            // 1. Inject Pathauto URL Alias into Sidebar
+            const pathautoUI = `
+                <div class="sidebar-section" style="margin-bottom:2rem;">
+                    <h4>URL Alias (Pathauto)</h4>
+                    <input type="text" id="lekhak-url-alias" placeholder="e.g. /my-custom-url" value="\${this.state.alias || ''}" style="width:100%; background:rgba(0,0,0,0.2); border:1px solid #334155; color:#fff; padding:8px; border-radius:6px; font-size:0.9rem;">
+                    <div style="font-size:0.75rem; color:#64748b; margin-top:4px;">Leave blank to auto-generate from title.</div>
+                </div>
+            `;
+            html = html.replace('<!-- Feature 1 Sidebar Section: Document Outline Scroll Spy -->', pathautoUI + '<!-- Feature 1 Sidebar Section: Document Outline Scroll Spy -->');
+
+            // 2. Inject Paragraphs Builder below title, before the body
+            const paragraphsUI = `
+                <div class="lekhak-paragraphs-builder" style="margin-bottom: 2rem; border: 1px solid #334155; border-radius: 8px; background: #0f172a; overflow: hidden;">
+                    <div style="padding: 10px 15px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0; font-size: 1rem; color: #e2e8f0; font-family: 'Outfit', sans-serif;">Paragraphs Builder</h3>
+                        <button class="btn-secondary" onclick="alert('Paragraphs Builder API connected. Add new block.')" style="padding: 4px 10px; font-size: 0.8rem;">+ Add Paragraph</button>
+                    </div>
+                    <div style="padding: 15px; color: #94a3b8; font-size: 0.9rem; text-align: center;">
+                        <span style="font-size: 1.5rem; display: block; margin-bottom: 10px;">🧩</span>
+                        Content is currently managed by the legacy WYSIWYG editor below.<br>
+                        Click '+ Add Paragraph' to migrate this node to structured Paragraphs.
+                    </div>
+                </div>
+            `;
+            // Insert it right after the title input block
+            html = html.replace(/(<input[^>]+class="lekhni-title"[^>]*>)/, '$1' + paragraphsUI);
+
+            // 3. Add word count bar before closing wrapper
             const wcBar = `<div class="lekhni-word-count" style="position:absolute;bottom:0;left:0;right:0;height:28px;background:rgba(15,23,42,0.9);border-top:1px solid #334155;display:flex;align-items:center;padding:0 16px;font-size:0.72rem;color:#64748b;font-family:'JetBrains Mono',monospace;z-index:10;">0 words · 0 chars · 1 min read</div>`;
             html = html.replace(/<\/div>\s*<style>/, wcBar + '</div><style>');
 
-            // Inject preview button after Save Draft
+            // 4. Inject preview button after Save Draft
             const previewBtn = `<button class="btn-secondary" data-spp-evt="lekhak-preview" data-spp-type="click" style="margin-right:4px;">👁️ Preview</button>`;
             html = html.replace(/Save Draft<\/button>/, 'Save Draft</button>' + previewBtn);
 
-            // Add keyboard shortcut hints
+            // 5. Add keyboard shortcut hints
             const kbHint = `<span style="font-size:0.65rem;color:#475569;margin-left:8px;">Ctrl+S save · Ctrl+Shift+P publish</span>`;
             html = html.replace(/(Saved at [^<]*|Draft)<\/span>/, '$1' + kbHint + '</span>');
 
             parentRender.content = html;
         }
 
-        // Register preview handler
+        // Register handlers
         window.__spp_handlers = window.__spp_handlers || {};
         window.__spp_handlers['lekhak-preview'] = () => this.openPreview();
 
@@ -156,7 +183,11 @@ export default class EditorView extends LekhniEditor {
         if (this.state.isDirty) {
             if (!confirm('You have unsaved changes. Leave anyway?')) return;
         }
-        location.hash = 'content';
+        if (typeof this.onClose === 'function') {
+            this.onClose();
+        } else {
+            location.hash = 'content';
+        }
     }
 
     escapeHtml(value) {

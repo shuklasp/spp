@@ -1,0 +1,1 @@
+<?php require 'spp/sppinit.php'; require 'src/lekhak/modules/sankhyaki/module.php'; require 'src/lekhak/modules/sankhyaki/src/Controller/StatsController.php'; $c = new \Lekhak\Modules\Sankhyaki\Controller\StatsController(); echo $c->getStats();

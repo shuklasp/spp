@@ -236,56 +236,302 @@
             <img src="<?php echo $base_url; ?>/img/lekhak_logo_full.jpg" alt="Lekhak CMS Logo" style="width: 100%; max-width: 180px; height: auto; object-fit: contain; border-radius: 12px;" />
         </div>
         
-        <nav class="nav-list">
-            <div class="nav-item">
-                <a class="nav-link active" data-view="dashboard" href="#dashboard">
-                    Dashboard
-                </a>
+                <nav class="nav-list" id="sidebar-nav">
+            <?php
+                $active_modules = [];
+                try {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    // We also consider core non-module views as "active"
+                    $core_views = ['dashboard', 'content', 'media', 'structure', 'canvas', 'settings', 'users'];
+                    $res = $db->execute_query("SELECT machine_name FROM lekhak_modules WHERE status = 1");
+                    if ($res && is_array($res)) {
+                        $active_modules = array_merge($core_views, array_column($res, 'machine_name'));
+                    } else {
+                        // Fallback: If table doesnt exist yet, enable all for demonstration
+                        $active_modules = $core_views;
+                        $all_dirs = scandir(__DIR__ . '/../../modules/');
+                        foreach ($all_dirs as $d) {
+                            if ($d !== '.' && $d !== '..') $active_modules[] = $d;
+                        }
+                    }
+                } catch (\Exception $e) {
+                    // Fallback on error
+                }
+            ?>
+            <div style="padding: 0 1rem 1rem;">
+                <input type="text" id="nav-search" placeholder="Search menus..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.1); color: var(--text); outline: none;">
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="content" href="#content">
-                    Content Manager
-                </a>
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>Overview & Core</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('dashboard', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="dashboard" href="#dashboard">
+                            <span class="nav-icon">📊</span> <span class="nav-text">Dashboard</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('content', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="content" href="#content">
+                            <span class="nav-icon">📝</span> <span class="nav-text">Content Manager</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('media', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="media" href="#media">
+                            <span class="nav-icon">🖼️</span> <span class="nav-text">Media Library</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item" style="margin: 0.75rem 0;">
-                <a class="nav-link cta-link" data-view="editor" href="#editor" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: #ffffff !important; font-weight: 700; border-radius: 8px; padding: 0.75rem 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; justify-content: center; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                    <span style="font-size: 1.1rem;">＋</span> Create Content
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>Structure & Design</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('structure', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="structure" href="#structure">
+                            <span class="nav-icon">🏗️</span> <span class="nav-text">Content Types</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_query_builder', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_query_builder" href="#lekhak_query_builder">
+                            <span class="nav-icon">👁️</span> <span class="nav-text">Views Builder</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_blocks_nested', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_blocks_nested" href="#lekhak_blocks_nested">
+                            <span class="nav-icon">🧱</span> <span class="nav-text">Blocks & Layouts</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('canvas', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="canvas" href="#canvas">
+                            <span class="nav-icon">🎨</span> <span class="nav-text">Visual Canvas</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="canvas" href="#canvas">
-                    Visual Canvas
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>Community & Audience</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('lekhak_forum', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_forum" href="#lekhak_forum">
+                            <span class="nav-icon">💬</span> <span class="nav-text">Community Forum</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_community', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_community" href="#lekhak_community">
+                            <span class="nav-icon">👥</span> <span class="nav-text">Social Profiles</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_qa', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_qa" href="#lekhak_qa">
+                            <span class="nav-icon">❓</span> <span class="nav-text">Questions & Answers</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_newsletter', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_newsletter" href="#lekhak_newsletter">
+                            <span class="nav-icon">✉️</span> <span class="nav-text">Newsletters</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_popups', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_popups" href="#lekhak_popups">
+                            <span class="nav-icon">💥</span> <span class="nav-text">Popups & Leads</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="commerce" href="#commerce">
-                    eCommerce Store
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>E-Commerce & Subscriptions</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('lekhak_store', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_store" href="#lekhak_store">
+                            <span class="nav-icon">🛒</span> <span class="nav-text">eCommerce Store</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_subscriptions', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_subscriptions" href="#lekhak_subscriptions">
+                            <span class="nav-icon">💳</span> <span class="nav-text">Subscriptions</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_memberships', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_memberships" href="#lekhak_memberships">
+                            <span class="nav-icon">🔑</span> <span class="nav-text">Memberships</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_donations', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_donations" href="#lekhak_donations">
+                            <span class="nav-icon">❤️</span> <span class="nav-text">Donations</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="translations" href="#translations">
-                    Translation Center
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>Education & Services</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('lekhak_academy', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_academy" href="#lekhak_academy">
+                            <span class="nav-icon">🎓</span> <span class="nav-text">Academy LMS</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_helpdesk', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_helpdesk" href="#lekhak_helpdesk">
+                            <span class="nav-icon">🎫</span> <span class="nav-text">Helpdesk Tickets</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_events', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_events" href="#lekhak_events">
+                            <span class="nav-icon">📅</span> <span class="nav-text">Events Calendar</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_healthcare', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_healthcare" href="#lekhak_healthcare">
+                            <span class="nav-icon">⚕️</span> <span class="nav-text">Healthcare</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="media" href="#media">
-                    Media Library
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>Directories & Media</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('lekhak_realestate', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_realestate" href="#lekhak_realestate">
+                            <span class="nav-icon">🏠</span> <span class="nav-text">Real Estate</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_classifieds', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_classifieds" href="#lekhak_classifieds">
+                            <span class="nav-icon">🏷️</span> <span class="nav-text">Classified Ads</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_reviews', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_reviews" href="#lekhak_reviews">
+                            <span class="nav-icon">⭐</span> <span class="nav-text">Reviews & Ratings</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_portfolio', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_portfolio" href="#lekhak_portfolio">
+                            <span class="nav-icon">📁</span> <span class="nav-text">Portfolio</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_gallery', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_gallery" href="#lekhak_gallery">
+                            <span class="nav-icon">🖼️</span> <span class="nav-text">Media Gallery</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="structure" href="#structure">
-                    Structure Manager
-                </a>
-            </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="blocks" href="#blocks">
-                    Blocks & Views
-                </a>
-            </div>
-            <div class="nav-item">
-                <a class="nav-link" data-view="settings" href="#settings">
-                    Setup Engine
-                </a>
+
+            <div class="nav-group">
+                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                    <span>System & Utilities</span>
+                    <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
+                </div>
+                <div class="nav-group-content">
+                    <?php if (in_array('settings', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="settings" href="#settings">
+                            <span class="nav-icon">🎨</span> <span class="nav-text">Themes & Settings</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('users', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-php-route="true" href="<?php echo $base_url; ?>/lekhak/admin/users">
+                            <span class="nav-icon">👤</span> <span class="nav-text">Users & Roles</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_security', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_security" href="#lekhak_security">
+                            <span class="nav-icon">🛡️</span> <span class="nav-text">Security Firewall</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_migrations', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_migrations" href="#lekhak_migrations">
+                            <span class="nav-icon">🚚</span> <span class="nav-text">Data Migrations</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (in_array('lekhak_audit_trail', $active_modules)): ?>
+                    <div class="nav-item">
+                        <a class="nav-link" data-view="lekhak_audit_trail" href="#lekhak_audit_trail">
+                            <span class="nav-icon">🕵️</span> <span class="nav-text">Audit Trail</span>
+                        </a>
+                    </div>
+                    <?php endif; ?>
+                </div>
             </div>
         </nav>
 
@@ -367,5 +613,117 @@
             localStorage.setItem('lekhak-admin-theme', mode);
         }
     </script>
+    <script>
+        function toggleNavGroup(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        document.getElementById('nav-search').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const groups = document.querySelectorAll('.nav-group');
+
+            groups.forEach(group => {
+                const links = group.querySelectorAll('.nav-item');
+                let hasVisible = false;
+
+                links.forEach(link => {
+                    const text = link.querySelector('.nav-text').textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        link.style.display = 'block';
+                        hasVisible = true;
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+
+                const content = group.querySelector('.nav-group-content');
+                const icon = group.querySelector('.toggle-icon');
+                
+                if (term.length > 0) {
+                    if (hasVisible) {
+                        group.style.display = 'block';
+                        content.style.display = 'block';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        group.style.display = 'none';
+                    }
+                } else {
+                    group.style.display = 'block';
+                    link.style.display = 'block'; // Reset
+                }
+            });
+
+            // If empty search, reset everything to visible but maybe keep some collapsed
+            if (term.length === 0) {
+                document.querySelectorAll('.nav-item').forEach(l => l.style.display = 'block');
+                // You could collapse some by default here if desired.
+            }
+        });
+    </script>
+    <script>
+        function toggleNavGroup(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        document.getElementById('nav-search').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const groups = document.querySelectorAll('.nav-group');
+
+            groups.forEach(group => {
+                const links = group.querySelectorAll('.nav-item');
+                let hasVisible = false;
+
+                links.forEach(link => {
+                    const text = link.querySelector('.nav-text').textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        link.style.display = 'block';
+                        hasVisible = true;
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+
+                const content = group.querySelector('.nav-group-content');
+                const icon = group.querySelector('.toggle-icon');
+                
+                if (term.length > 0) {
+                    if (hasVisible) {
+                        group.style.display = 'block';
+                        content.style.display = 'block';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        group.style.display = 'none';
+                    }
+                } else {
+                    group.style.display = 'block';
+                    link.style.display = 'block'; // Reset
+                }
+            });
+
+            // If empty search, reset everything to visible but maybe keep some collapsed
+            if (term.length === 0) {
+                document.querySelectorAll('.nav-item').forEach(l => l.style.display = 'block');
+                // You could collapse some by default here if desired.
+            }
+        });
+    </script>
 </body>
+</html>
+</html>
 </html>

@@ -80,7 +80,7 @@
                             </a>
                         </div>
                         <div class="nav-item">
-                            <a href="{{ $admin_root }}/media" class="{{ str_contains($v, 'media') ? 'active' : '' }}">
+                            <a href="{{ $app_root }}/admin#media" class="{{ $v == 'media' ? 'active' : '' }}">
                                 <span class="nav-icon">🖼️</span> Media Library
                             </a>
                         </div>
@@ -100,6 +100,49 @@
                                 <span class="nav-icon">🌿</span> Fields Global
                             </a>
                         </div>
+                        <div class="nav-item">
+                            <a href="{{ $admin_root }}/structure/views" class="{{ str_contains($v, 'views') ? 'active' : '' }}">
+                                <span class="nav-icon">👁️</span> Views Builder
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <li><a href="#structure" class="nav-item" data-spp-evt="nav-structure" data-spp-type="click">
+                                <span class="nav-icon">🏗️</span> Structure
+                            </a></li>
+                            <li><a href="#blocks" class="nav-item" data-spp-evt="nav-blocks" data-spp-type="click" style="padding-left: 2.8rem; font-size: 0.85rem;">
+                                <span class="nav-icon" style="font-size: 0.8rem;">🧱</span> Block Management
+                            </a></li>
+                        <div class="nav-item">
+                            <a href="{{ $admin_root }}/modules" class="{{ str_contains($v, 'modules') ? 'active' : '' }}">
+                                <span class="nav-icon">🔌</span> Extend (Modules)
+                            </a>
+                        </div>
+                        
+                        @php
+                            $configurableModules = [];
+                            if (class_exists('\SPPMod\Lekhak\Core\ModuleRegistry')) {
+                                $allMods = \SPPMod\Lekhak\Core\ModuleRegistry::getModules();
+                                foreach ($allMods as $mName => $mInfo) {
+                                    if (!empty($mInfo['status']) && !empty($mInfo['configure'])) {
+                                        $configurableModules[$mInfo['name'] ?? $mName] = $mInfo['configure'];
+                                    }
+                                }
+                            }
+                        @endphp
+
+                        @if(!empty($configurableModules))
+                            <div style="margin-top: 15px; margin-bottom: 5px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--glass-text-muted); padding-left: 20px; font-weight: bold;">
+                                Module Settings
+                            </div>
+                            @foreach($configurableModules as $mTitle => $mPath)
+                            <div class="nav-item" style="padding-left: 10px;">
+                                <a href="{{ $app_root }}/{{ trim($mPath, '/') }}" class="{{ str_contains($v, ltrim($mPath, '/')) ? 'active' : '' }}">
+                                    <span class="nav-icon" style="font-size: 0.8rem;">⚙️</span> {{ $mTitle }}
+                                </a>
+                            </div>
+                            @endforeach
+                        @endif
+
                     </div>
                 </div>
 
@@ -123,13 +166,23 @@
                     <div class="nav-group-header" onclick="toggleGroup(this)">System</div>
                     <div class="nav-group-content">
                         <div class="nav-item">
-                            <a href="{{ $app_root }}/admin#settings" class="{{ str_contains($v, 'settings') ? 'active' : '' }}">
+                            <a href="{{ $app_root }}/admin#themes" class="{{ $v == 'themes' ? 'active' : '' }}">
+                                <span class="nav-icon">🎨</span> Appearance & Themes
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ $admin_root }}/settings" class="{{ str_contains($v, 'settings') ? 'active' : '' }}">
                                 <span class="nav-icon">⚙️</span> Configuration
                             </a>
                         </div>
                         <div class="nav-item">
                             <a href="{{ $admin_root }}/users" class="{{ str_contains($v, 'user') ? 'active' : '' }}">
-                                <span class="nav-icon">👤</span> Users & Roles
+                                <span class="nav-icon">👤</span> Users
+                            </a>
+                        </div>
+                        <div class="nav-item">
+                            <a href="{{ $admin_root }}/roles" class="{{ str_contains($v, 'role') ? 'active' : '' }}">
+                                <span class="nav-icon">🛡️</span> Roles & Permissions
                             </a>
                         </div>
                     </div>
@@ -137,7 +190,7 @@
             </nav>
         </aside>
 
-        <main class="main-content">
+        <main class="main-content" style="position: relative;">
             <header class="top-header">
                 <div class="page-title">
                     <h1>{{ $title ?? 'Dashboard' }}</h1>
@@ -163,42 +216,144 @@
                 @endif
                 @yield('content')
             </div>
+
+            <!-- Full-screen Embedded Lekhni Block Editor Overlay Container (now contained within main-content) -->
+            <div id="editor-integrated-wrapper" style="display: none; position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 999999; background: var(--bg-deep, #0f172a); flex-direction: column; overflow: hidden; min-height: 100%;">
+                <div class="editor-integrated-header" style="height: 50px; background: var(--sidebar-bg, #1e293b); border-bottom: 1px solid var(--sidebar-border, rgba(255,255,255,0.1)); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-family: 'Outfit', sans-serif;">
+                        <span style="background: var(--accent-primary, #6366f1); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">✍️ LEKHNI ENGINE</span>
+                        <span id="editor-integrated-title" style="font-size: 0.9rem;">Integrated Document Studio</span>
+                    </div>
+                    <button onclick="const c = window.getActiveComponent(); if (c && typeof c.back === 'function') c.back(); else window.closeIntegratedEditor();" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                        ✕ Exit Studio / Return
+                    </button>
+                </div>
+                <div id="editor-integrated-host" style="flex-grow: 1; position: relative; width: 100%; overflow-y: auto;"></div>
+            </div>
         </main>
     </div>
-    <!-- Full-screen Embedded Lekhni Block Editor Overlay Container -->
-    <div id="editor-integrated-wrapper" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 999999; background: var(--bg-deep, #0f172a); flex-direction: column;">
-        <div class="editor-integrated-header" style="height: 50px; background: var(--sidebar-bg, #1e293b); border-bottom: 1px solid var(--sidebar-border, rgba(255,255,255,0.1)); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; color: white;">
-            <div style="display: flex; align-items: center; gap: 10px; font-weight: bold; font-family: 'Outfit', sans-serif;">
-                <span style="background: var(--accent-primary, #6366f1); color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">✍️ LEKHNI ENGINE</span>
-                <span id="editor-integrated-title" style="font-size: 0.9rem;">Integrated Document Studio</span>
-            </div>
-            <button onclick="closeIntegratedEditor()" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
-                ✕ Exit Studio / Return
-            </button>
-        </div>
-        <div id="editor-integrated-host" style="flex-grow: 1; position: relative; width: 100%; overflow: hidden;"></div>
-    </div>
+
+    <!-- Pre-warm decoupled UI Component templates natively -->
+    @php
+        $candidates = [
+            'c:/projects/apache/school1/src/lekhak/comp/templates',
+            dirname(__DIR__, 5) . '/comp/templates',
+            $_SERVER['DOCUMENT_ROOT'] . ($app_root ?? '') . '/src/lekhak/comp/templates'
+        ];
+        $tplDir = false;
+        foreach ($candidates as $c) {
+            if ($c && is_dir($c)) {
+                $tplDir = $c;
+                break;
+            }
+        }
+        if ($tplDir && is_dir($tplDir)) {
+            foreach (scandir($tplDir) as $f) {
+                if (str_ends_with($f, '.html')) {
+                    $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
+                    $tplContent = @file_get_contents($tplDir . '/' . $f);
+                    if ($tplContent) {
+                        echo "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
+                    }
+                }
+            }
+        }
+    @endphp
 
     <script src="{{ rtrim($web_root ?? '', '/') }}/spp/res/js/spp.js?v={{ time() }}"></script>
     <script type="module">
-        // Global controller logic to seamlessly mount embedded Lekhni blocks into any native page view
-        window.closeIntegratedEditor = function() {
-            const wrapper = document.getElementById('editor-integrated-wrapper');
-            if (wrapper) {
-                wrapper.style.display = 'none';
-                document.getElementById('editor-integrated-host').innerHTML = '';
-                window.location.reload();
+        let activeComponent = null;
+        window.getActiveComponent = () => activeComponent;
+        let lastHash = window.location.hash;
+        let isRevertingHash = false;
+
+        const dummyAdminAdapter = {
+            config: { baseUrl: '{{ $app_root }}', apiBase: '{{ $app_root }}/admin-api' },
+            api: async (action, p = {}) => {
+                const res = await fetch('{{ $app_root }}/admin-api?action=' + action, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(p)
+                });
+                return await res.json();
+            },
+            apiPost: async function(action, p = {}) { return this.api(action, p); },
+            notify: (msg, type) => {
+                console.log(`[LEKHAK ${type.toUpperCase()}] ${msg}`);
+                const toast = document.createElement('div');
+                toast.style.position = 'fixed';
+                toast.style.bottom = '24px';
+                toast.style.right = '24px';
+                toast.style.background = type === 'success' ? '#16a34a' : (type === 'error' ? '#dc2626' : '#2563eb');
+                toast.style.color = 'white';
+                toast.style.padding = '12px 24px';
+                toast.style.borderRadius = '8px';
+                toast.style.fontWeight = 'bold';
+                toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+                toast.style.zIndex = '9999999';
+                toast.style.fontFamily = "'Inter', sans-serif";
+                toast.style.fontSize = "0.9rem";
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.style.opacity = '0', 2500);
+                setTimeout(() => toast.remove(), 2800);
+            },
+            openAppView: (view) => {
+                if (view === 'lekhak' || view === 'dashboard') {
+                    window.closeIntegratedEditor();
+                } else {
+                    location.hash = view;
+                }
             }
         };
 
-        window.openIntegratedEditor = async function(nodeId = null) {
+        window.closeIntegratedEditor = function(force = false) {
+            const wrapper = document.getElementById('editor-integrated-wrapper');
+            if (wrapper && wrapper.style.display !== 'none') {
+                if (!force && activeComponent && activeComponent.state && activeComponent.state.isDirty) {
+                    if (!confirm('You have unsaved changes. Leave anyway?')) return false;
+                }
+                wrapper.style.display = 'none';
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
+                document.getElementById('editor-integrated-host').innerHTML = '';
+                
+                if (activeComponent) {
+                    if (typeof activeComponent.onDestroy === 'function') {
+                        try { activeComponent.onDestroy(); } catch(e) { console.error(e); }
+                    } else if (typeof activeComponent.dispose === 'function') {
+                        try { activeComponent.dispose(); } catch(e) { console.error(e); }
+                    }
+                    activeComponent = null;
+                }
+
+                if (window.location.hash) {
+                    window.location.hash = '';
+                }
+            }
+            return true;
+        };
+
+        window.openIntegratedEditor = async function(nodeId = null, targetLang = null) {
             const wrapper = document.getElementById('editor-integrated-wrapper');
             const host = document.getElementById('editor-integrated-host');
             const titleEl = document.getElementById('editor-integrated-title');
             
             if (!wrapper || !host) return;
+
+            // Dispose active component if any
+            if (activeComponent) {
+                if (typeof activeComponent.onDestroy === 'function') {
+                    try { activeComponent.onDestroy(); } catch(e) { console.error(e); }
+                } else if (typeof activeComponent.dispose === 'function') {
+                    try { activeComponent.dispose(); } catch(e) { console.error(e); }
+                }
+                activeComponent = null;
+            }
             
             wrapper.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
             
             let selectedBundle = 'Article';
             if (nodeId === null) {
@@ -258,7 +413,7 @@
             }
 
             host.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-dim);">Initializing zero-dependency standalone Lekhni core engine...</div>';
-            titleEl.textContent = nodeId ? `Editing Stream #${nodeId}` : `Creating New ${selectedBundle}`;
+            titleEl.textContent = nodeId ? (targetLang ? `Translating Stream #${nodeId} (${targetLang})` : `Editing Stream #${nodeId}`) : `Creating New ${selectedBundle}`;
 
             try {
                 const nocache = new URLSearchParams(window.location.search).has('nocache');
@@ -267,48 +422,12 @@
                 const module = await import(moduleUrl);
                 const EditorClass = module.default;
 
-                // Build a lightweight framework bridge payload
-                const dummyAdminAdapter = {
-                    config: { baseUrl: '{{ $app_root }}', apiBase: '{{ $app_root }}/admin-api' },
-                    api: async (action, p = {}) => {
-                        const res = await fetch('{{ $app_root }}/admin-api?action=' + action, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(p)
-                        });
-                        return await res.json();
-                    },
-                    apiPost: async function(action, p = {}) { return this.api(action, p); },
-                    notify: (msg, type) => {
-                        console.log(`[LEKHNI ${type.toUpperCase()}] ${msg}`);
-                        const toast = document.createElement('div');
-                        toast.style.position = 'fixed';
-                        toast.style.bottom = '24px';
-                        toast.style.right = '24px';
-                        toast.style.background = type === 'success' ? '#16a34a' : (type === 'error' ? '#dc2626' : '#2563eb');
-                        toast.style.color = 'white';
-                        toast.style.padding = '12px 24px';
-                        toast.style.borderRadius = '8px';
-                        toast.style.fontWeight = 'bold';
-                        toast.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
-                        toast.style.zIndex = '9999999';
-                        toast.style.fontFamily = "'Inter', sans-serif";
-                        toast.style.fontSize = "0.9rem";
-                        toast.textContent = msg;
-                        document.body.appendChild(toast);
-                        setTimeout(() => toast.style.opacity = '0', 2500);
-                        setTimeout(() => toast.remove(), 2800);
-                    },
-                    openAppView: (view) => {
-                        window.closeIntegratedEditor();
-                    }
-                };
-
                 host.innerHTML = '';
-                const editorObj = new EditorClass(dummyAdminAdapter, host, { id: nodeId, bundle: selectedBundle });
+                const editorObj = new EditorClass(dummyAdminAdapter, host, { id: nodeId, bundle: selectedBundle, lang: targetLang, isTranslationMode: !!targetLang });
+                activeComponent = editorObj;
                 
                 if (editorObj.onInit) {
-                    await editorObj.onInit({ id: nodeId, bundle: selectedBundle });
+                    await editorObj.onInit({ id: nodeId, bundle: selectedBundle, lang: targetLang, isTranslationMode: !!targetLang });
                 }
                 editorObj.update();
                 if (editorObj.onMount) {
@@ -317,7 +436,7 @@
 
                 // Intercept inner component save/close hooks gracefully
                 editorObj.onClose = () => {
-                    window.closeIntegratedEditor();
+                    window.closeIntegratedEditor(true);
                 };
 
             } catch (e) {
@@ -326,31 +445,255 @@
             }
         };
 
-        // Global Link Interceptor for legacy action triggers
-        document.addEventListener('DOMContentLoaded', () => {
-            document.addEventListener('click', (e) => {
-                const editLink = e.target.closest('a[href*="content/edit/"]');
-                if (editLink) {
-                    e.preventDefault();
-                    const href = editLink.getAttribute('href');
-                    const parts = href.split('/content/edit/');
-                    const targetId = parts[1] ? parts[1].replace(/[^0-9]/g, '') : null;
-                    window.openIntegratedEditor(targetId);
-                    return;
+        window.openIntegratedComponent = async function(componentName) {
+            const wrapper = document.getElementById('editor-integrated-wrapper');
+            const host = document.getElementById('editor-integrated-host');
+            const titleEl = document.getElementById('editor-integrated-title');
+            
+            if (!wrapper || !host) return;
+
+            // Dispose active component if any
+            if (activeComponent) {
+                if (typeof activeComponent.onDestroy === 'function') {
+                    try { activeComponent.onDestroy(); } catch(e) { console.error(e); }
+                } else if (typeof activeComponent.dispose === 'function') {
+                    try { activeComponent.dispose(); } catch(e) { console.error(e); }
+                }
+                activeComponent = null;
+            }
+            
+            wrapper.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+            host.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-dim);">Initializing component...</div>';
+            
+            const titles = {
+                'commerce': 'eCommerce Store Manager',
+                'translations': 'Translation Center',
+                'settings': 'Appearance & Themes',
+                'media': 'Media Library',
+                'blocks': 'Block Management',
+                'structure': 'Structure Manager',
+                'modules': 'Module Extend Manager'
+            };
+            titleEl.textContent = titles[componentName] || componentName;
+
+            try {
+                const nocache = new URLSearchParams(window.location.search).has('nocache');
+                const cacheBuster = nocache ? 't=' + Date.now() : 'v=2026_05_20_v1';
+                const moduleUrl = '{{ rtrim($web_root ?? '', '/') }}/src/lekhak/comp/' + componentName + '.js?' + cacheBuster;
+                const module = await import(moduleUrl);
+                const ComponentClass = module.default;
+
+                host.innerHTML = '';
+                
+                // Mount reactive component
+                const compObj = new ComponentClass(dummyAdminAdapter, host, {});
+                activeComponent = compObj;
+                
+                if (compObj.onInit) {
+                    await compObj.onInit({});
+                }
+                compObj.update();
+                if (compObj.onMount) {
+                    await compObj.onMount();
                 }
 
-                const createLink = e.target.closest('a[href$="#editor"], a[href="#editor"], [data-spp-evt="nav-editor"]');
-                if (createLink) {
+            } catch (e) {
+                console.error("Component Setup Exception:", e);
+                host.innerHTML = `<div style="padding:40px;color:#ef4444;text-align:center;"><h3>Component Instantiation Fault</h3><p>${e.message}</p></div>`;
+            }
+        };
+
+        // Global Link Interceptor for legacy action triggers
+        document.addEventListener('DOMContentLoaded', () => {
+            // Delegated capturing-phase listener on the integrated wrapper for the Back buttons
+            const wrapper = document.getElementById('editor-integrated-wrapper');
+            if (wrapper) {
+                wrapper.addEventListener('click', (e) => {
+                    const backBtn = e.target.closest('.btn-icon[title="Back"], [title="Back"]');
+                    if (backBtn) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        const c = window.getActiveComponent();
+                        if (c && typeof c.back === 'function') {
+                            c.back();
+                        } else {
+                            window.closeIntegratedEditor();
+                        }
+                    }
+                }, true); // useCapture = true
+            }
+
+            document.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (link) {
+                    if (link.href && link.href.includes('/content/edit/')) {
+                        e.preventDefault();
+                        const parts = link.href.split('/content/edit/');
+                        const targetId = parts[1] ? parts[1].replace(/[^0-9]/g, '') : null;
+                        window.openIntegratedEditor(targetId);
+                        window.location.hash = 'editor';
+                        return;
+                    }
+
+                    if (link.href && link.href.includes('/translate')) {
+                        e.preventDefault();
+                        const match = link.href.match(/\/content\/(\d+)\/translate/);
+                        const targetId = match ? match[1] : null;
+                        const urlParams = new URLSearchParams(link.search);
+                        const targetLang = urlParams.get('lang') || 'hi_IN';
+                        window.openIntegratedEditor(targetId, targetLang);
+                        window.location.hash = 'editor-translate-' + targetId + '-' + targetLang;
+                        return;
+                    }
+
+                    const hash = link.hash;
+                    if (hash === '#editor') {
+                        e.preventDefault();
+                        window.openIntegratedEditor(null);
+                        window.location.hash = 'editor';
+                        return;
+                    }
+                    if (hash === '#commerce') {
+                        e.preventDefault();
+                        window.openIntegratedComponent('commerce');
+                        window.location.hash = 'commerce';
+                        return;
+                    }
+                    if (hash === '#translations') {
+                        e.preventDefault();
+                        window.openIntegratedComponent('translations');
+                        window.location.hash = 'translations';
+                        return;
+                    }
+                    if (hash === '#themes') {
+                        e.preventDefault();
+                        const map = {
+                            'lekhak': 'DashboardView',
+                            'content': 'ContentView',
+                            'canvas': 'CanvasView',
+                            'settings': 'SettingsView',
+                            'editor': 'LekhniView',
+                            'commerce': 'CommerceView',
+                            'translations': 'TranslationsView',
+                            'media': 'MediaView',
+                            'structure': 'StructureView',
+                            'blocks': 'BlocksView',
+                            'modules': 'ModulesView'
+                        };
+                        window.openIntegratedComponent('settings');
+                        window.location.hash = 'themes';
+                        return;
+                    }
+                    if (hash === '#media') {
+                        e.preventDefault();
+                        window.openIntegratedComponent('media');
+                        window.location.hash = 'media';
+                        return;
+                    }
+                    if (hash === '#blocks') {
+                        e.preventDefault();
+                        window.openIntegratedComponent('blocks');
+                        window.location.hash = 'blocks';
+                        return;
+                    }
+                    if (hash === '#modules') {
+                        e.preventDefault();
+                        window.openIntegratedComponent('modules');
+                        window.location.hash = 'modules';
+                        return;
+                    }
+                }
+
+                // Also check elements with data-spp-evt="nav-editor"
+                const sppEvt = e.target.closest('[data-spp-evt="nav-editor"]');
+                if (sppEvt) {
                     e.preventDefault();
                     window.openIntegratedEditor(null);
+                    window.location.hash = 'editor';
                     return;
                 }
             });
 
-            // If the route hash initializes to #editor directly, auto-launch
-            if (window.location.hash.includes('#editor')) {
+            // Handle initial routes if URL is loaded with a hash
+            const initialHash = window.location.hash;
+            if (initialHash.startsWith('#editor-translate-')) {
+                const parts = initialHash.replace('#editor-translate-', '').split('-');
+                window.openIntegratedEditor(parts[0], parts[1]);
+            } else if (initialHash.includes('#editor')) {
                 window.openIntegratedEditor(null);
+            } else if (initialHash.includes('#commerce')) {
+                window.openIntegratedComponent('commerce');
+            } else if (initialHash.includes('#translations')) {
+                window.openIntegratedComponent('translations');
+            } else if (initialHash.includes('#themes')) {
+                window.openIntegratedComponent('settings');
+            } else if (initialHash.includes('#media')) {
+                window.openIntegratedComponent('media');
+            } else if (initialHash.includes('#blocks')) {
+                window.openIntegratedComponent('blocks');
+            } else if (initialHash.includes('#modules')) {
+                window.openIntegratedComponent('modules');
             }
+
+            // Listen for hashchange events
+            window.addEventListener('hashchange', () => {
+                if (isRevertingHash) {
+                    isRevertingHash = false;
+                    lastHash = window.location.hash;
+                    return;
+                }
+
+                const hash = window.location.hash;
+
+                // Prompt user for unsaved changes before executing route change
+                if (activeComponent && activeComponent.state && activeComponent.state.isDirty) {
+                    if (!confirm('You have unsaved changes. Leave anyway?')) {
+                        isRevertingHash = true;
+                        window.location.hash = lastHash;
+                        return;
+                    }
+                }
+
+                lastHash = hash;
+
+                if (hash.startsWith('#editor-translate-')) {
+                    const parts = hash.replace('#editor-translate-', '').split('-');
+                    window.openIntegratedEditor(parts[0], parts[1]);
+                } else if (hash === '#editor') {
+                    window.openIntegratedEditor(null);
+                } else if (hash === '#commerce') {
+                    window.openIntegratedComponent('commerce');
+                } else if (hash === '#translations') {
+                    window.openIntegratedComponent('translations');
+                } else if (hash === '#themes') {
+                    window.openIntegratedComponent('settings');
+                } else if (hash === '#media') {
+                    window.openIntegratedComponent('media');
+                } else if (hash === '#blocks') {
+                    window.openIntegratedComponent('blocks');
+                } else if (hash === '#modules') {
+                    window.openIntegratedComponent('modules');
+                } else if (hash === '#lekhak' || hash === '#dashboard') {
+                    window.closeIntegratedEditor(true);
+                    window.location.href = '{{ $admin_root }}';
+                } else if (hash === '#content') {
+                    window.closeIntegratedEditor(true);
+                    window.location.href = '{{ $admin_root }}/content';
+                } else if (hash === '#canvas') {
+                    window.closeIntegratedEditor(true);
+                    window.location.href = '{{ $admin_root }}/landing';
+                } else if (hash === '#settings') {
+                    window.closeIntegratedEditor(true);
+                    window.location.href = '{{ $admin_root }}/settings';
+                } else if (hash === '#structure') {
+                    window.closeIntegratedEditor(true);
+                    window.location.href = '{{ $admin_root }}/structure/types';
+                } else if (!hash) {
+                    window.closeIntegratedEditor(true);
+                }
+            });
         });
     </script>
 
@@ -439,6 +782,12 @@
                 }
             }
         });
+
+        // Initialize SPA Navigation Engine
+        window.sppPjaxConfig = {
+            containers: ['title', '.page-title h1', '.page-title p', '.animate-fade', '.nav-list'],
+            interceptAll: true
+        };
     </script>
 </body>
 </html>

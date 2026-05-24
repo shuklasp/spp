@@ -1,0 +1,5 @@
+name: "Drupal Bridge"
+description: "Provides the Drupal compatibility layer allowing Drupal 8+ modules to run natively inside Lekhak."
+version: "1.0.0"
+package: "Core"
+dependencies: []

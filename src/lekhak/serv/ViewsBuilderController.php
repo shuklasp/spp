@@ -12,12 +12,38 @@ class ViewsBuilderController
      */
     public function index()
     {
+        $action = $_GET['action'] ?? $_POST['action'] ?? '';
+        if ($action === 'apiGetViews') {
+            return $this->apiGetViews();
+        } elseif ($action === 'apiSaveView') {
+            return $this->apiSaveView();
+        }
+
         $views = $this->loadViewsConfig();
         
+        $appRoot = \SPP\App::getBaseUrl('lekhak');
+        $adminRoot = $appRoot . '/admin';
+        $webRoot = defined('APP_BASE_URI') ? APP_BASE_URI : '';
+        
+        $data = [
+            'views' => $views,
+            'title' => 'Views Builder',
+            'subtitle' => 'Visually configure content queries.',
+            'app_root' => $appRoot,
+            'admin_root' => $adminRoot,
+            'web_root' => $webRoot,
+            'view_name' => 'views_admin'
+        ];
+
+        // Enforce premium admin theme for all forms
+        if (class_exists('\SPPMod\SPPView\SPPViewForm_Element')) {
+            \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
+        }
+
         // Using Drishyam if available, otherwise just output a raw interactive HTML admin layout
         if (class_exists('\\SPPMod\\Drishyam\\Drishyam')) {
             try {
-                return \SPPMod\Drishyam\Drishyam::render("views_admin", ['views' => $views]);
+                return \SPPMod\Drishyam\Drishyam::render("views_admin", $data);
             } catch (\Exception $e) {
                 // Fallback to raw output if template doesn't exist
             }
@@ -59,9 +85,9 @@ class ViewsBuilderController
     }
 
     /**
-     * Execute a view by its ID and render its output.
+     * Execute a view by its ID and an optional display ID, and render its output.
      */
-    public function executeView(string $viewId)
+    public function executeView(string $viewId, string $displayId = null)
     {
         $views = $this->loadViewsConfig();
         if (!isset($views[$viewId])) {
@@ -69,6 +95,34 @@ class ViewsBuilderController
         }
 
         $config = $views[$viewId];
+        
+        // Find the display if requested
+        $display = null;
+        if (!empty($config['displays'])) {
+            if ($displayId) {
+                foreach ($config['displays'] as $d) {
+                    if ($d['id'] === $displayId) {
+                        $display = $d;
+                        break;
+                    }
+                }
+            }
+            if (!$display) {
+                // fallback to first display
+                $display = $config['displays'][0];
+            }
+        }
+        
+        $limit = $config['limit'] ?? 10;
+        $paginationType = 'none';
+        
+        // Merge display overrides into main config
+        if ($display) {
+            if (isset($display['limit'])) $limit = $display['limit'];
+            if (!empty($display['template'])) $config['template'] = $display['template'];
+            if (!empty($display['pagination'])) $paginationType = $display['pagination'];
+        }
+
         $entityClass = $config['entity_class'] ?? '\\SPPMod\\Lekhak\\Core\\LekhakNode';
 
         if (!class_exists($entityClass)) {
@@ -95,19 +149,91 @@ class ViewsBuilderController
             if (!empty($config['sort'])) {
                 $query->sort($config['sort']['field'], $config['sort']['direction'] ?? 'ASC');
             }
-
-            if (!empty($config['limit'])) {
-                $query->limit((int)$config['limit'], isset($config['offset']) ? (int)$config['offset'] : null);
+            
+            // Handle Pagination Limits and Offsets
+            $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+            $offset = null;
+            if ($paginationType !== 'none') {
+                $offset = ($page - 1) * $limit;
+                
+                // For Infinite Scroll API mode
+                if (isset($_GET['infinite_api']) && $_GET['infinite_api'] === '1') {
+                    // Send pure data or bare HTML back for AJAX
+                }
             }
-
+            
+            $query->limit((int)$limit, $offset);
             $results = $query->execute();
-
+            
+            $html = '';
             $template = $config['template'] ?? null;
             if ($template && class_exists('\\SPPMod\\Drishyam\\Drishyam')) {
-                return \SPPMod\Drishyam\Drishyam::render($template, ['results' => $results, 'config' => $config]);
+                $html = \SPPMod\Drishyam\Drishyam::render($template, ['results' => $results, 'config' => $config, 'display' => $display]);
+            } else {
+                $html = $this->renderGenericTable($results, $config);
+            }
+            
+            // For AJAX infinite requests, return just the rows/items
+            if ($paginationType === 'infinite' && isset($_GET['infinite_api'])) {
+                echo $html;
+                exit;
+            }
+            
+            // Append Pagination Controls
+            $hasMore = count($results) === (int)$limit; // Basic guess without a count query
+            if ($paginationType === 'traditional') {
+                $html .= "<div class='spp-pagination' style='margin-top: 20px; display: flex; justify-content: space-between;'>";
+                if ($page > 1) {
+                    $prevPage = $page - 1;
+                    $html .= "<a href='?page={$prevPage}' class='btn btn-secondary'>&laquo; Previous</a>";
+                } else {
+                    $html .= "<span></span>";
+                }
+                if ($hasMore) {
+                    $nextPage = $page + 1;
+                    $html .= "<a href='?page={$nextPage}' class='btn btn-secondary'>Next &raquo;</a>";
+                }
+                $html .= "</div>";
+            } elseif ($paginationType === 'infinite') {
+                $viewContainerId = 'view-infinite-' . uniqid();
+                $html = "<div id='{$viewContainerId}'>{$html}</div>";
+                if ($hasMore) {
+                    $html .= "<div id='{$viewContainerId}-loader' style='text-align: center; padding: 20px; color: #666;'>Loading more...</div>";
+                    $html .= "<script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            let currentPage = {$page};
+                            let isLoading = false;
+                            const loader = document.getElementById('{$viewContainerId}-loader');
+                            const container = document.getElementById('{$viewContainerId}');
+                            
+                            const observer = new IntersectionObserver((entries) => {
+                                if (entries[0].isIntersecting && !isLoading) {
+                                    isLoading = true;
+                                    currentPage++;
+                                    let fetchUrl = window.location.pathname + '?page=' + currentPage + '&infinite_api=1';
+                                    fetch(fetchUrl)
+                                        .then(res => res.text())
+                                        .then(data => {
+                                            if (data.trim() === '' || data.indexOf('spp-view-empty') !== -1) {
+                                                loader.style.display = 'none';
+                                                observer.disconnect();
+                                            } else {
+                                                container.insertAdjacentHTML('beforeend', data);
+                                                isLoading = false;
+                                            }
+                                        }).catch(err => {
+                                            console.error('Infinite scroll error', err);
+                                            isLoading = false;
+                                        });
+                                }
+                            });
+                            observer.observe(loader);
+                        });
+                    </script>";
+                }
             }
 
-            return $this->renderGenericTable($results, $config);
+            return $html;
 
         } catch (\Exception $e) {
             return "<div class='spp-view-error'>Error executing view: " . htmlspecialchars($e->getMessage()) . "</div>";

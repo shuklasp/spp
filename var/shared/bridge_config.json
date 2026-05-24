@@ -1,5 +1,5 @@
 {
-    "timestamp": 1779352749,
+    "timestamp": 1779620489,
     "spp_version": "0.7",
     "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
@@ -27,8 +27,12 @@
         "sppinterdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppinterdb",
         "sppxdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb",
         "sppsetting": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppsetting",
+        "SPPMigrate": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppmigrate",
         "lekhak": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
         "lekhak_commerce": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
+        "Drupal Bridge": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
+        "Lekhak Peeche": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
+        "Sankhyaki Analytics": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
         "sppadmin": false,
         "marketing": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/marketing",
         "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi"

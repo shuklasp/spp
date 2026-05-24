@@ -97,6 +97,11 @@ require_once('global.php');
         exit(0);
     }
 
+    if (class_exists('\SPPMod\SPPMigrate\SPPMigrate') && \SPPMod\SPPMigrate\SPPMigrate::isMigrateRequest()) {
+        \SPPMod\SPPMigrate\SPPMigrate::handle();
+        return;
+    }
+
     if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAPI') && \SPPMod\SPPAPI\SPPAPI::isApiRequest()) {
         \SPPMod\SPPAPI\SPPAPI::handle();
         return;

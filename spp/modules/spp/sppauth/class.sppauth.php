@@ -98,6 +98,21 @@ class SPPAuth extends \SPP\SPPObject
     }
 
     /**
+     * Get the current user data as an array for backward compatibility.
+     */
+    public static function getCurrentUser(): ?array
+    {
+        $user = self::user();
+        if (!$user) {
+            return null;
+        }
+        return [
+            'id' => $user->id ?? null,
+            'username' => $user->username ?? ($user->id ?? null)
+        ];
+    }
+
+    /**
      * Check if the user is logged in.
      */
     public static function check(): bool

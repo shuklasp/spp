@@ -334,7 +334,7 @@
  ✕ Exit Studio / Return
  </button>
  </div>
- <div id="editor-integrated-host" style="flex-grow: 1; position: relative; width: 100%; overflow: hidden;"></div>
+ <div id="editor-integrated-host" style="flex-grow: 1; position: relative; width: 100%; overflow-y: auto;"></div>
  </div>
 
  <script src="/school1/spp/res/js/spp.js?v=1779349703"></script>

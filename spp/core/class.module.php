@@ -777,7 +777,9 @@ class Module extends \SPP\SPPObject
      */
     public static function scanModules(): array
     {
-        return SPPFS::findFile('module.xml', SPP_MODULES_DIR);
+        $xmls = SPPFS::findFile('module.xml', SPP_MODULES_DIR);
+        $ymls = SPPFS::findFile('module.yml', SPP_MODULES_DIR);
+        return array_merge($xmls, $ymls);
     }
 
     /**

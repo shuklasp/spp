@@ -10,21 +10,51 @@ specials:
 pages:
   admin-api: { url: resources/admin-api.php, special: 1 }
 
+  api/v1/entity/{type}/{id}:
+    controller: \SPPMod\Lekhak\Serv\ApiController@handleRequest
+  api/v1/entity/{type}:
+    controller: \SPPMod\Lekhak\Serv\ApiController@handleRequest
+
   # Specific Admin Routes First
+  admin/content/{id}/translate:
+    controller: \App\Lekhak\Serv\TranslationController@index
+  admin/content/{id}/revisions/{revId}/revert:
+    controller: \App\Lekhak\Serv\RevisionsController@revert
+  admin/content/{id}/revisions:
+    controller: \App\Lekhak\Serv\RevisionsController@index
+
+  admin/modules:
+    controller: \App\Lekhak\Serv\ModuleController@index
+
+  admin/modules/update:
+    controller: \App\Lekhak\Serv\ModuleController@update
+
+  admin/config/{module}:
+    controller: \App\Lekhak\Serv\ConfigController@manage
+
+
+  admin/config/development/performance:
+    controller: \App\Lekhak\Serv\CacheController@settings
+
   admin/content:
     controller: \App\Lekhak\Serv\AdminController@manageContent
 
-  admin/structure/types/add:
-    controller: \App\Lekhak\Serv\AdminController@editContentType
   admin/structure/types/{bundle}/fields/add:
     controller: \App\Lekhak\Serv\AdminController@addField
   admin/structure/types/{bundle}/fields:
     controller: \App\Lekhak\Serv\AdminController@manageFields
+  admin/structure/types/{name}/edit:
+    controller: \App\Lekhak\Serv\AdminController@editContentType
+  admin/structure/types/add:
+    controller: \App\Lekhak\Serv\AdminController@editContentType
   admin/structure/types:
     controller: \App\Lekhak\Serv\AdminController@manageContentTypes
   
   admin/structure/fields:
     controller: \App\Lekhak\Serv\AdminController@manageFieldsGlobal
+
+  admin/structure/views:
+    controller: \App\Lekhak\Serv\ViewsBuilderController@index
 
   admin/landing/create:
     controller: \App\Lekhak\Serv\LandingDesignerController@create
@@ -51,6 +81,8 @@ pages:
     controller: \App\Lekhak\Serv\AdminController@settings
   admin/users:
     controller: \App\Lekhak\Serv\AdminController@manageUsers
+  admin/roles:
+    controller: \App\Lekhak\Serv\AdminController@manageRoles
   admin/login:
     controller: \App\Lekhak\Serv\AdminController@login
   admin/logout:

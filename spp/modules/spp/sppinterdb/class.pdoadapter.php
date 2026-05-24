@@ -14,6 +14,11 @@ class PDOAdapter implements DBAdapter
         $this->pdo = $pdo;
     }
 
+    public function getPDO(): \PDO
+    {
+        return $this->pdo;
+    }
+
     public function query(string $sql, array $params = []): array
     {
         try {

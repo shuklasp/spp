@@ -1,0 +1,10 @@
+<?php
+require 'spp/sppinit.php';
+$db = new \SPPMod\SPPDB\SPPDB();
+try {
+    $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_modules (machine_name VARCHAR(100) UNIQUE, status INT DEFAULT 0)");
+    $db->execute_query('INSERT IGNORE INTO lekhak_modules (machine_name, status) VALUES (?, ?)', ['lekhak_peeche', 1]);
+    echo "Inserted into DB.\n";
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}

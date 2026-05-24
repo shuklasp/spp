@@ -15,6 +15,70 @@
 <form method="POST" action="">
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px;">
         
+        <!-- System & Integrity Settings -->
+        <div class="glass-panel" style="padding: 20px;">
+            <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--accent-primary);">System & Integrity</h3>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="enable_edge_consensus" value="1" {{ !empty($settings['enable_edge_consensus']) ? 'checked' : '' }}>
+                    <span style="color: var(--text-main);">Enable Edge Consensus Protocol</span>
+                </label>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <a href="{{ $admin_root }}/config/development/performance" class="btn btn-secondary" style="font-size: 0.85rem; padding: 6px 12px;">⚡ Manage Performance & Caching</a>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="enable_merkle_trace" value="1" {{ !empty($settings['enable_merkle_trace']) ? 'checked' : '' }}>
+                    <span style="color: var(--text-main);">Merkle Lineage Telemetry Dump</span>
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="speculative_offline" value="1" {{ !empty($settings['speculative_offline']) ? 'checked' : '' }}>
+                    <span style="color: var(--text-main);">Speculative Offline Caching Matrix</span>
+                </label>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="strict_sri" value="1" {{ !empty($settings['strict_sri']) ? 'checked' : '' }}>
+                    <span style="color: var(--text-main);">Sub-Resource Integrity Strict Sandboxing</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Appearance & Accent Settings -->
+        <div class="glass-panel" style="padding: 20px;">
+            <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--accent-secondary);">Appearance & Accent</h3>
+            
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Theme Mode</label>
+                <select name="theme" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+                    <option value="dark" {{ ($settings['theme'] ?? '') == 'dark' ? 'selected' : '' }}>Dark</option>
+                    <option value="light" {{ ($settings['theme'] ?? '') == 'light' ? 'selected' : '' }}>Light</option>
+                    <option value="system" {{ ($settings['theme'] ?? '') == 'system' ? 'selected' : '' }}>System</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Ambient Radius Vector Scale</label>
+                <input type="text" name="ambient_scale" value="{{ $settings['ambient_scale'] ?? '1.05' }}" class="form-control" style="width: 100%; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px; color: var(--text-main); font-weight: 500;">Primary Theme Accent Matrix</label>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <input type="color" name="primary_accent" value="{{ $settings['primary_accent'] ?? '#f97316' }}" style="width: 50px; height: 38px; border: none; border-radius: 4px; cursor: pointer;">
+                    <input type="text" name="primary_accent" value="{{ $settings['primary_accent'] ?? '#f97316' }}" class="form-control" style="flex-grow: 1; padding: 8px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+
         <!-- Lekhni Editor Settings -->
         <div class="glass-panel" style="padding: 20px;">
             <h3 style="margin-top: 0; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px; color: var(--accent-primary);">Lekhni Editor Settings</h3>

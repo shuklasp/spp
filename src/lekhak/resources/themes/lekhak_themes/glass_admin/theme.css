@@ -22,6 +22,19 @@
     --sidebar-text: var(--text-main);
     --sidebar-text-dim: var(--text-dim);
     --bg-gradient: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.15) 0%, transparent 40%);
+
+    /* Scrollbar Vars */
+    --scrollbar-track: rgba(15, 23, 42, 0.3);
+    --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+    --scrollbar-thumb-hover: var(--accent-primary);
+    --sidebar-scroll-track: transparent;
+    --sidebar-scroll-thumb: rgba(255, 255, 255, 0.18);
+
+    /* Legacy Component CSS Variable Mappings */
+    --primary: var(--accent-primary);
+    --text: var(--text-main);
+    --border: var(--glass-border);
+    --header-bg: rgba(30, 41, 59, 0.95);
 }
 
 [data-theme="day"] {
@@ -41,6 +54,19 @@
     --sidebar-text: #0f172a;
     --sidebar-text-dim: #64748b;
     --bg-gradient: radial-gradient(circle at 10% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 40%);
+
+    /* Scrollbar Vars */
+    --scrollbar-track: rgba(0, 0, 0, 0.03);
+    --scrollbar-thumb: rgba(0, 0, 0, 0.25);
+    --scrollbar-thumb-hover: var(--accent-primary);
+    --sidebar-scroll-track: transparent;
+    --sidebar-scroll-thumb: rgba(0, 0, 0, 0.2);
+
+    /* Legacy Component CSS Variable Mappings */
+    --primary: var(--accent-primary);
+    --text: var(--text-main);
+    --border: var(--glass-border);
+    --header-bg: rgba(255, 255, 255, 0.95);
 }
 
 [data-theme="saffron"] {
@@ -61,12 +87,26 @@
     --sidebar-text-dim: rgba(255, 255, 255, 0.85);
     --sidebar-header-text: #ffffff;
     --bg-gradient: linear-gradient(135deg, #fffaf5 0%, #fff7ed 50%, #ffedd5 100%), radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.12) 0%, transparent 50%);
+
+    /* Scrollbar Vars */
+    --scrollbar-track: rgba(249, 115, 22, 0.05);
+    --scrollbar-thumb: rgba(234, 88, 12, 0.4);
+    --scrollbar-thumb-hover: var(--accent-secondary);
+    --sidebar-scroll-track: transparent;
+    --sidebar-scroll-thumb: rgba(255, 255, 255, 0.35);
+
+    /* Legacy Component CSS Variable Mappings */
+    --primary: var(--accent-primary);
+    --text: var(--text-main);
+    --border: var(--glass-border);
+    --header-bg: rgba(255, 250, 245, 0.95);
 }
 
 select option {
     background-color: #ffffff;
     color: #1e293b;
 }
+[data-theme="dark"] select option,
 [data-theme="night"] select option {
     background-color: #1e293b;
     color: #f8fafc;
@@ -94,19 +134,26 @@ input:focus, select:focus, textarea:focus {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
 }
 
-/* Custom Scrollbar */
+/* Gecko (Firefox) Standard Scrollbar Styles */
+html, body, #editor-integrated-host, .table-responsive-wrapper, .drawer-body {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Webkit Global Custom Scrollbars */
 ::-webkit-scrollbar {
     width: 8px;
+    height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: var(--bg-deep);
+    background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-accent);
+    background: var(--scrollbar-thumb);
     border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-primary);
+    background: var(--scrollbar-thumb-hover);
 }
 
 h1, h2, h3, .logo-text {
@@ -133,19 +180,23 @@ h1, h2, h3, .logo-text {
     z-index: 100;
     overflow-y: auto;
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.2) transparent;
+    scrollbar-color: var(--sidebar-scroll-thumb) var(--sidebar-scroll-track);
     color: var(--sidebar-text);
 }
 
 .sidebar::-webkit-scrollbar {
-    width: 4px;
+    width: 6px;
+    height: 6px;
 }
 .sidebar::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--sidebar-scroll-track);
 }
 .sidebar::-webkit-scrollbar-thumb {
-    background: var(--bg-accent);
+    background: var(--sidebar-scroll-thumb);
     border-radius: 10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
 }
 
 .logo {

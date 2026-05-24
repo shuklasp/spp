@@ -20,7 +20,53 @@ class SPPEntity implements \JsonSerializable
   protected $_dynamic_values = array();              /** dynamic polymorphic field values */
   protected $_snapshot = array();                    /** data snapshot for auditing */
   protected $_relatedCaches = array();               /** lazy-loaded relations cache */
+  
+  protected $currentLanguage = 'en';                 /** Active translation language */
+  protected $_translations = array();                /** Cached translation data */
 
+  /**
+   * Set the active translation language for the entity.
+   */
+  public function setLanguage(string $langCode)
+  {
+      $this->currentLanguage = $langCode;
+      $this->_loadTranslations();
+      return $this;
+  }
+
+  /**
+   * Load translations from the database.
+   */
+  protected function _loadTranslations()
+  {
+      if ($this->id !== null && $this->currentLanguage !== 'en') {
+          $db = new \SPPMod\SPPDB\SPPDB();
+          $result = $db->execute_query(
+              "SELECT translated_data FROM spp_entity_translations WHERE entity_class = ? AND entity_id = ? AND language_code = ?",
+              [static::class, $this->id, $this->currentLanguage]
+          );
+          if (!empty($result)) {
+              $this->_translations = json_decode($result[0]['translated_data'], true) ?: [];
+          } else {
+              $this->_translations = [];
+          }
+      }
+  }
+
+  /**
+   * Save current translations to the database.
+   */
+  protected function _saveTranslations()
+  {
+      if ($this->id !== null && $this->currentLanguage !== 'en' && !empty($this->_translations)) {
+          $db = new \SPPMod\SPPDB\SPPDB();
+          $json = json_encode($this->_translations, JSON_UNESCAPED_UNICODE);
+          $db->execute_query(
+              "INSERT INTO spp_entity_translations (entity_class, entity_id, language_code, translated_data) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE translated_data = ?",
+              [static::class, $this->id, $this->currentLanguage, $json, $json]
+          );
+      }
+  }
 
   /**
    * public function __construct($id, $name)
@@ -235,7 +281,10 @@ class SPPEntity implements \JsonSerializable
 
   public function after_load()
   {
-    // To be implemented in derived classes
+      if (class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
+          \SPPMod\SPPCache\SPPCacheManager::addTag(static::getEntityName(static::class) . ':' . $this->id);
+          \SPPMod\SPPCache\SPPCacheManager::addTag(static::getEntityName(static::class) . '_list');
+      }
   }
 
   public function before_save()
@@ -245,7 +294,12 @@ class SPPEntity implements \JsonSerializable
 
   public function after_save()
   {
-    // To be implemented in derived classes
+      if (class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
+          \SPPMod\SPPCache\SPPCacheManager::invalidateTags([
+              static::getEntityName(static::class) . ':' . $this->id,
+              static::getEntityName(static::class) . '_list'
+          ]);
+      }
   }
 
   /**
@@ -263,10 +317,27 @@ class SPPEntity implements \JsonSerializable
    */
   public function jsonSerialize(): mixed
   {
-      return array_merge(
+      $data = array_merge(
           ['id' => $this->id],
           $this->_values
       );
+      
+      // Flatten dynamic fields from fields_data JSON
+      if (isset($data['fields_data'])) {
+          $fieldsData = $data['fields_data'];
+          if (is_string($fieldsData)) {
+              $decoded = json_decode($fieldsData, true);
+              if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                  $data = array_merge($data, $decoded);
+              }
+          } elseif (is_array($fieldsData)) {
+              $data = array_merge($data, $fieldsData);
+          }
+          // We can leave or unset fields_data here. Let's keep it for completeness or unset to be clean.
+          unset($data['fields_data']);
+      }
+      
+      return $data;
   }
 
   /**
@@ -616,7 +687,7 @@ class SPPEntity implements \JsonSerializable
    */
   public static function getEntityName($entity)
   {
-    return get_class($entity);
+    return is_object($entity) ? get_class($entity) : (string) $entity;
   }
 
 
@@ -675,6 +746,11 @@ class SPPEntity implements \JsonSerializable
       $this->$attribute = $value;
       return true;
     } else {
+      if ($this->currentLanguage !== 'en') {
+          $this->_translations[$attribute] = $value;
+          return true;
+      }
+      
       $attributes = $this->getAttributes();
       $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
@@ -716,6 +792,11 @@ class SPPEntity implements \JsonSerializable
     if (array_key_exists($attribute, $classVar)) {
       $this->$attribute = $value;
     } else {
+      if ($this->currentLanguage !== 'en') {
+          $this->_translations[$attribute] = $value;
+          return $value;
+      }
+      
       $attributes = $this->getAttributes();
       $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
@@ -814,6 +895,10 @@ class SPPEntity implements \JsonSerializable
     if (array_key_exists($attribute, $classVar)) {
       return $this->$attribute;
     } else {
+      if ($this->currentLanguage !== 'en' && array_key_exists($attribute, $this->_translations)) {
+          return $this->_translations[$attribute];
+      }
+      
       $attributes = $this->getAttributes();
       $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
       if (array_key_exists($attribute, $attributes)) {
@@ -994,6 +1079,7 @@ class SPPEntity implements \JsonSerializable
     if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
         \SPPMod\SPPEntity\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
     }
+    $this->_saveTranslations();
     return $new_id;
   }
 
@@ -1089,12 +1175,31 @@ class SPPEntity implements \JsonSerializable
   {
     $db = new \SPPMod\SPPDB\SPPDB();
     if ($this->id != null) {
+      // Revisions Tracking Implementation
+      if (self::getMetadata('track_revisions')) {
+          $delta = [];
+          foreach ($this->_values as $key => $newVal) {
+              $oldVal = $this->_snapshot[$key] ?? null;
+              if ($oldVal !== $newVal) {
+                  $delta[$key] = ['old' => $oldVal, 'new' => $newVal];
+              }
+          }
+          if (!empty($delta)) {
+              $author_id = class_exists('\SPPMod\SPPAuth\SPPAuth') && \SPPMod\SPPAuth\SPPAuth::check() ? \SPPMod\SPPAuth\SPPAuth::user()->id : null;
+              $db->execute_query(
+                  "INSERT INTO spp_entity_revisions (entity_class, entity_id, revision_date, author_id, delta_data, log_message) VALUES (?, ?, NOW(), ?, ?, ?)",
+                  [static::class, $this->id, $author_id, json_encode($delta), 'System update']
+              );
+          }
+      }
+
       $values = array_values($this->_values);
       $values[] = $this->id;
       $db->updateValues($this->getTable(), array_keys($this->_values), self::getMetadata('id_field') . '=?', $values);
       if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
           \SPPMod\SPPEntity\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
       }
+      $this->_saveTranslations();
       return true;
     } else {
       return false;
@@ -1276,7 +1381,45 @@ class SPPEntity implements \JsonSerializable
           }
       }
   }
+
+  /**
+   * Get all revisions for this entity.
+   */
+  public function getRevisions()
+  {
+      if ($this->id === null) return [];
+      $db = new \SPPMod\SPPDB\SPPDB();
+      return $db->execute_query(
+          "SELECT id, revision_date, author_id, log_message FROM spp_entity_revisions WHERE entity_id = ? AND entity_class = ? ORDER BY revision_date DESC",
+          [$this->id, static::class]
+      );
+  }
+
+  /**
+   * Restore this entity from a specific revision ID.
+   */
+  public function restoreRevision($rev_id)
+  {
+      if ($this->id === null) return false;
+      $db = new \SPPMod\SPPDB\SPPDB();
+      $rev = $db->execute_query(
+          "SELECT delta_data FROM spp_entity_revisions WHERE id = ? AND entity_id = ? AND entity_class = ?",
+          [$rev_id, $this->id, static::class]
+      )[0] ?? null;
+
+      if ($rev) {
+          $delta = json_decode($rev['delta_data'], true);
+          if (is_array($delta)) {
+              foreach ($delta as $key => $val) {
+                  $this->$key = $val;
+              }
+              return $this->save();
+          }
+      }
+      return false;
+  }
 }
+
 
 
 ?>

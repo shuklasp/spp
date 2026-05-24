@@ -1,0 +1,5 @@
+name: Lekhak Peeche
+version: "1.0"
+description: Intercepts back button for external referrals, redirecting visitors to a configured fallback page before allowing them to leave the site.
+author: SPP Core Team
+type: custom

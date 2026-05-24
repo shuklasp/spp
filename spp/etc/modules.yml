@@ -109,3 +109,7 @@ modules:
         name: sppsetting
         path: spp/sppsetting
         status: active
+    -
+        name: sppmigrate
+        path: spp/sppmigrate
+        status: active

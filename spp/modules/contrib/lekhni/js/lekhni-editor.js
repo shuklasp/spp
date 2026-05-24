@@ -51,6 +51,7 @@ export default class LekhniEditor extends BaseComponent {
             
             // Layout context
             embedded: this.props?.embedded || this.props?.inline || false,
+            fullscreenFixed: false,
 
             // Dynamic Toolbar & Popover configurations
             toolbarLayout: params?.toolbarLayout || this.props?.toolbarLayout || 'full',
@@ -434,7 +435,7 @@ export default class LekhniEditor extends BaseComponent {
     async loadNode() {
         this.setState({ saving: true });
         try {
-            const res = await this.admin.api('get_node', { id: this.state.id });
+            const res = await this.admin.api('get_node', { id: this.state.id, lang: this.props?.lang });
             if (res.success) {
                 const node = res.node;
                 this.setState({
@@ -1889,7 +1890,10 @@ export default class LekhniEditor extends BaseComponent {
     handleTitleInput(e) {
         const val = e.target.value; this.state.title = val; this.state.isDirty = true;
         if (!this.state.manualAlias) {
-            this.state.alias = val.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+            const newAlias = val.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
+            this.state.alias = newAlias;
+            const aliasInput = this.container.querySelector('.lekhni-alias-input');
+            if (aliasInput) aliasInput.value = newAlias;
         }
         this.autoSave();
     }
@@ -1912,7 +1916,7 @@ export default class LekhniEditor extends BaseComponent {
         try {
             const apiCall = this.admin?.api ? this.admin.api : async (act, d) => ({ success: true, id: d.id || 'node_gen', message: 'Saved successfully' });
             const res = await apiCall('save_node', {
-                id: this.state.id, title: this.state.title, body: this.state.body, status: this.state.status, alias: this.state.alias, bundle: this.state.bundle
+                id: this.state.id, title: this.state.title, body: this.state.body, status: this.state.status, alias: this.state.alias, bundle: this.state.bundle, lang: this.props?.lang
             });
             if (res.success) {
                 const savedId = res.id ?? res.data?.id ?? this.state.id;
@@ -1944,11 +1948,11 @@ export default class LekhniEditor extends BaseComponent {
     notify(msg, type = 'info') { if (this.admin?.notify) this.admin.notify(msg, type); else console.log(`[Lekhni ${type}] ${msg}`); }
 
     render() {
-        const { title, status, saving, lastSaved, alias, tags, category, bundle, bundles, embedded, editorMode, codeLanguage, categories, outline, revisions, showHistoryModal, selectedRevisionIndex, hasOfflineSnapshot, showSlashMenu, slashX, slashY, slashFilter, slashIndex, showBubbleMenu, bubbleX, bubbleY, slashMenuEnabled, bubbleMenuEnabled, showAIComposerModal, aiComposerX, aiComposerY, aiComposerQuery, aiComposerLoading, printModeEnabled, showPasteOptions, pasteOptionsX, pasteOptionsY, pasteOptions, activePasteBlockId } = this.state;
+        const { title, status, saving, lastSaved, alias, tags, category, bundle, bundles, embedded, editorMode, codeLanguage, categories, outline, revisions, showHistoryModal, selectedRevisionIndex, hasOfflineSnapshot, showSlashMenu, slashX, slashY, slashFilter, slashIndex, showBubbleMenu, bubbleX, bubbleY, slashMenuEnabled, bubbleMenuEnabled, showAIComposerModal, aiComposerX, aiComposerY, aiComposerQuery, aiComposerLoading, printModeEnabled, showPasteOptions, pasteOptionsX, pasteOptionsY, pasteOptions, activePasteBlockId, fullscreenFixed } = this.state;
         const filteredSlash = this.slashCommands.filter(c => c.label.toLowerCase().includes(slashFilter));
 
         return html`
-            <div class="lekhni-editor-wrapper ${embedded ? 'mode-embedded' : 'mode-fullscreen'}" style="position: relative;">
+            <div class="lekhni-editor-wrapper ${embedded ? 'mode-embedded' : 'mode-fullscreen'} ${fullscreenFixed ? 'mode-fullscreen-fixed' : ''}" style="position: relative;">
                 ${!embedded ? html`
                     <nav class="lekhni-nav">
                         <div class="nav-left">
@@ -1959,6 +1963,17 @@ export default class LekhniEditor extends BaseComponent {
                                 <button class="mode-tab ${editorMode === 'document' ? 'active' : ''}" @click="${() => this.setEditorMode('document')}">📝 Document</button>
                                 <button class="mode-tab ${editorMode === 'code' ? 'active' : ''}" @click="${() => this.setEditorMode('code')}">💻 Code Editor</button>
                             </div>
+                            ${this.props?.isTranslationMode ? html`
+                            <div class="translation-mode-switch" style="display: flex; align-items: center; gap: 8px; margin-left: 10px;">
+                                <span style="color: #94a3b8; font-size: 0.8rem;">Translating to:</span>
+                                <select @change="${(e) => { window.location.hash = 'editor-translate-' + this.state.id + '-' + e.target.value; }}" style="background: #1e293b; color: white; border: 1px solid #334155; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; outline: none;">
+                                    <option value="hi_IN" ?selected="${this.props.lang === 'hi_IN'}">Hindi (hi_IN)</option>
+                                    <option value="de_DE" ?selected="${this.props.lang === 'de_DE'}">German (de_DE)</option>
+                                    <option value="fr_FR" ?selected="${this.props.lang === 'fr_FR'}">French (fr_FR)</option>
+                                    <option value="es_ES" ?selected="${this.props.lang === 'es_ES'}">Spanish (es_ES)</option>
+                                </select>
+                            </div>
+                            ` : ''}
                         </div>
                         <div class="nav-actions">
                             ${revisions.length > 0 ? html`
@@ -1966,6 +1981,9 @@ export default class LekhniEditor extends BaseComponent {
                                     🕰️ History (${revisions.length})
                                 </button>
                             ` : ''}
+                            <button class="btn-secondary" @click="${() => this.setState({ fullscreenFixed: !fullscreenFixed })}" style="font-size: 0.8rem; margin: 0 4px;" title="Toggle Fullscreen Workspace">
+                                ${fullscreenFixed ? '🗗 Restore Workspace' : '🗖 Fullscreen Workspace'}
+                            </button>
                             <button class="btn-secondary" @click="${() => this.setState({ printModeEnabled: !printModeEnabled })}" style="font-size: 0.8rem; margin: 0 4px;">
                                 ${printModeEnabled ? '📄 Normal View' : '🖨️ Print View'}
                             </button>
@@ -2104,7 +2122,7 @@ export default class LekhniEditor extends BaseComponent {
 
                             <div class="sidebar-section">
                                 <h4>🚀 Publishing</h4>
-                                <div class="field"><label>URL Alias</label><input type="text" .value="${alias}" @input="${(e) => { this.state.alias = e.target.value; this.state.manualAlias = true; this.state.isDirty = true; }}"></div>
+                                <div class="field"><label>URL Alias</label><input type="text" class="lekhni-alias-input" .value="${alias}" @input="${(e) => { this.state.alias = e.target.value; this.state.manualAlias = true; this.state.isDirty = true; }}"></div>
                                 <div class="field">
                                     <label>Status</label>
                                     <select .value="${status}" @change="${(e) => { this.state.status = e.target.value; this.state.isDirty = true; }}"><option value="draft">Draft</option><option value="published">Published</option></select>
@@ -2274,11 +2292,11 @@ export default class LekhniEditor extends BaseComponent {
                     border-radius: 2px !important;
                 }
 
-                .lekhni-editor-wrapper.mode-fullscreen { position: relative; height: 100%; max-height: 100%; min-height: calc(100vh - 120px); background: #0f172a; display: flex; flex-direction: column; color: #f1f5f9; font-family: 'Inter', sans-serif; border-radius: 12px; overflow: hidden; }
-                .lekhni-editor-wrapper.mode-fullscreen-fixed { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; }
+                .lekhni-editor-wrapper.mode-fullscreen { position: relative; width: 100%; min-height: 300px; height: calc(100vh - 130px); background: #0f172a; display: flex; flex-direction: column; color: #f1f5f9; font-family: 'Inter', sans-serif; border-radius: 12px; overflow: hidden; margin-top: 0; }
+                .lekhni-editor-wrapper.mode-fullscreen-fixed { position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 2000; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
                 .lekhni-editor-wrapper.mode-embedded { width: 100%; border: 1px solid #334155; border-radius: 8px; background: rgba(15,23,42,0.4); color: #f1f5f9; font-family: 'Inter', sans-serif; overflow: hidden; }
 
-                .lekhni-nav { height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
+                .lekhni-nav { flex-shrink: 0; height: 60px; background: #1e293b; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; padding: 0 1.5rem; }
                 .nav-left { display: flex; align-items: center; gap: 1rem; }
                 .save-status { font-size: 0.8rem; color: #94a3b8; }
                 .nav-actions { display: flex; gap: 0.75rem; }
@@ -2309,8 +2327,8 @@ export default class LekhniEditor extends BaseComponent {
                 .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; }
                 .btn-icon { background: transparent; border: none; color: #94a3b8; cursor: pointer; display: flex; }
 
-                body:has(.lekhni-editor-wrapper.mode-fullscreen) .sidebar,
-                body:has(.lekhni-editor-wrapper.mode-fullscreen) .content-header { display: none !important; }
+                body:has(.lekhni-editor-wrapper.mode-fullscreen-fixed) .sidebar,
+                body:has(.lekhni-editor-wrapper.mode-fullscreen-fixed) .content-header { display: none !important; }
             </style>
         `;
     }

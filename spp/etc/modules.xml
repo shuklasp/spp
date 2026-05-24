@@ -117,4 +117,9 @@
             <dependency>sppcore</dependency>
         </dependencies>
     </module>
+    <module>
+        <modname>sppmigrate</modname>
+        <modpath>spp/sppmigrate</modpath>
+        <status>active</status>
+    </module>
 </modules>

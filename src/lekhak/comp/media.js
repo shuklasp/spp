@@ -58,6 +58,30 @@ export default class MediaView extends BaseComponent {
         }
     }
 
+    async renameFile(oldName) {
+        const newName = prompt(`Rename ${oldName} to:`, oldName);
+        if (!newName || newName === oldName) return;
+        
+        try {
+            const fd = new FormData();
+            fd.append('action', 'rename_media');
+            fd.append('oldName', oldName);
+            fd.append('newName', newName);
+            
+            const apiUrl = this.admin?.config?.apiBase || 'admin-api.php';
+            const res = await fetch(new URL(apiUrl, window.location.origin).toString(), { method: 'POST', body: fd }).then(r => r.json());
+            
+            if (res?.success) {
+                this.admin?.notify?.('File renamed.', 'success');
+                await this.fetchMedia();
+            } else {
+                this.admin?.notify?.(res?.message || 'Rename failed.', 'error');
+            }
+        } catch (e) {
+            this.admin?.notify?.('Rename failed.', 'error');
+        }
+    }
+
     render() {
         const { files, loading, uploading, total } = this.state;
         const isImg = (type) => type && type.startsWith('image/');
@@ -71,9 +95,10 @@ export default class MediaView extends BaseComponent {
                     <div style="font-size:0.78rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${f.name}">${f.name}</div>
                     <div style="font-size:0.68rem;color:var(--text-dim);margin-top:4px;">${f.size} · ${f.modified?.split(' ')[0] || ''}</div>
                 </div>
-                <div style="padding:6px 10px;border-top:1px solid var(--border);display:flex;gap:4px;justify-content:flex-end;">
-                    <a href="${f.url}" target="_blank" style="font-size:0.7rem;color:var(--primary);text-decoration:none;padding:3px 8px;border:1px solid var(--border);border-radius:4px;">Open</a>
-                    <button class="del-media-btn" data-name="${f.name}" style="font-size:0.7rem;color:#ef4444;background:transparent;border:1px solid var(--border);border-radius:4px;padding:3px 8px;cursor:pointer;">Delete</button>
+                <div style="padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:6px;justify-content:flex-end;background:var(--sidebar-bg);">
+                    <a href="${f.url}" target="_blank" style="font-size:0.75rem;font-weight:600;color:#ffffff;background:var(--primary);text-decoration:none;padding:5px 12px;border-radius:4px;border:none;cursor:pointer;transition:opacity 0.2s;">Open</a>
+                    <button class="rename-media-btn" data-name="${f.name}" style="font-size:0.75rem;font-weight:600;color:var(--text);background:var(--header-bg);border:1px solid var(--border);border-radius:4px;padding:4px 12px;cursor:pointer;transition:opacity 0.2s;">Rename</button>
+                    <button class="del-media-btn" data-name="${f.name}" style="font-size:0.75rem;font-weight:600;color:#ffffff;background:#dc2626;border:none;border-radius:4px;padding:5px 12px;cursor:pointer;transition:opacity 0.2s;">Delete</button>
                 </div>
             </div>`).join('');
 
@@ -117,6 +142,14 @@ export default class MediaView extends BaseComponent {
     afterUpdate() {
         const btn = document.getElementById('media-upload-btn');
         if (btn && !btn._bound) { btn.onclick = () => this.uploadFile(); btn._bound = true; }
+        
+        document.querySelectorAll('.rename-media-btn').forEach(b => {
+            if (!b._bound) {
+                b.onclick = (e) => { e.stopPropagation(); this.renameFile(b.dataset.name); };
+                b._bound = true;
+            }
+        });
+        
         document.querySelectorAll('.del-media-btn').forEach(b => {
             if (!b._bound) {
                 b.onclick = (e) => { e.stopPropagation(); this.deleteFile(b.dataset.name); };
@@ -124,27 +157,42 @@ export default class MediaView extends BaseComponent {
             }
         });
 
-        // SPPEX.Dropzone: Initialize drag-and-drop zone on the media grid area
-        if (typeof SPPEX !== 'undefined' && SPPEX.Dropzone) {
-            const dropTarget = document.querySelector('.lekhak-media-shell .lekhak-main-container') || document.querySelector('.lekhak-media-shell');
-            if (dropTarget && !dropTarget._dropzoneInit) {
-                SPPEX.Dropzone.init('.lekhak-media-shell .lekhak-main-container', async (files) => {
-                    this.setState({ uploading: true });
-                    for (const file of files) {
-                        const fd = new FormData();
-                        fd.append('file', file);
-                        fd.append('action', 'upload_media');
-                        try {
-                            const apiUrl = this.admin?.config?.apiBase || 'admin-api.php';
-                            const res = await fetch(new URL(apiUrl, window.location.origin).toString(), { method: 'POST', body: fd }).then(r => r.json());
-                            if (res?.success) this.admin?.notify?.(`Uploaded: ${file.name}`, 'success');
-                        } catch (e) {}
-                    }
-                    this.setState({ uploading: false });
-                    await this.fetchMedia();
-                });
-                dropTarget._dropzoneInit = true;
-            }
+        // Native HTML5 Drag and Drop zone on the media grid area
+        const dropTarget = document.querySelector('.lekhak-media-shell');
+        if (dropTarget && !dropTarget._nativeDropzoneInit) {
+            dropTarget._nativeDropzoneInit = true;
+            
+            const preventDefaults = (e) => { e.preventDefault(); e.stopPropagation(); };
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eName => {
+                dropTarget.addEventListener(eName, preventDefaults, false);
+            });
+
+            ['dragenter', 'dragover'].forEach(eName => {
+                dropTarget.addEventListener(eName, () => dropTarget.style.background = 'rgba(255,255,255,0.05)', false);
+            });
+
+            ['dragleave', 'drop'].forEach(eName => {
+                dropTarget.addEventListener(eName, () => dropTarget.style.background = '', false);
+            });
+
+            dropTarget.addEventListener('drop', async (e) => {
+                const files = e.dataTransfer.files;
+                if (!files || files.length === 0) return;
+                
+                this.setState({ uploading: true });
+                for (const file of files) {
+                    const fd = new FormData();
+                    fd.append('file', file);
+                    fd.append('action', 'upload_media');
+                    try {
+                        const apiUrl = this.admin?.config?.apiBase || 'admin-api.php';
+                        const res = await fetch(new URL(apiUrl, window.location.origin).toString(), { method: 'POST', body: fd }).then(r => r.json());
+                        if (res?.success) this.admin?.notify?.(`Uploaded: ${file.name}`, 'success');
+                    } catch (err) {}
+                }
+                this.setState({ uploading: false });
+                await this.fetchMedia();
+            }, false);
         }
 
         // SPPEX.Masonry: Apply fluid Pinterest-style layout to the media grid

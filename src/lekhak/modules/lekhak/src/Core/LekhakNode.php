@@ -40,6 +40,40 @@ class LekhakNode extends SPPEntity
                 $this->status = 'published';
             }
         }
+        if ($this->id) {
+            // Track revisions for existing nodes
+            $oldNode = static::find($this->id);
+            if ($oldNode) {
+                $diff = [];
+                $attrs = array_keys($this->define_attributes());
+                foreach ($attrs as $attr) {
+                    if ($this->$attr !== $oldNode->$attr) {
+                        $diff[$attr] = ['old' => $oldNode->$attr, 'new' => $this->$attr];
+                    }
+                }
+                
+                if (!empty($diff)) {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    $table = \SPPMod\SPPDB\SPPDB::sppTable('entity_revisions');
+                    if ($db->tableExists($table)) {
+                        $author = $this->author_id;
+                        if (!$author && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
+                            $user = \SPPMod\SPPAuth\SPPAuth::user();
+                            $author = $user->id ?? 0;
+                        }
+                        $db->exec_squery(
+                            "INSERT INTO %tab% (entity_type, entity_id, revision_timestamp, author_id, state_delta) VALUES (?, ?, ?, ?, ?)",
+                            $table,
+                            [static::class, $this->id, date('Y-m-d H:i:s'), (int)$author, json_encode($diff)]
+                        );
+                    }
+                }
+            }
+        }
+
+        if (function_exists('lekhak_invoke_alter')) {
+            lekhak_invoke_alter('entity_presave', $this);
+        }
     }
 
     public function after_save()
@@ -52,6 +86,10 @@ class LekhakNode extends SPPEntity
             $db->exec_squery("DELETE FROM %tab% WHERE nid = ? AND gid = ? AND realm = ?", $table, [$this->id, 0, 'all']);
             $db->exec_squery("INSERT INTO %tab% (nid, gid, realm, grant_view, grant_update, grant_delete) VALUES (?, ?, ?, ?, ?, ?)",
                 $table, [$this->id, 0, 'all', 1, 0, 0]);
+        }
+
+        if (function_exists('lekhak_invoke_all')) {
+            lekhak_invoke_all('entity_insert', [$this]);
         }
     }
 
@@ -174,10 +212,11 @@ class LekhakNode extends SPPEntity
      */
     public function load($id)
     {
+        $res = parent::load($id);
         if ($this->storage_strategy === 'dynamic') {
-            return $this->getStorageDriver()->load($this, $id);
+            $res = $this->getStorageDriver()->load($this, $id);
         }
-        return parent::load($id);
+        return $res;
     }
 
     protected function getStorageDriver()
@@ -212,6 +251,8 @@ class LekhakNode extends SPPEntity
             'fields_data' => 'longtext'
         ];
     }
+    
+
     
     /**
      * Define metadata for form building and UI hints.

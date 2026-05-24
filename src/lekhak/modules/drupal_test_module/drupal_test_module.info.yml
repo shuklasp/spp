@@ -1,0 +1,6 @@
+name: 'Drupal Test Module'
+type: module
+description: 'A dummy Drupal 8 module to test the bridge.'
+core_version_requirement: ^8 || ^9 || ^10
+package: Custom
+version: 1.0

@@ -74,6 +74,47 @@ class Field extends SPPEntity
             'weight' => [
                 'label' => 'Ordering Weight',
                 'help' => 'Lower numbers appear first in the form (e.g. -10 is above 0).'
+            ],
+            'widget_type' => [
+                'label' => 'Widget Type',
+                'type' => 'select',
+                'options' => [
+                    'text_textfield' => 'Text Field',
+                    'text_textarea' => 'Text Area',
+                    'number' => 'Number Input',
+                    'checkbox' => 'Checkbox',
+                    'select' => 'Select List',
+                    'radios' => 'Radio Buttons',
+                    'image_image' => 'Image Upload',
+                    'file_generic' => 'File Upload',
+                    'date_select' => 'Date Selector'
+                ],
+                'help' => 'Choose the UI element used to input data for this field.'
+            ],
+            'widget_settings' => [
+                'label' => 'Widget Settings',
+                'type' => 'textarea',
+                'help' => 'Additional JSON configuration for the widget (e.g. {"size": 60, "placeholder": "Enter value"}). Leave blank for defaults.'
+            ],
+            'formatter_type' => [
+                'label' => 'Formatter Type',
+                'type' => 'select',
+                'options' => [
+                    'text_default' => 'Default Text',
+                    'text_trimmed' => 'Trimmed Text',
+                    'number_integer' => 'Integer',
+                    'number_decimal' => 'Decimal',
+                    'boolean' => 'Boolean',
+                    'image' => 'Image',
+                    'file_default' => 'File Link',
+                    'date_default' => 'Default Date'
+                ],
+                'help' => 'Choose how the data from this field should be rendered when displayed to end users.'
+            ],
+            'formatter_settings' => [
+                'label' => 'Formatter Settings',
+                'type' => 'textarea',
+                'help' => 'Additional JSON configuration for the formatter (e.g. {"image_style": "thumbnail", "link": true}). Leave blank for defaults.'
             ]
         ];
     }

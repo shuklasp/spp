@@ -197,6 +197,17 @@ if (!defined('SPP_VER')) {
   }
 
   spl_autoload_register(function ($class_name) {
+    if (strpos($class_name, 'SPP\\') === 0 && strpos($class_name, 'SPPMod\\') !== 0) {
+      $parts = explode('\\', $class_name);
+      array_shift($parts); // Remove SPP
+      $file = SPP_BASE_DIR . SPP_DS . implode(SPP_DS, $parts) . '.php';
+      if (file_exists($file)) {
+        require_once $file;
+      }
+    }
+  });
+
+  spl_autoload_register(function ($class_name) {
     if (strpos($class_name, 'App\\') === 0) {
       $parts = explode('\\', $class_name);
       if (count($parts) >= 3) {

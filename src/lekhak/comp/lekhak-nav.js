@@ -20,6 +20,8 @@ export function registerNavHandlers() {
     window.__spp_handlers['nav-translations'] = () => location.hash = 'translations';
     window.__spp_handlers['nav-media']        = () => location.hash = 'media';
     window.__spp_handlers['nav-structure']    = () => location.hash = 'structure';
+    window.__spp_handlers['nav-blocks']       = () => location.hash = 'blocks';
+    window.__spp_handlers['nav-modules']      = () => location.hash = 'modules';
 }
 
 /**

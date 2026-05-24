@@ -5,11 +5,17 @@ The SPP Framework utilizes a multi-layered caching architecture to ensure high p
 ## 1. Orion Cache (Module Registry)
 **Purpose**: Zero-I/O module discovery and dependency resolution.
 - **Backend**: Compiled PHP array (`var/cache/modules_<app>.php`).
-- **Mechanism**: Parses all module manifests (`module.yml`) and compiles them into a single file.
+- **Mechanism**: Parses all module manifests (`module.yml` and `module.xml`) and compiles them into a single file.
 - **Activation**: Automatic when `SPP_DEBUG` is false.
 - **Documentation**: [Orion Cache](modules/orion-cache.md)
 
-## 2. General Object Cache (`\SPP\Cache`)
+## 2. Edge & Object Caching (`SPPCacheManager` / Cache Tags)
+**Purpose**: High-performance HTTP-level cache and invalidation using tags.
+- **Backend**: Managed via `\SPPMod\SPPCache\SPPCacheManager` sending HTTP `X-SPP-Cache-Tags`.
+- **Mechanism**: Every read from an `SPPEntity` generates cache tags (e.g. `Article_list`, `Article:15`).
+- **Invalidation**: Modifying or saving an entity triggers programmatic invalidation of specific tags globally.
+
+## 3. General Object Cache (`\SPP\Cache`)
 **Purpose**: Generic key-value storage for application-level and framework-level data.
 - **Interface**: `\SPP\Core\CacheInterface`
 - **Drivers**:

@@ -1,12 +1,8 @@
 <?php
-require_once 'vendor/autoload.php';
-require_once 'spp/sppinit.php';
-
+require 'spp/sppinit.php';
+$db = new \SPPMod\SPPDB\SPPDB();
 try {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $tables = $db->execute_query('SHOW TABLES');
-    echo "Tables Found:\n";
-    print_r($tables);
-} catch (\Exception $e) {
-    echo "Connection Error: " . $e->getMessage() . "\n";
+    print_r($db->execute_query('SELECT * FROM lekhak_modules'));
+} catch (Exception $e) {
+    echo "No table lekhak_modules";
 }

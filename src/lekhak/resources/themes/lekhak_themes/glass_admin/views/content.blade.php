@@ -54,6 +54,8 @@
                     <td style="text-align: right;">
                         <div class="repo-inline-actions" style="display: inline-flex; gap: 4px; align-items: center;">
                             <a href="{{ $admin_root }}/content/edit/{{ $node->id }}" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">✏️ Edit</a>
+                            <a href="{{ $admin_root }}/content/{{ $node->id }}/translate" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">🌐 Translate</a>
+                            <a href="{{ $admin_root }}/content/{{ $node->id }}/revisions" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;">🕒 Revisions</a>
                             <a href="{{ $admin_root }}/content/delete/{{ $node->id }}" onclick="return confirm('Confirm purging document stream #{{ $node->id }}?');" class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem; color: var(--danger);">🗑️ Purge</a>
                         </div>
                     </td>

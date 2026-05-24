@@ -288,6 +288,19 @@ class SPPDB
     }
 
     /**
+     * Returns the underlying PDO instance if available.
+     *
+     * @return \PDO|null
+     */
+    public function getPDO(): ?\PDO
+    {
+        if (isset($this->adapter) && method_exists($this->adapter, 'getPDO')) {
+            return $this->adapter->getPDO();
+        }
+        return null;
+    }
+
+    /**
      * Returns a human-readable summary of the current connection.
      */
     public function getConnectionSummary(): string

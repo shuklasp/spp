@@ -168,6 +168,16 @@ try {
             ]);
             break;
 
+        case 'get_sankhyaki_stats':
+            if (class_exists('\\Lekhak\\Modules\\Sankhyaki\\Controller\\StatsController')) {
+                $ctrl = new \Lekhak\Modules\Sankhyaki\Controller\StatsController();
+                echo $ctrl->getStats();
+                exit;
+            } else {
+                sendResponse(false, [], "Sankhyaki module is not enabled.");
+            }
+            break;
+
         case 'list_nodes':
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('nodes');
@@ -213,20 +223,42 @@ try {
 
         case 'get_node':
             $id = $_REQUEST['id'] ?? null;
+            $lang = $_REQUEST['lang'] ?? null;
             if (!$id) sendResponse(false, [], "ID required.");
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
-            sendResponse(true, ['node' => [
+            
+            if ($lang) {
+                $node->setLanguage($lang);
+            }
+            
+            $data = [
                 'id' => $node->id, 'title' => $node->title, 'body' => $node->body,
                 'status' => $node->status, 'alias' => $node->alias,
                 'bundle' => $node->bundle ?? 'Article',
                 'created' => $node->created ?? '', 'changed' => $node->changed
-            ]]);
+            ];
+            sendResponse(true, ['node' => $data]);
             break;
 
         case 'publish':
             $_POST['status'] = 'published';
         case 'save_node':
             $id = $_POST['id'] ?? null;
+            $lang = $_POST['lang'] ?? null;
+            
+            if ($lang && $id) {
+                $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
+                $node->setLanguage($lang);
+                
+                if (isset($_POST['title'])) $node->title = $_POST['title'];
+                if (isset($_POST['body'])) $node->body = $_POST['body'];
+                if (isset($_POST['alias'])) $node->alias = $_POST['alias'];
+                
+                $node->save();
+                sendResponse(true, ['id' => $id, 'url' => ''], "Translation saved successfully.");
+                break;
+            }
+
             $title = $_POST['title'] ?? 'Untitled Document';
             $body = $_POST['body'] ?? '';
             $status = $_POST['status'] ?? 'draft';
@@ -328,6 +360,32 @@ try {
             }
             break;
 
+        case 'rename_media':
+            $oldName = $_POST['oldName'] ?? '';
+            $newName = $_POST['newName'] ?? '';
+            if (!$oldName || !$newName) sendResponse(false, [], "Both old and new filenames are required.");
+            $mediaDir = dirname(__DIR__) . '/var/media/lekhni';
+            
+            // Clean up names for security
+            $oldName = basename($oldName);
+            $newName = basename($newName);
+            
+            $oldFp = $mediaDir . '/' . $oldName;
+            $newFp = $mediaDir . '/' . $newName;
+            
+            if (!file_exists($oldFp)) {
+                sendResponse(false, [], "Original file not found.");
+            } elseif (file_exists($newFp)) {
+                sendResponse(false, [], "A file with the new name already exists.");
+            } else {
+                if (rename($oldFp, $newFp)) {
+                    sendResponse(true, [], "File renamed.");
+                } else {
+                    sendResponse(false, [], "Failed to rename file.");
+                }
+            }
+            break;
+
         case 'list_products':
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('products');
@@ -353,7 +411,12 @@ try {
             } else {
                 $db->execute_query("INSERT INTO {$table} (title, sku, price, stock, active, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
                     [$pTitle, $pSku, $pPrice, $pStock, $pActive, $now, $now]);
-                $pid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
+                if ($driver === 'sqlite') {
+                    $pid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                } else {
+                    $pid = $db->execute_query("SELECT LAST_INSERT_ID() as id")[0]['id'] ?? null;
+                }
             }
             sendResponse(true, ['id' => $pid], "Product saved.");
             break;
@@ -414,6 +477,26 @@ try {
             sendResponse(true, ['pages' => $pages]);
             break;
 
+        case 'get_revisions':
+            $id = $_REQUEST['id'] ?? null;
+            if (!$id) sendResponse(false, [], "ID required.");
+            $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
+            $revs = $node->getRevisions();
+            sendResponse(true, ['revisions' => $revs]);
+            break;
+
+        case 'restore_revision':
+            $id = $_POST['id'] ?? null;
+            $rev_id = $_POST['rev_id'] ?? null;
+            if (!$id || !$rev_id) sendResponse(false, [], "ID and Rev ID required.");
+            $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
+            if ($node->restoreRevision($rev_id)) {
+                sendResponse(true, [], "Revision restored.");
+            } else {
+                sendResponse(false, [], "Revision not found.");
+            }
+            break;
+
         case 'get_landing_page':
             $id = $_REQUEST['id'] ?? null;
             if (!$id) sendResponse(false, [], "ID required.");
@@ -439,7 +522,12 @@ try {
             } else {
                 $db->execute_query("INSERT INTO {$table} (title, alias, layout, created, changed) VALUES (?, ?, ?, ?, ?)",
                     [$title, $alias, $layout, $now, $now]);
-                $id = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
+                if ($driver === 'sqlite') {
+                    $id = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                } else {
+                    $id = $db->execute_query("SELECT LAST_INSERT_ID() as id")[0]['id'] ?? null;
+                }
             }
             sendResponse(true, ['id' => $id], "Landing page saved.");
             break;
@@ -480,6 +568,26 @@ try {
             if (is_string($blockData)) {
                 $blockData = json_decode($blockData, true) ?: [];
             }
+            
+            $module = $_POST['module'] ?? '';
+            $title = trim($blockData['title'] ?? 'Untitled Block');
+            
+            if ($module && !str_starts_with($title, $module . ': ')) {
+                $title = $module . ': ' . $title;
+                $blockData['title'] = $title;
+            }
+            
+            // Check for duplicate title
+            $allBlocks = $db->execute_query("SELECT id, data FROM {$table}");
+            foreach ($allBlocks as $b) {
+                if ($bid && $b['id'] == $bid) continue;
+                $bData = json_decode($b['data'] ?? '{}', true);
+                if (($bData['title'] ?? '') === $title) {
+                    sendResponse(false, [], "A block with the title '{$title}' already exists.");
+                    exit;
+                }
+            }
+            
             $dataStr = json_encode($blockData);
             $now = date("Y-m-d H:i:s");
             
@@ -489,7 +597,12 @@ try {
             } else {
                 $db->execute_query("INSERT INTO {$table} (block_type, region, weight, page_id, data, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
                     [$blockType, $region, $weight, $pageId, $dataStr, $now, $now]);
-                $bid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
+                if ($driver === 'sqlite') {
+                    $bid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
+                } else {
+                    $bid = $db->execute_query("SELECT LAST_INSERT_ID() as id")[0]['id'] ?? null;
+                }
             }
             sendResponse(true, ['id' => $bid], "Block saved successfully.");
             break;
@@ -504,13 +617,24 @@ try {
             break;
 
         case 'list_types':
-            sendResponse(true, [
-                'types' => [
-                    ['id' => 'custom_html', 'name' => 'Custom HTML Block', 'description' => 'Render arbitrary HTML markup directly into a template region.'],
-                    ['id' => 'dynamic_view', 'name' => 'Lekhak Views Dynamic Query', 'description' => 'Fetch Lekhak CMS Nodes dynamically with sorting, limit, and responsive layouts.'],
-                    ['id' => 'text', 'name' => 'Simple Markdown/Text', 'description' => 'A basic textual element matching system aesthetic guidelines.']
-                ]
-            ]);
+            $types = [
+                ['id' => 'custom_html', 'name' => 'Custom HTML Block', 'description' => 'Render arbitrary HTML markup directly into a template region.'],
+                ['id' => 'dynamic_view', 'name' => 'Lekhak Views Dynamic Query', 'description' => 'Fetch Lekhak CMS Nodes dynamically with sorting, limit, and responsive layouts.'],
+                ['id' => 'text', 'name' => 'Simple Markdown/Text', 'description' => 'A basic textual element matching system aesthetic guidelines.']
+            ];
+            
+            // Allow modules to register their own placeable block types!
+            $module_blocks = [];
+            lekhak_invoke_alter('block_alter', $module_blocks);
+            foreach ($module_blocks as $block_id => $block_def) {
+                $types[] = [
+                    'id' => $block_id,
+                    'name' => $block_def['title'] ?? $block_id,
+                    'description' => 'Provided by a Lekhak module. Renders dynamic content.'
+                ];
+            }
+            
+            sendResponse(true, ['types' => $types]);
             break;
 
         case 'get_settings':
@@ -520,9 +644,14 @@ try {
                 $settingsConfig = \Symfony\Component\Yaml\Yaml::parseFile($settingsPath) ?: [];
             }
             $defaults = [
+                'theme' => 'dark',
                 'enable_edge_consensus' => true, 'enable_merkle_trace' => false,
                 'speculative_offline' => true, 'strict_sri' => false,
-                'ambient_scale' => '1.05', 'primary_accent' => '#f97316'
+                'ambient_scale' => '1.05', 'primary_accent' => '#f97316',
+                'lekhni_default_mode' => 'document', 'lekhni_ai_copilot' => false,
+                'lekhni_code_language' => 'html', 'designer_grid_snap' => true,
+                'designer_autosave' => 300, 'structure_strict_schema' => false,
+                'content_default_status' => 'draft', 'content_revision_tracking' => true
             ];
             $configs = array_merge($defaults, $settingsConfig);
             $configPath = \SPP\App::getApp()->getAppConfDir() . '/drishyam.yml';
@@ -554,6 +683,124 @@ try {
             } catch (\Exception $e) {
                 sendResponse(false, [], "Failed to save configuration: " . $e->getMessage());
             }
+            break;
+
+        case 'list_modules':
+            $db = new \SPPMod\SPPDB\SPPDB();
+            $table = \SPPMod\SPPDB\SPPDB::sppTable('lekhak_modules');
+            _lekhak_ensure_table($db, $table, "machine_name VARCHAR(100) PRIMARY KEY, status INTEGER DEFAULT 0, installed_at TEXT");
+            $installed = $db->execute_query("SELECT * FROM {$table}");
+            $statusMap = [];
+            foreach ($installed as $m) {
+                $statusMap[$m['machine_name']] = (int)$m['status'];
+            }
+            // Master Registry of 50 Modules
+            $masterList = [
+                // Site Building
+                ['machine_name' => 'views', 'title' => 'Views', 'category' => 'Site Building', 'desc' => 'Create customized lists and queries from your database.'],
+                ['machine_name' => 'pathauto', 'title' => 'Pathauto', 'category' => 'Site Building', 'desc' => 'Automatically generates URL/path aliases for various kinds of content.'],
+                ['machine_name' => 'token', 'title' => 'Token', 'category' => 'Site Building', 'desc' => 'Provides a shared API for replacement of textual placeholders with actual data.'],
+                ['machine_name' => 'ctools', 'title' => 'Chaos Tool Suite', 'category' => 'Site Building', 'desc' => 'A set of APIs and tools to improve developer experience.'],
+                ['machine_name' => 'panelizer', 'title' => 'Panelizer', 'category' => 'Site Building', 'desc' => 'Allows you to attach panels to any node in the system.'],
+                ['machine_name' => 'entity_api', 'title' => 'Entity API', 'category' => 'Site Building', 'desc' => 'Extends the entity API of core, in order to provide a unified way to deal with entities.'],
+                ['machine_name' => 'display_suite', 'title' => 'Display Suite', 'category' => 'Site Building', 'desc' => 'Allows you to take full control over how your content is displayed.'],
+                ['machine_name' => 'rules', 'title' => 'Rules', 'category' => 'Site Building', 'desc' => 'Allows site administrators to define conditionally executed actions based on occurring events.'],
+                ['machine_name' => 'features', 'title' => 'Features', 'category' => 'Site Building', 'desc' => 'Enables the capture and management of features in Drupal.'],
+                ['machine_name' => 'libraries', 'title' => 'Libraries API', 'category' => 'Site Building', 'desc' => 'Provides a common repository for libraries in the CMS.'],
+
+                // SEO & Routing
+                ['machine_name' => 'metatag', 'title' => 'Metatag', 'category' => 'SEO & Routing', 'desc' => 'Allows you to automatically provide structured metadata.'],
+                ['machine_name' => 'redirect', 'title' => 'Redirect', 'category' => 'SEO & Routing', 'desc' => 'Provides the ability to redirect URLs.'],
+                ['machine_name' => 'simple_sitemap', 'title' => 'Simple XML sitemap', 'category' => 'SEO & Routing', 'desc' => 'Generates SEO-friendly XML sitemaps.'],
+                ['machine_name' => 'google_analytics', 'title' => 'Google Analytics', 'category' => 'SEO & Routing', 'desc' => 'Adds the Google Analytics web statistics tracking system.'],
+                ['machine_name' => 'seo_checklist', 'title' => 'SEO Checklist', 'category' => 'SEO & Routing', 'desc' => 'A checklist of best practices to optimize site for search engines.'],
+                ['machine_name' => 'xmlsitemap', 'title' => 'XML sitemap', 'category' => 'SEO & Routing', 'desc' => 'Creates a sitemap that conforms to the sitemaps.org specification.'],
+                ['machine_name' => 'rabbit_hole', 'title' => 'Rabbit Hole', 'category' => 'SEO & Routing', 'desc' => 'Control what should happen when an entity is viewed at its own page.'],
+                ['machine_name' => 'schema_metatag', 'title' => 'Schema.org Metatag', 'category' => 'SEO & Routing', 'desc' => 'Extends Metatag to support Schema.org markup.'],
+                ['machine_name' => 'yoast_seo', 'title' => 'Real-time SEO', 'category' => 'SEO & Routing', 'desc' => 'Helps you optimize content around keywords in a fast and easy way.'],
+                ['machine_name' => 'search_api', 'title' => 'Search API', 'category' => 'SEO & Routing', 'desc' => 'Provides a framework for easily creating searches on any entity.'],
+
+                // Security & Administration
+                ['machine_name' => 'admin_toolbar', 'title' => 'Admin Toolbar', 'category' => 'Security & Administration', 'desc' => 'Improves the default admin menu.'],
+                ['machine_name' => 'captcha', 'title' => 'CAPTCHA', 'category' => 'Security & Administration', 'desc' => 'Provides CAPTCHA for adding challenges to forms.'],
+                ['machine_name' => 'shield', 'title' => 'Shield', 'category' => 'Security & Administration', 'desc' => 'Creates a simple HTTP basic authentication.'],
+                ['machine_name' => 'honeypot', 'title' => 'Honeypot', 'category' => 'Security & Administration', 'desc' => 'Mitigates spam form submissions using the honeypot method.'],
+                ['machine_name' => 'security_review', 'title' => 'Security Review', 'category' => 'Security & Administration', 'desc' => 'Automates testing for many of the easy-to-make mistakes in CMS security.'],
+                ['machine_name' => 'login_security', 'title' => 'Login Security', 'category' => 'Security & Administration', 'desc' => 'Improves the security of the login page.'],
+                ['machine_name' => 'tfa', 'title' => 'Two-factor Authentication', 'category' => 'Security & Administration', 'desc' => 'Provides a framework for setting up two-factor authentication.'],
+                ['machine_name' => 'password_policy', 'title' => 'Password Policy', 'category' => 'Security & Administration', 'desc' => 'Provides a way to enforce password policies.'],
+                ['machine_name' => 'automated_logout', 'title' => 'Automated Logout', 'category' => 'Security & Administration', 'desc' => 'Logs out users after a specified time of inactivity.'],
+                ['machine_name' => 'paranoia', 'title' => 'Paranoia', 'category' => 'Security & Administration', 'desc' => 'Attempts to identify and block all ways that PHP can be evaluated via the web interface.'],
+
+                // Media & Content
+                ['machine_name' => 'paragraphs', 'title' => 'Paragraphs', 'category' => 'Media & Content', 'desc' => 'Provides a new way of creating content, making things cleaner.'],
+                ['machine_name' => 'webform', 'title' => 'Webform', 'category' => 'Media & Content', 'desc' => 'Make forms and surveys.'],
+                ['machine_name' => 'media_library', 'title' => 'Media Library', 'category' => 'Media & Content', 'desc' => 'Enhances the media list with visual galleries.'],
+                ['machine_name' => 'field_group', 'title' => 'Field Group', 'category' => 'Media & Content', 'desc' => 'Groups fields together on forms and displays.'],
+                ['machine_name' => 'entity_browser', 'title' => 'Entity Browser', 'category' => 'Media & Content', 'desc' => 'A generic entity browser/picker/selector.'],
+                ['machine_name' => 'focal_point', 'title' => 'Focal Point', 'category' => 'Media & Content', 'desc' => 'Specify the focal point of an image for cropping.'],
+                ['machine_name' => 'dropzonejs', 'title' => 'DropzoneJS', 'category' => 'Media & Content', 'desc' => 'Provides an integration with DropzoneJS.'],
+                ['machine_name' => 'crop', 'title' => 'Crop API', 'category' => 'Media & Content', 'desc' => 'Provides basic API for image cropping.'],
+                ['machine_name' => 'entity_reference_revisions', 'title' => 'Entity Reference Revisions', 'category' => 'Media & Content', 'desc' => 'Adds a Entity Reference field type with revision support.'],
+                ['machine_name' => 'inline_entity_form', 'title' => 'Inline Entity Form', 'category' => 'Media & Content', 'desc' => 'Provides a widget for inline management of referenced entities.'],
+
+                // Performance
+                ['machine_name' => 'redis', 'title' => 'Redis', 'category' => 'Performance', 'desc' => 'Integration with Redis memory cache.'],
+                ['machine_name' => 'memcache', 'title' => 'Memcache', 'category' => 'Performance', 'desc' => 'Integration with Memcached memory cache.'],
+                ['machine_name' => 'advagg', 'title' => 'Advanced CSS/JS Aggregation', 'category' => 'Performance', 'desc' => 'Advanced CSS and JS aggregation to improve front-end performance.'],
+                ['machine_name' => 'blazy', 'title' => 'Blazy', 'category' => 'Performance', 'desc' => 'Provides basic bLazy integration for lazy loading and multi-serving images.'],
+                ['machine_name' => 'lazy', 'title' => 'Lazy-load', 'category' => 'Performance', 'desc' => 'Image and iframe lazy loading.'],
+                ['machine_name' => 'imageapi_optimize', 'title' => 'ImageOptimize', 'category' => 'Performance', 'desc' => 'Optimize images (using 3rd party tools) after they have been generated.'],
+                ['machine_name' => 'cdn', 'title' => 'CDN', 'category' => 'Performance', 'desc' => 'Provides easy CDN integration.'],
+                ['machine_name' => 'varnish', 'title' => 'Varnish purger', 'category' => 'Performance', 'desc' => 'Invalidate Varnish cache.'],
+                ['machine_name' => 'fast_404', 'title' => 'Fast 404', 'category' => 'Performance', 'desc' => 'Delivers fast 404 error pages.'],
+                ['machine_name' => 'dblog', 'title' => 'Database Logging', 'category' => 'Performance', 'desc' => 'Logs and records system events to the database.'],
+                
+                // Analytics
+                ['machine_name' => 'sankhyaki', 'title' => 'Sankhyaki Analytics', 'category' => 'Analytics', 'desc' => 'Tracks visitors, referrers, and search engine stats natively.'],
+            ];
+
+            foreach ($masterList as &$mod) {
+                $mod['status'] = $statusMap[$mod['machine_name']] ?? 0;
+            }
+            unset($mod);
+
+            sendResponse(true, ['modules' => $masterList]);
+            break;
+
+        case 'toggle_module':
+            $db = new \SPPMod\SPPDB\SPPDB();
+            $table = \SPPMod\SPPDB\SPPDB::sppTable('lekhak_modules');
+            _lekhak_ensure_table($db, $table, "machine_name VARCHAR(100) PRIMARY KEY, status INTEGER DEFAULT 0, installed_at TEXT");
+            
+            $machine_name = $_POST['machine_name'] ?? '';
+            $status = (int)($_POST['status'] ?? 0);
+            $now = date("Y-m-d H:i:s");
+            
+            if (!$machine_name) {
+                sendResponse(false, [], "Machine name required.");
+                exit;
+            }
+
+            // Check if exists
+            $exists = $db->execute_query("SELECT * FROM {$table} WHERE machine_name = ?", [$machine_name]);
+            if (!empty($exists)) {
+                $db->execute_query("UPDATE {$table} SET status = ?, installed_at = ? WHERE machine_name = ?", [$status, $now, $machine_name]);
+            } else {
+                $db->execute_query("INSERT INTO {$table} (machine_name, status, installed_at) VALUES (?, ?, ?)", [$machine_name, $status, $now]);
+            }
+
+            // Now, simulate the framework loader hook system for full modules
+            if ($status == 1) {
+                $moduleDir = \SPP\App::getApp()->getAppDir() . '/lekhak/modules/' . $machine_name;
+                if (!file_exists($moduleDir)) {
+                    mkdir($moduleDir, 0755, true);
+                    $stubCode = "<?php\n// Full implementation stub for {$machine_name}\nreturn ['status' => 'enabled', 'name' => '{$machine_name}'];\n";
+                    file_put_contents($moduleDir . '/module.php', $stubCode);
+                }
+            }
+
+            sendResponse(true, ['machine_name' => $machine_name, 'status' => $status], "Module state updated.");
             break;
 
         default:

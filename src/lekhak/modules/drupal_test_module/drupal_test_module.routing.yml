@@ -1,0 +1,7 @@
+drupal_test_module.settings:
+  path: '/admin/config/drupal_test/settings'
+  defaults:
+    _form: '\Drupal\drupal_test_module\Form\SettingsForm'
+    _title: 'Drupal Test Settings'
+  requirements:
+    _permission: 'administer site configuration'

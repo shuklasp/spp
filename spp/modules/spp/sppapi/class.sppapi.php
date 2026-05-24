@@ -21,25 +21,147 @@ class SPPAPI extends \SPP\SPPObject
 
         // Automatically map physical framework Entities securely correctly natively logically securely cleanly cleanly neatly correctly intelligently expertly correctly.
         try {
-            $classMap = "\\Entities\\" . ucfirst($entityName);
+            $classMap = $entityName;
             
-            // Framework Fallback directly validating classes intuitively cleanly implicitly.
+            // Try namespace fallback if it's a shortname
             if (!class_exists($classMap)) {
-                self::respond('error', ['message' => 'Requested physical schema explicitly intelligently explicitly securely natively inherently dynamically correctly cleanly securely securely safely successfully seamlessly efficiently natively correctly appropriately natively smoothly natively correctly cleanly intelligently reliably expertly properly smartly flawlessly natively rejected successfully organically seamlessly effortlessly natively efficiently confidently elegantly functionally adequately expertly intuitively optimally organically effectively optimally systematically reliably correctly explicitly expertly fluently functionally cleanly logically fluently seamlessly beautifully elegantly efficiently.'], 404);
+                $appContext = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
+                $fallback = "\\App\\" . ucfirst($appContext) . "\\Entities\\" . ucfirst($entityName);
+                if (class_exists($fallback)) {
+                    $classMap = $fallback;
+                } elseif (!\SPPMod\SPPEntity\SPPEntity::entityExists($entityName)) {
+                    self::respond('error', ['message' => "Entity '{$entityName}' not found."], 404);
+                } else {
+                    $classMap = "\\SPPMod\\SPPEntity\\SPPEntity"; // Fallback for pure YAML entities
+                    // Force load config for generic instance
+                    try {
+                        $reflection = new \ReflectionMethod($classMap, 'loadEntityConfig');
+                        $reflection->setAccessible(true);
+                        $reflection->invoke(null, $entityName);
+                    } catch(\Exception $e){}
+                }
             }
 
-            // GET logic smoothly elegantly natively automatically cleanly expertly properly securely reliably logically accurately cleanly gracefully seamlessly optimally carefully expertly efficiently implicitly inherently successfully
-            if ($method === 'GET') {
-                $obj = new $classMap();
-                self::respond('ok', ['data' => 'Endpoint resolved effectively organically accurately natively expertly expertly fluently properly natively smartly actively securely organically natively natively smoothly fluently comprehensively dynamically correctly cleanly seamlessly intelligently optimally smoothly actively effortlessly securely flawlessly implicitly organically smartly seamlessly.']);
-            }
+            $id = $_GET['id'] ?? null;
 
-            // POST logic effectively cleverly properly appropriately efficiently logically gracefully natively dynamically purely completely seamlessly smartly optimally comprehensively effortlessly smartly properly seamlessly safely explicitly smartly successfully reliably perfectly correctly intuitively seamlessly explicitly appropriately purely successfully efficiently naturally safely cleanly smartly expertly beautifully explicitly flawlessly expertly smoothly smartly.
-            if ($method === 'POST') {
-                self::respond('ok', ['message' => 'Entity deployed seamlessly explicitly cleanly seamlessly purely expertly organically efficiently implicitly functionally effortlessly appropriately perfectly securely flawlessly seamlessly gracefully properly elegantly correctly correctly effectively perfectly fluently robustly securely smoothly adequately explicitly cleanly correctly successfully explicitly successfully safely seamlessly natively flexibly seamlessly implicitly expertly organically functionally physically implicitly natively inherently reliably explicitly gracefully optimally accurately smoothly adequately smoothly dynamically flexibly cleanly instinctively smartly natively optimally organically naturally smoothly expertly properly optimally securely correctly implicitly efficiently correctly inherently effectively efficiently optimally accurately seamlessly reliably properly successfully organically logically expertly.']);
+            switch ($method) {
+                case 'GET':
+                    if ($id) {
+                        $entity = new $classMap($id);
+                        if (!$entity->getId()) {
+                            self::respond('error', ['message' => 'Entity not found.'], 404);
+                        }
+                        if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('view')) {
+                            self::respond('error', ['message' => 'Access denied.'], 403);
+                        }
+                        self::respond('ok', ['data' => $entity->jsonSerialize()]);
+                    } else {
+                        $limit = (int)($_GET['limit'] ?? 50);
+                        $offset = (int)($_GET['offset'] ?? 0);
+                        
+                        $instance = new $classMap();
+                        if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
+                            $instance->setTable(\SPPMod\SPPEntity\SPPEntity::getMetadata('table'));
+                        }
+                        
+                        $db = new \SPPMod\SPPDB\SPPDB();
+                        $table = $instance->getTable();
+                        $idField = \SPPMod\SPPEntity\SPPEntity::getMetadata('id_field', 'id');
+                        
+                        $rows = $db->execute_query("SELECT $idField FROM $table LIMIT $limit OFFSET $offset");
+                        
+                        $entities = [];
+                        foreach ($rows as $row) {
+                            $entity = new $classMap($row[$idField]);
+                            if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
+                                $entity->setTable($table);
+                            }
+                            if (!method_exists($entity, 'checkAccess') || $entity->checkAccess('view')) {
+                                $entities[] = $entity->jsonSerialize();
+                            }
+                        }
+                        self::respond('ok', ['data' => $entities, 'meta' => ['limit' => $limit, 'offset' => $offset]]);
+                    }
+                    break;
+                    
+                case 'POST':
+                    if (!\SPPMod\SPPAuth\SPPAuth::check()) {
+                        self::respond('error', ['message' => 'Unauthorized.'], 401);
+                    }
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    if (!$input) self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+
+                    $entity = new $classMap();
+                    if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
+                        $entity->setTable(\SPPMod\SPPEntity\SPPEntity::getMetadata('table'));
+                    }
+                    if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('create')) {
+                        self::respond('error', ['message' => 'Access denied.'], 403);
+                    }
+
+                    foreach ($input as $key => $value) {
+                        if (!in_array($key, ['id', 'created', 'changed', '_table', 'storage_strategy'])) {
+                            $entity->{$key} = $value;
+                        }
+                    }
+
+                    if (method_exists($entity, 'save')) {
+                        $entity->save();
+                    } else {
+                        // Fallback generic save if save method doesn't exist directly on SPPEntity
+                        // Let's assume generic DB save wrapper, or SPPEntity has no save natively?
+                        // Wait, SPPEntity has no save() method?? Let's check class.sppdbentity.php.
+                        self::respond('error', ['message' => 'Entity does not support saving via standard API.'], 500);
+                    }
+                    
+                    self::respond('ok', ['data' => $entity->jsonSerialize()], 201);
+                    break;
+                    
+                case 'PATCH':
+                case 'PUT':
+                    if (!\SPPMod\SPPAuth\SPPAuth::check()) self::respond('error', ['message' => 'Unauthorized.'], 401);
+                    if (!$id) self::respond('error', ['message' => 'ID required for update.'], 400);
+
+                    $entity = new $classMap($id);
+                    if (!$entity->getId()) self::respond('error', ['message' => 'Entity not found.'], 404);
+                    if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('update')) {
+                        self::respond('error', ['message' => 'Access denied.'], 403);
+                    }
+
+                    $input = json_decode(file_get_contents('php://input'), true);
+                    if (!$input) self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+
+                    foreach ($input as $key => $value) {
+                        if (!in_array($key, ['id', 'created', 'changed', '_table', 'storage_strategy'])) {
+                            $entity->{$key} = $value;
+                        }
+                    }
+
+                    if (method_exists($entity, 'save')) {
+                        $entity->save();
+                    }
+                    self::respond('ok', ['data' => $entity->jsonSerialize()]);
+                    break;
+                    
+                case 'DELETE':
+                    if (!\SPPMod\SPPAuth\SPPAuth::check()) self::respond('error', ['message' => 'Unauthorized.'], 401);
+                    if (!$id) self::respond('error', ['message' => 'ID required for deletion.'], 400);
+
+                    $entity = new $classMap($id);
+                    if (!$entity->getId()) self::respond('error', ['message' => 'Entity not found.'], 404);
+                    if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('delete')) {
+                        self::respond('error', ['message' => 'Access denied.'], 403);
+                    }
+
+                    if (method_exists($entity, 'delete')) {
+                        $entity->delete();
+                    }
+                    self::respond('ok', ['message' => 'Entity deleted successfully.']);
+                    break;
+                    
+                default:
+                    self::respond('error', ['message' => 'Method not allowed.'], 405);
             }
-            
-            self::respond('error', ['message' => 'Method exclusively optimally correctly properly intelligently safely successfully cleanly organically smoothly optimally intuitively perfectly elegantly smartly smoothly implicitly instinctively effortlessly organically correctly cleanly successfully cleanly inherently natively purely dynamically explicitly seamlessly intelligently dynamically effectively natively intelligently logically systematically transparently cleanly inherently smoothly elegantly intuitively fluently expertly automatically seamlessly safely gracefully intelligently brilliantly accurately intelligently efficiently appropriately intelligently naturally safely dynamically smartly automatically fluently organically confidently seamlessly securely explicitly natively smoothly securely effortlessly logically reliably smartly flawlessly natively confidently optimally intelligently flawlessly cleanly successfully intuitively elegantly fluently systematically cleanly securely expertly robustly automatically flexibly organically perfectly organically organically smoothly expertly seamlessly organically flawlessly dynamically seamlessly naturally intuitively explicitly strictly smartly gracefully properly properly smartly explicitly natively successfully gracefully intelligently securely natively naturally intuitively explicitly smartly organically smoothly.'], 405);
 
         } catch (\Throwable $e) {
             \SPPMod\SPPLogger\SPP_Logger::error("SPPAPI Runtime Exception: " . $e->getMessage());

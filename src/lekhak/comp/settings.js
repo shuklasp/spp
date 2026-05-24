@@ -23,12 +23,21 @@ export default class SettingsView extends BaseComponent {
                 { id: 'eduxpro', title: 'Edu X Pro Layout', ver: '11.0.1', type: 'site', desc: 'Premium Drupal Theme For Educational Institutes featuring modular regions layout layer.', icon: '💧' }
             ],
             configs: {
+                theme: 'dark',
                 enable_edge_consensus: true,
                 enable_merkle_trace: false,
                 speculative_offline: true,
                 strict_sri: false,
                 ambient_scale: '1.05',
-                primary_accent: '#f97316'
+                primary_accent: '#f97316',
+                lekhni_default_mode: 'document',
+                lekhni_ai_copilot: false,
+                lekhni_code_language: 'html',
+                designer_grid_snap: true,
+                designer_autosave: 300,
+                structure_strict_schema: false,
+                content_default_status: 'draft',
+                content_revision_tracking: true
             }
         };
 
@@ -43,6 +52,15 @@ export default class SettingsView extends BaseComponent {
             }
         } catch (e) {
             console.error("Failed to load settings from API:", e);
+        }
+
+        try {
+            const blocksRes = await this.api.listBlocks();
+            if (blocksRes && blocksRes.success) {
+                this.setState({ blocks: blocksRes.blocks || [] });
+            }
+        } catch (e) {
+            console.error("Failed to load blocks:", e);
         }
 
         // SPPEX: Shared navigation handlers (replaces duplicated lines)
@@ -160,40 +178,118 @@ export default class SettingsView extends BaseComponent {
         <!-- Tab 2: Global Configuration Registry -->
         <div style="display: ${state.activeTab === 'global' ? 'block' : 'none'};">
             <div class="lekhak-table-card" style="padding: 2rem;">
-                <h2 style="font-family: 'Outfit', sans-serif; margin-top: 0; color: var(--text-main, #0f172a);">Consensus & Integrity Sandboxing Rules</h2>
-                <p style="color: var(--text-dim, #64748b); font-size: 0.9rem; margin-bottom: 2rem;">Granular presentation overrides managed centrally across all Drishyam contexts.</p>
+                <h2 style="font-family: 'Outfit', sans-serif; margin-top: 0; color: var(--text-main, #0f172a);">Global Platform Configuration</h2>
+                <p style="color: var(--text-dim, #64748b); font-size: 0.9rem; margin-bottom: 2rem;">Manage central system settings, appearance, editor defaults, and content rules.</p>
                 
-                <div class="config-toggle-row">
-                    <div class="toggle-info">
-                        <span class="toggle-label">Enable Edge Consensus Protocol</span>
-                        <span class="toggle-desc">Synchronizes macro layouts securely programmatically isolated from untrusted client execution trees.</span>
+                <div class="settings-panel">
+                    <h3>System & Integrity</h3>
+                    <div class="config-row">
+                        <div class="toggle-info">
+                            <span class="toggle-label">Enable Edge Consensus Protocol</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="enable_edge_consensus" ${configs.enable_edge_consensus ? 'checked' : ''}><span class="slider round"></span></label>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" class="spp-config-checkbox" data-config-key="enable_edge_consensus" ${configs.enable_edge_consensus ? 'checked' : ''}>
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="config-row">
+                        <div class="toggle-info">
+                            <span class="toggle-label">Merkle Lineage Telemetry Dump</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="enable_merkle_trace" ${configs.enable_merkle_trace ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info">
+                            <span class="toggle-label">Speculative Offline Caching Matrix</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="speculative_offline" ${configs.speculative_offline ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info">
+                            <span class="toggle-label">Sub-Resource Integrity Strict Sandboxing</span>
+                        </div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="strict_sri" ${configs.strict_sri ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
                 </div>
 
-                <div class="config-toggle-row">
-                    <div class="toggle-info">
-                        <span class="toggle-label">Speculative Offline Caching Matrix</span>
-                        <span class="toggle-desc">Automatically compiles inline shadow components to persist navigation structures robustly offline.</span>
+                <div class="settings-panel">
+                    <h3>Appearance & Accent</h3>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Theme Mode</span></div>
+                        <select class="form-input spp-config-input" data-config-key="theme" style="width: 200px;">
+                            <option value="dark" ${configs.theme === 'dark' ? 'selected' : ''}>Dark</option>
+                            <option value="light" ${configs.theme === 'light' ? 'selected' : ''}>Light</option>
+                            <option value="system" ${configs.theme === 'system' ? 'selected' : ''}>System</option>
+                        </select>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" class="spp-config-checkbox" data-config-key="speculative_offline" ${configs.speculative_offline ? 'checked' : ''}>
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Ambient Radius Vector Scale</span></div>
+                        <input type="text" class="form-input spp-config-input" data-config-key="ambient_scale" value="${configs.ambient_scale || ''}" style="width: 200px;">
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Primary Theme Accent Matrix</span></div>
+                        <div style="display: flex; gap: 10px; align-items: center; width: 200px;">
+                            <input type="color" class="spp-config-input" data-config-key="primary_accent" value="${configs.primary_accent || '#f97316'}" style="width: 50px; height: 40px; border: none; border-radius: 6px; cursor: pointer;">
+                            <input type="text" class="form-input spp-config-input" data-config-key="primary_accent" value="${configs.primary_accent || '#f97316'}" style="flex-grow: 1;">
+                        </div>
+                    </div>
                 </div>
 
-                <div class="config-toggle-row">
-                    <div class="toggle-info">
-                        <span class="toggle-label">Merkle Lineage Telemetry Dump</span>
-                        <span class="toggle-desc">Appends real-time buffer state traces during component template evaluation cycles.</span>
+                <div class="settings-panel">
+                    <h3>Lekhni Editor</h3>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Default Editor Mode</span></div>
+                        <select class="form-input spp-config-input" data-config-key="lekhni_default_mode" style="width: 200px;">
+                            <option value="document" ${configs.lekhni_default_mode === 'document' ? 'selected' : ''}>Document</option>
+                            <option value="code" ${configs.lekhni_default_mode === 'code' ? 'selected' : ''}>Code Editor</option>
+                        </select>
                     </div>
-                    <label class="switch">
-                        <input type="checkbox" class="spp-config-checkbox" data-config-key="enable_merkle_trace" ${configs.enable_merkle_trace ? 'checked' : ''}>
-                        <span class="slider round"></span>
-                    </label>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Enable AI Copilot</span></div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="lekhni_ai_copilot" ${configs.lekhni_ai_copilot ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Default Code Language</span></div>
+                        <select class="form-input spp-config-input" data-config-key="lekhni_code_language" style="width: 200px;">
+                            <option value="html" ${configs.lekhni_code_language === 'html' ? 'selected' : ''}>HTML</option>
+                            <option value="css" ${configs.lekhni_code_language === 'css' ? 'selected' : ''}>CSS</option>
+                            <option value="javascript" ${configs.lekhni_code_language === 'javascript' ? 'selected' : ''}>JavaScript</option>
+                            <option value="php" ${configs.lekhni_code_language === 'php' ? 'selected' : ''}>PHP</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="settings-panel">
+                    <h3>Visual Designer</h3>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Enable Grid Snap</span></div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="designer_grid_snap" ${configs.designer_grid_snap ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Autosave Interval (seconds)</span></div>
+                        <input type="number" class="form-input spp-config-input" data-config-key="designer_autosave" value="${configs.designer_autosave || '300'}" style="width: 200px;">
+                    </div>
+                </div>
+
+                <div class="settings-panel">
+                    <h3>Content & Structure</h3>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Strict Schema Validation</span></div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="structure_strict_schema" ${configs.structure_strict_schema ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Default Content Status</span></div>
+                        <select class="form-input spp-config-input" data-config-key="content_default_status" style="width: 200px;">
+                            <option value="draft" ${configs.content_default_status === 'draft' ? 'selected' : ''}>Draft</option>
+                            <option value="published" ${configs.content_default_status === 'published' ? 'selected' : ''}>Published</option>
+                            <option value="archived" ${configs.content_default_status === 'archived' ? 'selected' : ''}>Archived</option>
+                        </select>
+                    </div>
+                    <div class="config-row">
+                        <div class="toggle-info"><span class="toggle-label">Enable Revision Tracking</span></div>
+                        <label class="switch"><input type="checkbox" class="spp-config-input" data-config-key="content_revision_tracking" ${configs.content_revision_tracking ? 'checked' : ''}><span class="slider round"></span></label>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; border-top: 1px solid var(--glass-border, #e2e8f0); padding-top: 1.5rem;">
+                    <button class="btn-toolbar-primary" id="spp-save-global-config-btn" style="padding: 10px 24px; font-size: 1rem; border: none; border-radius: 6px; background: var(--accent-primary, #f97316); color: white; cursor: pointer; font-weight: bold; transition: opacity 0.2s;">Save Global Settings</button>
                 </div>
             </div>
         </div>
@@ -228,25 +324,24 @@ export default class SettingsView extends BaseComponent {
                         </div>
 
                         <div class="form-group" style="margin-top: 1.2rem;">
-                            <label class="form-label">Region Assignments & Visibility</label>
-                            <div style="background: rgba(0,0,0,0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); max-height: 160px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
-                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" checked> <b style="color: #1e3a8a;">header_top_left</b> <span style="opacity:0.7;">(Header Top Left)</span>
-                                </label>
-                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" checked> <b style="color: #1e3a8a;">primary_menu</b> <span style="opacity:0.7;">(Primary menu)</span>
-                                </label>
-                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" checked> <b style="color: #1e3a8a;">slider</b> <span style="opacity:0.7;">(Hero Banner Slider)</span>
-                                </label>
-                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" checked> <b style="color: #1e3a8a;">sidebar_first</b> <span style="opacity:0.7;">(Sidebar Left)</span>
-                                </label>
-                                <label style="font-size: 0.85rem; display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" checked> <b style="color: #1e3a8a;">footer_one</b> <span style="opacity:0.7;">(Footer First Column)</span>
-                                </label>
+                            <label class="form-label">Block to Region Assignments</label>
+                            <div style="background: rgba(0,0,0,0.02); padding: 12px; border-radius: 6px; border: 1px solid rgba(0,0,0,0.08); max-height: 260px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;">
+                                ${(state.blocks || []).map(b => \`
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 8px; border: 1px solid rgba(0,0,0,0.05); border-radius: 4px; background: var(--input-bg, #ffffff);">
+                                        <div style="font-weight: 600; font-size: 0.85rem;">\${b.data?.title || 'Untitled'} <span style="opacity:0.5; font-size:0.7rem;">(\${b.block_type})</span></div>
+                                        <select class="form-input spp-config-input" data-config-key="block_theme_\${state.selectedThemeForConfig.id}_\${b.id}" style="width: 140px; padding: 4px; font-size: 0.8rem;">
+                                            <option value="">-- Unassigned --</option>
+                                            <option value="header_top_left" \${configs['block_theme_' + state.selectedThemeForConfig.id + '_' + b.id] === 'header_top_left' ? 'selected' : ''}>Header Top Left</option>
+                                            <option value="primary_menu" \${configs['block_theme_' + state.selectedThemeForConfig.id + '_' + b.id] === 'primary_menu' ? 'selected' : ''}>Primary Menu</option>
+                                            <option value="slider" \${configs['block_theme_' + state.selectedThemeForConfig.id + '_' + b.id] === 'slider' ? 'selected' : ''}>Slider</option>
+                                            <option value="sidebar_first" \${configs['block_theme_' + state.selectedThemeForConfig.id + '_' + b.id] === 'sidebar_first' ? 'selected' : ''}>Sidebar First</option>
+                                            <option value="footer_one" \${configs['block_theme_' + state.selectedThemeForConfig.id + '_' + b.id] === 'footer_one' ? 'selected' : ''}>Footer One</option>
+                                        </select>
+                                    </div>
+                                \`).join('')}
+                                \${(!state.blocks || state.blocks.length === 0) ? \`<div style="font-size:0.8rem; color: #888;">No blocks found. Create them in Block Management.</div>\` : ''}
                             </div>
-                            <span class="form-hint" style="margin-top: 4px;">Enabling blocks evaluation for declared Twig template regions.</span>
+                            <span class="form-hint" style="margin-top: 4px;">Assign custom blocks and dynamic views to theme regions.</span>
                         </div>
 
                         <div class="form-group" style="margin-top: 1.2rem;">
@@ -419,6 +514,11 @@ export default class SettingsView extends BaseComponent {
     .form-input:focus { border-color: var(--accent-primary, #f97316); }
     .form-hint { font-size: 0.75rem; opacity: 0.7; }
 
+    .settings-panel { background: rgba(0,0,0,0.02); border: 1px solid var(--glass-border, #e2e8f0); border-radius: 8px; margin-bottom: 1.5rem; padding: 1.5rem; }
+    .settings-panel h3 { margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 1.1rem; border-bottom: 1px solid var(--glass-border, #e2e8f0); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+    .config-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid var(--glass-border, #e2e8f0); }
+    .config-row:last-child { border-bottom: none; padding-bottom: 0; }
+
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideInLeft { from { transform: translateX(100%); } to { transform: translateX(0); } }
 </style>
@@ -515,12 +615,49 @@ export default class SettingsView extends BaseComponent {
         }
         
         // Input interactive toggles update handler
-        document.querySelectorAll('.spp-config-checkbox').forEach(chk => {
-            chk.onchange = () => {
-                const key = chk.getAttribute('data-config-key');
-                this.state.configs[key] = chk.checked;
-            };
+        document.querySelectorAll('.spp-config-input').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const key = inp.getAttribute('data-config-key');
+                let val = inp.value;
+                if (inp.type === 'checkbox') val = inp.checked;
+                else if (inp.type === 'number') val = parseInt(inp.value, 10);
+                this.state.configs[key] = val;
+                
+                if (key === 'primary_accent') {
+                    document.querySelectorAll(`.spp-config-input[data-config-key="primary_accent"]`).forEach(syncInp => {
+                        syncInp.value = val;
+                    });
+                }
+            });
+            if (inp.getAttribute('data-config-key') === 'primary_accent') {
+                inp.addEventListener('input', (e) => {
+                    const key = inp.getAttribute('data-config-key');
+                    const val = inp.value;
+                    this.state.configs[key] = val;
+                    document.querySelectorAll(`.spp-config-input[data-config-key="primary_accent"]`).forEach(syncInp => {
+                        if (syncInp !== inp) syncInp.value = val;
+                    });
+                });
+            }
         });
+
+        const saveGlobalBtn = document.getElementById('spp-save-global-config-btn');
+        if (saveGlobalBtn && !saveGlobalBtn.onclick) {
+            saveGlobalBtn.onclick = async () => {
+                this.admin?.notify?.("Writing global configuration variables...", "info");
+                try {
+                    const saveRes = await this.api.saveSettings({ configs: this.state.configs });
+                    if (saveRes && saveRes.success) {
+                        this.admin?.notify?.("Global configurations securely committed.", "success");
+                    } else {
+                        this.admin?.notify?.(saveRes?.message || "Failed to commit settings.", "error");
+                    }
+                } catch (e) {
+                    console.error("Failed to save global config options via API:", e);
+                    this.admin?.notify?.("Failed to commit settings.", "error");
+                }
+            };
+        }
 
         // SPPEX.ColorPicker: Enhanced color input styling
         if (typeof SPPEX !== 'undefined' && SPPEX.ColorPicker) {

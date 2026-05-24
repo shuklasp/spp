@@ -21,18 +21,19 @@
             @foreach($types ?? [] as $type)
             <tr>
                 <td>
-                    <div style="font-weight: 600; font-size: 1rem;">{{ $type->name }}</div>
+                    <div style="font-weight: 600; font-size: 1rem;">{{ $type->label }}</div>
                     <div style="font-size: 0.8rem; color: var(--text-dim);">{{ $type->description }}</div>
                 </td>
-                <td><code>{{ $type->machine_name }}</code></td>
+                <td><code>{{ $type->name }}</code></td>
                 <td>
                     <span class="badge {{ $type->storage_strategy === 'dynamic' ? 'badge-success' : 'badge-warning' }}">
-                        {{ $type->storage_strategy }}
+                        {{ $type->storage_strategy ?? 'flat' }}
                     </span>
                 </td>
                 <td>
                     <div style="display: flex; gap: 10px;">
-                        <a href="{{ $admin_root }}/structure/types/edit/{{ $type->machine_name }}" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Edit</a>
+                        <a href="{{ $admin_root }}/structure/types/{{ $type->name }}/edit" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Edit</a>
+                        <a href="{{ $admin_root }}/structure/types/{{ $type->name }}/fields" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Fields</a>
                         <a href="#" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; color: var(--danger);">Delete</a>
                     </div>
                 </td>

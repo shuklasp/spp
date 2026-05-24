@@ -1,3 +1,1 @@
-<?php
-$pdo = new PDO('sqlite:var/db/merged_fix_verified.sqlite');
-$pdo->exec('DROP TABLE IF EXISTS lek_spp_entity_fields');
+<?php require 'spp/sppinit.php'; $db = new \SPPMod\SPPDB\SPPDB(); $db->execute_query('DROP TABLE lek_sankhyaki_log'); echo 'dropped';

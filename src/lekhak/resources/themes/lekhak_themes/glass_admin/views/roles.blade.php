@@ -1,0 +1,174 @@
+@extends('layout')
+
+@section('actions')
+<button onclick="openCreateRoleModal()" class="btn btn-primary">
+    <span>➕</span> Add New Role
+</button>
+@endsection
+
+@section('content')
+<div class="lekhak-local-tasks-header" style="margin-bottom: 25px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+    <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-main);">{{ $title }}</h2>
+    <p style="margin: 5px 0 0 0; font-size: 0.9rem; color: var(--text-dim);">{{ $subtitle }}</p>
+</div>
+
+<div class="roles-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; margin-bottom: 30px;">
+    @foreach($roles ?? [] as $role)
+    <div class="glass-panel role-card" style="padding: 20px; position: relative; transition: transform 0.2s; border: 1px solid var(--glass-border);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+            <div>
+                <h3 style="margin: 0 0 5px 0; font-size: 1.25rem; color: var(--text-main); display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.5rem;">🛡️</span> {{ $role['role_name'] }}
+                    @if($role['id'] == 1)
+                        <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase;">System</span>
+                    @endif
+                </h3>
+                <p style="margin: 0; font-size: 0.85rem; color: var(--text-dim);">{{ $role['description'] }}</p>
+            </div>
+            
+            @if($role['id'] != 1)
+            <form method="POST" action="" style="margin: 0;" onsubmit="return confirm('Are you sure you want to permanently delete this role?');">
+                <input type="hidden" name="action" value="delete_role">
+                <input type="hidden" name="role_id" value="{{ $role['id'] }}">
+                <button type="submit" style="background: transparent; border: none; color: var(--danger); cursor: pointer; padding: 4px; border-radius: 4px;" title="Delete Role" onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.background='transparent'">
+                    🗑️
+                </button>
+            </form>
+            @endif
+        </div>
+        
+        <div style="margin-top: 20px;">
+            <button onclick='openPermissionsModal({{ json_encode($role) }}, {{ json_encode($roleRightsMap[$role["id"]] ?? []) }})' class="btn btn-secondary" style="width: 100%; padding: 8px; justify-content: center;">
+                Manage Permissions
+            </button>
+        </div>
+    </div>
+    @endforeach
+</div>
+
+<!-- Glassmorphic Modal for Add Role -->
+<div id="roleModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-panel" style="max-width: 500px; width: 100%; padding: 30px; position: relative; animation: modalSlideIn 0.3s ease-out; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);">
+        <button onclick="closeRoleModal()" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--text-dim); font-size: 1.25rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+        
+        <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; color: var(--text-main); font-family: 'Outfit', sans-serif;">Add New Role</h3>
+        
+        <form method="POST" action="">
+            <input type="hidden" name="action" value="create_role">
+            
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 6px; color: var(--text-main); font-weight: 500; font-size: 0.85rem;">Role Name</label>
+                <input type="text" name="role_name" required class="form-control" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 6px; outline: none; font-size: 0.9rem; transition: border-color 0.2s;">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 6px; color: var(--text-main); font-weight: 500; font-size: 0.85rem;">Description</label>
+                <textarea name="description" rows="3" class="form-control" style="width: 100%; padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-main); border-radius: 6px; outline: none; font-size: 0.9rem; transition: border-color 0.2s; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" onclick="closeRoleModal()" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 6px;">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 6px; background: var(--accent-primary); border: none; color: white; cursor: pointer; font-weight: 600;">Create Role</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Glassmorphic Modal for Manage Permissions -->
+<div id="permissionsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+    <div class="glass-panel" style="max-width: 600px; width: 100%; padding: 30px; position: relative; animation: modalSlideIn 0.3s ease-out; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); max-height: 90vh; display: flex; flex-direction: column;">
+        <button onclick="closePermissionsModal()" style="position: absolute; top: 20px; right: 20px; background: transparent; border: none; color: var(--text-dim); font-size: 1.25rem; cursor: pointer; transition: color 0.2s;" onmouseover="this.style.color='var(--text-main)'" onmouseout="this.style.color='var(--text-dim)'">✕</button>
+        
+        <h3 id="permModalTitle" style="margin-top: 0; margin-bottom: 20px; font-size: 1.25rem; color: var(--text-main); font-family: 'Outfit', sans-serif;">Manage Permissions</h3>
+        
+        <form method="POST" action="" style="display: flex; flex-direction: column; overflow: hidden; flex: 1;">
+            <input type="hidden" name="action" value="update_rights">
+            <input type="hidden" name="role_id" id="permRoleId">
+            
+            <div style="overflow-y: auto; padding-right: 10px; margin-bottom: 20px; flex: 1; border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; background: rgba(0,0,0,0.1);">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                            <th style="padding: 12px 16px; text-align: left; color: var(--text-dim); font-size: 0.85rem; font-weight: 600; position: sticky; top: 0; background: #1e293b; z-index: 1;">Permission</th>
+                            <th style="padding: 12px 16px; text-align: center; color: var(--text-dim); font-size: 0.85rem; font-weight: 600; width: 80px; position: sticky; top: 0; background: #1e293b; z-index: 1;">Grant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($rights ?? [] as $right)
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='rgba(255,255,255,0.02)'" onmouseout="this.style.backgroundColor='transparent'">
+                            <td style="padding: 12px 16px;">
+                                <div style="font-weight: 500; color: var(--text-main); font-size: 0.95rem;">{{ ucwords($right['name']) }}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-dim); margin-top: 4px;">{{ $right['description'] }}</div>
+                            </td>
+                            <td style="padding: 12px 16px; text-align: center; vertical-align: middle;">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" name="rights[]" value="{{ $right['id'] }}" id="right_{{ $right['id'] }}" class="perm-checkbox" style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-primary);">
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 12px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <button type="button" onclick="closePermissionsModal()" class="btn btn-secondary" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 6px;">Cancel</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.9rem; border-radius: 6px; background: var(--accent-primary); border: none; color: white; cursor: pointer; font-weight: 600;">Save Permissions</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+@keyframes modalSlideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+.form-control:focus {
+    border-color: var(--accent-primary) !important;
+    background: rgba(255,255,255,0.06) !important;
+}
+.role-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+}
+</style>
+
+<script>
+function openCreateRoleModal() {
+    document.getElementById('roleModal').style.display = 'flex';
+}
+
+function closeRoleModal() {
+    document.getElementById('roleModal').style.display = 'none';
+}
+
+function openPermissionsModal(role, assignedRights) {
+    document.getElementById('permModalTitle').textContent = 'Permissions for: ' + role.role_name;
+    document.getElementById('permRoleId').value = role.id;
+    
+    // Reset all checkboxes
+    document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = false);
+    
+    // Check assigned rights
+    assignedRights.forEach(rightId => {
+        const cb = document.getElementById('right_' + rightId);
+        if (cb) cb.checked = true;
+    });
+    
+    document.getElementById('permissionsModal').style.display = 'flex';
+}
+
+function closePermissionsModal() {
+    document.getElementById('permissionsModal').style.display = 'none';
+}
+
+// Close modals when clicking outside
+window.addEventListener('click', function(event) {
+    const roleModal = document.getElementById('roleModal');
+    const permModal = document.getElementById('permissionsModal');
+    if (event.target === roleModal) closeRoleModal();
+    if (event.target === permModal) closePermissionsModal();
+});
+</script>
+@endsection
