@@ -427,6 +427,59 @@ try {
         }
     }
 
+    // --- CLI Command Wrappers ---
+    if ($action === 'list_commands' || $action === 'get_command_ui' || $action === 'execute_command') {
+        $coreDir = SPP_BASE_DIR . '/core';
+        foreach (['class.command.php', 'class.commandmanager.php'] as $f) {
+            if (file_exists($coreDir . '/' . $f)) require_once $coreDir . '/' . $f;
+        }
+
+        $commands = \SPP\CLI\CommandManager::discover();
+
+        if ($action === 'list_commands') {
+            $list = [];
+            foreach ($commands as $name => $cmd) {
+                $prefix = explode(':', $name)[0] ?? 'core';
+                if (!isset($list[$prefix])) $list[$prefix] = [];
+                $list[$prefix][] = [
+                    'name' => $name,
+                    'description' => $cmd->getDescription()
+                ];
+            }
+            sendResponse(true, ['categories' => $list], "Commands retrieved");
+        }
+
+        if ($action === 'get_command_ui') {
+            $cmdName = $_REQUEST['command'] ?? '';
+            $cmd = $commands[$cmdName] ?? null;
+            if (!$cmd) sendResponse(false, [], "Command not found.");
+            sendResponse(true, ['html' => $cmd->renderAdminUI()], "UI retrieved");
+        }
+
+        if ($action === 'execute_command') {
+            $cmdName = $_REQUEST['command'] ?? '';
+            $argsRaw = $_REQUEST['args'] ?? '';
+            
+            $cmd = $commands[$cmdName] ?? null;
+            if (!$cmd) sendResponse(false, [], "Command not found.");
+
+            $sppBin = escapeshellarg(dirname(SPP_BASE_DIR) . '/spp.php');
+            $cmdSafe = escapeshellarg($cmdName);
+            
+            $argString = '';
+            if (!empty($argsRaw)) {
+                $segments = explode(' ', $argsRaw);
+                $safeSegments = array_map('escapeshellarg', array_filter($segments));
+                $argString = implode(' ', $safeSegments);
+            }
+
+            $execCmd = "php {$sppBin} {$cmdSafe} {$argString} 2>&1";
+            $output = shell_exec($execCmd);
+            
+            sendResponse(true, ['output' => $output], "Command executed");
+        }
+    }
+
     error_log("Dispatching action: " . $action);
     \SPPMod\SPPAjax\SPPAjax::resolveAndExecute($action, $_REQUEST);
 

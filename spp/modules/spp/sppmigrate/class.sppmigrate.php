@@ -19,7 +19,11 @@ class SPPMigrate {
     }
 
     private static function handleApi(string $path): void {
-        \SPPMod\SPPMigrate\Api\Receiver::handle($path);
+        if (str_contains($path, '/sender/')) {
+            \SPPMod\SPPMigrate\Api\Sender::handle($path);
+        } else {
+            \SPPMod\SPPMigrate\Api\Receiver::handle($path);
+        }
     }
 
     private static function handleUi(string $path): void {

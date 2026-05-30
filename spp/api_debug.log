@@ -1985,3 +1985,131 @@
 [Modules] OpenSettings: mod=sppdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppdb/module.yml, settingsCount=8
 [Modules] Generated HTML length: 7005
 [2026-05-21 07:11:06] Context set to sppadmin
+[2026-05-28 13:37:24] Context set to sppadmin
+[2026-05-28 13:37:42] Context set to sppadmin
+[2026-05-28 13:37:49] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 422
+[2026-05-28 13:37:49] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 422
+[2026-05-28 13:37:51] Context set to sppadmin
+[2026-05-28 13:37:51] Context set to sppadmin
+[2026-05-28 13:37:53] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:37:53] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:37:53] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:37:53] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:38:10] Context set to sppadmin
+[2026-05-28 13:38:12] Context set to sppadmin
+[2026-05-28 13:38:12] Context set to sppadmin
+[2026-05-28 13:38:25] Context set to sppadmin
+[2026-05-28 13:43:08] Context set to sppadmin
+[2026-05-28 13:43:17] Context set to sppadmin
+[2026-05-28 13:43:17] Context set to sppadmin
+[2026-05-28 13:43:20] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:43:20] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:50:21] Context set to sppadmin
+[2026-05-28 13:50:26] Context set to sppadmin
+[2026-05-28 13:50:26] Context set to sppadmin
+[2026-05-28 13:50:47] Context set to sppadmin
+[2026-05-28 13:50:49] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 15:51:48] Context set to sppadmin
+[2026-05-28 15:52:15] Context set to sppadmin
+[2026-05-28 15:52:15] API FATAL ERROR: Call to undefined method SPP\CLI\CommandManager::getCommands() in C:\projects\apache\school1\spp\admin\api.php on line 440
+#0 C:\projects\apache\school1\test_api.php(3): require()
+#1 {main}
+[2026-05-28 15:53:36] Context set to sppadmin
+[2026-05-28 13:54:32] Context set to sppadmin
+[2026-05-28 13:54:34] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:54:34] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 13:54:41] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 13:54:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 13:54:42] Context set to sppadmin
+[2026-05-28 13:54:45] Context set to sppadmin
+[2026-05-28 13:55:08] Context set to sppadmin
+[2026-05-28 13:55:08] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 13:57:41] Context set to sppadmin
+[2026-05-28 13:57:42] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 15:59:45] Context set to sppadmin
+[2026-05-28 14:01:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:01:52] Context set to sppadmin
+[2026-05-28 14:01:52] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 14:02:22] Context set to sppadmin
+[2026-05-28 14:02:23] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 14:02:38] Context set to sppadmin
+[2026-05-28 14:02:39] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 14:08:03] Context set to sppadmin
+[2026-05-28 14:08:04] FATAL SHUTDOWN: Cannot declare class App\Lekhak\Commands\GenerateDocsCommand, because the name is already in use in /mnt/c/projects/apache/school1/src/lekhak/Commands/GenerateDocsCommand.php on line 12
+[2026-05-28 14:11:47] Context set to sppadmin
+[2026-05-28 14:12:25] Context set to sppadmin
+[2026-05-28 14:15:35] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:15:36] Context set to sppadmin
+[2026-05-28 14:15:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:15:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:15:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:15:44] Context set to sppadmin
+[2026-05-28 14:15:44] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:15:46] Context set to sppadmin
+[2026-05-28 14:16:03] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:16:05] Context set to sppadmin
+[2026-05-28 14:19:42] Context set to sppadmin
+[2026-05-28 14:20:54] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:20:56] Context set to sppadmin
+[2026-05-28 14:21:06] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:21:06] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:21:08] Context set to sppadmin
+[2026-05-28 14:21:08] Context set to sppadmin
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:09] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:21:35] Context set to sppadmin
+[2026-05-28 14:25:22] Context set to sppadmin
+[2026-05-28 14:25:25] Context set to sppadmin
+[2026-05-28 14:25:26] Context set to sppadmin
+[2026-05-28 14:25:30] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:25:31] Context set to sppadmin
+[2026-05-28 14:29:33] Context set to sppadmin
+[2026-05-28 14:29:33] Context set to sppadmin
+[2026-05-28 14:29:35] Context set to sppadmin
+[2026-05-28 14:29:41] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:29:43] Context set to sppadmin
+[2026-05-28 14:30:08] Context set to sppadmin
+[2026-05-28 14:32:58] Context set to sppadmin
+[2026-05-28 14:32:59] API FATAL ERROR: Database Connection Error: SQLSTATE[HY000] [1045] Access denied for user 'school'@'localhost' (using password: YES) in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php on line 241
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.pages.php(171): SPPMod\SPPDB\SPPDB->__construct()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.pages.php(226): SPPMod\SPPView\Pages::ensureDbSchema()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.pages.php(914): SPPMod\SPPView\Pages::getDb()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/Routing.php(9): SPPMod\SPPView\Pages::listPages()
+#4 /mnt/c/projects/apache/school1/spp/core/class.scheduler.php(218): {closure}()
+#5 /mnt/c/projects/apache/school1/spp/admin/services/Routing.php(8): SPP\Scheduler::withContext()
+#6 /mnt/c/projects/apache/school1/spp/admin/services/General.php(80): live_Routing_ListPages()
+#7 /mnt/c/projects/apache/school1/spp/modules/spp/sppajax/class.sppajax.php(480): live_list_pages()
+#8 /mnt/c/projects/apache/school1/spp/admin/api.php(484): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#9 {main}
+[2026-05-28 14:33:47] Context set to sppadmin
+[2026-05-28 14:45:45] Context set to sppadmin
+[2026-05-28 14:45:51] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:45:51] Context set to sppadmin
+[2026-05-28 14:45:53] Context set to sppadmin
+[2026-05-28 14:45:54] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:46:06] Context set to sppadmin
+[2026-05-28 14:49:42] Context set to sppadmin
+[2026-05-28 14:49:45] Context set to sppadmin
+[2026-05-28 14:49:48] Context set to sppadmin
+[2026-05-28 14:49:49] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:49:49] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 14:49:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 14:49:51] Context set to sppadmin
+[2026-05-28 14:50:13] Context set to sppadmin
+[2026-05-28 15:15:33] Context set to sppadmin
+[2026-05-28 15:16:06] Context set to sppadmin
+[2026-05-28 15:16:11] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 919
+[2026-05-28 15:16:18] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 15:16:20] Context set to sppadmin
+[2026-05-28 15:16:24] Context set to sppadmin
+[2026-05-28 15:16:42] Context set to sppadmin
+[2026-05-28 15:16:57] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 15:16:58] Context set to sppadmin
+[2026-05-28 15:17:17] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 444
+[2026-05-28 15:17:19] Context set to sppadmin
+[2026-05-28 15:18:00] Context set to sppadmin
+[2026-05-29 15:31:38] Context set to sppadmin

@@ -23,7 +23,7 @@ class MiddlewareKernel
         self::$middleware = (array) $registered;
 
         // 2. Load from Global Config
-        $globalPath = SPP_BASE_DIR . '/spp/etc/middleware.yml';
+        $globalPath = SPP_ETC_DIR . SPP_DS . 'middleware.yml';
         if (file_exists($globalPath)) {
             $config = \Symfony\Component\Yaml\Yaml::parseFile($globalPath);
             self::$middleware = array_merge(self::$middleware, $config['global'] ?? []);

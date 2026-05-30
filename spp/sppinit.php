@@ -113,10 +113,14 @@ if (!defined('SPP_VER')) {
   spl_autoload_register(function ($class_name) {
     if (substr($class_name, strlen('Exception') * (-1)) == 'Exception') {
       require_once SPP_CORE_DIR . SPP_DS . 'class.sppexception.php';
-      if (!class_exists($class_name)) {
+      $systemExceptions = SPP_CORE_DIR . SPP_DS . 'sppsystemexceptions.php';
+      if (file_exists($systemExceptions)) {
+        require_once $systemExceptions;
+      }
+      if (!class_exists($class_name, false)) {
         class_alias('SPP\SPPException', $class_name);
       }
-      if (!class_exists('SPPException')) {
+      if (!class_exists('SPPException', false)) {
         class_alias('SPP\SPPException', 'SPPException');
       }
     }

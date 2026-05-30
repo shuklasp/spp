@@ -42,7 +42,7 @@ class CachePurgeCommand extends Command
         // Get Varnish endpoint from config
         $proxyUrl = 'http://127.0.0.1:80'; // Default Varnish IP
         if (class_exists('\\SPP\\SPPConfig')) {
-            $proxyUrl = \SPP\\SPPConfig::get('reverse_proxy_url') ?: $proxyUrl;
+            $proxyUrl = \SPP\SPPConfig::get('reverse_proxy_url') ?: $proxyUrl;
         }
 
         if ($url) {

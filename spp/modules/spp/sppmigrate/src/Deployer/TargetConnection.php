@@ -32,10 +32,15 @@ class TargetConnection {
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
         
         if ($method === 'POST') {
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        }
+
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_write_close();
         }
 
         $response = curl_exec($ch);

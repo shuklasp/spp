@@ -7,7 +7,12 @@ Welcome to the technical documentation for the SPP (Satya Portal Pack) Framework
 *   [Inversion of Control (IoC)](index.md#inversion-of-control)
 
 ## 📦 Core Components
+*   [**Architecture & App Structure**](architecture-and-app-structure.md): Core layers, directory layout, app structures, modules, config, services, and runtime boundaries.
+*   [**Full SPP API Reference**](spp-full-api-reference.md): Runtime APIs, utility APIs, module catalog, architecture map, and usage patterns.
+*   [**Application Development**](application-development.md): Creating, configuring, developing, testing, and troubleshooting SPP apps.
+*   [**SPPUX Application Development**](sppux-application-development.md): Step-by-step SPPUX app development with PHP and reactive component examples.
 *   [**Scheduler**](core-scheduler.md): Context detection, routing, and process management.
+*   [**Booting & App Loading**](booting-and-app-loading.md): Full bootstrap sequence, app discovery, context detection, and middleware loading.
 *   [**App Lifecycle**](app-lifecycle.md): Application instantiation, bootstrap level, and environment setup.
 *   [**Middleware Pipeline**](middleware.md): Onion-style request/response layers.
 *   [**Registry**](registry.md): Global state and hierarchical storage.

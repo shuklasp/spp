@@ -466,3 +466,7 @@
 [2026-05-24 11:59:33] URI: /school1/lekhak/sppadmin/migrate, VIEW: index, PATH: C:\projects\apache\school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
 [2026-05-24 10:10:14] URI: /school1/lekhak/admin/login, VIEW: login, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php, IS_ADMIN: NO
 [2026-05-24 11:01:21] URI: /school1/lekhak/admin, VIEW: dashboard, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php, IS_ADMIN: YES
+[2026-05-28 12:01:40] URI: , VIEW: index, PATH: C:/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
+[2026-05-28 10:12:12] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
+[2026-05-28 10:12:20] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
+[2026-05-28 10:13:02] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO

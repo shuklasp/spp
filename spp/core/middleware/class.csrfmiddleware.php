@@ -2,7 +2,7 @@
 namespace SPP\Core\Middleware;
 
 use SPP\SPPSession;
-use SPP\Exceptions\SPPException;
+use SPP\SPPException;
 
 /**
  * Class CSRFMiddleware

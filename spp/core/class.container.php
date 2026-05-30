@@ -107,7 +107,7 @@ class Container implements ContainerInterface {
         foreach ($parameters as $parameter) {
             $type = $parameter->getType();
 
-            if (!$type || $type->isBuiltin()) {
+            if (!$type) {
                 if ($parameter->isDefaultValueAvailable()) {
                     $dependencies[] = $parameter->getDefaultValue();
                     continue;
@@ -115,9 +115,49 @@ class Container implements ContainerInterface {
                 throw new SPPException("Cannot resolve primitive dependency: {$parameter->name}");
             }
 
-            $dependencies[] = $this->get($type->getName());
+            $dependencies[] = $this->resolveTypedDependency($type, $parameter);
         }
 
         return $dependencies;
+    }
+
+    /**
+     * Resolve a reflected type declaration.
+     */
+    private function resolveTypedDependency(\ReflectionType $type, \ReflectionParameter $parameter): mixed {
+        if ($type instanceof \ReflectionNamedType) {
+            if ($type->isBuiltin()) {
+                if ($parameter->isDefaultValueAvailable()) {
+                    return $parameter->getDefaultValue();
+                }
+                if ($type->allowsNull()) {
+                    return null;
+                }
+                throw new SPPException("Cannot resolve primitive dependency: {$parameter->name}");
+            }
+
+            return $this->get($type->getName());
+        }
+
+        if ($type instanceof \ReflectionUnionType) {
+            foreach ($type->getTypes() as $unionType) {
+                if ($unionType instanceof \ReflectionNamedType && !$unionType->isBuiltin()) {
+                    try {
+                        return $this->get($unionType->getName());
+                    } catch (\Throwable $e) {
+                        // Try the next class in the union before failing below.
+                    }
+                }
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                return $parameter->getDefaultValue();
+            }
+            if ($type->allowsNull()) {
+                return null;
+            }
+        }
+
+        throw new SPPException("Cannot resolve dependency: {$parameter->name}");
     }
 }

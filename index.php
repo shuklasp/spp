@@ -97,6 +97,7 @@ require_once('global.php');
         exit(0);
     }
 
+
     if (class_exists('\SPPMod\SPPMigrate\SPPMigrate') && \SPPMod\SPPMigrate\SPPMigrate::isMigrateRequest()) {
         \SPPMod\SPPMigrate\SPPMigrate::handle();
         return;

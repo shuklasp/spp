@@ -27,9 +27,20 @@ class PolyglotBridge extends \SPP\SPPObject
 
         // 2. Directory Management
         $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';
+        
+        // Fallback to relative if the configured absolute path does not exist (e.g., WSL vs Windows environment drift)
+        if ((str_starts_with($sharedDir, '/') || str_contains($sharedDir, ':')) && !is_dir($sharedDir)) {
+            $sharedDir = 'var/shared';
+        }
+
         if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
             $sharedDir = SPP_BASE_DIR . SPP_DS . '..' . SPP_DS . $sharedDir;
         }
+        
+        if (!is_dir($sharedDir)) {
+            @mkdir($sharedDir, 0777, true);
+        }
+        
         $sharedDir = realpath($sharedDir) ?: $sharedDir;
 
         $bridgeDir = $sharedDir . SPP_DS . 'bridge';
@@ -207,9 +218,20 @@ class PolyglotBridge extends \SPP\SPPObject
     {
         $lang = strtolower($lang);
         $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';
+        
+        // Fallback to relative if the configured absolute path does not exist (e.g., WSL vs Windows environment drift)
+        if ((str_starts_with($sharedDir, '/') || str_contains($sharedDir, ':')) && !is_dir($sharedDir)) {
+            $sharedDir = 'var/shared';
+        }
+
         if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
             $sharedDir = SPP_BASE_DIR . SPP_DS . '..' . SPP_DS . $sharedDir;
         }
+        
+        if (!is_dir($sharedDir)) {
+            @mkdir($sharedDir, 0777, true);
+        }
+        
         $sharedDir = realpath($sharedDir);
         
         $runtimes = self::discoverRuntimes();

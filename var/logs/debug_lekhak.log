@@ -17515,3 +17515,15 @@ TEST[2026-05-10 23:36:23] SPPINIT: Context is lekhak, AppClass is \App\Lekhak\Le
 [2026-05-24 11:01:21] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php'
 [2026-05-24 11:01:21] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
 [2026-05-24 11:01:21] SPPBlade: Render successful for dashboard
+[2026-05-28 12:01:40] SPPBlade: Starting render for 'C:/projects/apache/school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-28 12:01:40] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["C:\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-28 12:01:40] SPPBlade: Render successful for index
+[2026-05-28 10:12:11] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-28 10:12:11] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-28 10:12:11] SPPBlade: Render successful for index
+[2026-05-28 10:12:20] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-28 10:12:20] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-28 10:12:20] SPPBlade: Render successful for index
+[2026-05-28 10:13:02] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php'
+[2026-05-28 10:13:02] SPPBlade: Rendering absolute file. ViewName: index, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-05-28 10:13:02] SPPBlade: Render successful for index

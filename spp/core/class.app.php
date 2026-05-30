@@ -80,14 +80,26 @@ class App extends \SPP\SPPObject
 
     private function initializeDirs(): void
     {
+        $appname = $this->_attributes['appname'];
         $srcDir = $this->getAppSrcDir();
-        $this->data_dir  = $this->resolvePath($this->getAppConf('data_path') ?: 'var/data', $srcDir);
-        $this->log_dir   = $this->resolvePath($this->getAppConf('log_path') ?: 'var/logs', $srcDir);
-        $this->cache_dir = $this->resolvePath($this->getAppConf('cache_path') ?: 'var/cache', $srcDir);
-        $this->tmp_dir   = $this->resolvePath($this->getAppConf('tmp_path') ?: 'var/tmp', $srcDir);
+        $varPath = self::getAppConf('var_path', $appname) ?: 'var';
+        $resolveAppPath = function (?string $path, string $default) use ($srcDir): string {
+            $path = $path ?: $default;
+            $normalized = str_replace('\\', '/', $path);
+            $baseDir = str_starts_with($normalized, 'src/') || str_starts_with($normalized, '/src/')
+                ? SPP_APP_DIR
+                : $srcDir;
+
+            return $this->resolvePath($path, $baseDir);
+        };
+
+        $this->data_dir  = $resolveAppPath(self::getAppConf('data_path', $appname), $varPath . '/data');
+        $this->log_dir   = $resolveAppPath(self::getAppConf('log_path', $appname), $varPath . '/logs');
+        $this->cache_dir = $resolveAppPath(self::getAppConf('cache_path', $appname), $varPath . '/cache');
+        $this->tmp_dir   = $resolveAppPath(self::getAppConf('tmp_path', $appname), $varPath . '/tmp');
         
         $this->conf_dir = $this->getAppConfDir();
-        $this->mod_dir  = $this->resolvePath($this->getAppConf('modules_path') ?: 'modules', $srcDir);
+        $this->mod_dir  = $resolveAppPath(self::getAppConf('modules_path', $appname), 'modules');
     }
 
     public static function getApp(string $appname = ''): \SPP\App
@@ -128,21 +140,23 @@ class App extends \SPP\SPPObject
                     if (file_exists($appYml)) {
                         try {
                             $appData = Yaml::parseFile($appYml);
-                            if ($appData) {
+                            if (is_array($appData) && $appData) {
+                                $appSettings = array_merge($appData, $settings['apps'][$d] ?? []);
+
                                 // Robustly prefix relative paths for dynamic apps so they resolve from src/
                                 foreach (['etc_path', 'src_path', 'var_path', 'modules_path'] as $pk) {
-                                    $val = $settings['apps'][$d][$pk] ?? '';
+                                    $val = $appSettings[$pk] ?? '';
                                     if ($val !== '' && strpos($val, ':') === false && strpos($val, '/') !== 0 && strpos($val, '\\') !== 0 && strpos($val, 'src/') !== 0) {
-                                        $settings['apps'][$d][$pk] = 'src/' . $d . '/' . trim($val, '/\\');
+                                        $appSettings[$pk] = 'src/' . $d . '/' . trim($val, '/\\');
                                     }
                                 }
                                 
                                 // Default src_path if still empty
-                                if (empty($settings['apps'][$d]['src_path'])) $settings['apps'][$d]['src_path'] = 'src/' . $d;
+                                if (empty($appSettings['src_path'])) $appSettings['src_path'] = 'src/' . $d;
                                 // Default etc_path if still empty
-                                if (empty($settings['apps'][$d]['etc_path'])) $settings['apps'][$d]['etc_path'] = 'etc';
+                                if (empty($appSettings['etc_path'])) $appSettings['etc_path'] = 'src/' . $d . '/etc';
 
-                                $settings['apps'][$d] = array_merge($appData, $settings['apps'][$d] ?? []);
+                                $settings['apps'][$d] = $appSettings;
                                 error_log("SPP Discovery: Found dynamic app '$d' at $appYml");
                             }
                         } catch (\Exception $e) {
@@ -224,7 +238,8 @@ class App extends \SPP\SPPObject
         $path = str_replace('\\', '/', $path);
         $baseDir = str_replace('\\', '/', $baseDir);
 
-        $isWsl = (PHP_OS === 'Linux' && (str_contains(file_get_contents('/proc/version') ?: '', 'microsoft') || str_contains(file_get_contents('/proc/version') ?: '', 'WSL')));
+        $procVersion = (PHP_OS === 'Linux' && is_readable('/proc/version')) ? (file_get_contents('/proc/version') ?: '') : '';
+        $isWsl = $procVersion !== '' && (str_contains($procVersion, 'microsoft') || str_contains($procVersion, 'WSL'));
 
         // 1. Absolute Path Check
         if (str_starts_with($path, '/') || (strlen($path) > 1 && $path[1] === ':')) {
@@ -253,12 +268,12 @@ class App extends \SPP\SPPObject
         if ($etcPath !== null && $etcPath !== '') {
             // If etc_path already contains the app directory prefix (discovery side-effect or explicit), 
             // resolve from SPP_APP_DIR instead of getAppSrcDir() to avoid double nesting
-            if (str_starts_with($etcPath, 'src/' . $appname) || str_starts_with($etcPath, '/src/' . $appname)) {
+            if (str_starts_with($etcPath, 'src/') || str_starts_with($etcPath, '/src/')) {
                 return $this->resolvePath($etcPath, SPP_APP_DIR);
             }
             
-            // Absolute if starts with / (relative to SPP_APP_DIR)
-            if (str_starts_with($etcPath, '/') || str_starts_with($etcPath, '\\')) {
+            // Absolute/rooted app paths are resolved from SPP_APP_DIR.
+            if (str_starts_with($etcPath, '/') || str_starts_with($etcPath, '\\') || str_starts_with($etcPath, 'etc/')) {
                 return $this->resolvePath($etcPath, SPP_APP_DIR);
             }
             // Relative to src otherwise
@@ -292,7 +307,7 @@ class App extends \SPP\SPPObject
         $srcPath = self::getAppConf('src_path', $this->_attributes['appname']);
         if ($srcPath !== null && $srcPath !== '') {
             // src is always relative to SPP_APP_DIR (rooted at APP_BASE_DIR)
-            return rtrim(SPP_APP_DIR, '/\\') . SPP_DS . ltrim($srcPath, '/\\');
+            return $this->resolvePath($srcPath, SPP_APP_DIR);
         }
         return $this->resolvePath('src/' . $this->_attributes['appname'], SPP_APP_DIR);
     }
@@ -342,7 +357,16 @@ class App extends \SPP\SPPObject
 
     public function make(string $abstract, array $parameters = [])
     {
-        return $this->container->make($abstract, $parameters);
+        if (method_exists($this->container, 'make')) {
+            $method = 'make';
+            return $this->container->{$method}($abstract, $parameters);
+        }
+
+        if ($parameters === []) {
+            return $this->container->get($abstract);
+        }
+
+        return $this->makeWithParameters($abstract, $parameters);
     }
 
     public function bind(string $abstract, $concrete = null, bool $shared = false)
@@ -357,7 +381,125 @@ class App extends \SPP\SPPObject
 
     public function call($callable, array $parameters = [])
     {
-        return $this->container->call($callable, $parameters);
+        if (method_exists($this->container, 'call')) {
+            $method = 'call';
+            return $this->container->{$method}($callable, $parameters);
+        }
+
+        if (is_string($callable) && str_contains($callable, '@')) {
+            [$class, $method] = explode('@', $callable, 2);
+            $callable = [$this->container->get($class), $method];
+        }
+
+        if (is_array($callable) && is_string($callable[0] ?? null)) {
+            $callable[0] = $this->container->get($callable[0]);
+        }
+
+        if (!is_callable($callable)) {
+            throw new \SPP\SPPException('Invalid callable supplied to App::call().');
+        }
+
+        if (is_array($callable)) {
+            $reflection = new \ReflectionMethod($callable[0], $callable[1]);
+        } elseif (is_string($callable) && str_contains($callable, '::')) {
+            $reflection = new \ReflectionMethod($callable);
+        } elseif (is_object($callable) && !$callable instanceof \Closure) {
+            $reflection = new \ReflectionMethod($callable, '__invoke');
+        } else {
+            $reflection = new \ReflectionFunction($callable);
+        }
+
+        return $callable(...$this->resolveParameters($reflection->getParameters(), $parameters));
+    }
+
+    private function makeWithParameters(string $abstract, array $parameters)
+    {
+        if (!class_exists($abstract)) {
+            throw new \SPP\SPPException("Service not found: " . $abstract);
+        }
+
+        $reflector = new \ReflectionClass($abstract);
+        if (!$reflector->isInstantiable()) {
+            throw new \SPP\SPPException("Class {$abstract} is not instantiable.");
+        }
+
+        $constructor = $reflector->getConstructor();
+        if ($constructor === null) {
+            return new $abstract();
+        }
+
+        return $reflector->newInstanceArgs($this->resolveParameters($constructor->getParameters(), $parameters));
+    }
+
+    private function resolveParameters(array $reflectionParameters, array $parameters): array
+    {
+        $resolved = [];
+
+        foreach ($reflectionParameters as $parameter) {
+            $name = $parameter->getName();
+            if (array_key_exists($name, $parameters)) {
+                $resolved[] = $parameters[$name];
+                continue;
+            }
+
+            $type = $parameter->getType();
+            if ($type !== null && !$this->isPrimitiveType($type)) {
+                $resolved[] = $this->resolveTypedParameter($type, $parameter);
+                continue;
+            }
+
+            if ($parameter->isDefaultValueAvailable()) {
+                $resolved[] = $parameter->getDefaultValue();
+                continue;
+            }
+
+            throw new \SPP\SPPException("Cannot resolve parameter: {$name}");
+        }
+
+        return $resolved;
+    }
+
+    private function isPrimitiveType(\ReflectionType $type): bool
+    {
+        if ($type instanceof \ReflectionNamedType) {
+            return $type->isBuiltin();
+        }
+
+        foreach ($type instanceof \ReflectionUnionType ? $type->getTypes() : [] as $unionType) {
+            if ($unionType instanceof \ReflectionNamedType && !$unionType->isBuiltin()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function resolveTypedParameter(\ReflectionType $type, \ReflectionParameter $parameter): mixed
+    {
+        if ($type instanceof \ReflectionNamedType && !$type->isBuiltin()) {
+            return $this->container->get($type->getName());
+        }
+
+        if ($type instanceof \ReflectionUnionType) {
+            foreach ($type->getTypes() as $unionType) {
+                if ($unionType instanceof \ReflectionNamedType && !$unionType->isBuiltin()) {
+                    try {
+                        return $this->container->get($unionType->getName());
+                    } catch (\Throwable $e) {
+                        // Try the next class in the union before failing below.
+                    }
+                }
+            }
+        }
+
+        if ($parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        }
+        if ($type->allowsNull()) {
+            return null;
+        }
+
+        throw new \SPP\SPPException("Cannot resolve parameter: {$parameter->getName()}");
     }
 
     /**

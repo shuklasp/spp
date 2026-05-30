@@ -15,15 +15,28 @@ class MakeModuleCommand extends BaseMakeCommand
     {
         $name = $args[2] ?? null;
         if (!$name) {
-            echo "Usage: php spp.php make:module <name>\n";
+            echo "Usage: php spp.php make:module <name> [--scope=spp|contrib|app]\n";
             return;
         }
 
+        $scope = 'app';
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--scope=')) {
+                $scope = substr($arg, 8);
+            }
+        }
+
         $modName = strtolower(preg_replace('/[^a-zA-Z0-9]/', '', $name));
-        $modDir = SPP_APP_DIR . '/spp/modules/spp/' . $modName;
+        
+        $modDir = SPP_APP_DIR . '/spp/modules/app/' . $modName; // default app scope
+        if ($scope === 'spp') {
+            $modDir = SPP_BASE_DIR . '/modules/spp/' . $modName;
+        } elseif ($scope === 'contrib') {
+            $modDir = SPP_BASE_DIR . '/modules/contrib/' . $modName;
+        }
 
         if (is_dir($modDir)) {
-            echo "Error: Module '{$modName}' already exists.\n";
+            echo "Error: Module '{$modName}' already exists at {$modDir}.\n";
             return;
         }
 
@@ -52,5 +65,35 @@ class MakeModuleCommand extends BaseMakeCommand
         file_put_contents($modDir . "/class.{$modName}.php", $php);
 
         echo "Success: Module {$modName} created at {$modDir}\n";
+    }
+
+    public function renderAdminUI(): string
+    {
+        $name = htmlspecialchars($this->getName());
+        $html = '<div class="command-ui-container">';
+        $html .= '  <h3>Create Module</h3>';
+        $html .= '  <div class="form-group">';
+        $html .= '    <label>Module Name (e.g. blog, forum):</label>';
+        $html .= '    <input type="text" id="arg_name" class="spp-input">';
+        $html .= '  </div>';
+        $html .= '  <div class="form-group">';
+        $html .= '    <label>Scope / Location:</label>';
+        $html .= '    <select id="arg_scope" class="spp-input">';
+        $html .= '      <option value="app">App-Level (Local)</option>';
+        $html .= '      <option value="contrib">Contrib (Community Plugins)</option>';
+        $html .= '      <option value="spp">SPP Core (Framework)</option>';
+        $html .= '    </select>';
+        $html .= '  </div>';
+        $html .= '  <button class="spp-btn spp-btn-primary" onclick="executeCustomModuleCreate()">Create Module</button>';
+        $html .= '  <script>
+                        function executeCustomModuleCreate() {
+                            let name = document.getElementById("arg_name").value;
+                            let scope = document.getElementById("arg_scope").value;
+                            let args = name + " --scope=" + scope;
+                            executeCommand("' . $name . '", args);
+                        }
+                    </script>';
+        $html .= '</div>';
+        return $html;
     }
 }

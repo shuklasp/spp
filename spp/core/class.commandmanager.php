@@ -14,6 +14,7 @@ class CommandManager
      */
     public static function discover(): array
     {
+        static $loadedFiles = [];
         $discoveredCommands = [];
 
         // 1. Scan CORE Commands
@@ -23,9 +24,15 @@ class CommandManager
             $files = glob($coreCmdDir . '/*.php');
             foreach ($files as $file) {
                 try {
-                    require_once $file;
+                    $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
+                    if (isset($loadedFiles[$realFile])) continue;
+                    $loadedFiles[$realFile] = true;
+
                     $className = basename($file, '.php');
                     $class = 'SPP\\CLI\\Commands\\' . $className;
+                    if (!class_exists($class, false)) {
+                        require_once $file;
+                    }
                     if (class_exists($class)) {
                         $reflection = new \ReflectionClass($class);
                         if ($reflection->isAbstract()) continue;
@@ -58,9 +65,15 @@ class CommandManager
                 if (is_dir($appCmdDir)) {
                     foreach (glob($appCmdDir . '/*.php') as $file) {
                         try {
-                            require_once $file;
+                            $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
+                            if (isset($loadedFiles[$realFile])) continue;
+                            $loadedFiles[$realFile] = true;
+
                             $className = basename($file, '.php');
                             $class = "App\\" . ucfirst($appName) . "\\Commands\\" . $className;
+                            if (!class_exists($class, false)) {
+                                require_once $file;
+                            }
                             if (class_exists($class)) {
                                 $cmdObj = new $class();
                                 if ($cmdObj instanceof Command) {
@@ -99,7 +112,10 @@ class CommandManager
                     if (!$modDir || !is_dir($modDir . '/commands')) continue;
 
                     foreach (glob($modDir . '/commands/*.php') as $file) {
-                        require_once $file;
+                        $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
+                        if (isset($loadedFiles[$realFile])) continue;
+                        $loadedFiles[$realFile] = true;
+
                         $className = basename($file, '.php');
                         
                         // Attempt namespace resolution based on standard module structure
@@ -107,6 +123,10 @@ class CommandManager
                         $modName = $modObj->InternalName ?? basename($modDir);
                         $nsMod = str_replace('.', '\\', ucwords($modName, '.'));
                         $class = "SPPMod\\{$nsMod}\\Commands\\{$className}";
+
+                        if (!class_exists($class, false)) {
+                            require_once $file;
+                        }
 
                         if (class_exists($class)) {
                             $cmdObj = new $class();

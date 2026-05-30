@@ -504,15 +504,19 @@ class SPPAdmin {
                 }
 
                 let module;
-                // If a specific app is selected (not 'default' or '__sppadmin__'), try app-side first
-                const useAppFirst = this.selectedApp !== 'default' && this.selectedApp !== '__sppadmin__';
+                // List of views that are strictly core framework views and should not be requested from apps
+                const coreOnlyViews = ['access', 'ajax', 'apps', 'commands', 'commerce', 'config', 'entities', 'events', 'forms', 'groups', 'interdb', 'lifecycle', 'marketing', 'middleware', 'modules', 'parikshak', 'queue', 'routing', 'services', 'sppai', 'spplang', 'system', 'trace', 'xdb'];
+                const isCoreView = coreOnlyViews.includes(view);
+                
+                // If a specific app is selected (not 'default' or '__sppadmin__'), and it's not a strict core view, try app-side first
+                const useAppFirst = !isCoreView && this.selectedApp !== 'default' && this.selectedApp !== '__sppadmin__';
 
                 if (useAppFirst) {
                     try {
                         module = await import(appPath);
                         console.log(`Loaded app-side component (Priority): ${view}`);
                     } catch (e) {
-                        console.warn(`App-side component not found, trying core: ${appPath}`);
+                        console.warn(`App-side component not found, trying core: ${corePath}`);
                         try {
                             module = await import(corePath);
                             console.log(`Loaded core component (Fallback): ${view}`);

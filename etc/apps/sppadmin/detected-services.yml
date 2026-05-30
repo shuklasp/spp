@@ -92,3 +92,9 @@ services:
     name: toggle_module
     script: spp/admin/services/General.php
     method: live_toggle_module
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_pages
+    script: spp/admin/services/General.php
+    method: live_list_pages

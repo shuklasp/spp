@@ -15,31 +15,45 @@ class ProjectScanner {
 
     public function scan(string $baseDir): array {
         $hashes = [];
-        $iterator = new \RecursiveIteratorIterator(
-            new \RecursiveDirectoryIterator($baseDir, \RecursiveDirectoryIterator::SKIP_DOTS),
-            \RecursiveIteratorIterator::SELF_FIRST
-        );
-
-        foreach ($iterator as $file) {
-            if ($file->isFile()) {
-                $path = $file->getPathname();
-                $relativePath = str_replace('\\', '/', str_replace($baseDir, '', $path));
-                $relativePath = ltrim($relativePath, '/');
-
-                if ($this->shouldExclude($relativePath)) {
-                    continue;
-                }
-
-                $hashes[$relativePath] = md5_file($path);
-            }
-        }
-
+        $this->scanDir($baseDir, $baseDir, $hashes);
         return $hashes;
     }
 
+    private function scanDir(string $currentDir, string $baseDir, array &$hashes): void {
+        if (!is_dir($currentDir)) return;
+        
+        $files = scandir($currentDir);
+        foreach ($files as $file) {
+            if ($file === '.' || $file === '..') continue;
+            
+            $path = $currentDir . '/' . $file;
+            if (is_link($path)) continue; // skip symlinks
+            
+            $normalizedPath = str_replace('\\', '/', $path);
+            $normalizedBaseDir = str_replace('\\', '/', $baseDir);
+            
+            $relativePath = ltrim(str_replace($normalizedBaseDir, '', $normalizedPath), '/');
+            
+            if ($this->shouldExclude($relativePath)) {
+                continue;
+            }
+            
+            if (is_dir($path)) {
+                $this->scanDir($path, $baseDir, $hashes);
+            } else {
+                $hashes[$relativePath] = hash_file('xxh3', $path);
+            }
+        }
+    }
+
     private function shouldExclude(string $path): bool {
+        // Exclude completely matches directory names or paths
         foreach ($this->excludePatterns as $pattern) {
-            if (str_contains($path, $pattern)) {
+            $normalizedPattern = trim(str_replace('\\', '/', $pattern), '/');
+            if (str_contains('/' . $path . '/', '/' . $normalizedPattern . '/')) {
+                return true;
+            }
+            if (str_starts_with($path, $normalizedPattern . '/')) {
                 return true;
             }
         }

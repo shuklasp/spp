@@ -3,6 +3,7 @@
 The SPP Framework is powered by a suite of high-performance core modules. These modules provide the essential building blocks for any modern web application.
 
 ## 📦 Core Modules Wiki
+*   [**Full SPP API Reference**](../spp-full-api-reference.md): Runtime APIs, utility APIs, module catalog, and usage patterns across core, contrib, and app modules.
 *   [**SppView**](sppview.md): Advanced rendering, resource management, and **Asset Orchestration**.
 *   [**SppAPI**](sppapi.md): The native **Headless REST** framework and dynamic CRUD routing engine.
 *   [**SppEntity**](sppentity.md): The high-performance ORM and database relationship manager.
