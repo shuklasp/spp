@@ -126,7 +126,11 @@ class SPPError extends \SPP\SPPObject
         if ($debug) {
             include __DIR__ . '/error_template.php';
         } else {
-            echo "<h1>500 Internal Server Error</h1><p>Something went wrong. Please try again later.</p>";
+            if (file_exists(__DIR__ . '/500_template.php')) {
+                include __DIR__ . '/500_template.php';
+            } else {
+                echo "<h1>500 Internal Server Error</h1><p>Something went wrong. Please try again later.</p>";
+            }
         }
         exit(1);
     }

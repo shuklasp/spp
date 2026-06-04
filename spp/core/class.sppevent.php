@@ -279,6 +279,12 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function fireEvent($event_name, mixed &$params = [], mixed $inline_handler = null)
     {
+        // Bridge: Route through the new EventManager
+        $result = \SPP\Core\EventManager::trigger($event_name, $params);
+        if ($result !== null) {
+            return $result; // If handled purely by EventManager overrides
+        }
+
         if (!array_key_exists($event_name, self::$events) && !isset(self::$listeners[$event_name])) {
             return;
         }
@@ -531,6 +537,28 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function scanHandlers()
     {
+        $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
+
+        $globalSettingsFile = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : SPP_BASE_DIR . SPP_DS . 'etc') . SPP_DS . 'global-settings.yml';
+        $alwaysScan = false;
+        if (file_exists($globalSettingsFile)) {
+            $parsedGlobal = @\Symfony\Component\Yaml\Yaml::parseFile($globalSettingsFile);
+            if (isset($parsedGlobal['settings']['events']['auto_scan']) && $parsedGlobal['settings']['events']['auto_scan'] === true) {
+                $alwaysScan = true;
+            }
+        }
+
+        if (!$alwaysScan && file_exists($cacheFile)) {
+            $cached = require $cacheFile;
+            if (is_array($cached)) {
+                foreach ($cached as $evt => $data) {
+                    if (!isset(self::$events[$evt])) self::$events[$evt] = $data;
+                    else self::$events[$evt]['handlers'] = array_merge(self::$events[$evt]['handlers'], $data['handlers']);
+                }
+            }
+            return;
+        }
+
         self::scanDirectory(SPP_BASE_DIR . SPP_DS . 'events', 'EventHandlers');
         self::scanDirectory(SPP_APP_DIR . SPP_DS . 'events', 'EventHandlers');
 
@@ -550,6 +578,23 @@ class SPPEvent extends \SPP\SPPObject
                     if (is_dir($evDir)) {
                         self::scanDirectory($evDir, 'EventHandlers');
                     }
+                    
+                    // Parse etc/events.yml for explicit declarations
+                    $appEventsYml = $srcBase . SPP_DS . $d . SPP_DS . 'etc' . SPP_DS . 'events.yml';
+                    if (file_exists($appEventsYml)) {
+                        $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($appEventsYml);
+                        if (is_array($parsed) && isset($parsed['events']) && is_array($parsed['events'])) {
+                            foreach ($parsed['events'] as $evtName => $handlersList) {
+                                if (is_array($handlersList)) {
+                                    foreach ($handlersList as $handlerClass) {
+                                        self::registerHandler($evtName, $handlerClass);
+                                    }
+                                } else {
+                                    self::registerHandler($evtName, $handlersList);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -560,8 +605,49 @@ class SPPEvent extends \SPP\SPPObject
                 $dir = $modpath . SPP_DS . 'events';
                 $namespace = 'SPPMod\\' . ucfirst($modname) . '\\Events';
                 self::scanDirectory($dir, $namespace);
+                
+                // Parse module.yml for explicit event declarations
+                $ymlFile = $modpath . SPP_DS . 'module.yml';
+                if (file_exists($ymlFile)) {
+                    $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($ymlFile);
+                    if (is_array($parsed) && isset($parsed['module']['events']) && is_array($parsed['module']['events'])) {
+                        foreach ($parsed['module']['events'] as $evtName => $handlersList) {
+                            if (is_array($handlersList)) {
+                                foreach ($handlersList as $handlerClass) {
+                                    self::registerHandler($evtName, $handlerClass);
+                                }
+                            } else {
+                                self::registerHandler($evtName, $handlersList);
+                            }
+                        }
+                    }
+                }
+
+                // Parse etc/events.yml for dedicated module event declarations
+                $modEventsYml = $modpath . SPP_DS . 'etc' . SPP_DS . 'events.yml';
+                if (file_exists($modEventsYml)) {
+                    $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($modEventsYml);
+                    if (is_array($parsed) && isset($parsed['events']) && is_array($parsed['events'])) {
+                        foreach ($parsed['events'] as $evtName => $handlersList) {
+                            if (is_array($handlersList)) {
+                                foreach ($handlersList as $handlerClass) {
+                                    self::registerHandler($evtName, $handlerClass);
+                                }
+                            } else {
+                                self::registerHandler($evtName, $handlersList);
+                            }
+                        }
+                    }
+                }
             }
         }
+
+        $dir = dirname($cacheFile);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+        $export = var_export(self::$events, true);
+        @file_put_contents($cacheFile, "<?php\nreturn " . $export . ";\n");
     }
 
     /**
@@ -610,6 +696,22 @@ class SPPEvent extends \SPP\SPPObject
     public static function registerDirs()
     {
         if (self::$dirsRegistered) {
+            return;
+        }
+
+        $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
+        
+        $globalSettingsFile = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : SPP_BASE_DIR . SPP_DS . 'etc') . SPP_DS . 'global-settings.yml';
+        $alwaysScan = false;
+        if (file_exists($globalSettingsFile)) {
+            $parsedGlobal = @\Symfony\Component\Yaml\Yaml::parseFile($globalSettingsFile);
+            if (isset($parsedGlobal['settings']['events']['auto_scan']) && $parsedGlobal['settings']['events']['auto_scan'] === true) {
+                $alwaysScan = true;
+            }
+        }
+
+        if (!$alwaysScan && file_exists($cacheFile)) {
+            self::$dirsRegistered = true;
             return;
         }
 
@@ -712,3 +814,4 @@ class SPPEvent extends \SPP\SPPObject
         @file_put_contents($logFile, json_encode($existing, JSON_PRETTY_PRINT));
     }
 }
+

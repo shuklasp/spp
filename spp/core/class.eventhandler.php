@@ -9,7 +9,7 @@ abstract class EventHandler
     protected $before_handlers = [];
     protected $after_handlers = [];
     protected $override_handlers = [];
-    protected $external_handlers = [];
+    
 
     /** @var int Execution priority (0-1000, higher runs first) */
     protected int $priority = 500;
@@ -84,7 +84,7 @@ abstract class EventHandler
      */
     public function beforeHandler(mixed &$params = [])
     {
-        $this->externalBeforeHandler('execBefore', $params);
+        
         foreach ($this->before_handlers as $handler) {
             if (is_callable([$this, $handler])) {
                 $this->$handler($params);
@@ -92,7 +92,7 @@ abstract class EventHandler
                 throw new \Exception("Before handler must be callable");
             }
         }
-        $this->externalBeforeHandler('execAfter', $params);
+        
     }
 
     /**
@@ -116,7 +116,7 @@ abstract class EventHandler
      */
     public function afterHandler(mixed &$params = [])
     {
-        $this->externalAfterHandler('execBefore', $params);
+        
         foreach ($this->after_handlers as $handler) {
             if (is_callable([$this, $handler])) {
                 $this->$handler($params);
@@ -124,7 +124,7 @@ abstract class EventHandler
                 throw new \Exception("After handler must be callable");
             }
         }
-        $this->externalAfterHandler('execAfter', $params);
+        
     }
 
 
@@ -136,68 +136,6 @@ abstract class EventHandler
      */
     protected function initHandler()
     {
-    }
-
-
-    /**
-     * function addExternalHandler
-     * Adds external handler
-     *
-     * @param string $handler
-     * @param bool $exec_before
-     */
-    protected function addExternalHandler($handler, $exec_before = false)
-    {
-        if (class_exists('\\ExternalHandlers\\' . $handler)) {
-            if ($exec_before) {
-                $this->external_handlers[] = ['handler' => $handler, 'occurence' => 'execBefore'];
-            } else {
-                $this->external_handlers[] = ['handler' => $handler, 'occurence' => 'execAfter'];
-            }
-        } else {
-            throw new \SPP\SPPException("External handler must lie in the namespace \\ExternalHandlers");
-        }
-    }
-
-    /**
-     * externalBeforeHandler
-     * Calls external before handler
-     *
-     * @param string $ocurence
-     */
-    protected function externalBeforeHandler($ocurence, mixed &$params = [])
-    {
-        if (!is_array($params)) {
-            return;
-        } // External handlers only support legacy arrays
-        foreach ($this->external_handlers as $handler) {
-            if ($handler['occurence'] == $ocurence) {
-                $className = '\\ExternalHandlers\\' . $handler['handler'];
-                $instance = new $className();
-                $instance->beforeHandler($params);
-            }
-        }
-    }
-
-
-    /**
-     * function externalAfterHandler
-     * Calls external after handler
-     *
-     * @param string $ocurence
-     */
-    protected function externalAfterHandler($ocurence, mixed &$params = [])
-    {
-        if (!is_array($params)) {
-            return;
-        } // External handlers only support legacy arrays
-        foreach ($this->external_handlers as $handler) {
-            if ($handler['occurence'] == $ocurence) {
-                $className = '\\ExternalHandlers\\' . $handler['handler'];
-                $instance = new $className();
-                $instance->afterHandler($params);
-            }
-        }
     }
 
 
@@ -286,3 +224,4 @@ abstract class EventHandler
         SPPEvent::dispatch($event);
     }
 }
+

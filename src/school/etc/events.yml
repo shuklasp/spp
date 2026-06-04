@@ -1,0 +1,3 @@
+events:
+  my_event:
+    - App\School\Events\MyHandler

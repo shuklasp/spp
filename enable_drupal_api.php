@@ -1,1 +1,0 @@
-<?php require 'spp/sppinit.php'; $db = new \SPPMod\SPPDB\SPPDB(); try { $db->execute_query('CREATE TABLE IF NOT EXISTS lekhak_modules (machine_name VARCHAR(100) UNIQUE, status INT DEFAULT 0)'); $db->execute_query('INSERT IGNORE INTO lekhak_modules (machine_name, status) VALUES (?, ?)', ['lekhak_drupal_api', 1]); echo 'Enabled.'; } catch (Exception $e) { echo $e->getMessage(); }

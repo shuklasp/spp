@@ -1,0 +1,10 @@
+name: sppsecurity
+description: Provides core security implementations (CSRF, Rate Limiting, Sanitization)
+version: 1.0.0
+type: module
+author: SPP Core Team
+status: active
+deps:
+    - sppcore
+    - sppsession
+    - sppconfig

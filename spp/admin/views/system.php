@@ -425,6 +425,7 @@ $proto = $settings['parsed']['prototyping'] ?? ['auto_evolution' => 'manual', 'v
             <p style="margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.9rem;">Manage all applications and database sharing in the dedicated section.</p>
         </div>
         <div style="display:flex; gap:12px;">
+            <button class="btn ghost-btn" onclick="admin.api('execute_command', {cmd: 'cache:clear'})">🧹 Clear Framework Cache</button>
             <button class="btn ghost-btn" onclick="location.hash = 'apps'">📱 Manage Applications</button>
             <button type="button" class="btn accent-btn" onclick="admin.runSystemUpdate()" style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
         </div>

@@ -45,6 +45,21 @@ class MiddlewareKernel
     }
 
     /**
+     * Dynamically inject a global middleware into the pipeline.
+     * Useful for modules registering middleware during boot.
+     * 
+     * @param string $middlewareClass The fully qualified class name of the middleware
+     */
+    public static function addGlobalMiddleware(string $middlewareClass): void
+    {
+        // Ensure initialized first so we don't overwrite it when boot() runs
+        self::boot(); 
+        if (!in_array($middlewareClass, self::$middleware, true)) {
+            self::$middleware[] = $middlewareClass;
+        }
+    }
+
+    /**
      * Executes the middleware pipeline for the current request.
      */
     public static function run(\Closure $destination)

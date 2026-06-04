@@ -84,8 +84,18 @@ export default class SystemView extends BaseComponent {
     updateSetting(key, val, root = 'prototyping') {
         const settings = { ...this.state.settings };
         if (root) {
-            if (!settings.parsed[root]) settings.parsed[root] = {};
-            settings.parsed[root][key] = val;
+            let current = settings.parsed;
+            if (root.includes('.')) {
+                const parts = root.split('.');
+                for (let i = 0; i < parts.length; i++) {
+                    if (!current[parts[i]]) current[parts[i]] = {};
+                    current = current[parts[i]];
+                }
+            } else {
+                if (!current[root]) current[root] = {};
+                current = current[root];
+            }
+            current[key] = val;
         } else {
             settings.parsed[key] = val;
         }
@@ -527,6 +537,7 @@ export default class SystemView extends BaseComponent {
                         <p style="margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.9rem;">Manage all applications and database sharing in the dedicated section.</p>
                     </div>
                     <div style="display:flex; gap:12px;">
+                        <button class="btn ghost-btn" @click=${() => this.apiPost('execute_command', {command: 'cache:clear'}).then(res => this.notify(res.message, res.success ? 'success' : 'error'))}>🧹 Clear Framework Cache</button>
                         <button class="btn ghost-btn" @click=${() => location.hash = 'apps'}>📱 Manage Applications</button>
                         <button type="button" class="btn accent-btn" @click=${() => { console.log('Update button clicked'); this.app.runSystemUpdate(); }} style="background: var(--accent-gradient); color: white; border: none;">🚀 Update System</button>
                     </div>
@@ -575,6 +586,14 @@ export default class SystemView extends BaseComponent {
                             <p style="font-size:0.75rem; opacity:0.5; mt-1;">Controls if DB tables are automatically updated when YAML changes.</p>
                         </div>
                         <div class="form-group">
+                            <label style="display:block; margin-bottom:8px; font-weight:600; opacity:0.8;">Event Auto-Scan (Dev Mode)</label>
+                            <select class="form-input" style="width:100%;" @change=${(e) => this.updateSetting('auto_scan', e.target.value === 'true', 'settings.events')}>
+                                <option value="true" ?selected="${settings.parsed.settings?.events?.auto_scan === true}">Enabled (Scan Every Pass)</option>
+                                <option value="false" ?selected="${settings.parsed.settings?.events?.auto_scan !== true}">Disabled (Use Cache)</option>
+                            </select>
+                            <p style="font-size:0.75rem; opacity:0.5; mt-1;">Dynamically scan event directories and bypass event cache during active development.</p>
+                        </div>
+                        <div class="form-group">
                             <label style="display:block; margin-bottom:8px; font-weight:600; opacity:0.8;">Scaffold View Generation</label>
                             <select class="form-input" style="width:100%;" @change=${(e) => this.updateSetting('view_generation', e.target.value)}>
                                 <option value="php_html" ?selected="${proto.view_generation === 'php_html'}">Legacy PHP/HTML Templates</option>
@@ -582,10 +601,12 @@ export default class SystemView extends BaseComponent {
                             </select>
                             <p style="font-size:0.75rem; opacity:0.5; mt-1;">Algorithm used for generating views during code scaffolding.</p>
                         </div>
-                        <div class="editor-wrap" style="position:relative; background: #1a1a1a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                    </div>
+                ` : html`
+                    <div class="editor-wrap" style="position:relative; background: #1a1a1a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                         <textarea class="yaml-editor" style="width:100%; min-height:300px; background:transparent; color:#d4d4d4; font-family: 'Consolas', monospace; font-size: 0.9rem; padding: 20px; border:none; outline:none; resize:vertical;">${settings.raw}</textarea>
                     </div>
-            `}
+                `}
             </div>
         `;
     }

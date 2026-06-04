@@ -242,3 +242,11 @@ class UserBannedException extends \SPP\SPPException
         parent::__construct($message, $code);
     }
 }
+
+class MissingDependencyException extends \SPP\SPPException
+{
+    public function __construct($message, $code = 1026)
+    {
+        parent::__construct($message, $code);
+    }
+}

@@ -43,6 +43,30 @@ class SPPBlade extends \SPP\SPPObject
      */
     protected function registerDirectives(): void
     {
+        // @module_component('sppauth::login.form')
+        // Cross-module component rendering support
+        $this->engine->directive('module_component', function ($expression) {
+            return "<?php 
+                \$args = [$expression];
+                \$viewStr = \$args[0];
+                \$data = \$args[1] ?? [];
+                
+                if (strpos(\$viewStr, '::') !== false) {
+                    list(\$modName, \$viewFile) = explode('::', \$viewStr);
+                    \$modClass = \\SPP\\ModuleCompiler::getActiveModuleClass(\$modName);
+                    if (\$modClass) {
+                        \$modInstance = \\SPP\\Module::getModule(\$modClass);
+                        if (\$modInstance) {
+                            \$path = \$modInstance->getModuleDir() . '/views/' . str_replace('.', '/', \$viewFile) . '.blade.php';
+                            if (file_exists(\$path)) {
+                                echo \$this->runString(file_get_contents(\$path), \$data);
+                            }
+                        }
+                    }
+                }
+            ?>";
+        });
+
         // @sppform('login')
         // Loads form from XML/YAML in the app's forms directory
         $this->engine->directive('sppform', function ($expression) {
@@ -324,6 +348,20 @@ class SPPBlade extends \SPP\SPPObject
 
         // Support absolute paths
         if (file_exists($view) && str_ends_with($view, '.blade.php')) {
+            
+            // --- View Template Overriding ---
+            // If the absolute path belongs to a module, check if the app overrides it
+            $normalizedView = str_replace('\\', '/', $view);
+            if (preg_match('#/modules/([^/]+)/([^/]+)/views/(.*)$#', $normalizedView, $matches)) {
+                $modName = $matches[2];
+                $viewPath = $matches[3];
+                $overridePath = rtrim($this->viewsPath, '/\\') . '/modules/' . $modName . '/' . $viewPath;
+                if (file_exists($overridePath)) {
+                    $view = $overridePath;
+                    @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Intercepted module view. Using override: '$overridePath'\n", FILE_APPEND);
+                }
+            }
+            
             $dir = dirname($view);
             $viewName = basename($view, '.blade.php');
 

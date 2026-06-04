@@ -412,6 +412,19 @@ class SPPEntity implements \JsonSerializable
     }
 
     /**
+     * Injects an eagerly loaded relation into the entity's cache.
+     * @param string $relation Name of the relation attribute.
+     * @param mixed $value The resolved entity or array of entities.
+     */
+    public function setRelatedCache(string $relation, $value): void
+    {
+        if (!isset($this->_relatedCaches)) {
+            $this->_relatedCaches = [];
+        }
+        $this->_relatedCaches[$relation] = $value;
+    }
+
+    /**
      * public function getId()
      * Returns the id of the entity
      * @return int
@@ -635,7 +648,17 @@ class SPPEntity implements \JsonSerializable
     }
 
     /**
+     * Initializes a modern Query Builder for this entity.
+     * @return \SPPMod\SPPEntity\SppEntityQuery
+     */
+    public static function query(): \SPPMod\SPPEntity\SppEntityQuery
+    {
+        return \SPPMod\SPPEntity\SppEntityQuery::forEntity(static::class);
+    }
+
+    /**
      * Static helper to find all instances of the entity with optional filtering.
+     * @deprecated Use static::query()->...->get() instead.
      */
     public static function find_all(array $conditions = [], string $sort = null, int $limit = null)
     {

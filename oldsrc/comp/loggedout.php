@@ -1,1 +1,0 @@
-<h1>You are logged out of Virtual Shiksha Community. Thanks for the association.</h1>

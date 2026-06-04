@@ -1,13 +1,13 @@
 <?php
 
-namespace SPP;
+namespace SPP\Core;
 
 /**
  * Class RedisCache
  * Enterprise-grade Redis wrapper for SPP.
  * Handles distributed caching and session state.
  */
-class RedisCache extends \SPP\SPPObject implements Core\CacheInterface
+class RedisCache extends \SPP\SPPObject implements CacheInterface
 {
     /** @var \Redis */
     private static $instance = null;

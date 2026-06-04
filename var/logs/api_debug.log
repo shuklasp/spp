@@ -2172,3 +2172,11 @@
 [2026-06-02 06:15:18] API Response: success=true, action=get_builder_context
 [2026-06-02 07:55:04] API Response: success=false, action=scaffold_auth
 [2026-06-02 15:27:20] API Response: success=true, action=list_forms
+[2026-06-04 09:48:27] API Response: success=false, action=check_auth
+[2026-06-04 09:48:39] SPPAjax Response: status=ok, action=login
+[2026-06-04 09:48:42] SPPAjax Response: status=ok, action=list_apps
+[2026-06-04 09:48:42] API Response: success=true, action=get_profile
+[2026-06-04 09:48:55] SPPAjax Response: status=ok, action=list_apps
+[2026-06-04 09:48:56] API Response: success=true, action=list_modules
+[2026-06-04 09:49:07] API Response: success=true, action=list_entities
+[2026-06-04 09:49:12] API Response: success=true, action=get_builder_context

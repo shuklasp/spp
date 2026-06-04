@@ -39,6 +39,9 @@ class Registry extends \SPP\SPPObject
     /** @var \SPP\Core\Container|null */
     private static ?\SPP\Core\Container $container = null;
 
+    /** @var bool Flag to debounce shared state writing */
+    private static bool $sharedDirty = false;
+
     /**
      * Get the service container instance.
      */
@@ -51,7 +54,8 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
-     * Bind a service to the container.
+     * Bind a service to the IoC container.
+     * Note: This is separate from the fast key-value store (register/get).
      */
     public static function bind(string $abstract, $concrete = null, bool $shared = false): void
     {
@@ -67,7 +71,8 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
-     * Resolve a service from the container.
+     * Resolve a service from the IoC container.
+     * Note: This is separate from the fast key-value store (register/get).
      */
     public static function make(string $abstract): mixed
     {
@@ -124,12 +129,28 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
-     * Synchronizes shared registry entries to a JSON file for polyglot support.
+     * Flags the shared registry for synchronization at shutdown.
      */
     private static function syncShared(): void
     {
+        if (!self::$sharedDirty) {
+            self::$sharedDirty = true;
+            register_shutdown_function([self::class, 'forceSyncShared']);
+        }
+    }
+
+    /**
+     * Writes the shared registry state to the disk immediately.
+     */
+    public static function forceSyncShared(): void
+    {
+        if (!self::$sharedDirty) {
+            return;
+        }
+
         $shared = self::get('__shared');
         if (!is_array($shared)) {
+            self::$sharedDirty = false;
             return;
         }
 
@@ -140,6 +161,8 @@ class Registry extends \SPP\SPPObject
 
         $sharedFile = $sharedDir . '/registry.json';
         @file_put_contents($sharedFile, json_encode($shared, JSON_PRETTY_PRINT));
+        
+        self::$sharedDirty = false;
     }
 
     /**
@@ -239,6 +262,88 @@ class Registry extends \SPP\SPPObject
         }
 
         return false;
+    }
+
+    /**
+     * Retrieves the value as a string.
+     */
+    public static function getString(string $entity, string $default = ''): string
+    {
+        $val = self::get($entity);
+        return $val !== false ? (string) $val : $default;
+    }
+
+    /**
+     * Retrieves the value as an integer.
+     */
+    public static function getInt(string $entity, int $default = 0): int
+    {
+        $val = self::get($entity);
+        return $val !== false ? (int) $val : $default;
+    }
+
+    /**
+     * Retrieves the value as a boolean.
+     */
+    public static function getBool(string $entity, bool $default = false): bool
+    {
+        $val = self::get($entity);
+        return $val !== false ? (bool) $val : $default;
+    }
+
+    /**
+     * Retrieves the value as an array.
+     */
+    public static function getArray(string $entity, array $default = []): array
+    {
+        $val = self::get($entity);
+        return is_array($val) ? $val : $default;
+    }
+
+    /**
+     * Removes an entity from the registry.
+     */
+    public static function remove(string $entity): void
+    {
+        $entity = self::resolveEntityName($entity);
+        
+        // Remove from O(1) cache
+        unset(self::$lookupCache[$entity]);
+
+        $tokens = array_map('trim', explode('=>', $entity));
+        $root = array_shift($tokens);
+        
+        if (!array_key_exists($root, self::$reg)) {
+            return;
+        }
+
+        if (empty($tokens)) {
+            unset(self::$reg[$root]);
+            return;
+        }
+
+        $ref = &self::$reg[$root];
+        foreach ($tokens as $i => $token) {
+            if (!is_array($ref) || !array_key_exists($token, $ref)) {
+                return;
+            }
+            if ($i === count($tokens) - 1) {
+                unset($ref[$token]);
+                return;
+            }
+            $ref = &$ref[$token];
+        }
+    }
+
+    /**
+     * Clears the entire registry.
+     */
+    public static function clearAll(): void
+    {
+        self::$reg = [];
+        self::$values = [];
+        self::$lookupCache = [];
+        self::$valkey = 0;
     }
 
     /**

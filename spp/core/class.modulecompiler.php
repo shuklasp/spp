@@ -27,16 +27,25 @@ class ModuleCompiler
      */
     public function compile(): bool
     {
-        $registry = [];
-        $discovered = $this->discoverActiveModules();
-
-        // Sort modules by dependency graph (Topological Sort)
         try {
-            $sortedNames = $this->topologicalSort($discovered);
+            $registry = $this->compileToArray();
+            return $this->writeCache($registry);
         } catch (\Exception $e) {
             echo "❌ Compilation Error: " . $e->getMessage() . "\n";
             return false;
         }
+    }
+
+    /**
+     * Compiles modules to an array, enforcing topological sorting.
+     */
+    public function compileToArray(): array
+    {
+        $registry = [];
+        $discovered = $this->discoverActiveModules();
+
+        // Sort modules by dependency graph (Topological Sort)
+        $sortedNames = $this->topologicalSort($discovered);
 
         foreach ($sortedNames as $modName) {
             $modData = $discovered[$modName];
@@ -62,7 +71,7 @@ class ModuleCompiler
             }
         }
 
-        return $this->writeCache($registry);
+        return $registry;
     }
 
     /**
@@ -89,19 +98,13 @@ class ModuleCompiler
                     if ($ext === 'yml' || $ext === 'yaml') {
                         $parsed = Yaml::parseFile($manifestPath);
                         $deps = $parsed['module']['deps'] ?? ($parsed['module']['dependencies'] ?? []);
-                    } else {
-                        $xml = simplexml_load_file($manifestPath);
-                        if ($xml) {
-                            $res = $xml->xpath('/module/dependencies/depends');
-                            foreach ($res as $d) {
-                                $deps[] = (string) $d;
-                            }
-                        }
                     }
 
                     foreach ($deps as $dep) {
                         if (isset($modules[$dep])) {
                             $visit($dep);
+                        } else {
+                            throw new \SPP\Exceptions\MissingDependencyException("Module '{$name}' requires missing or inactive dependency '{$dep}'");
                         }
                     }
                 }
@@ -150,6 +153,44 @@ class ModuleCompiler
                             'manifest' => $manifestPath,
                             'type' => $m['type']
                         ];
+                    }
+                }
+            }
+        }
+
+        // Also discover loosely coupled app-specific modules from src directories
+        foreach (Module::getAppModuleDirs($this->appContext) as $appModuleDir) {
+            if (!is_dir($appModuleDir)) {
+                continue;
+            }
+            $dirs = scandir($appModuleDir);
+            foreach ($dirs as $d) {
+                if ($d === '.' || $d === '..') {
+                    continue;
+                }
+                $dirPath = $appModuleDir . SPP_DS . $d;
+                if (!is_dir($dirPath)) {
+                    continue;
+                }
+
+                $manifestPath = null;
+                foreach (['module.yml', 'module.yaml'] as $m) {
+                    if (file_exists($dirPath . SPP_DS . $m)) {
+                        $manifestPath = $dirPath . SPP_DS . $m;
+                        break;
+                    }
+                }
+                if ($manifestPath) {
+                    // Quick parse to get name
+                    try {
+                        $parsed = Yaml::parseFile($manifestPath);
+                        $name = $parsed['module']['name'] ?? $parsed['module']['id'] ?? $d;
+                        $active[$name] = [
+                            'manifest' => $manifestPath,
+                            'type' => 'user'
+                        ];
+                    } catch (\Exception $e) {
+                        continue;
                     }
                 }
             }

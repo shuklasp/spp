@@ -162,6 +162,13 @@ apps:
     shared_group: core
     etc_path: etc/apps/MyDrupalApp
     src_path: src/MyDrupalApp
+  events_test:
+    base_url: /events_test
+    table_prefix: events_test_
+    type: native
+    shared_group: core
+    etc_path: etc/apps/events_test
+    src_path: src/events_test
 base_app: lekhak
 prototyping:
   auto_evolution: manual

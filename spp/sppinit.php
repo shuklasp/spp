@@ -195,12 +195,18 @@ if (!defined('SPP_VER')) {
         return true;
       }
 
-      // 2. Try PSR-4 style in src/
+      // 2. Try PSR-4 style in src/ and root
       if (!empty($parts)) {
-        $psrPath = $modDir . SPP_DS . 'src' . SPP_DS . implode(SPP_DS, $parts) . '.php';
-        if (file_exists($psrPath)) {
-          require_once $psrPath;
-          return true;
+        $relPath = implode(SPP_DS, $parts) . '.php';
+        $psrPaths = [
+          $modDir . SPP_DS . 'src' . SPP_DS . $relPath,
+          $modDir . SPP_DS . $relPath
+        ];
+        foreach ($psrPaths as $psrPath) {
+          if (file_exists($psrPath)) {
+            require_once $psrPath;
+            return true;
+          }
         }
       }
       return false;

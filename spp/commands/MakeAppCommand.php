@@ -44,6 +44,8 @@ class MakeAppCommand extends BaseMakeCommand
             SPP_APP_DIR . "/etc/apps/{$appName}",
             SPP_APP_DIR . "/etc/apps/{$appName}/forms",
             SPP_APP_DIR . "/src/{$appName}",
+            SPP_APP_DIR . "/src/{$appName}/etc",
+            SPP_APP_DIR . "/src/{$appName}/events",
             SPP_APP_DIR . "/src/{$appName}/controllers",
             SPP_APP_DIR . "/src/{$appName}/services",
             SPP_APP_DIR . "/resources/{$appName}/views",
@@ -101,6 +103,13 @@ class MakeAppCommand extends BaseMakeCommand
             } else {
                 echo "Warning: App '{$appName}' already exists in global-settings.yml.\n";
             }
+        }
+
+        // Generate events.yml
+        $eventsYmlFile = SPP_APP_DIR . "/src/{$appName}/etc/events.yml";
+        if (!file_exists($eventsYmlFile)) {
+            $eventsYmlContent = "events:\n  # {$appName}.boot:\n  #   - \\App\\" . ucfirst($appName) . "\\Events\\BootHandler\n";
+            file_put_contents($eventsYmlFile, $eventsYmlContent);
         }
 
         // 3. Chain to Scaffolding based on type

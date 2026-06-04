@@ -9,6 +9,15 @@ use SPP\Core\SPPException;
 
 class CsrfMiddleware implements MiddlewareInterface {
     public function handle($request, $next) {
+        // Check configuration: app settings override global settings
+        $appSetting = \SPP\App::getAppConf('security.csrf_enabled');
+        $globalSetting = \SPP\App::getGlobalSettings('security.csrf_enabled');
+        $csrfEnabled = $appSetting ?? $globalSetting ?? true;
+
+        if (!$csrfEnabled) {
+            return $next($request);
+        }
+
         $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
         
         // Only validate state-changing requests

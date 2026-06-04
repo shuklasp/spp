@@ -21,12 +21,25 @@ class RouterFacade
     }
 
     /**
-     * Dispatch an internal request.
+     * Dispatch an internal request or HTTP route.
      */
     public static function dispatch(string $uri, array $params = [])
     {
-        // Delegates to the legacy internal dispatcher for now
-        // Eventually, the full routing engine will be moved into this namespace.
-        return \SPP\Scheduler::setContext($uri);
+        // Set legacy context
+        \SPP\Scheduler::setContext($uri);
+
+        // Try fluent router first for HTTP requests
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            try {
+                return \SPP\Core\Router\Router::dispatch($_SERVER['REQUEST_METHOD'], $uri);
+            } catch (\SPP\Core\SPPException $e) {
+                if ($e->getCode() !== 404) {
+                    throw $e;
+                }
+                // Fallthrough to legacy module routing if not found in fluent router
+            }
+        }
+        
+        return true;
     }
 }

@@ -48,13 +48,19 @@ modules:
             - sppview
             - sppajax
     9:
+        name: sppentity
+        path: spp/sppentity
+        status: active
+        deps:
+            - sppdb
+    10:
         name: parikshak
         path: spp/parikshak
         status: active
         deps:
             - sppdb
             - sppentity
-    10:
+    11:
         name: sppblade
         path: spp/sppblade
         status: active
@@ -79,4 +85,8 @@ modules:
     18:
         name: sppmigrate
         path: spp/sppmigrate
+        status: active
+    19:
+        name: sppsecurity
+        path: spp/sppsecurity
         status: active

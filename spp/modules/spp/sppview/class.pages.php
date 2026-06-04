@@ -626,6 +626,12 @@ class Pages extends \SPP\SPPObject
             return $result;
         }
 
+        // --- Module Asset Discovery ---
+        $result = self::findPageInAssets($q);
+        if ($result !== null) {
+            return $result;
+        }
+
         [$primary, $fallback] = self::getSources($appname);
         $spl = explode('/', $q)[0];
 
@@ -656,6 +662,37 @@ class Pages extends \SPP\SPPObject
         }
 
         return $result;
+    }
+
+    /**
+     * Dynamically maps /modasset/<modname> routes to module asset directories.
+     */
+    private static function findPageInAssets(string $q): ?array
+    {
+        if (strpos($q, 'modasset/') !== 0) {
+            return null;
+        }
+
+        $parts = explode('/', $q);
+        $currentPath = '';
+        foreach ($parts as $part) {
+            $currentPath .= ($currentPath ? '/' : '') . $part;
+            $assetDir = \SPP\Registry::get('__asset_routes=>' . $currentPath);
+            if ($assetDir !== false) {
+                // We found a matching asset route!
+                $remaining = ltrim(substr($q, strlen($currentPath)), '/');
+                return [
+                    'url' => rtrim($assetDir, '/\\') . '/' . ltrim($remaining, '/\\'),
+                    'special' => 1,
+                    'method' => 'serveDirectory',
+                    'context' => [
+                        'base_dir' => rtrim($assetDir, '/\\'),
+                        'relative_path' => ltrim($remaining, '/\\')
+                    ]
+                ];
+            }
+        }
+        return null;
     }
 
     /**

@@ -1089,6 +1089,35 @@ JS;
         sendResponse(true, ['config' => ['global' => $global, 'app' => $app, 'sys' => $sys]], "Config retrieved.");
     }
 
+    if ($action === 'get_global_settings') {
+        $settings = getGlobalSettings();
+        $raw = file_get_contents((defined('SPP_ETC_DIR') ? SPP_ETC_DIR : SPP_BASE_DIR . '/etc') . '/global-settings.yml');
+        sendResponse(true, ['parsed' => $settings, 'raw' => $raw]);
+    }
+
+    if ($action === 'save_global_settings') {
+        $mode = $_POST['mode'] ?? 'form';
+        if ($mode === 'yaml') {
+            $yaml = $_POST['yaml'] ?? '';
+            try {
+                $parsed = \Symfony\Component\Yaml\Yaml::parse($yaml);
+                saveGlobalSettings($parsed);
+                sendResponse(true, [], "Global settings saved via YAML.");
+            } catch (\Exception $e) {
+                sendResponse(false, [], "YAML Parse Error: " . $e->getMessage());
+            }
+        } else {
+            $data = $_POST['data'] ?? '';
+            $parsed = json_decode($data, true);
+            if ($parsed) {
+                saveGlobalSettings($parsed);
+                sendResponse(true, [], "Global settings saved.");
+            } else {
+                sendResponse(false, [], "Invalid JSON data.");
+            }
+        }
+    }
+
     if ($action === 'save_config_value') {
         $key = $_POST['key'] ?? '';
         $value = $_POST['value'] ?? '';

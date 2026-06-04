@@ -14,6 +14,7 @@ class SppEntityQuery
     protected ?string $sort = null;
     protected ?int $limit = null;
     protected ?int $offset = null;
+    protected array $withRelations = [];
 
     /**
      * @param string $entityClass The fully qualified class name of the entity.
@@ -117,6 +118,21 @@ class SppEntityQuery
     }
 
     /**
+     * Set the relations to be eager-loaded.
+     *
+     * @param string|array $relations Name(s) of relations to preload
+     * @return $this
+     */
+    public function with($relations): self
+    {
+        $relations = is_array($relations) ? $relations : func_get_args();
+        foreach ($relations as $rel) {
+            $this->withRelations[] = $rel;
+        }
+        return $this;
+    }
+
+    /**
      * Execute the query and return an array of instantiated entities.
      *
      * @return array
@@ -152,12 +168,127 @@ class SppEntityQuery
             \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
         }
 
+        if (!empty($entities) && !empty($this->withRelations)) {
+            $this->eagerLoadRelations($entities);
+        }
+
         foreach ($entities as $entity) {
             $entity->after_load();
             \SPP\Core\EventManager::trigger('entity:after_load', $entity);
         }
 
         return $entities;
+    }
+
+    /**
+     * Pre-loads relations for the given entities to avoid N+1 queries.
+     * @param array $entities
+     */
+    protected function eagerLoadRelations(array $entities): void
+    {
+        $rels = \SPP\Registry::get('EntityRelations');
+        if (!is_array($rels)) {
+            return;
+        }
+
+        $ids = array_map(function($e) { return $e->getId(); }, $entities);
+        $entitiesById = [];
+        foreach ($entities as $e) {
+            $entitiesById[$e->getId()] = $e;
+        }
+
+        foreach ($this->withRelations as $relName) {
+            foreach ($rels as $rel) {
+                if ($rel['name'] === $relName && ($rel['parent_entity'] === $this->entityClass || $rel['child_entity'] === $this->entityClass)) {
+                    
+                    if ($rel['relation_type'] === 'OneToMany' && $rel['parent_entity'] === $this->entityClass) {
+                        $childClass = $rel['child_entity'];
+                        $childField = $rel['child_entity_field'];
+                        $children = $childClass::query()->condition($childField, $ids, 'IN')->execute();
+                        
+                        // Group children by parent id
+                        $grouped = [];
+                        foreach ($children as $child) {
+                            $parentId = $child->get($childField);
+                            $grouped[$parentId][] = $child;
+                        }
+                        // Assign to parents
+                        foreach ($entitiesById as $id => $parent) {
+                            $parent->setRelatedCache($relName, $grouped[$id] ?? []);
+                        }
+                    }
+
+                    if ($rel['relation_type'] === 'ManyToOne' && $rel['child_entity'] === $this->entityClass) {
+                        $parentClass = $rel['parent_entity'];
+                        $parentField = $rel['parent_entity_field'];
+                        $childField = $rel['child_entity_field']; // the FK on this entity
+                        
+                        $parentIdsToFetch = [];
+                        foreach ($entities as $e) {
+                            $pid = $e->get($childField);
+                            if ($pid) $parentIdsToFetch[] = $pid;
+                        }
+                        $parentIdsToFetch = array_unique($parentIdsToFetch);
+                        
+                        if (!empty($parentIdsToFetch)) {
+                            $parents = $parentClass::query()->condition($parentField, $parentIdsToFetch, 'IN')->execute();
+                            $parentsById = [];
+                            foreach ($parents as $p) {
+                                $parentsById[$p->get($parentField)] = $p;
+                            }
+                            
+                            foreach ($entities as $e) {
+                                $pid = $e->get($childField);
+                                $e->setRelatedCache($relName, $pid && isset($parentsById[$pid]) ? $parentsById[$pid] : null);
+                            }
+                        }
+                    }
+
+                    if ($rel['relation_type'] === 'OneToOne') {
+                        if ($rel['parent_entity'] === $this->entityClass) {
+                            $childClass = $rel['child_entity'];
+                            $childField = $rel['child_entity_field'];
+                            $children = $childClass::query()->condition($childField, $ids, 'IN')->execute();
+                            
+                            $mapped = [];
+                            foreach ($children as $child) {
+                                $parentId = $child->get($childField);
+                                $mapped[$parentId] = $child;
+                            }
+                            foreach ($entitiesById as $id => $parent) {
+                                $parent->setRelatedCache($relName, $mapped[$id] ?? null);
+                            }
+                        } else {
+                            $parentClass = $rel['parent_entity'];
+                            $parentField = $rel['parent_entity_field'];
+                            $childField = $rel['child_entity_field'];
+                            
+                            $parentIdsToFetch = [];
+                            foreach ($entities as $e) {
+                                $pid = $e->get($childField);
+                                if ($pid) $parentIdsToFetch[] = $pid;
+                            }
+                            $parentIdsToFetch = array_unique($parentIdsToFetch);
+                            
+                            if (!empty($parentIdsToFetch)) {
+                                $parents = $parentClass::query()->condition($parentField, $parentIdsToFetch, 'IN')->execute();
+                                $parentsById = [];
+                                foreach ($parents as $p) {
+                                    $parentsById[$p->get($parentField)] = $p;
+                                }
+                                
+                                foreach ($entities as $e) {
+                                    $pid = $e->get($childField);
+                                    $e->setRelatedCache($relName, $pid && isset($parentsById[$pid]) ? $parentsById[$pid] : null);
+                                }
+                            }
+                        }
+                    }
+
+                    break; // Move to next relation in $this->withRelations
+                }
+            }
+        }
     }
 
     /**

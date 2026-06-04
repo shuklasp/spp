@@ -1,8 +1,8 @@
 {
-    "select * from users where id=?": 16,
-    "SHOW TABLES": 74,
-    "SELECT roleid FROM userroles WHERE userid=?": 14,
-    "SELECT id FROM users WHERE username=?": 12,
-    "SELECT name, script, method FROM sppajax_services": 28,
+    "select * from users where id=?": 20,
+    "SHOW TABLES": 92,
+    "SELECT roleid FROM userroles WHERE userid=?": 18,
+    "SELECT id FROM users WHERE username=?": 16,
+    "SELECT name, script, method FROM sppajax_services": 32,
     "SELECT id, username, email, status FROM users": 2
 }

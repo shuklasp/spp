@@ -5,23 +5,70 @@
     <title>Exception: <?php echo $title; ?></title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #0f172a; --surface: #1e293b; --primary: #f43f5e; --text: #f1f5f9; --muted: #94a3b8; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; line-height: 1.6; }
-        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .header { background: var(--surface); padding: 30px; border-radius: 12px; border-left: 6px solid var(--primary); margin-bottom: 30px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
-        .type { font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: var(--primary); font-weight: 700; margin-bottom: 10px; }
-        .message { font-size: 24px; font-weight: 700; margin: 0; }
-        .location { margin-top: 15px; color: var(--muted); font-family: 'Fira Code', monospace; font-size: 14px; }
-        .trace-container { background: var(--surface); padding: 30px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .trace-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        .trace-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
-        .trace-item:last-child { border: none; }
-        .trace-call { font-family: 'Fira Code', monospace; color: #38bdf8; font-weight: 500; }
-        .trace-loc { font-size: 13px; color: var(--muted); margin-top: 5px; }
-        .code-snippet { margin-top: 15px; background: #0b1120; border-radius: 8px; padding: 15px 0; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 13px; border: 1px solid #1e293b; }
-        .code-line { padding: 2px 20px; white-space: pre; color: #e2e8f0; }
-        .error-line { background: rgba(244, 63, 94, 0.2); border-left: 4px solid var(--primary); padding-left: 16px; color: #fff; }
-        .line-num { color: #475569; display: inline-block; width: 40px; user-select: none; }
+        :root { 
+            --bg: #09090b; 
+            --surface: rgba(24, 24, 27, 0.7); 
+            --primary: #f43f5e; 
+            --text: #f4f4f5; 
+            --muted: #a1a1aa; 
+            --border: rgba(255,255,255,0.08);
+            --glow: rgba(244, 63, 94, 0.15);
+        }
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            background-image: radial-gradient(circle at top right, var(--glow), transparent 400px);
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6; 
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 60px auto; padding: 0 20px; animation: fadeUp 0.6s ease-out forwards; opacity: 0; transform: translateY(20px); }
+        .header { 
+            background: var(--surface); 
+            backdrop-filter: blur(12px);
+            padding: 40px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border);
+            border-left: 6px solid var(--primary); 
+            margin-bottom: 40px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+        }
+        .type { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--primary); font-weight: 700; margin-bottom: 15px; }
+        .message { font-size: 28px; font-weight: 700; margin: 0; letter-spacing: -0.5px; line-height: 1.3; }
+        .location { margin-top: 20px; color: var(--muted); font-family: 'Fira Code', monospace; font-size: 14px; background: rgba(0,0,0,0.3); padding: 8px 12px; border-radius: 6px; display: inline-block; }
+        .trace-container { 
+            background: var(--surface); 
+            backdrop-filter: blur(12px);
+            padding: 40px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px -5px rgba(0,0,0,0.3); 
+        }
+        .trace-title { font-size: 20px; font-weight: 600; margin-bottom: 30px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .trace-item { margin-bottom: 25px; padding-bottom: 25px; border-bottom: 1px dashed var(--border); transition: all 0.2s ease; }
+        .trace-item:hover { transform: translateX(5px); }
+        .trace-item:last-child { border: none; margin-bottom: 0; padding-bottom: 0; }
+        .trace-call { font-family: 'Fira Code', monospace; color: #38bdf8; font-weight: 500; font-size: 15px; }
+        .trace-loc { font-size: 13px; color: var(--muted); margin-top: 8px; }
+        .code-snippet { 
+            margin-top: 20px; 
+            background: #000000; 
+            border-radius: 10px; 
+            padding: 20px 0; 
+            overflow-x: auto; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 14px; 
+            border: 1px solid var(--border); 
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+        }
+        .code-line { padding: 4px 20px; white-space: pre; color: #e2e8f0; transition: background 0.2s; }
+        .code-line:hover { background: rgba(255,255,255,0.05); }
+        .error-line { background: rgba(244, 63, 94, 0.15); border-left: 4px solid var(--primary); padding-left: 16px; color: #fff; text-shadow: 0 0 10px rgba(244,63,94,0.4); }
+        .line-num { color: #475569; display: inline-block; width: 45px; user-select: none; border-right: 1px solid #333; margin-right: 15px; }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
