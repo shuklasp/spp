@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAPI;
 
 /**
@@ -13,6 +14,11 @@ class SPPAPI extends \SPP\SPPObject
         }
 
         $entityName = $_GET['entity'] ?? null;
+        if ($entityName === 'docs') {
+            require_once __DIR__ . '/class.apidoccontroller.php';
+            ApiDocController::render();
+            exit;
+        }
         if (!$entityName) {
             self::respond('error', ['message' => 'API parameter required.'], 400);
         }
@@ -22,7 +28,7 @@ class SPPAPI extends \SPP\SPPObject
         // Automatically map physical framework Entities securely correctly natively logically securely cleanly cleanly neatly correctly intelligently expertly correctly.
         try {
             $classMap = $entityName;
-            
+
             // Try namespace fallback if it's a shortname
             if (!class_exists($classMap)) {
                 $appContext = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
@@ -38,7 +44,8 @@ class SPPAPI extends \SPP\SPPObject
                         $reflection = new \ReflectionMethod($classMap, 'loadEntityConfig');
                         $reflection->setAccessible(true);
                         $reflection->invoke(null, $entityName);
-                    } catch(\Exception $e){}
+                    } catch (\Exception $e) {
+                    }
                 }
             }
 
@@ -58,18 +65,18 @@ class SPPAPI extends \SPP\SPPObject
                     } else {
                         $limit = (int)($_GET['limit'] ?? 50);
                         $offset = (int)($_GET['offset'] ?? 0);
-                        
+
                         $instance = new $classMap();
                         if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
                             $instance->setTable(\SPPMod\SPPEntity\SPPEntity::getMetadata('table'));
                         }
-                        
+
                         $db = new \SPPMod\SPPDB\SPPDB();
                         $table = $instance->getTable();
                         $idField = \SPPMod\SPPEntity\SPPEntity::getMetadata('id_field', 'id');
-                        
+
                         $rows = $db->execute_query("SELECT $idField FROM $table LIMIT $limit OFFSET $offset");
-                        
+
                         $entities = [];
                         foreach ($rows as $row) {
                             $entity = new $classMap($row[$idField]);
@@ -83,13 +90,15 @@ class SPPAPI extends \SPP\SPPObject
                         self::respond('ok', ['data' => $entities, 'meta' => ['limit' => $limit, 'offset' => $offset]]);
                     }
                     break;
-                    
+
                 case 'POST':
                     if (!\SPPMod\SPPAuth\SPPAuth::check()) {
                         self::respond('error', ['message' => 'Unauthorized.'], 401);
                     }
                     $input = json_decode(file_get_contents('php://input'), true);
-                    if (!$input) self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+                    if (!$input) {
+                        self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+                    }
 
                     $entity = new $classMap();
                     if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
@@ -113,23 +122,31 @@ class SPPAPI extends \SPP\SPPObject
                         // Wait, SPPEntity has no save() method?? Let's check class.sppdbentity.php.
                         self::respond('error', ['message' => 'Entity does not support saving via standard API.'], 500);
                     }
-                    
+
                     self::respond('ok', ['data' => $entity->jsonSerialize()], 201);
                     break;
-                    
+
                 case 'PATCH':
                 case 'PUT':
-                    if (!\SPPMod\SPPAuth\SPPAuth::check()) self::respond('error', ['message' => 'Unauthorized.'], 401);
-                    if (!$id) self::respond('error', ['message' => 'ID required for update.'], 400);
+                    if (!\SPPMod\SPPAuth\SPPAuth::check()) {
+                        self::respond('error', ['message' => 'Unauthorized.'], 401);
+                    }
+                    if (!$id) {
+                        self::respond('error', ['message' => 'ID required for update.'], 400);
+                    }
 
                     $entity = new $classMap($id);
-                    if (!$entity->getId()) self::respond('error', ['message' => 'Entity not found.'], 404);
+                    if (!$entity->getId()) {
+                        self::respond('error', ['message' => 'Entity not found.'], 404);
+                    }
                     if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('update')) {
                         self::respond('error', ['message' => 'Access denied.'], 403);
                     }
 
                     $input = json_decode(file_get_contents('php://input'), true);
-                    if (!$input) self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+                    if (!$input) {
+                        self::respond('error', ['message' => 'Invalid JSON payload.'], 400);
+                    }
 
                     foreach ($input as $key => $value) {
                         if (!in_array($key, ['id', 'created', 'changed', '_table', 'storage_strategy'])) {
@@ -142,13 +159,19 @@ class SPPAPI extends \SPP\SPPObject
                     }
                     self::respond('ok', ['data' => $entity->jsonSerialize()]);
                     break;
-                    
+
                 case 'DELETE':
-                    if (!\SPPMod\SPPAuth\SPPAuth::check()) self::respond('error', ['message' => 'Unauthorized.'], 401);
-                    if (!$id) self::respond('error', ['message' => 'ID required for deletion.'], 400);
+                    if (!\SPPMod\SPPAuth\SPPAuth::check()) {
+                        self::respond('error', ['message' => 'Unauthorized.'], 401);
+                    }
+                    if (!$id) {
+                        self::respond('error', ['message' => 'ID required for deletion.'], 400);
+                    }
 
                     $entity = new $classMap($id);
-                    if (!$entity->getId()) self::respond('error', ['message' => 'Entity not found.'], 404);
+                    if (!$entity->getId()) {
+                        self::respond('error', ['message' => 'Entity not found.'], 404);
+                    }
                     if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('delete')) {
                         self::respond('error', ['message' => 'Access denied.'], 403);
                     }
@@ -158,7 +181,7 @@ class SPPAPI extends \SPP\SPPObject
                     }
                     self::respond('ok', ['message' => 'Entity deleted successfully.']);
                     break;
-                    
+
                 default:
                     self::respond('error', ['message' => 'Method not allowed.'], 405);
             }
@@ -180,7 +203,7 @@ class SPPAPI extends \SPP\SPPObject
         http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
         header('X-SPP-API-Response: 1');
-        
+
         $payload = array_merge(['status' => $status], $data);
         echo json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
         exit;

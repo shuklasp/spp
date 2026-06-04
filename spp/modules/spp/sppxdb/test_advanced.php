@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Comprehensive test script for SPP XDB Module v2
  */
@@ -11,7 +12,7 @@ echo "=== SPP XDB Advanced Verification ===\n\n";
 
 try {
     $xdb = new SPP_XDB('test_advanced');
-    
+
     // 1. Schema & Auto-ID
     echo "1. Testing Schema & Auto-ID...\n";
     $xdb->querySQL("CREATE TABLE products (id int, name varchar, category varchar, price int)");
@@ -20,7 +21,7 @@ try {
     $xdb->querySQL("INSERT INTO products (name, category, price) VALUES ('Shirt', 'Apparel', 25)");
     $xdb->querySQL("INSERT INTO products (name, category, price) VALUES ('Pants', 'Apparel', 45)");
     $xdb->querySQL("INSERT INTO products (name, category, price) VALUES ('Watch', 'Electronics', 200)");
-    
+
     $results = $xdb->querySQL("SELECT * FROM products");
     echo "   Last Insert ID: " . $xdb->lastInsertId() . "\n";
     echo "   Total products: " . count($results) . "\n";
@@ -43,7 +44,7 @@ try {
     echo "\n4. Testing LIKE & IN...\n";
     $like = $xdb->querySQL("SELECT name FROM products WHERE name LIKE 'P%'");
     echo "   Names starting with P: " . implode(', ', array_column($like, 'name')) . "\n";
-    
+
     $in = $xdb->querySQL("SELECT name FROM products WHERE category IN ('Apparel')");
     echo "   Apparel items: " . implode(', ', array_column($in, 'name')) . "\n";
 
@@ -100,7 +101,7 @@ try {
     $start = microtime(true);
     $xdb->querySQL("SELECT * FROM products");
     $first = microtime(true) - $start;
-    
+
     $start = microtime(true);
     $xdb->querySQL("SELECT * FROM products");
     $second = microtime(true) - $start;

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -40,33 +41,74 @@ class Queue
 {
     protected static string $table = 'spp_jobs';
 
-    /**
-     * Dispatch a job to the queue.
-     */
     public static function push(Job $job, int $delay = 0): bool
     {
-        $payload = serialize($job);
-        
-        // Use standard DB connection through SPPEntity or direct SQL
-        // MOCK: For this implementation, we'll use a simple file-based queue if DB table isn't ready
-        // But for "General Purpose", we'll assume a DB is available.
-        
+        $payload = base64_encode(serialize($job));
         try {
-            // Logic to insert into 'spp_jobs' table
-            // INSERT INTO spp_jobs (payload, available_at, created_at) VALUES (...)
-            return true; 
+            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $availableAt = time() + $delay;
+                $db->exec("CREATE TABLE IF NOT EXISTS " . self::$table . " (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    payload LONGTEXT NOT NULL,
+                    attempts INT DEFAULT 0,
+                    reserved_at INT NULL,
+                    available_at INT NOT NULL,
+                    created_at INT NOT NULL
+                )");
+                $db->execute_query("INSERT INTO " . self::$table . " (payload, available_at, created_at) VALUES (?, ?, ?)", [$payload, $availableAt, time()]);
+                return true;
+            }
         } catch (\Exception $e) {
-            return false;
+            error_log("Queue push failed: " . $e->getMessage());
         }
+        return false;
     }
 
     /**
      * Peek at the next job in the queue.
+     * @return array|null
      */
-    public static function pop(): ?Job
+    public static function pop(): ?array
     {
-        // SELECT * FROM spp_jobs WHERE available_at <= NOW() LIMIT 1
+        try {
+            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $db->exec("START TRANSACTION");
+                
+                $now = time();
+                $sql = "SELECT id, payload FROM " . self::$table . " WHERE reserved_at IS NULL AND available_at <= $now ORDER BY id ASC LIMIT 1 FOR UPDATE";
+                $res = $db->query($sql);
+                
+                if (!empty($res) && isset($res[0])) {
+                    $jobRow = $res[0];
+                    $db->execute_query("UPDATE " . self::$table . " SET reserved_at = ?, attempts = attempts + 1 WHERE id = ?", [$now, $jobRow['id']]);
+                    $db->exec("COMMIT");
+                    
+                    $job = unserialize(base64_decode($jobRow['payload']));
+                    if ($job instanceof Job) {
+                        return ['id' => $jobRow['id'], 'job' => $job];
+                    }
+                }
+                $db->exec("COMMIT");
+            }
+        } catch (\Exception $e) {
+            error_log("Queue pop failed: " . $e->getMessage());
+        }
         return null;
+    }
+
+    /**
+     * Mark a job as complete.
+     */
+    public static function complete(int $id): void
+    {
+        try {
+            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $db->execute_query("DELETE FROM " . self::$table . " WHERE id = ?", [$id]);
+            }
+        } catch (\Exception $e) {}
     }
 
     /**

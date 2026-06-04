@@ -28,6 +28,19 @@ if (!function_exists('live_Core_ListApps')) {
 
         foreach ($allAppNames as $d) {
             $meta = $registry[$d] ?? [];
+            
+            // Look for app.yml in the app's directory to find app-specific admin_menu definitions
+            $appYmlPath = SPP_APP_DIR . '/' . $d . '/etc/app.yml';
+            $adminMenu = [];
+            if (file_exists($appYmlPath)) {
+                try {
+                    $appMeta = \Symfony\Component\Yaml\Yaml::parseFile($appYmlPath);
+                    if (!empty($appMeta['admin_menu']) && is_array($appMeta['admin_menu'])) {
+                        $adminMenu = $appMeta['admin_menu'];
+                    }
+                } catch (\Exception $e) {}
+            }
+
             $apps[] = [
                 'name' => $d,
                 'title' => $meta['admin_title'] ?? ucfirst($d),
@@ -36,7 +49,8 @@ if (!function_exists('live_Core_ListApps')) {
                 'db_config' => !empty($meta['db_config']),
                 'base_url' => $meta['base_url'] ?? '/' . $d,
                 'table_prefix' => $meta['table_prefix'] ?? '',
-                'shared_group' => $meta['shared_group'] ?? null
+                'shared_group' => $meta['shared_group'] ?? null,
+                'admin_menu' => $adminMenu
             ];
         }
 

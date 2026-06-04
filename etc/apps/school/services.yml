@@ -1,0 +1,11 @@
+################################################################################
+# SPP Service Registry (Manual)
+# Register your services here to bypass dynamic discovery overhead.
+# Syntax:
+# services:
+#   - name: MyService
+#     script: src/school/serv/MyService.php
+#     method: POST
+################################################################################
+
+services: []

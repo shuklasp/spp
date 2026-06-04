@@ -1,5 +1,7 @@
 <?php
+
 namespace SPPMod\SPPView;
+
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -49,14 +51,14 @@ class Pages extends \SPP\SPPObject
     private static function getSources(string $appname = null): array
     {
         $appname = $appname ?: \SPP\Scheduler::getContext();
-        
+
         if (isset(self::$sourceAppCache[$appname])) {
             return self::$sourceAppCache[$appname];
         }
 
         $dbAvailable = \SPP\Module::isEnabled('sppdb');
 
-        $primary  = \SPP\Module::getConfig('page_source_primary',  'sppview', $appname) ?: 'yaml';
+        $primary  = \SPP\Module::getConfig('page_source_primary', 'sppview', $appname) ?: 'yaml';
         $fallback = \SPP\Module::getConfig('page_source_fallback', 'sppview', $appname) ?: 'none';
 
         // Normalize aliases
@@ -66,8 +68,12 @@ class Pages extends \SPP\SPPObject
 
         // Silently demote DB to 'none' when sppdb is not loaded
         if (!$dbAvailable) {
-            if ($primary  === 'db') $primary  = 'yaml';
-            if ($fallback === 'db') $fallback = 'none';
+            if ($primary  === 'db') {
+                $primary  = 'yaml';
+            }
+            if ($fallback === 'db') {
+                $fallback = 'none';
+            }
         }
 
         self::$sourceAppCache[$appname] = [$primary, $fallback];
@@ -81,10 +87,10 @@ class Pages extends \SPP\SPPObject
     {
         $appname = $appname ?: \SPP\Scheduler::getContext();
         $etcPath = \SPP\App::getAppConf('etc_path', $appname);
-        
+
         if ($etcPath) {
-            $base = (str_starts_with($etcPath, '/') || str_contains($etcPath, ':')) 
-                ? rtrim($etcPath, '/\\') 
+            $base = (str_starts_with($etcPath, '/') || str_contains($etcPath, ':'))
+                ? rtrim($etcPath, '/\\')
                 : SPP_APP_DIR . SPP_DS . rtrim($etcPath, '/\\');
             $file = $base . SPP_DS . 'pages.yml';
             if (!file_exists($file) && file_exists($base . SPP_DS . 'routes.yml')) {
@@ -99,9 +105,13 @@ class Pages extends \SPP\SPPObject
 
         if (!file_exists($file)) {
             $legacyFile = APP_ETC_DIR . SPP_DS . 'pages.yml';
-            if (file_exists($legacyFile)) return $legacyFile;
+            if (file_exists($legacyFile)) {
+                return $legacyFile;
+            }
             $legacyRoutes = APP_ETC_DIR . SPP_DS . 'routes.yml';
-            if (file_exists($legacyRoutes)) return $legacyRoutes;
+            if (file_exists($legacyRoutes)) {
+                return $legacyRoutes;
+            }
         }
         return $file;
     }
@@ -113,7 +123,7 @@ class Pages extends \SPP\SPPObject
     private static function getYaml(string $ymlFile = null): array
     {
         $ymlFile = $ymlFile ?: self::getAppPagesFile();
-        
+
         if (isset(self::$yamlFileCache[$ymlFile])) {
             return self::$yamlFileCache[$ymlFile];
         }
@@ -218,7 +228,7 @@ class Pages extends \SPP\SPPObject
     private static function getDb(string $appname = null): array
     {
         $appname = $appname ?: \SPP\Scheduler::getContext();
-        
+
         if (isset(self::$dbAppCache[$appname])) {
             return self::$dbAppCache[$appname];
         }
@@ -262,9 +272,9 @@ class Pages extends \SPP\SPPObject
     {
         $appname = $appname ?: \SPP\Scheduler::getContext();
         $ymlFile = $ymlFile ?: self::getAppPagesFile($appname);
-        
+
         $yaml = self::getYaml($ymlFile);
-        
+
         // Handle empty routes by falling back to the 'home' setting
         if ($q === '' && isset($yaml['home'])) {
             $q = (string)$yaml['home'];
@@ -276,7 +286,7 @@ class Pages extends \SPP\SPPObject
 
         // 1. Exact match has absolute priority
         if (isset($yaml['pages'][$q])) {
-             return self::processRoute($q, $yaml['pages'][$q], $q, $appname, $ymlFile);
+            return self::processRoute($q, $yaml['pages'][$q], $q, $appname, $ymlFile);
         }
 
         // 1.5. Pattern match for routes with placeholders (e.g., {id})
@@ -307,14 +317,14 @@ class Pages extends \SPP\SPPObject
 
         if (!empty($matches)) {
             // Sort by key length descending to find the most specific match
-            uksort($matches, function($a, $b) {
+            uksort($matches, function ($a, $b) {
                 return strlen($b) <=> strlen($a);
             });
-            
+
             reset($matches);
             $bestName = key($matches);
             $bestConfig = current($matches);
-            
+
             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] DEBUG: Longest match routing: Picked '{$bestName}' for request '{$q}'\n", FILE_APPEND);
             return self::processRoute($bestName, $bestConfig, $q, $appname, $ymlFile);
         }
@@ -365,12 +375,12 @@ class Pages extends \SPP\SPPObject
             $pg['controller'] = $route['controller'];
             return $pg;
         }
-        
+
         // Case E: Asset Directory Support
         if (isset($route['assets'])) {
             $resolvedAssets = self::resolveInternalPath($route['assets'], $modulePath, $appname);
             return [
-                'url' => $resolvedAssets . '/' . $remaining, 
+                'url' => $resolvedAssets . '/' . $remaining,
                 'special' => 1,
                 'method' => 'serveDirectory',
                 'context' => [
@@ -400,7 +410,7 @@ class Pages extends \SPP\SPPObject
             // Convert absolute module path to relative path from SPP_APP_DIR
             $root = realpath(SPP_APP_DIR);
             $mod  = realpath($modulePath);
-            
+
             if ($root && $mod && stripos($mod, $root) === 0) {
                 $rel = ltrim(substr($mod, strlen($root)), '/\\');
                 return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
@@ -413,11 +423,11 @@ class Pages extends \SPP\SPPObject
         $appname = $appname ?: \SPP\Scheduler::getContext();
         $app = \SPP\App::getApp($appname);
         $srcDir = $app->getAppSrcDir();
-        
+
         // Convert absolute src directory to relative path from SPP_APP_DIR
         $root = realpath(SPP_APP_DIR);
         $src  = realpath($srcDir);
-        
+
         if ($root && $src && stripos($src, $root) === 0) {
             $rel = ltrim(substr($src, strlen($root)), '/\\');
             return str_replace('\\', '/', $rel) . '/' . ltrim($path, '/\\');
@@ -448,7 +458,7 @@ class Pages extends \SPP\SPPObject
     private static function findPageInEntities(string $q, string $appname = null): ?array
     {
         $entities = \SPPMod\SPPDB\SPPDB::getRouteEntities();
-        
+
         if (empty($entities)) {
             return null;
         }
@@ -458,7 +468,7 @@ class Pages extends \SPP\SPPObject
         foreach ($entities as $table => $e) {
             $field = $e['field'] ?? 'alias';
             $url   = $e['url'] ?? '';
-            
+
             if (empty($url)) {
                 continue;
             }
@@ -497,7 +507,9 @@ class Pages extends \SPP\SPPObject
 
         $pg['named_params'] = [];
         foreach ($_GET as $parm => $value) {
-            if ($parm === 'q') continue;
+            if ($parm === 'q') {
+                continue;
+            }
             $pg['named_params'][$parm] = $value;
         }
 
@@ -565,19 +577,34 @@ class Pages extends \SPP\SPPObject
         $appname = \SPP\Scheduler::getContext();
 
         $result = self::resolvePage($q, $appname);
-        
+
         if ($result !== null) {
             return $result;
         }
 
         // --- Physical Discovery Fallback ---
-        // If no route is defined, try to find the file in the app source directory
+        // 1. Check auto-routing 'pages/' directory
+        $pageExts = ['.php', '.html', '.vue'];
+        foreach ($pageExts as $ext) {
+            $autoRoutePath = 'pages/' . ltrim($q, '/');
+            if (!str_ends_with($autoRoutePath, $ext) && !str_contains($autoRoutePath, '.')) {
+                $autoRoutePath .= $ext;
+            }
+            $resolvedAuto = self::resolveInternalPath($autoRoutePath, null, $appname);
+            if (file_exists(SPP_APP_DIR . SPP_DS . $resolvedAuto)) {
+                return self::buildPage($q, $resolvedAuto, $q);
+            }
+        }
+
+        // 2. Legacy fallback to app root
         $fallbackPath = $q;
-        if (!str_ends_with($fallbackPath, '.php')) $fallbackPath .= '.php';
-        
+        if (!str_ends_with($fallbackPath, '.php')) {
+            $fallbackPath .= '.php';
+        }
+
         $resolvedFallback = self::resolveInternalPath($fallbackPath, null, $appname);
         if (file_exists(SPP_APP_DIR . SPP_DS . $resolvedFallback)) {
-             return self::buildPage($q, $resolvedFallback, $q);
+            return self::buildPage($q, $resolvedFallback, $q);
         }
 
         // --- Not found ---
@@ -595,7 +622,9 @@ class Pages extends \SPP\SPPObject
     {
         // --- Dynamic Registered Routes ---
         $result = self::findPageInDynamicRoutes($q, $appname);
-        if ($result !== null) return $result;
+        if ($result !== null) {
+            return $result;
+        }
 
         [$primary, $fallback] = self::getSources($appname);
         $spl = explode('/', $q)[0];
@@ -603,21 +632,29 @@ class Pages extends \SPP\SPPObject
         // --- Specials ---
         $result = self::trySourceSpecial($primary, $spl, $q, $appname)
                ?? self::trySourceSpecial($fallback, $spl, $q, $appname);
-        if ($result !== null) return $result;
+        if ($result !== null) {
+            return $result;
+        }
 
         // --- Regular pages ---
         $result = self::trySourcePage($primary, $q, $appname, $ymlFile)
                ?? self::trySourcePage($fallback, $q, $appname, $ymlFile);
-        if ($result !== null) return $result;
+        if ($result !== null) {
+            return $result;
+        }
 
         // --- Module Route Discovery ---
         $result = self::findPageInModules($q, $appname);
-        if ($result !== null) return $result;
+        if ($result !== null) {
+            return $result;
+        }
 
         // --- App Config Route Discovery ---
         $result = self::findPageInAppConfig($q, $appname);
-        if ($result !== null) return $result;
-        
+        if ($result !== null) {
+            return $result;
+        }
+
         return $result;
     }
 
@@ -627,7 +664,9 @@ class Pages extends \SPP\SPPObject
     private static function findPageInModules(string $q, ?string $appname): ?array
     {
         $mods = \SPP\Registry::get('__modobj');
-        if (!is_array($mods)) return null;
+        if (!is_array($mods)) {
+            return null;
+        }
 
         foreach ($mods as $mod) {
             if (isset($mod->Routes) && is_array($mod->Routes)) {
@@ -647,7 +686,9 @@ class Pages extends \SPP\SPPObject
     private static function findPageInAppConfig(string $q, ?string $appname): ?array
     {
         $appRoutes = \SPP\App::getAppConf('routes', $appname);
-        if (!is_array($appRoutes)) return null;
+        if (!is_array($appRoutes)) {
+            return null;
+        }
 
         foreach ($appRoutes as $name => $cfg) {
             if ($q === $name || strpos($q, $name . '/') === 0) {
@@ -659,15 +700,23 @@ class Pages extends \SPP\SPPObject
 
     private static function trySourceSpecial(string $source, string $spl, string $q, string $appname = null): ?array
     {
-        if ($source === 'yaml') return self::findSpecialInYaml($spl, $q, $appname);
-        if ($source === 'db')   return self::findSpecialInDb($spl, $q, $appname);
+        if ($source === 'yaml') {
+            return self::findSpecialInYaml($spl, $q, $appname);
+        }
+        if ($source === 'db') {
+            return self::findSpecialInDb($spl, $q, $appname);
+        }
         return null;
     }
 
     private static function trySourcePage(string $source, string $q, string $appname, string $ymlFile = null): ?array
     {
-        if ($source === 'yaml') return self::findPageInYaml($q, $appname, $ymlFile);
-        if ($source === 'db')   return self::findPageInDb($q, $appname);
+        if ($source === 'yaml') {
+            return self::findPageInYaml($q, $appname, $ymlFile);
+        }
+        if ($source === 'db') {
+            return self::findPageInDb($q, $appname);
+        }
         return null;
     }
 
@@ -702,8 +751,12 @@ class Pages extends \SPP\SPPObject
 
     private static function trySourceDefault(string $source, string $def): ?string
     {
-        if ($source === 'yaml') return self::findDefaultInYaml($def);
-        if ($source === 'db')   return self::findDefaultInDb($def);
+        if ($source === 'yaml') {
+            return self::findDefaultInYaml($def);
+        }
+        if ($source === 'db') {
+            return self::findDefaultInDb($def);
+        }
         return null;
     }
 
@@ -743,7 +796,7 @@ class Pages extends \SPP\SPPObject
         $base = $context['base_dir'] ?? '';
         $rel  = $context['relative_path'] ?? '';
         $file = rtrim($base, '/\\') . '/' . ltrim($rel, '/\\');
-        
+
         return self::serveFile($file, $q);
     }
 
@@ -752,7 +805,7 @@ class Pages extends \SPP\SPPObject
         $fullPath = (str_contains($file, ':') || str_starts_with($file, '/') || str_starts_with($file, '\\'))
             ? $file
             : SPP_APP_DIR . '/' . ltrim($file, '/\\');
-        
+
         if (!file_exists($fullPath)) {
             $fullPath = SPP_APP_DIR . '/' . ltrim($file, '/\\');
         }
@@ -772,18 +825,18 @@ class Pages extends \SPP\SPPObject
                 'txt'  => 'text/plain',
                 'pdf'  => 'application/pdf',
                 'woff' => 'font/woff',
-                'woff2'=> 'font/woff2',
+                'woff2' => 'font/woff2',
                 'ttf'  => 'font/ttf'
             ];
 
             $mime = $mimes[$ext] ?? 'application/octet-stream';
             header("Content-Type: $mime");
             header("Content-Length: " . filesize($fullPath));
-            
+
             // Set cache headers for assets
             header("Cache-Control: public, max-age=31536000");
             header("Expires: " . gmdate('D, d M Y H:i:s \G\M\T', time() + 31536000));
-            
+
             readfile($fullPath);
             exit;
         }
@@ -932,9 +985,11 @@ class Pages extends \SPP\SPPObject
         if ($source === 'yaml') {
             $appname = \SPP\Scheduler::getContext();
             $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
-            
+
             $yaml = file_exists($file) ? Yaml::parseFile($file) : ['pages' => [], 'defaults' => [], 'specials' => []];
-            if (!isset($yaml['pages'])) $yaml['pages'] = [];
+            if (!isset($yaml['pages'])) {
+                $yaml['pages'] = [];
+            }
 
             $updated = false;
             foreach ($yaml['pages'] as &$p) {
@@ -944,13 +999,13 @@ class Pages extends \SPP\SPPObject
                     break;
                 }
             }
-            
+
             if (!$updated) {
                 $yaml['pages'][] = ['name' => $name, 'url' => $url];
             }
-            
+
             file_put_contents($file, Yaml::dump($yaml, 4, 2));
-        } else if ($source === 'db') {
+        } elseif ($source === 'db') {
             self::ensureDbSchema();
             $db = new \SPPMod\SPPDB\SPPDB();
             $db->execute_query(
@@ -958,7 +1013,7 @@ class Pages extends \SPP\SPPObject
                 [$name, $url]
             );
         }
-        
+
         self::clearCache();
         return true;
     }
@@ -971,18 +1026,24 @@ class Pages extends \SPP\SPPObject
         if ($source === 'yaml') {
             $appname = \SPP\Scheduler::getContext();
             $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
-            if (!file_exists($file)) return false;
+            if (!file_exists($file)) {
+                return false;
+            }
 
             $yaml = Yaml::parseFile($file);
-            if (!isset($yaml['pages'])) return false;
+            if (!isset($yaml['pages'])) {
+                return false;
+            }
 
             $oldCount = count($yaml['pages']);
-            $yaml['pages'] = array_values(array_filter($yaml['pages'], fn($p) => ($p['name'] ?? '') !== $name));
-            
-            if (count($yaml['pages']) === $oldCount) return false;
+            $yaml['pages'] = array_values(array_filter($yaml['pages'], fn ($p) => ($p['name'] ?? '') !== $name));
+
+            if (count($yaml['pages']) === $oldCount) {
+                return false;
+            }
 
             file_put_contents($file, Yaml::dump($yaml, 4, 2));
-        } else if ($source === 'db') {
+        } elseif ($source === 'db') {
             self::ensureDbSchema();
             $db = new \SPPMod\SPPDB\SPPDB();
             $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_pages') . ' WHERE name=?', [$name]);

@@ -1,5 +1,7 @@
 <?php
+
 namespace SPP;
+
 /**
  * class SPPUtils
  * Provides some utility functions for SPP.
@@ -7,25 +9,29 @@ namespace SPP;
  * @author Satya Prakash Shukla
  */
 // require_once 'class.sppobject.php';
-class SPPUtils extends \SPP\SPPObject {
-    public static function valueIn(array $array, $value) {
-        return in_array($value,$array);
+class SPPUtils extends \SPP\SPPObject
+{
+    public static function valueIn(array $array, $value)
+    {
+        return in_array($value, $array);
     }
 
-    public static function valueNotIn(array $array, $value) {
-        return !in_array($value,$array);
+    public static function valueNotIn(array $array, $value)
+    {
+        return !in_array($value, $array);
     }
 
     /**
      * public static function strleft(string $s1, string $s2)
-     * 
+     *
      */
-    static function strleft($s1, $s2)
+    public static function strleft($s1, $s2)
     {
         return substr($s1, 0, strpos($s1, $s2));
     }
 
-    static function selfURL() {
+    public static function selfURL()
+    {
         $s = empty($_SERVER["HTTPS"]) ? ''
                 : (($_SERVER["HTTPS"] == "on") ? "s"
                 : "");
@@ -35,35 +41,37 @@ class SPPUtils extends \SPP\SPPObject {
         return $protocol."://".$_SERVER['SERVER_NAME'].$port.$_SERVER['REQUEST_URI'];
     }
 
-    public static function xml2phpArray($xml, $arr = array()) {
+    public static function xml2phpArray($xml, $arr = [])
+    {
         foreach ($xml->attributes() as $attr => $val) {
             $arr[$attr] = (string)$val;
         }
-        
+
         $iter = 0;
         foreach ($xml->children() as $b) {
             $a = $b->getName();
             if (!$b->children()) {
                 $arr[$a] = trim((string)$b[0]);
             } else {
-                $arr[$a][$iter] = self::xml2phpArray($b, array());
+                $arr[$a][$iter] = self::xml2phpArray($b, []);
             }
             $iter++;
         }
         return $arr;
     }
 
-    public static function str_replace_count($search,$replace,$subject,$times) {
-        $subject_original=$subject;
-        $len=strlen($search);
-        $pos=0;
-        for ($i=1;$i<=$times;$i++) {
-            $pos=strpos($subject,$search,$pos);
-            if($pos!==false) {
-                $subject=substr($subject_original,0,$pos);
-                $subject.=$replace;
-                $subject.=substr($subject_original,$pos+$len);
-                $subject_original=$subject;
+    public static function str_replace_count($search, $replace, $subject, $times)
+    {
+        $subject_original = $subject;
+        $len = strlen($search);
+        $pos = 0;
+        for ($i = 1;$i <= $times;$i++) {
+            $pos = strpos($subject, $search, $pos);
+            if ($pos !== false) {
+                $subject = substr($subject_original, 0, $pos);
+                $subject .= $replace;
+                $subject .= substr($subject_original, $pos + $len);
+                $subject_original = $subject;
             } else {
                 break;
             }

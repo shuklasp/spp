@@ -9,14 +9,15 @@ namespace SPPMod\SPPView;
  */
 // require_once 'class.sppvalidator.php';
 
-abstract class SPP_Multiple_Validator extends ViewValidator {
-    protected $elements=array();
+abstract class SPP_Multiple_Validator extends ViewValidator
+{
+    protected $elements = [];
 
     public function __construct(array $elems, $errorholder = 'nameerror', $msg = 'Validation error', $jsfunc = 'undefined')
     {
         parent::__construct(null, $errorholder, $msg, $jsfunc);
         $this->elements = $elems;
-        
+
         foreach ($this->elements as $elem) {
             $id = $elem->getAttribute('id');
             if ($id) {
@@ -31,18 +32,15 @@ abstract class SPP_Multiple_Validator extends ViewValidator {
 
     public function getJsFunction(): string
     {
-        $jsarr='[';
-        foreach($this->elements as $elem)
-        {
-            if(strlen($jsarr)>1)
-            {
-                $jsarr.=',';
+        $jsarr = '[';
+        foreach ($this->elements as $elem) {
+            if (strlen($jsarr) > 1) {
+                $jsarr .= ',';
             }
-            $jsarr.='\''.$elem->getAttribute('id').'\'';
+            $jsarr .= '\''.$elem->getAttribute('id').'\'';
         }
-        $jsarr.=']';
-        $fn=$this->jsfunc.'(\''.$this->errorholder.'\',\''.$this->msg.'\','.$jsarr.')';
+        $jsarr .= ']';
+        $fn = $this->jsfunc.'(\''.$this->errorholder.'\',\''.$this->msg.'\','.$jsarr.')';
         return $fn;
     }
 }
-?>

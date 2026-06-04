@@ -168,7 +168,7 @@ class ViewValidator extends \SPP\SPPObject
 
     /**
      * Entry point for server-side validation.
-     * 
+     *
      * @param array|null $data Optional data array (defaults to $_POST)
      * @param array $rules Optional rules array [field => [rule1, rule2]]
      * @return \SPPMod\SPPView\ValidationResult
@@ -177,7 +177,7 @@ class ViewValidator extends \SPP\SPPObject
     {
         $data = $data ?? $_POST;
         $this->lastResult = new \SPPMod\SPPView\ValidationResult();
-        
+
         if (!empty($rules)) {
             foreach ($rules as $field => $fieldRules) {
                 $value = $data[$field] ?? null;
@@ -210,7 +210,7 @@ class ViewValidator extends \SPP\SPPObject
     {
         $params = [];
         $name = '';
-        
+
         if (is_array($rule)) {
             $name = strtolower($rule['type'] ?? '');
             $params = $rule;
@@ -218,7 +218,9 @@ class ViewValidator extends \SPP\SPPObject
             $parts = explode(':', $rule);
             $name = strtolower($parts[0]);
             $paramStr = $parts[1] ?? null;
-            if ($paramStr) $params['value'] = $paramStr;
+            if ($paramStr) {
+                $params['value'] = $paramStr;
+            }
         }
 
         $map = [
@@ -255,22 +257,33 @@ class ViewValidator extends \SPP\SPPObject
 
         if (isset($map[$name]) && class_exists($map[$name])) {
             $class = $map[$name];
-            
+
             // Handle complex constructors if needed, or set properties
             $instance = new $class();
-            
+
             if (!empty($params)) {
                 foreach ($params as $k => $v) {
-                    if ($k === 'message') { $instance->msg = $v; continue; }
-                    if (property_exists($instance, $k)) $instance->$k = $v;
+                    if ($k === 'message') {
+                        $instance->msg = $v;
+                        continue;
+                    }
+                    if (property_exists($instance, $k)) {
+                        $instance->$k = $v;
+                    }
                 }
-                
+
                 // Positional / rule-string compatibility
                 $p = $params['value'] ?? null;
                 if ($p !== null) {
-                    if ($name === 'min') $instance->minlength = (int)$p;
-                    if ($name === 'max') $instance->maxlength = (int)$p;
-                    if ($name === 'regex') $instance->pattern = $p;
+                    if ($name === 'min') {
+                        $instance->minlength = (int)$p;
+                    }
+                    if ($name === 'max') {
+                        $instance->maxlength = (int)$p;
+                    }
+                    if ($name === 'regex') {
+                        $instance->pattern = $p;
+                    }
                     if ($name === 'range') {
                         $range = explode('-', $p);
                         $instance->min = (float)($range[0] ?? 0);
@@ -292,7 +305,7 @@ class ViewValidator extends \SPP\SPPObject
     /**
      * Fallback for base class.
      */
-    
+
     /**
      * Gets the error message.
      */

@@ -50,21 +50,6 @@ class Renderer
     {
         $output = null;
         
-        // Try Drishyam Theming Engine first
-        if (class_exists('\SPPMod\Drishyam\Drishyam')) {
-            $drishyam = \SPPMod\Drishyam\Drishyam::getInstance();
-            $drishyam->boot();
-            
-            // Resolve base data for all themes
-            $data['app_context'] = \SPP\Scheduler::getContext();
-            
-            try {
-                $output = \SPPMod\Drishyam\Drishyam::render($templateName, $data);
-            } catch (\Exception $e) {
-                // Fallback to native logic if theme-specific render fails
-                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] DRISHYAM ERROR: " . $e->getMessage() . "\n", FILE_APPEND);
-            }
-        }
 
         if ($output === null) {
             $app = \SPP\App::getApp();
@@ -120,17 +105,6 @@ class Renderer
             foreach ($this->filters as $filter) {
                 $filter->postProcess($output, $context);
             }
-        } else {
-            // Run post-processing on Drishyam's rendered output
-            $context = [
-                'path' => $templateName,
-                'type' => 'drishyam',
-                'data' => $data
-            ];
-            foreach ($this->filters as $filter) {
-                $filter->postProcess($output, $context);
-            }
-        }
 
         // Bridge site-wide themes using event_spp_view_render_theme to guarantee dynamic runtime theme wrappers apply
         $reqUri = $_SERVER['REQUEST_URI'] ?? '';

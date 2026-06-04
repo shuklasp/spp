@@ -1,0 +1,7 @@
+{
+    "mobile": {
+        "title": "Mobile Studio",
+        "icon": "📱",
+        "component": "views/mobile.js"
+    }
+}

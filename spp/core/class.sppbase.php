@@ -1,9 +1,11 @@
 <?php
+
 namespace SPP;
+
 /*require_once 'class.sppsession.php';
 require_once 'sppsystemexceptions.php';
 require_once 'sppconstants.php';*/
-/* 
+/*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -13,7 +15,8 @@ require_once 'sppconstants.php';*/
  *
  * @author Satya Prakash Shukla
  */
-class SPPBase extends \SPP\SPPObject {
+class SPPBase extends \SPP\SPPObject
+{
     /*public static function useModule($modname)
     {
         switch($modname)
@@ -46,17 +49,15 @@ class SPPBase extends \SPP\SPPObject {
 
     public static function initSession()
     {
-        if(!SPPSession::sessionExists())
-        {
-            $ssn=new SPPSession();
-            $_SESSION['sppsession']=serialize($ssn);
+        if (!SPPSession::sessionExists()) {
+            $ssn = new SPPSession();
+            $_SESSION['sppsession'] = serialize($ssn);
         }
     }
 
     public static function killSession()
     {
-        if(SPPSession::sessionExists())
-        {
+        if (SPPSession::sessionExists()) {
             unset($_SESSION['sppsession']);
             session_destroy();
         }
@@ -108,4 +109,3 @@ class SPPBase extends \SPP\SPPObject {
         return \SPP\Cache::driver();
     }
 }
-?>

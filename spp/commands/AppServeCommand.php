@@ -33,6 +33,11 @@ class AppServeCommand extends Command
         echo "------------------------------\n";
         echo "Press Ctrl+C to stop.\n\n";
 
+        // Launch HMR Server on Port + 1
+        $hmrPort = $port + 1;
+        $hmrCmd = "start /b php -S localhost:{$hmrPort} hmr.php";
+        exec($hmrCmd);
+
         // Use PHP's built-in server as the primary driver for Native/Blade
         $cmd = "php -S localhost:{$port} -t {$root}";
         passthru($cmd);

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -15,8 +16,9 @@ class MiddlewareKernel
      */
     public static function boot()
     {
-        if (self::$isInitialized)
+        if (self::$isInitialized) {
             return;
+        }
 
         // 1. Load from Registry (Programmatic registration)
         $registered = \SPP\Registry::get('__middleware=>global') ?: [];

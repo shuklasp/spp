@@ -1,5 +1,7 @@
 <?php
+
 namespace SPPMod\SPPView;
+
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -24,7 +26,7 @@ class Forms extends \SPP\SPPObject
         if (self::$yamlCache === null) {
             $appname = \SPP\Scheduler::getContext();
             $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'forms.yml';
-            
+
             if (!file_exists($file)) {
                 // Fallback to legacy location (APP_ETC_DIR/forms.yml)
                 $legacyFile = APP_ETC_DIR . SPP_DS . 'forms.yml';
@@ -35,7 +37,7 @@ class Forms extends \SPP\SPPObject
                     return [];
                 }
             }
-            
+
             try {
                 self::$yamlCache = Yaml::parseFile($file) ?? [];
             } catch (\Symfony\Component\Yaml\Exception\ParseException $e) {

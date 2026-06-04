@@ -1,0 +1,14 @@
+<style>
+    .externalcomponent-container {
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="externalcomponent-container">
+    <h2>ExternalComponent</h2>
+    <p>${state.message}</p>
+    <button class="btn btn-primary" @click="${() => this.notify('Clicked!', 'success')}">Click Me</button>
+</div>

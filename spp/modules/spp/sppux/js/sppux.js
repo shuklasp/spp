@@ -306,7 +306,11 @@ export class BaseComponent {
 
     setState(newState) {
         if (this.isDisposed) return;
-        this.state = { ...this.state, ...newState };
+        if (typeof newState === 'function') {
+            this.state = { ...this.state, ...newState(this.state) };
+        } else {
+            this.state = { ...this.state, ...newState };
+        }
         this.update();
     }
 
@@ -412,6 +416,22 @@ export class BaseComponent {
             // Register handlers from the rendered template and claim from global pool
             const claimedIds = new Set();
             temp.querySelectorAll('*').forEach(el => {
+                // Automagic Two-Way Data Binding for Novice DX
+                if (el.hasAttribute('spp-model')) {
+                    const key = el.getAttribute('spp-model');
+                    if (el.type === 'checkbox') {
+                        el.checked = !!this.state[key];
+                        const eventId = `evt_model_${Math.random().toString(36).substr(2, 9)}`;
+                        this._handlers.set(eventId, (e) => this.setState({ [key]: e.target.checked }));
+                        el.setAttribute('data-spp-evt-change', eventId);
+                    } else {
+                        el.value = this.state[key] !== undefined ? this.state[key] : '';
+                        const eventId = `evt_model_${Math.random().toString(36).substr(2, 9)}`;
+                        this._handlers.set(eventId, (e) => this.setState({ [key]: e.target.value }));
+                        el.setAttribute('data-spp-evt-input', eventId);
+                    }
+                }
+
                 for (const attr of el.attributes) {
                     if (attr.name.startsWith('data-spp-evt')) {
                         const id = attr.value;
@@ -434,12 +454,14 @@ export class BaseComponent {
             }
 
             // Reconcile new virtual DOM with actual DOM
-            console.log(`[BaseComponent] Updating ${this.constructor.name}...`);
             if (this.container) {
+                console.log(`[BaseComponent] Updating ${this.constructor.name}...`);
                 this._snapshots.push(this.container.innerHTML);
                 if (this._snapshots.length > 10) this._snapshots.shift();
+                this._reconcile(this.container, temp);
+            } else {
+                console.log(`[BaseComponent] Skipping DOM update for ${this.constructor.name} (no container)`);
             }
-            this._reconcile(this.container, temp);
             this.afterUpdate();
         } finally {
             this._isRendering = false;
@@ -855,12 +877,6 @@ export const SPPUX = {
     BaseComponent,
     SPPForm,
     api: async (action, params = {}) => {
-        if (window.admin && typeof window.admin.api === 'function') {
-            return await window.admin.api(action, params);
-        }
-        if (window.app && typeof window.app.api === 'function') {
-            return await window.app.api(action, params);
-        }
         const url = new URL(window.LEKHAK_CONFIG?.apiBase || window.spp_config?.apiBase || 'api.php', window.location.origin);
         url.searchParams.append('action', action);
         const res = await fetch(url.toString(), {
@@ -871,12 +887,6 @@ export const SPPUX = {
         return await res.json();
     },
     apiPost: async (data) => {
-        if (window.admin && typeof window.admin.apiPost === 'function') {
-            return await window.admin.apiPost(data);
-        }
-        if (window.app && typeof window.app.apiPost === 'function') {
-            return await window.app.apiPost(data);
-        }
         let action = 'custom';
         let body = data;
         let headers = {};
@@ -911,8 +921,12 @@ export const SPPUX = {
                 
                 // Find all components that could handle this event
                 for (const comp of this._components) {
-                    // Check if component container still exists in DOM
-                    if (!document.contains(comp.container)) {
+                    // Check if component container still exists in DOM (if it has one)
+                    if (comp.container && !document.contains(comp.container)) {
+                        this._components.delete(comp);
+                        continue;
+                    }
+                    if (!comp.container && comp.isDisposed) {
                         this._components.delete(comp);
                         continue;
                     }
@@ -1486,7 +1500,7 @@ function initHtmlDirectives() {
                     dest.innerHTML = res.html;
                     console.log(`[SPPUX Directives] Populated payload successfully into target: ${targetSelector}`);
                     
-                    if (transition) setTimeout(() => dest.classList.remove(`spp-transition-${transition}`), 300);
+                    if (transition) setTimeout(() => dest.classList.remove(`spp-transition-${transition}`), 100);
                 }
             }
 
@@ -1592,3 +1606,20 @@ if (document.readyState === 'loading') {
 } else {
     initHtmlDirectives();
 }
+
+/**
+ * Universal Mount Function for SPPUX Standalone Usage
+ * @param {typeof BaseComponent} ComponentClass 
+ * @param {HTMLElement} container 
+ * @returns {BaseComponent}
+ */
+export const mount = (ComponentClass, container) => {
+    const instance = new ComponentClass(null, container, {});
+    const p = instance.onInit();
+    if (p instanceof Promise) {
+        p.then(() => instance.update());
+    } else {
+        instance.update();
+    }
+    return instance;
+};

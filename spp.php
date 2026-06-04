@@ -1,8 +1,8 @@
 #!/usr/bin/env php
 <?php
 /**
- * SPP Enterprise CLI Gateway
- * This script initializes the modernized CommandManager framework, serving as the central proxy.
+ * SPP Enterprise CLI Gateway & Polyglot Bridge
+ * This script initializes the modernized CommandManager framework, serving as the central proxy for PHP and foreign languages (Go, Python, Java, etc).
  */
 
 if (php_sapi_name() !== 'cli') {

@@ -9,7 +9,10 @@ export default class ParikshakView extends BaseComponent {
             loading: false,
             running: false,
             results: null,
-            appname: this.selectedApp || 'default'
+            appname: this.selectedApp || 'default',
+            testEndpoint: '/school1/api/v1/',
+            testPayload: '{\n  "action": "ping"\n}',
+            testResponse: ''
         };
     }
 
@@ -93,6 +96,52 @@ export default class ParikshakView extends BaseComponent {
         }
     }
 
+    async sendTestRequest() {
+        const url = this.state.testEndpoint;
+        const payloadStr = this.state.testPayload;
+        let payload = null;
+
+        if (payloadStr.trim()) {
+            try {
+                payload = JSON.parse(payloadStr);
+            } catch (e) {
+                this.setState({ testResponse: 'Error: Invalid JSON Payload\n' + e.message });
+                return;
+            }
+        }
+
+        this.setState({ testResponse: 'Sending request...' });
+        try {
+            const options = {
+                method: payload ? 'POST' : 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            };
+            if (payload) options.body = JSON.stringify(payload);
+
+            const startTime = performance.now();
+            const res = await fetch(url, options);
+            const endTime = performance.now();
+            const timeMs = Math.round(endTime - startTime);
+
+            let data;
+            try {
+                data = await res.json();
+            } catch (e) {
+                data = await res.text();
+            }
+
+            const responseStr = `Status: ${res.status} ${res.statusText} (${timeMs}ms)\n\n` + 
+                (typeof data === 'object' ? JSON.stringify(data, null, 2) : data);
+                
+            this.setState({ testResponse: responseStr });
+        } catch (e) {
+            this.setState({ testResponse: 'Network Error:\n' + e.message });
+        }
+    }
+
     render() {
         const { running, results, appname } = this.state;
 
@@ -129,6 +178,30 @@ export default class ParikshakView extends BaseComponent {
                     <div style="margin-top:2rem; display:flex; gap:10px; justify-content:center;">
                         <span class="tag info-tag">Shadow DB: Enabled</span>
                         <span class="tag success-tag">Isolation: spptest__</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel" style="margin-top: 2rem; padding: 1.5rem; display: flex; gap: 2rem;">
+                    <div style="flex: 1;">
+                        <h3>Interactive API Runner</h3>
+                        <p style="opacity:0.7; font-size: 0.9rem; margin-bottom: 1rem;">Test Auto-APIs and Polyglot Services directly</p>
+                        
+                        <div class="input-group">
+                            <label>Endpoint / Route</label>
+                            <input type="text" value="${this.state.testEndpoint}" @change=${e => this.state.testEndpoint = e.target.value} class="form-control" placeholder="/api/v1/user">
+                        </div>
+                        
+                        <div class="input-group">
+                            <label>JSON Payload (Leave empty for GET)</label>
+                            <textarea class="form-control" style="font-family: monospace; height: 120px;" @change=${e => this.state.testPayload = e.target.value}>${this.state.testPayload}</textarea>
+                        </div>
+                        
+                        <button class="btn accent-btn" @click=${() => this.sendTestRequest()}>🚀 Send Request</button>
+                    </div>
+                    
+                    <div style="flex: 1; display: flex; flex-direction: column;">
+                        <h3>Response Console</h3>
+                        <pre style="flex-grow: 1; background: rgba(0,0,0,0.3); border-radius: 8px; padding: 1rem; color: #0f0; border: 1px solid rgba(255,255,255,0.1); overflow-y: auto; white-space: pre-wrap; font-size: 0.9rem; margin-top: 1rem;">${this.state.testResponse || 'Awaiting request...'}</pre>
                     </div>
                 </div>
             ` : ''}

@@ -89,6 +89,17 @@ if (!defined('SPP_VER')) {
     require_once $composer_autoload;
   }
 
+  // Load .env configuration
+  $envFile = SPP_APP_DIR . SPP_DS . '.env';
+  if (file_exists($envFile) && class_exists('\SPP\Core\DotEnvLoader')) {
+      \SPP\Core\DotEnvLoader::load($envFile);
+  }
+
+  // Register modern ignition-style error handler
+  if (class_exists('\SPP\Core\SPPErrorHandler')) {
+      \SPP\Core\SPPErrorHandler::register();
+  }
+
   /**
    * Include core files.
    */
@@ -171,6 +182,13 @@ if (!defined('SPP_VER')) {
         return true;
       }
       
+      // Fallback: strip underscores for legacy names (e.g. SPP_Logger -> class.spplogger.php)
+      $legacyFileNoUnderscore = $modDir . SPP_DS . 'class.' . str_replace('_', '', strtolower($class)) . '.php';
+      if (file_exists($legacyFileNoUnderscore)) {
+        require_once $legacyFileNoUnderscore;
+        return true;
+      }
+      
       $interfaceFile = $modDir . SPP_DS . 'int.' . strtolower($class) . '.php';
       if (file_exists($interfaceFile)) {
         require_once $interfaceFile;
@@ -205,6 +223,16 @@ if (!defined('SPP_VER')) {
       $parts = explode('\\', $class_name);
       array_shift($parts); // Remove SPP
       $file = SPP_BASE_DIR . SPP_DS . implode(SPP_DS, $parts) . '.php';
+      if (file_exists($file)) {
+        require_once $file;
+      }
+    }
+  });
+
+  // Polyfill PSR Autoloader
+  spl_autoload_register(function ($class_name) {
+    if (strpos($class_name, 'Psr\\') === 0) {
+      $file = SPP_BASE_DIR . SPP_DS . 'lib' . SPP_DS . str_replace('\\', SPP_DS, $class_name) . '.php';
       if (file_exists($file)) {
         require_once $file;
       }

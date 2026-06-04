@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -21,7 +22,7 @@ class Storage
         // For now, only local disk is supported
         $disk = new LocalDisk();
         self::$disks[$name] = $disk;
-        
+
         return $disk;
     }
 
@@ -70,7 +71,9 @@ class LocalDisk implements DiskInterface
     {
         $fullPath = $this->getFullPath($path);
         $dir = dirname($fullPath);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         return file_put_contents($fullPath, $contents) !== false;
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP;
 
 use Symfony\Component\Yaml\Yaml;
@@ -42,7 +43,7 @@ class App extends \SPP\SPPObject
 
         $settings = self::getGlobalSettings();
         $this->_attributes['type'] = $settings['apps'][$appname]['type'] ?? 'native';
-        
+
         if ($init_level >= 4) {
             $this->errobj = new SPPError($handleerror);
         }
@@ -61,7 +62,7 @@ class App extends \SPP\SPPObject
         }
 
         \SPP\SPPEvent::registerEvent('event_spp_app_init');
-        \SPP\SPPEvent::fireEvent('event_spp_app_init', $this, function($app) {
+        \SPP\SPPEvent::fireEvent('event_spp_app_init', $this, function ($app) {
             // Default init: do nothing
         });
         if ($init_level >= 2) {
@@ -97,7 +98,7 @@ class App extends \SPP\SPPObject
         $this->log_dir   = $resolveAppPath(self::getAppConf('log_path', $appname), $varPath . '/logs');
         $this->cache_dir = $resolveAppPath(self::getAppConf('cache_path', $appname), $varPath . '/cache');
         $this->tmp_dir   = $resolveAppPath(self::getAppConf('tmp_path', $appname), $varPath . '/tmp');
-        
+
         $this->conf_dir = $this->getAppConfDir();
         $this->mod_dir  = $resolveAppPath(self::getAppConf('modules_path', $appname), 'modules');
     }
@@ -123,15 +124,17 @@ class App extends \SPP\SPPObject
         if ($settings === null) {
             $path = SPP_ETC_DIR . '/global-settings.yml';
             $settings = file_exists($path) ? Yaml::parseFile($path) : [];
-            
+
             // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
-            if (!isset($settings['apps'])) $settings['apps'] = [];
+            if (!isset($settings['apps'])) {
+                $settings['apps'] = [];
+            }
 
             // Skip discovery if explicitly requested (e.g. for lightweight XDB operations)
             if (defined('SPP_SKIP_DISCOVERY') && SPP_SKIP_DISCOVERY) {
                 return $settings;
             }
-            
+
             $srcDir = defined('SPP_APP_DIR') ? SPP_APP_DIR . '/src' : null;
             if ($srcDir && is_dir($srcDir)) {
                 $dirs = array_diff(scandir($srcDir), ['.', '..']);
@@ -150,14 +153,18 @@ class App extends \SPP\SPPObject
                                         $appSettings[$pk] = 'src/' . $d . '/' . trim($val, '/\\');
                                     }
                                 }
-                                
+
                                 // Default src_path if still empty
-                                if (empty($appSettings['src_path'])) $appSettings['src_path'] = 'src/' . $d;
+                                if (empty($appSettings['src_path'])) {
+                                    $appSettings['src_path'] = 'src/' . $d;
+                                }
                                 // Default etc_path if still empty
-                                if (empty($appSettings['etc_path'])) $appSettings['etc_path'] = 'src/' . $d . '/etc';
+                                if (empty($appSettings['etc_path'])) {
+                                    $appSettings['etc_path'] = 'src/' . $d . '/etc';
+                                }
 
                                 $settings['apps'][$d] = $appSettings;
-                                error_log("SPP Discovery: Found dynamic app '$d' at $appYml");
+                                // error_log("SPP Discovery: Found dynamic app '$d' at $appYml");
                             }
                         } catch (\Exception $e) {
                             error_log("SPP Discovery Error: Failed to parse $appYml: " . $e->getMessage());
@@ -165,7 +172,7 @@ class App extends \SPP\SPPObject
                     }
                 }
             } else {
-                error_log("SPP Discovery: srcDir not found or invalid: " . ($srcDir ?: 'NULL'));
+                // error_log("SPP Discovery: srcDir not found or invalid: " . ($srcDir ?: 'NULL'));
             }
 
         }
@@ -218,12 +225,30 @@ class App extends \SPP\SPPObject
         return $this->app_status;
     }
 
-    public function getLogDir(): string { return $this->log_dir; }
-    public function getCacheDir(): string { return $this->cache_dir; }
-    public function getTmpDir(): string { return $this->tmp_dir; }
-    public function getConfDir(): string { return $this->conf_dir; }
-    public function getModDir(): string { return $this->mod_dir; }
-    public function getDataDir(): string { return $this->data_dir; }
+    public function getLogDir(): string
+    {
+        return $this->log_dir;
+    }
+    public function getCacheDir(): string
+    {
+        return $this->cache_dir;
+    }
+    public function getTmpDir(): string
+    {
+        return $this->tmp_dir;
+    }
+    public function getConfDir(): string
+    {
+        return $this->conf_dir;
+    }
+    public function getModDir(): string
+    {
+        return $this->mod_dir;
+    }
+    public function getDataDir(): string
+    {
+        return $this->data_dir;
+    }
 
     /**
      * Resolves a path. If relative, it is resolved relative to $baseDir.
@@ -231,8 +256,12 @@ class App extends \SPP\SPPObject
      */
     public function resolvePath(?string $path, string $baseDir = ''): string
     {
-        if (empty($path)) return $baseDir;
-        if ($baseDir === '') $baseDir = SPP_APP_DIR;
+        if (empty($path)) {
+            return $baseDir;
+        }
+        if ($baseDir === '') {
+            $baseDir = SPP_APP_DIR;
+        }
 
         // Normalize both to avoid mismatches
         $path = str_replace('\\', '/', $path);
@@ -252,12 +281,12 @@ class App extends \SPP\SPPObject
 
         // 2. Relative to baseDir
         $res = rtrim($baseDir, '/') . '/' . ltrim($path, '/');
-        
+
         // Final normalization for WSL if needed
         if ($isWsl && strlen($res) > 1 && $res[1] === ':') {
             $res = '/mnt/' . strtolower($res[0]) . substr($res, 2);
         }
-        
+
         return $res;
     }
 
@@ -266,12 +295,12 @@ class App extends \SPP\SPPObject
         $appname = $this->_attributes['appname'];
         $etcPath = self::getAppConf('etc_path', $appname);
         if ($etcPath !== null && $etcPath !== '') {
-            // If etc_path already contains the app directory prefix (discovery side-effect or explicit), 
+            // If etc_path already contains the app directory prefix (discovery side-effect or explicit),
             // resolve from SPP_APP_DIR instead of getAppSrcDir() to avoid double nesting
             if (str_starts_with($etcPath, 'src/') || str_starts_with($etcPath, '/src/')) {
                 return $this->resolvePath($etcPath, SPP_APP_DIR);
             }
-            
+
             // Absolute/rooted app paths are resolved from SPP_APP_DIR.
             if (str_starts_with($etcPath, '/') || str_starts_with($etcPath, '\\') || str_starts_with($etcPath, 'etc/')) {
                 return $this->resolvePath($etcPath, SPP_APP_DIR);
@@ -279,17 +308,17 @@ class App extends \SPP\SPPObject
             // Relative to src otherwise
             return $this->resolvePath($etcPath, $this->getAppSrcDir());
         }
-        
-        // Fallback: If src_path is set, use etc/ inside src dir. 
+
+        // Fallback: If src_path is set, use etc/ inside src dir.
         // Otherwise use global APP_ETC_DIR fallback.
         $srcPath = self::getAppConf('src_path', $appname);
         if ($srcPath !== null && $srcPath !== '') {
             return $this->resolvePath('etc', $this->getAppSrcDir());
         }
-        
+
         return APP_ETC_DIR . SPP_DS . $appname;
     }
-    
+
     public function getModsConfDir(): string
     {
         $appname = $this->_attributes['appname'];
@@ -297,7 +326,7 @@ class App extends \SPP\SPPObject
         if ($modsConfPath !== null && $modsConfPath !== '') {
             return $this->resolvePath($modsConfPath, SPP_APP_DIR);
         }
-        
+
         // Default to modsconf subfolder in the resolved conf dir
         return $this->getAppConfDir() . SPP_DS . 'modsconf';
     }
@@ -335,7 +364,9 @@ class App extends \SPP\SPPObject
     public static function killSession(): void
     {
         $ssname = self::getSessionName();
-        if (SPPSession::sessionExists()) unset($_SESSION[$ssname]);
+        if (SPPSession::sessionExists()) {
+            unset($_SESSION[$ssname]);
+        }
     }
 
     public static function getSessionName(): string

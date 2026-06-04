@@ -12709,3 +12709,4 @@
 {"timestamp":1779171341.837144,"table":"lek_nodes","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/default\/lek_nodes.xml"}}
 {"timestamp":1779171341.899878,"table":"lek_node_access","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/default\/lek_node_access.xml"}}
 {"timestamp":1779171341.945633,"table":"lek_node_access","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/default\/lek_node_access.xml"}}
+{"timestamp":1780193257.062535,"table":"sppconfig","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/default\/sppconfig.xml"}}

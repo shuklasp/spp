@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Verification script for SPP XDB Migration System
  */
@@ -13,12 +14,12 @@ echo "=== SPP XDB Migration Verification ===\n\n";
 try {
     $xdb = new SPP_XDB('test_migrations');
     $mgr = new MigrationManager($xdb);
-    
+
     // 1. Create a migration
     echo "1. Creating a migration...\n";
     $file = $mgr->create('create_test_table');
     echo "   Migration created: " . basename($file) . "\n";
-    
+
     // Fill the migration
     $content = "<?php
 use SPPMod\SPPXDB\SPP_XDB;
@@ -37,7 +38,7 @@ return new class {
     echo "\n2. Running migrations...\n";
     $count = $mgr->migrate();
     echo "   Executed $count migration(s).\n";
-    
+
     if ($xdb->tableExists('migration_test')) {
         echo "   [CONFIRMED] Table 'migration_test' created.\n";
     }
@@ -51,7 +52,7 @@ return new class {
     echo "\n4. Testing rollback...\n";
     $rbCount = $mgr->rollback();
     echo "   Rolled back $rbCount migration(s).\n";
-    
+
     if (!$xdb->tableExists('migration_test')) {
         echo "   [CONFIRMED] Table 'migration_test' dropped.\n";
     }

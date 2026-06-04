@@ -1,49 +1,41 @@
 <?php
-// login.php - Login page for Virtual Shiksha Vidyala
-?>
-<html lang="en">
+// src/pages/login.php
 
+$authForm = current(array_filter([
+    class_exists('App\Default\Components\AuthForm') ? new \App\Default\Components\AuthForm($_GET) : null,
+    class_exists('App\Spp\Components\AuthForm') ? new \App\Spp\Components\AuthForm($_GET) : null
+]));
+
+if (!$authForm) {
+    // Ensure the class is loaded if standard autoload didn't find it (which it should have)
+    require_once SPP_APP_DIR . '/src/default/components/AuthForm.php';
+    $authForm = new \App\Default\Components\AuthForm($_GET);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Virtual Shiksha Vidyala - Login</title>
-    <link rel="stylesheet" href="res/css/styles.css">
+    <title>Authentication</title>
+    <!-- MDB5 CSS for premium aesthetics -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.0.0/mdb.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #508bfc; }
+    </style>
 </head>
-
 <body>
-    <?php
-    //$db=new SPPMod\SPPDB\SPPDB();
-    ?>
-    <div class="loading" style="display: none;">Loading...</div>
     <header>
-        <div class="header-content">
-            <img src="res/img/logo.png" alt="Virtual Shiksha Vidyala Logo" class="logo">
-            <div class="user-actions">
-                <button onclick="window.location.href='index.php'">Go to Home</button>
-            </div>
+        <div class="header-content text-center py-4">
+            <h1 class="text-white">Virtual Shiksha Vidyala</h1>
         </div>
     </header>
 
-    <div class="container login-container">
-        <main>
-            <h1>Login</h1>
-            <p>Please enter your credentials to log in.</p>
-            <form class="submission-form" data-action="login">
-                <div class="form-group">
-                    <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <button type="submit">Login</button>
-            </form>
-            <div class="form-response"></div>
-        </main>
+    <div class="main-content">
+        <?php echo $authForm->render(); ?>
     </div>
 
-    <script src="res/js/script.js"></script>
+    <!-- MDB5 JS -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.0.0/mdb.umd.min.js"></script>
 </body>
-
 </html>

@@ -16,21 +16,21 @@ class MakeUXComponentCommand extends BaseMakeCommand
     public function execute(array $args): void
     {
         $name = null;
+        $useExternalTemplate = false;
         
         // Robust argument resolution (handles --Name=Login, --name=Login, or Login)
         foreach ($args as $i => $arg) {
             if (strpos(strtolower($arg), '--name=') === 0) {
                 $name = substr($arg, 7);
-                break;
-            }
-            // If it's the 3rd argument (index 2) and NOT a flag, it's the name
-            if ($i === 2 && strpos($arg, '--') !== 0) {
+            } elseif ($arg === '--template=external') {
+                $useExternalTemplate = true;
+            } elseif ($i === 2 && strpos($arg, '--') !== 0) {
                 $name = $arg;
             }
         }
 
         if (!$name || strpos($name, '--') === 0) {
-            echo "Usage: php spp.php make:ux-component <ComponentName>\n";
+            echo "Usage: php spp.php make:ux-component <ComponentName> [--template=external]\n";
             return;
         }
 
@@ -39,13 +39,70 @@ class MakeUXComponentCommand extends BaseMakeCommand
         
         $className = ucfirst($name);
         $filePath = $targetDir . "/" . $className . ".js";
+        $htmlFilePath = $targetDir . "/" . strtolower($className) . ".html";
 
         if (file_exists($filePath)) {
             echo "Error: Component {$name} already exists.\n";
             return;
         }
 
-        $js = <<<'JS'
+        if ($useExternalTemplate) {
+            $js = <<<'JS'
+/**
+ * Component: {{CLASS_NAME}}
+ * Generated via SPP CLI
+ */
+export default class {{CLASS_NAME}} extends BaseComponent {
+    async onInit() {
+        // Fetch external HTML template if not already in DOM
+        const tplId = `spp-tpl-${this.constructor.name.toLowerCase()}`;
+        if (!document.getElementById(tplId)) {
+            try {
+                // Fetch template relative to the current script or base URL
+                const res = await fetch(`${this.app.config.baseUrl}/src/{{CONTEXT}}/comp/{{FILE_NAME}}.html`);
+                const htmlText = await res.text();
+                const div = document.createElement('template');
+                div.id = tplId;
+                div.innerHTML = htmlText;
+                document.body.appendChild(div);
+            } catch (e) {
+                console.error("Failed to load external template for {{CLASS_NAME}}", e);
+            }
+        }
+
+        // Initialize Local State (ALWAYS use this.setState to mutate)
+        this.setState({
+            loading: false,
+            message: 'External Template Loaded!'
+        });
+    }
+
+    render() {
+        // BaseComponent automatically looks for <template id="spp-tpl-classname">
+        // if render() returns an empty Fragment.
+        return Fragment; 
+    }
+}
+JS;
+            $html = <<<'HTML'
+<style>
+    .{{LOWER_CLASS}}-container {
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+</style>
+
+<div class="{{LOWER_CLASS}}-container">
+    <h2>{{CLASS_NAME}}</h2>
+    <p>${state.message}</p>
+    <button class="btn btn-primary" @click="${() => this.notify('Clicked!', 'success')}">Click Me</button>
+</div>
+HTML;
+            $html = str_replace(['{{CLASS_NAME}}', '{{LOWER_CLASS}}'], [$className, strtolower($className)], $html);
+        } else {
+            $js = <<<'JS'
 /**
  * Component: {{CLASS_NAME}}
  * Generated via SPP CLI
@@ -55,6 +112,7 @@ class MakeUXComponentCommand extends BaseMakeCommand
  */
 export default class {{CLASS_NAME}} extends BaseComponent {
     async onInit() {
+        // ALWAYS use this.setState() to trigger reactivity
         this.setState({
             activeTab: 'roadmap',
             showcase: [
@@ -100,8 +158,8 @@ export default class {{CLASS_NAME}} extends BaseComponent {
                 </header>
 
                 <nav class="ux-tabs">
-                    <button class="ux-tab-btn ${activeTab === 'roadmap' ? 'active' : ''}" onclick=${() => this.setState({ activeTab: 'roadmap' })}>🗺️ Roadmap</button>
-                    <button class="ux-tab-btn ${activeTab === 'capabilities' ? 'active' : ''}" onclick=${() => this.setState({ activeTab: 'capabilities' })}>🚀 Capabilities</button>
+                    <button class="ux-tab-btn ${activeTab === 'roadmap' ? 'active' : ''}" @click=${() => this.setState({ activeTab: 'roadmap' })}>🗺️ Roadmap</button>
+                    <button class="ux-tab-btn ${activeTab === 'capabilities' ? 'active' : ''}" @click=${() => this.setState({ activeTab: 'capabilities' })}>🚀 Capabilities</button>
                 </nav>
 
                 <main>
@@ -112,7 +170,7 @@ export default class {{CLASS_NAME}} extends BaseComponent {
                                 <div class="step-content">
                                     <h3>Scaffold</h3>
                                     <p>Initialize your reactive component using the SPP CLI. This generates a boilerplate with state management and lifecycle hooks.</p>
-                                    <div class="code-hint">php spp.php make:ux-component ${this.name}</div>
+                                    <div class="code-hint">php spp.php make:ux-component ${this.constructor.name}</div>
                                 </div>
                             </div>
                             <div class="roadmap-item">
@@ -127,8 +185,8 @@ export default class {{CLASS_NAME}} extends BaseComponent {
                                 <div class="step-num">3</div>
                                 <div class="step-content">
                                     <h3>Integrate</h3>
-                                    <p>Register your component in <code>admin.js</code> or call it directly from Blade templates to bridge the frontend and backend.</p>
-                                    <div class="code-hint">@sppelement('${this.name}')</div>
+                                    <p>Register your component in <code>routes.json</code> or embed it to bridge the frontend and backend.</p>
+                                    <div class="code-hint">&lt;spp-element name="${this.constructor.name}"&gt;&lt;/spp-element&gt;</div>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +207,13 @@ export default class {{CLASS_NAME}} extends BaseComponent {
     }
 }
 JS;
-        $js = str_replace('{{CLASS_NAME}}', $className, $js);
+        }
+        
+        $js = str_replace(
+            ['{{CLASS_NAME}}', '{{CONTEXT}}', '{{FILE_NAME}}'], 
+            [$className, $context, strtolower($className)], 
+            $js
+        );
         
         if (!is_dir(dirname($filePath))) {
             mkdir(dirname($filePath), 0777, true);
@@ -157,5 +221,10 @@ JS;
         
         file_put_contents($filePath, $js);
         echo "Success: SPP-UX component {$className} created at {$filePath}\n";
+
+        if ($useExternalTemplate) {
+            file_put_contents($htmlFilePath, $html);
+            echo "Success: External HTML template created at {$htmlFilePath}\n";
+        }
     }
 }

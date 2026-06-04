@@ -1,0 +1,12 @@
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\bin\Debug\net9.0\SppClient.deps.json
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\bin\Debug\net9.0\SppClient.dll
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\bin\Debug\net9.0\SppClient.pdb
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.GeneratedMSBuildEditorConfig.editorconfig
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.AssemblyInfoInputs.cache
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.AssemblyInfo.cs
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.csproj.CoreCompileInputs.cache
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.sourcelink.json
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.dll
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\refint\SppClient.dll
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\SppClient.pdb
+C:\projects\apache\school1\spp\lib\dotnet\SppClient\obj\Debug\net9.0\ref\SppClient.dll

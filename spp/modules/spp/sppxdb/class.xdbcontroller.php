@@ -6,10 +6,12 @@ namespace SPPMod\SPPXDB;
  * Class XdbController
  * Provides RESTful access to XML Database tables.
  */
-class XdbController {
+class XdbController
+{
     protected $xdb;
 
-    public function handleRequest($dbName, $tableName) {
+    public function handleRequest($dbName, $tableName)
+    {
         $method = $_SERVER['REQUEST_METHOD'];
         $this->xdb = new SPP_XDB($dbName, $tableName);
 
@@ -18,7 +20,7 @@ class XdbController {
                 $where = $_GET['where'] ?? null;
                 $results = $this->xdb->querySQL("SELECT * FROM $tableName" . ($where ? " WHERE $where" : ""));
                 return $results;
-            
+
             case 'POST':
                 $data = json_decode(file_get_contents('php://input'), true);
                 if ($this->xdb->insert($data)) {
@@ -29,7 +31,9 @@ class XdbController {
             case 'PUT':
                 $data = json_decode(file_get_contents('php://input'), true);
                 $where = $_GET['where'] ?? null;
-                if (!$where) return ['error' => 'WHERE clause required for update'];
+                if (!$where) {
+                    return ['error' => 'WHERE clause required for update'];
+                }
                 if ($this->xdb->update($data, $where)) {
                     return ['status' => 'success'];
                 }
@@ -37,7 +41,9 @@ class XdbController {
 
             case 'DELETE':
                 $where = $_GET['where'] ?? null;
-                if (!$where) return ['error' => 'WHERE clause required for delete'];
+                if (!$where) {
+                    return ['error' => 'WHERE clause required for delete'];
+                }
                 if ($this->xdb->delete($where)) {
                     return ['status' => 'success'];
                 }

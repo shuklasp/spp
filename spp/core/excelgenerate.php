@@ -1,7 +1,8 @@
 <?php
+
 /**
  * Triggers browser download for Excel content.
- * 
+ *
  * @param string $filename The desired name of the export file (without .xls extension)
  */
 function ExcelGenerate(string $filename = 'report'): void

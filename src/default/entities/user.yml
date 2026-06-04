@@ -1,0 +1,12 @@
+table: users
+id_field: id
+extends: Person
+login_enabled: true
+enable_api: true
+attributes:
+  username: varchar(50)
+  email: varchar(255)
+  password_hash: varchar(255)
+  role_id: int
+relations:
+  - { type: belongsTo, entity: Role, field: role_id }

@@ -1,8 +1,11 @@
 <?php
+
 namespace SPPMod\SPPMigrate\Api;
 
-class Sender {
-    public static function handle(string $path): void {
+class Sender
+{
+    public static function handle(string $path): void
+    {
         header('Content-Type: application/json; charset=utf-8');
 
         if (str_ends_with($path, '/sender/ping')) {
@@ -21,11 +24,12 @@ class Sender {
         exit;
     }
 
-    private static function getTargetConnection(): \SPPMod\SPPMigrate\Deployer\TargetConnection {
+    private static function getTargetConnection(): \SPPMod\SPPMigrate\Deployer\TargetConnection
+    {
         $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
         $url = $input['target_url'] ?? '';
         $key = $input['api_key'] ?? '';
-        
+
         if (empty($url)) {
             echo json_encode(['status' => 'error', 'message' => 'Missing target_url']);
             exit;
@@ -34,7 +38,8 @@ class Sender {
         return new \SPPMod\SPPMigrate\Deployer\TargetConnection($url, $key);
     }
 
-    private static function handlePing(): void {
+    private static function handlePing(): void
+    {
         try {
             $conn = self::getTargetConnection();
             $resp = $conn->ping();
@@ -45,13 +50,14 @@ class Sender {
         exit;
     }
 
-    private static function handleDiff(): void {
+    private static function handleDiff(): void
+    {
         try {
             $conn = self::getTargetConnection();
-            
+
             $scanner = new \SPPMod\SPPMigrate\Scanner\ProjectScanner();
             $fileHashes = $scanner->scan(SPP_BASE_DIR);
-            
+
             $dbScanner = new \SPPMod\SPPMigrate\Scanner\DbScanner();
             $dbHashes = $dbScanner->scan();
 
@@ -68,7 +74,8 @@ class Sender {
         exit;
     }
 
-    private static function handleDeploy(): void {
+    private static function handleDeploy(): void
+    {
         try {
             $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
             $payload = $input['payload'] ?? null;
@@ -80,7 +87,7 @@ class Sender {
             $conn = self::getTargetConnection();
 
             $filesToProcess = array_merge($payload['files']['create'] ?? [], $payload['files']['update'] ?? []);
-            
+
             if (count($filesToProcess) <= 10) {
                 $filesContent = [];
                 foreach ($filesToProcess as $path) {
@@ -108,7 +115,7 @@ class Sender {
 
             $dbSchemas = [];
             $tablesToProcess = array_merge($payload['db']['create'] ?? [], $payload['db']['update'] ?? []);
-            
+
             $db = new \SPPMod\SPPDB\SPPDB();
             $pdo = $db->getPDO();
             $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
@@ -118,11 +125,15 @@ class Sender {
                 if ($driver === 'sqlite') {
                     $stmt = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$actualTable}'");
                     $row = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : null;
-                    if ($row) $dbSchemas[$table] = $row['sql'];
+                    if ($row) {
+                        $dbSchemas[$table] = $row['sql'];
+                    }
                 } else {
                     $stmt = $pdo->query("SHOW CREATE TABLE {$actualTable}");
                     $row = $stmt ? $stmt->fetch(\PDO::FETCH_ASSOC) : null;
-                    if ($row) $dbSchemas[$table] = $row['Create Table'];
+                    if ($row) {
+                        $dbSchemas[$table] = $row['Create Table'];
+                    }
                 }
             }
             $payload['db_schema'] = $dbSchemas;

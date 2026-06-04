@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -36,7 +37,9 @@ class GrokDriver implements AIDriverInterface
 
     public function chat(array $messages, array $options = []): string
     {
-        if (empty($this->apiKey)) return "Error: xAI Grok API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: xAI Grok API Key not configured.";
+        }
 
         $payload = [
             'model' => $this->model,
@@ -52,7 +55,7 @@ class GrokDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -95,7 +98,7 @@ class GrokDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -136,7 +139,7 @@ class GrokDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 

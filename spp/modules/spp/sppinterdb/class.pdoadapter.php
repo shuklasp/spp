@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPInterDB;
 
 /**
@@ -49,7 +50,7 @@ class PDOAdapter implements DBAdapter
         $cols = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO {$table} ({$cols}) VALUES ({$placeholders})";
-        
+
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(array_values($data));
     }
@@ -57,10 +58,12 @@ class PDOAdapter implements DBAdapter
     public function update(string $table, array $data, string $where, array $params = []): bool
     {
         $set = [];
-        foreach ($data as $col => $val) $set[] = "{$col} = ?";
+        foreach ($data as $col => $val) {
+            $set[] = "{$col} = ?";
+        }
         $setStr = implode(', ', $set);
         $sql = "UPDATE {$table} SET {$setStr} WHERE {$where}";
-        
+
         $stmt = $this->pdo->prepare($sql);
         return $stmt->execute(array_merge(array_values($data), $params));
     }
@@ -76,7 +79,7 @@ class PDOAdapter implements DBAdapter
     {
         $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
         $safe_table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
-        
+
         if ($driver === 'sqlite') {
             $res = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='{$safe_table}'");
         } else {
@@ -120,8 +123,20 @@ class PDOAdapter implements DBAdapter
     {
         return $this->pdo->lastInsertId();
     }
-    public function beginTransaction(): bool { return $this->pdo->beginTransaction(); }
-    public function commit(): bool { return $this->pdo->commit(); }
-    public function rollBack(): bool { return $this->pdo->rollBack(); }
-    public function inTransaction(): bool { return $this->pdo->inTransaction(); }
+    public function beginTransaction(): bool
+    {
+        return $this->pdo->beginTransaction();
+    }
+    public function commit(): bool
+    {
+        return $this->pdo->commit();
+    }
+    public function rollBack(): bool
+    {
+        return $this->pdo->rollBack();
+    }
+    public function inTransaction(): bool
+    {
+        return $this->pdo->inTransaction();
+    }
 }

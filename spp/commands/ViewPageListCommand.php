@@ -1,29 +1,42 @@
 <?php
+
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
 
 class ViewPageListCommand extends Command
 {
+    protected string $name = 'view:page:list';
+    protected string $description = 'List all registered pages/routes for an app';
+
     public function execute(array $args): void
     {
-        $command = $args[1] ?? '';
-        require_once SPP_APP_DIR . '/spp/sppinit.php';
-                $pages = \SPPMod\SPPView\Pages::listPages();
-                $rows = [];
-                foreach ($pages as $p) {
-                    $rows[] = [$p['name'], $p['url']];
-                }
-                printTable(['Name', 'URL'], $rows);
-    }
+        $appname = 'default';
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--app=')) {
+                $appname = substr($arg, 6);
+            }
+        }
 
-    public function getName(): string
-    {
-        return 'view:page:list';
-    }
+        echo "Listing pages for app: {$appname}\n\n";
 
-    public function getDescription(): string
-    {
-        return 'Legacy port of view:page:list';
+        $pages = \SPP\Scheduler::withContext($appname, function() {
+            return \SPPMod\SPPView\Pages::listPages();
+        });
+
+        if (empty($pages)) {
+            echo "No pages found for '{$appname}'.\n";
+            return;
+        }
+
+        echo str_pad("Route Name", 25) . str_pad("URL Target", 40) . "Source\n";
+        echo str_repeat("-", 85) . "\n";
+
+        foreach ($pages as $url => $p) {
+            $source = $p['source'] === 'db' ? ($p['db_summary'] ?? 'Database') : ($p['source_path'] ?? 'pages.yml');
+            $target = $p['controller'] ?? $p['url'] ?? $p['script'] ?? 'Unknown';
+            echo str_pad($url, 25) . str_pad($target, 40) . $source . "\n";
+        }
+        echo "\n";
     }
 }

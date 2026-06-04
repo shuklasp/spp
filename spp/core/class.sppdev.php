@@ -1,6 +1,9 @@
 <?php
+
 namespace SPP;
+
 use SPP\Exceptions\UnknownConfigVarException;
+
 /**
  * class SPPDev
  * Encapsulates all the developer functionality.
@@ -9,13 +12,14 @@ use SPP\Exceptions\UnknownConfigVarException;
  */
 //require_once 'sppconstants.php';
 require_once 'sppsystemexceptions.php';
-$currdir=dirname(__FILE__);
-if(file_exists($currdir.SPP_DS.'devsettings.php'))
-{
-    require_once 'devsettings.php';;
+$currdir = dirname(__FILE__);
+if (file_exists($currdir.SPP_DS.'devsettings.php')) {
+    require_once 'devsettings.php';
+    ;
 }
 
-class SPPDev extends \SPP\SPPObject {
+class SPPDev extends \SPP\SPPObject
+{
     //put your code here
     public function __construct()
     {
@@ -24,35 +28,25 @@ class SPPDev extends \SPP\SPPObject {
 
     public static function isDevEnvSetup()
     {
-        $currdir=dirname(__FILE__);
-        if(file_exists($currdir.SPP_DS.'settings.php')&&file_exists($currdir.SPP_DS.'devsettings.php'))
-        {
+        $currdir = dirname(__FILE__);
+        if (file_exists($currdir.SPP_DS.'settings.php') && file_exists($currdir.SPP_DS.'devsettings.php')) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
 
     public static function getSetting($sname)
     {
-        if(self::isDevEnvSetup())
-        {
+        if (self::isDevEnvSetup()) {
             global $devconfarray;
-            if(array_key_exists($sname, $devconfarray))
-            {
+            if (array_key_exists($sname, $devconfarray)) {
                 return $devconfarray[$sname];
-            }
-            else
-            {
+            } else {
                 throw new UnknownConfigVarException('Unknown Development Config variable '.$sname.' accessed');
             }
-        }
-        else
-        {
+        } else {
             return null;
         }
     }
 }
-?>

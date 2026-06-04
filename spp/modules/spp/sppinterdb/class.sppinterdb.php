@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPInterDB;
 
 use SPPMod\SPPDB\SPPDB;
@@ -55,7 +56,7 @@ class SPPInterDB
     private function resolve(string $field, string $args, string $selectionSet, array $variables): array
     {
         $mapping = $this->registry[$field] ?? null;
-        
+
         // In standalone mode, we default to the primary DB if no mapping exists
         if (!$mapping && $this->mode === 'standalone') {
             $mapping = ['engine' => 'default', 'table' => $field];
@@ -67,33 +68,41 @@ class SPPInterDB
 
         // Initialize adapter via SPPDB
         $db = $this->getDatabase($mapping['engine']);
-        
+
         // Extract ID (simplified)
         preg_match('/id\s*:\s*([0-9]+)/', $args, $argMatches);
         $id = $argMatches[1] ?? null;
 
-        if (!$id) return ['errors' => ['ID argument required']];
+        if (!$id) {
+            return ['errors' => ['ID argument required']];
+        }
 
         // Fetch
         $data = $db->table($mapping['table'])->where('id', $id)->first();
-        if (!$data) return ['data' => null];
+        if (!$data) {
+            return ['data' => null];
+        }
 
         // Resolve Selection Set
         $result = [];
         $lines = explode("\n", $selectionSet);
         foreach ($lines as $line) {
             $line = trim($line);
-            if (empty($line)) continue;
+            if (empty($line)) {
+                continue;
+            }
 
             // Nested relationship?
             if (preg_match('/([a-z0-9_]+)\s*{(.+)}/is', $line, $nestedMatches)) {
                 $nestedField = $nestedMatches[1];
                 $nestedSelectionSet = $nestedMatches[2];
-                
+
                 // Federated Stitching: Potentially different DB
                 $result[$nestedField] = $this->resolveNested($nestedField, $data['id'], $nestedSelectionSet);
             } else {
-                if (isset($data[$line])) $result[$line] = $data[$line];
+                if (isset($data[$line])) {
+                    $result[$line] = $data[$line];
+                }
             }
         }
 
@@ -107,20 +116,28 @@ class SPPInterDB
             $mapping = ['engine' => 'default', 'table' => $field];
         }
 
-        if (!$mapping) return [];
+        if (!$mapping) {
+            return [];
+        }
 
         $db = $this->getDatabase($mapping['engine']);
-        
+
         // Cross-DB lookup
         $nestedData = $db->table($mapping['table'])->where('user_id', $parentId)->first();
-        if (!$nestedData) return [];
+        if (!$nestedData) {
+            return [];
+        }
 
         $result = [];
         $fields = explode(' ', str_replace(['{', '}', "\n", "\r"], '', $selectionSet));
         foreach ($fields as $f) {
             $f = trim($f);
-            if (empty($f)) continue;
-            if (isset($nestedData[$f])) $result[$f] = $nestedData[$f];
+            if (empty($f)) {
+                continue;
+            }
+            if (isset($nestedData[$f])) {
+                $result[$f] = $nestedData[$f];
+            }
         }
 
         return $result;
@@ -148,7 +165,7 @@ class SPPInterDB
 
         $mapping = $this->registry[$entity];
         $db = $this->getDatabase($mapping['engine']);
-        
+
         try {
             $table = $mapping['table'];
             // Dynamic schema discovery (MySQL implementation example)
@@ -172,7 +189,7 @@ class SPPInterDB
         if ($engine === 'default' || $this->mode === 'standalone') {
             return new SPPDB();
         }
-        
+
         return new SPPDB("{$engine}:dbname=default");
     }
 }

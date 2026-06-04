@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP;
 
 use SPP\Core\CacheInterface;
@@ -17,7 +18,7 @@ class Cache extends \SPP\SPPObject
 
     /**
      * Get the active cache driver.
-     * 
+     *
      * @return CacheInterface
      */
     public static function driver(): CacheInterface
@@ -76,4 +77,3 @@ class Cache extends \SPP\SPPObject
         return self::driver()->invalidateTag($tag);
     }
 }
-

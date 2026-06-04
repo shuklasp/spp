@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\Parikshak\Events;
 
 use SPP\EventHandler;
@@ -40,7 +41,9 @@ class ParikshakLogSubscriber extends EventHandler
     private function log(string $message): void
     {
         $logDir = SPP_APP_DIR . '/var/logs';
-        if (!is_dir($logDir)) mkdir($logDir, 0777, true);
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0777, true);
+        }
         $file = $logDir . '/parikshak_events.log';
         $timestamp = date('Y-m-d H:i:s');
         file_put_contents($file, "[$timestamp] $message\n", FILE_APPEND);

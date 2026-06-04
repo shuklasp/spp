@@ -38,22 +38,19 @@ class AdminController
     public function login()
     {
         $error = '';
+
+        // Ensure spp_users table and admin account exist
+        $this->ensureAdminUser();
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $username = trim($_POST['username'] ?? '');
             $password = $_POST['password'] ?? '';
 
             if (!empty($username) && !empty($password)) {
                 try {
-                    $user = new \SPPMod\SPPAuth\SPPUser($username);
-                    $isValid = false;
-                    if ($user->getId() && password_verify($password, $user->password)) {
-                        $isValid = true;
-                    } elseif ($username === 'admin' && ($password === 'admin' || $password === 'password')) {
-                        $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
-                        $isValid = true;
-                    }
-
-                    if ($isValid) {
+                    // Try SPPUser-based verification first
+                    if (\SPPMod\SPPAuth\SPPUser::verifyUserPassword($username, $password)) {
+                        $user = new \SPPMod\SPPAuth\SPPUser($username);
                         \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
                         header("Location: " . $this->getAppRoot() . "/admin");
                         exit;
@@ -61,8 +58,8 @@ class AdminController
                         $error = 'Invalid username or password.';
                     }
                 } catch (\Exception $e) {
-                    // Fallback if SPPUser throws exception when table missing
-                    if ($username === 'admin' && ($password === 'admin' || $password === 'password')) {
+                    // Fallback: if tables/user are missing, allow admin/admin
+                    if ($username === 'admin' && $password === 'admin') {
                         $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
                         \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
                         header("Location: " . $this->getAppRoot() . "/admin");
@@ -79,6 +76,25 @@ class AdminController
             'title' => 'Lekhak Workspace Login',
             'error' => $error
         ]);
+    }
+
+    /**
+     * Ensures the spp_users table contains at least one admin user.
+     */
+    protected function ensureAdminUser(): void
+    {
+        try {
+            if (!\SPPMod\SPPAuth\SPPUser::userExists('admin')) {
+                \SPPMod\SPPAuth\SPPUser::saveUserInfo([
+                    'username' => 'admin',
+                    'email' => 'admin@lekhak.local',
+                    'password' => 'admin',
+                    'status' => 'active'
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silently fail — the fallback login will still work
+        }
     }
 
     public function logout()
@@ -113,10 +129,7 @@ class AdminController
         // Enforce premium admin theme for all forms
         \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
         
-        // Ensure Drishyam knows we are in admin context
-        if (class_exists('\SPPMod\Drishyam\Drishyam')) {
-            \SPPMod\Drishyam\Drishyam::getInstance()->setContext('admin');
-        }
+
 
         // Automatically flush stale Blade cache files in development/admin context to guarantee real-time style/theme compilation
         $cacheDir = (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 4)) . '/var/cache/lekhak/blade';
@@ -134,7 +147,8 @@ class AdminController
 
     public function dashboard()
     {
-        $this->ensureDashboardSchema();
+        ContentType::ensureSchema();
+        \SPPMod\Lekhak\Core\LandingPage::ensureSchema();
 
         // Advanced Stats
         $stats = [
@@ -154,77 +168,7 @@ class AdminController
         ]);
     }
 
-    protected function ensureDashboardSchema(): void
-    {
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $isSqlite = $db->getDriver() === 'sqlite';
 
-        ContentType::ensureSchema();
-        \SPPMod\Lekhak\Core\LandingPage::ensureSchema();
-
-        $users = \SPPMod\SPPDB\SPPDB::sppTable('users');
-        $roles = \SPPMod\SPPDB\SPPDB::sppTable('roles');
-        $rights = \SPPMod\SPPDB\SPPDB::sppTable('rights');
-        $userRoles = \SPPMod\SPPDB\SPPDB::sppTable('userroles');
-        $roleRight = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
-
-        if ($isSqlite) {
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$users} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                username VARCHAR(100) NOT NULL UNIQUE,
-                email VARCHAR(255),
-                password_hash VARCHAR(255),
-                password VARCHAR(255),
-                role_id INT,
-                status VARCHAR(20),
-                created_at DATETIME,
-                updated_at DATETIME
-            )");
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$roles} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                role_name VARCHAR(100) NOT NULL UNIQUE,
-                description TEXT
-            )");
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$rights} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name VARCHAR(100) NOT NULL UNIQUE,
-                description TEXT
-            )");
-        } else {
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$users} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                username VARCHAR(100) NOT NULL UNIQUE,
-                email VARCHAR(255),
-                password_hash VARCHAR(255),
-                password VARCHAR(255),
-                role_id INT,
-                status VARCHAR(20),
-                created_at DATETIME,
-                updated_at DATETIME
-            )");
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$roles} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                role_name VARCHAR(100) NOT NULL UNIQUE,
-                description TEXT
-            )");
-            $db->execute_query("CREATE TABLE IF NOT EXISTS {$rights} (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                name VARCHAR(100) NOT NULL UNIQUE,
-                description TEXT
-            )");
-        }
-
-        $db->execute_query("CREATE TABLE IF NOT EXISTS {$userRoles} (
-            userid INT NOT NULL,
-            roleid INT NOT NULL,
-            PRIMARY KEY (userid, roleid)
-        )");
-        $db->execute_query("CREATE TABLE IF NOT EXISTS {$roleRight} (
-            roleid INT NOT NULL,
-            rightid INT NOT NULL,
-            PRIMARY KEY (roleid, rightid)
-        )");
-    }
 
     public function manageContentTypes()
     {
@@ -390,10 +334,10 @@ class AdminController
 
     public function manageUsers()
     {
-        $this->ensureDashboardSchema();
         $db = new \SPPMod\SPPDB\SPPDB();
-        $usersTable = \SPPMod\SPPDB\SPPDB::sppTable('users');
-        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('roles');
+        $usersTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_users');
+        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_roles');
+        $userRolesTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_userroles');
 
         // Populate default roles if empty
         $roles = $db->execute_query("SELECT * FROM {$rolesTable}");
@@ -408,41 +352,45 @@ class AdminController
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
             
-            if ($action === 'create') {
+            if ($action === 'create' || $action === 'update') {
+                $uid = (int)($_POST['user_id'] ?? 0);
                 $username = trim($_POST['username'] ?? '');
                 $email = trim($_POST['email'] ?? '');
                 $password = $_POST['password'] ?? '';
                 $role_id = (int)($_POST['role_id'] ?? 0);
                 $status = $_POST['status'] ?? 'active';
                 
-                if (!empty($username) && !empty($password)) {
-                    $hash = password_hash($password, PASSWORD_DEFAULT);
-                    $db->execute_query("INSERT INTO {$usersTable} (username, email, password, password_hash, role_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                        [$username, $email, $hash, $hash, $role_id, $status, date("Y-m-d H:i:s")]);
+                if ($action === 'create' && !empty($username) && !empty($password)) {
+                    \SPPMod\SPPAuth\SPPUser::saveUserInfo([
+                        'username' => $username,
+                        'email' => $email,
+                        'password' => $password,
+                        'status' => $status
+                    ]);
+                    // Get newly created user ID
+                    $newUserId = \SPPMod\SPPAuth\SPPUser::find_one(['username' => $username])->id;
+                    $db->execute_query("INSERT INTO {$userRolesTable} (userid, roleid) VALUES (?, ?)", [$newUserId, $role_id]);
                     $_SESSION['flash_success'] = "User '{$username}' created successfully.";
-                }
-            } elseif ($action === 'update') {
-                $uid = (int)($_POST['user_id'] ?? 0);
-                $role_id = (int)($_POST['role_id'] ?? 0);
-                $status = $_POST['status'] ?? 'active';
-                $email = trim($_POST['email'] ?? '');
-                $password = $_POST['password'] ?? '';
-                
-                if ($uid > 0) {
+                } elseif ($action === 'update' && $uid > 0) {
+                    $updateData = ['id' => $uid, 'email' => $email, 'status' => $status];
                     if (!empty($password)) {
-                        $hash = password_hash($password, PASSWORD_DEFAULT);
-                        $db->execute_query("UPDATE {$usersTable} SET email = ?, password = ?, password_hash = ?, role_id = ?, status = ?, updated_at = ? WHERE id = ?",
-                            [$email, $hash, $hash, $role_id, $status, date("Y-m-d H:i:s"), $uid]);
-                    } else {
-                        $db->execute_query("UPDATE {$usersTable} SET email = ?, role_id = ?, status = ?, updated_at = ? WHERE id = ?",
-                            [$email, $role_id, $status, date("Y-m-d H:i:s"), $uid]);
+                        $updateData['password'] = $password;
                     }
-                    $_SESSION['flash_success'] = "User updated successfully.";
+                    // Fetch existing username since saveUserInfo uses it for upsert
+                    $existingUser = $db->execute_query("SELECT username FROM {$usersTable} WHERE id = ?", [$uid]);
+                    if ($existingUser) {
+                        $updateData['username'] = $existingUser[0]['username'];
+                        \SPPMod\SPPAuth\SPPUser::saveUserInfo($updateData);
+                        $db->execute_query("DELETE FROM {$userRolesTable} WHERE userid = ?", [$uid]);
+                        $db->execute_query("INSERT INTO {$userRolesTable} (userid, roleid) VALUES (?, ?)", [$uid, $role_id]);
+                        $_SESSION['flash_success'] = "User updated successfully.";
+                    }
                 }
             } elseif ($action === 'delete') {
                 $uid = (int)($_POST['user_id'] ?? 0);
                 if ($uid > 0) {
                     $db->execute_query("DELETE FROM {$usersTable} WHERE id = ?", [$uid]);
+                    $db->execute_query("DELETE FROM {$userRolesTable} WHERE userid = ?", [$uid]);
                     $_SESSION['flash_success'] = "User deleted successfully.";
                 }
             }
@@ -452,15 +400,20 @@ class AdminController
         }
 
         // Fetch users and link their role_name
-        $users = $db->execute_query("SELECT u.*, r.role_name FROM {$usersTable} u LEFT JOIN {$rolesTable} r ON u.role_id = r.id");
+        $users = $db->execute_query("SELECT u.*, r.role_name, r.id as role_id FROM {$usersTable} u LEFT JOIN {$userRolesTable} ur ON u.id = ur.userid LEFT JOIN {$rolesTable} r ON ur.roleid = r.id");
         if (empty($users)) {
             // Seed a default admin if table was empty
             $adminRole = $db->execute_query("SELECT id FROM {$rolesTable} WHERE role_name = 'Administrator' LIMIT 1")[0]['id'] ?? 1;
-            $adminHash = password_hash('admin', PASSWORD_DEFAULT);
-            $db->execute_query("INSERT INTO {$usersTable} (username, email, password, password_hash, role_id, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                ['admin', 'admin@lekhak.local', $adminHash, $adminHash, $adminRole, 'active', date("Y-m-d H:i:s")]);
+            \SPPMod\SPPAuth\SPPUser::saveUserInfo([
+                'username' => 'admin',
+                'email' => 'admin@lekhak.local',
+                'password' => 'admin',
+                'status' => 'active'
+            ]);
+            $adminId = \SPPMod\SPPAuth\SPPUser::find_one(['username' => 'admin'])->id;
+            $db->execute_query("INSERT INTO {$userRolesTable} (userid, roleid) VALUES (?, ?)", [$adminId, $adminRole]);
             
-            $users = $db->execute_query("SELECT u.*, r.role_name FROM {$usersTable} u LEFT JOIN {$rolesTable} r ON u.role_id = r.id");
+            $users = $db->execute_query("SELECT u.*, r.role_name, r.id as role_id FROM {$usersTable} u LEFT JOIN {$userRolesTable} ur ON u.id = ur.userid LEFT JOIN {$rolesTable} r ON ur.roleid = r.id");
         }
 
         return $this->render("users", [
@@ -473,11 +426,10 @@ class AdminController
 
     public function manageRoles()
     {
-        $this->ensureDashboardSchema();
         $db = new \SPPMod\SPPDB\SPPDB();
-        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('roles');
-        $rightsTable = \SPPMod\SPPDB\SPPDB::sppTable('rights');
-        $roleRightTable = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
+        $rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_roles');
+        $rightsTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_rights');
+        $roleRightTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_roleright');
 
         // Populate default rights if empty
         $rights = $db->execute_query("SELECT * FROM {$rightsTable}");

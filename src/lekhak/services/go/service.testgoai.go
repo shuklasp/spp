@@ -1,0 +1,36 @@
+package main
+
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
+)
+
+type Response struct {
+	Status  string      `json:"status"`
+	Message string      `json:"message"`
+	Args    interface{} `json:"args"`
+}
+
+func main() {
+	// Read input from PHP via stdin
+	input, _ := ioutil.ReadAll(os.Stdin)
+	var args interface{}
+	json.Unmarshal(input, &args)
+
+	// Business Logic for TestGoAi
+	// Example of calling PHP natively (requires go.mod setup or relative module import):
+	// import spp "spp/lib/go/spp"
+	// phpResult, err := spp.CallPhp("App\\Services\\NativeService", "someMethod", []string{"hello"})
+
+	resp := Response{
+		Status:  "success",
+		Message: "Hello from Go TestGoAi service!",
+		Args:    args,
+	}
+
+	// Output JSON to stdout
+	out, _ := json.Marshal(resp)
+	fmt.Print(string(out))
+}

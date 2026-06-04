@@ -1,0 +1,9 @@
+table: person
+id_field: id
+attributes:
+  name: varchar(255)
+  fname: varchar(255)
+  dob: datetime
+relations: {  }
+extends: \SPPMod\SPPAuth\SPPUser
+login_enabled: true

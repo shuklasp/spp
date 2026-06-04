@@ -1,4 +1,5 @@
 <?php
+
 require_once 'class.sppdatabase.php';
 require_once 'class.sppentity.php';
 /**
@@ -8,13 +9,14 @@ require_once 'class.sppentity.php';
  *
  * @author Satya Prakash Shukla
  */
-abstract class SPPDB_Entity extends SPPEntity{
-
+abstract class SPPDB_Entity extends \SPPMod\SPPEntity\SPPEntity
+{
     /**
      * Constructor
      * Load attribute values here.
      */
-    public function  __construct() {
+    public function __construct()
+    {
         parent::__construct();
     }
 
@@ -27,7 +29,7 @@ abstract class SPPDB_Entity extends SPPEntity{
      * @return bool
      *
      */
-    protected abstract function isNew();
+    abstract protected function isNew();
 
 
     /**
@@ -41,7 +43,7 @@ abstract class SPPDB_Entity extends SPPEntity{
     {
         return false;
     }
-    
+
     /**
      * getProperty()
      * To be implemented only if extra properties are required.
@@ -49,7 +51,7 @@ abstract class SPPDB_Entity extends SPPEntity{
      * @param mixed $propname
      * @return property value. false if property not found.
      */
-    protected function setProperty($propname,$propval)
+    protected function setProperty($propname, $propval)
     {
         return false;
     }
@@ -59,14 +61,14 @@ abstract class SPPDB_Entity extends SPPEntity{
      *
      * For inserting new entity in the database.
      */
-    protected abstract function insertNew();
+    abstract protected function insertNew();
 
     /**
      * function updateEntity()
      *
      * For updating existing entity in the database.
      */
-    protected abstract function updateEntity();
+    abstract protected function updateEntity();
 
 
     /*
@@ -76,14 +78,10 @@ abstract class SPPDB_Entity extends SPPEntity{
      */
     public function saveToDB()
     {
-        if($this->isNew())
-        {
+        if ($this->isNew()) {
             insertNew();
-        }
-        else
-        {
+        } else {
             updateEntity();
         }
     }
 }
-?>

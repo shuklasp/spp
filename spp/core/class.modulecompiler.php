@@ -7,8 +7,8 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * class ModuleCompiler
- * 
- * Compiles the distributed module manifests and configurations into a 
+ *
+ * Compiles the distributed module manifests and configurations into a
  * single optimized PHP array for zero-I/O bootstrapping.
  */
 class ModuleCompiler
@@ -29,7 +29,7 @@ class ModuleCompiler
     {
         $registry = [];
         $discovered = $this->discoverActiveModules();
-        
+
         // Sort modules by dependency graph (Topological Sort)
         try {
             $sortedNames = $this->topologicalSort($discovered);
@@ -44,7 +44,7 @@ class ModuleCompiler
             try {
                 $module = new Module($manifestPath);
                 $module->ModuleType = $modData['type'];
-                
+
                 // Collect basic metadata
                 $registry[$modName] = [
                     'name' => $module->InternalName,
@@ -80,7 +80,7 @@ class ModuleCompiler
             }
             if (!isset($visited[$name])) {
                 $temp[$name] = true;
-                
+
                 // Fetch dependencies from manifest (need to parse minimal manifest here)
                 $manifestPath = $modules[$name]['manifest'] ?? null;
                 if ($manifestPath) {
@@ -93,7 +93,9 @@ class ModuleCompiler
                         $xml = simplexml_load_file($manifestPath);
                         if ($xml) {
                             $res = $xml->xpath('/module/dependencies/depends');
-                            foreach ($res as $d) $deps[] = (string) $d;
+                            foreach ($res as $d) {
+                                $deps[] = (string) $d;
+                            }
                         }
                     }
 
@@ -130,15 +132,17 @@ class ModuleCompiler
         ];
 
         foreach ($manifests as $m) {
-            if (!file_exists($m['file'])) continue;
-            
+            if (!file_exists($m['file'])) {
+                continue;
+            }
+
             $data = Yaml::parseFile($m['file']);
             $mods = $data['modules'] ?? [];
-            
+
             foreach ($mods as $mod) {
                 $name = $mod['name'] ?? $mod['modname'] ?? null;
                 $status = $mod['status'] ?? 'active';
-                
+
                 if ($name && ($status === 'active' || Module::isCompulsory($name))) {
                     $manifestPath = Module::findManifestPath($name, $m['type'], $this->appContext);
                     if ($manifestPath) {
@@ -178,7 +182,9 @@ class ModuleCompiler
     private function writeCache(array $registry): bool
     {
         $dir = dirname($this->cacheFile);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
 
         $content = "<?php\n// SPP Compiled Module Registry - DO NOT EDIT\n";
         $content .= "return " . var_export($registry, true) . ";\n";

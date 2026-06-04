@@ -1,7 +1,15 @@
 <?php
 
 namespace SPPMod\SPPView;
+
 //require_once 'class.spphtmlelement.php';
+class SPP_HTML_Element extends \SPPMod\SPPView\ViewTag
+{
+    public function __construct($ename)
+    {
+        parent::__construct('', $ename, false);
+    }
+}
 
 /**
  * class SPP_HTML_TableField
@@ -9,25 +17,24 @@ namespace SPPMod\SPPView;
  *
  * @author Satya Prakash Shukla
  */
-class SPP_HTML_TableField extends \SPPMod\SPPView\ViewTag {
+class SPP_HTML_TableField extends SPP_HTML_Element
+{
     private $content;
-    public function  __construct($ename, $isheading=false) {
+    public function __construct($ename, $isheading = false)
+    {
         parent::__construct($ename);
-        $this->isemptyflag=false;
-        if($isheading)
-        {
-            $this->tagname='th';
+        $this->isemptyflag = false;
+        if ($isheading) {
+            $this->tagname = 'th';
+        } else {
+            $this->tagname = 'td';
         }
-        else
-        {
-            $this->tagname='td';
-        }
-        $this->attrlist=array('abbr', 'align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width');
+        $this->attrlist = ['abbr', 'align','axis','bgcolor','char','charoff','colspan','headers','height','nowrap','rowspan','scope','valign','width'];
     }
 
     public function setContent($cnt)
     {
-        $this->content=$cnt;
+        $this->content = $cnt;
     }
 
     public function getContent($cnt)
@@ -35,11 +42,12 @@ class SPP_HTML_TableField extends \SPPMod\SPPView\ViewTag {
         return $this->content;
     }
 
-    public function show()
+    public function getHTML(): string
     {
-        parent::show();
-        echo $this->content;
-        $this->endOne();
+        if ($this->content) {
+            $this->setMatterText($this->content);
+        }
+        return parent::getHTML();
     }
 }
 
@@ -48,30 +56,34 @@ class SPP_HTML_TableField extends \SPPMod\SPPView\ViewTag {
  *
  * @author Administrator
  */
-class SPP_HTML_TableRow extends SPP_HTML_Element {
+class SPP_HTML_TableRow extends SPP_HTML_Element
+{
     private $fields;
-    private $numfld=0;
-    public function  __construct($ename) {
+    private $numfld = 0;
+    public function __construct($ename)
+    {
         parent::__construct($ename);
-        $this->isemptyflag=false;
-        $this->tagname='tr';
-        $this->attrlist=array('align','bgcolor','char','charoff','valign');
+        $this->isemptyflag = false;
+        $this->tagname = 'tr';
+        $this->attrlist = ['align','bgcolor','char','charoff','valign'];
     }
 
     public function addField(SPP_HTML_TableField $fld)
     {
-        $this->fields[$this->numfld++]=$fld;
+        $this->fields[$this->numfld++] = $fld;
         return true;
     }
 
-    public function show()
+    public function getHTML(): string
     {
-        parent::show();
-        foreach($this->fields as $fld)
-        {
-            $fld->show();
+        $html = $this->getStart();
+        if ($this->fields) {
+            foreach ($this->fields as $fld) {
+                $html .= $fld->getHTML();
+            }
         }
-        $this->endOne();
+        $html .= $this->getEnd();
+        return $html;
     }
 }
 
@@ -81,46 +93,43 @@ class SPP_HTML_TableRow extends SPP_HTML_Element {
  *
  * @author Administrator
  */
-class SPP_HTML_TableSection extends SPP_HTML_Element {
-    private $rows=array();
-    private $numrows=0;
-    public function  __construct($ename,$stype) {
+class SPP_HTML_TableSection extends SPP_HTML_Element
+{
+    private $rows = [];
+    private $numrows = 0;
+    public function __construct($ename, $stype)
+    {
         parent::__construct($ename);
-        $this->isemptyflag=false;
-        if($stype=='head')
-        {
-            $this->tagname='thead';
-        }
-        elseif($stype=='body')
-        {
-            $this->tagname='tbody';
-        }
-        elseif($stype=='foot')
-        {
-            $this->tagname='tfoot';
-        }
-        else
-        {
+        $this->isemptyflag = false;
+        if ($stype == 'head') {
+            $this->tagname = 'thead';
+        } elseif ($stype == 'body') {
+            $this->tagname = 'tbody';
+        } elseif ($stype == 'foot') {
+            $this->tagname = 'tfoot';
+        } else {
             throw new InvalidHTMLTableSectionException('Invalid Table section: '.$stype);
         }
-        $this->attrlist=array('align','char','charoff','valign');
+        $this->attrlist = ['align','char','charoff','valign'];
     }
 
     public function addRow(SPP_HTML_TableRow $row)
     {
-        $this->rows[$this->numrows++]=$row;
+        $this->rows[$this->numrows++] = $row;
         //$this->numrows+=1;
         return true;
     }
 
-    public function show()
+    public function getHTML(): string
     {
-        parent::show();
-        foreach($this->rows as $row)
-        {
-            $row->show();
+        $html = $this->getStart();
+        if ($this->rows) {
+            foreach ($this->rows as $row) {
+                $html .= $row->getHTML();
+            }
         }
-        $this->endOne();
+        $html .= $this->getEnd();
+        return $html;
     }
 }
 
@@ -130,26 +139,28 @@ class SPP_HTML_TableSection extends SPP_HTML_Element {
  *
  * @author Administrator
  */
-class SPP_HTML_Table extends SPP_HTML_Element {
+class SPP_HTML_Table extends SPP_HTML_Element
+{
     private $caption;
-    private $capalign=0;
+    private $capalign = 0;
     private $headrows;
     private $bodyrows;
     private $footrows;
-    public function  __construct($ename) {
+    public function __construct($ename)
+    {
         parent::__construct($ename);
-        $this->isemptyflag=false;
-        $this->tagname='table';
-        $this->attrlist=array('align','bgcolor','border','cellpadding','cellspacing','frame','rules','summary','width');
-        $this->headrows=new SPP_HTML_TableSection($ename.'head','head');
-        $this->bodyrows=new SPP_HTML_TableSection($ename.'body','body');
-        $this->footrows=new SPP_HTML_TableSection($ename.'foot','foot');
+        $this->isemptyflag = false;
+        $this->tagname = 'table';
+        $this->attrlist = ['align','bgcolor','border','cellpadding','cellspacing','frame','rules','summary','width'];
+        $this->headrows = new SPP_HTML_TableSection($ename.'head', 'head');
+        $this->bodyrows = new SPP_HTML_TableSection($ename.'body', 'body');
+        $this->footrows = new SPP_HTML_TableSection($ename.'foot', 'foot');
     }
 
-    public function setCaption($cap,$calign='center')
+    public function setCaption($cap, $calign = 'center')
     {
-        $this->caption=$cap;
-        $this->capalign=$calign;
+        $this->caption = $cap;
+        $this->capalign = $calign;
     }
 
     public function addHeaderRow(SPP_HTML_TableRow $row)
@@ -167,31 +178,31 @@ class SPP_HTML_Table extends SPP_HTML_Element {
         $this->footrows->addRow($row);
     }
 
-    public function setHeadAttribute($attname,$attval)
+    public function setHeadAttribute($attname, $attval)
     {
         $this->headrows->setAttribute($attname, $attval);
     }
 
-    public function setBodyAttribute($attname,$attval)
+    public function setBodyAttribute($attname, $attval)
     {
         $this->bodyrows->setAttribute($attname, $attval);
     }
 
-    public function setFootAttribute($attname,$attval)
+    public function setFootAttribute($attname, $attval)
     {
         $this->footrows->setAttribute($attname, $attval);
     }
 
-    public function show()
+    public function getHTML(): string
     {
-        parent::show();
-        if($this->capalign!=0)
-        {
-            echo '<caption align="'.$this->capalign.'">'.$this->caption.'</caption>';
+        $html = $this->getStart();
+        if ($this->capalign != 0) {
+            $html .= '<caption align="'.$this->capalign.'">'.$this->caption.'</caption>';
         }
-        $this->headrows->show();
-        $this->bodyrows->show();
-        $this->footrows->show();
-        $this->endOne();
+        $html .= $this->headrows->getHTML();
+        $html .= $this->bodyrows->getHTML();
+        $html .= $this->footrows->getHTML();
+        $html .= $this->getEnd();
+        return $html;
     }
 }

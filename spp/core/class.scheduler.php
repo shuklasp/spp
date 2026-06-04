@@ -141,11 +141,11 @@ class Scheduler extends \SPP\SPPObject
 
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $uri = explode('?', $uri)[0];
-        
+
         // Normalize URI if running in a subdirectory
         $root = str_replace('\\', '/', SPP_DOC_ROOT);
         $appBase = str_replace('\\', '/', SPP_APP_DIR);
-        
+
         if ($root !== '') {
             $subDir = trim(str_replace($root, '', $appBase), '/');
             if ($subDir !== '') {
@@ -153,9 +153,9 @@ class Scheduler extends \SPP\SPPObject
             }
         }
         $uri = ($uri === '') ? '/' : $uri;
-        
+
         $apps = \SPP\App::getGlobalSettings('apps') ?: [];
-        
+
         // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
         $srcDir = SPP_APP_DIR . SPP_DS . 'src';
         if (is_dir($srcDir)) {
@@ -167,15 +167,19 @@ class Scheduler extends \SPP\SPPObject
                     if ($appData) {
                         $apps[$d] = array_merge($apps[$d] ?? [], $appData);
                         // Ensure etc_path and src_path are set if not provided
-                        if (empty($apps[$d]['etc_path'])) $apps[$d]['etc_path'] = 'src/' . $d . '/etc';
-                        if (empty($apps[$d]['src_path'])) $apps[$d]['src_path'] = 'src/' . $d;
+                        if (empty($apps[$d]['etc_path'])) {
+                            $apps[$d]['etc_path'] = 'src/' . $d . '/etc';
+                        }
+                        if (empty($apps[$d]['src_path'])) {
+                            $apps[$d]['src_path'] = 'src/' . $d;
+                        }
                     }
                 }
             }
         }
 
         $params = ['uri' => &$uri, 'apps' => &$apps, 'context' => null];
-        \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $params, function(&$p) {
+        \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $params, function (&$p) {
             foreach ($p['apps'] as $name => $cfg) {
                 $base = $cfg['base_url'] ?? '/' . $name;
                 if ($p['uri'] === $base || strpos($p['uri'], $base . '/') === 0) {
@@ -188,7 +192,7 @@ class Scheduler extends \SPP\SPPObject
         $matchedApp = $params['context'] ?: (\SPP\App::getGlobalSettings('base_app') ?: 'default');
 
         $routeParams = ['uri' => $uri, 'context' => &$matchedApp];
-        \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeParams, function(&$p) {
+        \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeParams, function (&$p) {
             // Default: do nothing, context already matched
         });
 
@@ -206,11 +210,13 @@ class Scheduler extends \SPP\SPPObject
     public static function withContext(string $context, callable $callback)
     {
         $oldContext = self::$AppContext;
-        if ($oldContext === $context) return $callback();
+        if ($oldContext === $context) {
+            return $callback();
+        }
 
         // Ensure the target app is initialized if it's not already
         if (!isset(self::$procs[$context])) {
-             new \SPP\App($context, false, 3);
+            new \SPP\App($context, false, 3);
         }
 
         self::setContext($context);

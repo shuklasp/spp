@@ -65,3 +65,6 @@ pages:
   -
     name: test_success
     url: /test_success.php
+  -
+    name: dashboard
+    url: /dashboard.php

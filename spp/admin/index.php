@@ -116,94 +116,89 @@ if (!checkDevMode()) {
             <div id="app-selector-container" style="margin-bottom: 2rem;"></div>
             <nav>
                 <ul>
-                    <li><a href="#system" class="nav-item active" data-view="system">
-                            <span class="icon">🖥️</span> System Info
+                    <li><a href="#dashboard" class="nav-item active" data-view="dashboard" title="Welcome to Developer Heaven">
+                            <span class="icon">👋</span> Welcome Dashboard
                         </a></li>
-                    <li><a href="#apps" class="nav-item" data-view="apps">
-                            <span class="icon">📱</span> Applications
+                        
+                    <!-- 1. CORE ARCHITECTURE -->
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: #38bdf8; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Core Architecture</div>
+                    <li><a href="#apps" class="nav-item" data-view="apps" title="Manage your SPP Applications, Modules, and Scaffolding">
+                            <span class="icon">📱</span> App Studio
                         </a></li>
-                    <li><a href="#modules" class="nav-item" data-view="modules">
-                            <span class="icon">📦</span> Modules
+                    <li><a href="#entities" class="nav-item" data-view="entities" title="Manage DB Schema, Entities, and Magic DB Viewer">
+                            <span class="icon">🏗️</span> Database & Entities
                         </a></li>
-                    <li><a href="#entities" class="nav-item" data-view="entities">
-                            <span class="icon">🏗️</span> Entities
-                        </a></li>
-                    <li><a href="#forms" class="nav-item" data-view="forms">
+                    <li><a href="#forms" class="nav-item" data-view="forms" title="Design and manage HTML forms">
                             <span class="icon">📝</span> Forms
                         </a></li>
-                    <li><a href="#groups" class="nav-item" data-view="groups">
-                            <span class="icon">👥</span> Groups
+                    <li><a href="#routing" class="nav-item" data-view="routing" title="Configure URL routing rules and Middleware">
+                            <span class="icon">🔗</span> Routing & Middleware
                         </a></li>
-                    <li><a href="#access" class="nav-item" data-view="access">
-                            <span class="icon">🛡️</span> Access Control
-                        </a></li>
-                    <li><a href="#routing" class="nav-item" data-view="routing">
-                            <span class="icon">🔗</span> Routing
-                        </a></li>
-                    
-                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Developer CLI</div>
 
-                    <li><a href="#commands" class="nav-item" data-view="commands">
+
+                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
+                    
+                    <!-- 2. ACCESS & SECURITY -->
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: #f59e0b; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Security & Access</div>
+                    <li><a href="#identity" class="nav-item" data-view="identity" title="Manage users, roles, permissions and groups">
+                            <span class="icon">🛡️</span> Identity & Access
+                        </a></li>
+
+                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
+                    
+                    <!-- 3. DEVELOPER HEAVEN -->
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: #f43f5e; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">SPP Studio (Heaven)</div>
+                    <li><a href="#ai" class="nav-item" data-view="ai" title="AI Copilot, Playground, and Provider Management">
+                            <span class="icon">🧠</span> AI Studio
+                        </a></li>
+                    <li><a href="/api/docs" target="_blank" class="nav-item" title="Interactive zero-touch Swagger API documentation">
+                            <span class="icon">📚</span> API Explorer
+                        </a></li>
+                    <li><a href="#commands" class="nav-item" data-view="commands" title="Execute SPP CLI commands from the browser">
                             <span class="icon">💻</span> Command Center
                         </a></li>
-
-                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Diagnostics</div>
-
-                    <li><a href="#mobile" class="nav-item" data-view="mobile">
+                    <li><a href="#mobile" class="nav-item" data-view="mobile" title="Test views in mobile emulator modes">
                             <span class="icon">📱</span> Mobile Studio
                         </a></li>
-                    <li><a href="#sppai" class="nav-item" data-view="sppai">
-                            <span class="icon">🤖</span> SPP AI Engine
-                        </a></li>
-                    <li><a href="#marketing" class="nav-item" data-view="marketing">
-                            <span class="icon">📢</span> Marketing
-                        </a></li>
-                    <li><a href="#commerce" class="nav-item" data-view="commerce">
-                            <span class="icon">🛒</span> Commerce
-                        </a></li>
-                    <li><a href="#xdb" class="nav-item" data-view="xdb">
-                            <span class="icon">🗄️</span> XML Database
-                        </a></li>
-                    <li><a href="#interdb" class="nav-item" data-view="interdb">
+
+                    <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
+                    
+                    <!-- 4. ADVANCED ENGINES -->
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: #10b981; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Advanced Engines</div>
+                    <!-- Polyglot moved to System Diagnostics tab -->
+                    <!-- <li><a href="#polyglot" class="nav-item" data-view="polyglot" title="Cross-language execution">
+                            <span class="icon">🌍</span> Polyglot Engine
+                        </a></li> -->
+                    <li><a href="#interdb" class="nav-item" data-view="interdb" title="Manage external database connections">
                             <span class="icon">🕸️</span> InterDB Mesh
                         </a></li>
-                    <li><a href="#middleware" class="nav-item" data-view="middleware">
-                            <span class="icon">🔀</span> Middleware
+                    <li><a href="#xdb" class="nav-item" data-view="xdb" title="Manage XML-based configuration databases">
+                            <span class="icon">🗄️</span> XML Database
                         </a></li>
-                    <li><a href="#queue" class="nav-item" data-view="queue">
-                            <span class="icon">🕒</span> Task Queue
-                        </a></li>
-                    <li><a href="#parikshak" class="nav-item" data-view="parikshak">
-                            <span class="icon">🧪</span> Parikshak
-                        </a></li>
-                    <li><a href="#spplang" class="nav-item" data-view="spplang">
+                    <!-- Queue moved to System Diagnostics tab -->
+                    <li><a href="#spplang" class="nav-item" data-view="spplang" title="Manage application string translations">
                             <span class="icon">🌐</span> Translations
                         </a></li>
-                    <li><a href="#events" class="nav-item" data-view="events">
-                            <span class="icon">🎯</span> Events
+                    <!-- Events merged into Trace (via System Diagnostics) -->
+                    <li><a href="#services" class="nav-item" data-view="services" title="Dependency Injection services and LiveServices">
+                            <span class="icon">🔌</span> Services (DI & AJAX)
+                        </a></li>
+                    <li><a href="#parikshak" class="nav-item" data-view="parikshak" title="Run automated application tests">
+                            <span class="icon">🧪</span> Parikshak Testing
+                        </a></li>
+                    <li><a href="#lifecycle" class="nav-item" data-view="lifecycle" title="Manage deployment lifecycles and migrations">
+                            <span class="icon">🚀</span> Deployment
                         </a></li>
                     
                     <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Diagnostics</div>
-
-                    <li><a href="#config" class="nav-item" data-view="config">
-                            <span class="icon">⚙️</span> Config
-                        </a></li>
-                    <li><a href="#trace" class="nav-item" data-view="trace">
-                            <span class="icon">🛰️</span> Trace
-                        </a></li>
-                    <li><a href="#services" class="nav-item" data-view="services">
-                            <span class="icon">🔌</span> DI Services
-                        </a></li>
-                    <li><a href="#ajax" class="nav-item" data-view="ajax">
-                            <span class="icon">⚡</span> LiveServices
-                        </a></li>
-                    <li><a href="#lifecycle" class="nav-item" data-view="lifecycle">
-                            <span class="icon">🚀</span> Deployment
+                    
+                    <!-- 5. DIAGNOSTICS -->
+                    <div class="sidebar-section-title" style="font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Diagnostics</div>
+                    <li><a href="#system" class="nav-item" data-view="system" title="View Server environment, PHP info, and Framework Traces">
+                            <span class="icon">🖥️</span> Diagnostics
                         </a></li>
                 </ul>
+                <div id="app-specific-menu-container"></div>
             </nav>
             <div class="sidebar-footer">
                 <div class="user-info">

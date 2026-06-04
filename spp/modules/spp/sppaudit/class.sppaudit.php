@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAudit;
 
 use SPPMod\SPPDB\SPPDB;
@@ -18,14 +19,15 @@ class SPPAudit extends \SPP\SPPObject
         try {
             $db = new SPPDB();
             $tableName = $db->sppTable('audit_logs');
-            
+
             // Try to get user from session
             $userId = null;
             try {
                 if (\SPP\SPPSession::sessionExists()) {
                     $userId = \SPP\SPPSession::getSessionVar('__user_id__');
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             $data = [
                 'entity_type' => $entityType,
@@ -42,10 +44,10 @@ class SPPAudit extends \SPP\SPPObject
             // For now, we use the default connection
             $fields = implode(', ', array_keys($data));
             $placeholders = implode(', ', array_fill(0, count($data), '?'));
-            
+
             $sql = "INSERT INTO {$tableName} ({$fields}) VALUES ({$placeholders})";
             $db->exec_squery($sql, $tableName, array_values($data));
-            
+
         } catch (\Exception $e) {
             // Enterprise rule: Don't let an audit failure crash the main transaction
             // But link it to the system error log
@@ -60,7 +62,7 @@ class SPPAudit extends \SPP\SPPObject
     {
         $db = new SPPDB();
         $tableName = $db->sppTable('audit_logs');
-        
+
         $sql = "CREATE TABLE IF NOT EXISTS {$tableName} (
             id INT AUTO_INCREMENT PRIMARY KEY,
             entity_type VARCHAR(100) NOT NULL,
@@ -72,7 +74,7 @@ class SPPAudit extends \SPP\SPPObject
             ip_address VARCHAR(45),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
-        
+
         $db->exec_squery($sql, $tableName);
     }
 }

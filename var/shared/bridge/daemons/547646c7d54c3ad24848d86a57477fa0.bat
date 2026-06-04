@@ -1,0 +1,1 @@
+"C:\Python312\python.exe" "C:\projects\apache\school1\spp/lib/polyglot/dispatch.py" "services/python/daemon_service.py" --daemon "C:\projects\apache\school1\var\shared/bridge/daemons/547646c7d54c3ad24848d86a57477fa0.port" > "C:\projects\apache\school1\var\shared/bridge/daemons/547646c7d54c3ad24848d86a57477fa0.log" 2>&1

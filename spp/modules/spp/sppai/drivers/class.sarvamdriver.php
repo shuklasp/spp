@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -36,7 +37,9 @@ class SarvamDriver implements AIDriverInterface
 
     public function chat(array $messages, array $options = []): string
     {
-        if (empty($this->apiKey)) return "Error: Sarvam API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: Sarvam API Key not configured.";
+        }
 
         $payload = [
             'model' => $this->model,
@@ -52,7 +55,7 @@ class SarvamDriver implements AIDriverInterface
             'Content-Type: application/json',
             'api-subscription-key: ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 

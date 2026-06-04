@@ -1,0 +1,5 @@
+table: testentitys
+attributes:
+  name: varchar(255)
+  created_at: timestamp
+relations: {  }

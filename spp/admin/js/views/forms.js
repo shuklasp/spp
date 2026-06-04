@@ -71,11 +71,17 @@ export default class FormsView extends BaseComponent {
 
         if (forms.length === 0) {
             return html`
-                <div class="empty-state">
-                    <div class="empty-icon">📝</div>
-                    <h3>No Form Definitions</h3>
-                    <p>Forms enable Drop-and-Play augmentation across the framework.</p>
-                    <button type="button" class="btn primary-btn" @click=${() => this.openEditor('', 'yml', '')}>+ Create Form</button>
+                <div class="empty-state" style="padding: 4rem 2rem; max-width: 600px; margin: 0 auto;">
+                    <div class="empty-icon" style="font-size: 4rem; margin-bottom: 1rem;">📝</div>
+                    <h3 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary);">Zero to Hero: Forms</h3>
+                    <p style="color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.6;">
+                        <strong>What are Forms?</strong><br>
+                        Forms are the UI interfaces for your Entities. By defining a Form manifest, SPP automatically generates accessible, responsive, and secure HTML forms. You don't need to write repetitive HTML or validation logic ever again!
+                    </p>
+                    <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 1px dashed var(--glass-border);">
+                        <code style="color: #38bdf8;">form: my_form<br>fields:<br>&nbsp;&nbsp;- name: email<br>&nbsp;&nbsp;&nbsp;&nbsp;type: email</code>
+                    </div>
+                    <button type="button" class="btn primary-btn shine-effect" style="font-size: 1.1rem; padding: 12px 24px;" @click=${() => this.openEditor('', 'yml', '')}>+ Create Your First Form</button>
                 </div>
             `;
         }
@@ -182,21 +188,11 @@ export default class FormsView extends BaseComponent {
     }
 
     refreshModal() {
-        const body = document.querySelector('.modal-body');
-        if (body) {
-            const htmlContent = this.getModalHtml();
-            body.innerHTML = htmlContent.toString();
-            
-            // Re-register handlers from the newly rendered HTML
-            body.querySelectorAll('[data-spp-evt]').forEach(el => {
-                const id = el.getAttribute('data-spp-evt');
-                if (window.__spp_handlers && window.__spp_handlers[id]) {
-                    this._handlers.set(id, window.__spp_handlers[id]);
-                }
-            });
-            
-            this.attachBuilderEvents();
-        }
+        const title = this.state.currentFormName ? `Form: ${this.state.currentFormName}.${this.state.currentFormType.toLowerCase()}` : 'Create New Form';
+        this.updateModal(title, this.getModalHtml(), [
+            { label: 'Save Form', type: 'primary', fn: (m) => this.save() }
+        ]);
+        this.attachBuilderEvents();
     }
 
     getBuilderHtml() {
@@ -208,18 +204,18 @@ export default class FormsView extends BaseComponent {
                 <div class="builder-sidebar glass-panel">
                     <h4>Form Metadata</h4>
                     <div class="input-group">
-                        <label>Name</label>
+                        <label title="The unique system identifier for this form (e.g. user_registration). Cannot contain spaces.">Name ℹ️</label>
                         <input type="text" @change=${(e) => { c.form.name = e.target.value; }} value="${c.form.name}">
                     </div>
                     <div class="input-group">
-                        <label>Type</label>
+                        <label title="Determines whether this form renders on a single page or as a multi-step wizard.">Type ℹ️</label>
                         <select @change=${(e) => this.toggleFormType(e.target.value)}>
                             <option value="single" ?selected="${!isWizard}">Single Step</option>
                             <option value="wizard" ?selected="${isWizard}">Multi-step Wizard</option>
                         </select>
                     </div>
                     <div class="input-group">
-                        <label>Service (API)</label>
+                        <label title="The backend API service endpoint this form submits data to.">Service (API) ℹ️</label>
                         <input type="text" @change=${(e) => { c.form.service = e.target.value; }} value="${c.form.service || ''}" placeholder="e.g. save_user">
                     </div>
                     
@@ -227,17 +223,17 @@ export default class FormsView extends BaseComponent {
                     
                     <h4>Intelligence & Resilience</h4>
                     <div class="input-group-row" style="display: flex; flex-direction: column; gap: 8px;">
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                        <label title="If enabled, form submissions will be queued locally if the user loses internet connection and automatically sync when reconnected." style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
                             <input type="checkbox" ?checked="${!!c.form.offline}" @change=${(e) => { c.form.offline = e.target.checked; }}>
-                            Offline Sync Support
+                            Offline Sync Support ℹ️
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                        <label title="Tracks user engagement metrics such as time-to-completion, drop-off fields, and interaction heatmaps for this form." style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
                             <input type="checkbox" ?checked="${!!c.form.telemetry}" @change=${(e) => { c.form.telemetry = e.target.checked; }}>
-                            Engagement Telemetry
+                            Engagement Telemetry ℹ️
                         </label>
-                        <label style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
+                        <label title="Automatically saves the user's progress locally as they type, preventing data loss on accidental reload or navigation." style="display: flex; align-items: center; gap: 8px; font-size: 0.75rem; text-transform: none; cursor: pointer;">
                             <input type="checkbox" ?checked="${!!c.form.autosave}" @change=${(e) => { c.form.autosave = e.target.checked; }}>
-                            Local Auto-save
+                            Local Auto-save ℹ️
                         </label>
                     </div>
                 </div>
@@ -456,7 +452,7 @@ export default class FormsView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'parse_form_yaml');
         fd.append('yaml', source);
-        const res = await this.apiPost(fd);
+        const res = await this.apiPost(fd, {}, { lock: false });
         if (res.success) {
             this.state.currentFormConfig = this._normalizeConfig(res.data.config);
             this.state.currentFormSource = source;
@@ -469,7 +465,7 @@ export default class FormsView extends BaseComponent {
         const fd = new FormData();
         fd.append('action', 'dump_form_yaml');
         fd.append('config', JSON.stringify(this.state.currentFormConfig));
-        const res = await this.apiPost(fd);
+        const res = await this.apiPost(fd, {}, { lock: false });
         return res.success ? res.data.yaml : '# Dump failed';
     }
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\CLI;
 
 /**
@@ -9,7 +10,7 @@ abstract class Command
 {
     /** @var string Command name (e.g. 'ui:serv') */
     protected string $name = '';
-    
+
     /** @var string Command description */
     protected string $description = '';
 
@@ -39,10 +40,35 @@ abstract class Command
     /**
      * Helpers for CLI output
      */
-    protected function line(string $text): void { echo $text . "\n"; }
-    protected function info(string $text): void { echo "\033[32mINFO: \033[0m" . $text . "\n"; }
-    protected function warn(string $text): void { echo "\033[33mWARN: \033[0m" . $text . "\n"; }
-    protected function error(string $text): void { echo "\033[31mERROR: \033[0m" . $text . "\n"; }
+    protected function line(string $text): void
+    {
+        echo $text . "\n";
+    }
+    protected function info(string $text): void
+    {
+        echo "\033[32mINFO: \033[0m" . $text . "\n";
+    }
+    protected function warn(string $text): void
+    {
+        echo "\033[33mWARN: \033[0m" . $text . "\n";
+    }
+    protected function error(string $text): void
+    {
+        echo "\033[31mERROR: \033[0m" . $text . "\n";
+    }
+
+    /**
+     * Helper to prompt the user for input.
+     */
+    protected function prompt(string $message, string $default = ''): string
+    {
+        echo $message . ($default ? " [{$default}]: " : "");
+        $handle = fopen("php://stdin", "r");
+        $line = fgets($handle);
+        fclose($handle);
+        $result = trim($line !== false ? $line : '');
+        return $result === '' ? $default : $result;
+    }
 
     /**
      * Extracts and formats the command help text and usage.
@@ -63,7 +89,8 @@ abstract class Command
                     $helpText = str_replace(['\n', '\r'], ["\n", ""], $helpText);
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return $helpText;
     }
@@ -77,7 +104,7 @@ abstract class Command
         $name = htmlspecialchars($this->getName());
         $desc = htmlspecialchars($this->getDescription());
         $help = htmlspecialchars($this->getHelp());
-        
+
         $html = '<div class="command-ui-container">';
         $html .= '  <h3>Command: <code>' . $name . '</code></h3>';
         $html .= '  <p>' . $desc . '</p>';
@@ -91,7 +118,7 @@ abstract class Command
         $html .= '  </div>';
         $html .= '  <button class="spp-btn" onclick="executeCommand(\'' . $name . '\')">Execute ' . $name . '</button>';
         $html .= '</div>';
-        
+
         return $html;
     }
 }

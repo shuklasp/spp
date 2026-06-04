@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPEntity;
 
 /**
@@ -123,17 +124,17 @@ class SppEntityQuery
     public function execute(): array
     {
         $db = new \SPPMod\SPPDB\SPPDB();
-        
+
         $sqlData = $this->buildQuery();
         $sql = $sqlData['sql'];
         $values = $sqlData['values'];
-        
+
         /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
         $result = $db->exec_squery($sql, $baseTable, $values);
-        
+
         $entities = [];
         foreach ($result as $row) {
             /** @var \SPPMod\SPPEntity\SPPEntity $entity */
@@ -150,7 +151,7 @@ class SppEntityQuery
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
             \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
         }
-        
+
         foreach ($entities as $entity) {
             $entity->after_load();
             \SPP\Core\EventManager::trigger('entity:after_load', $entity);
@@ -176,9 +177,9 @@ class SppEntityQuery
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
         $dynamicTable = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
-        
+
         $sql = "SELECT base.* FROM {$baseTable} base ";
-        
+
         $joinIndex = 0;
         $values = [];
         $whereClauses = [];
@@ -187,7 +188,7 @@ class SppEntityQuery
         foreach ($this->conditions as $cond) {
             $field = preg_replace('/[^a-zA-Z0-9_]/', '', $cond['field']);
             $operator = $cond['operator'];
-            
+
             if (in_array($operator, ['IN', 'NOT IN']) && is_array($cond['value'])) {
                 $placeholders = implode(',', array_fill(0, count($cond['value']), '?'));
                 $whereClauses[] = "base.{$field} {$operator} ({$placeholders})";
@@ -202,18 +203,18 @@ class SppEntityQuery
         if (!empty($this->dynamicConditions) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
             foreach ($this->dynamicConditions as $cond) {
                 $joinAlias = "dyn" . $joinIndex;
-                
+
                 $field = $cond['field'];
                 $value = $cond['value'];
                 $operator = $cond['operator'];
-                
+
                 // Determine value column based on type
                 $col = is_int($value) ? 'value_int' : (is_float($value) ? 'value_decimal' : 'value_string');
-                
+
                 $sql .= " INNER JOIN {$dynamicTable} {$joinAlias} ON base.id = {$joinAlias}.entity_id AND {$joinAlias}.entity_type = ? AND {$joinAlias}.field_name = ? ";
                 $values[] = ltrim($this->entityClass, '\\');
                 $values[] = $field;
-                
+
                 if (in_array($operator, ['IN', 'NOT IN']) && is_array($value)) {
                     $placeholders = implode(',', array_fill(0, count($value), '?'));
                     $whereClauses[] = "{$joinAlias}.{$col} {$operator} ({$placeholders})";
@@ -222,7 +223,7 @@ class SppEntityQuery
                     $whereClauses[] = "{$joinAlias}.{$col} {$operator} ?";
                     $values[] = $value;
                 }
-                
+
                 $joinIndex++;
             }
         }

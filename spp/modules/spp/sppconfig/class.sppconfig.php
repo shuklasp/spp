@@ -1,9 +1,10 @@
 <?php
+
 namespace SPPMod\SPPConfig;
 
 /**
  * class SPPConfig
- * 
+ *
  * Backward compatibility wrapper for the central SPP\SPPConfig core class.
  */
 class SPPConfig extends \SPP\SPPObject
@@ -27,9 +28,13 @@ class SPPConfig extends \SPP\SPPObject
     /**
      * Compatibility methods
      */
-    public static function enableCache() {}
-    public static function disableCache() {}
-    
+    public static function enableCache()
+    {
+    }
+    public static function disableCache()
+    {
+    }
+
     public static function varExists($propname)
     {
         return \SPP\SPPConfig::get($propname) !== null ? 1 : 0;

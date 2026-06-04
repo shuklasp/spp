@@ -48,10 +48,12 @@ class ViewFormBuilder extends \SPP\SPPObject
         if (method_exists($this->entity, 'define_attributes')) {
             $attrs = $this->entity->define_attributes();
             $metadata = method_exists($this->entity, 'field_metadata') ? $this->entity->field_metadata() : [];
-            
+
             foreach ($attrs as $name => $type) {
-                if ($name === 'id' || $name === 'created' || $name === 'updated') continue;
-                
+                if ($name === 'id' || $name === 'created' || $name === 'updated') {
+                    continue;
+                }
+
                 $fieldMeta = $metadata[$name] ?? [];
                 $config['elements'][$name] = array_merge([
                     'name' => $name,
@@ -99,8 +101,12 @@ class ViewFormBuilder extends \SPP\SPPObject
         );
 
         // Metadata assignment
-        if (isset($config['entity'])) $form->setEntityClass($config['entity']);
-        if (isset($config['title']))  $form->setMatter($config['title']);
+        if (isset($config['entity'])) {
+            $form->setEntityClass($config['entity']);
+        }
+        if (isset($config['title'])) {
+            $form->setMatter($config['title']);
+        }
 
         // SPA Integration
         if (!empty($fConfig['service'])) {
@@ -108,10 +114,18 @@ class ViewFormBuilder extends \SPP\SPPObject
         }
 
         // Standardized Lifecycle Hooks
-        if (isset($fConfig['onBeforeSubmit'])) $form->setAttribute('data-onbeforesubmit', $fConfig['onBeforeSubmit']);
-        if (isset($fConfig['onSuccess']))      $form->setAttribute('data-onsuccess', $fConfig['onSuccess']);
-        if (isset($fConfig['onError']))        $form->setAttribute('data-onerror', $fConfig['onError']);
-        if (isset($fConfig['onRedirect']))     $form->setAttribute('data-on-redirect', $fConfig['onRedirect']);
+        if (isset($fConfig['onBeforeSubmit'])) {
+            $form->setAttribute('data-onbeforesubmit', $fConfig['onBeforeSubmit']);
+        }
+        if (isset($fConfig['onSuccess'])) {
+            $form->setAttribute('data-onsuccess', $fConfig['onSuccess']);
+        }
+        if (isset($fConfig['onError'])) {
+            $form->setAttribute('data-onerror', $fConfig['onError']);
+        }
+        if (isset($fConfig['onRedirect'])) {
+            $form->setAttribute('data-on-redirect', $fConfig['onRedirect']);
+        }
 
         if (!empty($fConfig['offline'])) {
             $form->setAttribute('data-offline', 'true');
@@ -144,16 +158,18 @@ class ViewFormBuilder extends \SPP\SPPObject
         if ($steps) {
             $form->addClass('spp-wizard');
             ViewPage::addJsIncludeFile('res/js/sppwizard.js');
-            
+
             foreach ($steps as $sIdx => $sDef) {
                 $stepWrapper = new ViewTag('div', 'step_' . $sIdx);
                 $stepWrapper->addClass('spp-wizard-step');
                 $stepWrapper->setAttribute('data-step-title', $sDef['title'] ?? '');
-                
+
                 foreach ($sDef['fields'] ?? [] as $fName) {
                     $field = $elements[$fName] ?? null;
-                    if (!$field) continue;
-                    
+                    if (!$field) {
+                        continue;
+                    }
+
                     $elem = self::buildElement($field);
                     if ($elem) {
                         self::populateElementMetadata($elem, $field, $form);
@@ -161,39 +177,41 @@ class ViewFormBuilder extends \SPP\SPPObject
                         unset($elements[$fName]); // Remove so it's not added again below
                     }
                 }
-                
+
                 // Add navigation buttons to each step
                 $nav = new ViewTag('div', 'nav_' . $sIdx);
                 $nav->addClass('spp-wizard-nav');
                 $nav->setAttribute('style', 'margin-top: 20px; display: flex; gap: 10px;');
-                
+
                 if ($sIdx > 0) {
                     $prev = new ViewTag('button', 'prev_' . $sIdx);
                     $prev->addClass('btn-prev');
                     $prev->setMatterText('Previous');
                     $nav->addChild($prev);
                 }
-                
+
                 if ($sIdx < count($steps) - 1) {
                     $next = new ViewTag('button', 'next_' . $sIdx);
                     $next->addClass('btn-next');
                     $next->setMatterText('Next');
                     $nav->addChild($next);
                 }
-                
+
                 $stepWrapper->addChild($nav);
                 $form->addChild($stepWrapper);
             }
         }
 
         foreach ($elements as $name => $field) {
-            if (!is_array($field)) continue;
+            if (!is_array($field)) {
+                continue;
+            }
 
             // Handle associative arrays where key is the name
             if (!isset($field['name']) && is_string($name)) {
                 $field['name'] = $name;
             }
-            
+
             // Normalization for module.xml style settings (type is often 'text' instead of 'input')
             if (!isset($field['type']) && isset($field['inputtype'])) {
                 $field['type'] = $field['inputtype'];
@@ -216,7 +234,8 @@ class ViewFormBuilder extends \SPP\SPPObject
     /**
      * Helper to populate metadata from field config
      */
-    private static function populateElementMetadata($elem, $field, $form) {
+    private static function populateElementMetadata($elem, $field, $form)
+    {
         // Attach validations
         foreach ($field['validations'] ?? [] as $v) {
             self::attachValidationToElement($form, $elem, $v);
@@ -227,15 +246,19 @@ class ViewFormBuilder extends \SPP\SPPObject
 
         // Populate semantic metadata for modern layout
         if ($elem instanceof SPPViewForm_Element) {
-            if (isset($field['label'])) $elem->setLabel((string)$field['label']);
-            if (isset($field['help'])) $elem->setHelpText((string)$field['help']);
-            
+            if (isset($field['label'])) {
+                $elem->setLabel((string)$field['label']);
+            }
+            if (isset($field['help'])) {
+                $elem->setHelpText((string)$field['help']);
+            }
+
             foreach (['placeholder', 'value', 'readonly', 'disabled', 'rows', 'cols', 'min', 'max', 'step', 'col'] as $attr) {
                 if (isset($field[$attr])) {
                     $elem->setAttribute($attr, $field[$attr]);
                 }
             }
-            
+
             if (isset($field['depends_on'])) {
                 $deps = is_array($field['depends_on']) ? json_encode($field['depends_on']) : $field['depends_on'];
                 $elem->setAttribute('data-depends-on', $deps);
@@ -279,7 +302,7 @@ class ViewFormBuilder extends \SPP\SPPObject
     {
         $config = ['settings' => $settings];
         $form = self::fromArray($config, $formName);
-        
+
         // Bind values and add configuration marker class
         foreach ($settings as $name => $def) {
             $elem = $form->getChild($name);
@@ -290,7 +313,7 @@ class ViewFormBuilder extends \SPP\SPPObject
                 }
             }
         }
-        
+
         return $form;
     }
 
@@ -322,7 +345,9 @@ class ViewFormBuilder extends \SPP\SPPObject
     public static function buildElement(array $field): ?ViewTag
     {
         $name = $field['name'] ?? null;
-        if (!$name) return null;
+        if (!$name) {
+            return null;
+        }
 
         $type = $field['type'] ?? 'input';
         $subType = $field['inputtype'] ?? 'text';
@@ -394,19 +419,19 @@ class ViewFormBuilder extends \SPP\SPPObject
             case 'email':
                 $elem = new SPPViewForm_Input_Email($name);
                 break;
-            
+
             case 'number':
                 $elem = new SPPViewForm_Input_Number($name);
                 break;
-                
+
             case 'tel':
                 $elem = new SPPViewForm_Input_Tel($name);
                 break;
-                
+
             case 'range':
                 $elem = new SPPViewForm_Input_Range($name);
                 break;
-                
+
             case 'color':
                 $elem = new SPPViewForm_Input_Color($name);
                 break;
@@ -431,8 +456,12 @@ class ViewFormBuilder extends \SPP\SPPObject
 
             case 'file':
                 $elem = new SPPViewForm_File($name);
-                if (isset($field['accept'])) $elem->setAttribute('accept', $field['accept']);
-                if (!empty($field['multiple'])) $elem->setAttribute('multiple', 'multiple');
+                if (isset($field['accept'])) {
+                    $elem->setAttribute('accept', $field['accept']);
+                }
+                if (!empty($field['multiple'])) {
+                    $elem->setAttribute('multiple', 'multiple');
+                }
                 break;
 
             case 'multiselect':
@@ -461,7 +490,7 @@ class ViewFormBuilder extends \SPP\SPPObject
                         $elem->addOption($label, $val, !empty($opt['selected']));
                     }
                 }
-                
+
                 if ($type === 'multiselect') {
                     $elem->setAttribute('multiple', 'multiple');
                 }
@@ -474,7 +503,7 @@ class ViewFormBuilder extends \SPP\SPPObject
             case 'autocomplete':
                 $elem = new SPPViewForm_Autocomplete($name, $field['source'] ?? '');
                 break;
-                
+
             case 'signature':
                 $elem = new SPPViewForm_Signature($name);
                 break;
@@ -507,25 +536,33 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $elem = new SPPViewForm_Repeater($name);
                 $templateFields = [];
                 foreach ($field['fields'] ?? [] as $fName => $fDef) {
-                    if (is_string($fName)) $fDef['name'] = $fName;
+                    if (is_string($fName)) {
+                        $fDef['name'] = $fName;
+                    }
                     $child = self::buildElement($fDef);
-                    if ($child) $templateFields[] = $child;
+                    if ($child) {
+                        $templateFields[] = $child;
+                    }
                 }
                 $elem->setTemplate($templateFields);
                 break;
 
             case 'grid':
                 $elem = new SPPViewForm_MasterGrid($name);
-                if (isset($field['columns'])) $elem->setColumns($field['columns']);
-                
+                if (isset($field['columns'])) {
+                    $elem->setColumns($field['columns']);
+                }
+
                 $dataSource = $field['source'] ?? $field['data_source'] ?? null;
                 if ($dataSource) {
                     $elem->setData(self::resolveDataSource($dataSource));
                 } elseif (isset($field['data'])) {
                     $elem->setData($field['data']);
                 }
-                
-                if (isset($field['on_update'])) $elem->setAttribute('onUpdate', $field['on_update']);
+
+                if (isset($field['on_update'])) {
+                    $elem->setAttribute('onUpdate', $field['on_update']);
+                }
                 break;
 
             case 'editor':
@@ -534,42 +571,72 @@ class ViewFormBuilder extends \SPP\SPPObject
 
             case 'chart':
                 $elem = new SPPViewForm_Chart($name);
-                if (isset($field['chart_type'])) $elem->setChartType($field['chart_type']);
-                if (isset($field['data']))       $elem->setChartData($field['data']);
-                if (isset($field['options']))    $elem->setAttribute('options', $field['options']);
+                if (isset($field['chart_type'])) {
+                    $elem->setChartType($field['chart_type']);
+                }
+                if (isset($field['data'])) {
+                    $elem->setChartData($field['data']);
+                }
+                if (isset($field['options'])) {
+                    $elem->setAttribute('options', $field['options']);
+                }
                 break;
 
             case 'code':
                 $elem = new SPPViewForm_CodeEditor($name);
-                if (isset($field['language'])) $elem->setAttribute('language', $field['language']);
+                if (isset($field['language'])) {
+                    $elem->setAttribute('language', $field['language']);
+                }
                 break;
 
             case 'map':
                 $elem = new SPPViewForm_Map($name);
-                if (isset($field['center'])) $elem->setAttribute('center', $field['center']);
-                if (isset($field['zoom']))   $elem->setAttribute('zoom', $field['zoom']);
-                if (isset($field['markers'])) $elem->setAttribute('markers', $field['markers']);
+                if (isset($field['center'])) {
+                    $elem->setAttribute('center', $field['center']);
+                }
+                if (isset($field['zoom'])) {
+                    $elem->setAttribute('zoom', $field['zoom']);
+                }
+                if (isset($field['markers'])) {
+                    $elem->setAttribute('markers', $field['markers']);
+                }
                 break;
 
             case 'calendar':
                 $elem = new SPPViewForm_AdvancedCalendar($name);
-                if (isset($field['mode'])) $elem->setAttribute('mode', $field['mode']);
-                if (isset($field['enable_time'])) $elem->setAttribute('enableTime', $field['enable_time']);
+                if (isset($field['mode'])) {
+                    $elem->setAttribute('mode', $field['mode']);
+                }
+                if (isset($field['enable_time'])) {
+                    $elem->setAttribute('enableTime', $field['enable_time']);
+                }
                 break;
 
             case 'sortable':
                 $elem = new SPPViewForm_Sortable($name);
-                if (isset($field['items'])) $elem->setAttribute('items', $field['items']);
+                if (isset($field['items'])) {
+                    $elem->setAttribute('items', $field['items']);
+                }
                 break;
         }
 
         if ($elem) {
-            if (isset($field['label']))       $elem->setAttribute('label', $field['label']);
-            if (isset($field['placeholder'])) $elem->setAttribute('placeholder', $field['placeholder']);
-            if (isset($field['help']))        $elem->setAttribute('help', $field['help']);
-            if ($resolvedValue !== null)      $elem->setAttribute('value', $resolvedValue);
-            if (isset($field['class']))       $elem->addClass($field['class']);
-            
+            if (isset($field['label'])) {
+                $elem->setAttribute('label', $field['label']);
+            }
+            if (isset($field['placeholder'])) {
+                $elem->setAttribute('placeholder', $field['placeholder']);
+            }
+            if (isset($field['help'])) {
+                $elem->setAttribute('help', $field['help']);
+            }
+            if ($resolvedValue !== null) {
+                $elem->setAttribute('value', $resolvedValue);
+            }
+            if (isset($field['class'])) {
+                $elem->addClass($field['class']);
+            }
+
             // Add metadata for client-side interactivity (depends_on)
             if (!empty($field['depends_on'])) {
                 $depends = $field['depends_on'];
@@ -589,7 +656,7 @@ class ViewFormBuilder extends \SPP\SPPObject
         if (isset($src['table']) || isset($src['tablename'])) {
             $type = 'sql';
         }
-        
+
         // Resolve parameters if they use the expr: prefix
         $params = $src['params'] ?? [];
         foreach ($params as $k => $v) {
@@ -615,7 +682,7 @@ class ViewFormBuilder extends \SPP\SPPObject
                         $condition = $src['condition'] ?? $src['conditions'] ?? $src['where'] ?? '';
 
                         $query = "SELECT {$valFld} as value, {$lblFld} as label FROM " . \SPPMod\SPPDB\SPPDB::sppTable($table);
-                        
+
                         if (!empty($condition)) {
                             if (is_array($condition)) {
                                 $condition = implode(' AND ', $condition);
@@ -625,11 +692,13 @@ class ViewFormBuilder extends \SPP\SPPObject
                     }
                 }
 
-                if (!$query) return null;
+                if (!$query) {
+                    return null;
+                }
 
                 // Execute the query
                 $result = $db->execute_query($query, $params);
-                
+
                 // Format results as standard label/value pairs for the Select element
                 $formatted = [];
                 foreach ($result as $row) {
@@ -679,7 +748,9 @@ class ViewFormBuilder extends \SPP\SPPObject
     private static function attachValidationToElement(ViewForm $form, ViewTag $elem, array $vConfig): void
     {
         $type = $vConfig['type'] ?? null;
-        if (!$type) return;
+        if (!$type) {
+            return;
+        }
 
         $msg = $vConfig['message'] ?? 'Validation failed';
         $errHolder = $vConfig['errorholder'] ?? ($elem->getAttribute('id') . '_error');
@@ -818,7 +889,7 @@ class ViewFormBuilder extends \SPP\SPPObject
             } elseif ($type === 'remote') {
                 $validator->setJsParams([$validator->url]);
             }
-            
+
             $form->addValidator($validator);
             $form->attachValidator($validator, $elem, $event, $errHolder, $msg);
         }
@@ -830,8 +901,8 @@ class ViewFormBuilder extends \SPP\SPPObject
      */
     public static function validate(string $yamlPath, array $data): array
     {
-        $fullPath = (str_starts_with($yamlPath, '/') || str_contains($yamlPath, ':')) 
-            ? $yamlPath 
+        $fullPath = (str_starts_with($yamlPath, '/') || str_contains($yamlPath, ':'))
+            ? $yamlPath
             : SPP_APP_DIR . '/' . ltrim($yamlPath, '/');
 
         $config = Yaml::parseFile($fullPath);
@@ -846,7 +917,7 @@ class ViewFormBuilder extends \SPP\SPPObject
                 // We use a temporary element to satisfy validator constructor
                 $tempElem = new ViewTag('input', $name);
                 $validator = null;
-                
+
                 switch ($vCfg['type']) {
                     case 'required':
                         $validator = new SPP_Validator_RequiredValidator($tempElem);

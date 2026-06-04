@@ -4,17 +4,17 @@ namespace SPPMod\SPPView;
 
 /**
  * class FormAugmentor
- * 
+ *
  * Scans captured HTML for <form> tags and "augments" them with validation logic,
  * SPA routing attributes, and pre-populated data defined in YAML.
- * 
+ *
  * @author Satya Prakash Shukla
  */
 class FormAugmentor extends \SPP\SPPObject
 {
     /**
      * Augments HTML with YAML-defined form logic and optional script/style injection.
-     * 
+     *
      * @param string $html Original HTML output
      * @param array $scripts Optional list of JS files to inject
      * @param array $styles Optional list of CSS files to inject
@@ -30,7 +30,7 @@ class FormAugmentor extends \SPP\SPPObject
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
         $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        
+
         $forms = $dom->getElementsByTagName('form');
         $modified = false;
 
@@ -39,11 +39,11 @@ class FormAugmentor extends \SPP\SPPObject
         foreach ($forms as $formNode) {
             /** @var \DOMElement $formNode */
             $formId = $formNode->getAttribute('id') ?: $formNode->getAttribute('name');
-            
+
             try {
                 $yamlPath = null;
                 $candidatePaths = [];
-                
+
                 if ($formId) {
                     $candidatePaths[] = APP_ETC_DIR . SPP_DS . 'forms' . SPP_DS . "{$formId}.yml";
                 }
@@ -56,8 +56,10 @@ class FormAugmentor extends \SPP\SPPObject
                     }
                 }
 
-                if (!$yamlPath) continue;
-                
+                if (!$yamlPath) {
+                    continue;
+                }
+
                 $config = ViewFormBuilder::loadConfig($yamlPath);
                 if (!empty($config)) {
                     self::augmentFormNode($dom, $formNode, $config);
@@ -95,19 +97,25 @@ class FormAugmentor extends \SPP\SPPObject
                         $path = $src['path'] ?? '';
                         $options = $src['options'] ?? [];
                     }
-                    if ($path === '') continue;
+                    if ($path === '') {
+                        continue;
+                    }
                     $sNode->setAttribute('src', (string)$path);
                     foreach ($options as $attrKey => $attrVal) {
-                        if ($attrVal === false || $attrVal === null) continue;
+                        if ($attrVal === false || $attrVal === null) {
+                            continue;
+                        }
                         $safeKey = preg_replace('/[^a-zA-Z0-9_\-]/', '', (string)$attrKey);
-                        if ($safeKey === '') continue;
+                        if ($safeKey === '') {
+                            continue;
+                        }
                         if ($attrVal === true) {
                             $sNode->setAttribute($safeKey, $safeKey);
                         } else {
                             $sNode->setAttribute($safeKey, (string)$attrVal);
                         }
                     }
-                    $sNode->nodeValue = ''; 
+                    $sNode->nodeValue = '';
                     $root->appendChild($sNode);
                 }
                 $modified = true;
@@ -130,24 +138,34 @@ class FormAugmentor extends \SPP\SPPObject
     private static function augmentFormNode(\DOMDocument $dom, \DOMElement $formNode, array $config): void
     {
         $fConfig = $config['form'] ?? [];
-        
+
         // 1. Inject SPA Service logic
         if (!empty($fConfig['service'])) {
             $formNode->setAttribute('data-service', $fConfig['service']);
             $resp = $fConfig['on_response'] ?? [];
-            if (isset($resp['ok']))       $formNode->setAttribute('data-on-ok', $resp['ok']);
-            if (isset($resp['error']))    $formNode->setAttribute('data-on-error', $resp['error']);
-            if (isset($resp['redirect'])) $formNode->setAttribute('data-on-redirect', $resp['redirect']);
+            if (isset($resp['ok'])) {
+                $formNode->setAttribute('data-on-ok', $resp['ok']);
+            }
+            if (isset($resp['error'])) {
+                $formNode->setAttribute('data-on-error', $resp['error']);
+            }
+            if (isset($resp['redirect'])) {
+                $formNode->setAttribute('data-on-redirect', $resp['redirect']);
+            }
         }
 
         // 2. Map fields for validation and pre-population
         foreach ($config['fields'] ?? [] as $field) {
             $name = $field['name'] ?? null;
-            if (!$name) continue;
+            if (!$name) {
+                continue;
+            }
 
             // Find matching input/select/textarea
             $inputNodes = self::findFieldNodes($formNode, $name);
-            if (empty($inputNodes)) continue;
+            if (empty($inputNodes)) {
+                continue;
+            }
 
             // Resolve pre-populated value
             $resolvedValue = $field['value'] ?? null;
@@ -156,8 +174,10 @@ class FormAugmentor extends \SPP\SPPObject
             }
 
             foreach ($inputNodes as $node) {
-                if (!$node instanceof \DOMElement) continue;
-                
+                if (!$node instanceof \DOMElement) {
+                    continue;
+                }
+
                 // Inject Validations
                 foreach ($field['validations'] ?? [] as $v) {
                     self::injectValidation($node, $v);
@@ -200,7 +220,9 @@ class FormAugmentor extends \SPP\SPPObject
     private static function injectValidation(\DOMElement $node, array $vConfig): void
     {
         $type = $vConfig['type'] ?? null;
-        if (!$type) return;
+        if (!$type) {
+            return;
+        }
 
         $event = $vConfig['event'] ?? 'onblur';
         $msg = addslashes($vConfig['message'] ?? 'Validation failed');
@@ -209,14 +231,18 @@ class FormAugmentor extends \SPP\SPPObject
 
         $jsFunc = '';
         switch ($type) {
-            case 'required': $jsFunc = "validateRequired('{$id}', '{$msg}', '{$errHolder}')"; break;
-            case 'numeric':  $jsFunc = "validateNumeric('{$id}', '{$msg}', '{$errHolder}')"; break;
-            // Add more as needed...
+            case 'required': $jsFunc = "validateRequired('{$id}', '{$msg}', '{$errHolder}')";
+                break;
+            case 'numeric':  $jsFunc = "validateNumeric('{$id}', '{$msg}', '{$errHolder}')";
+                break;
+                // Add more as needed...
         }
 
         if ($jsFunc) {
             $existing = $node->getAttribute($event);
-            if ($existing) $jsFunc = rtrim($existing, ';') . '; ' . $jsFunc;
+            if ($existing) {
+                $jsFunc = rtrim($existing, ';') . '; ' . $jsFunc;
+            }
             $node->setAttribute($event, $jsFunc);
         }
     }
@@ -260,9 +286,11 @@ class FormAugmentor extends \SPP\SPPObject
             $options = $field['options'] ?? [];
         }
 
-        if (!is_array($options)) return;
+        if (!is_array($options)) {
+            return;
+        }
 
-        // Clear existing options? User might want to keep some. 
+        // Clear existing options? User might want to keep some.
         // For simplicity, we clear if options (source or static) are defined in YAML.
         while ($selectNode->hasChildNodes()) {
             $selectNode->removeChild($selectNode->firstChild);
@@ -274,7 +302,7 @@ class FormAugmentor extends \SPP\SPPObject
             $oNode = $dom->createElement('option');
             $oNode->setAttribute('value', $opt['value']);
             $oNode->nodeValue = htmlspecialchars($opt['label'] ?? $opt['value']);
-            
+
             if ($opt['value'] == $currentValue || (!empty($opt['selected']))) {
                 $oNode->setAttribute('selected', 'selected');
             }

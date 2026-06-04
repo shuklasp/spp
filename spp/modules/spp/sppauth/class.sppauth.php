@@ -1,8 +1,11 @@
 <?php
+
 namespace SPPMod\SPPAuth;
+
 use SPP\Exceptions\ConfigVarExistsException as ConfigVarExistsException;
 use SPP\Exceptions\NoAuthSessionException as NoAuthSessionException;
 use SPP\Exceptions\UnknownPropertyException as UnknownPropertyException;
+
 /*require_once 'class.sppusersession.php';
 require_once 'sppsystemevents.php';
 require_once 'sppfuncs.php';*/
@@ -43,7 +46,7 @@ class SPPAuth extends \SPP\SPPObject
             case 'api':
                 // For now, return a placeholder for TokenGuard
                 // In a full implementation, this would be a separate class
-                return new WebGuard(); 
+                return new WebGuard();
             default:
                 throw new \SPP\Exceptions\SPPException("Unknown auth guard: " . $name);
         }
@@ -128,4 +131,3 @@ class SPPAuth extends \SPP\SPPObject
         return self::guard()->can($permission);
     }
 }
-?>

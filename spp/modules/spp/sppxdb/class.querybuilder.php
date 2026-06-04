@@ -8,7 +8,8 @@ use Exception;
  * Class QueryBuilder
  * Provides a fluent interface for SPP_XDB.
  */
-class QueryBuilder {
+class QueryBuilder
+{
     protected $db;
     protected $tableName;
     protected $wheres = [];
@@ -16,14 +17,16 @@ class QueryBuilder {
     protected $limit = null;
     protected $distinct = false;
 
-    public function __construct(SPP_XDB $db, $table) {
+    public function __construct(SPP_XDB $db, $table)
+    {
         $this->db = $db;
         $this->tableName = $table;
         // Connect automatically
         $this->db->connect($table);
     }
 
-    public function where($column, $operator, $value = null) {
+    public function where($column, $operator, $value = null)
+    {
         if ($value === null) {
             $value = $operator;
             $operator = '=';
@@ -32,7 +35,8 @@ class QueryBuilder {
         return $this;
     }
 
-    public function orWhere($column, $operator, $value = null) {
+    public function orWhere($column, $operator, $value = null)
+    {
         if ($value === null) {
             $value = $operator;
             $operator = '=';
@@ -41,27 +45,32 @@ class QueryBuilder {
         return $this;
     }
 
-    public function whereIn($column, array $values) {
+    public function whereIn($column, array $values)
+    {
         $this->wheres[] = ['column' => $column, 'operator' => 'IN', 'value' => $values, 'boolean' => 'AND'];
         return $this;
     }
 
-    public function whereLike($column, $value) {
+    public function whereLike($column, $value)
+    {
         $this->wheres[] = ['column' => $column, 'operator' => 'LIKE', 'value' => $value, 'boolean' => 'AND'];
         return $this;
     }
 
-    public function orderBy($column, $direction = 'ASC') {
+    public function orderBy($column, $direction = 'ASC')
+    {
         $this->orders[] = ['column' => $column, 'direction' => strtoupper($direction)];
         return $this;
     }
 
-    public function limit($limit) {
+    public function limit($limit)
+    {
         $this->limit = (int)$limit;
         return $this;
     }
 
-    public function distinct() {
+    public function distinct()
+    {
         $this->distinct = true;
         return $this;
     }
@@ -69,18 +78,23 @@ class QueryBuilder {
     /**
      * Executes the query and returns results.
      */
-    public function get($fields = '*') {
+    public function get($fields = '*')
+    {
         $sql = "SELECT " . ($this->distinct ? "DISTINCT " : "") . (is_array($fields) ? implode(', ', $fields) : $fields);
         $sql .= " FROM " . $this->tableName;
-        
+
         $params = [];
         if (!empty($this->wheres)) {
             $sql .= " WHERE ";
             foreach ($this->wheres as $i => $where) {
-                if ($i > 0) $sql .= " " . $where['boolean'] . " ";
-                
+                if ($i > 0) {
+                    $sql .= " " . $where['boolean'] . " ";
+                }
+
                 if ($where['operator'] === 'IN') {
-                    $inVals = array_map(function($v) { return "'" . addslashes($v) . "'"; }, $where['value']);
+                    $inVals = array_map(function ($v) {
+                        return "'" . addslashes($v) . "'";
+                    }, $where['value']);
                     $sql .= $where['column'] . " IN (" . implode(',', $inVals) . ")";
                 } else {
                     $sql .= $where['column'] . " " . $where['operator'] . " ?";
@@ -92,7 +106,9 @@ class QueryBuilder {
         if (!empty($this->orders)) {
             $sql .= " ORDER BY ";
             foreach ($this->orders as $i => $order) {
-                if ($i > 0) $sql .= ", ";
+                if ($i > 0) {
+                    $sql .= ", ";
+                }
                 $sql .= $order['column'] . " " . $order['direction'];
             }
         }
@@ -104,39 +120,47 @@ class QueryBuilder {
         return $this->db->querySQL($sql, $params);
     }
 
-    public function first($fields = '*') {
+    public function first($fields = '*')
+    {
         $this->limit(1);
         $results = $this->get($fields);
         return $results[0] ?? null;
     }
 
-    public function count() {
+    public function count()
+    {
         $res = $this->get("COUNT(*)");
         return $res[0]['COUNT(*)'] ?? 0;
     }
 
-    public function sum($column) {
+    public function sum($column)
+    {
         $res = $this->get("SUM($column)");
         return $res[0]["SUM($column)"] ?? 0;
     }
 
-    public function max($column) {
+    public function max($column)
+    {
         $res = $this->get("MAX($column)");
         return $res[0]["MAX($column)"] ?? null;
     }
 
-    public function insert(array $data) {
+    public function insert(array $data)
+    {
         return $this->db->insert($data);
     }
 
-    public function update(array $data) {
+    public function update(array $data)
+    {
         // This is tricky because querySQL doesn't easily support UPDATE with complex WHERE from Builder yet
         // But we can translate it.
         $whereSql = "";
         $params = [];
         if (!empty($this->wheres)) {
             foreach ($this->wheres as $i => $where) {
-                if ($i > 0) $whereSql .= " " . $where['boolean'] . " ";
+                if ($i > 0) {
+                    $whereSql .= " " . $where['boolean'] . " ";
+                }
                 $whereSql .= $where['column'] . " " . $where['operator'] . " ?";
                 $params[] = $where['value'];
             }
@@ -144,12 +168,15 @@ class QueryBuilder {
         return $this->db->update($data, $whereSql, $params);
     }
 
-    public function delete() {
+    public function delete()
+    {
         $whereSql = "";
         $params = [];
         if (!empty($this->wheres)) {
             foreach ($this->wheres as $i => $where) {
-                if ($i > 0) $whereSql .= " " . $where['boolean'] . " ";
+                if ($i > 0) {
+                    $whereSql .= " " . $where['boolean'] . " ";
+                }
                 $whereSql .= $where['column'] . " " . $where['operator'] . " ?";
                 $params[] = $where['value'];
             }

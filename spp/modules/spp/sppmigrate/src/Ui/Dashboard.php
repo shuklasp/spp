@@ -1,10 +1,13 @@
 <?php
+
 namespace SPPMod\SPPMigrate\Ui;
 
-class Dashboard {
-    public static function render(): void {
+class Dashboard
+{
+    public static function render(): void
+    {
         $context = \SPP\Scheduler::getContext();
-        
+
         $assets = defined('APP_BASE_URI') ? APP_BASE_URI : '';
         $css = $assets . '/res/spp/css/spp.css';
 

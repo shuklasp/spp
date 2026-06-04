@@ -1,0 +1,301 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to static method isAvailable\(\) on an unknown class SPP\\Core\\RedisCache\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/core/class.cache.php
+
+		-
+			message: '#^Instantiated class SPP\\Core\\RedisCache not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/core/class.cache.php
+
+		-
+			message: '#^Call to static method createFromRequest\(\) on an unknown class Drupal\\Core\\DrupalKernel\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/core/class.drupalapp.php
+
+		-
+			message: '#^Parameter \$request of method SPP\\DrupalApp\:\:handle\(\) has invalid type Symfony\\Component\\HttpFoundation\\Request\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/core/class.drupalapp.php
+
+		-
+			message: '#^Static method SPP\\Module\:\:getConfig\(\) invoked with 1 parameter, 2\-3 required\.$#'
+			identifier: arguments.count
+			count: 2
+			path: spp/core/class.polyglotproxy.php
+
+		-
+			message: '#^Path in require_once\(\) "devsettings\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/core/class.sppdev.php
+
+		-
+			message: '#^Instantiated class SPP\\Exceptions\\SPPException not found\.$#'
+			identifier: class.notFound
+			count: 3
+			path: spp/core/class.workflowmanager.php
+
+		-
+			message: '#^Result of static method SPP\\Scheduler\:\:setContext\(\) \(void\) is used\.$#'
+			identifier: staticMethod.void
+			count: 1
+			path: spp/core/router/RouterFacade.php
+
+		-
+			message: '#^Call to static method write_to_log\(\) on an unknown class SPPMod\\SPPLogger\\SPPLogger\.$#'
+			identifier: class.notFound
+			count: 2
+			path: spp/core/sppsystemevents.php
+
+		-
+			message: '#^Path in require_once\(\) "class\.spplogger\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/core/sppsystemevents.php
+
+		-
+			message: '#^Path in require_once\(\) "class\.sppdatabase\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/modules/class.sppdbentity.php
+
+		-
+			message: '#^Path in require_once\(\) "class\.sppentity\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/modules/class.sppdbentity.php
+
+		-
+			message: '#^Path in require_once\(\) "entityexceptions\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/modules/school/schorg/class.schorg.php
+
+		-
+			message: '#^Path in require_once\(\) "entityexceptions\.php" is not a file or it does not exist\.$#'
+			identifier: requireOnce.fileNotFound
+			count: 1
+			path: spp/modules/school/schperson/class.schperson.php
+
+		-
+			message: '#^Instantiated class SPPMod\\Lekhak\\Drivers\\TwigShimDriver not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/drishyam/src/DrishyamRenderer.php
+
+		-
+			message: '#^Call to static method query\(\) on an unknown class SPP\\DB\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppauth/class.rbac.php
+
+		-
+			message: '#^Instantiated class SPP\\Exceptions\\SPPException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppauth/class.sppauth.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 1
+			path: spp/modules/spp/sppdb/class.querybuilder.php
+
+		-
+			message: '#^Class SPP\\Core\\PDOAdapter not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppdb/class.sppdb.php
+
+		-
+			message: '#^Call to static method createFromGlobals\(\) on an unknown class Symfony\\Component\\HttpFoundation\\Request\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppdrupal/class.sppdrupal.php
+
+		-
+			message: '#^Call to static method createFromRequest\(\) on an unknown class Drupal\\Core\\DrupalKernel\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppdrupal/class.sppdrupal.php
+
+		-
+			message: '#^Call to static method load\(\) on an unknown class Drupal\\node\\Entity\\Node\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppdrupal/class.sppdrupal.php
+
+		-
+			message: '#^Instantiated class Twig\\TwigFunction not found\.$#'
+			identifier: class.notFound
+			count: 2
+			path: spp/modules/spp/sppdrupal/class.sppdrupalbridge.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPAI\\SPPAI\:\:search\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppentity/class.sppentity.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPAuth\\SPPUser\:\:createUser\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppentity/class.sppentity.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPAuth\\SPPUser\:\:dropUser\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppentity/class.sppentity.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPLogger\\SPP_Logger\:\:warning\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppentity/class.sppentity.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
+			count: 6
+			path: spp/modules/spp/sppentity/class.sppentity.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPView\\ViewPage\:\:addHeadContent\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppext/class.sppext.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\Sppext\\Sppext\:\:boot\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/sppext/modinit.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPAuth\\SPPAuth\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: spp/modules/spp/spplogger/class.spplogger.php
+
+		-
+			message: '#^Undefined variable\: \$f$#'
+			identifier: variable.undefined
+			count: 3
+			path: spp/modules/spp/sppmigrate/src/Ui/Dashboard.php
+
+		-
+			message: '#^Undefined variable\: \$totalChanges$#'
+			identifier: variable.undefined
+			count: 1
+			path: spp/modules/spp/sppmigrate/src/Ui/Dashboard.php
+
+		-
+			message: '#^Call to an undefined static method SPP\\SPPEvent\:\:attachEvent\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 1
+			path: spp/modules/spp/spppjax/class.spppjax.php
+
+		-
+			message: '#^Method SPP\\Module\:\:__construct\(\) invoked with 0 parameters, 1 required\.$#'
+			identifier: arguments.count
+			count: 1
+			path: spp/modules/spp/spppjax/class.spppjax.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPAuth\\SPPAuth\:\:get\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 2
+			path: spp/modules/spp/sppuserprofile/class.sppuserprofile.php
+
+		-
+			message: '#^Instantiated class SPPMod\\SPPView\\InvalidHTMLTableSectionException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppview/class.spphtmltable.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Cropper\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_DualList\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_OTP\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Portability\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Range\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Rating\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Repeater\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Signature\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_Tags\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined method SPPMod\\SPPView\\SPPViewForm_TreeSelect\:\:getAttributesHTML\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: spp/modules/spp/sppview/formelements/classes.formelements.php
+
+		-
+			message: '#^Call to an undefined static method SPPMod\\SPPView\\ViewPage\:\:addClass\(\)\.$#'
+			identifier: staticMethod.notFound
+			count: 25
+			path: spp/modules/spp/sppview/sppvalidator/classes.sppvalidators.php
+
+		-
+			message: '#^Instantiated class SPPMod\\SessionDoesNotExistException not found\.$#'
+			identifier: class.notFound
+			count: 5
+			path: spp/modules/spp/sppwizard/class.sppwizard.php
+
+		-
+			message: '#^Instantiated class SPPMod\\UnknownRequestTypeException not found\.$#'
+			identifier: class.notFound
+			count: 1
+			path: spp/modules/spp/sppwizard/class.sppwizard.php

@@ -1,0 +1,1 @@
+"C:\Program Files\nodejs\node.exe" "C:\projects\apache\school1\spp/lib/polyglot/dispatch.js" "services/node/daemon_service.js" --daemon "C:\projects\apache\school1\var\shared/bridge/daemons/9cfd1b21f261424fb78e9b01457a821b.port" > "C:\projects\apache\school1\var\shared/bridge/daemons/9cfd1b21f261424fb78e9b01457a821b.log" 2>&1

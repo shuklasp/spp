@@ -1,32 +1,35 @@
 <?php
+
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
 
 class ViewPageRemoveCommand extends Command
 {
+    protected string $name = 'view:page:remove';
+    protected string $description = 'Remove a page route from an app';
+
     public function execute(array $args): void
     {
-        $command = $args[1] ?? '';
-        $name = $argv[2] ?? null;
-                if (!$name) die("Usage: php spp.php view:page:remove <name>\n");
-                require_once SPP_APP_DIR . '/spp/sppinit.php';
-                if (\SPPMod\SPPView\Pages::removePage($name, 'yaml')) {
-                    echo "Success: Removed from YAML.\n";
-                } else if (\SPPMod\SPPView\Pages::removePage($name, 'db')) {
-                    echo "Success: Removed from DB.\n";
-                } else {
-                    echo "Error: Page route not found.\n";
-                }
-    }
+        $appname = 'default';
+        $name = null;
+        $source = 'yaml';
 
-    public function getName(): string
-    {
-        return 'view:page:remove';
-    }
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--app=')) $appname = substr($arg, 6);
+            elseif (str_starts_with($arg, '--name=')) $name = substr($arg, 7);
+            elseif (str_starts_with($arg, '--source=')) $source = substr($arg, 9);
+        }
 
-    public function getDescription(): string
-    {
-        return 'Legacy port of view:page:remove';
+        if (!$name) {
+            echo "Usage: php spp.php view:page:remove --name=<route> [--app=default] [--source=yaml|db]\n";
+            return;
+        }
+
+        \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
+            \SPPMod\SPPView\Pages::removePage($name, $source);
+        });
+
+        echo "Success: Page route '{$name}' removed for app '{$appname}' (Source: {$source}).\n";
     }
 }

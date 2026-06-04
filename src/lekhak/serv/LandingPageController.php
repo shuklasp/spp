@@ -112,9 +112,6 @@ HTML;
         $data['admin_root'] = $appRoot . '/admin';
         $data['view_name'] = $view;
         
-        if (class_exists('\SPPMod\Drishyam\Drishyam')) {
-            \SPPMod\Drishyam\Drishyam::getInstance()->setContext('site');
-        }
         
         return $renderer->render($view, $data);
     }

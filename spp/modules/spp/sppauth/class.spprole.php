@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 use SPPMod\SPPEntity\SPPEntity;
@@ -24,7 +25,9 @@ class SPPRole extends SPPEntity
     public function hasRight($rt)
     {
         $rtid = SPPRight::getRightId($rt);
-        if ($rtid === -1) return false;
+        if ($rtid === -1) {
+            return false;
+        }
 
         $db = new SPPDB();
         $sql = 'SELECT count(*) as cnt FROM ' . SPPDB::sppTable('roleright') . ' WHERE roleid=? AND rightid=?';
@@ -49,10 +52,10 @@ class SPPRole extends SPPEntity
     {
         $db = new SPPDB();
         $table = SPPDB::sppTable('roleright');
-        
+
         // 1. Wipe current assignments
         $db->execute_query("DELETE FROM {$table} WHERE roleid=?", [$this->id]);
-        
+
         // 2. Re-insert new assignments
         foreach ($rightIds as $rid) {
             $db->insertValues('roleright', ['roleid' => $this->id, 'rightid' => (int)$rid]);
@@ -85,7 +88,9 @@ class SPPRole extends SPPEntity
             $existingRole = new self($id);
             $name = $existingRole->role_name;
         }
-        if (empty($name)) throw new \Exception("Role name is required.");
+        if (empty($name)) {
+            throw new \Exception("Role name is required.");
+        }
 
         $role = new self($id);
         $role->role_name = $name;

@@ -9,5 +9,15 @@ use SPPMod\SPPEntity\SPPEntity;
  */
 class DummyEntity extends \SPPMod\SPPEntity\SPPEntity
 {
+    public function getTable() { return 'dummyentitys'; }
+
     // Custom domain logic here
+    public function define_attributes()
+    {
+        return [
+            'name' => 'varchar(255)',
+            'dob' => 'datetime'
+        ];
+    }
+
 }

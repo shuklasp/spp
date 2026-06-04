@@ -1,19 +1,22 @@
 <?php
+
 namespace SPP\Core;
 
 /**
  * class Pipeline
- * 
+ *
  * Orchestrates the execution of a stack of middlewares.
  */
-class Pipeline {
+class Pipeline
+{
     private array $pipes = [];
     private $passable;
 
     /**
      * Set the object being sent through the pipeline.
      */
-    public function send($passable): self {
+    public function send($passable): self
+    {
         $this->passable = $passable;
         return $this;
     }
@@ -21,7 +24,8 @@ class Pipeline {
     /**
      * Set the stack of pipes.
      */
-    public function through(array $pipes): self {
+    public function through(array $pipes): self
+    {
         $this->pipes = $pipes;
         return $this;
     }
@@ -29,7 +33,8 @@ class Pipeline {
     /**
      * Run the pipeline with a final destination callback.
      */
-    public function then(callable $destination) {
+    public function then(callable $destination)
+    {
         $pipeline = array_reduce(
             array_reverse($this->pipes),
             $this->carry(),
@@ -42,7 +47,8 @@ class Pipeline {
     /**
      * Get the closure that represents one layer of the onion.
      */
-    private function carry(): \Closure {
+    private function carry(): \Closure
+    {
         return function ($stack, $pipe) {
             return function ($passable) use ($stack, $pipe) {
                 if (is_string($pipe)) {
@@ -61,7 +67,8 @@ class Pipeline {
     /**
      * Prepare the final destination callback.
      */
-    private function prepareDestination(callable $destination): \Closure {
+    private function prepareDestination(callable $destination): \Closure
+    {
         return function ($passable) use ($destination) {
             return $destination($passable);
         };

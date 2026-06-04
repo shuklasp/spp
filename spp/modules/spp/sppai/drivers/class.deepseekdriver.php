@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -36,7 +37,9 @@ class DeepSeekDriver implements AIDriverInterface
 
     public function chat(array $messages, array $options = []): string
     {
-        if (empty($this->apiKey)) return "Error: DeepSeek API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: DeepSeek API Key not configured.";
+        }
 
         $payload = [
             'model' => $this->model,
@@ -53,7 +56,7 @@ class DeepSeekDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -96,7 +99,7 @@ class DeepSeekDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -137,7 +140,7 @@ class DeepSeekDriver implements AIDriverInterface
             'Content-Type: application/json',
             'Authorization: Bearer ' . $this->apiKey
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 

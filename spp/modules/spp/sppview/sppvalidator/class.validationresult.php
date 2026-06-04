@@ -6,7 +6,8 @@ namespace SPPMod\SPPView;
  * class ValidationResult
  * Encapsulates the results of a validation run.
  */
-class ValidationResult {
+class ValidationResult
+{
     private bool $valid = true;
     private array $errors = [];
 
@@ -31,7 +32,9 @@ class ValidationResult {
 
     public function getFirstError(): ?string
     {
-        if (empty($this->errors)) return null;
+        if (empty($this->errors)) {
+            return null;
+        }
         $firstField = reset($this->errors);
         return reset($firstField);
     }

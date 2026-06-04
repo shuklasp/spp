@@ -562,7 +562,7 @@ textarea:focus {
 #workspace-layer.active {
     display: grid;
     opacity: 1;
-    animation: workspaceFadeIn 0.5s var(--transition) forwards;
+    animation: workspaceFadeIn 0.1s var(--transition) forwards;
 }
 
 @keyframes workspaceFadeIn {
@@ -939,7 +939,7 @@ textarea:focus {
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
     align-items: stretch;
-    animation: gridFadeIn 0.4s var(--transition) forwards;
+    animation: gridFadeIn 0.1s var(--transition) forwards;
 }
 
 @keyframes gridFadeIn {
@@ -1198,7 +1198,7 @@ textarea:focus {
     transform: scale(0.9) translateY(20px);
     opacity: 0;
     transition: width 0.3s ease, height 0.3s ease;
-    animation: modalIn 0.35s var(--spring) forwards;
+    animation: modalIn 0.1s var(--spring) forwards;
 }
 
 /* Custom form groups for sub-modals */
@@ -1894,7 +1894,7 @@ textarea:focus {
 
 .tab-content.active {
     display: block;
-    animation: tabFadeIn 0.3s var(--transition) forwards;
+    animation: tabFadeIn 0.05s var(--transition) forwards;
 }
 
 /* --- Setup Modal Tabs --- */
@@ -2270,7 +2270,7 @@ textarea:focus {
     padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--glass-border);
     position: relative;
-    animation: fadeIn 0.5s ease-out;
+    animation: fadeIn 0.1s ease-out;
 }
 
 .module-group-header h2 {
@@ -2344,7 +2344,7 @@ textarea:focus {
 
 .group-tab-content {
     display: none;
-    animation: fadeIn 0.3s var(--transition);
+    animation: fadeIn 0.1s var(--transition);
 }
 
 .group-tab-content.active {
@@ -3448,7 +3448,7 @@ textarea:focus {
     background: rgba(0, 0, 0, 0.4);
     border-radius: var(--radius-md);
     border: 1px solid var(--primary-glow);
-    animation: slideDown 0.3s var(--spring);
+    animation: slideDown 0.1s var(--spring);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 

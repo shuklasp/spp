@@ -4,7 +4,7 @@ namespace SPP\Core;
 
 /**
  * class Migration
- * 
+ *
  * Base class for all module schema and data migrations.
  */
 abstract class Migration
@@ -23,7 +23,7 @@ abstract class Migration
      * Returns the version number this migration targets (e.g. "1.1.0").
      */
     abstract public function getVersion(): string;
-    
+
     /**
      * Helper to execute SQL safely if sppdb is available.
      */

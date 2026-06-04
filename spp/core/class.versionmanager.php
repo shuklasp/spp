@@ -6,8 +6,8 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * class VersionManager
- * 
- * Manages the installed versions of modules using a flat YAML registry 
+ *
+ * Manages the installed versions of modules using a flat YAML registry
  * to ensure zero-dependency on the database module.
  */
 class VersionManager
@@ -55,23 +55,25 @@ class VersionManager
     {
         $log = [];
         $registry = $this->loadRegistry();
-        
+
         // Discover active modules (Simplified scan for migration discovery)
         $modules = $this->discoverModules();
-        
+
         foreach ($modules as $name => $path) {
             $currentVersion = $registry[$name] ?? '0.0.0';
             $migrationDir = $path . SPP_DS . 'migrations';
-            
-            if (!is_dir($migrationDir)) continue;
-            
+
+            if (!is_dir($migrationDir)) {
+                continue;
+            }
+
             $files = glob($migrationDir . SPP_DS . 'Migration_*.php');
             sort($files); // Run in version order
-            
+
             foreach ($files as $file) {
                 $basename = basename($file, '.php');
                 $version = str_replace(['Migration_', '_'], ['', '.'], $basename);
-                
+
                 if (version_compare($version, $currentVersion, '>')) {
                     try {
                         require_once $file;
@@ -88,7 +90,7 @@ class VersionManager
                 }
             }
         }
-        
+
         $this->saveRegistry($registry);
         return $log;
     }
@@ -113,8 +115,10 @@ class VersionManager
         ];
 
         foreach ($searchPaths as $base) {
-            if (!is_dir($base)) continue;
-            
+            if (!is_dir($base)) {
+                continue;
+            }
+
             // Scan for directories that contain a manifest (yml or xml)
             $dirs = glob($base . SPP_DS . '*', GLOB_ONLYDIR);
             foreach ($dirs as $dir) {
@@ -143,7 +147,9 @@ class VersionManager
     private function saveRegistry(array $versions): bool
     {
         $dir = dirname($this->registryFile);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
 
         try {
             file_put_contents($this->registryFile, Yaml::dump($versions, 4, 4));

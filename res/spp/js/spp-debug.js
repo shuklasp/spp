@@ -9,14 +9,27 @@ class SPPDebugBar {
         this.metrics = JSON.parse(this.el.dataset.metrics || '{}');
         this.render();
     }
-
     render() {
-        const { execution_time, memory_usage, context, queries, logs } = this.metrics;
+        const { execution_time, memory_usage, context, queries, logs, request } = this.metrics;
         
         const memMB = (memory_usage / 1024 / 1024).toFixed(2);
         const execMS = (execution_time * 1000).toFixed(1);
 
+        let replayBtn = '';
+        if (request && request.method === 'POST') {
+            const encodedPost = encodeURIComponent(JSON.stringify(request.post));
+            replayBtn = `
+                <div class="spp-debug-item" style="background: #f43f5e; cursor: pointer; color: white;" 
+                     title="Time-Travel: Replay this exact POST request without refilling forms"
+                     onclick="window.sppReplayRequest('${request.uri}', '${encodedPost}')">
+                    <span class="spp-debug-icon">⏪</span>
+                    <span style="font-weight: bold;">Replay</span>
+                </div>
+            `;
+        }
+
         this.el.innerHTML = `
+            ${replayBtn}
             <div class="spp-debug-item" title="Application Context">
                 <span class="spp-debug-icon">📦</span>
                 <span>${context}</span>
@@ -46,6 +59,23 @@ class SPPDebugBar {
         `;
     }
 }
+
+window.sppReplayRequest = function(uri, postJson) {
+    if(!confirm("Replay this request?")) return;
+    const postData = JSON.parse(decodeURIComponent(postJson));
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = uri;
+    for(const key in postData) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = postData[key];
+        form.appendChild(input);
+    }
+    document.body.appendChild(form);
+    form.submit();
+};
 
 // Auto-initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

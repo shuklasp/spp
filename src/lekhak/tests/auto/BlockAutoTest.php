@@ -5,7 +5,7 @@ use App\Lekhak\Entities\Block;
 
 /**
  * Auto-generated Test for Block (Parikshak)
- * Generation Date: 2026-05-19 03:02:53
+ * Generation Date: 2026-05-31 14:48:36
  */
 class BlockAutoTest
 {
@@ -15,13 +15,13 @@ class BlockAutoTest
         try {
             $entity = new Block();
             $data = array (
-  'name' => 'PARIKSHAK_FUZZ_48952',
-  'title' => 'PARIKSHAK_FUZZ_03389',
-  'region' => 'PARIKSHAK_FUZZ_da2a5',
+  'name' => 'PARIKSHAK_FUZZ_9e41b',
+  'title' => 'PARIKSHAK_FUZZ_64f1b',
+  'region' => 'PARIKSHAK_FUZZ_88fb8',
   'visibility_paths' => 'UNKNOWN_TYPE_text',
   'content' => 'UNKNOWN_TYPE_longtext',
-  'type' => 'PARIKSHAK_FUZZ_d48f7',
-  'weight' => 985948,
+  'type' => 'PARIKSHAK_FUZZ_b9c5d',
+  'weight' => 312823,
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

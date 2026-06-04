@@ -1,11 +1,12 @@
 <?php
+
 namespace SPP;
 
 use Symfony\Component\Yaml\Yaml;
 
 /**
  * class SPP\SPPConfig
- * 
+ *
  * Core authority for reading and writing setting variables across the framework.
  * Standardizes global settings into global-settings.yml and per-app settings into settings.yml.
  */
@@ -17,7 +18,7 @@ class SPPConfig extends \SPP\SPPObject
 
     /**
      * Registers a validation schema for a configuration namespace.
-     * 
+     *
      * @param string $namespace 'app', 'global', or 'mod:<modname>'
      * @param array $schema
      */
@@ -28,7 +29,7 @@ class SPPConfig extends \SPP\SPPObject
 
     /**
      * Validates a value against a registered schema.
-     * 
+     *
      * @param string $key
      * @param mixed $value
      * @param string $namespace
@@ -37,11 +38,13 @@ class SPPConfig extends \SPP\SPPObject
     public static function validate(string $key, mixed $value, string $namespace = 'app'): void
     {
         $schema = self::$schemas[$namespace] ?? null;
-        if (!$schema || !isset($schema[$key])) return;
+        if (!$schema || !isset($schema[$key])) {
+            return;
+        }
 
         $def = $schema[$key];
         $type = $def['type'] ?? 'string';
-        
+
         switch ($type) {
             case 'boolean':
             case 'bool':
@@ -68,13 +71,19 @@ class SPPConfig extends \SPP\SPPObject
                 if (!is_scalar($value) && !is_null($value)) {
                     throw new \SPP\SPPException("Validation failed for '{$key}' in '{$namespace}': Expected string/scalar value.");
                 }
+                if (isset($def['options'])) {
+                    $opts = is_array($def['options']) ? array_keys($def['options']) : [];
+                    if (!in_array((string)$value, $opts)) {
+                        throw new \SPP\SPPException("Validation failed for '{$key}' in '{$namespace}': Invalid option. Allowed: " . implode(', ', $opts));
+                    }
+                }
                 break;
         }
     }
 
     /**
      * Retrieves a setting value.
-     * 
+     *
      * Key formats:
      * - "app:site_name" -> <AppEtcDir>/settings.yml
      * - "global:debug" -> spp/etc/global-settings.yml (under 'settings' block)
@@ -82,7 +91,7 @@ class SPPConfig extends \SPP\SPPObject
      * - "env:DB_PASS" -> $_ENV or getenv()
      * - "mod:sppdb:table_prefix" -> SPP\Module::getConfig()
      * - "key" (no prefix) -> Checks "app:", then "global:", then "sys:", then "env:"
-     * 
+     *
      * @param string $key
      * @param mixed $default
      * @return mixed
@@ -90,7 +99,7 @@ class SPPConfig extends \SPP\SPPObject
     public static function get(string $key, mixed $default = null): mixed
     {
         $appname = \SPP\Scheduler::getContext() ?: 'default';
-        
+
         // 1. Check in-memory cache
         $cacheKey = "{$appname}::{$key}";
         if (isset(self::$cache[$cacheKey])) {
@@ -135,9 +144,15 @@ class SPPConfig extends \SPP\SPPObject
             default:
                 // No prefix priority: app > global > sys > env
                 $val = self::getFromApp($key, $appname);
-                if ($val === null) $val = self::getFromGlobal($key);
-                if ($val === null) $val = self::getFromSys($key);
-                if ($val === null) $val = self::getFromEnv($key);
+                if ($val === null) {
+                    $val = self::getFromGlobal($key);
+                }
+                if ($val === null) {
+                    $val = self::getFromSys($key);
+                }
+                if ($val === null) {
+                    $val = self::getFromEnv($key);
+                }
                 break;
         }
 
@@ -148,7 +163,7 @@ class SPPConfig extends \SPP\SPPObject
 
     /**
      * Persists a setting value.
-     * 
+     *
      * @param string $key
      * @param mixed $value
      */
@@ -212,8 +227,12 @@ class SPPConfig extends \SPP\SPPObject
 
     private static function getFromEnv(string $key): mixed
     {
-        if (isset($_ENV[$key])) return $_ENV[$key];
-        if (isset($_SERVER[$key])) return $_SERVER[$key];
+        if (isset($_ENV[$key])) {
+            return $_ENV[$key];
+        }
+        if (isset($_SERVER[$key])) {
+            return $_SERVER[$key];
+        }
         $val = getenv($key);
         return $val === false ? null : $val;
     }
@@ -222,8 +241,10 @@ class SPPConfig extends \SPP\SPPObject
     {
         $app = \SPP\App::getApp($appname);
         $file = $app->getAppConfDir() . SPP_DS . 'settings.yml';
-        if (!file_exists($file)) return null;
-        
+        if (!file_exists($file)) {
+            return null;
+        }
+
         $data = self::loadYaml($file);
         return self::getNestedValue($data, $key);
     }
@@ -232,7 +253,9 @@ class SPPConfig extends \SPP\SPPObject
     {
         $file = SPP_ETC_DIR . SPP_DS . 'global-settings.yml';
         $data = self::loadYaml($file);
-        if (!isset($data['settings'])) $data['settings'] = [];
+        if (!isset($data['settings'])) {
+            $data['settings'] = [];
+        }
         self::setNestedValue($data['settings'], $key, $value);
         self::saveYaml($file, $data);
     }
@@ -257,7 +280,7 @@ class SPPConfig extends \SPP\SPPObject
     private static function getFromDb(string $key, string $appname): mixed
     {
         if (class_exists('\\SPPMod\\DBSettings\\DBSettings')) {
-             return \SPPMod\DBSettings\DBSettings::get($key, $appname);
+            return \SPPMod\DBSettings\DBSettings::get($key, $appname);
         }
         return null;
     }
@@ -265,7 +288,7 @@ class SPPConfig extends \SPP\SPPObject
     private static function putToDb(string $key, mixed $value, string $appname): void
     {
         if (class_exists('\\SPPMod\\DBSettings\\DBSettings')) {
-             \SPPMod\DBSettings\DBSettings::set($key, $value, $appname);
+            \SPPMod\DBSettings\DBSettings::set($key, $value, $appname);
         }
     }
 
@@ -279,7 +302,9 @@ class SPPConfig extends \SPP\SPPObject
     private static function loadCompiled(string $appname): array
     {
         static $compiledData = [];
-        if (isset($compiledData[$appname])) return $compiledData[$appname];
+        if (isset($compiledData[$appname])) {
+            return $compiledData[$appname];
+        }
 
         $path = self::getCompiledPath($appname);
         if (file_exists($path)) {
@@ -292,14 +317,16 @@ class SPPConfig extends \SPP\SPPObject
     public static function compile(string $appname): void
     {
         $all = [];
-        
+
         // Flatten global-settings (sys and global)
         $file = SPP_ETC_DIR . SPP_DS . 'global-settings.yml';
         if (file_exists($file)) {
             $data = self::loadYaml($file);
             // Sys keys
             foreach ($data as $k => $v) {
-                if ($k === 'settings') continue;
+                if ($k === 'settings') {
+                    continue;
+                }
                 $all["sys:{$k}"] = $v;
                 $all[$k] = $v; // Generic fallback
             }
@@ -323,27 +350,111 @@ class SPPConfig extends \SPP\SPPObject
                     $all[$k] = $v; // Overrides global in generic lookup
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $path = self::getCompiledPath($appname);
         $content = "<?php\nreturn " . var_export($all, true) . ";\n";
-        
+
         $dir = dirname($path);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         file_put_contents($path, $content);
     }
 
     public static function clearCompiled(string $appname): void
     {
         $path = self::getCompiledPath($appname);
-        if (file_exists($path)) @unlink($path);
+        if (file_exists($path)) {
+            @unlink($path);
+        }
+    }
+
+    /**
+     * Retrieves all settings as a flat associative array.
+     */
+    public static function getAll(string $appname): array
+    {
+        $all = [];
+        $file = SPP_ETC_DIR . SPP_DS . 'global-settings.yml';
+        if (file_exists($file)) {
+            $data = self::loadYaml($file);
+            foreach ($data as $k => $v) {
+                if ($k === 'settings') {
+                    continue;
+                }
+                $all["sys:{$k}"] = $v;
+            }
+            if (isset($data['settings'])) {
+                foreach ($data['settings'] as $k => $v) {
+                    $all["global:{$k}"] = $v;
+                }
+            }
+        }
+        try {
+            $app = \SPP\App::getApp($appname);
+            $appFile = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+            if (file_exists($appFile)) {
+                $appData = self::loadYaml($appFile);
+                foreach ($appData as $k => $v) {
+                    $all["app:{$k}"] = $v;
+                }
+            }
+        } catch (\Exception $e) {
+        }
+
+        return $all;
+    }
+
+    /**
+     * Deletes a configuration key.
+     */
+    public static function delete(string $key): void
+    {
+        $appname = \SPP\Scheduler::getContext() ?: 'default';
+        $parts = explode(':', $key);
+        $type = count($parts) > 1 ? $parts[0] : 'app';
+        $realKey = count($parts) > 1 ? implode(':', array_slice($parts, 1)) : $key;
+
+        switch ($type) {
+            case 'app':
+                $app = \SPP\App::getApp($appname);
+                $file = $app->getAppConfDir() . SPP_DS . 'settings.yml';
+                $data = self::loadYaml($file);
+                self::unsetNestedValue($data, $realKey);
+                self::saveYaml($file, $data);
+                break;
+            case 'global':
+                $file = SPP_ETC_DIR . SPP_DS . 'global-settings.yml';
+                $data = self::loadYaml($file);
+                if (isset($data['settings'])) {
+                    self::unsetNestedValue($data['settings'], $realKey);
+                }
+                self::saveYaml($file, $data);
+                break;
+            case 'sys':
+                $file = SPP_ETC_DIR . SPP_DS . 'global-settings.yml';
+                $data = self::loadYaml($file);
+                self::unsetNestedValue($data, $realKey);
+                self::saveYaml($file, $data);
+                break;
+        }
+
+        unset(self::$cache["{$appname}::{$key}"]);
+        if ($type === 'app' || $type === 'global' || $type === 'sys') {
+            unset(self::$cache["{$appname}::{$realKey}"]);
+            self::clearCompiled($appname);
+        }
     }
 
     // --- Helpers ---
 
     private static function loadYaml(string $file): array
     {
-        if (!file_exists($file)) return [];
+        if (!file_exists($file)) {
+            return [];
+        }
         try {
             return Yaml::parseFile($file) ?: [];
         } catch (\Exception $e) {
@@ -354,13 +465,17 @@ class SPPConfig extends \SPP\SPPObject
     private static function saveYaml(string $file, array $data): void
     {
         $dir = dirname($file);
-        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         file_put_contents($file, Yaml::dump($data, 4, 4));
     }
 
     private static function getNestedValue(array $data, string $key): mixed
     {
-        if ($key === '') return $data;
+        if ($key === '') {
+            return $data;
+        }
         $parts = explode('.', $key);
         $curr = $data;
         foreach ($parts as $p) {
@@ -378,10 +493,30 @@ class SPPConfig extends \SPP\SPPObject
         $parts = explode('.', $key);
         $curr = &$data;
         foreach ($parts as $p) {
-            if (!is_array($curr)) $curr = [];
-            if (!isset($curr[$p])) $curr[$p] = [];
+            if (!is_array($curr)) {
+                $curr = [];
+            }
+            if (!isset($curr[$p])) {
+                $curr[$p] = [];
+            }
             $curr = &$curr[$p];
         }
         $curr = $value;
+    }
+
+    private static function unsetNestedValue(array &$data, string $key): void
+    {
+        $parts = explode('.', $key);
+        $last = array_pop($parts);
+        $curr = &$data;
+        foreach ($parts as $p) {
+            if (!is_array($curr) || !isset($curr[$p])) {
+                return;
+            }
+            $curr = &$curr[$p];
+        }
+        if (is_array($curr) && isset($curr[$last])) {
+            unset($curr[$last]);
+        }
     }
 }

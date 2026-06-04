@@ -1,4 +1,5 @@
 <?php
+
 require_once('entityexceptions.php');
 
 /**
@@ -6,17 +7,18 @@ require_once('entityexceptions.php');
  * extends \SPP\SPPObject
  * Deals with ajax calls
  */
-class SCH_Person extends SPPEntity{
+class SCH_Person extends \SPPMod\SPPEntity\SPPEntity
+{
     protected $enttab;
-    protected $props=[array('pname','varchar(40)'),
-                                    array('dob','date'),
-                                    array('sexcode','varchar(10)'),
-                                array('father','varchar(20)'),
-                                array('mother', 'varchar(20)')];
+    protected $props = [['pname','varchar(40)'],
+                                    ['dob','date'],
+                                    ['sexcode','varchar(10)'],
+                                ['father','varchar(20)'],
+                                ['mother', 'varchar(20)']];
     public function __construct($pname)
     {
         parent::__construct();
-        $this->enttab='sch_person_'.$pname;
+        $this->enttab = 'sch_person_'.$pname;
     }
 
     public function getTable()
@@ -24,24 +26,21 @@ class SCH_Person extends SPPEntity{
         return $this->enttab;
     }
 
-    public function install()
+    public function installEntity()
     {
         $db = new \SPPMod\SPPDB\SPPDB();
         if ($db->tableExists($this->enttab)) {
             $query = 'create table '.$this->enttab.'(entid  varchar(20))';
             $db->execute_query($query);
         }
-        foreach($this->props as $prop)
-        {
-            if(!$db->columnExists($this->enttab,$prop[0]))
-            {
+        foreach ($this->props as $prop) {
+            if (!$db->columnExists($this->enttab, $prop[0])) {
                 $query = 'alter table ' . $this->enttab . ' add column '.$prop[0].'  '.$prop[1];
                 $db->execute_query($query);
             }
-            
+
         }
     }
 
 
 }
-?>

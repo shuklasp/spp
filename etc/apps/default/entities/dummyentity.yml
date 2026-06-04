@@ -1,0 +1,5 @@
+table: dummyentitys
+attributes:
+  name: varchar(255)
+  dob: datetime
+relations: {  }

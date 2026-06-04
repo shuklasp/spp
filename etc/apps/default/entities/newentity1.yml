@@ -1,0 +1,6 @@
+table: newentity1s
+attributes:
+  name: varchar(255)
+  created_at: timestamp
+  new_column: varchar(255)
+relations: {  }

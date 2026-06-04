@@ -1,10 +1,13 @@
 <?php
+
 namespace SPPMod\SPPMigrate\Scanner;
 
-class DbScanner {
-    public function scan(): array {
+class DbScanner
+{
+    public function scan(): array
+    {
         $hashes = [];
-        
+
         if (!class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
             return $hashes;
         }
@@ -12,17 +15,17 @@ class DbScanner {
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $pdo = $db->getPDO();
-            
+
             if (!$pdo) {
                 return $hashes;
             }
 
             $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            
+
             if ($driver === 'sqlite') {
                 $stmt = $pdo->query("SELECT name FROM sqlite_master WHERE type='table'");
                 $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-                
+
                 foreach ($tables as $table) {
                     $schemaQuery = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'");
                     $schema = $schemaQuery->fetchColumn();
@@ -32,7 +35,7 @@ class DbScanner {
                 // MySQL
                 $stmt = $pdo->query("SHOW TABLES");
                 $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
-                
+
                 foreach ($tables as $table) {
                     $schemaQuery = $pdo->query("SHOW CREATE TABLE `{$table}`");
                     $row = $schemaQuery->fetch(\PDO::FETCH_ASSOC);

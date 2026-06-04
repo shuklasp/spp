@@ -13,7 +13,7 @@ class DrupalApp extends App
     public function __construct(string $appname, string $drupalRoot)
     {
         $this->drupalRoot = $drupalRoot;
-        // Level 2 init: load modules, but skip session/error for now 
+        // Level 2 init: load modules, but skip session/error for now
         // as Drupal handles its own.
         parent::__construct($appname, false, 2);
     }
@@ -31,7 +31,7 @@ class DrupalApp extends App
         // Bootstrap Drupal
         $autoloader = require $root . '/autoload.php';
         $kernel = \Drupal\Core\DrupalKernel::createFromRequest($request, $autoloader, 'prod');
-        
+
         $response = $kernel->handle($request);
         $response->send();
         $kernel->terminate($request, $response);

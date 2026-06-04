@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPInterDB;
 
 use SPPMod\SPPXDB\SPP_XDB;
@@ -40,7 +41,9 @@ class XDBAdapter implements DBAdapter
     public function update(string $table, array $data, string $where, array $params = []): bool
     {
         $set = [];
-        foreach ($data as $col => $val) $set[] = "{$col} = ?";
+        foreach ($data as $col => $val) {
+            $set[] = "{$col} = ?";
+        }
         $setStr = implode(', ', $set);
         $sql = "UPDATE {$table} SET {$setStr} WHERE {$where}";
         return (bool)$this->xdb->querySQL($sql, array_merge(array_values($data), $params));
@@ -56,7 +59,9 @@ class XDBAdapter implements DBAdapter
     {
         $tables = $this->xdb->querySQL("SHOW TABLES");
         foreach ($tables as $t) {
-            if (current($t) === $table) return true;
+            if (current($t) === $table) {
+                return true;
+            }
         }
         return false;
     }
@@ -79,10 +84,22 @@ class XDBAdapter implements DBAdapter
 
     public function getLastInsertId(): ?string
     {
-        return (string)$this->xdb->getLastInsertId(); 
+        return (string)$this->xdb->getLastInsertId();
     }
-    public function beginTransaction(): bool { return true; }
-    public function commit(): bool { return true; }
-    public function rollBack(): bool { return true; }
-    public function inTransaction(): bool { return false; }
+    public function beginTransaction(): bool
+    {
+        return true;
+    }
+    public function commit(): bool
+    {
+        return true;
+    }
+    public function rollBack(): bool
+    {
+        return true;
+    }
+    public function inTransaction(): bool
+    {
+        return false;
+    }
 }

@@ -1,8 +1,11 @@
 <?php
+
 namespace SPPMod\SPPMigrate\Api;
 
-class Receiver {
-    public static function handle(string $path): void {
+class Receiver
+{
+    public static function handle(string $path): void
+    {
         header('Content-Type: application/json; charset=utf-8');
 
         if (str_ends_with($path, '/ping')) {
@@ -22,7 +25,8 @@ class Receiver {
         exit;
     }
 
-    private static function handleDiff(): void {
+    private static function handleDiff(): void
+    {
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input || !isset($input['hashes'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid payload, expected hashes.']);
@@ -82,19 +86,20 @@ class Receiver {
         exit;
     }
 
-    private static function doAutoBackup(): void {
+    private static function doAutoBackup(): void
+    {
         $backupDir = SPP_BASE_DIR . '/var/backups';
         if (!is_dir($backupDir)) {
             mkdir($backupDir, 0777, true);
         }
-        
+
         $backupFile = $backupDir . '/sppmigrate_backup_' . date('Ymd_His') . '.zip';
         $zip = new \ZipArchive();
-        
+
         if ($zip->open($backupFile, \ZipArchive::CREATE) === true) {
             $scanner = new \SPPMod\SPPMigrate\Scanner\ProjectScanner();
             $files = $scanner->scan(SPP_BASE_DIR); // Returns path => hash
-            
+
             foreach (array_keys($files) as $path) {
                 $fullPath = SPP_BASE_DIR . '/' . $path;
                 if (is_file($fullPath)) {
@@ -105,7 +110,8 @@ class Receiver {
         }
     }
 
-    private static function handleDeploy(): void {
+    private static function handleDeploy(): void
+    {
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input || !isset($input['files'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid deploy payload']);
@@ -123,7 +129,9 @@ class Receiver {
                 foreach ($input['files_content'] as $path => $b64content) {
                     $fullPath = SPP_BASE_DIR . '/' . $path;
                     $dir = dirname($fullPath);
-                    if (!is_dir($dir)) mkdir($dir, 0777, true);
+                    if (!is_dir($dir)) {
+                        mkdir($dir, 0777, true);
+                    }
                     file_put_contents($fullPath, base64_decode($b64content));
                 }
             } elseif (isset($input['files_zip'])) {
@@ -151,7 +159,7 @@ class Receiver {
             if (isset($input['db_schema']) || isset($input['db']['delete'])) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $pdo = $db->getPDO();
-                
+
                 foreach ($input['db_schema'] ?? [] as $table => $sql) {
                     $actualTable = \SPPMod\SPPDB\SPPDB::sppTable($table);
                     // For safety, only run if the sql starts with CREATE

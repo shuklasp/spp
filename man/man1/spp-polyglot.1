@@ -1,0 +1,17 @@
+.TH SPP-POLYGLOT 1 "2026-05-31" "SPP Framework" "SPP Polyglot Engine"
+.SH NAME
+spp-polyglot \- Multi-language interoperability daemon and bridge
+.SH DESCRIPTION
+The SPP Polyglot Engine bridges PHP with foreign runtimes including Python, Java, C++, .NET, Perl, Node.js, and Go.
+.SH FEATURES
+.B Daemon Mode
+Runs background socket workers that maintain state and provide instant execution without language bootstrapping overhead.
+
+.B Ephemeral Mode
+Spawns one-off processes for executing CLI operations via standard JSON I/O.
+
+.B Developer Perspective
+All libraries, scripts, and dispatchers live strictly in 'spp/lib/polyglot' to maintain framework isolation.
+
+.B Layman Perspective
+Polyglot translates messages between languages! Write complex AI models in Python and access them from PHP like normal PHP functions.

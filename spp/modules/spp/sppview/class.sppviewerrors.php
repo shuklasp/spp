@@ -2,46 +2,47 @@
 
 namespace SPPMod\SPPView;
 
-class SPP_ViewErrors{
-    protected static $errorHolders = array();
-    public static function addError(string $errorHolder, string $errorMessage, string $errorType= 'error')
+class SPP_ViewErrors
+{
+    protected static $errorHolders = [];
+    public static function addError(string $errorHolder, string $errorMessage, string $errorType = 'error')
     {
-        if(!in_array($errorType, array('error', 'warning', 'info'))){
+        if (!in_array($errorType, ['error', 'warning', 'info'])) {
             $errorType = 'error';
         }
-        if(!isset(self::$errorHolders[$errorHolder])){
-            self::$errorHolders[$errorHolder] = array();
+        if (!isset(self::$errorHolders[$errorHolder])) {
+            self::$errorHolders[$errorHolder] = [];
         }
         self::$errorHolders[$errorHolder][$errorType][] = $errorMessage;
     }
     public static function getErrors(string $errorHolder)
     {
-        if(isset(self::$errorHolders[$errorHolder])){
+        if (isset(self::$errorHolders[$errorHolder])) {
             return self::$errorHolders[$errorHolder];
         }
-        return array();
+        return [];
     }
 
     public static function clearErrors(string $errorHolder)
     {
-        if(isset(self::$errorHolders[$errorHolder])){
+        if (isset(self::$errorHolders[$errorHolder])) {
             unset(self::$errorHolders[$errorHolder]);
         }
     }
 
     public static function clearAllErrors()
     {
-        self::$errorHolders = array();
+        self::$errorHolders = [];
     }
 
     public static function displayErrors(string $errorHolder)
     {
         $errors = self::getErrors($errorHolder);
-        if(count($errors) > 0){
+        if (count($errors) > 0) {
             echo '<div class="error-holder '.$errorHolder.'">';
-            foreach($errors as $errorType => $errorsMessages){
+            foreach ($errors as $errorType => $errorsMessages) {
                 echo '<p>'.$errorType.':</p>';
-                foreach($errorsMessages as $key => $errorMessage){
+                foreach ($errorsMessages as $key => $errorMessage) {
                     echo '<p class="error-message '.$errorType.'">'.$errorMessage.'</p>';
                     unset($errorMessage); // free memory
                     unset(self::$errorHolders [$errorHolder][$errorType][$key]); // free memory
@@ -69,7 +70,7 @@ class SPP_ViewErrors{
     }
     public static function displayAllErrors()
     {
-        foreach(self::$errorHolders as $errorHolder => $errors){
+        foreach (self::$errorHolders as $errorHolder => $errors) {
             self::displayErrors($errorHolder);
         }
     }

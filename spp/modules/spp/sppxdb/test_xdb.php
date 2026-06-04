@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Comprehensive test script for SPP XDB Module
  */
@@ -17,7 +18,7 @@ try {
     $xdb->querySQL("CREATE DATABASE school");
     $xdb->querySQL("CREATE DATABASE finance");
     $dbs = $xdb->querySQL("SHOW DATABASES");
-    $dbList = array_map(fn($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
+    $dbList = array_map(fn ($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
     echo "   Databases: " . implode(', ', $dbList) . "\n";
 
     // 2. CREATE TABLE with schema via SQL
@@ -26,7 +27,7 @@ try {
     $xdb->querySQL("CREATE TABLE school.students (id int, name varchar, grade varchar, score int)");
     $xdb->querySQL("CREATE TABLE school.teachers (id int, name varchar, subject varchar)");
     $tables = $xdb->querySQL("SHOW TABLES");
-    $tableList = array_map(fn($t) => is_array($t) ? reset($t) : $t, $tables);
+    $tableList = array_map(fn ($t) => is_array($t) ? reset($t) : $t, $tables);
     echo "   Tables in 'school': " . implode(', ', $tableList) . "\n";
 
     // 3. Schema introspection
@@ -126,7 +127,7 @@ try {
     echo "\n15. Testing SHOW DATABASES...\n";
     $xdb->selectDatabase('default');
     $dbs = $xdb->querySQL("SHOW DATABASES");
-    $dbList = array_map(fn($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
+    $dbList = array_map(fn ($d) => is_array($d) ? ($d['Database'] ?? reset($d)) : $d, $dbs);
     echo "    All databases: " . implode(', ', $dbList) . "\n";
 
     // 16. DROP TABLE via SQL
@@ -134,7 +135,7 @@ try {
     $xdb->querySQL("DROP TABLE school.teachers");
     $xdb->selectDatabase('school');
     $tables = $xdb->querySQL("SHOW TABLES");
-    $tableList = array_map(fn($t) => is_array($t) ? reset($t) : $t, $tables);
+    $tableList = array_map(fn ($t) => is_array($t) ? reset($t) : $t, $tables);
     echo "    Tables in school after drop: " . implode(', ', $tableList) . "\n";
 
     // 17. Table/Database existence checks

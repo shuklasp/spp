@@ -1,6 +1,7 @@
 <?php
 
 namespace SPPMod\SPPDB;
+
 /*require_once("class.sppconfig.php");
 require_once 'class.sppobject.php';*/
 //\SPP\Module::initWS('sppdb');
@@ -64,7 +65,7 @@ class SPPDB
         }
 
         $finalTable = ($prefix ?: '') . $tname;
-        error_log("SPPDB DEBUG: Resolved table '$tname' to '$finalTable' for context '$context' with prefix '$prefix'");
+        // error_log("SPPDB DEBUG: Resolved table '$tname' to '$finalTable' for context '$context' with prefix '$prefix'");
         return $finalTable;
     }
 
@@ -78,7 +79,7 @@ class SPPDB
         }
 
         $group = $groups[$groupName];
-        
+
         // Normalize table name for comparison (remove prefix if it's already there or handle as entity name)
         // For simplicity, we assume $tname corresponds to names in the 'entities' list
         $entities = $group['entities'] ?? [];
@@ -100,7 +101,9 @@ class SPPDB
     private static function loadGlobalSettings(): array
     {
         static $cached = null;
-        if ($cached !== null) return $cached;
+        if ($cached !== null) {
+            return $cached;
+        }
 
         $path = (defined('SPP_BASE_DIR') ? SPP_BASE_DIR : dirname(__DIR__, 3)) . '/etc/global-settings.yml';
         if (!file_exists($path)) {
@@ -125,12 +128,12 @@ class SPPDB
 
     /** @var \SPPMod\SPPInterDB\DBAdapter The active database adapter */
     private \SPPMod\SPPInterDB\DBAdapter $adapter;
-    
+
     private $numrows;
 
     /**
      * public function __construct
-     * 
+     *
      * Creates or reuses a database connection, supporting per-app overrides.
      */
     public function __construct($dburl = null, $dbuser = null, $dbpasswd = null, $options = null, bool $shared = true)
@@ -149,7 +152,8 @@ class SPPDB
                     $dbtype = $dbOverride['dbtype'] ?? \SPP\Module::getConfig('dbtype', 'sppdb');
                     if ($dbtype === 'sqlite') {
                         $sqlite_path = $dbOverride['sqlite_path'] ?? \SPP\Module::getConfig('sqlite_path', 'sppdb');
-                        $url = 'sqlite:' . SPP_APP_DIR . '/' . ($sqlite_path ?: 'var/db/school.sqlite');
+                        $project_root = defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : dirname(__DIR__, 4);
+                        $url = 'sqlite:' . ($sqlite_path === ':memory:' ? ':memory:' : ($project_root . '/' . ($sqlite_path ?: 'var/db/school.sqlite')));
                         $dbuser = 'root'; // Dummy for SQLite
                     } else {
                         $dbhost = $dbOverride['dbhost'] ?? \SPP\Module::getConfig('dbhost', 'sppdb');
@@ -162,7 +166,8 @@ class SPPDB
                     $dbtype = \SPP\Module::getConfig('dbtype', 'sppdb');
                     if ($dbtype === 'sqlite') {
                         $sqlite_path = \SPP\Module::getConfig('sqlite_path', 'sppdb');
-                        $url = 'sqlite:' . SPP_APP_DIR . '/' . ($sqlite_path ?: 'var/db/school.sqlite');
+                        $project_root = defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : dirname(__DIR__, 4);
+                        $url = 'sqlite:' . ($sqlite_path === ':memory:' ? ':memory:' : ($project_root . '/' . ($sqlite_path ?: 'var/db/school.sqlite')));
                         $dbuser = 'root'; // Dummy for SQLite
                     } else {
                         $dbhost = \SPP\Module::getConfig('dbhost', 'sppdb');
@@ -177,22 +182,24 @@ class SPPDB
                 $dbuser = ($dbuser == null) ? \SPP\Module::getConfig('dbuser', 'sppdb') : $dbuser;
                 $dbpasswd = ($dbpasswd == null) ? \SPP\Module::getConfig('dbpasswd', 'sppdb') : $dbpasswd;
             }
-            
+
             if ($url && preg_match('/^([a-z0-9]+):/', $url, $m)) {
                 $this->dbtype = $m[1];
             } elseif ($dbtype) {
                 $this->dbtype = $dbtype;
             }
-            
+
             $this->dbname = $dbname ?: 'default';
 
             // -- Adapter Initialization --
             $dbEngine = \SPP\Module::getConfig('db_engine', 'sppdb');
-            error_log("SPPDB::__construct: Detected engine " . ($dbEngine ?: 'null') . " for dbtype " . ($this->dbtype ?: 'null'));
+            // error_log("SPPDB::__construct: Detected engine " . ($dbEngine ?: 'null') . " for dbtype " . ($this->dbtype ?: 'null'));
             if ($dbEngine === 'sppxdb' || $this->dbtype === 'xdb') {
                 $xdbFile = dirname(__DIR__) . '/sppxdb/class.sppxdb.php';
-                if (file_exists($xdbFile)) require_once $xdbFile;
-                
+                if (file_exists($xdbFile)) {
+                    require_once $xdbFile;
+                }
+
                 $xdb = new \SPPMod\SPPXDB\SPP_XDB($this->dbname ?: 'default');
                 $this->adapter = new \SPPMod\SPPInterDB\XDBAdapter($xdb);
                 return;
@@ -202,11 +209,17 @@ class SPPDB
             if (!$url || !$dbuser) {
                 $configPath = \SPP\Module::getExpectedConfigPath('sppdb');
                 $missing = [];
-                if (!isset($dbhost)) $missing[] = 'dbhost';
-                if (!isset($dbname)) $missing[] = 'dbname';
-                if (!$dbuser) $missing[] = 'dbuser';
+                if (!isset($dbhost)) {
+                    $missing[] = 'dbhost';
+                }
+                if (!isset($dbname)) {
+                    $missing[] = 'dbname';
+                }
+                if (!$dbuser) {
+                    $missing[] = 'dbuser';
+                }
                 $missingStr = implode(', ', $missing);
-                
+
                 throw new \SPP\SPPException("Database configuration properties ($missingStr) are not defined in {$configPath}. Please check your configuration.");
             }
 
@@ -221,6 +234,7 @@ class SPPDB
             }
 
             if (!$pdo) {
+                // error_log("Connecting to " . $url);
                 if ($dbuser == null && $dbpasswd == null && $options == null) {
                     $pdo = new \PDO($url);
                 } elseif ($options == null) {
@@ -237,7 +251,7 @@ class SPPDB
             $this->adapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo);
 
         } catch (\Exception $e) {
-            error_log("Database Connection Error: " . $e->getMessage());
+            // error_log("Database Connection Error: " . $e->getMessage());
             throw new \SPP\SPPException("Database Connection Error: " . $e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -259,18 +273,20 @@ class SPPDB
         $settings = self::loadGlobalSettings();
         $context = \SPP\Scheduler::getContext();
         $appMeta = $settings['apps'][$context] ?? null;
-        
+
         if ($appMeta && !empty($appMeta['shared_group'])) {
             $sharedEntities = self::resolveRouteEntities($appMeta['shared_group'], $settings['shared_groups'] ?? []);
             $entities = array_merge($sharedEntities, $entities);
         }
-        
+
         return $entities;
     }
 
     private static function resolveRouteEntities(string $groupName, array $groups): array
     {
-        if (!isset($groups[$groupName])) return [];
+        if (!isset($groups[$groupName])) {
+            return [];
+        }
         $group = $groups[$groupName];
         $entities = $group['route_entities'] ?? [];
         if (!empty($group['extends'])) {
@@ -319,32 +335,72 @@ class SPPDB
         }
     }
 
+    /** @var \SPPMod\SPPInterDB\DBAdapter|null Lazy-loaded read replica adapter */
+    private ?\SPPMod\SPPInterDB\DBAdapter $readAdapter = null;
+    private bool $forcePrimary = false;
+
+    /**
+     * Intelligently routes the query to the read replica or primary DB.
+     */
+    private function getAdapterForQuery(string $sql): \SPPMod\SPPInterDB\DBAdapter
+    {
+        if ($this->forcePrimary || preg_match('/^\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|TRUNCATE)/i', $sql)) {
+            $this->forcePrimary = true; // Stick to primary for rest of request to avoid replication lag
+            return $this->adapter;
+        }
+        
+        if ($this->readAdapter) {
+            return $this->readAdapter;
+        }
+        
+        // Attempt to connect to replica lazily if configured
+        $context = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
+        $settings = self::loadGlobalSettings();
+        $replicas = $settings['apps'][$context]['db_replicas'] ?? \SPP\Module::getConfig('db_replicas', 'sppdb');
+        
+        if (!empty($replicas) && is_array($replicas)) {
+            $replica = $replicas[array_rand($replicas)];
+            try {
+                $dbtype = $replica['dbtype'] ?? $this->dbtype;
+                $pdo = new \PDO("{$dbtype}:host={$replica['dbhost']};dbname={$this->dbname}", $replica['dbuser'] ?? null, $replica['dbpasswd'] ?? null);
+                $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                $this->readAdapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo);
+                return $this->readAdapter;
+            } catch (\Exception $e) {
+                error_log("SPPDB Replica connection failed, falling back to primary: " . $e->getMessage());
+            }
+        }
+        
+        return $this->adapter;
+    }
+
     public function prepare(string $query, array $options = [])
     {
-        if ($this->adapter instanceof \SPP\Core\PDOAdapter) {
-            return $this->adapter->query($query, $options); // Simplified for proxy
+        $targetAdapter = $this->getAdapterForQuery($query);
+        if ($targetAdapter instanceof \SPP\Core\PDOAdapter) {
+            return $targetAdapter->query($query, $options); // Simplified for proxy
         }
         return null;
     }
 
     public function query(string $query, ?int $fetchMode = null, ...$fetchModeArgs)
     {
-        return $this->adapter->query($query);
+        return $this->getAdapterForQuery($query)->query($query);
     }
 
     public function exec(string $statement)
     {
-        return $this->adapter->execute($statement);
+        return $this->getAdapterForQuery($statement)->execute($statement);
     }
 
-    public function execute_query($sql, $values = array())
+    public function execute_query($sql, $values = [])
     {
-        $result = $this->adapter->query($sql, (array)$values);
+        $result = $this->getAdapterForQuery($sql)->query($sql, (array)$values);
         $this->numrows = count($result);
         return $result;
     }
 
-    public function exec_squery($sql, $tabname, $values = array())
+    public function exec_squery($sql, $tabname, $values = [])
     {
         $qry = $this->build_query($sql, $tabname);
         return $this->execute_query($qry, $values);
@@ -378,7 +434,7 @@ class SPPDB
         }
     }
 
-    public function insertValues(string $table, array $columns, array $values = array())
+    public function insertValues(string $table, array $columns, array $values = [])
     {
         $data = [];
         if (empty($values)) {
@@ -391,7 +447,7 @@ class SPPDB
         return $this->adapter->insert($table, $data);
     }
 
-    public function updateValues(string $table, array $columns, string $where, array $values = array())
+    public function updateValues(string $table, array $columns, string $where, array $values = [])
     {
         $data = [];
         $is_assoc = array_keys($columns) !== range(0, count($columns) - 1);
@@ -407,7 +463,7 @@ class SPPDB
         return $this->adapter->update($table, $data, $where, $values);
     }
 
-    public function add_columns($table, $cols = array())
+    public function add_columns($table, $cols = [])
     {
         // This is engine specific (DDL), so we pass to execute
         foreach ($cols as $col => $type) {
@@ -438,7 +494,7 @@ class SPPDB
 
     /**
      * public function safeInsert(string $tableName, array $data, string $identityField)
-     * 
+     *
      * Inserts a record only if the identity field value is not already present.
      */
     public function safeInsert(string $tableName, array $data, string $identityField)
@@ -452,7 +508,7 @@ class SPPDB
 
         $checkSql = "SELECT count(*) as cnt FROM {$tableNameSafe} WHERE {$identityFieldSafe} = ?";
         $res = $this->execute_query($checkSql, [$data[$identityField]]);
-        
+
         if ((int)$res[0]['cnt'] === 0) {
             $this->insertValues($tableName, $data);
             return true;
@@ -460,9 +516,17 @@ class SPPDB
         return false;
     }
 
-    public function beginTransaction(): bool { return $this->adapter->beginTransaction(); }
-    public function commit(): bool { return $this->adapter->commit(); }
-    public function rollBack(): bool { return $this->adapter->rollBack(); }
+    public function beginTransaction(): bool
+    {
+        return $this->adapter->beginTransaction();
+    }
+    public function commit(): bool
+    {
+        return $this->adapter->commit();
+    }
+    public function rollBack(): bool
+    {
+        return $this->adapter->rollBack();
+    }
 }
 //\SPP\Module::endWS();
-?>

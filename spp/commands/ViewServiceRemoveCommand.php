@@ -1,32 +1,35 @@
 <?php
+
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
 
 class ViewServiceRemoveCommand extends Command
 {
+    protected string $name = 'view:service:remove';
+    protected string $description = 'Remove an AJAX service endpoint from an app';
+
     public function execute(array $args): void
     {
-        $command = $args[1] ?? '';
-        $name = $argv[2] ?? null;
-                if (!$name) die("Usage: php spp.php view:service:remove <name>\n");
-                require_once SPP_APP_DIR . '/spp/sppinit.php';
-                if (\SPPMod\SPPAjax\SPPAjax::unregisterService($name, 'yaml')) {
-                    echo "Success: Removed from YAML.\n";
-                } else if (\SPPMod\SPPAjax\SPPAjax::unregisterService($name, 'db')) {
-                    echo "Success: Removed from DB.\n";
-                } else {
-                    echo "Error: Service not found.\n";
-                }
-    }
+        $appname = 'default';
+        $name = null;
+        $source = 'yaml';
 
-    public function getName(): string
-    {
-        return 'view:service:remove';
-    }
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--app=')) $appname = substr($arg, 6);
+            elseif (str_starts_with($arg, '--name=')) $name = substr($arg, 7);
+            elseif (str_starts_with($arg, '--source=')) $source = substr($arg, 9);
+        }
 
-    public function getDescription(): string
-    {
-        return 'Legacy port of view:service:remove';
+        if (!$name) {
+            echo "Usage: php spp.php view:service:remove --name=<service> [--app=default] [--source=yaml|db]\n";
+            return;
+        }
+
+        \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
+            \SPPMod\SPPAjax\SPPAjax::unregisterService($name, $source);
+        });
+
+        echo "Success: AJAX Service '{$name}' removed for app '{$appname}' (Source: {$source}).\n";
     }
 }

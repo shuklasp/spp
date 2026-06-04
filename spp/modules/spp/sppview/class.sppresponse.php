@@ -1,16 +1,18 @@
 <?php
+
 namespace SPPMod\SPPView;
 
 /**
  * class SPPResponse
  * @package SPPMod\SPPView
- * 
+ *
  * Defines response in SPP View
  */
-class SPPResponse extends \SPP\SPPObject{
+class SPPResponse extends \SPP\SPPObject
+{
     /**
      * Main value
-     * @var 
+     * @var
      */
     private $value;
 
@@ -18,7 +20,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Constructor
      * @param int $status
      */
-    public function __construct($status=200){
+    public function __construct($status = 200)
+    {
         $this->value = new \stdClass();
         $this->value->data = [];
         $this->value->message = "";
@@ -30,7 +33,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Get status
      * @return int
      */
-    public function getStatus(){
+    public function getStatus()
+    {
         return $this->value->status;
     }
 
@@ -39,7 +43,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Get data
      * @return mixed
      */
-    public function getData(){
+    public function getData()
+    {
         return $this->value->data;
     }
 
@@ -48,7 +53,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Get message
      * @return string
      */
-    public function getMessage(){
+    public function getMessage()
+    {
         return $this->value->message;
     }
 
@@ -58,7 +64,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Set message
      * @param string $message
      */
-    public function setMessage($message){
+    public function setMessage($message)
+    {
         $this->value->message = $message;
     }
 
@@ -68,7 +75,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Set data
      * @param mixed $data
      */
-    public function setData($data){
+    public function setData($data)
+    {
         $this->value->data = $data;
     }
 
@@ -77,7 +85,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Set status
      * @param int $status
      */
-    public function setStatus($status){
+    public function setStatus($status)
+    {
         $this->value->status = $status;
     }
 
@@ -87,7 +96,8 @@ class SPPResponse extends \SPP\SPPObject{
      * @param string $propname
      * @param mixed $propval
      */
-    public function __set($propname, $propval) {
+    public function __set($propname, $propval)
+    {
         $this->value->data[$propname] = $propval;
     }
 
@@ -97,7 +107,8 @@ class SPPResponse extends \SPP\SPPObject{
      * @param string $propname
      * @return mixed
      */
-    public function __get($propname) {
+    public function __get($propname)
+    {
         return $this->value->data[$propname];
     }
 
@@ -106,7 +117,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Get json value
      * @return bool|string
      */
-    public function json(){
+    public function json()
+    {
         return json_encode($this->value);
     }
 
@@ -115,7 +127,8 @@ class SPPResponse extends \SPP\SPPObject{
      * Redirect to url
      * @param string $url
      */
-    public static function redirect(string $url){
+    public static function redirect(string $url)
+    {
         header("Location: $url");
         exit;
     }

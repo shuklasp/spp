@@ -1,5 +1,7 @@
 <?php
+
 namespace SPPMod\SPPLogger;
+
 /*require_once 'class.sppdatabase.php';
 require_once 'class.sppusersession.php';
 require_once 'sppfuncs.php';
@@ -25,7 +27,7 @@ class SPP_Logger extends \SPP\SPPObject
 
     /**
      * Main delegator method for logging.
-     * 
+     *
      * @param string $message The log message
      * @param string $level   The log level (default: info)
      * @param array $context  Optional context data
@@ -66,13 +68,13 @@ class SPP_Logger extends \SPP\SPPObject
 
         // Automatic fallback: if requested target failed, ensure the other is attempted
         if (!$dbSuccess && !$fileSuccess) {
-           // If DB and File both enabled but failed, we are in trouble.
-           // If only one was enabled and it failed, we try the other for resilience.
-           if (in_array('db', $targets) && !in_array('file', $targets)) {
-               self::write_to_file($message, $level, $metadata, $context);
-           } elseif (in_array('file', $targets) && !in_array('db', $targets)) {
-               self::write_to_db($message, $level, $metadata, $context);
-           }
+            // If DB and File both enabled but failed, we are in trouble.
+            // If only one was enabled and it failed, we try the other for resilience.
+            if (in_array('db', $targets) && !in_array('file', $targets)) {
+                self::write_to_file($message, $level, $metadata, $context);
+            } elseif (in_array('file', $targets) && !in_array('db', $targets)) {
+                self::write_to_db($message, $level, $metadata, $context);
+            }
         }
     }
 
@@ -90,12 +92,12 @@ class SPP_Logger extends \SPP\SPPObject
                 // Must pass the accurately resolved prefixed table block
                 $db->exec_squery('create table %tab% (loggerid varchar(40))', $tableName);
             }
-            
+
             // Automatically patch mapping Sequence parameters resolving fatal exception crashes
             if (!\SPPMod\SPPDB\SPPSequence::sequenceExists('loggerid')) {
                 \SPPMod\SPPDB\SPPSequence::createSequence('loggerid', 1, 1);
             }
-            
+
             $requiredCols = [
                 'uid' => 'varchar(50)',
                 'uname' => 'varchar(100)',
@@ -112,7 +114,7 @@ class SPP_Logger extends \SPP\SPPObject
             $db->add_columns($tableName, $requiredCols);
 
             $sql = 'insert into %tab%(loggerid,uid,uname,ip,logtime,sessid,level,descr,context,request_uri,method,agent) values(?,?,?,?,?,?,?,?,?,?,?,?)';
-            
+
             $values = [
                 date('Ymd', time()) . \SPPMod\SPPDB\SPPSequence::next('loggerid', true),
                 $metadata['uid'],
@@ -158,18 +160,19 @@ class SPP_Logger extends \SPP\SPPObject
             // Find current log number of the day
             $logNumber = 1;
             $currentFile = self::getFormattedFilename($format, $appname, $date, $level, $logNumber);
-            
+
             while (file_exists($targetDir . "/" . $currentFile) && filesize($targetDir . "/" . $currentFile) >= $maxSize) {
                 $logNumber++;
                 $currentFile = self::getFormattedFilename($format, $appname, $date, $level, $logNumber);
             }
 
             $filePath = $targetDir . "/" . $currentFile;
-            $logLine = sprintf("[%s] %s.%s: %s %s [URI: %s, UID: %s]\n", 
-                $metadata['timestamp'], 
-                strtoupper($appname), 
-                strtoupper($level), 
-                $message, 
+            $logLine = sprintf(
+                "[%s] %s.%s: %s %s [URI: %s, UID: %s]\n",
+                $metadata['timestamp'],
+                strtoupper($appname),
+                strtoupper($level),
+                $message,
                 json_encode($context),
                 $metadata['uri'],
                 $metadata['uid']
@@ -200,16 +203,16 @@ class SPP_Logger extends \SPP\SPPObject
             '{level}'   => $level,
             '{index}'   => $index
         ];
-        
+
         $filename = strtr($format, $replace);
-        
+
         // Failsafe: if {index} is missing but rotation is needed, append it
         if ($index > 1 && !str_contains($format, '{index}')) {
             $ext = pathinfo($filename, PATHINFO_EXTENSION);
             $base = pathinfo($filename, PATHINFO_FILENAME);
             $filename = "{$base}-{$index}.{$ext}";
         }
-        
+
         return $filename;
     }
 
@@ -262,7 +265,7 @@ class SPP_Logger extends \SPP\SPPObject
         }
 
         $threshold = time() - ($days * 86400);
-        
+
         foreach (glob($dir . "/log-{$appname}-*.txt") as $file) {
             if (filemtime($file) < $threshold) {
                 unlink($file);
@@ -271,9 +274,20 @@ class SPP_Logger extends \SPP\SPPObject
     }
 
     /** Backward compatibility helper */
-    public static function log($message, $level = self::INFO, array $context = []) { self::write_to_log($message, $level, $context); }
-    public static function error($message, array $context = []) { self::write_to_log($message, self::ERROR, $context); }
-    public static function debug($message, array $context = []) { self::write_to_log($message, self::DEBUG, $context); }
-    public static function info($message, array $context = []) { self::write_to_log($message, self::INFO, $context); }
+    public static function log($message, $level = self::INFO, array $context = [])
+    {
+        self::write_to_log($message, $level, $context);
+    }
+    public static function error($message, array $context = [])
+    {
+        self::write_to_log($message, self::ERROR, $context);
+    }
+    public static function debug($message, array $context = [])
+    {
+        self::write_to_log($message, self::DEBUG, $context);
+    }
+    public static function info($message, array $context = [])
+    {
+        self::write_to_log($message, self::INFO, $context);
+    }
 }
-?>

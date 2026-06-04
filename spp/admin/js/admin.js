@@ -28,59 +28,45 @@ class SPPAdmin {
             theme: this.theme
         });
         
-        this.currentView = 'system';
+        this.currentView = 'dashboard';
         this.viewIcons = {
+            'dashboard': '👋',
             'system': '🖥️',
             'apps': '📱',
             'modules': '📦',
             'entities': '🏗️',
             'forms': '📝',
-            'groups': '👥',
-            'access': '🛡️',
-            'middleware': '🔀',
-            'queue': '🕒',
+            'identity': '🛡️',
             'routing': '🔗',
             'manage': '🛠️',
-            'config': '⚙️',
             'trace': '🛰️',
             'services': '🔌',
-            'ajax': '⚡',
+            'ai': '🧠',
             'lifecycle': '🚀',
             'xdb': '🗄️',
             'interdb': '🕸️',
-            'sppai': '🤖',
-            'marketing': '📢',
-            'commerce': '🛒',
             'parikshak': '🧪',
             'spplang': '🌐',
-            'events': '🎯',
             'mobile': '📱'
         };
         this.viewTitles = {
-            'system': 'System Information',
+            'dashboard': 'Welcome Dashboard',
+            'system': 'System & Diagnostics',
             'apps': 'Applications & Sharing',
             'modules': 'System Modules',
             'entities': 'Application Entities',
             'forms': 'Form Configurations',
-            'groups': 'Group Management',
-            'access': 'Identity & RBAC',
-            'middleware': 'Middleware Pipeline',
-            'queue': 'Distributed Tasks',
-            'routing': 'Routing Management',
+            'identity': 'Identity & Access Management',
+            'routing': 'Routing & Middleware',
             'manage': 'Application Management',
-            'config': 'Framework Config',
             'trace': 'Event Tracing',
-            'services': 'DI Service Registry',
-            'ajax': 'LiveService Registry',
+            'services': 'Service Registry (DI & AJAX)',
+            'ai': 'AI Studio',
             'lifecycle': 'Lifecycle & Deployment',
             'xdb': 'XML Database',
             'interdb': 'InterDB Mesh',
-            'sppai': 'SPP AI Engine',
-            'marketing': 'Marketing Automation',
-            'commerce': 'Lekhak Commerce',
             'parikshak': 'Parikshak Evaluator',
             'spplang': 'Translation Workbench',
-            'events': 'Event Dispatcher',
             'mobile': 'Mobile Studio'
         };
         this.availableApps = [];
@@ -104,8 +90,28 @@ class SPPAdmin {
     async init() {
         this.applyTheme(this.theme);
         this.bindEvents();
+        await this.loadRoutes();
         await this.checkAuth();
 
+    }
+
+    async loadRoutes() {
+        try {
+            const res = await fetch('routes.json');
+            if (res.ok) {
+                const customRoutes = await res.json();
+                for (const [view, config] of Object.entries(customRoutes)) {
+                    if (config.icon) this.viewIcons[view] = config.icon;
+                    if (config.title) this.viewTitles[view] = config.title;
+                    // Note: If component overrides are needed, we can map config.component
+                    // However, our current dynamic import assumes `views/${view}.js`
+                    // or `src/${app}/comp/${view}.js`. This aligns perfectly with declarative definitions.
+                }
+                console.log("Declarative routes loaded from routes.json");
+            }
+        } catch (e) {
+            console.warn("No routes.json found or failed to parse, proceeding with default routes.", e);
+        }
     }
 
     bindEvents() {
@@ -259,6 +265,7 @@ class SPPAdmin {
             if (res.success) {
                 this.user = { username };
                 window.spp_root_store.set({ user: this.user });
+                location.hash = 'dashboard';
                 this.showWorkspace();
                 this.notify(`Welcome back, ${username}`, 'success');
 
@@ -393,7 +400,26 @@ class SPPAdmin {
     // =============================================
 
     handleRouting() {
-        const hash = location.hash.replace('#', '') || 'system';
+        let hash = location.hash.replace('#', '') || 'dashboard';
+        
+        // Backward-compatible redirects for merged modules
+        const redirects = {
+            'events': 'trace',
+            'middleware': 'routing',
+            'access': 'identity',
+            'groups': 'identity',
+            'config': 'system',
+            'copilot': 'ai',
+            'sppai': 'ai',
+            'ajax': 'services',
+            'queue': 'system',
+            'polyglot': 'system'
+        };
+        if (redirects[hash]) {
+            hash = redirects[hash];
+            location.hash = hash;
+            return;
+        }
         this.currentView = hash;
 
         // Update Nav UI
@@ -401,8 +427,20 @@ class SPPAdmin {
             link.classList.toggle('active', link.getAttribute('data-view') === hash);
         });
 
-        const icon = this.viewIcons[hash] || '📄';
-        const title = this.viewTitles[hash] || 'Unknown';
+        let icon = this.viewIcons[hash] || '📄';
+        let title = this.viewTitles[hash] || 'Unknown';
+        
+        if (this.selectedApp && this.selectedApp !== 'default') {
+            const app = this.availableApps.find(a => a.name === this.selectedApp);
+            if (app && app.admin_menu) {
+                const menuItem = app.admin_menu.find(m => m.id === hash);
+                if (menuItem) {
+                    icon = menuItem.icon || icon;
+                    title = menuItem.title || title;
+                }
+            }
+        }
+        
         document.getElementById('view-title').innerHTML =
             `<span class="view-icon">${icon}</span> ${title}`;
 
@@ -505,7 +543,7 @@ class SPPAdmin {
 
                 let module;
                 // List of views that are strictly core framework views and should not be requested from apps
-                const coreOnlyViews = ['access', 'ajax', 'apps', 'commands', 'commerce', 'config', 'entities', 'events', 'forms', 'groups', 'interdb', 'lifecycle', 'marketing', 'middleware', 'modules', 'parikshak', 'queue', 'routing', 'services', 'sppai', 'spplang', 'system', 'trace', 'xdb'];
+                const coreOnlyViews = ['apps', 'commands', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace'];
                 const isCoreView = coreOnlyViews.includes(view);
                 
                 // If a specific app is selected (not 'default' or '__sppadmin__'), and it's not a strict core view, try app-side first
@@ -629,8 +667,21 @@ class SPPAdmin {
     updateViewTitle(view) {
         const titleEl = document.getElementById('view-title');
         if (titleEl) {
-            const icon = this.viewIcons[view] || '📦';
-            const title = this.viewTitles[view] || view;
+            let icon = this.viewIcons[view] || '📦';
+            let title = this.viewTitles[view] || view;
+            
+            // Check if it's an app-specific view
+            if (this.selectedApp && this.selectedApp !== 'default') {
+                const app = this.availableApps.find(a => a.name === this.selectedApp);
+                if (app && app.admin_menu) {
+                    const menuItem = app.admin_menu.find(m => m.id === view);
+                    if (menuItem) {
+                        icon = menuItem.icon || icon;
+                        title = menuItem.title || title;
+                    }
+                }
+            }
+            
             titleEl.innerHTML = `<span class="view-icon">${icon}</span> ${title}`;
         }
     }
@@ -686,6 +737,30 @@ class SPPAdmin {
         this.selectedApp = appname;
         localStorage.setItem('spp_admin_selected_app', appname);
         this.notify(`App context switched to "${appname}".`, 'success');
+        
+        // Dynamically update the app-specific sidebar menu
+        const container = document.getElementById('app-specific-menu-container');
+        if (container) {
+            container.innerHTML = '';
+            const app = this.availableApps.find(a => a.name === appname);
+            if (app && app.admin_menu && app.admin_menu.length > 0) {
+                let html = '<ul style="margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">';
+                html += '<li style="padding: 0 20px 10px; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.1em;">App Modules</li>';
+                app.admin_menu.forEach(item => {
+                    html += `<li><a href="#${item.id}" class="nav-item" data-view="${item.id}">`;
+                    html += `<span class="icon">${item.icon || '📦'}</span> ${item.title}`;
+                    html += `</a></li>`;
+                });
+                html += '</ul>';
+                container.innerHTML = html;
+                
+                // Re-attach active state logic
+                document.querySelectorAll('.nav-item').forEach(link => {
+                    link.classList.toggle('active', link.getAttribute('data-view') === this.currentView);
+                });
+            }
+        }
+        
         this.loadView(this.currentView);
     }
 
@@ -725,6 +800,7 @@ class SPPAdmin {
     async api(action, params = {}, options = { lock: true }) {
         if (options.lock && window.SPPUX && SPPUX.Busy) SPPUX.Busy.start();
         try {
+            params.appname = this.selectedApp;
             // Unify with SPPUX.api which handles LiveAction instructions automatically
             const res = await SPPUX.api(action, params);
             if (res.errors_html) this.handleApiErrors(res);
@@ -739,8 +815,12 @@ class SPPAdmin {
         try {
             let res;
             if (actionOrFormData instanceof FormData) {
+                if (!actionOrFormData.has('appname')) {
+                    actionOrFormData.append('appname', this.selectedApp);
+                }
                 res = await SPPUX.apiPost(actionOrFormData);
             } else {
+                params.appname = this.selectedApp;
                 res = await SPPUX.api(actionOrFormData, params);
             }
             if (res.errors_html) this.handleApiErrors(res);
@@ -1017,7 +1097,7 @@ class SPPAdmin {
             const res = await this.api('setup_bridge');
             if (res.success) {
                 this.notify('Polyglot Bridge environment refreshed.', 'success');
-                this.loadView('system');
+                this.loadView('dashboard');
             } else {
                 this.notify(res.message || 'Bridge refresh failed.', 'error');
                 btn.innerHTML = origText;

@@ -1,9 +1,5 @@
 modules:
-    -
-        name: marketing
-        path: spp/marketing
-        status: active
-    -
+    1:
         name: sppapi
         path: spp/sppapi
         status: active

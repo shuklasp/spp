@@ -9,8 +9,8 @@ require_once __DIR__ . '/formelements/classes.formelements.php';
 
 use SPP\SPPException;
 use SPP\SPPGlobal;
-use \SPPMod\SPPView\Pages;
-use \SPPMod\SPPView\ViewForm;
+use SPPMod\SPPView\Pages;
+use SPPMod\SPPView\ViewForm;
 
 \SPP\SPPEvent::registerEvent('event_spp_include_css_files');
 \SPP\SPPEvent::registerEvent('event_spp_include_js_files');
@@ -33,12 +33,12 @@ use \SPPMod\SPPView\ViewForm;
 class ViewPage extends \SPP\SPPObject
 {
     protected static $pageid;
-    protected static $jsincludelist = array();
-    protected static $jscontentlist = array();
-    protected static $cssincludelist = array();
-    protected static $csscontentlist = array();
-    protected static $formslist = array();
-    protected static $elementslist = array();
+    protected static $jsincludelist = [];
+    protected static $jscontentlist = [];
+    protected static $cssincludelist = [];
+    protected static $csscontentlist = [];
+    protected static $formslist = [];
+    protected static $elementslist = [];
     protected static $pagetitle;
     protected static $pagedescription;
     protected static $pagekeywords;
@@ -50,7 +50,7 @@ class ViewPage extends \SPP\SPPObject
     protected static $pagebody;
     protected static $pagemeta;
     protected static $xml;
-    protected static $validators = array();
+    protected static $validators = [];
 
     /**
      * Function setPageId($id)
@@ -80,9 +80,9 @@ class ViewPage extends \SPP\SPPObject
     public static function showPage($page = null, array $options = [])
     {
         $q = isset($_GET['q']) ? $_GET['q'] : null;
-        $pageData = array();
+        $pageData = [];
         $src = Pages::getDefault('pagedir');
-        
+
         if ($q == null) {
             $def = Pages::getDefault('home');
             $pageData = Pages::getPage($def);
@@ -120,9 +120,9 @@ class ViewPage extends \SPP\SPPObject
         SPPGlobal::set('params', $pageData['params']);
         SPPGlobal::set('q', $q);
         SPPGlobal::set('numparams', count($pageData['params']));
-        
+
         $filename = ($pageData['url'] !== '') ? (SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\')) : null;
-        
+
         // Safety check: Prevent infinite recursion if pagedir resolution fails or points to root index
         if ($filename !== null && $filename === SPP_APP_DIR . SPP_US . 'index.php') {
             throw new \SPP\SPPException('Router safety: Infinite recursion detected. Please check your "pagedir" setting in pages.yml.');
@@ -133,7 +133,7 @@ class ViewPage extends \SPP\SPPObject
             $parts = explode('@', $pageData['controller']);
             $class = $parts[0];
             $method = $parts[1] ?? 'index';
-            
+
             if (class_exists($class)) {
                 $controller = new $class();
                 if (method_exists($controller, $method)) {
@@ -142,7 +142,7 @@ class ViewPage extends \SPP\SPPObject
                     if (is_string($result)) {
                         echo $result;
                         // If we have a controller result, we might not need to render the file
-                        $filename = null; 
+                        $filename = null;
                     }
                 }
             }
@@ -153,10 +153,12 @@ class ViewPage extends \SPP\SPPObject
             $app = \SPP\App::getApp();
             $pageData['base_url'] = rtrim((defined('APP_BASE_URI') ? APP_BASE_URI : ''), '/') . '/' . ltrim($app->base_url ?? '', '/');
             $pageData['base_url'] = rtrim($pageData['base_url'], '/');
-            if ($pageData['base_url'] === '') $pageData['base_url'] = '/';
-            
+            if ($pageData['base_url'] === '') {
+                $pageData['base_url'] = '/';
+            }
+
             $pageData['admin_url'] = rtrim($pageData['base_url'], '/') . '/spp/admin/';
-            
+
             if ($doAugment) {
                 ob_start();
             }
@@ -165,7 +167,7 @@ class ViewPage extends \SPP\SPPObject
             \SPP\SPPEvent::fireEvent('event_spp_view_pre_render', $preParams);
 
             self::renderFile($filename, $pageData);
-            
+
             if ($doAugment) {
                 $html = ob_get_clean();
                 $postParams = ['html' => &$html, 'pageData' => $pageData];
@@ -173,10 +175,10 @@ class ViewPage extends \SPP\SPPObject
                 $appName = \SPP\Scheduler::getContext();
 
                 // 1. Scan for <php-comp name="X" ... /> tags
-                $html = preg_replace_callback('/<php-comp\s+name="([^"]+)"([^>]*)\/?>/i', function($matches) use ($appName) {
+                $html = preg_replace_callback('/<php-comp\s+name="([^"]+)"([^>]*)\/?>/i', function ($matches) use ($appName) {
                     $compName = $matches[1];
                     $attrs = $matches[2];
-                    
+
                     // Parse attributes into a state object
                     $state = [];
                     if (preg_match_all('/([a-zA-Z0-9_-]+)="([^"]+)"/', $attrs, $attrMatches)) {
@@ -191,7 +193,7 @@ class ViewPage extends \SPP\SPPObject
                     $jsonState = htmlspecialchars(json_encode($state), ENT_QUOTES, 'UTF-8');
                     return "<div data-spp-component=\"{$compName}\" data-state='{$jsonState}'></div>";
                 }, $html);
-                
+
                 // 4. Inject Debug Bar (Phase 5 Evolution)
                 if (\SPP\Module::isEnabled('sppdebug') || (defined('SPP_DEBUG') && SPP_DEBUG)) {
                     $debugData = \SPP\Core\Debug::getData();
@@ -212,9 +214,14 @@ class ViewPage extends \SPP\SPPObject
 
                 $augParams = ['html' => &$html, 'js_list' => &$jsList, 'css_list' => &$cssList];
                 \SPP\SPPEvent::fireEvent('event_spp_view_before_augment', $augParams);
-                
+
                 $finalHtml = FormAugmentor::augment($html, $jsList, $cssList);
-                
+
+                // HMR Injection for Developer Heaven
+                if (getenv('APP_ENV') === 'local') {
+                    $finalHtml = str_replace('</body>', '<script src="/spp-hmr.js"></script></body>', $finalHtml);
+                }
+
                 // Event-Driven Theming: Allow modules to wrap output in a theme
                 $renderParams = [
                     'html'     => &$finalHtml,
@@ -222,9 +229,9 @@ class ViewPage extends \SPP\SPPObject
                     'theme'    => $app->getAppConf('theme')
                 ];
                 \SPP\SPPEvent::fireEvent('event_spp_view_render_theme', $renderParams);
-                
+
                 echo $finalHtml;
-                
+
                 self::includeJqueryDynamic();
                 self::includeCSSFilesDynamic();
                 return true;
@@ -322,7 +329,7 @@ class ViewPage extends \SPP\SPPObject
     public static function includeJqueryDynamic()
     {
         // Modernized: Avoid document.write to prevent parser-blocking warnings.
-        // We now use a standard script tag. If jQuery is already loaded by the app, 
+        // We now use a standard script tag. If jQuery is already loaded by the app,
         // this will still load but jQuery handles multiple inclusions gracefully.
         // However, for SPP-UX apps, we recommend using addJsIncludeFile instead.
         echo '<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>' . "\n";
@@ -506,7 +513,9 @@ class ViewPage extends \SPP\SPPObject
             if (is_array($fl) && $fl['path'] == $fpath) {
                 return false;
             }
-            if ($fl == $fpath) return false;
+            if ($fl == $fpath) {
+                return false;
+            }
         }
         self::$jsincludelist[] = $entry;
         return true;
@@ -572,7 +581,9 @@ class ViewPage extends \SPP\SPPObject
 
     public static function readFormFile($fl)
     {
-        if (!file_exists($fl)) return false;
+        if (!file_exists($fl)) {
+            return false;
+        }
 
         $ext = strtolower(pathinfo($fl, PATHINFO_EXTENSION));
         if ($ext === 'yml' || $ext === 'yaml') {
@@ -590,8 +601,12 @@ class ViewPage extends \SPP\SPPObject
 
     private static function wrapArray($item): array
     {
-        if (!is_array($item)) return [];
-        if (isset($item[0])) return $item;
+        if (!is_array($item)) {
+            return [];
+        }
+        if (isset($item[0])) {
+            return $item;
+        }
         return [$item];
     }
 
@@ -632,7 +647,7 @@ class ViewPage extends \SPP\SPPObject
                     }
                 }
             }
-            
+
             if (class_exists('\SPPMod\SPPView\ViewValidator')) {
                 if (isset($form['validations'])) {
                     $validationsBlocks = self::wrapArray($form['validations']);
@@ -692,7 +707,7 @@ class ViewPage extends \SPP\SPPObject
         if (strpos($type, '\\') !== 0 && strpos($type, 'SPPMod\\SPPView\\') !== 0) {
             $type = __NAMESPACE__ . '\\' . $type;
         }
-        
+
         if (!class_exists($type)) {
             throw new \SPP\SPPException("Form element class '{$type}' not found.");
         }

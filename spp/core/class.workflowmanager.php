@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -14,7 +15,9 @@ class WorkflowManager
      */
     protected static function init()
     {
-        if (self::$workflows !== null) return;
+        if (self::$workflows !== null) {
+            return;
+        }
         self::$workflows = [];
 
         // Check in APP_ETC_DIR and SPP_ETC_DIR
@@ -67,12 +70,14 @@ class WorkflowManager
      */
     public static function validateTransition($entity, string $oldStatus, string $newStatus, $user = null): bool
     {
-        if ($oldStatus === $newStatus) return true;
+        if ($oldStatus === $newStatus) {
+            return true;
+        }
 
         $entityClass = get_class($entity);
         $parts = explode('\\', $entityClass);
         $entityType = strtolower(array_pop($parts));
-        
+
         $bundle = 'default';
         if (method_exists($entity, 'get') && $entity->attributeExists('bundle')) {
             $bundle = $entity->get('bundle') ?: 'default';
@@ -154,7 +159,9 @@ class WorkflowManager
     public static function getNextStates(string $entityType, string $currentState, string $bundle = 'default'): array
     {
         $workflow = self::getWorkflow($entityType, $bundle);
-        if (!$workflow) return [];
+        if (!$workflow) {
+            return [];
+        }
 
         $transitions = $workflow['transitions'] ?? [];
         $nextStates = [];
@@ -169,4 +176,3 @@ class WorkflowManager
         return array_unique($nextStates);
     }
 }
-

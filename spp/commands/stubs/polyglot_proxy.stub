@@ -1,0 +1,13 @@
+<?php
+
+namespace {{namespace}};
+
+/**
+ * Class {{className}}
+ * Polyglot Service Proxy to {{polyglotLang}} runtime.
+ */
+class {{className}} extends \SPP\PolyglotProxy
+{
+    protected string $polyglotLang = '{{polyglotLang}}';
+    protected string $polyglotModule = '{{polyglotModule}}';
+}

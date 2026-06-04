@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 /**
- * SPP CLI Toolkit (Developer Workbench)
+ * SPP CLI Toolkit & Polyglot Engine (Developer Workbench)
  */
 
 if (php_sapi_name() !== 'cli') {
@@ -11,6 +11,7 @@ if (php_sapi_name() !== 'cli') {
 define('SPP_APP_DIR', dirname(__DIR__, 1));
 
 if ($argc < 2) {
+    define('SPP_SKIP_DISCOVERY', true);
     // Bootstrap for discovery
     require_once __DIR__ . '/sppinit.php';
     $commands = \SPP\CLI\CommandManager::discover();
@@ -24,8 +25,8 @@ if ($argc < 2) {
 
 $command = $argv[1];
 
-// Auto-enable quiet mode for XDB commands to suppress discovery noise
-if (str_starts_with($command, 'xdb:')) {
+// Auto-enable quiet mode for commands that generate output to suppress discovery noise
+if (str_starts_with($command, 'xdb:') || str_starts_with($command, 'man') || $command === 'list') {
     define('SPP_SKIP_DISCOVERY', true);
 }
 
@@ -97,8 +98,29 @@ $discoveredCommands = \SPP\CLI\CommandManager::discover();
 // Execution logic
 if (isset($discoveredCommands[$command])) {
     try {
-        // Auto-switch context if command is app-prefixed (e.g. lekhak:setup)
-        if (strpos($command, ':') !== false) {
+        // Look for --app= explicit flag
+        $explicitApp = null;
+        foreach ($argv as $arg) {
+            if (str_starts_with($arg, '--app=')) {
+                $explicitApp = substr($arg, 6);
+            }
+        }
+
+        if ($explicitApp) {
+            $settings = \SPP\App::getGlobalSettings();
+            if (isset($settings['apps'][$explicitApp])) {
+                try {
+                    new \SPP\App($explicitApp);
+                    \SPP\Scheduler::setContext($explicitApp);
+                    \SPP\Module::loadAllModules();
+                } catch (\Exception $e) {
+                    echo "[WARNING] Failed to load explicit app context: " . $explicitApp . "\n";
+                }
+            } else {
+                echo "[WARNING] App context '{$explicitApp}' not found in global settings.\n";
+            }
+        } else if (strpos($command, ':') !== false) {
+            // Auto-switch context if command is app-prefixed (e.g. lekhak:setup)
             $parts = explode(':', $command);
             $appContext = $parts[0];
             // Verify if it's a valid app before switching
@@ -118,7 +140,14 @@ if (isset($discoveredCommands[$command])) {
         $discoveredCommands[$command]->execute($argv);
         exit(0);
     } catch (\Exception $e) {
-        echo "[UNCAUGHT EXCEPTION] " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n";
+        // Look for debug toggle
+        $isDebug = \SPP\App::getGlobalSettings('framework.debug') === true;
+        echo "\n\033[31m\033[1m[ERROR]\033[0m " . $e->getMessage() . "\n";
+        
+        if ($isDebug) {
+            echo "\033[33m[TRACE]\033[0m in " . $e->getFile() . " on line " . $e->getLine() . "\n";
+            echo $e->getTraceAsString() . "\n";
+        }
         exit(1);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP;
 
 /**
@@ -6,7 +7,7 @@ namespace SPP;
  * Implements event system in Satya Portal Pack.
  *
  * @author Satya Prakash Shukla
- * 
+ *
  */
 class SPPEvent extends \SPP\SPPObject
 {
@@ -35,24 +36,24 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function registerEvent()
      * Registers an event.
-     * 
+     *
      * @param string $event_name Name of event.
      */
     public static function registerEvent(string $event_name, ?string $default_handler = null)
     {
         if (!array_key_exists($event_name, self::$events)) {
-            self::$events[$event_name] = array(
+            self::$events[$event_name] = [
                 'defaulthandler' => $default_handler,
-                'handlers' => array(),
+                'handlers' => [],
                 'overriders' => false
-            );
+            ];
         }
     }
 
     /**
      * function getEvents()
      * Returns all registered events.
-     * 
+     *
      * @return array All registered events.
      */
     public static function getEvents()
@@ -81,7 +82,7 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function hasDefaultHandler()
      * Checks if a default handler is registered for an event.
-     * 
+     *
      * @param string $event_name Name of event.
      */
     public static function hasDefaultHandler($event_name)
@@ -92,7 +93,7 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function registerEvents()
      * Registers multiple events.
-     * 
+     *
      * @param array $events Array of event names.
      */
     public static function registerEvents(array $events)
@@ -105,7 +106,7 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function registerHandler()
      * Registers a handler for an event.
-     * 
+     *
      * @param string $event_name Name of event.
      * @param string $handler_name Name of handler function or FQCN.
      * @param bool $default Default handler.
@@ -143,8 +144,12 @@ class SPPEvent extends \SPP\SPPObject
         } else {
             // Check for duplicates
             foreach (self::$events[$event_name]['handlers'] as $h) {
-                if (is_array($h) && $h['class'] === $className && $h['method'] === $method) return true;
-                if (!is_array($h) && $h === $className && $method === null) return true;
+                if (is_array($h) && $h['class'] === $className && $h['method'] === $method) {
+                    return true;
+                }
+                if (!is_array($h) && $h === $className && $method === null) {
+                    return true;
+                }
             }
 
             // Get priority from class if not provided
@@ -166,7 +171,7 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function registerHandlers()
      * Registers multiple handlers for an event.
-     * 
+     *
      * @param array $handlers Array of handler names.
      * @param bool $default Default handler.
      */
@@ -181,7 +186,7 @@ class SPPEvent extends \SPP\SPPObject
      * function startEvent()
      * Starts an event.
      */
-    public static function startEvent(string $event_name, array &$params = array())
+    public static function startEvent(string $event_name, array &$params = [])
     {
         if (!array_key_exists($event_name, self::$events)) {
             return;
@@ -202,7 +207,7 @@ class SPPEvent extends \SPP\SPPObject
      * function endEvent()
      * Ends an event.
      */
-    public static function endEvent($event_name, &$params = array())
+    public static function endEvent($event_name, &$params = [])
     {
         if (!array_key_exists($event_name, self::$events)) {
             return;
@@ -223,7 +228,7 @@ class SPPEvent extends \SPP\SPPObject
      * function overrideEvent()
      * Overrides a fireable event.
      */
-    public static function overrideEvent($event_name, &$params = array())
+    public static function overrideEvent($event_name, &$params = [])
     {
         if (!array_key_exists($event_name, self::$events)) {
             return;
@@ -247,20 +252,20 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * function hasOverrider()
      * Checks if an event has an overrider.
-     * 
+     *
      * @param string $handler_name Name of handler.
      * @return bool
      */
     public static function hasOverrider($handler_name)
     {
-        return method_exists($handler_name, 'overrideHandler') || 
+        return method_exists($handler_name, 'overrideHandler') ||
                method_exists('EventHandlers\\' . $handler_name, 'overrideHandler');
     }
 
     /**
      * function dispatch()
      * Dispatches a modern Event Object.
-     * 
+     *
      * @param SPPEventObject $event
      */
     public static function dispatch(SPPEventObject $event)
@@ -272,7 +277,7 @@ class SPPEvent extends \SPP\SPPObject
      * function fireEvent()
      * Fires an overridable event.
      */
-    public static function fireEvent($event_name, mixed &$params = array(), mixed $inline_handler = null)
+    public static function fireEvent($event_name, mixed &$params = [], mixed $inline_handler = null)
     {
         if (!array_key_exists($event_name, self::$events) && !isset(self::$listeners[$event_name])) {
             return;
@@ -301,7 +306,7 @@ class SPPEvent extends \SPP\SPPObject
             $h_desc = is_array($h) ? ($h['class'] . ($h['method'] ? "@{$h['method']}" : "")) : $h;
             self::trace("  -> Executing Before: {$h_desc}");
             $instance = self::callHandler($h, 'before', $params);
-            
+
             self::$collectedTrace[$traceId]['handlers'][] = [
                 'stage' => 'before',
                 'handler' => $h_desc,
@@ -326,7 +331,7 @@ class SPPEvent extends \SPP\SPPObject
                 self::trace("  -> Executing Override: {$h_desc}");
                 $instance = self::callHandler($h, 'override', $params);
                 $overridden = true;
-                
+
                 self::$collectedTrace[$traceId]['handlers'][] = [
                     'stage' => 'override',
                     'handler' => $h_desc,
@@ -338,7 +343,7 @@ class SPPEvent extends \SPP\SPPObject
                     self::trace("  !! Propagation STOPPED during Override");
                     $lastIdx = count(self::$collectedTrace[$traceId]['handlers']) - 1;
                     self::$collectedTrace[$traceId]['handlers'][$lastIdx]['stopped'] = true;
-                    break; 
+                    break;
                 }
             }
         }
@@ -394,7 +399,9 @@ class SPPEvent extends \SPP\SPPObject
     private static function getSortedHandlers(string $event_name): array
     {
         $handlers = self::$events[$event_name]['handlers'] ?? [];
-        if (empty($handlers)) return [];
+        if (empty($handlers)) {
+            return [];
+        }
 
         // Normalize handlers and get priorities
         $normalized = [];
@@ -418,13 +425,15 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * Internal helper to get/create handler instance and call it.
      */
-    private static function callHandler($handler_data, $occurence, mixed &$params = array()): ?\SPP\EventHandler
+    private static function callHandler($handler_data, $occurence, mixed &$params = []): ?\SPP\EventHandler
     {
         $handler_name = is_array($handler_data) ? $handler_data['class'] : $handler_data;
         $custom_method = is_array($handler_data) ? $handler_data['method'] : null;
 
         $instance = self::getHandlerInstance($handler_name, $occurence);
-        if (!$instance) return null;
+        if (!$instance) {
+            return null;
+        }
 
         // If a custom method is provided (Subscriber), we call it instead of stage-specific ones
         if ($custom_method && $occurence !== 'default') {
@@ -451,7 +460,9 @@ class SPPEvent extends \SPP\SPPObject
     {
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
             $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
-            if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
+            if (!is_dir($logDir)) {
+                @mkdir($logDir, 0777, true);
+            }
             $logFile = $logDir . '/events.log';
             $timestamp = date('Y-m-d H:i:s');
             @file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
@@ -476,12 +487,12 @@ class SPPEvent extends \SPP\SPPObject
                 SPP_BASE_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
                 SPP_APP_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
             ];
-            
+
             $context = \SPP\Scheduler::getContext();
             if ($context !== '') {
                 $candidateDirs[] = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'events' . SPP_DS . $subDir;
             }
-            
+
             $srcBase = SPP_APP_DIR . SPP_DS . 'src';
             if (is_dir($srcBase)) {
                 foreach (scandir($srcBase) as $d) {
@@ -490,7 +501,7 @@ class SPPEvent extends \SPP\SPPObject
                     }
                 }
             }
-            
+
             foreach ($candidateDirs as $dir) {
                 $file = $dir . $handler_name . '.php';
                 if (file_exists($file)) {
@@ -500,11 +511,15 @@ class SPPEvent extends \SPP\SPPObject
             }
         }
 
-        if (!class_exists($class)) return null;
+        if (!class_exists($class)) {
+            return null;
+        }
 
         if (!isset(self::$activeHandlers[$class])) {
             $instance = new $class();
-            if (!$instance instanceof \SPP\EventHandler) return null;
+            if (!$instance instanceof \SPP\EventHandler) {
+                return null;
+            }
             self::$activeHandlers[$class] = $instance;
         }
         return self::$activeHandlers[$class];
@@ -561,13 +576,15 @@ class SPPEvent extends \SPP\SPPObject
 
         $files = scandir($dir);
         foreach ($files as $file) {
-            if ($file === '.' || $file === '..') continue;
-            
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
             $path = $dir . SPP_DS . $file;
             if (is_file($path) && pathinfo($path, PATHINFO_EXTENSION) === 'php') {
                 require_once $path;
                 $class = pathinfo($file, PATHINFO_FILENAME);
-                
+
                 $fqcn = '\\' . trim($namespace, '\\') . '\\' . $class;
                 if (class_exists($fqcn) && is_subclass_of($fqcn, '\\SPP\\EventHandler')) {
                     // Check for Subscriber
@@ -592,7 +609,9 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function registerDirs()
     {
-        if (self::$dirsRegistered) return;
+        if (self::$dirsRegistered) {
+            return;
+        }
 
         self::scanAndRegisterDirs(SPP_BASE_DIR . SPP_DS . 'events');
         self::scanAndRegisterDirs(SPP_APP_DIR . SPP_DS . 'events');
@@ -613,7 +632,9 @@ class SPPEvent extends \SPP\SPPObject
         if (is_array($mods)) {
             foreach ($mods as $modname => $modpath) {
                 $dir = $modpath . SPP_DS . 'events';
-                if (is_dir($dir)) self::scanAndRegisterDirs($dir);
+                if (is_dir($dir)) {
+                    self::scanAndRegisterDirs($dir);
+                }
             }
         }
         self::$dirsRegistered = true;
@@ -625,14 +646,22 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function scanAndRegisterDirs($dir, $top_dir = true)
     {
-        if (!is_dir($dir)) return;
-        if ($top_dir) \SPP\Registry::registerDir('events', $dir);
+        if (!is_dir($dir)) {
+            return;
+        }
+        if ($top_dir) {
+            \SPP\Registry::registerDir('events', $dir);
+        }
 
         foreach (scandir($dir) as $file) {
-            if ($file === '.' || $file === '..') continue;
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
             $path = $dir . SPP_DS . $file;
             if (is_dir($path)) {
-                if (is_link($path)) continue;
+                if (is_link($path)) {
+                    continue;
+                }
                 \SPP\Registry::registerDir('events', $path);
                 self::scanAndRegisterDirs($path, false);
             }
@@ -651,29 +680,35 @@ class SPPEvent extends \SPP\SPPObject
 
     public static function persistTrace(): void
     {
-        if (empty(self::$collectedTrace)) return;
-        
+        if (empty(self::$collectedTrace)) {
+            return;
+        }
+
         $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
-        if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
-        
+        if (!is_dir($logDir)) {
+            @mkdir($logDir, 0777, true);
+        }
+
         $logFile = $logDir . '/event_trace.json';
         $existing = [];
         if (file_exists($logFile)) {
             $data = json_decode(file_get_contents($logFile), true);
-            if (is_array($data)) $existing = $data;
+            if (is_array($data)) {
+                $existing = $data;
+            }
         }
-        
+
         // Keep only last 20 traces
         $existing[] = [
             'request_uri' => $_SERVER['REQUEST_URI'] ?? 'CLI',
             'timestamp' => date('Y-m-d H:i:s'),
             'trace' => self::$collectedTrace
         ];
-        
+
         if (count($existing) > 20) {
             $existing = array_slice($existing, -20);
         }
-        
+
         @file_put_contents($logFile, json_encode($existing, JSON_PRETTY_PRINT));
     }
 }

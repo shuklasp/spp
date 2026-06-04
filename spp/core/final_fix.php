@@ -1,4 +1,5 @@
 <?php
+
 $path = 'c:\projects\apache\school1\spp\core\class.module.php';
 $lines = file($path);
 

@@ -1,13 +1,10 @@
 <?php
+
 namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
 use SPP\Core\Queue;
 
-/**
- * Class QueueWorkCommand
- * CLI Worker for processing background jobs.
- */
 class QueueWorkCommand extends Command
 {
     protected string $name = 'queue:work';
@@ -15,23 +12,31 @@ class QueueWorkCommand extends Command
 
     public function execute(array $args): void
     {
-        echo "SPP Queue Worker started...\n";
-        echo "Press Ctrl+C to stop.\n\n";
+        echo "Starting SPP Queue Worker Daemon...\n";
+        
+        // Define sleep duration between polling empty queue
+        $sleep = 2; // seconds
 
         while (true) {
-            $job = Queue::pop();
+            $jobData = Queue::pop();
 
-            if ($job) {
-                echo "[ " . date('Y-m-d H:i:s') . " ] Processing: " . get_class($job) . "\n";
+            if ($jobData) {
+                $id = $jobData['id'];
+                $job = $jobData['job'];
+                
+                echo "[" . date('Y-m-d H:i:s') . "] Processing Job ID: {$id} (" . get_class($job) . ")...\n";
+                
                 try {
                     $job->handle();
-                    echo "[ " . date('Y-m-d H:i:s') . " ] Success: " . get_class($job) . "\n";
-                } catch (\Exception $e) {
-                    echo "[ " . date('Y-m-d H:i:s') . " ] Failed: " . get_class($job) . " - " . $e->getMessage() . "\n";
+                    Queue::complete($id);
+                    echo "[" . date('Y-m-d H:i:s') . "] Job ID {$id} Completed.\n";
+                } catch (\Throwable $e) {
+                    echo "[" . date('Y-m-d H:i:s') . "] Job ID {$id} Failed: " . $e->getMessage() . "\n";
+                    // Optionally push back to queue or log failure
                 }
+            } else {
+                sleep($sleep);
             }
-
-            sleep(3); // Wait for new jobs
         }
     }
 }

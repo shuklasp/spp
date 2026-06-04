@@ -1,22 +1,26 @@
 <?php
+
 namespace SPP;
+
 /**
  * class \SPP\SPPException
  * Top level class for all the exceptions defined in SPP.
  *
  * @author Satya Prakash Shukla
  */
-class SPPException extends \Exception {
-    public function __construct($message, $code = 1000, ?\Throwable $previous = null) {
+class SPPException extends \Exception
+{
+    public function __construct($message, $code = 1000, ?\Throwable $previous = null)
+    {
         parent::__construct($message, $code, $previous);
     }
 
     public static function createException($eName)
     {
-        $message="Exception $eName";
-        $code=1000;
-        $cls=new class($message,$code) extends \Exception {
-            public function __construct($message, $code=1000)
+        $message = "Exception $eName";
+        $code = 1000;
+        $cls = new class ($message, $code) extends \Exception {
+            public function __construct($message, $code = 1000)
             {
                 parent::__construct($message, $code);
             }
@@ -43,8 +47,10 @@ class SPPException extends \Exception {
  *
  * @author Satya Prakash Shukla
  */
-class SPP_Syntax_Exception extends \SPP\SPPException{
-    public function  __construct($message,$code=2000) {
+class SPP_Syntax_Exception extends \SPP\SPPException
+{
+    public function __construct($message, $code = 2000)
+    {
         parent::__construct($message, $code);
     }
 }
@@ -55,9 +61,10 @@ class SPP_Syntax_Exception extends \SPP\SPPException{
  *
  * @author Satya Prakash Shukla
  */
-class SPP_Logic_Exception extends \SPP\SPPException{
-    public function  __construct($message,$code=3000) {
+class SPP_Logic_Exception extends \SPP\SPPException
+{
+    public function __construct($message, $code = 3000)
+    {
         parent::__construct($message, $code);
     }
 }
-?>

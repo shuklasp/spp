@@ -1,11 +1,12 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 /**
  * Class AnonymousUser
- * 
+ *
  * Represents an unauthenticated user within the SPP framework.
- * This class ensures that a user object is always available, 
+ * This class ensures that a user object is always available,
  * fulfilling the requirement for a "virtual" anonymous user.
  */
 class AnonymousUser extends \SPP\SPPObject
@@ -27,9 +28,15 @@ class AnonymousUser extends \SPP\SPPObject
      */
     public function get($prop)
     {
-        if ($prop === 'UserId') return $this->id;
-        if ($prop === 'UserName') return $this->username;
-        if ($prop === 'rights') return [];
+        if ($prop === 'UserId') {
+            return $this->id;
+        }
+        if ($prop === 'UserName') {
+            return $this->username;
+        }
+        if ($prop === 'rights') {
+            return [];
+        }
         return $this->$prop ?? null;
     }
 

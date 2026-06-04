@@ -1,0 +1,33 @@
+/**
+ * SPP Node.js Service: {{CLASS_NAME}}
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+// Optional: Load the native SPP Node.js client for bridge communication
+let spp = null;
+try {
+    spp = require(path.join(__dirname, '..', '..', '..', 'spp', 'lib', 'node', 'spp.js'));
+} catch (e) {
+    // spp.js client not loaded or not found
+}
+
+module.exports = {
+    /**
+     * Main handler for the service.
+     * @param {Object|Array} args Arguments passed from PHP
+     * @returns {Object} Data to be returned to PHP
+     */
+    async handle(args) {
+        // Example: Native back-communication to PHP
+        // const setting = spp.getConfig('app_name');
+        // const phpResult = spp.callPhp('App\\Services\\NativeService', 'someMethod', ['hello']);
+
+        return {
+            status: "success",
+            message: "Hello from Node.js {{CLASS_NAME}} service!",
+            received_args: args
+        };
+    }
+};

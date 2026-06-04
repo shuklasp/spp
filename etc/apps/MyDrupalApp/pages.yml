@@ -1,0 +1,8 @@
+pages:
+  index:
+    url: index.php
+    title: MyDrupalApp
+    special: 1
+defaults:
+  home: index
+  pagedir: /src/MyDrupalApp

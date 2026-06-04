@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP;
 
 /**
@@ -38,7 +39,7 @@ abstract class SPPEventObject
         if (str_ends_with($className, 'Event')) {
             $className = substr($className, 0, -5);
         }
-        
+
         // Convert PascalCase to snake_case
         return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $className));
     }

@@ -9,3 +9,7 @@ lekhni:
     media_path: var/media/lekhni
 admin_icon: 🖋️
 admin_title: Lekhak
+
+admin_menu:
+  - { id: 'marketing', title: 'Marketing', icon: 'dY"' }
+  - { id: 'commerce', title: 'Commerce', icon: 'dY>''' }

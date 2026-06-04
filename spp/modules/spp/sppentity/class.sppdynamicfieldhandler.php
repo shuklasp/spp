@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPEntity;
 
 /**
@@ -38,18 +39,26 @@ class SppDynamicFieldHandler
      */
     public static function loadFields(array $entities)
     {
-        if (empty($entities)) return;
-        
+        if (empty($entities)) {
+            return;
+        }
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
-        if (!$db->tableExists($table)) return;
+        if (!$db->tableExists($table)) {
+            return;
+        }
 
         // Group by entity type
         $byType = [];
         foreach ($entities as $entity) {
-            if (!$entity->getId()) continue;
+            if (!$entity->getId()) {
+                continue;
+            }
             $type = get_class($entity);
-            if (!isset($byType[$type])) $byType[$type] = [];
+            if (!isset($byType[$type])) {
+                $byType[$type] = [];
+            }
             $byType[$type][] = $entity->getId();
         }
 
@@ -57,14 +66,14 @@ class SppDynamicFieldHandler
             $placeholders = implode(',', array_fill(0, count($ids), '?'));
             $sql = "SELECT * FROM {$table} WHERE entity_type = ? AND entity_id IN ($placeholders)";
             $params = array_merge([$type], $ids);
-            
+
             $results = $db->exec_squery($sql, $table, $params);
-            
+
             $fieldData = [];
             foreach ($results as $row) {
                 $fieldData[$row['entity_id']][$row['field_name']] = self::getActualValue($row);
             }
-            
+
             foreach ($entities as $entity) {
                 if (get_class($entity) === $type && isset($fieldData[$entity->getId()])) {
                     if (method_exists($entity, '_setDynamicFields')) {
@@ -80,8 +89,10 @@ class SppDynamicFieldHandler
      */
     public static function saveFields($entity, array $dynamicFields)
     {
-        if (empty($dynamicFields)) return;
-        
+        if (empty($dynamicFields)) {
+            return;
+        }
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
         if (!$db->tableExists($table)) {
@@ -94,11 +105,11 @@ class SppDynamicFieldHandler
 
         foreach ($dynamicFields as $fieldName => $value) {
             $col = self::getValueColumn($value);
-            
+
             // Check if exists
             $checkSql = "SELECT 1 FROM {$table} WHERE entity_type = ? AND entity_id = ? AND field_name = ?";
             $exists = $db->exec_squery($checkSql, $table, [$type, $id, $fieldName]);
-            
+
             if (!empty($exists)) {
                 $sql = "UPDATE {$table} SET value_string = NULL, value_text = NULL, value_int = NULL, value_decimal = NULL, {$col} = ?, bundle = ? WHERE entity_type = ? AND entity_id = ? AND field_name = ?";
                 $db->exec_squery($sql, $table, [$value, $bundle, $type, $id, $fieldName]);
@@ -116,7 +127,9 @@ class SppDynamicFieldHandler
     {
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
-        if (!$db->tableExists($table)) return;
+        if (!$db->tableExists($table)) {
+            return;
+        }
 
         $type = get_class($entity);
         $id = $entity->getId();
@@ -130,10 +143,18 @@ class SppDynamicFieldHandler
      */
     private static function getActualValue($row)
     {
-        if ($row['value_int'] !== null) return (int)$row['value_int'];
-        if ($row['value_decimal'] !== null) return (float)$row['value_decimal'];
-        if ($row['value_string'] !== null) return $row['value_string'];
-        if ($row['value_text'] !== null) return $row['value_text'];
+        if ($row['value_int'] !== null) {
+            return (int)$row['value_int'];
+        }
+        if ($row['value_decimal'] !== null) {
+            return (float)$row['value_decimal'];
+        }
+        if ($row['value_string'] !== null) {
+            return $row['value_string'];
+        }
+        if ($row['value_text'] !== null) {
+            return $row['value_text'];
+        }
         return null;
     }
 
@@ -142,9 +163,15 @@ class SppDynamicFieldHandler
      */
     private static function getValueColumn($value)
     {
-        if (is_int($value)) return 'value_int';
-        if (is_float($value)) return 'value_decimal';
-        if (is_string($value) && strlen($value) > 255) return 'value_text';
+        if (is_int($value)) {
+            return 'value_int';
+        }
+        if (is_float($value)) {
+            return 'value_decimal';
+        }
+        if (is_string($value) && strlen($value) > 255) {
+            return 'value_text';
+        }
         return 'value_string';
     }
 }

@@ -200,7 +200,7 @@ JS);
     public static function component(string $name, array $props = [], ?string $appname = null): string
     {
         $path = self::componentPath($name, $appname);
-        
+
         // Optional SSR content if provided in props under '__ssr'
         $ssrContent = $props['__ssr'] ?? '';
         unset($props['__ssr']);
@@ -208,11 +208,11 @@ JS);
         // Optional embedded declarative template if provided under '__template'
         $templateContent = $props['__template'] ?? '';
         unset($props['__template']);
-        
+
         // Optional Reactivity Islands partial hydration behavior strategy descriptor ('visible', 'idle', 'media')
         $islandMode = $props['__island'] ?? '';
         unset($props['__island']);
-        
+
         $propsJson = htmlspecialchars(json_encode($props), ENT_QUOTES, 'UTF-8');
         $pathAttr = htmlspecialchars($path, ENT_QUOTES, 'UTF-8');
         $islandAttr = $islandMode ? ' data-spp-island="' . htmlspecialchars($islandMode, ENT_QUOTES, 'UTF-8') . '"' : '';

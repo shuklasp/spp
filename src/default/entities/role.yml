@@ -1,0 +1,6 @@
+table: roles
+id_field: id
+enable_api: true
+attributes:
+  name: varchar(50)
+  permissions: text

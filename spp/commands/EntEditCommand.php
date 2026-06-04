@@ -25,6 +25,66 @@ class EntEditCommand extends Command
             $config = \Symfony\Component\Yaml\Yaml::parseFile($cfgFile);
             $appname = strpos($cfgFile, 'apps/') !== false ? explode('/', explode('apps/', $cfgFile)[1])[0] : 'default';
 
+            $isInteractive = true;
+            foreach ($args as $arg) {
+                if (str_starts_with($arg, '--')) $isInteractive = false;
+                
+                if (str_starts_with($arg, '--table=')) $config['table'] = substr($arg, 8);
+                if (str_starts_with($arg, '--extends=')) $config['extends'] = substr($arg, 10);
+                if (str_starts_with($arg, '--login=')) $config['login_enabled'] = strtolower(substr($arg, 8)) === 'true' || substr($arg, 8) === '1';
+                
+                if (str_starts_with($arg, '--add-field=')) {
+                    $fields = explode(',', substr($arg, 12));
+                    foreach ($fields as $field) {
+                        $parts = explode(':', trim($field));
+                        if (count($parts) >= 2) {
+                            $config['attributes'][trim($parts[0])] = trim($parts[1]);
+                        } else {
+                            $config['attributes'][trim($parts[0])] = 'varchar(255)';
+                        }
+                    }
+                }
+                
+                if (str_starts_with($arg, '--remove-field=')) {
+                    $fields = explode(',', substr($arg, 15));
+                    foreach ($fields as $field) {
+                        unset($config['attributes'][trim($field)]);
+                    }
+                }
+                
+                if (str_starts_with($arg, '--add-relation=')) {
+                    $relations = explode(',', substr($arg, 15));
+                    foreach ($relations as $relation) {
+                        $parts = explode(':', trim($relation));
+                        if (count($parts) >= 1) {
+                            $target = trim($parts[0]);
+                            $type = trim($parts[1] ?? 'OneToMany');
+                            $fk = trim($parts[2] ?? strtolower($entityName) . '_id');
+                            $rel = [
+                                'child_entity' => $target,
+                                'relation_type' => $type,
+                                'child_entity_field' => $fk
+                            ];
+                            if ($type === 'ManyToMany') {
+                                $rel['pivot_table'] = trim($parts[3] ?? strtolower($entityName) . "_" . strtolower(basename(str_replace('\\', '/', $target))));
+                            }
+                            $config['relations'][] = $rel;
+                        }
+                    }
+                }
+                
+                if (str_starts_with($arg, '--remove-relation=')) {
+                    $idxToRemove = (int) substr($arg, 18);
+                    if (isset($config['relations'][$idxToRemove])) array_splice($config['relations'], $idxToRemove, 1);
+                }
+            }
+
+            if (!$isInteractive) {
+                \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+                echo "Success: Entity definition updated via CLI flags.\n";
+                return;
+            }
+
             while(true) {
                 echo "\n--- Editing Entity: {$entityName} ---\n";
                 echo "1) Edit Metadata (Table: {$config['table']}, Parent: " . ($config['extends'] ?? 'None') . ", Login: " . ($config['login_enabled'] ? 'Yes' : 'No') . ")\n";
@@ -124,6 +184,33 @@ class EntEditCommand extends Command
 
     public function getDescription(): string
     {
-        return 'Legacy port of ent:edit';
+        return 'Edit an existing SPPEntity definition';
+    }
+
+    public function getHelp(): string
+    {
+        return <<<HELP
+Edits an existing SPPEntity definition. If run without flags, it will launch an interactive wizard.
+Passing any of the double-dash flags will bypass the wizard and execute a non-interactive edit.
+
+Usage:
+  php spp.php ent:edit [EntityName] [OPTIONS]
+
+Options:
+  --table=TableName            Update the database table name.
+  --extends=Class              Update the parent entity class (e.g. "\App\Entities\User").
+  --login=true|false           Enable or disable SPP Login Support for this entity.
+  --add-field="name:type"      Add or update attributes. Format: "name:type" (comma-separated).
+  --remove-field="name"        Remove attributes by name (comma-separated).
+  --add-relation="Target:..."  Add relationships. Format: "Target:Type:ForeignKey:PivotTable" (comma-separated).
+  --remove-relation=index      Remove a relationship by its integer index.
+
+Examples:
+  Interactive Mode:
+    php spp.php ent:edit Student
+
+  Non-Interactive Edit:
+    php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
+HELP;
     }
 }

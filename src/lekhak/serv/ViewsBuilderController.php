@@ -39,15 +39,6 @@ class ViewsBuilderController
         if (class_exists('\SPPMod\SPPView\SPPViewForm_Element')) {
             \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
         }
-
-        // Using Drishyam if available, otherwise just output a raw interactive HTML admin layout
-        if (class_exists('\\SPPMod\\Drishyam\\Drishyam')) {
-            try {
-                return \SPPMod\Drishyam\Drishyam::render("views_admin", $data);
-            } catch (\Exception $e) {
-                // Fallback to raw output if template doesn't exist
-            }
-        }
         
         return $this->rawAdminHtml($views);
     }
@@ -167,11 +158,7 @@ class ViewsBuilderController
             
             $html = '';
             $template = $config['template'] ?? null;
-            if ($template && class_exists('\\SPPMod\\Drishyam\\Drishyam')) {
-                $html = \SPPMod\Drishyam\Drishyam::render($template, ['results' => $results, 'config' => $config, 'display' => $display]);
-            } else {
-                $html = $this->renderGenericTable($results, $config);
-            }
+            $html = $this->renderGenericTable($results, $config);
             
             // For AJAX infinite requests, return just the rows/items
             if ($paginationType === 'infinite' && isset($_GET['infinite_api'])) {

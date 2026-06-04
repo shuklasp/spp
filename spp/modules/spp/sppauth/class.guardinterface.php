@@ -1,11 +1,13 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 /**
  * Interface GuardInterface
  * Defines the contract for an authentication driver.
  */
-interface GuardInterface {
+interface GuardInterface
+{
     public function check(): bool;
     public function user();
     public function id();

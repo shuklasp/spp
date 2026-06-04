@@ -98,3 +98,45 @@ services:
     name: list_pages
     script: spp/admin/services/General.php
     method: live_list_pages
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_groups
+    script: spp/admin/services/General.php
+    method: live_list_groups
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_users
+    script: spp/admin/services/General.php
+    method: live_list_users
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_group_members
+    script: spp/admin/services/General.php
+    method: live_list_group_members
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_interdb_config
+    script: spp/admin/services/General.php
+    method: live_get_interdb_config
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_xdb_databases
+    script: spp/admin/services/General.php
+    method: live_list_xdb_databases
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: list_xdb_tables
+    script: spp/admin/services/General.php
+    method: live_list_xdb_tables
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_ajax_services
+    script: spp/admin/services/General.php
+    method: live_get_ajax_services

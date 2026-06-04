@@ -4,7 +4,7 @@ namespace SPPMod\SPPAjax;
 
 /**
  * class LiveAction
- * 
+ *
  * Builder for unified service responses that instruct the frontend to perform
  * specific DOM manipulations, redirects, or notifications.
  */
@@ -137,7 +137,7 @@ class LiveAction
 
     /**
      * Render a template/partial and use it in a replace/morph instruction.
-     * 
+     *
      * @param string $template Path to template relative to app src/pages or src/partials
      * @param array $data Data to extract into the template
      * @param string $selector DOM selector to target
@@ -147,10 +147,10 @@ class LiveAction
     {
         ob_start();
         extract($data);
-        
+
         $src = \SPPMod\SPPView\Pages::getDefault('pagedir') ?: '/src/pages';
         $fullPath = SPP_APP_DIR . $src . '/' . ltrim($template, '/');
-        
+
         if (!file_exists($fullPath)) {
             // Check in src/partials fallback
             $fullPath = SPP_APP_DIR . '/src/partials/' . ltrim($template, '/');
@@ -161,12 +161,15 @@ class LiveAction
         } else {
             echo "<!-- Partial not found: {$template} -->";
         }
-        
+
         $html = ob_get_clean();
-        
+
         if ($selector) {
-            if ($action === 'morph') $this->morph($selector, $html);
-            else $this->replace($selector, $html);
+            if ($action === 'morph') {
+                $this->morph($selector, $html);
+            } else {
+                $this->replace($selector, $html);
+            }
         } else {
             // If no selector, just set it as the primary data payload
             $this->data['html'] = $html;
@@ -276,7 +279,7 @@ class LiveAction
         if (!\SPP\Module::isEnabled('sppinterdb')) {
             throw new \Exception("SPPInterDB module is required for LiveAction::query()");
         }
-        
+
         $db = new \SPPMod\SPPInterDB\SPPInterDB();
         $res = $db->graphql($query, $variables);
         return new self($res);
@@ -290,7 +293,7 @@ class LiveAction
         if (!\SPP\Module::isEnabled('sppdb')) {
             throw new \Exception("SPPDB module is required for LiveAction::sql()");
         }
-        
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $res = $db->execute_query($query, $params);
         return new self(['data' => $res]);

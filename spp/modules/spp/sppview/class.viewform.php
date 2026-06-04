@@ -5,9 +5,9 @@ namespace SPPMod\SPPView;
 use SPP\Exceptions\UnknownPropertyException as UnknownPropertyException;
 use SPP\Exceptions\VarNotFoundException as VarNotFoundException;
 use SPP\SPPException as SPPException;
+use SPPMod\SPPView\ViewTag;
+use SPPMod\SPPView\ViewValidator;
 
-use \SPPMod\SPPView\ViewTag;
-use \SPPMod\SPPView\ViewValidator;
 /*require_once 'sppsystemexceptions.php';
 require_once 'class.spphtmlelement.php';
 require_once 'classes.sppvalidators.php';*/
@@ -18,55 +18,51 @@ require_once 'classes.sppvalidators.php';*/
  *
  * @author Satya Prakash Shukla
  */
-class ViewForm extends ViewTag {
-    private $elements=array();
+class ViewForm extends ViewTag
+{
+    private $elements = [];
     private $globalset;
-    private $validators=array();
-    private static $valstatus=true;
+    private $validators = [];
+    private static $valstatus = true;
     private $entityClass;
     private $matter;
 
-    public function  __construct($ename,$method='post',$act='', $id=null) {
-        parent::__construct('form',$ename);
-        $this->isemptyflag=false;
-        $this->attrlist=array('action','accept','accept-charset','enctype','method','name','target', 'data-onsuccess', 'data-onerror', 'data-onbeforesubmit');
-        $this->eventattrlist[]='onsubmit';
-        $this->eventattrlist[]='onreset';
-        
-        if($act=='')
-        {
-            $this->attributes['action']=$_SERVER['PHP_SELF'];
-        }
-        else
-        {
-            $this->attributes['action']=$act;
+    public function __construct($ename, $method = 'post', $act = '', $id = null)
+    {
+        parent::__construct('form', $ename);
+        $this->isemptyflag = false;
+        $this->attrlist = ['action','accept','accept-charset','enctype','method','name','target', 'data-onsuccess', 'data-onerror', 'data-onbeforesubmit'];
+        $this->eventattrlist[] = 'onsubmit';
+        $this->eventattrlist[] = 'onreset';
+
+        if ($act == '') {
+            $this->attributes['action'] = $_SERVER['PHP_SELF'];
+        } else {
+            $this->attributes['action'] = $act;
         }
 
-        $this->attributes['name']=$ename;
+        $this->attributes['name'] = $ename;
         $this->attributes['id'] = $id ?? 'spp_'.$ename;
 
         $method = strtolower($method);
-        if(in_array($method, ['post', 'get', 'put', 'delete']))
-        {
-            $this->attributes['method']=$method;
-        }
-        else
-        {
+        if (in_array($method, ['post', 'get', 'put', 'delete'])) {
+            $this->attributes['method'] = $method;
+        } else {
             throw new \SPP\SPPException('Invalid method '.$method.' declared for form '.$this->getAttribute('name'));
         }
-        $this->globalset=array();
+        $this->globalset = [];
 
         ViewPage::addForm($this);
     }
 
     public function setMethod($method)
     {
-        $this->attributes['method']=strtolower($method);
+        $this->attributes['method'] = strtolower($method);
     }
 
     public function setAction($action)
     {
-        $this->attributes['action']=$action;
+        $this->attributes['action'] = $action;
     }
 
     public function setTheme(string $themeName)
@@ -74,21 +70,21 @@ class ViewForm extends ViewTag {
         SPPViewForm_Element::setTheme($themeName);
     }
 
-    public function setOnsubmit($onsubmit){
-        $this->attributes['onsubmit']=$onsubmit;
+    public function setOnsubmit($onsubmit)
+    {
+        $this->attributes['onsubmit'] = $onsubmit;
     }
 
 
-    public function addValidator(ViewValidator $val,$msg='')
+    public function addValidator(ViewValidator $val, $msg = '')
     {
-        if($msg!='')
-        {
+        if ($msg != '') {
             $val->setMessage($msg);
         }
-        $this->validators[]=$val;
+        $this->validators[] = $val;
     }
 
-    public function attachValidator(ViewValidator $val, ViewTag $elem, $event, $errhold, $msg='')
+    public function attachValidator(ViewValidator $val, ViewTag $elem, $event, $errhold, $msg = '')
     {
         $val->setErrorHolder($errhold);
         $val->attachTo($elem, $event, $msg);
@@ -96,12 +92,10 @@ class ViewForm extends ViewTag {
 
     public function doValidation()
     {
-        foreach($this->validators as $val)
-        {
+        foreach ($this->validators as $val) {
             $valRes = $val->validateAll();
             $isValid = is_object($valRes) && method_exists($valRes, 'isValid') ? $valRes->isValid() : (bool)$valRes;
-            if(self::$valstatus === true)
-            {
+            if (self::$valstatus === true) {
                 self::$valstatus = $isValid;
             }
         }
@@ -139,8 +133,8 @@ class ViewForm extends ViewTag {
     {
         if (($this->entityInstance || $this->entityClass) && ($this->isValid())) {
             $entity = $this->entityInstance ?: new $this->entityClass();
-            
-            foreach($this->elements as $id => $elem) {
+
+            foreach ($this->elements as $id => $elem) {
                 $name = $elem->getAttribute('name') ?: $id;
                 $val = $_POST[$name] ?? null;
                 if ($val !== null) {
@@ -162,19 +156,18 @@ class ViewForm extends ViewTag {
 
     public function addElement(\SPPMod\SPPView\ViewTag $elem)
     {
-        $ename=$elem->getAttribute('id');
-        if(array_key_exists($ename, $_POST))
-        {
+        $ename = $elem->getAttribute('id');
+        if (array_key_exists($ename, $_POST)) {
             $elem->setAttribute('value', $_POST[$ename]);
         }
-        $this->elements[$ename]=$elem;
+        $this->elements[$ename] = $elem;
         $this->addChild($elem);
     }
 
     public function startForm()
     {
         echo $this->getStart();
-        
+
         // Automated CSRF Protection
         $token = \SPP\SPPSession::getCsrfToken();
         echo '<input type="hidden" name="_csrf_token" value="' . $token . '" />';
@@ -194,9 +187,9 @@ class ViewForm extends ViewTag {
      * @param mixed $gval
      * @return mixed
      */
-    public function setFormGlobal($gvar,$gval)
+    public function setFormGlobal($gvar, $gval)
     {
-        return $this->globalset[$gvar]=$gval;
+        return $this->globalset[$gvar] = $gval;
     }
 
     /**
@@ -206,12 +199,9 @@ class ViewForm extends ViewTag {
      */
     public function getFormGlobal($gvar)
     {
-        if(array_key_exists($gvar,$this->globalset))
-        {
+        if (array_key_exists($gvar, $this->globalset)) {
             return $this->globalset[$gvar];
-        }
-        else
-        {
+        } else {
             throw new VarNotFoundException('Variable '.$gvar.' not found in form '.$this->getAttribute('name'));
         }
     }
@@ -225,8 +215,7 @@ class ViewForm extends ViewTag {
      */
     public function get($propname)
     {
-        switch($propname)
-        {
+        switch ($propname) {
             case 'name':
             case 'id':
             case 'action':
@@ -250,16 +239,15 @@ class ViewForm extends ViewTag {
      * @param mixed $propval
      * @return mixed
      */
-    public function set($propname,$propval)
+    public function set($propname, $propval)
     {
-        switch($propname)
-        {
+        switch ($propname) {
             case 'name':
             case 'id':
             case 'action':
             case 'method':
             case 'onsubmit':
-                return $this->attributes[$propname]=$propval;
+                return $this->attributes[$propname] = $propval;
             default:
                 throw new UnknownPropertyException('Unknown property '.$propname.' in form');
         }
@@ -278,30 +266,48 @@ class ViewForm extends ViewTag {
 
     private $entityInstance;
 
-    public function setEntityClass($class) { $this->entityClass = $class; }
-    public function getEntityClass() { return $this->entityClass; }
-    public function setEntityInstance($entity) { $this->entityInstance = $entity; }
-    public function getEntityInstance() { return $this->entityInstance; }
-    public function setMatter($title) { $this->matter = $title; }
-    public function getMatter() { return $this->matter; }
+    public function setEntityClass($class)
+    {
+        $this->entityClass = $class;
+    }
+    public function getEntityClass()
+    {
+        return $this->entityClass;
+    }
+    public function setEntityInstance($entity)
+    {
+        $this->entityInstance = $entity;
+    }
+    public function getEntityInstance()
+    {
+        return $this->entityInstance;
+    }
+    public function setMatter($title)
+    {
+        $this->matter = $title;
+    }
+    public function getMatter()
+    {
+        return $this->matter;
+    }
 
     /**
      * Binds an entity to the form by setting values of its elements.
      */
     public function bind(\SPPMod\SPPEntity\SPPEntity $entity)
     {
-        foreach($this->elements as $id => $elem) {
+        foreach ($this->elements as $id => $elem) {
             $name = $elem->getAttribute('name') ?: $id;
-            $attrName = rtrim($name, '[]'); 
-            
+            $attrName = rtrim($name, '[]');
+
             if ($entity->attributeExists($attrName)) {
                 $value = $entity->get($attrName);
-                
+
                 // Special handling for many-to-many role IDs if applicable
                 if ($attrName === 'role_ids' && method_exists($entity, 'getRoles')) {
                     $value = $entity->getRoles();
                 }
-                
+
                 $elem->setAttribute('value', $value);
             }
         }

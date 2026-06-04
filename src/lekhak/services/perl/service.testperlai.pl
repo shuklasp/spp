@@ -1,0 +1,23 @@
+package TestPerlAi;
+use strict;
+use warnings;
+
+# Optionally load SPP native library for back-communication
+# use lib 'c:/projects/apache/school1/spp/lib/perl';
+# use SPP;
+
+sub handle {
+    my ($args) = @_;
+
+    # Example: Native back-communication to PHP
+    # my $setting = SPP::get_config('app_name');
+    # my $php_result = SPP::call_php('App\\Services\\NativeService', 'someMethod', ['hello']);
+
+    return {
+        status => 'success',
+        message => 'Hello from Perl TestPerlAi service!',
+        received_args => $args
+    };
+}
+
+1;

@@ -1,18 +1,21 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 /**
  * class WebGuard
- * 
+ *
  * Standard session-based authentication driver.
  */
-class WebGuard implements GuardInterface {
+class WebGuard implements GuardInterface
+{
     private ?object $user = null;
     private string $sessionKey = '__sppauth_user__';
 
     private array $permissionCache = [];
 
-    public function check(): bool {
+    public function check(): bool
+    {
         $user = $this->user();
         return $user && !($user instanceof AnonymousUser);
     }
@@ -20,11 +23,12 @@ class WebGuard implements GuardInterface {
     /**
      * Determine if the user has a specific permission.
      */
-    public function can(string $permission): bool {
+    public function can(string $permission): bool
+    {
         if (empty($this->permissionCache)) {
             $this->resolvePermissions();
         }
-        
+
 
         return in_array($permission, $this->permissionCache) || in_array('*', $this->permissionCache);
     }
@@ -32,9 +36,12 @@ class WebGuard implements GuardInterface {
     /**
      * Resolve all permissions from groups and roles.
      */
-    private function resolvePermissions(): void {
+    private function resolvePermissions(): void
+    {
         $user = $this->user();
-        if (!$user) return;
+        if (!$user) {
+            return;
+        }
 
         // 1. Mandatory 'Anonymous' group permissions for everyone
         if (class_exists('\SPPMod\SPPGroup\SPPGroup')) {
@@ -44,7 +51,8 @@ class WebGuard implements GuardInterface {
                 if ($anonGroup->id) {
                     $this->collectGroupPermissions($anonGroup);
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             // 2. Mandatory 'Authenticated' group permissions for logged in users
             if ($this->check()) {
@@ -54,7 +62,8 @@ class WebGuard implements GuardInterface {
                     if ($authGroup->id) {
                         $this->collectGroupPermissions($authGroup);
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
         }
 
@@ -80,25 +89,28 @@ class WebGuard implements GuardInterface {
         $this->permissionCache = array_unique($this->permissionCache);
     }
 
-    private function collectGroupPermissions($group): void {
+    private function collectGroupPermissions($group): void
+    {
         // Collect roles from group metadata
         $roles = (array) $group->get('roles');
         foreach ($roles as $roleSlug) {
             $this->permissionCache = array_merge($this->permissionCache, $this->resolveRolePermissions($roleSlug));
         }
-        
+
         // Collect direct rights from group
         $rights = (array) $group->get('rights');
         $this->permissionCache = array_merge($this->permissionCache, $rights);
     }
 
-    private function resolveRolePermissions(string $roleSlug): array {
+    private function resolveRolePermissions(string $roleSlug): array
+    {
         // In a real implementation, this would hit the DB via RBAC Role entity
         // For now, we use a registry override for performance and flexibility
         return (array) \SPP\Registry::get("rbac=>roles=>{$roleSlug}=>permissions", []);
     }
 
-    public function user() {
+    public function user()
+    {
         if (!is_null($this->user)) {
             return $this->user;
         }
@@ -108,10 +120,16 @@ class WebGuard implements GuardInterface {
             try {
                 $this->user = new SPPUser($userId);
             } catch (\Exception $e) {
-                $this->user = new class($userId) {
+                $this->user = new class ($userId) {
                     public $id;
-                    public function __construct($id) { $this->id = $id; }
-                    public function getId() { return $this->id; }
+                    public function __construct($id)
+                    {
+                        $this->id = $id;
+                    }
+                    public function getId()
+                    {
+                        return $this->id;
+                    }
                 };
             }
         } else {
@@ -121,25 +139,30 @@ class WebGuard implements GuardInterface {
         return $this->user;
     }
 
-    public function id() {
+    public function id()
+    {
         $user = $this->user();
         return $user ? $user->id : null;
     }
 
-    public function login($user, bool $remember = false) {
+    public function login($user, bool $remember = false)
+    {
         $id = is_object($user) ? $user->id : $user;
         \SPP\SPPSession::setSessionVar($this->sessionKey, $id);
         $this->user = is_object($user) ? $user : null;
-        
+
         $params = ['user' => $user];
         \SPP\SPPEvent::fireEvent('event_spp_auth_login', $params);
     }
 
-    public function logout() {
+    public function logout()
+    {
         \SPP\SPPSession::unsetSessionVar($this->sessionKey);
         $this->user = null;
-        session_destroy();
-        
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
+        }
+
         $params = [];
         \SPP\SPPEvent::fireEvent('event_spp_auth_logout', $params);
     }

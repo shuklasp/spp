@@ -1,23 +1,23 @@
 modules:
-    -
+    0:
         name: sppauth
         path: spp/sppauth
         status: active
         deps:
             - sppcore
-    -
+    1:
         name: sppdb
         path: spp/sppdb
         status: active
         deps:
             - sppcore
-    -
+    2:
         name: sppconfig
         path: spp/sppconfig
         status: active
         deps:
             - sppcore
-    -
+    3:
         name: spplogger
         path: spp/spplogger
         status: inactive
@@ -25,23 +25,7 @@ modules:
             - sppcore
             - sppdb
             - sppsession
-    -
-        name: sppprofile
-        path: spp/sppprofile
-        status: active
-        deps:
-            - sppcore
-            - sppdb
-            - sppsession
-    -
-        name: sppwizard
-        path: spp/sppwizard
-        status: active
-        deps:
-            - sppcore
-            - sppdb
-            - sppsession
-    -
+    6:
         name: sppview
         path: spp/sppview
         status: active
@@ -49,67 +33,50 @@ modules:
             - sppcore
             - sppdb
             - sppsession
-    -
+    7:
         name: sppajax
         path: spp/sppajax
         status: active
         deps:
             - sppcore
             - sppview
-    -
+    8:
         name: sppux
         path: spp/sppux
         status: active
         deps:
             - sppview
             - sppajax
-    -
+    9:
         name: parikshak
         path: spp/parikshak
         status: active
         deps:
             - sppdb
             - sppentity
-    -
+    10:
         name: sppblade
         path: spp/sppblade
         status: active
         deps:
             - sppview
-    -
-        name: sppdrupal
-        path: spp/sppdrupal
-        status: active
-        deps:
-            - sppcore
-    -
+    12:
         name: sppai
         path: spp/sppai
         status: active
-    -
-        name: drishyam
-        path: spp/drishyam
-        status: active
-        deps:
-            - sppblade
-            - sppux
-    -
+    14:
         name: lekhni
         path: contrib/lekhni
         status: active
-    -
+    15:
         name: sppinterdb
         path: spp/sppinterdb
         status: active
-    -
+    16:
         name: sppxdb
         path: spp/sppxdb
         status: active
-    -
-        name: sppsetting
-        path: spp/sppsetting
-        status: active
-    -
+    18:
         name: sppmigrate
         path: spp/sppmigrate
         status: active

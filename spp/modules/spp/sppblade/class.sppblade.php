@@ -32,7 +32,7 @@ class SPPBlade extends \SPP\SPPObject
         $this->ensureDirectories();
 
         $mode = 5; // Force MODE_DEBUG compilation to guarantee live CSS/layout loading
-        
+
         $this->engine = new BladeOne($this->viewsPath, $this->cachePath, (int)$mode);
 
         $this->registerDirectives();
@@ -46,7 +46,9 @@ class SPPBlade extends \SPP\SPPObject
         // @sppform('login')
         // Loads form from XML/YAML in the app's forms directory
         $this->engine->directive('sppform', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$appName = \SPP\Scheduler::getContext();
                 \$fname = str_replace(['\'', '\"'], '', $expression);
@@ -69,7 +71,9 @@ class SPPBlade extends \SPP\SPPObject
 
         // @sppform_start('login')
         $this->engine->directive('sppform_start', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
                 \$fname = str_replace(['\'', '\"'], '', $expression);
@@ -131,7 +135,9 @@ class SPPBlade extends \SPP\SPPObject
         });
         // @sppbind($entity)
         $this->engine->directive('sppbind', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
                 \$activeForm = end(\$forms);
@@ -142,7 +148,9 @@ class SPPBlade extends \SPP\SPPObject
         });
         // @react('MyComponent', ['prop' => 'value'])
         $this->engine->directive('react', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$args = [$expression];
                 \$name = \$args[0];
@@ -157,7 +165,9 @@ class SPPBlade extends \SPP\SPPObject
 
         // @vue('MyComponent', ['prop' => 'value'])
         $this->engine->directive('vue', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$args = [$expression];
                 \$name = \$args[0];
@@ -172,7 +182,9 @@ class SPPBlade extends \SPP\SPPObject
 
         // @sppux('ComponentName', ['prop' => 'value'])
         $this->engine->directive('sppux', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression)) {
+                return "";
+            }
             return "<?php 
                 \$args = [$expression];
                 \$name = \$args[0];
@@ -314,13 +326,13 @@ class SPPBlade extends \SPP\SPPObject
         if (file_exists($view) && str_ends_with($view, '.blade.php')) {
             $dir = dirname($view);
             $viewName = basename($view, '.blade.php');
-            
-            // Build search paths: 
+
+            // Build search paths:
             // 1. The directory containing the file (for immediate includes)
             // 2. The 'views' root of the theme (for layouts/extends)
             // 3. The application's base views (fallback)
             $paths = [$dir];
-            
+
             $themeViewsRoot = $dir;
             $maxDepth = 5;
             while ($maxDepth > 0 && basename($themeViewsRoot) !== 'views' && dirname($themeViewsRoot) !== $themeViewsRoot) {
@@ -330,14 +342,14 @@ class SPPBlade extends \SPP\SPPObject
             if (basename($themeViewsRoot) === 'views' && !in_array($themeViewsRoot, $paths)) {
                 $paths[] = $themeViewsRoot;
             }
-            
+
             if (!in_array($this->viewsPath, $paths)) {
                 $paths[] = $this->viewsPath;
             }
 
             // Set paths: prioritize the theme directory, then the default views
             $this->engine->setPath($paths, $this->cachePath);
-            
+
             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Rendering absolute file. ViewName: $viewName, Paths: " . json_encode($paths) . "\n", FILE_APPEND);
 
             try {
@@ -362,7 +374,7 @@ class SPPBlade extends \SPP\SPPObject
             $view = str_replace('.blade.php', '', $view);
             $view = str_replace(['/', '\\'], '.', $view);
         }
-        
+
         try {
             return $this->engine->run($view, $data);
         } catch (\Exception $e) {

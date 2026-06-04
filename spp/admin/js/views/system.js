@@ -1,12 +1,12 @@
 /**
  * SystemView Component
- */
-
-/**
- * SystemView Component
  * 
- * Renders framework diagnostics and Polyglot Bridge status.
+ * Renders framework diagnostics, event tracing, configuration management,
+ * task queue, and polyglot service status.
+ * (Absorbs former config.js, queue.js, and polyglot.js modules.)
  */
+import TraceView from './trace.js';
+
 export default class SystemView extends BaseComponent {
     async onInit() {
         this.state = {
@@ -17,8 +17,25 @@ export default class SystemView extends BaseComponent {
             syncing: false,
             settings: null,
             editMode: 'form', // 'form' or 'yaml'
-            savingSettings: false
+            savingSettings: false,
+            activeMainTab: 'system', // 'system', 'trace', 'config', 'queue', 'polyglot'
+            // --- Inlined Config state ---
+            configData: { global: {}, app: {}, sys: {} },
+            configActiveTab: 'global',
+            configLoading: false,
+            // --- Inlined Queue state ---
+            queueData: [],
+            queueLoading: false,
+            queueError: null,
+            // --- Inlined Polyglot state ---
+            polyglotOutput: '',
+            polyglotLoading: false,
+            polyglotError: null
         };
+        
+        this.traceView = new TraceView(this.app, this.container, this.props);
+        if (this.traceView.onInit) this.traceView.onInit();
+
         await this.fetchData();
         await this.fetchSettings();
     }
@@ -172,7 +189,42 @@ export default class SystemView extends BaseComponent {
     }
 
     render() {
-        const { system, bridge, apps, loading, syncing, error } = this.state;
+        const { system, bridge, apps, loading, syncing, error, activeMainTab } = this.state;
+
+        // Update Header
+        const headerActions = document.getElementById('header-actions');
+        if (headerActions) {
+            const headerHtml = html`
+                <div class="spp-tabs" style="display: inline-flex;">
+                    <div class="tab ${activeMainTab === 'system' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'system'})}>🖥️ System</div>
+                    <div class="tab ${activeMainTab === 'trace' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'trace'})}>📡 Trace</div>
+                    <div class="tab ${activeMainTab === 'config' ? 'active' : ''}" @click=${() => this.switchToConfigTab()}>⚙️ Config</div>
+                    <div class="tab ${activeMainTab === 'queue' ? 'active' : ''}" @click=${() => this.switchToQueueTab()}>🕒 Queue</div>
+                    <div class="tab ${activeMainTab === 'polyglot' ? 'active' : ''}" @click=${() => this.switchToPolyglotTab()}>🌍 Polyglot</div>
+                </div>
+            `;
+            headerActions.innerHTML = headerHtml.toString();
+            
+            const tabs = headerActions.querySelectorAll('.tab');
+            if (tabs[0]) tabs[0].onclick = () => this.setState({activeMainTab: 'system'});
+            if (tabs[1]) tabs[1].onclick = () => this.setState({activeMainTab: 'trace'});
+            if (tabs[2]) tabs[2].onclick = () => this.switchToConfigTab();
+            if (tabs[3]) tabs[3].onclick = () => this.switchToQueueTab();
+            if (tabs[4]) tabs[4].onclick = () => this.switchToPolyglotTab();
+        }
+
+        if (activeMainTab === 'trace') {
+            return this.traceView.render();
+        }
+        if (activeMainTab === 'config') {
+            return this.renderConfigTab();
+        }
+        if (activeMainTab === 'queue') {
+            return this.renderQueueTab();
+        }
+        if (activeMainTab === 'polyglot') {
+            return this.renderPolyglotTab();
+        }
 
         if (loading) return html`<div class="loading-state">Syncing framework diagnostics...</div>`;
         if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
@@ -530,12 +582,237 @@ export default class SystemView extends BaseComponent {
                             </select>
                             <p style="font-size:0.75rem; opacity:0.5; mt-1;">Algorithm used for generating views during code scaffolding.</p>
                         </div>
-                    </div>
-                ` : html`
-                    <div class="editor-wrap" style="position:relative; background: #1a1a1a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="editor-wrap" style="position:relative; background: #1a1a1a; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
                         <textarea class="yaml-editor" style="width:100%; min-height:300px; background:transparent; color:#d4d4d4; font-family: 'Consolas', monospace; font-size: 0.9rem; padding: 20px; border:none; outline:none; resize:vertical;">${settings.raw}</textarea>
                     </div>
-                `}
+            `}
+            </div>
+        `;
+    }
+
+    // =========================================================================
+    //  INLINED: Config (formerly config.js)
+    // =========================================================================
+
+    async switchToConfigTab() {
+        this.setState({ activeMainTab: 'config' });
+        if (!this.state.configLoading && Object.keys(this.state.configData.global).length === 0) {
+            await this.fetchConfigData();
+        }
+    }
+
+    async fetchConfigData() {
+        this.setState({ configLoading: true });
+        try {
+            const res = await this.api('get_config_all');
+            if (res.success) {
+                this.setState({
+                    configData: res.data.config,
+                    configLoading: false
+                });
+            }
+        } catch (err) {
+            this.setState({ configLoading: false });
+            this.notify('Failed to load config: ' + err.message, 'error');
+        }
+    }
+
+    async updateConfigValue(key, value) {
+        const { configActiveTab } = this.state;
+        const fullKey = configActiveTab === 'global' ? `global:${key}` : (configActiveTab === 'sys' ? `sys:${key}` : `app:${key}`);
+        
+        try {
+            const res = await this.apiPost('save_config_value', { key: fullKey, value });
+            if (res.success) {
+                this.notify(`Updated ${fullKey}`, 'success');
+                await this.fetchConfigData();
+            } else {
+                this.notify(`Failed: ${res.message}`, 'error');
+            }
+        } catch (err) {
+            this.notify(`Error: ${err.message}`, 'error');
+        }
+    }
+
+    renderConfigTab() {
+        const { configData, configActiveTab, configLoading } = this.state;
+        const currentData = configData[configActiveTab] || {};
+        const entries = Object.entries(currentData);
+
+        if (configLoading) return html`<div class="loading-state">Loading configuration registry...</div>`;
+
+        return html`
+            <div class="config-container">
+                <div class="tabs-toolbar" style="margin-bottom: 20px; display: flex; gap: 10px; border-bottom: 1px solid var(--glass-border);">
+                    <button class="tab-btn ${configActiveTab === 'global' ? 'active' : ''}" @click=${() => this.setState({configActiveTab: 'global'})}>
+                        🌍 Global Settings
+                    </button>
+                    <button class="tab-btn ${configActiveTab === 'app' ? 'active' : ''}" @click=${() => this.setState({configActiveTab: 'app'})}>
+                        📱 App Context
+                    </button>
+                    <button class="tab-btn ${configActiveTab === 'sys' ? 'active' : ''}" @click=${() => this.setState({configActiveTab: 'sys'})}>
+                        🖥️ Infrastructure
+                    </button>
+                    <div style="flex: 1;"></div>
+                    <button class="btn ghost-btn btn-sm" @click=${() => this.fetchConfigData()}>🔄 Refresh Config</button>
+                </div>
+
+                <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 15px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--glass-border); font-size: 0.85rem; color: var(--text-dim); display: flex; justify-content: space-between;">
+                        <span>PARAMETER KEY</span>
+                        <span>VALUE / OVERRIDE</span>
+                    </div>
+                    <div class="config-list">
+                        ${entries.length > 0 ? entries.map(([k, v]) => {
+                            if (typeof v === 'object' && v !== null) v = JSON.stringify(v);
+                            return html`
+                                <div class="config-row" style="display: flex; align-items: center; padding: 15px; border-bottom: 1px solid var(--glass-border); gap: 20px;">
+                                    <div style="flex: 1;">
+                                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; color: var(--accent-light);">${k}</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 4px;">Source: ${configActiveTab.toUpperCase()} config</div>
+                                    </div>
+                                    <div style="flex: 2;">
+                                        ${typeof v === 'boolean' 
+                                            ? html`<label class="toggle-switch">
+                                                <input type="checkbox" ?checked="${v}" @change=${(e) => this.updateConfigValue(k, e.target.checked)}>
+                                                <span class="toggle-slider"></span>
+                                               </label>`
+                                            : html`<input type="text" class="spp-element" value="${v}" 
+                                                style="width: 100%; font-family: monospace;"
+                                                @change=${(e) => this.updateConfigValue(k, e.target.value)}>`
+                                        }
+                                    </div>
+                                </div>
+                            `;
+                        }) : html`<div class="empty-state" style="padding: 40px;">No configuration keys found in this namespace.</div>`}
+                    </div>
+                </div>
+
+                <div class="alert info-alert" style="margin-top: 20px; display: flex; align-items: flex-start; gap: 10px;">
+                    <span style="font-size: 1.2rem;">🛡️</span>
+                    <div>
+                        <strong>Hierarchical Resolution:</strong> SPP resolves values by checking <code>App</code> context first, then <code>Global</code> defaults. 
+                        Infrastructure settings (<code>sys</code>) manage application routing and paths.
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // =========================================================================
+    //  INLINED: Task Queue (formerly queue.js)
+    // =========================================================================
+
+    async switchToQueueTab() {
+        this.setState({ activeMainTab: 'queue' });
+        await this.fetchQueueData();
+    }
+
+    async fetchQueueData() {
+        this.setState({ queueLoading: true, queueError: null });
+        try {
+            const res = await this.api('list_queue');
+            if (res.success) {
+                this.setState({
+                    queueData: res.data.queue || [],
+                    queueLoading: false
+                });
+            } else {
+                this.setState({ queueError: res.message, queueLoading: false });
+            }
+        } catch (err) {
+            this.setState({ queueError: err.message, queueLoading: false });
+        }
+    }
+
+    renderQueueTab() {
+        const { queueData, queueLoading, queueError } = this.state;
+
+        if (queueLoading) return html`<div class="loading-state">Fetching task queue...</div>`;
+        if (queueError) return html`<div class="error-state">Failed to load task queue: ${queueError}</div>`;
+
+        return html`
+            <div class="queue-manager glass-panel">
+                <div class="manager-header" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--glass-border);">
+                    <h3 style="margin: 0;">Shared Task Queue</h3>
+                    <div class="stats" style="display: flex; gap: 1rem; align-items: center;">
+                        <span class="stat-item">Pending: <strong>${queueData.length}</strong></span>
+                        <button class="btn ghost-btn btn-sm" @click=${() => this.fetchQueueData()}>🔄 Refresh</button>
+                    </div>
+                </div>
+                <table class="spp-table">
+                    <thead>
+                        <tr>
+                            <th>Job ID</th>
+                            <th>Worker Class</th>
+                            <th>Payload</th>
+                            <th>Queued At</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${queueData.length > 0 ? queueData.map(job => html`
+                            <tr class="job-row">
+                                <td><code>${job.id}</code></td>
+                                <td><span class="job-class">${job.job}</span></td>
+                                <td><pre class="job-data" style="margin:0; font-size:0.8rem; max-width:300px; overflow:auto;">${JSON.stringify(job.data, null, 2)}</pre></td>
+                                <td><span class="badge secondary">${new Date(job.created_at * 1000).toLocaleString()}</span></td>
+                                <td><span class="status-pill waiting">Waiting</span></td>
+                            </tr>
+                        `) : html`<tr><td colspan="5" class="text-center" style="padding:2rem; opacity:0.5;">Queue is empty. Workers are idle.</td></tr>`}
+                    </tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // =========================================================================
+    //  INLINED: Polyglot Services (formerly polyglot.js)
+    // =========================================================================
+
+    async switchToPolyglotTab() {
+        this.setState({ activeMainTab: 'polyglot' });
+        await this.fetchPolyglotData();
+    }
+
+    async fetchPolyglotData() {
+        this.setState({ polyglotLoading: true, polyglotError: null });
+        try {
+            const res = await this.api('execute_command', { command: 'polyglot:list' });
+            if (res.success) {
+                this.setState({
+                    polyglotOutput: res.data.output || 'No output.',
+                    polyglotLoading: false
+                });
+            } else {
+                this.setState({
+                    polyglotError: res.message || 'Failed to load polyglot services.',
+                    polyglotLoading: false
+                });
+            }
+        } catch (err) {
+            this.setState({ polyglotError: err.message, polyglotLoading: false });
+        }
+    }
+
+    renderPolyglotTab() {
+        const { polyglotOutput, polyglotLoading, polyglotError } = this.state;
+
+        if (polyglotLoading) return html`<div class="loading-state">Loading Polyglot services...</div>`;
+        if (polyglotError) return html`<div class="empty-state"><h3>Error</h3><p>${polyglotError}</p></div>`;
+
+        return html`
+            <div class="polyglot-manager glass-panel" style="padding: 2rem;">
+                <div class="manager-header" style="margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.4rem; font-weight: 600; color: var(--text-main);">Polyglot Services</h3>
+                        <p style="margin: 5px 0 0 0; color: var(--text-dim); font-size: 0.95rem;">Background services written in Go, Python, Node, Java, etc.</p>
+                    </div>
+                    <button class="btn ghost-btn btn-sm" @click=${() => this.fetchPolyglotData()}>🔄 Refresh</button>
+                </div>
+                <div class="polyglot-output">
+                    <pre style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', monospace; font-size: 0.85rem; line-height: 1.5; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">${polyglotOutput}</pre>
+                </div>
             </div>
         `;
     }

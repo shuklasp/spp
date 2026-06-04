@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPCache;
 
 class SPPCacheManager
@@ -8,7 +9,9 @@ class SPPCacheManager
 
     public static function init()
     {
-        if (self::$initialized) return;
+        if (self::$initialized) {
+            return;
+        }
         self::$initialized = true;
 
         // Register shutdown function to emit cache headers

@@ -1,14 +1,17 @@
 <?php
+
 namespace SPPMod\Lekhni\Api;
 
 /**
  * Lekhni API Handler
  * Manages media uploads and specialized generic editor services out of contrib layer.
  */
-class LekhniApi {
+class LekhniApi
+{
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'pdf'];
 
-    public static function handleRequest($action, $params) {
+    public static function handleRequest($action, $params)
+    {
         switch ($action) {
             case 'get_settings':
                 return self::getSettings();
@@ -23,17 +26,18 @@ class LekhniApi {
         }
     }
 
-    private static function getSettings() {
+    private static function getSettings()
+    {
         $settings = [
             'default_mode' => 'document',
             'code_language' => 'html',
             'theme' => 'dark',
             'categories' => ['General', 'News', 'Tutorial', 'Engineering', 'Documentation']
         ];
-        
+
         $etcConfig = __DIR__ . '/../etc/config.yml';
         $modConfig = __DIR__ . '/../module.yml';
-        
+
         $targetFile = file_exists($etcConfig) ? $etcConfig : (file_exists($modConfig) ? $modConfig : null);
         if ($targetFile) {
             $parsed = [];
@@ -51,7 +55,8 @@ class LekhniApi {
         return ['success' => true, 'settings' => $settings];
     }
 
-    private static function uploadMedia() {
+    private static function uploadMedia()
+    {
         if (empty($_FILES['file'])) {
             return ['success' => false, 'message' => 'No file uploaded.'];
         }
@@ -88,16 +93,21 @@ class LekhniApi {
         return ['success' => false, 'message' => 'Upload failed.'];
     }
 
-    private static function listMedia() {
+    private static function listMedia()
+    {
         $uploadDir = self::getUploadDir();
-        if (!is_dir($uploadDir)) return ['success' => true, 'files' => []];
+        if (!is_dir($uploadDir)) {
+            return ['success' => true, 'files' => []];
+        }
 
         $files = array_diff(scandir($uploadDir), ['.', '..']);
-        
+
         $result = [];
         foreach ($files as $f) {
             $fullPath = $uploadDir . DIRECTORY_SEPARATOR . $f;
-            if (!is_file($fullPath)) continue;
+            if (!is_file($fullPath)) {
+                continue;
+            }
             $result[] = [
                 'name' => $f,
                 'url' => self::publicUrl($fullPath),
@@ -109,7 +119,8 @@ class LekhniApi {
         return ['success' => true, 'files' => $result];
     }
 
-    private static function getUploadDir() {
+    private static function getUploadDir()
+    {
         $app = \SPP\App::getApp();
         $lekhniConfig = \SPP\App::getAppConf('lekhni') ?: [];
         $customPath = is_array($lekhniConfig) ? ($lekhniConfig['media_path'] ?? '') : '';
@@ -124,7 +135,8 @@ class LekhniApi {
         return $app->getDataDir() . DIRECTORY_SEPARATOR . 'media' . DIRECTORY_SEPARATOR . 'lekhni';
     }
 
-    private static function uniqueFilename($name) {
+    private static function uniqueFilename($name)
+    {
         $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
         $base = pathinfo($name, PATHINFO_FILENAME);
         $base = preg_replace('/[^a-zA-Z0-9._-]+/', '-', $base);
@@ -133,7 +145,8 @@ class LekhniApi {
         return time() . '_' . $random . '_' . $base . '.' . $ext;
     }
 
-    private static function publicUrl($path) {
+    private static function publicUrl($path)
+    {
         $baseUrl = defined('APP_BASE_URI') ? APP_BASE_URI : '';
         $root = rtrim(str_replace('\\', '/', SPP_APP_DIR), '/');
         $normalized = str_replace('\\', '/', $path);
@@ -143,7 +156,8 @@ class LekhniApi {
         return rtrim($baseUrl, '/') . '/' . ltrim($relPath, '/');
     }
 
-    private static function uploadErrorMessage($code) {
+    private static function uploadErrorMessage($code)
+    {
         return match ($code) {
             UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'Uploaded file is too large.',
             UPLOAD_ERR_PARTIAL => 'File was only partially uploaded.',
@@ -152,15 +166,20 @@ class LekhniApi {
         };
     }
 
-    private static function slugify($text) {
+    private static function slugify($text)
+    {
         $text = preg_replace('~[^\pL\d]+~u', '-', $text);
         $converted = function_exists('iconv') ? @iconv('utf-8', 'us-ascii//TRANSLIT', $text) : false;
-        if ($converted !== false) $text = $converted;
+        if ($converted !== false) {
+            $text = $converted;
+        }
         $text = preg_replace('~[^-\w]+~', '', $text);
         $text = trim($text, '-');
         $text = preg_replace('~-+~', '-', $text);
         $text = strtolower($text);
-        if (empty($text)) return 'n-a';
+        if (empty($text)) {
+            return 'n-a';
+        }
         return $text;
     }
 }

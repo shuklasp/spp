@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 if (!interface_exists(__NAMESPACE__ . '\MiddlewareInterface', false)) {

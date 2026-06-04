@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPLang;
 
 /**
@@ -22,7 +23,7 @@ class SPPLang
                 translation TEXT,
                 status VARCHAR(20) DEFAULT 'active'
             )", $table);
-            
+
             try {
                 $db->exec_squery("CREATE UNIQUE INDEX IF NOT EXISTS idx_translations_key_locale ON %tab% (key_code, locale)", $table);
             } catch (\Exception $e) {
@@ -43,7 +44,7 @@ class SPPLang
     {
         self::ensureSchema();
         $keys = [];
-        
+
         if (!is_dir($dir)) {
             return [];
         }
@@ -60,7 +61,7 @@ class SPPLang
 
                     // Look for __('key') or __("key") invocations
                     preg_match_all('/__\(\s*(["\'])(.*?)\1\s*(?:,\s*(["\'])(.*?)\3)?\s*\)/s', $content, $matches);
-                    
+
                     if (!empty($matches[2])) {
                         foreach ($matches[2] as $k) {
                             $k = trim($k);
@@ -81,8 +82,10 @@ class SPPLang
         foreach ($discovered as $key) {
             $res = $db->exec_squery("SELECT id FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
             if (empty($res)) {
-                $db->exec_squery("INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, 'active')", 
-                    $table, [$key, $locale, $key]
+                $db->exec_squery(
+                    "INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, 'active')",
+                    $table,
+                    [$key, $locale, $key]
                 );
                 $newlyAdded[] = $key;
             }
@@ -99,15 +102,19 @@ class SPPLang
         self::ensureSchema();
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-        
+
         $res = $db->exec_squery("SELECT id FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
         if (!empty($res)) {
-            $db->exec_squery("UPDATE %tab% SET translation = ?, status = ? WHERE key_code = ? AND locale = ?", 
-                $table, [$translation, $status, $key, $locale]
+            $db->exec_squery(
+                "UPDATE %tab% SET translation = ?, status = ? WHERE key_code = ? AND locale = ?",
+                $table,
+                [$translation, $status, $key, $locale]
             );
         } else {
-            $db->exec_squery("INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, ?)", 
-                $table, [$key, $locale, $translation, $status]
+            $db->exec_squery(
+                "INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, ?)",
+                $table,
+                [$key, $locale, $translation, $status]
             );
         }
     }
@@ -120,7 +127,7 @@ class SPPLang
         self::ensureSchema();
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-        
+
         $sql = "SELECT * FROM %tab%";
         $clauses = [];
         $values = [];

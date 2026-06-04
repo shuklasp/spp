@@ -91,7 +91,9 @@ class Registry extends \SPP\SPPObject
         if ($key !== false) {
             self::$values[$key] = $value;
             self::$lookupCache[$entity] = $value;
-            if (str_starts_with($entity, '__shared=>')) self::syncShared();
+            if (str_starts_with($entity, '__shared=>')) {
+                self::syncShared();
+            }
             return;
         }
 
@@ -116,7 +118,9 @@ class Registry extends \SPP\SPPObject
         }
 
         self::$reg[$rootKey] = $merged;
-        if (str_starts_with($entity, '__shared=>')) self::syncShared();
+        if (str_starts_with($entity, '__shared=>')) {
+            self::syncShared();
+        }
     }
 
     /**
@@ -125,11 +129,15 @@ class Registry extends \SPP\SPPObject
     private static function syncShared(): void
     {
         $shared = self::get('__shared');
-        if (!is_array($shared)) return;
+        if (!is_array($shared)) {
+            return;
+        }
 
         $sharedDir = SPP_BASE_DIR . '/var/shared';
-        if (!is_dir($sharedDir)) @mkdir($sharedDir, 0777, true);
-        
+        if (!is_dir($sharedDir)) {
+            @mkdir($sharedDir, 0777, true);
+        }
+
         $sharedFile = $sharedDir . '/registry.json';
         @file_put_contents($sharedFile, json_encode($shared, JSON_PRETTY_PRINT));
     }
@@ -211,14 +219,14 @@ class Registry extends \SPP\SPPObject
     public static function get(string $entity): mixed
     {
         $entity = self::resolveEntityName($entity);
-        
+
         // O(1) Flat Cache Hit
         if (array_key_exists($entity, self::$lookupCache)) {
             return self::$lookupCache[$entity];
         }
 
         $key = self::getKey($entity);
-        
+
         if (is_int($key)) {
             $value = self::$values[$key];
             self::$lookupCache[$entity] = $value; // Memoize for future
@@ -275,7 +283,7 @@ class Registry extends \SPP\SPPObject
     {
         // Internal check: if we already have the integer key mapping
         // but this is deeper than we usually cache.
-        
+
         $tokens = array_map('trim', explode('=>', $entity));
         $arr = self::$reg;
 
@@ -300,7 +308,9 @@ class Registry extends \SPP\SPPObject
         }
 
         $ctx = \SPP\Scheduler::getContext();
-        if ($ctx === '' || $ctx === 'default') return $entity;
+        if ($ctx === '' || $ctx === 'default') {
+            return $entity;
+        }
 
         $cacheKey = $ctx . '::' . $entity;
         if (isset(self::$resolvedNames[$cacheKey])) {

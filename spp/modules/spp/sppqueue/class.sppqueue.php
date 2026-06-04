@@ -1,17 +1,19 @@
 <?php
+
 namespace SPPMod\SPPQueue;
 
 /**
  * class SppQueue
- * 
+ *
  * A cross-app task queue system powered by the Polyglot Registry.
  */
-class SppQueue {
-    
+class SppQueue
+{
     /**
      * Push a new task onto the queue.
      */
-    public static function push(string $jobClass, array $data = []): void {
+    public static function push(string $jobClass, array $data = []): void
+    {
         $queue = \SPP\Registry::get('__shared=>queue') ?: [];
         $queue[] = [
             'job' => $jobClass,
@@ -19,16 +21,19 @@ class SppQueue {
             'created_at' => time(),
             'id' => uniqid('job_')
         ];
-        
+
         \SPP\Registry::register('__shared=>queue', $queue);
     }
 
     /**
      * Process the next job in the queue.
      */
-    public static function work(): void {
+    public static function work(): void
+    {
         $queue = \SPP\Registry::get('__shared=>queue') ?: [];
-        if (empty($queue)) return;
+        if (empty($queue)) {
+            return;
+        }
 
         $jobData = array_shift($queue);
         \SPP\Registry::register('__shared=>queue', $queue);

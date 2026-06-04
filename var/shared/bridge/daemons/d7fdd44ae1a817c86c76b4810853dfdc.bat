@@ -1,0 +1,1 @@
+"C:\xampp\perl\bin\perl.exe" "C:\projects\apache\school1\spp/lib/polyglot/dispatch.pl" "services/perl/daemon_service.pl" --daemon "C:\projects\apache\school1\var\shared/bridge/daemons/d7fdd44ae1a817c86c76b4810853dfdc.port" > "C:\projects\apache\school1\var\shared/bridge/daemons/d7fdd44ae1a817c86c76b4810853dfdc.log" 2>&1

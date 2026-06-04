@@ -1,8 +1,11 @@
-mode: interdb
+mode: 'interdb:config'
 mappings:
-  user:
-    engine: default
-    table: users
-  preferences:
-    engine: xdb
-    table: user_preferences
+    user:
+        engine: default
+        table: users
+    preferences:
+        engine: xdb
+        table: user_preferences
+    spp.php:
+        engine: 'interdb:mapping:add'
+        table: test

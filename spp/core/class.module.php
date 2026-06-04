@@ -94,7 +94,7 @@ class Module extends \SPP\SPPObject
     private static array $_system_module_roots = ['', 'spp', 'contrib', 'school', 'custom'];
 
     /** @var array $Dependencies Stores dependencies requested by the module */
-    public $Dependencies = array();
+    public $Dependencies = [];
 
     /**
      * Adds a new search root for system modules.
@@ -233,7 +233,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Returns the raw settings definitions from the manifest.
-     * 
+     *
      * @return array
      */
     public function getSettingsDefinition(): array
@@ -546,8 +546,9 @@ class Module extends \SPP\SPPObject
                             }
                         }
                     }
-                    if ($result !== false)
+                    if ($result !== false) {
                         break;
+                    }
                 }
             }
         }
@@ -600,7 +601,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Retrieves the entire configuration array for a module in a specific app.
-     * 
+     *
      * @param string $modname
      * @param string|null $appname
      * @return array
@@ -620,7 +621,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Persists a bulk configuration array for a module.
-     * 
+     *
      * @param string $modname
      * @param string $appname
      * @param array $config
@@ -631,9 +632,11 @@ class Module extends \SPP\SPPObject
         $yamlConfFile = self::getExpectedConfigPath($modname, $appname);
         $dir = dirname($yamlConfFile);
         if (!is_dir($dir)) {
-            if (!mkdir($dir, 0755, true)) return false;
+            if (!mkdir($dir, 0755, true)) {
+                return false;
+            }
         }
-        
+
         $data = ['variables' => $config];
         $content = Yaml::dump($data, 4, 4);
         return file_put_contents($yamlConfFile, $content) !== false;
@@ -657,6 +660,16 @@ class Module extends \SPP\SPPObject
     {
         $varname = str_replace(["'", '"'], '', $varname);
         $modname = preg_replace('/[^a-zA-Z0-9_\-]/', '', $modname);
+
+        // Register schema from manifest before validation
+        try {
+            $mod = self::getModule($modname);
+            $settingsDef = $mod->getSettingsDefinition();
+            if (!empty($settingsDef)) {
+                \SPP\SPPConfig::registerSchema("mod:{$modname}", $settingsDef);
+            }
+        } catch (\Exception $e) {
+        }
 
         // Perform semantic validation
         \SPP\SPPConfig::validate($varname, $value, "mod:{$modname}");
@@ -706,7 +719,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Returns the expected path for a module's YAML configuration file.
-     * 
+     *
      * @param string $modname
      * @param string|null $appname
      * @return string
@@ -760,8 +773,9 @@ class Module extends \SPP\SPPObject
         }
 
         $manifest = $modpath . SPP_DS . 'module.yml';
-        if (!file_exists($manifest))
+        if (!file_exists($manifest)) {
             $manifest = $modpath . SPP_DS . 'module.xml';
+        }
 
         if (!file_exists($manifest)) {
             throw new \SPP\SPPException("Module manifest not found for '{$modname}' at {$modpath}");
@@ -864,11 +878,13 @@ class Module extends \SPP\SPPObject
             }
 
             foreach ($checkPaths as $dir) {
-                if (!is_dir($dir))
+                if (!is_dir($dir)) {
                     continue;
+                }
                 foreach ($possible as $m) {
-                    if (file_exists($dir . SPP_DS . $m))
+                    if (file_exists($dir . SPP_DS . $m)) {
                         return $dir . SPP_DS . $m;
+                    }
                 }
             }
         } else {
@@ -876,8 +892,9 @@ class Module extends \SPP\SPPObject
             $userDir = SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname . SPP_DS . $modname;
             if (is_dir($userDir)) {
                 foreach ($possible as $m) {
-                    if (file_exists($userDir . SPP_DS . $m))
+                    if (file_exists($userDir . SPP_DS . $m)) {
                         return $userDir . SPP_DS . $m;
+                    }
                 }
             }
         }
@@ -939,15 +956,18 @@ class Module extends \SPP\SPPObject
 
         // Load loosely coupled app-specific modules from src directories
         foreach (self::getAppModuleDirs($appname) as $appModuleDir) {
-            if (!is_dir($appModuleDir))
+            if (!is_dir($appModuleDir)) {
                 continue;
+            }
             $dirs = scandir($appModuleDir);
             foreach ($dirs as $d) {
-                if ($d === '.' || $d === '..')
+                if ($d === '.' || $d === '..') {
                     continue;
+                }
                 $dirPath = $appModuleDir . SPP_DS . $d;
-                if (!is_dir($dirPath))
+                if (!is_dir($dirPath)) {
                     continue;
+                }
 
                 $manifestPath = null;
                 foreach (['module.yml', 'module.yaml', 'module.xml'] as $m) {
@@ -976,8 +996,9 @@ class Module extends \SPP\SPPObject
         \SPP\Registry::register('__mods=>' . $name, $data['path']);
 
         $manifestPath = $data['path'] . SPP_DS . 'module.yml';
-        if (!file_exists($manifestPath))
+        if (!file_exists($manifestPath)) {
             $manifestPath = $data['path'] . SPP_DS . 'module.xml';
+        }
 
         $module = new self($manifestPath);
         $module->ModuleType = $data['type'];
@@ -990,13 +1011,15 @@ class Module extends \SPP\SPPObject
 
         foreach ($data['includes'] as $file) {
             $path = $data['path'] . SPP_DS . $file;
-            if (file_exists($path))
+            if (file_exists($path)) {
                 require_once $path;
+            }
         }
 
         $initFile = $data['path'] . SPP_DS . 'modinit.php';
-        if (file_exists($initFile))
+        if (file_exists($initFile)) {
             require_once $initFile;
+        }
 
         $eventsDir = $data['path'] . SPP_DS . 'events';
         if (is_dir($eventsDir)) {
@@ -1140,14 +1163,16 @@ class Module extends \SPP\SPPObject
      */
     private static function pruneFromManifest(string $file, array $moduleNames): void
     {
-        if (!file_exists($file))
+        if (!file_exists($file)) {
             return;
+        }
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
 
         if ($ext === 'yml' || $ext === 'yaml') {
             $data = Yaml::parseFile($file);
-            if (!isset($data['modules']) || !is_array($data['modules']))
+            if (!isset($data['modules']) || !is_array($data['modules'])) {
                 return;
+            }
 
             $initialCount = count($data['modules']);
             $data['modules'] = array_filter($data['modules'], function ($m) use ($moduleNames) {
@@ -1161,8 +1186,9 @@ class Module extends \SPP\SPPObject
             }
         } elseif ($ext === 'xml') {
             $xml = simplexml_load_file($file);
-            if ($xml === false)
+            if ($xml === false) {
                 return;
+            }
 
             $modified = false;
             foreach ($moduleNames as $name) {
@@ -1198,8 +1224,10 @@ class Module extends \SPP\SPPObject
     public static function loadModule(string $modname, string $type = 'system', ?string $appname = null): ?\SPP\Module
     {
         $manifestPath = self::findManifestPath($modname, $type, $appname);
-        if (!$manifestPath) return null;
-        
+        if (!$manifestPath) {
+            return null;
+        }
+
         $module = new self($manifestPath);
         $module->ModuleType = $type;
         $module->register();
@@ -1271,8 +1299,9 @@ class Module extends \SPP\SPPObject
                 $file = '/mnt/c/' . substr($file, 3);
             }
 
-            if (!file_exists($file))
+            if (!file_exists($file)) {
                 continue;
+            }
 
             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
             if (($ext === 'yml' || $ext === 'yaml') && self::toggleInYaml($file, $modname, $status)) {
@@ -1288,8 +1317,9 @@ class Module extends \SPP\SPPObject
                 $preferred = '/mnt/c/' . substr($preferred, 3);
             }
 
-            if (!is_dir(dirname($preferred)))
+            if (!is_dir(dirname($preferred))) {
                 mkdir(dirname($preferred), 0755, true);
+            }
 
             $entry = [
                 'name' => $modname,
@@ -1298,8 +1328,9 @@ class Module extends \SPP\SPPObject
             ];
 
             $data = file_exists($preferred) ? Yaml::parseFile($preferred) : ['modules' => []];
-            if (!isset($data['modules']) || !is_array($data['modules']))
+            if (!isset($data['modules']) || !is_array($data['modules'])) {
                 $data['modules'] = [];
+            }
             $data['modules'][] = $entry;
 
             $yml = Yaml::dump($data, 4, 4);
@@ -1504,8 +1535,9 @@ class Module extends \SPP\SPPObject
             $entry = [];
             // Normalize: modules.xml uses <modname>, some use <name>
             $entry['modname'] = (string) ($mod->modname ?? $mod->name ?? '');
-            if (empty($entry['modname']))
+            if (empty($entry['modname'])) {
                 continue;
+            }
             $entry['path'] = (string) ($mod->modpath ?? $mod->path ?? '');
             $entry['status'] = (string) ($mod->status ?? 'active');
             // Preserve dependencies if present
@@ -1514,8 +1546,9 @@ class Module extends \SPP\SPPObject
                 foreach ($mod->dependencies->dependency as $dep) {
                     $deps[] = (string) $dep;
                 }
-                if (!empty($deps))
+                if (!empty($deps)) {
                     $entry['dependencies'] = $deps;
+                }
             }
             $modules[] = $entry;
         }
@@ -1863,8 +1896,9 @@ class Module extends \SPP\SPPObject
                             }
                         }
                     }
-                    if (!empty($variables))
+                    if (!empty($variables)) {
                         break;
+                    }
                 }
             }
         }
@@ -2034,8 +2068,9 @@ class Module extends \SPP\SPPObject
             } else {
                 $missingCols = [];
                 foreach ($cols as $col => $type) {
-                    if ($col === 'PRIMARY KEY')
-                        continue; // Skip composite PK declaration
+                    if ($col === 'PRIMARY KEY') {
+                        continue;
+                    } // Skip composite PK declaration
                     if (!$db->columnExists($tnameFull, $col)) {
                         $missingCols[$col] = $type;
                     }
@@ -2095,13 +2130,15 @@ class Module extends \SPP\SPPObject
 
     /**
      * Public wrapper for installation, returning success status.
-     * 
+     *
      * @param string|null $appname Optional application context
      * @return bool
      */
     public function install(?string $appname = null): bool
     {
-        if ($appname) \SPP\Scheduler::setContext($appname);
+        if ($appname) {
+            \SPP\Scheduler::setContext($appname);
+        }
         try {
             $this->runInstallation();
             return true;
@@ -2277,8 +2314,9 @@ class Module extends \SPP\SPPObject
                 $ctx = \SPP\Scheduler::getContext();
                 if ($ctx) {
                     $modObj = \SPP\Registry::get('__apps=>' . $ctx . '=>__modobj=>' . $name);
-                    if ($modObj instanceof \SPP\Module)
+                    if ($modObj instanceof \SPP\Module) {
                         $mod = $modObj;
+                    }
                 }
             }
 
@@ -2286,7 +2324,7 @@ class Module extends \SPP\SPPObject
                 try {
                     $modLog = $mod->runInstallation();
                     if (!empty($modLog)) {
-                        $log = array_merge($log, array_map(fn($l) => "Module [$name]: $l", $modLog));
+                        $log = array_merge($log, array_map(fn ($l) => "Module [$name]: $l", $modLog));
                     } else {
                         $log[] = "Module [$name]: Already up to date.";
                     }
@@ -2390,7 +2428,7 @@ class Module extends \SPP\SPPObject
     /**
      * Resolves the appropriate modsconf directory for a module based on context and type.
      * This is the CENTRAL AUTHORITY for all module configuration paths.
-     * 
+     *
      * @param string $modname Module internal name
      * @param string $appname Application name
      * @return string Absolute path to the directory containing the module's subfolder
@@ -2421,15 +2459,16 @@ class Module extends \SPP\SPPObject
     /**
      * Returns an array of potential module registry files (modules.yml/xml) for an app.
      * Centralizes lookup priority for all module manifests.
-     * 
+     *
      * @param string $appname
      * @return array<array{file: string, type: string}>
      */
     public static function getRegistryFiles(string $appname): array
     {
         $registries = [];
-        if ($appname === '')
+        if ($appname === '') {
             return $registries;
+        }
 
         $app = \SPP\App::getApp($appname);
         $candidates = [
@@ -2454,14 +2493,15 @@ class Module extends \SPP\SPPObject
 
     /**
      * Returns an array of directories that may contain loosely coupled user modules for an app.
-     * 
+     *
      * @param string $appname
      * @return array<string>
      */
     public static function getAppModuleDirs(string $appname): array
     {
-        if ($appname === '' || $appname === 'default')
+        if ($appname === '' || $appname === 'default') {
             return [];
+        }
         $app = \SPP\App::getApp($appname);
 
         $dirs = [];
@@ -2472,7 +2512,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Returns a list of all available modules (system and user) for a context.
-     * 
+     *
      * @param string $appname
      * @return array<array>
      */
@@ -2539,7 +2579,7 @@ class Module extends \SPP\SPPObject
 
     /**
      * Returns the status of a module in a specific app context.
-     * 
+     *
      * @param string $modname
      * @param string $appname
      * @return string 'active' | 'inactive'
@@ -2549,8 +2589,9 @@ class Module extends \SPP\SPPObject
         $registries = self::getRegistryFiles($appname);
         foreach ($registries as $r) {
             $file = $r['file'];
-            if (!file_exists($file))
+            if (!file_exists($file)) {
                 continue;
+            }
 
             $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
             if ($ext === 'yml' || $ext === 'yaml') {
@@ -2564,8 +2605,9 @@ class Module extends \SPP\SPPObject
                 }
             } else {
                 $xml = @simplexml_load_file($file);
-                if ($xml === false)
+                if ($xml === false) {
                     continue;
+                }
                 foreach ($xml->module as $mod) {
                     $name = (string) ($mod->modname ?? $mod->name ?? '');
                     if ($name === $modname) {

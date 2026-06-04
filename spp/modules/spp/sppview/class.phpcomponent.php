@@ -4,10 +4,10 @@ namespace SPPMod\SPPView;
 
 /**
  * class PHPComponent
- * 
+ *
  * Base class for server-side UI components that can be "hydrated" and controlled
  * via the SPP-UX SPA engine.
- * 
+ *
  * @author Satya Prakash Shukla
  */
 abstract class PHPComponent extends \SPP\SPPObject
@@ -18,7 +18,9 @@ abstract class PHPComponent extends \SPP\SPPObject
     /**
      * Initialization logic (called before render).
      */
-    public function onInit(): void {}
+    public function onInit(): void
+    {
+    }
 
     /**
      * Renders the component HTML.

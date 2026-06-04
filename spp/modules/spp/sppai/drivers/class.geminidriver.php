@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -72,16 +73,18 @@ class GeminiDriver implements AIDriverInterface
 
     private function request(array $payload): string
     {
-        if (empty($this->apiKey)) return "Error: Gemini API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: Gemini API Key not configured.";
+        }
 
         $url = $this->baseUrl . $this->model . ":generateContent?key=" . $this->apiKey;
-        
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -105,15 +108,17 @@ class GeminiDriver implements AIDriverInterface
             'tools' => [['functionDeclarations' => $functionDeclarations]]
         ];
 
-        if (empty($this->apiKey)) return "Error: Gemini API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: Gemini API Key not configured.";
+        }
         $url = $this->baseUrl . $this->model . ":generateContent?key=" . $this->apiKey;
-        
+
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -128,7 +133,9 @@ class GeminiDriver implements AIDriverInterface
                 ];
             }
         }
-        if (!empty($invocations)) return $invocations;
+        if (!empty($invocations)) {
+            return $invocations;
+        }
 
         return $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
     }

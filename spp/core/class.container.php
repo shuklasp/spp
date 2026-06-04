@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 use Psr\Container\ContainerInterface;
@@ -6,18 +7,20 @@ use SPP\SPPException;
 
 /**
  * class \SPP\Core\Container
- * 
+ *
  * A PSR-11 compliant dependency injection container.
  * Supports singletons, factories, and interface binding.
  */
-class Container implements ContainerInterface {
+class Container implements ContainerInterface
+{
     private array $bindings = [];
     private array $instances = [];
 
     /**
      * Bind a service to the container.
      */
-    public function bind(string $abstract, $concrete = null, bool $shared = false): void {
+    public function bind(string $abstract, $concrete = null, bool $shared = false): void
+    {
         if ($concrete === null) {
             $concrete = $abstract;
         }
@@ -31,14 +34,16 @@ class Container implements ContainerInterface {
     /**
      * Bind a singleton service to the container.
      */
-    public function singleton(string $abstract, $concrete = null): void {
+    public function singleton(string $abstract, $concrete = null): void
+    {
         $this->bind($abstract, $concrete, true);
     }
 
     /**
      * Get a service from the container.
      */
-    public function get(string $id): mixed {
+    public function get(string $id): mixed
+    {
         if (isset($this->instances[$id])) {
             return $this->instances[$id];
         }
@@ -64,14 +69,16 @@ class Container implements ContainerInterface {
     /**
      * Check if a service exists in the container.
      */
-    public function has(string $id): bool {
+    public function has(string $id): bool
+    {
         return isset($this->bindings[$id]) || isset($this->instances[$id]);
     }
 
     /**
      * Resolve a concrete type.
      */
-    private function resolve($concrete) {
+    private function resolve($concrete)
+    {
         if ($concrete instanceof \Closure) {
             return $concrete($this);
         }
@@ -89,7 +96,7 @@ class Container implements ContainerInterface {
         $constructor = $reflector->getConstructor();
 
         if (is_null($constructor)) {
-            return new $concrete;
+            return new $concrete();
         }
 
         $parameters = $constructor->getParameters();
@@ -101,7 +108,8 @@ class Container implements ContainerInterface {
     /**
      * Resolve dependencies for a constructor.
      */
-    private function resolveDependencies(array $parameters): array {
+    private function resolveDependencies(array $parameters): array
+    {
         $dependencies = [];
 
         foreach ($parameters as $parameter) {
@@ -124,7 +132,8 @@ class Container implements ContainerInterface {
     /**
      * Resolve a reflected type declaration.
      */
-    private function resolveTypedDependency(\ReflectionType $type, \ReflectionParameter $parameter): mixed {
+    private function resolveTypedDependency(\ReflectionType $type, \ReflectionParameter $parameter): mixed
+    {
         if ($type instanceof \ReflectionNamedType) {
             if ($type->isBuiltin()) {
                 if ($parameter->isDefaultValueAvailable()) {

@@ -1,4 +1,5 @@
 <?php
+
 function tsToD($ts)
 {
     $dt = getdate($ts);
@@ -134,8 +135,9 @@ function datediff($interval, $datefrom, $dateto, $using_timestamps = false)
 function sql_date_shift($date, $shift)
 {
     $base = strtotime($date);
-    if ($base === false)
+    if ($base === false) {
         return null;
+    }
     $shifted = strtotime($shift, $base);
     return $shifted !== false ? date("Y-m-d H:i:s", $shifted) : null;
 }
@@ -143,9 +145,9 @@ function sql_date_shift($date, $shift)
 function date_shift($date, $shift)
 {
     $base = strtotime($date);
-    if ($base === false)
+    if ($base === false) {
         return null;
+    }
     $shifted = strtotime($shift, $base);
     return $shifted !== false ? date("Y-m-d", $shifted) : null;
 }
-

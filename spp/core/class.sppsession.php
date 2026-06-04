@@ -1,8 +1,11 @@
 <?php
+
 namespace SPP;
+
 use SPP\Exceptions;
 use SPP\Exceptions\SessionDoesNotExistException;
 use SPP\Exceptions\UnknownSessionVarException;
+
 /*require_once 'class.sppobject.php';
 require_once 'sppsystemexceptions.php';
 require_once 'class.spperror.php';*/
@@ -15,7 +18,7 @@ require_once 'class.spperror.php';*/
 
 class SPPSession extends \SPP\SPPObject
 {
-    private $sessvars = array();
+    private $sessvars = [];
 
     /** @var ?SPPSession Local memory cache to prevent duplicate deserialization */
     /** @var array<string, SPPSession> Cache of loaded session buckets */
@@ -75,7 +78,7 @@ class SPPSession extends \SPP\SPPObject
         if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
             $sharedDir = SPP_APP_DIR . SPP_DS . $sharedDir;
         }
-        
+
         $sessionBridgeDir = $sharedDir . SPP_DS . 'sessions';
         if (!is_dir($sessionBridgeDir)) {
             mkdir($sessionBridgeDir, 0777, true);
@@ -94,7 +97,7 @@ class SPPSession extends \SPP\SPPObject
         $ssname = \SPP\App::getSessionName();
         if (!array_key_exists($ssname, $_SESSION)) {
             //   $ssn=new SPPSession();
-            $this->setVar('__wizards__', array());
+            $this->setVar('__wizards__', []);
             //$this->setVar('__errors__', SPPError::getErrors());
         }
     }
@@ -226,7 +229,7 @@ class SPPSession extends \SPP\SPPObject
     /**
      * function varExists()
      * Returns true if session variable exists.
-     * 
+     *
      * @param <type> $varname
      * @return <type>
      */

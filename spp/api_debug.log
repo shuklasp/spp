@@ -2113,3 +2113,487 @@
 [2026-05-28 15:17:19] Context set to sppadmin
 [2026-05-28 15:18:00] Context set to sppadmin
 [2026-05-29 15:31:38] Context set to sppadmin
+[2026-05-31 15:40:46] Context set to sppadmin
+[2026-05-31 15:41:01] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-05-31 15:41:02] Context set to sppadmin
+[2026-05-31 15:41:10] Context set to sppadmin
+[2026-05-31 15:41:10] Context set to sppadmin
+[2026-05-31 15:41:13] Context set to sppadmin
+[2026-05-31 15:41:13] Context set to sppadmin
+[2026-05-31 15:41:17] Context set to sppadmin
+[2026-05-31 15:41:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-05-31 15:41:24] Context set to sppadmin
+[2026-05-31 15:46:52] Context set to sppadmin
+[2026-05-31 15:46:57] Context set to sppadmin
+[2026-05-31 15:46:57] Context set to sppadmin
+[2026-05-31 23:37:08] Context set to sppadmin
+[2026-05-31 23:37:08] Context set to sppadmin
+[2026-05-31 23:37:10] Context set to sppadmin
+[2026-05-31 23:37:17] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-05-31 23:37:18] Context set to sppadmin
+[2026-05-31 23:54:53] Context set to sppadmin
+[2026-05-31 23:55:10] Context set to sppadmin
+[2026-05-31 23:55:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-05-31 23:55:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-05-31 23:55:13] Context set to sppadmin
+[2026-05-31 23:55:13] Context set to sppadmin
+[2026-05-31 23:58:03] Context set to sppadmin
+[2026-05-31 23:58:06] Context set to sppadmin
+[2026-05-31 23:58:06] Context set to sppadmin
+[2026-05-31 23:58:10] Context set to sppadmin
+[2026-06-01 00:06:18] Context set to sppadmin
+[2026-06-01 00:06:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 00:06:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 00:06:21] Context set to sppadmin
+[2026-06-01 00:06:21] Context set to sppadmin
+[2026-06-01 00:06:26] Context set to sppadmin
+[2026-06-01 00:20:59] Context set to sppadmin
+[2026-06-01 00:23:50] Context set to sppadmin
+[2026-06-01 00:23:52] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 00:23:52] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 00:23:53] Context set to sppadmin
+[2026-06-01 00:23:53] Context set to sppadmin
+[2026-06-01 00:23:56] Context set to sppadmin
+[2026-06-01 00:28:23] Context set to sppadmin
+[2026-06-01 00:28:25] Context set to sppadmin
+[2026-06-01 00:28:25] Context set to sppadmin
+[2026-06-01 00:28:29] Context set to sppadmin
+[2026-06-01 03:42:26] Context set to sppadmin
+[2026-06-01 03:42:39] Context set to sppadmin
+[2026-06-01 03:42:42] Context set to sppadmin
+[2026-06-01 03:42:42] Context set to sppadmin
+[2026-06-01 03:42:43] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:43] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:46] Context set to sppadmin
+[2026-06-01 03:42:46] Context set to sppadmin
+[2026-06-01 03:42:49] Context set to sppadmin
+[2026-06-01 03:42:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:50] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 03:42:55] Context set to sppadmin
+[2026-06-01 03:43:45] Context set to sppadmin
+[2026-06-01 03:58:11] Context set to sppadmin
+[2026-06-01 03:58:14] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 03:58:14] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/var/shared/bridge_config.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/core/class.polyglotbridge.php on line 697
+[2026-06-01 03:58:14] Context set to sppadmin
+[2026-06-01 03:58:14] Context set to sppadmin
+[2026-06-01 03:58:17] Context set to sppadmin
+[2026-06-01 03:58:17] Context set to sppadmin
+[2026-06-01 03:58:19] Context set to sppadmin
+[2026-06-01 03:58:25] Context set to sppadmin
+[2026-06-01 04:10:32] Context set to sppadmin
+[2026-06-01 04:10:36] Context set to sppadmin
+[2026-06-01 04:10:37] Context set to sppadmin
+[2026-06-01 04:10:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:10:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:10:37] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:10:40] Context set to sppadmin
+[2026-06-01 04:10:41] Context set to sppadmin
+[2026-06-01 04:10:41] Context set to sppadmin
+[2026-06-01 04:10:41] Context set to sppadmin
+[2026-06-01 04:10:42] Context set to sppadmin
+[2026-06-01 04:10:47] Context set to sppadmin
+[2026-06-01 04:10:47] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:10:47] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:10:57] Context set to sppadmin
+[2026-06-01 04:11:00] Context set to sppadmin
+[2026-06-01 04:11:00] Context set to sppadmin
+[2026-06-01 04:11:05] Context set to sppadmin
+[2026-06-01 04:16:59] Context set to sppadmin
+[2026-06-01 04:17:04] Context set to sppadmin
+[2026-06-01 04:17:07] Context set to sppadmin
+[2026-06-01 04:17:07] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:07] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:08] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:08] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:08] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:13] Context set to sppadmin
+[2026-06-01 04:17:17] Context set to sppadmin
+[2026-06-01 04:17:17] Context set to sppadmin
+[2026-06-01 04:17:19] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:22] Context set to sppadmin
+[2026-06-01 04:17:22] Context set to sppadmin
+[2026-06-01 04:17:24] Context set to sppadmin
+[2026-06-01 04:17:24] Context set to sppadmin
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:25] Context set to sppadmin
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:25] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 04:17:31] Context set to sppadmin
+[2026-06-01 05:39:53] Context set to sppadmin
+[2026-06-01 06:06:18] Context set to sppadmin
+[2026-06-01 06:06:34] Context set to sppadmin
+[2026-06-01 06:06:39] Context set to sppadmin
+[2026-06-01 06:06:39] Context set to sppadmin
+[2026-06-01 06:06:44] Context set to sppadmin
+[2026-06-01 06:06:44] Context set to sppadmin
+[2026-06-01 06:06:44] API FATAL ERROR: Call to undefined method SPP\Module::listModules() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 636
+#0 {main}
+[2026-06-01 06:06:48] Context set to sppadmin
+[2026-06-01 06:06:48] Context set to sppadmin
+[2026-06-01 06:06:48] API FATAL ERROR: Call to undefined method SPP\Module::listModules() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 636
+#0 {main}
+[2026-06-01 06:06:52] Context set to sppadmin
+[2026-06-01 06:06:52] Context set to sppadmin
+[2026-06-01 06:06:52] API FATAL ERROR: Call to undefined method SPP\Module::listModules() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 636
+#0 {main}
+[2026-06-01 06:09:36] Context set to sppadmin
+[2026-06-01 06:09:41] Context set to sppadmin
+[2026-06-01 06:09:41] Context set to sppadmin
+[2026-06-01 06:09:44] Context set to sppadmin
+[2026-06-01 06:09:44] Context set to sppadmin
+[2026-06-01 06:21:39] Context set to sppadmin
+[2026-06-01 06:21:43] Context set to sppadmin
+[2026-06-01 06:21:43] Context set to sppadmin
+[2026-06-01 06:21:48] Context set to sppadmin
+[2026-06-01 06:21:48] Context set to sppadmin
+[2026-06-01 06:21:48] Context set to sppadmin
+[2026-06-01 06:21:48] Context set to sppadmin
+[2026-06-01 06:21:50] Context set to sppadmin
+[2026-06-01 06:21:59] Context set to sppadmin
+[2026-06-01 06:23:24] Context set to sppadmin
+[2026-06-01 06:23:25] Context set to sppadmin
+[2026-06-01 06:35:05] Context set to sppadmin
+[2026-06-01 06:35:11] Context set to sppadmin
+[2026-06-01 06:35:11] Context set to sppadmin
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:35:30] Context set to sppadmin
+[2026-06-01 06:35:30] Context set to sppadmin
+[2026-06-01 06:45:35] Context set to sppadmin
+[2026-06-01 06:45:35] Context set to sppadmin
+[2026-06-01 06:50:19] Context set to sppadmin
+[2026-06-01 06:50:26] Context set to sppadmin
+[2026-06-01 06:50:26] Context set to sppadmin
+[2026-06-01 06:50:26] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:50:26] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:50:26] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:50:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 06:53:21] Context set to sppadmin
+[2026-06-01 06:53:21] Context set to sppadmin
+[2026-06-01 07:01:20] Context set to sppadmin
+[2026-06-01 07:01:20] Context set to sppadmin
+[2026-06-01 07:03:48] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1780297422103","modname":"spphtml","public_name":"SPP View","appname":"lekhak","csrf_token":"14fd47186051d978890dd12e8da3c6e110b8ebcd6fec1d6ab5aeed991f019f73"}
+[2026-06-01 07:07:14] Context set to sppadmin
+[2026-06-01 07:07:15] Context set to sppadmin
+[2026-06-01 07:08:09] Context set to sppadmin
+[2026-06-01 07:08:37] Context set to sppadmin
+[2026-06-01 07:08:37] Context set to sppadmin
+[2026-06-01 07:09:15] Context set to sppadmin
+[2026-06-01 07:16:15] Context set to sppadmin
+[2026-06-01 07:16:20] Context set to sppadmin
+[2026-06-01 07:16:20] Context set to sppadmin
+[2026-06-01 07:19:32] Context set to sppadmin
+[2026-06-01 07:19:36] Context set to sppadmin
+[2026-06-01 07:19:36] Context set to sppadmin
+[2026-06-01 07:23:00] Context set to sppadmin
+[2026-06-01 07:23:03] Context set to sppadmin
+[2026-06-01 07:23:03] Context set to sppadmin
+[2026-06-01 07:23:06] Context set to sppadmin
+[2026-06-01 07:24:57] Context set to sppadmin
+[2026-06-01 07:25:24] Context set to sppadmin
+[2026-06-01 07:28:34] Context set to sppadmin
+[2026-06-01 07:28:38] Context set to sppadmin
+[2026-06-01 07:28:39] Context set to sppadmin
+[2026-06-01 07:28:47] Context set to sppadmin
+[2026-06-01 07:31:00] Context set to sppadmin
+[2026-06-01 07:31:03] Context set to sppadmin
+[2026-06-01 07:31:03] Context set to sppadmin
+[2026-06-01 07:31:07] Context set to sppadmin
+[2026-06-01 09:36:29] Context set to sppadmin
+[2026-06-01 08:16:53] Context set to sppadmin
+[2026-06-01 08:17:11] Context set to sppadmin
+[2026-06-01 08:18:05] Context set to sppadmin
+[2026-06-01 08:18:10] Context set to sppadmin
+[2026-06-01 08:18:11] Context set to sppadmin
+[2026-06-01 08:18:12] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 08:18:12] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 08:18:12] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 08:18:12] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 08:18:35] Context set to sppadmin
+[2026-06-01 08:18:48] Context set to sppadmin
+[2026-06-01 08:19:11] Context set to sppadmin
+[2026-06-01 08:23:23] Context set to sppadmin
+[2026-06-01 08:23:27] Context set to sppadmin
+[2026-06-01 08:23:27] Context set to sppadmin
+[2026-06-01 08:23:32] Context set to sppadmin
+[2026-06-01 08:24:08] Context set to sppadmin
+[2026-06-01 08:24:57] Context set to sppadmin
+[2026-06-01 08:27:47] Context set to sppadmin
+[2026-06-01 08:27:52] Context set to sppadmin
+[2026-06-01 08:28:06] Context set to sppadmin
+[2026-06-01 08:28:21] Context set to sppadmin
+[2026-06-01 08:56:45] Context set to sppadmin
+[2026-06-01 08:57:01] Context set to sppadmin
+[2026-06-01 08:57:05] Context set to sppadmin
+[2026-06-01 08:57:05] Context set to sppadmin
+[2026-06-01 08:57:22] Context set to sppadmin
+[2026-06-01 09:03:47] Context set to sppadmin
+[2026-06-01 09:03:49] Context set to sppadmin
+[2026-06-01 09:03:49] Context set to sppadmin
+[2026-06-01 09:03:52] Context set to sppadmin
+[2026-06-01 09:06:51] Context set to sppadmin
+[2026-06-01 09:06:54] Context set to sppadmin
+[2026-06-01 09:06:54] Context set to sppadmin
+[2026-06-01 09:06:59] Context set to sppadmin
+[2026-06-01 09:16:23] Context set to sppadmin
+[2026-06-01 09:16:26] Context set to sppadmin
+[2026-06-01 09:16:26] Context set to sppadmin
+[2026-06-01 09:16:31] Context set to sppadmin
+[2026-06-01 09:19:19] Context set to sppadmin
+[2026-06-01 09:30:12] Context set to sppadmin
+[2026-06-01 09:30:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 09:30:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 09:30:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 09:30:13] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 09:44:12] Context set to sppadmin
+[2026-06-01 09:46:00] Context set to sppadmin
+[2026-06-01 09:46:04] Context set to sppadmin
+[2026-06-01 09:46:04] Context set to sppadmin
+[2026-06-01 09:46:23] Context set to sppadmin
+[2026-06-01 09:46:45] Context set to sppadmin
+[2026-06-01 09:46:45] API FATAL ERROR: Call to undefined function generateEntityPhp() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 539
+#0 {main}
+[2026-06-01 10:09:00] Context set to sppadmin
+[2026-06-01 10:09:07] Context set to sppadmin
+[2026-06-01 10:09:40] Context set to sppadmin
+[2026-06-01 10:10:02] Context set to sppadmin
+[2026-06-01 10:19:35] Context set to sppadmin
+[2026-06-01 10:19:40] Context set to sppadmin
+[2026-06-01 10:19:41] Context set to sppadmin
+[2026-06-01 10:19:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:19:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:19:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:19:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:19:42] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:19:48] Context set to sppadmin
+[2026-06-01 10:37:14] Context set to sppadmin
+[2026-06-01 10:37:20] Context set to sppadmin
+[2026-06-01 10:37:20] Context set to sppadmin
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:21] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:37:29] Context set to sppadmin
+[2026-06-01 10:44:07] Context set to sppadmin
+[2026-06-01 10:44:09] Context set to sppadmin
+[2026-06-01 10:44:09] Context set to sppadmin
+[2026-06-01 10:44:13] Context set to sppadmin
+[2026-06-01 10:44:13] Context set to sppadmin
+[2026-06-01 10:44:18] Context set to sppadmin
+[2026-06-01 10:45:03] Context set to sppadmin
+[2026-06-01 10:45:03] Context set to sppadmin
+[2026-06-01 10:45:07] Context set to sppadmin
+[2026-06-01 10:47:28] Context set to sppadmin
+[2026-06-01 10:47:28] Context set to sppadmin
+[2026-06-01 10:47:42] Context set to sppadmin
+[2026-06-01 10:47:42] Context set to sppadmin
+[2026-06-01 10:47:45] Context set to sppadmin
+[2026-06-01 10:48:23] Context set to sppadmin
+[2026-06-01 10:48:26] Context set to sppadmin
+[2026-06-01 10:48:26] Context set to sppadmin
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:27] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 10:48:30] Context set to sppadmin
+[2026-06-01 10:48:30] Context set to sppadmin
+[2026-06-01 10:48:36] Context set to sppadmin
+[2026-06-01 10:48:45] Context set to sppadmin
+[2026-06-01 11:18:59] Context set to sppadmin
+[2026-06-01 11:19:15] Context set to sppadmin
+[2026-06-01 11:19:19] Context set to sppadmin
+[2026-06-01 11:19:19] Context set to sppadmin
+[2026-06-01 11:19:35] Context set to sppadmin
+[2026-06-01 11:19:35] Context set to sppadmin
+[2026-06-01 11:19:41] Context set to sppadmin
+[2026-06-01 11:20:18] Context set to sppadmin
+[2026-06-01 11:20:18] Context set to sppadmin
+[2026-06-01 11:20:21] Context set to sppadmin
+[2026-06-01 11:23:30] Context set to sppadmin
+[2026-06-01 11:23:33] Context set to sppadmin
+[2026-06-01 11:23:33] Context set to sppadmin
+[2026-06-01 11:23:34] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 11:23:34] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 11:23:36] Context set to sppadmin
+[2026-06-01 11:23:36] Context set to sppadmin
+[2026-06-01 11:23:40] Context set to sppadmin
+[2026-06-01 11:24:06] Context set to sppadmin
+[2026-06-01 11:24:27] Context set to sppadmin
+[2026-06-01 11:34:30] Context set to sppadmin
+[2026-06-01 11:34:32] Context set to sppadmin
+[2026-06-01 11:34:32] Context set to sppadmin
+[2026-06-01 11:34:35] Context set to sppadmin
+[2026-06-01 11:34:35] Context set to sppadmin
+[2026-06-01 11:34:39] Context set to sppadmin
+[2026-06-01 11:35:23] Context set to sppadmin
+[2026-06-01 11:35:23] Context set to sppadmin
+[2026-06-01 11:35:28] Context set to sppadmin
+[2026-06-01 11:35:42] Context set to sppadmin
+[2026-06-01 11:35:59] Context set to sppadmin
+[2026-06-01 11:43:09] Context set to sppadmin
+[2026-06-01 11:43:12] Context set to sppadmin
+[2026-06-01 11:43:12] Context set to sppadmin
+[2026-06-01 11:44:50] Context set to sppadmin
+[2026-06-01 11:44:52] Context set to sppadmin
+[2026-06-01 11:44:52] Context set to sppadmin
+[2026-06-01 11:44:54] Context set to sppadmin
+[2026-06-01 11:44:55] Context set to sppadmin
+[2026-06-01 11:44:58] Context set to sppadmin
+[2026-06-01 11:45:08] Context set to sppadmin
+[2026-06-01 11:45:22] Context set to sppadmin
+[2026-06-01 11:45:47] Context set to sppadmin
+[2026-06-01 11:45:56] Context set to sppadmin
+[2026-06-01 15:48:22] Context set to sppadmin
+[2026-06-01 15:48:46] Context set to sppadmin
+[2026-06-01 15:48:54] Context set to sppadmin
+[2026-06-01 15:48:54] Context set to sppadmin
+[2026-06-01 15:49:48] Context set to sppadmin
+[2026-06-01 15:49:48] Context set to sppadmin
+[2026-06-01 15:49:56] Context set to sppadmin
+[2026-06-01 15:50:17] Context set to sppadmin
+[2026-06-01 15:50:36] Context set to sppadmin
+[2026-06-01 15:50:54] Context set to sppadmin
+[2026-06-01 15:51:12] Context set to sppadmin
+[2026-06-01 15:55:56] Context set to sppadmin
+[2026-06-01 15:55:59] Context set to sppadmin
+[2026-06-01 15:55:59] Context set to sppadmin
+[2026-06-01 15:56:03] Context set to sppadmin
+[2026-06-01 15:56:03] Context set to sppadmin
+[2026-06-01 15:56:10] Context set to sppadmin
+[2026-06-01 15:56:35] Context set to sppadmin
+[2026-06-01 15:56:58] Context set to sppadmin
+[2026-06-01 15:57:09] Context set to sppadmin
+[2026-06-01 15:58:05] Context set to sppadmin
+[2026-06-01 15:58:50] Context set to sppadmin
+[2026-06-01 15:59:55] Context set to sppadmin
+[2026-06-01 16:00:09] Context set to sppadmin
+[2026-06-01 16:00:16] Context set to sppadmin
+[2026-06-01 16:00:23] Context set to sppadmin
+[2026-06-01 16:00:30] Context set to sppadmin
+[2026-06-01 16:12:19] Context set to sppadmin
+[2026-06-01 16:12:22] Context set to sppadmin
+[2026-06-01 16:12:22] Context set to sppadmin
+[2026-06-01 16:12:22] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:22] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:22] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:22] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-01 16:12:25] Context set to sppadmin
+[2026-06-01 16:12:25] Context set to sppadmin
+[2026-06-01 16:12:29] Context set to sppadmin
+[2026-06-01 16:12:48] Context set to sppadmin
+[2026-06-01 16:12:51] Context set to sppadmin
+[2026-06-01 16:12:51] Context set to sppadmin
+[2026-06-01 16:12:55] Context set to sppadmin
+[2026-06-01 16:12:55] Context set to sppadmin
+[2026-06-01 16:12:59] Context set to sppadmin
+[2026-06-01 16:13:09] Context set to sppadmin
+[2026-06-01 16:13:22] Context set to sppadmin
+[2026-06-01 16:14:46] Context set to sppadmin
+[2026-06-01 16:18:20] Context set to sppadmin
+[2026-06-01 16:18:23] Context set to sppadmin
+[2026-06-01 16:18:23] Context set to sppadmin
+[2026-06-01 16:18:26] Context set to sppadmin
+[2026-06-01 16:18:26] Context set to sppadmin
+[2026-06-01 16:18:31] Context set to sppadmin
+[2026-06-01 16:18:42] Context set to sppadmin
+[2026-06-01 16:18:54] Context set to sppadmin
+[2026-06-01 16:19:04] Context set to sppadmin
+[2026-06-01 16:19:14] Context set to sppadmin
+[2026-06-01 16:19:24] Context set to sppadmin
+[2026-06-01 16:22:15] Context set to sppadmin
+[2026-06-01 16:22:18] Context set to sppadmin
+[2026-06-01 16:22:18] Context set to sppadmin
+[2026-06-01 16:22:21] Context set to sppadmin
+[2026-06-01 16:22:21] Context set to sppadmin
+[2026-06-01 16:22:26] Context set to sppadmin
+[2026-06-01 16:22:38] Context set to sppadmin
+[2026-06-01 16:24:01] Context set to sppadmin
+[2026-06-01 16:24:04] Context set to sppadmin
+[2026-06-01 16:24:04] Context set to sppadmin
+[2026-06-01 16:24:06] Context set to sppadmin
+[2026-06-01 16:24:06] Context set to sppadmin
+[2026-06-01 16:24:11] Context set to sppadmin
+[2026-06-01 16:24:20] Context set to sppadmin
+[2026-06-02 01:46:45] Context set to sppadmin
+[2026-06-02 01:47:14] Context set to sppadmin
+[2026-06-02 01:47:21] Context set to sppadmin
+[2026-06-02 01:47:21] Context set to sppadmin
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:23] PHP Error (2): file_put_contents(/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/data/default/_query_stats.json): Failed to open stream: Invalid argument in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php on line 1054
+[2026-06-02 01:47:47] Context set to sppadmin
+[2026-06-02 01:47:47] Context set to sppadmin
+[2026-06-02 01:49:11] Context set to sppadmin
+[2026-06-02 01:49:14] Context set to sppadmin
+[2026-06-02 01:49:19] Context set to sppadmin
+[2026-06-02 01:49:24] Context set to sppadmin
+[2026-06-02 01:49:28] Context set to sppadmin
+[2026-06-02 01:49:33] Context set to sppadmin
+[2026-06-02 01:49:38] Context set to sppadmin
+[2026-06-02 01:49:42] Context set to sppadmin
+[2026-06-02 01:49:47] Context set to sppadmin
+[2026-06-02 01:49:52] Context set to sppadmin
+[2026-06-02 01:50:00] Context set to sppadmin
+[2026-06-02 01:50:11] Context set to sppadmin
+[2026-06-02 01:50:11] Context set to sppadmin
+[2026-06-02 01:50:17] Context set to sppadmin
+[2026-06-02 01:51:31] Context set to sppadmin
+[2026-06-02 01:51:31] API FATAL ERROR: Class "App\Entities\SPPEntity" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 800
+#0 {main}
+[2026-06-02 01:51:48] Context set to sppadmin
+[2026-06-02 01:52:11] Context set to sppadmin
+[2026-06-02 01:52:20] Context set to sppadmin
+[2026-06-02 01:53:33] Context set to sppadmin
+[2026-06-02 01:53:58] Context set to sppadmin
+[2026-06-02 01:54:40] Context set to sppadmin
+[2026-06-02 01:55:59] Context set to sppadmin
+[2026-06-02 01:57:20] Context set to sppadmin
+[2026-06-02 01:58:39] Context set to sppadmin
+[2026-06-02 01:58:46] Context set to sppadmin
+[2026-06-02 02:01:28] Context set to sppadmin
+[2026-06-02 02:01:43] Context set to sppadmin
+[2026-06-02 02:01:43] Context set to sppadmin
+[2026-06-02 02:01:43] API FATAL ERROR: Too few arguments to function SPP\Scheduler::getProcObj(), 0 passed in /mnt/c/projects/apache/school1/spp/admin/api.php on line 1796 and exactly 1 expected in /mnt/c/projects/apache/school1/spp/core/class.scheduler.php on line 101
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(1796): SPP\Scheduler::getProcObj()
+#1 {main}
+[2026-06-02 06:14:02] Context set to sppadmin
+[2026-06-02 06:14:14] Context set to sppadmin
+[2026-06-02 06:14:17] Context set to sppadmin
+[2026-06-02 06:14:17] Context set to sppadmin
+[2026-06-02 06:14:35] Context set to sppadmin
+[2026-06-02 06:14:35] Context set to sppadmin
+[2026-06-02 06:15:04] Context set to sppadmin
+[2026-06-02 06:15:09] Context set to sppadmin
+[2026-06-02 07:55:04] Context set to sppadmin
+[2026-06-02 07:55:04] API FATAL ERROR: Class "App\Entities\SPPEntity" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 800
+#0 {main}
+[2026-06-02 15:27:20] Context set to sppadmin

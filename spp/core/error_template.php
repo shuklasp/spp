@@ -18,6 +18,10 @@
         .trace-item:last-child { border: none; }
         .trace-call { font-family: 'Fira Code', monospace; color: #38bdf8; font-weight: 500; }
         .trace-loc { font-size: 13px; color: var(--muted); margin-top: 5px; }
+        .code-snippet { margin-top: 15px; background: #0b1120; border-radius: 8px; padding: 15px 0; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 13px; border: 1px solid #1e293b; }
+        .code-line { padding: 2px 20px; white-space: pre; color: #e2e8f0; }
+        .error-line { background: rgba(244, 63, 94, 0.2); border-left: 4px solid var(--primary); padding-left: 16px; color: #fff; }
+        .line-num { color: #475569; display: inline-block; width: 40px; user-select: none; }
     </style>
 </head>
 <body>
@@ -29,7 +33,35 @@
         </div>
 
         <div class="trace-container">
-            <div class="trace-title">Stack Trace</div>
+            <div class="trace-title">Stack Trace & Code Snippets</div>
+
+            <!-- Main Exception Snippet -->
+            <div class="trace-item snippet-active">
+                <div class="trace-call">
+                    <strong>Exception Thrown Here:</strong>
+                </div>
+                <div class="trace-loc"><?php echo $file; ?>:<?php echo $line; ?></div>
+                <div class="code-snippet">
+                    <?php 
+                    if (file_exists($file)) {
+                        $lines = file($file);
+                        $start = max(0, $line - 6);
+                        $end = min(count($lines), $line + 5);
+                        for ($j = $start; $j < $end; $j++) {
+                            $isErrorLine = ($j + 1) === $line;
+                            $lineStr = htmlspecialchars($lines[$j]);
+                            if ($isErrorLine) {
+                                echo "<div class='code-line error-line'><span class='line-num'>" . ($j + 1) . "</span> $lineStr</div>";
+                            } else {
+                                echo "<div class='code-line'><span class='line-num'>" . ($j + 1) . "</span> $lineStr</div>";
+                            }
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+
+            <!-- Stack Trace -->
             <?php foreach ($trace as $i => $t): ?>
                 <div class="trace-item">
                     <div class="trace-call">

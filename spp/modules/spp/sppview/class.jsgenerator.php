@@ -4,16 +4,16 @@ namespace SPPMod\SPPView;
 
 /**
  * class JSGenerator
- * 
+ *
  * Transpiles PHPComponents into SPP-UX JavaScript components.
- * 
+ *
  * @author Satya Prakash Shukla
  */
 class JSGenerator extends \SPP\SPPObject
 {
     /**
      * Generates JavaScript code for a given PHPComponent class.
-     * 
+     *
      * @param string $className Full class name including namespace
      * @return string JavaScript component definition
      */
@@ -54,7 +54,7 @@ class JSGenerator extends \SPP\SPPObject
         $js = "/**\n * Generated SPP-UX Component: {$shortName}\n";
         $js .= " * Source: {$className}\n */\n\n";
         $js .= "export default class {$shortName} extends BaseComponent {\n";
-        
+
         // Initial State
         $js .= "    async onInit() {\n";
         $js .= "        this.state = " . json_encode($initialState, JSON_PRETTY_PRINT) . ";\n";
@@ -62,8 +62,10 @@ class JSGenerator extends \SPP\SPPObject
 
         // Methods / Actions
         foreach ($actions as $action) {
-            if ($action === 'render' || $action === 'onInit') continue;
-            
+            if ($action === 'render' || $action === 'onInit') {
+                continue;
+            }
+
             $js .= "    async {$action}(data = {}) {\n";
             $js .= "        return await this.callServer('{$action}', data);\n";
             $js .= "    }\n\n";

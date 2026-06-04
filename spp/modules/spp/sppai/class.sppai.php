@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -40,9 +41,9 @@ class SPPAI extends \SPP\SPPObject
     {
         $provider = self::$selectedProvider ?: \SPP\Module::getConfig('default_provider', 'sppai') ?: 'google';
         $config = \SPP\Module::getConfig('providers', 'sppai')[$provider] ?? [];
-        
+
         $className = "SPPMod\\SPPAI\\" . ($config['class'] ?? (ucfirst($provider) . "Driver"));
-        
+
         if (!class_exists($className)) {
             throw new \SPP\SPPException("AI Driver not found: {$className}");
         }
@@ -63,14 +64,14 @@ class SPPAI extends \SPP\SPPObject
     {
         $providers = \SPP\Module::getConfig('providers', 'sppai') ?: [];
         $registry = [];
-        
+
         foreach ($providers as $id => $config) {
             $registry[$id] = [
                 'name' => ucfirst($id),
                 'default_model' => $config['default_model'] ?? null,
                 'models' => []
             ];
-            
+
             try {
                 $driver = self::using($id)::getDriver();
                 if (method_exists($driver, 'getSupportedModels')) {
@@ -80,7 +81,7 @@ class SPPAI extends \SPP\SPPObject
                 // Skip if driver fails to load
             }
         }
-        
+
         return $registry;
     }
 

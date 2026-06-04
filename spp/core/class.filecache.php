@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -20,7 +21,9 @@ class FileCache implements CacheInterface
     public function get(string $key)
     {
         $file = $this->getFilePath($key);
-        if (!file_exists($file)) return null;
+        if (!file_exists($file)) {
+            return null;
+        }
 
         $content = file_get_contents($file);
         $data = unserialize($content);
@@ -37,7 +40,9 @@ class FileCache implements CacheInterface
     {
         $file = $this->getFilePath($key);
         $dir = dirname($file);
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
 
         $data = [
             'expires' => ($ttl === 0) ? 0 : time() + $ttl,
@@ -78,7 +83,7 @@ class FileCache implements CacheInterface
 
     private function recursiveRemoveDir($dir): bool
     {
-        $files = array_diff(scandir($dir), array('.', '..'));
+        $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
             (is_dir("$dir/$file")) ? $this->recursiveRemoveDir("$dir/$file") : unlink("$dir/$file");
         }
@@ -91,7 +96,9 @@ class FileCache implements CacheInterface
         foreach ($tags as $tag) {
             $tagFile = $this->getTagFilePath($tag);
             $dir = dirname($tagFile);
-            if (!is_dir($dir)) mkdir($dir, 0777, true);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
 
             $existing = file_exists($tagFile) ? unserialize(file_get_contents($tagFile)) : [];
             $existing[] = $key;
@@ -104,7 +111,9 @@ class FileCache implements CacheInterface
     public function invalidateTag(string $tag): bool
     {
         $tagFile = $this->getTagFilePath($tag);
-        if (!file_exists($tagFile)) return true;
+        if (!file_exists($tagFile)) {
+            return true;
+        }
 
         $keys = unserialize(file_get_contents($tagFile));
         if (is_array($keys)) {
@@ -121,4 +130,3 @@ class FileCache implements CacheInterface
         return $this->path . SPP_DS . '_tags' . SPP_DS . md5($tag) . '.tag';
     }
 }
-

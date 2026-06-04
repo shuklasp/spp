@@ -1,5 +1,7 @@
 <?php
+
 namespace SPP;
+
 /**
  * class SPPError
  *
@@ -17,7 +19,7 @@ class SPPError extends \SPP\SPPObject
     //private $errordiv='';
     private $customerrhnd;
     private $appname = '';
-    private static $errortype = array(
+    private static $errortype = [
         E_ERROR => 'Error',
         E_WARNING => 'Warning',
         E_PARSE => 'Parsing Error',
@@ -31,30 +33,30 @@ class SPPError extends \SPP\SPPObject
         E_USER_NOTICE => 'User Notice',
         E_STRICT => 'Runtime Notice',
         E_RECOVERABLE_ERROR => 'Catchable Fatal Error'
-    );
+    ];
     private $errors;
 
     public function __construct($handleerror = true)
     {
         $this->customerrhnd = '';
-        $this->errors = array(
-            E_ERROR => array(),
-            E_WARNING => array(),
-            E_PARSE => array(),
-            E_NOTICE => array(),
-            E_CORE_ERROR => array(),
-            E_CORE_WARNING => array(),
-            E_COMPILE_ERROR => array(),
-            E_COMPILE_WARNING => array(),
-            E_USER_ERROR => array(),
-            E_USER_WARNING => array(),
-            E_USER_NOTICE => array(),
-            E_STRICT => array(),
-            E_RECOVERABLE_ERROR => array(),
-            E_DEPRECATED => array(),
-            E_USER_DEPRECATED => array(),
-            E_ALL => array()
-        );
+        $this->errors = [
+            E_ERROR => [],
+            E_WARNING => [],
+            E_PARSE => [],
+            E_NOTICE => [],
+            E_CORE_ERROR => [],
+            E_CORE_WARNING => [],
+            E_COMPILE_ERROR => [],
+            E_COMPILE_WARNING => [],
+            E_USER_ERROR => [],
+            E_USER_WARNING => [],
+            E_USER_NOTICE => [],
+            E_STRICT => [],
+            E_RECOVERABLE_ERROR => [],
+            E_DEPRECATED => [],
+            E_USER_DEPRECATED => [],
+            E_ALL => []
+        ];
         if ($handleerror) {
             $this->init();
             set_exception_handler('SPP\SPPError::exceptionHandler');
@@ -105,8 +107,10 @@ class SPPError extends \SPP\SPPObject
      */
     public static function exceptionHandler(\Throwable $e)
     {
-        if (ob_get_length()) ob_clean();
-        
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
         $debug = defined('SPP_DEBUG') && SPP_DEBUG;
         $title = get_class($e);
         $message = $e->getMessage();
@@ -127,7 +131,7 @@ class SPPError extends \SPP\SPPObject
         exit(1);
     }
 
-    public static function errorHandler($errno, $errmsg, $filename, $linenum, $vars = array())
+    public static function errorHandler($errno, $errmsg, $filename, $linenum, $vars = [])
     {
         // ... existing logic
         $proc = \SPP\Scheduler::getActiveProc();
@@ -136,16 +140,17 @@ class SPPError extends \SPP\SPPObject
         if ($err === null) {
             return;
         }
-        $err->errors[$errno][] = array('errno' => $errno, 'errmsg' => $errmsg, 'filename' => $filename, 'linenum' => $linenum);
-        
+        $err->errors[$errno][] = ['errno' => $errno, 'errmsg' => $errmsg, 'filename' => $filename, 'linenum' => $linenum];
+
         // If it's a fatal error, treat it like an exception
         if (in_array($errno, [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR])) {
             self::exceptionHandler(new \ErrorException($errmsg, $errno, 0, $filename, $linenum));
         }
 
         if ($err->customerrhnd != '') {
-            if (is_callable($err->customerrhnd))
+            if (is_callable($err->customerrhnd)) {
                 call_user_func($err->customerrhnd);
+            }
         }
         SPPSession::setSessionVar('__errors__' . $pname, $err->errors);
     }
@@ -220,7 +225,7 @@ class SPPError extends \SPP\SPPObject
         }
         $htm = '<ul>';
         //$ul=new SPP_HTML_Ul('errors');
-        $err = array();
+        $err = [];
         $errors = $errobj->getErrors();
         if ($errno == 0) {
             $err = $errors;
@@ -264,7 +269,7 @@ class SPPError extends \SPP\SPPObject
         }
         $htm = '<ol>';
         //$ul=new SPP_HTML_Ol('errors');
-        $err = array();
+        $err = [];
         $errors = $errobj->getErrors();
         if ($errno == 0) {
             $err = $errors;
@@ -305,10 +310,10 @@ class SPPError extends \SPP\SPPObject
     {
         if ($errnum == 0) {
             foreach ($this->errors as $errno => $errors) {
-                $this->errors[$errno] = array();
+                $this->errors[$errno] = [];
             }
         } else {
-            $this->errors[$errnum] = array();
+            $this->errors[$errnum] = [];
         }
         SPPSession::setSessionVar('__errors__' . $this->appname, $this->errors);
     }

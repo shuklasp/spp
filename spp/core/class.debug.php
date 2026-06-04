@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -64,7 +65,13 @@ class Debug
             'memory_usage' => memory_get_usage(true),
             'logs' => self::$logs,
             'queries' => self::$queries,
-            'context' => \SPP\Scheduler::getContext()
+            'context' => \SPP\Scheduler::getContext(),
+            'request' => [
+                'method' => $_SERVER['REQUEST_METHOD'] ?? 'GET',
+                'uri' => $_SERVER['REQUEST_URI'] ?? '/',
+                'post' => $_POST,
+                'headers' => function_exists('getallheaders') ? getallheaders() : []
+            ]
         ];
     }
 }

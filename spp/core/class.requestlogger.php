@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Middleware;
 
 use SPP\Core\MiddlewareInterface;
@@ -14,7 +15,7 @@ class RequestLogger implements MiddlewareInterface
         // Pre-processing
         $method = $_SERVER['REQUEST_METHOD'] ?? 'UNKNOWN';
         $uri = $_SERVER['REQUEST_URI'] ?? 'UNKNOWN';
-        
+
         // Log the request (MOCKED for now as I don't want to rely on the full logger module)
         // \SPPMod\SPPLogger\SPP_Logger::info("Incoming Request: $method $uri");
         error_log("[SPP Middleware] Incoming Request: $method $uri");

@@ -1,7 +1,10 @@
 <?php
 
-namespace SPPMod\SPPView;;
+namespace SPPMod\SPPView;
+
+;
 use SPPMod\SPPView\ViewValidator;
+
 //require_once 'class.spphtmlelement.php';
 
 /**
@@ -10,24 +13,33 @@ use SPPMod\SPPView\ViewValidator;
  *
  * @author Satya Prakash Shukla
  */
-class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
-    protected $validators = array();
-    protected $errors = array();
+class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag
+{
+    protected $validators = [];
+    protected $errors = [];
     protected string $label = '';
     protected string $helpText = '';
-    protected bool $isGrouped = true; 
+    protected bool $isGrouped = true;
     protected static ?ViewFormTheme $activeTheme = null;
     protected ?DataTransformer $transformer = null;
 
-    public function setTransformer(DataTransformer $t) { $this->transformer = $t; return $this; }
-    public function getTransformer(): ?DataTransformer { return $this->transformer; }
+    public function setTransformer(DataTransformer $t)
+    {
+        $this->transformer = $t;
+        return $this;
+    }
+    public function getTransformer(): ?DataTransformer
+    {
+        return $this->transformer;
+    }
 
     /**
      * @param string $ename
      */
-    public function __construct($ename, ViewValidator $validator = null) {
+    public function __construct($ename, ViewValidator $validator = null)
+    {
         parent::__construct('input', $ename);
-        
+
         if (self::$activeTheme === null) {
             self::$activeTheme = ViewFormTheme::getTheme('default');
         }
@@ -39,7 +51,7 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
 
         // Standard HTML5 and ARIA attributes
         $this->attrlist = array_merge($this->attrlist, [
-            'placeholder', 'required', 'autofocus', 'pattern', 'title', 
+            'placeholder', 'required', 'autofocus', 'pattern', 'title',
             'aria-label', 'aria-describedby', 'aria-invalid', 'aria-required',
             'min', 'max', 'step', 'readonly', 'disabled'
         ]);
@@ -49,20 +61,34 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
         }
     }
 
-    public static function setTheme(string $themeName) {
+    public static function setTheme(string $themeName)
+    {
         self::$activeTheme = ViewFormTheme::getTheme($themeName);
     }
 
-    public function setLabel(string $label) { $this->label = $label; return $this; }
-    public function getLabel(): string { return $this->label; }
-    public function setHelpText(string $text) { 
-        $this->helpText = $text; 
-        $this->setAttribute('help', $text);
-        return $this; 
+    public function setLabel(string $label)
+    {
+        $this->label = $label;
+        return $this;
     }
-    public function setGrouped(bool $grouped) { $this->isGrouped = $grouped; return $this; }
+    public function getLabel(): string
+    {
+        return $this->label;
+    }
+    public function setHelpText(string $text)
+    {
+        $this->helpText = $text;
+        $this->setAttribute('help', $text);
+        return $this;
+    }
+    public function setGrouped(bool $grouped)
+    {
+        $this->isGrouped = $grouped;
+        return $this;
+    }
 
-    public function addValidator(ViewValidator $validator) {
+    public function addValidator(ViewValidator $validator)
+    {
         $this->validators[] = $validator;
         if ($validator->is_required()) {
             $this->setAttribute('required', 'required');
@@ -73,7 +99,8 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
     /**
      * Overrides getHTML to automatically wrap in a form group if enabled.
      */
-    public function getHTML(): string {
+    public function getHTML(): string
+    {
         if ($this->isGrouped) {
             return self::$activeTheme->renderGroup($this);
         }
@@ -83,7 +110,8 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
     /**
      * Renders the raw element without any theme wrapping.
      */
-    public function renderRaw(): string {
+    public function renderRaw(): string
+    {
         $this->isGrouped = false;
         $html = parent::getHTML();
         $this->isGrouped = true;
@@ -93,18 +121,20 @@ class SPPViewForm_Element extends \SPPMod\SPPView\ViewTag {
     /**
      * Override setAttribute to handle common logic and transformation
      */
-    public function setAttribute($name, $val) {
+    public function setAttribute($name, $val)
+    {
         if ($name === 'value' && $this->transformer) {
             $val = $this->transformer->transform($val);
         }
-        
+
         if (!in_array($name, $this->attrlist)) {
-            $this->attrlist[] = $name; 
+            $this->attrlist[] = $name;
         }
         return parent::setAttribute($name, $val);
     }
 
-    public function getAttribute($name) {
+    public function getAttribute($name)
+    {
         $val = parent::getAttribute($name);
         if ($name === 'value' && $this->transformer) {
             return $this->transformer->reverseTransform($val);

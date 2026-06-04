@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Verification script for SPP XDB v3 (Indexing & Query Builder)
  */
@@ -11,13 +12,13 @@ echo "=== SPP XDB Phase 5 Verification ===\n\n";
 
 try {
     $xdb = new SPP_XDB('test_v3');
-    
+
     // 1. Testing Query Builder (Insert)
     echo "1. Testing Query Builder (Insert)...\n";
     $xdb->table('users')->insert(['name' => 'Alice', 'role' => 'Admin', 'status' => 'active']);
     $xdb->table('users')->insert(['name' => 'Bob', 'role' => 'User', 'status' => 'inactive']);
     $xdb->table('users')->insert(['name' => 'Charlie', 'role' => 'User', 'status' => 'active']);
-    
+
     $count = $xdb->table('users')->count();
     echo "   Total users: $count\n";
 
@@ -25,7 +26,7 @@ try {
     echo "\n2. Testing Fluent Queries...\n";
     $activeUsers = $xdb->table('users')->where('status', 'active')->get();
     echo "   Active users: " . implode(', ', array_column($activeUsers, 'name')) . "\n";
-    
+
     $bob = $xdb->table('users')->where('name', 'Bob')->first();
     echo "   First user named Bob: " . ($bob['name'] ?? 'Not found') . "\n";
 
@@ -34,7 +35,7 @@ try {
     echo "   Creating index on 'role'...\n";
     $xdb->connect('users');
     $xdb->createIndex('role');
-    
+
     // Verify index file exists
     $idxFile = __DIR__ . '/data/test_v3/_indexes/users/role.json';
     if (file_exists($idxFile)) {
@@ -60,7 +61,7 @@ try {
     echo "\n6. Testing JOIN...\n";
     $xdb->table('roles')->insert(['role_name' => 'Admin', 'permissions' => 'all']);
     $xdb->table('roles')->insert(['role_name' => 'User', 'permissions' => 'limited']);
-    
+
     $joined = $xdb->querySQL("SELECT users.name, roles.permissions FROM users JOIN roles ON users.role = roles.role_name");
     echo "   Joined results:\n";
     foreach ($joined as $row) {

@@ -1,9 +1,9 @@
 variables:
     dbtype: mysql
-    sqlite_path: var/db/merged_fix_verified.sqlite
+    sqlite_path: 'var/db/default.sqlite'
     db_engine: pdo
     dbname: lekhak1
-    dbhost: 127.0.0.1
+    dbhost: localhost
     dbuser: root
     dbpasswd: hello123
     global_table_prefix: lek_

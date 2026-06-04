@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 use SPPMod\SPPEntity\SPPEntity;
@@ -7,7 +8,7 @@ use SPPMod\SPPDB\SPPDB;
 
 /**
  * Class SPPUser
- * 
+ *
  * Manages user entities within the SPP framework. Handles authentication,
  * profile retrieval, and role management using the modernized SPPEntity architecture.
  */
@@ -43,7 +44,7 @@ class SPPUser extends SPPEntity
             $this->load($unm);
         }
     }
-    
+
     /**
      * Returns the internal numeric ID of the user.
      * @return mixed
@@ -69,9 +70,15 @@ class SPPUser extends SPPEntity
      */
     public function get($prop)
     {
-        if ($prop === 'UserId') return $this->id;
-        if ($prop === 'UserName') return $this->username;
-        if ($prop === 'rights') return $this->rights;
+        if ($prop === 'UserId') {
+            return $this->id;
+        }
+        if ($prop === 'UserName') {
+            return $this->username;
+        }
+        if ($prop === 'rights') {
+            return $this->rights;
+        }
         return parent::get($prop);
     }
 
@@ -83,14 +90,14 @@ class SPPUser extends SPPEntity
     {
         $db = new SPPDB();
         $this->role_ids = [];
-        
+
         // Pivot table resiliency during bootstrap
         if ($db->tableExists('userroles')) {
             $sql = 'SELECT roleid FROM ' . SPPDB::sppTable('userroles') . ' WHERE userid=?';
             $res = $db->execute_query($sql, [$this->id]);
             $this->role_ids = array_column($res, 'roleid');
         }
-        
+
         // Populate 'rights' for BC
         $this->populateRights();
     }
@@ -115,7 +122,7 @@ class SPPUser extends SPPEntity
         $sql = "SELECT DISTINCT rt.name FROM " . SPPDB::sppTable('rights') . " rt 
                 JOIN " . SPPDB::sppTable('roleright') . " rr ON rt.id = rr.rightid 
                 WHERE rr.roleid IN ({$placeholders})";
-        
+
         $res = $db->execute_query($sql, $this->role_ids);
         $this->rights = array_column($res, 'name');
     }
@@ -133,7 +140,7 @@ class SPPUser extends SPPEntity
                 $this->_values['password'] = password_hash($val, PASSWORD_DEFAULT);
             }
         }
-        
+
         if (empty($this->id)) {
             $this->_values['created_at'] = date('Y-m-d H:i:s');
         }
@@ -151,11 +158,11 @@ class SPPUser extends SPPEntity
             if (!$db->tableExists('userroles')) {
                 return;
             }
-            
+
             // 1. Wipe current assignments
             $sql = 'DELETE FROM ' . SPPDB::sppTable('userroles') . ' WHERE userid=?';
             $db->execute_query($sql, [$this->id]);
-            
+
             // 2. Re-insert new assignments
             foreach ($this->role_ids as $roleId) {
                 $db->insertValues('userroles', ['userid' => $this->id, 'roleid' => $roleId]);
@@ -201,7 +208,9 @@ class SPPUser extends SPPEntity
     public function verifyPassword($passwd)
     {
         $hash = $this->password ?? $this->password_hash ?? '';
-        if (empty($hash)) return false;
+        if (empty($hash)) {
+            return false;
+        }
 
         if (strpos($hash, '$2y$') === 0) {
             return password_verify($passwd, $hash);
@@ -259,14 +268,18 @@ class SPPUser extends SPPEntity
             $user = new self($id);
         } else {
             $user = new self();
-            if (empty($username)) throw new \Exception("Username is required for new accounts.");
+            if (empty($username)) {
+                throw new \Exception("Username is required for new accounts.");
+            }
             $user->username = $username;
         }
 
         $user->email = $email;
-        if (!empty($password)) $user->password = $password;
+        if (!empty($password)) {
+            $user->password = $password;
+        }
         $user->status = $status;
-        
+
         if (is_array($roleIds)) {
             $user->setRoles($roleIds);
         }

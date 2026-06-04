@@ -20,8 +20,20 @@ class MakeAppCommand extends BaseMakeCommand
         $appType = $args[3] ?? 'native'; // native, blade, react, vue, drupal
         
         if (!$appName) {
-            echo "Usage: php spp.php make:app <AppName> <Type>\n";
-            return;
+            $appName = $this->prompt("Enter application name");
+            if (!$appName) {
+                echo "App name is required.\n";
+                return;
+            }
+        }
+        
+        if (!isset($args[3])) {
+            $types = ['native', 'blade', 'react', 'vue', 'drupal', 'sppux', 'dropin'];
+            echo "Available app types: " . implode(', ', $types) . "\n";
+            $typeInput = $this->prompt("Enter app type", "native");
+            if (!empty($typeInput) && in_array(strtolower($typeInput), $types)) {
+                $appType = strtolower($typeInput);
+            }
         }
 
         $baseUrl = $args[4] ?? "/" . $appName;
@@ -49,7 +61,7 @@ class MakeAppCommand extends BaseMakeCommand
         if (file_exists($settingsPath)) {
             $settings = Yaml::parseFile($settingsPath);
             if (!isset($settings['apps'][$appName])) {
-                $settings['apps'][$appName] = [
+                $appConfig = [
                     'base_url' => $baseUrl,
                     'table_prefix' => $tablePrefix,
                     'type' => $appType,
@@ -57,8 +69,18 @@ class MakeAppCommand extends BaseMakeCommand
                     'etc_path' => "etc/apps/{$appName}",
                     'src_path' => "src/{$appName}"
                 ];
+
+                if (in_array('--enterprise', $args)) {
+                    $appConfig['session_handler'] = 'redis';
+                    $appConfig['session_save_path'] = 'tcp://127.0.0.1:6379';
+                    $appConfig['cache_driver'] = 'redis';
+                    $appConfig['cache_host'] = '127.0.0.1';
+                    $appConfig['cache_port'] = 6379;
+                }
+
+                $settings['apps'][$appName] = $appConfig;
                 file_put_contents($settingsPath, Yaml::dump($settings, 10, 2));
-                echo "Updated global-settings.yml with app '{$appName}' (Type: {$appType}).\n";
+                echo "Updated global-settings.yml with app '{$appName}' (Type: {$appType}" . (in_array('--enterprise', $args) ? ', Enterprise Mode' : '') . ").\n";
 
                 $pagesFile = SPP_APP_DIR . "/etc/apps/{$appName}/pages.yml";
                 $defaultPages = [
@@ -327,6 +349,73 @@ PHP;
             $srcIndex = SPP_APP_DIR . "/src/{$appName}/index.php";
             file_put_contents($srcIndex, $entryCode);
             echo "Created entry point: src/{$appName}/index.php\n";
+        } elseif ($appType === 'react') {
+            echo "Provisioning React SPA structure...\n";
+            $entryFile = SPP_APP_DIR . "/src/{$appName}/index.php";
+            $entryCode = <<<'PHP'
+<?php
+require_once __DIR__ . '/../../spp/sppinit.php';
+\SPP\App::getApp('{{APP_NAME}}');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{APP_NAME}} - React App</title>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module">
+        // Basic React Bootstrap Placeholder
+        console.log("React app {{APP_NAME}} initialized.");
+        document.getElementById('root').innerHTML = "<h1>Welcome to React on SPP</h1><p>Run your bundler to inject the real React code here.</p>";
+    </script>
+</body>
+</html>
+PHP;
+            file_put_contents($entryFile, str_replace('{{APP_NAME}}', $appName, $entryCode));
+            
+            // Generate basic React component structure
+            $jsDir = SPP_APP_DIR . "/src/{$appName}/js";
+            if (!is_dir($jsDir)) mkdir($jsDir, 0777, true);
+            file_put_contents($jsDir . '/App.jsx', "export default function App() { return <h1>Hello SPP React</h1>; }");
+
+        } elseif ($appType === 'vue') {
+            echo "Provisioning Vue SPA structure...\n";
+            $entryFile = SPP_APP_DIR . "/src/{$appName}/index.php";
+            $entryCode = <<<'PHP'
+<?php
+require_once __DIR__ . '/../../spp/sppinit.php';
+\SPP\App::getApp('{{APP_NAME}}');
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{APP_NAME}} - Vue App</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">{{ message }}</div>
+    <script>
+      const { createApp, ref } = Vue
+      createApp({
+        setup() {
+          const message = ref('Welcome to Vue on SPP!')
+          return { message }
+        }
+      }).mount('#app')
+    </script>
+</body>
+</html>
+PHP;
+            file_put_contents($entryFile, str_replace('{{APP_NAME}}', $appName, $entryCode));
+            
+            // Generate basic Vue component structure
+            $jsDir = SPP_APP_DIR . "/src/{$appName}/js";
+            if (!is_dir($jsDir)) mkdir($jsDir, 0777, true);
+            file_put_contents($jsDir . '/App.vue', "<template><h1>Hello SPP Vue</h1></template>");
+
         } elseif ($appType === 'dropin') {
             echo "Provisioning Drop-in HTML/PHP structure...\n";
             $viewsDir = SPP_APP_DIR . "/resources/{$appName}/views";
@@ -471,8 +560,35 @@ YML;
             file_put_contents(SPP_APP_DIR . "/etc/apps/{$appName}/forms/contact.yml", $formYml);
             
             echo "Created universal entry point and sample YAML form control.\n";
+            
+        } elseif ($appType === 'native') {
+            echo "Provisioning Native SPP application structure...\n";
+            $entryFile = SPP_APP_DIR . "/src/{$appName}/index.php";
+            $entryCode = <<<'PHP'
+<?php
+require_once __DIR__ . '/../../spp/sppinit.php';
+\SPP\App::getApp('{{APP_NAME}}');
+
+echo "<h1>Welcome to {{APP_NAME}} (Native SPP)</h1>";
+echo "<p>Start building your raw PHP controllers and services in src/{{APP_NAME}}.</p>";
+PHP;
+            file_put_contents($entryFile, str_replace('{{APP_NAME}}', $appName, $entryCode));
+            
+        } elseif ($appType === 'drupal') {
+            echo "Provisioning Drupal headless/integrated structure...\n";
+            $entryFile = SPP_APP_DIR . "/src/{$appName}/index.php";
+            $entryCode = <<<'PHP'
+<?php
+require_once __DIR__ . '/../../spp/sppinit.php';
+\SPP\App::getApp('{{APP_NAME}}');
+
+echo "<h1>Welcome to {{APP_NAME}} (Drupal Integration)</h1>";
+echo "<p>SPP acts as a headless or integrated backend for your Drupal instance.</p>";
+PHP;
+            file_put_contents($entryFile, str_replace('{{APP_NAME}}', $appName, $entryCode));
         }
 
         echo "Success: Application '{$appName}' created.\n";
     }
 }
+

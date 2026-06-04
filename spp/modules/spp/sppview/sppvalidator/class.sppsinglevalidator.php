@@ -7,14 +7,16 @@ namespace SPPMod\SPPView;
  *
  * @author Satya Prakash Shukla
  */
- 
-abstract class SPP_Single_validator extends ViewValidator {
+
+abstract class SPP_Single_validator extends ViewValidator
+{
     protected $element;
 
-    public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, $errorholder = 'nameerror', $msg = 'Validation error', $jsfunc = 'undefined') {
+    public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, $errorholder = 'nameerror', $msg = 'Validation error', $jsfunc = 'undefined')
+    {
         parent::__construct(null, $errorholder, $msg, $jsfunc);
         $this->element = $elem;
-        
+
         if ($elem) {
             // Register in attachedto for validateAll support
             $id = $elem->getAttribute('id');
@@ -31,7 +33,7 @@ abstract class SPP_Single_validator extends ViewValidator {
     public function setElement(\SPPMod\SPPView\ViewTag $elem)
     {
         //parent::__construct();
-        $this->element=$elem;
+        $this->element = $elem;
     }
 
     protected array $jsParams = [];
@@ -44,7 +46,7 @@ abstract class SPP_Single_validator extends ViewValidator {
     public function getJsFunction(): string
     {
         $id = $this->element ? $this->element->getAttribute('id') : '';
-        
+
         $params = [
             "'" . addslashes($this->errorholder) . "'",
             "'" . addslashes($this->msg) . "'",
@@ -58,4 +60,3 @@ abstract class SPP_Single_validator extends ViewValidator {
         return $this->jsfunc . '(' . implode(', ', $params) . ')';
     }
 }
-?>

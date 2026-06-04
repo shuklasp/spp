@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Tier-1 Certification script for SPP XDB (Phase 19, 20, 21)
  */
@@ -11,20 +12,20 @@ echo "=== SPP XDB Tier-1 Certification Audit ===\n\n";
 
 try {
     $xdb = new SPP_XDB('tier1_test');
-    
+
     // 1. Testing Global Transactions (ACID)
     echo "1. Testing Global Transactions (Multi-Table ACID)...\n";
     $xdb->querySQL("CREATE TABLE accounts (id int, balance float)");
     $xdb->querySQL("CREATE TABLE ledger (id int, tx_type varchar, amount float)");
-    
+
     $xdb->beginGlobalTransaction();
-    
+
     $xdb->connect('accounts')->insert(['id' => 1, 'balance' => 1000.0]);
     $xdb->connect('ledger')->insert(['id' => 1, 'tx_type' => 'DEPOSIT', 'amount' => 1000.0]);
-    
+
     echo "   Simulating ROLLBACK...\n";
     $xdb->rollbackGlobal();
-    
+
     $check = $xdb->connect('accounts')->querySQL("SELECT COUNT(*) as total FROM accounts");
     echo "   Accounts after rollback: " . $check[0]['total'] . "\n";
     if ($check[0]['total'] == 0) {
@@ -36,11 +37,11 @@ try {
     $xdb->enableAuditing(true);
     $xdb->connect('accounts')->insert(['id' => 2, 'balance' => 500.0]);
     $xdb->connect('accounts')->update(['balance' => 600.0], "id = 2");
-    
+
     $auditLogs = $xdb->querySQL("SELECT * FROM _audit ORDER BY timestamp ASC");
     $valid = true;
     for ($i = 1; $i < count($auditLogs); $i++) {
-        $prev = json_encode($auditLogs[$i-1]);
+        $prev = json_encode($auditLogs[$i - 1]);
         $expectedHash = hash('sha256', $prev);
         if ($auditLogs[$i]['prev_hash'] !== $expectedHash) {
             $valid = false;

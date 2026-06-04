@@ -105,19 +105,30 @@
             document.body.appendChild(container);
 
             const modal = new (class extends BaseComponent {
+                onInit() {
+                    this.state = {
+                        title: this.props.title,
+                        content: this.props.content,
+                        actions: this.props.actions
+                    };
+                }
+                
                 render() {
+                    const title = this.state.title || this.props.title;
+                    const content = this.state.content || this.props.content;
+                    const actions = this.state.actions || this.props.actions || [];
                     return html`
                         <div class="glass-overlay active">
                             <div class="glass-panel modal-box sppux-modal-animate">
                                 <div class="modal-header">
-                                    <h3>${this.props.title}</h3>
+                                    <h3>${title}</h3>
                                     <button class="close-icon" @click=${this.close}>✕</button>
                                 </div>
                                 <div class="modal-body">
-                                    ${this.props.content}
+                                    ${content}
                                 </div>
                                 <div class="modal-footer">
-                                    ${this.props.actions.map(act => html`
+                                    ${actions.map(act => html`
                                         <button class="btn ${act.type || 'secondary'}-btn" @click=${() => act.fn(this)}>
                                             <span>${act.label || act.text || act.title || 'OK'}</span>
                                         </button>
@@ -131,9 +142,19 @@
                 onMount() {
                     const body = this.container.querySelector('.modal-body');
                     if (body && window.SPPForm) SPPForm.autoInit(body);
+                    
+                    this._escListener = (e) => {
+                        if (e.key === 'Escape') {
+                            this.close();
+                        }
+                    };
+                    document.addEventListener('keydown', this._escListener);
                 }
 
                 close() {
+                    if (this._escListener) {
+                        document.removeEventListener('keydown', this._escListener);
+                    }
                     this.container.classList.add('sppux-modal-closing');
                     setTimeout(() => {
                         this.dispose();
@@ -150,9 +171,44 @@
         }
     };
 
-    SPPUX.openModal = SPPUX.Modal.open;
+    SPPUX._activeModalInstance = null;
+
+    SPPUX.openModal = (title, content, actions = [], context = {}) => {
+        SPPUX._activeModalInstance = SPPUX.Modal.open(title, content, actions, context);
+        return SPPUX._activeModalInstance;
+    };
+    
     SPPUX.updateModal = (title, content, actions = [], context = {}) => {
-        return SPPUX.Modal.open(title, content, actions, context);
+        if (SPPUX._activeModalInstance && !SPPUX._activeModalInstance.isDisposed) {
+            // Re-resolve actions
+            const resolvedActions = (actions && actions.length ? actions : [{ label: 'Close', type: 'secondary', fn: 'close' }]).map(act => {
+                let resolvedFn = act.fn;
+                if (typeof act.fn === 'string') {
+                    const actionName = act.fn;
+                    resolvedFn = (modal) => {
+                        if (window.admin && typeof admin.handleModalAction === 'function') {
+                            admin.handleModalAction(actionName, modal, { title, content, actions }, context);
+                        } else {
+                            if (actionName === 'close') modal.close();
+                            else console.warn(`Unhandled modal action: ${actionName}`);
+                        }
+                    };
+                }
+                return { ...act, fn: resolvedFn };
+            });
+
+            if (typeof content === 'string' && content.includes('<')) {
+                content = new SPPUX.TrustedHTML(content);
+            }
+            
+            SPPUX._activeModalInstance.setState({
+                title: title || SPPUX._activeModalInstance.state.title,
+                content: content,
+                actions: actions && actions.length ? resolvedActions : SPPUX._activeModalInstance.state.actions
+            });
+            return SPPUX._activeModalInstance;
+        }
+        return SPPUX.openModal(title, content, actions, context);
     };
     
     SPPUX.Prompt = {
@@ -208,6 +264,31 @@
             </div>`;
         document.body.appendChild(subModal);
 
+        const escListener = (e) => {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', escListener);
+                subModal.remove();
+            }
+        };
+        document.addEventListener('keydown', escListener);
+
+        // Add cleanup to close button
+        const closeBtn = subModal.querySelector('.close-btn');
+        if (closeBtn) {
+            closeBtn.onclick = () => {
+                document.removeEventListener('keydown', escListener);
+                subModal.remove();
+            };
+        }
+        
+        const cancelBtn = subModal.querySelector('.secondary-btn');
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                document.removeEventListener('keydown', escListener);
+                subModal.remove();
+            };
+        }
+
         const body = subModal.querySelector('#sub-editor-body');
         if (typeof content === 'string') body.innerHTML = content;
         else SPPUX.render(content, body);
@@ -230,6 +311,7 @@
                     });
                 }
                 if (onSave) await onSave(resultData);
+                document.removeEventListener('keydown', escListener);
                 subModal.remove();
             };
         }
@@ -309,7 +391,7 @@
                     `;
                 }
                 filter(q) { this.setState({ query: q, filtered: this.props.items.filter(i => i.title.toLowerCase().includes(q.toLowerCase())) }); }
-                close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 300); }
+                close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 100); }
             })(null, container, { items, onSelect });
             spotlight.update(); return spotlight;
         }
@@ -351,7 +433,7 @@
         let container = document.getElementById('sppux-drawer-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-drawer-root'}))); 
         const drawer = new (class extends BaseComponent { 
             render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } 
-            close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 400); } 
+            close() { this.container.classList.remove('active'); setTimeout(() => this.dispose(), 150); } 
         })(null, container, { title: t, content: c, side: s }); 
         drawer.update(); return drawer; 
     } };

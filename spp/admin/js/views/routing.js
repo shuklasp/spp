@@ -23,13 +23,23 @@ export default class RoutingView extends BaseComponent {
         this.setState({ activeTab: tab, loading: true });
 
         try {
-            const action = tab === 'pages' ? 'list_pages' : 'list_services';
-            const res = await this.api(action);
+            let action = 'list_pages';
+            if (tab === 'services') action = 'list_services';
+            if (tab === 'middleware') action = 'list_middleware';
+
+            const res = await this.api(action, { context: window.admin?.selectedApp });
             if (res.success) {
-                this.setState({ 
-                    sources: res.data.sources || [], 
-                    loading: false 
-                });
+                if (tab === 'middleware') {
+                    this.setState({
+                        middlewareData: res.data,
+                        loading: false
+                    });
+                } else {
+                    this.setState({ 
+                        sources: res.data.sources || [], 
+                        loading: false 
+                    });
+                }
             } else {
                 throw new Error(res.message);
             }
@@ -59,6 +69,8 @@ export default class RoutingView extends BaseComponent {
                         @click=${() => this.switchTab('pages')}>📄 Page Routes</button>
                     <button type="button" class="sub-tab-btn ${activeTab === 'services' ? 'active' : ''}" 
                         @click=${() => this.switchTab('services')}>⚡ AJAX Services</button>
+                    <button type="button" class="sub-tab-btn ${activeTab === 'middleware' ? 'active' : ''}" 
+                        @click=${() => this.switchTab('middleware')}>🔀 Middleware</button>
                 </div>
 
                 <div id="routing-content">
@@ -72,7 +84,52 @@ export default class RoutingView extends BaseComponent {
     }
 
     renderGrid() {
-        const { sources, activeTab } = this.state;
+        const { sources, activeTab, middlewareData } = this.state;
+
+        if (activeTab === 'middleware') {
+            if (!middlewareData) return '';
+            const { global, application } = middlewareData;
+            const admin = window.admin || { selectedApp: 'default' };
+
+            let globalHtml = global.map(m => `
+                <div class="middleware-item glass-panel">
+                    <div class="mw-icon">🌐</div>
+                    <div class="mw-details">
+                        <div class="mw-name">${m}</div>
+                        <div class="mw-scope">Global Scope</div>
+                    </div>
+                </div>
+            `).join('');
+
+            let appHtml = application.map(m => `
+                <div class="middleware-item glass-panel app-scope">
+                    <div class="mw-icon">📱</div>
+                    <div class="mw-details">
+                        <div class="mw-name">${m}</div>
+                        <div class="mw-scope">Application: ${admin.selectedApp}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            return html`
+                <div class="pipeline-container">
+                    <div class="pipeline-header">
+                        <h3>Request Lifecycle</h3>
+                        <p>Onion-style middleware execution order (Top to Bottom)</p>
+                    </div>
+                    <div class="pipeline-visual">
+                        <div class="pipeline-flow">
+                            <div class="flow-marker start">REQUEST IN</div>
+                            ${html([globalHtml || '<div class="empty-mw">No Global Middleware</div>'])}
+                            <div class="flow-divider">--- Application Border ---</div>
+                            ${html([appHtml || '<div class="empty-mw">No App-Specific Middleware</div>'])}
+                            <div class="flow-marker end">APP HANDLER</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         if (sources.length === 0) {
             return html`
                 <div class="empty-state">

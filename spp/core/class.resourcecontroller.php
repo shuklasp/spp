@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 use SPPMod\SPPEntity\SPPEntity;
@@ -46,7 +47,7 @@ abstract class ResourceController
         $entity = new $this->entityClass();
         $entity->setValues($data);
         $id = $entity->save();
-        
+
         return [
             'success' => true,
             'id' => $id,

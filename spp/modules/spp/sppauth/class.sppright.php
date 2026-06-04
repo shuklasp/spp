@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAuth;
 
 use SPPMod\SPPEntity\SPPEntity;

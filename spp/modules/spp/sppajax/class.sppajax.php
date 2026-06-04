@@ -155,7 +155,7 @@ class SPPAjax extends \SPP\SPPObject
         try {
             $app = \SPP\Scheduler::getContext();
             $className = "App\\" . ucfirst($app) . "\\Components\\" . $compName;
-            
+
             if (!class_exists($className)) {
                 self::respond('error', ['message' => "Component '{$compName}' not found."]);
             }
@@ -167,7 +167,7 @@ class SPPAjax extends \SPP\SPPObject
 
             // Execute the action
             $result = $component->$method($data);
-            
+
             self::respond('ok', [
                 'result' => $result,
                 'state' => $component->getState()
@@ -307,7 +307,7 @@ class SPPAjax extends \SPP\SPPObject
             try {
                 $args = array_merge($_GET, $_POST, json_decode(file_get_contents('php://input'), true) ?: []);
                 $res = \SPP\PolyglotBridge::call($service['runtime'], $service['target'], $service['method'] ?? 'main', $args);
-                
+
                 if ($res['success']) {
                     $la = new \SPPMod\SPPAjax\LiveAction();
                     $data = $res['data'] ?? [];
@@ -376,8 +376,14 @@ class SPPAjax extends \SPP\SPPObject
                     if ($res['success']) {
                         $la = new \SPPMod\SPPAjax\LiveAction();
                         $data = $res['data'] ?? [];
-                        if (isset($data['status'])) { $la->setStatus($data['status']); unset($data['status']); }
-                        if (isset($data['message'])) { $la->notify($data['message']); unset($data['message']); }
+                        if (isset($data['status'])) {
+                            $la->setStatus($data['status']);
+                            unset($data['status']);
+                        }
+                        if (isset($data['message'])) {
+                            $la->notify($data['message']);
+                            unset($data['message']);
+                        }
                         $la->setData($data);
                         $la->send();
                         exit;
@@ -391,12 +397,14 @@ class SPPAjax extends \SPP\SPPObject
 
             $serviceFile = $svc['script'];
             $funcName = $svc['method'] ?? null;
-            if ($funcName && ($funcName === 'POST' || $funcName === 'ANY' || $funcName === 'GET')) $funcName = null;
-            
+            if ($funcName && ($funcName === 'POST' || $funcName === 'ANY' || $funcName === 'GET')) {
+                $funcName = null;
+            }
+
             if (!str_starts_with($serviceFile, '/') && !str_contains($serviceFile, ':')) {
                 $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
             }
-            
+
             $serviceFile = realpath($serviceFile);
 
             if ($serviceFile && file_exists($serviceFile)) {
@@ -420,7 +428,9 @@ class SPPAjax extends \SPP\SPPObject
             // Fallback 2: Standalone file in src/serv directory (SPA pattern)
             if (!$serviceFile) {
                 $servFile = SPP_APP_DIR . '/' . ltrim($srcPath, '/') . '/serv/' . $action . '.php';
-                if (file_exists($servFile)) $serviceFile = $servFile;
+                if (file_exists($servFile)) {
+                    $serviceFile = $servFile;
+                }
             }
 
             // Fallback 3: Grouped service (e.g. User.Save -> User.php with live_Save)
@@ -428,7 +438,7 @@ class SPPAjax extends \SPP\SPPObject
                 $parts = explode('.', $action);
                 $group = $parts[0];
                 $method = $parts[1];
-                
+
                 $groupFile = $servicesDir . '/' . $group . '.php';
                 if (file_exists($groupFile)) {
                     $testFunc = 'live_' . $method;
@@ -439,7 +449,7 @@ class SPPAjax extends \SPP\SPPObject
                     }
                 }
             }
-            
+
             // Fallback 4: Check in General.php
             if (!$serviceFile) {
                 $generalFile = $servicesDir . '/General.php';
@@ -461,7 +471,9 @@ class SPPAjax extends \SPP\SPPObject
             if (!$serviceFile && isset($params['modname'])) {
                 $mod = $params['modname'];
                 $modServiceFile = SPP_MODULES_DIR . '/spp/' . $mod . '/services/' . $action . '.php';
-                if (file_exists($modServiceFile)) $serviceFile = $modServiceFile;
+                if (file_exists($modServiceFile)) {
+                    $serviceFile = $modServiceFile;
+                }
             }
 
             // 3. Persistence: If discovered dynamically, cache it for future calls
@@ -473,7 +485,7 @@ class SPPAjax extends \SPP\SPPObject
         if ($serviceFile) {
             $serviceFile = realpath($serviceFile);
             $la = new \SPPMod\SPPAjax\LiveAction();
-            
+
             ob_start();
             if ($funcName) {
                 if (function_exists($funcName)) {
@@ -492,7 +504,7 @@ class SPPAjax extends \SPP\SPPObject
                 }
             }
             $output = ob_get_clean();
-            
+
             // Auto-capture echoed HTML
             if (!empty($output)) {
                 $currentData = $la->getData();
@@ -500,7 +512,7 @@ class SPPAjax extends \SPP\SPPObject
                     $la->setData(array_merge($currentData, ['html' => $output]));
                 }
             }
-            
+
             $la->send();
             exit;
         }
@@ -549,7 +561,7 @@ class SPPAjax extends \SPP\SPPObject
         }
 
         $registry = [];
-        
+
         // 1. Load from services.yml (Manual)
         $file = self::getServiceRegistryFile();
         $registry = array_merge($registry, self::loadYamlRegistry($file));
@@ -570,7 +582,8 @@ class SPPAjax extends \SPP\SPPObject
                     $svc['db_summary'] = $dbSummary;
                 }
                 $registry = array_merge($registry, $dbServices);
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         self::$serviceRegistry = $registry;
@@ -579,7 +592,9 @@ class SPPAjax extends \SPP\SPPObject
 
     private static function loadYamlRegistry(string $file): array
     {
-        if (!file_exists($file)) return [];
+        if (!file_exists($file)) {
+            return [];
+        }
         try {
             $parsed = Yaml::parseFile($file);
             $services = $parsed['services'] ?? [];
@@ -600,10 +615,18 @@ class SPPAjax extends \SPP\SPPObject
 
         // 1. Don't persist if it's already in the manual registry or previously detected
         $manual = self::loadYamlRegistry($regFile);
-        foreach ($manual as $svc) if ($svc['name'] === $name) return;
+        foreach ($manual as $svc) {
+            if ($svc['name'] === $name) {
+                return;
+            }
+        }
 
         $detected = self::loadYamlRegistry($detectedFile);
-        foreach ($detected as $svc) if ($svc['name'] === $name) return;
+        foreach ($detected as $svc) {
+            if ($svc['name'] === $name) {
+                return;
+            }
+        }
 
         // 2. Add new entry
         $relPath = str_replace(realpath(SPP_APP_DIR), '', realpath($file));
@@ -614,19 +637,21 @@ class SPPAjax extends \SPP\SPPObject
             'script' => $relPath,
             'method' => $method ?: 'POST'
         ];
-        
+
         $detected[] = $newSvc;
 
         // 3. Save to detected-services.yml
         $dir = dirname($detectedFile);
-        if (!is_dir($dir)) mkdir($dir, 0777, true);
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
 
         $yaml = "################################################################################\n";
         $yaml .= "# SPP Detected Services Registry\n";
         $yaml .= "# This file is automatically managed by the SPPAjax Dynamic Discovery engine.\n";
         $yaml .= "################################################################################\n\n";
         $yaml .= Yaml::dump(['services' => $detected], 4, 2);
-        
+
         file_put_contents($detectedFile, $yaml, LOCK_EX);
     }
 
@@ -706,7 +731,7 @@ class SPPAjax extends \SPP\SPPObject
             }
             $parsed['services'] = $services;
             file_put_contents($file, Yaml::dump($parsed, 3, 4), LOCK_EX);
-        } else if ($source === 'db') {
+        } elseif ($source === 'db') {
             self::ensureDbSchema();
             $db = new \SPPMod\SPPDB\SPPDB();
             $db->execute_query(
@@ -727,14 +752,18 @@ class SPPAjax extends \SPP\SPPObject
     {
         if ($source === 'yaml') {
             $file = self::getServiceRegistryFile();
-            if (!file_exists($file)) return false;
+            if (!file_exists($file)) {
+                return false;
+            }
             $parsed = Yaml::parseFile($file) ?? [];
             $services = $parsed['services'] ?? [];
-            $filtered = array_values(array_filter($services, fn($s) => $s['name'] !== $name));
-            if (count($filtered) === count($services)) return false;
+            $filtered = array_values(array_filter($services, fn ($s) => $s['name'] !== $name));
+            if (count($filtered) === count($services)) {
+                return false;
+            }
             $parsed['services'] = $filtered;
             file_put_contents($file, Yaml::dump($parsed, 3, 4), LOCK_EX);
-        } else if ($source === 'db') {
+        } elseif ($source === 'db') {
             if (\SPP\Module::isEnabled('sppdb')) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppajax_services') . ' WHERE name=?', [$name]);
@@ -750,12 +779,16 @@ class SPPAjax extends \SPP\SPPObject
      */
     public static function ensureDbSchema(): void
     {
-        if (!\SPP\Module::isEnabled('sppdb')) return;
+        if (!\SPP\Module::isEnabled('sppdb')) {
+            return;
+        }
         $db = new \SPPMod\SPPDB\SPPDB();
         $tableName = 'sppajax_services';
         $fullTableName = \SPPMod\SPPDB\SPPDB::sppTable($tableName);
-        
-        if ($db->tableExists($tableName)) return;
+
+        if ($db->tableExists($tableName)) {
+            return;
+        }
 
         $isXdb = (strpos($db->getConnectionSummary(), 'XDB') !== false);
 
@@ -769,7 +802,7 @@ class SPPAjax extends \SPP\SPPObject
                 method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
             )";
         }
-        
+
         try {
             $db->execute_query($sql);
         } catch (\Exception $e) {
@@ -784,7 +817,7 @@ class SPPAjax extends \SPP\SPPObject
     {
         $appname = \SPP\Scheduler::getContext();
         $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'services.yml';
-        
+
         if (!file_exists($file)) {
             $registryPath = \SPP\Module::getConfig('spa_services_registry', 'sppajax');
             if ($registryPath) {
@@ -846,7 +879,9 @@ class SPPAjax extends \SPP\SPPObject
      */
     public static function dispatchCdcStream(): void
     {
-        while (ob_get_level()) ob_end_clean();
+        while (ob_get_level()) {
+            ob_end_clean();
+        }
         http_response_code(200);
         header('Content-Type: text/event-stream; charset=utf-8');
         header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
@@ -854,7 +889,7 @@ class SPPAjax extends \SPP\SPPObject
         header('X-Accel-Buffering: no');
 
         $island = trim($_REQUEST['island'] ?? 'global');
-        $emit = function(string $type, array $data) use ($island) {
+        $emit = function (string $type, array $data) use ($island) {
             $payload = json_encode(['island' => $island, 'timestamp' => microtime(true), 'mutation' => $data]);
             echo "event: {$type}\ndata: {$payload}\n\n";
             @ob_flush();
@@ -876,14 +911,14 @@ class SPPAjax extends \SPP\SPPObject
         static $previousHash = '0000000000000000000000000000000000000000000000000000000000000000';
         $timestamp = microtime(true);
         $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : 'spp-enterprise-integrity-secret-key-v1';
-        
+
         $block = [
             'previous_hash' => $previousHash,
             'timestamp' => $timestamp,
             'action' => $action,
             'payload_checksum' => md5(json_encode($payload))
         ];
-        
+
         $currentHash = hash_hmac('sha256', json_encode($block), $secret);
         $previousHash = $currentHash;
 

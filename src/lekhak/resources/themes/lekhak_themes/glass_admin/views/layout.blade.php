@@ -783,8 +783,8 @@
             }
         });
 
-        // Initialize SPA Navigation Engine
-        window.sppPjaxConfig = {
+        // Initialize SPA Navigation Engine (SPPAjax)
+        window.sppAjaxConfig = {
             containers: ['title', '.page-title h1', '.page-title p', '.animate-fade', '.nav-list'],
             interceptAll: true
         };

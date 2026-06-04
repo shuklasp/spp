@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 use SPP\RedisCache;

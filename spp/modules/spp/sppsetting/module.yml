@@ -1,9 +1,0 @@
-name: sppsetting
-modname: sppsetting
-public_name: Settings Authority
-description: Centralized settings management (Core Bridge).
-version: 1.0
-author: Antigravity
-module_group: Core
-category: 'Core Required'
-# This module is a bridge to the SPP\Settings core class.

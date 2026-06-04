@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\CLI;
 
 /**
@@ -15,6 +16,12 @@ class CommandManager
     public static function discover(): array
     {
         static $loadedFiles = [];
+        static $discoveredCommands = null;
+
+        if ($discoveredCommands !== null) {
+            return $discoveredCommands;
+        }
+
         $discoveredCommands = [];
 
         // 1. Scan CORE Commands
@@ -25,7 +32,9 @@ class CommandManager
             foreach ($files as $file) {
                 try {
                     $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
-                    if (isset($loadedFiles[$realFile])) continue;
+                    if (isset($loadedFiles[$realFile])) {
+                        continue;
+                    }
                     $loadedFiles[$realFile] = true;
 
                     $className = basename($file, '.php');
@@ -35,7 +44,9 @@ class CommandManager
                     }
                     if (class_exists($class)) {
                         $reflection = new \ReflectionClass($class);
-                        if ($reflection->isAbstract()) continue;
+                        if ($reflection->isAbstract()) {
+                            continue;
+                        }
                         $cmdObj = new $class();
                         if ($cmdObj instanceof Command) {
                             $discoveredCommands[$cmdObj->getName()] = $cmdObj;
@@ -51,7 +62,7 @@ class CommandManager
         if (class_exists('\SPP\App')) {
             $settings = \SPP\App::getGlobalSettings();
             $apps = $settings['apps'] ?? [];
-            
+
             foreach ($apps as $appName => $appMeta) {
                 // Determine src_path
                 $srcPath = $appMeta['src_path'] ?? '';
@@ -66,7 +77,9 @@ class CommandManager
                     foreach (glob($appCmdDir . '/*.php') as $file) {
                         try {
                             $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
-                            if (isset($loadedFiles[$realFile])) continue;
+                            if (isset($loadedFiles[$realFile])) {
+                                continue;
+                            }
                             $loadedFiles[$realFile] = true;
 
                             $className = basename($file, '.php');
@@ -107,17 +120,21 @@ class CommandManager
                     if (!($modObj instanceof \SPP\Module)) {
                         continue;
                     }
-                    
+
                     $modDir = $modObj->ModPath ?? null;
-                    if (!$modDir || !is_dir($modDir . '/commands')) continue;
+                    if (!$modDir || !is_dir($modDir . '/commands')) {
+                        continue;
+                    }
 
                     foreach (glob($modDir . '/commands/*.php') as $file) {
                         $realFile = strtolower(str_replace('\\', '/', realpath($file) ?: $file));
-                        if (isset($loadedFiles[$realFile])) continue;
+                        if (isset($loadedFiles[$realFile])) {
+                            continue;
+                        }
                         $loadedFiles[$realFile] = true;
 
                         $className = basename($file, '.php');
-                        
+
                         // Attempt namespace resolution based on standard module structure
                         // SPPMod\{ModuleName}\Commands\{ClassName}
                         $modName = $modObj->InternalName ?? basename($modDir);
@@ -145,7 +162,7 @@ class CommandManager
 
     /**
      * Executes a command by name with given arguments.
-     * 
+     *
      * @param string $name
      * @param array $args
      * @return array Result with status and output
@@ -158,17 +175,20 @@ class CommandManager
         }
 
         $command = $commands[$name];
-        
+
         // Capture output
         ob_start();
         try {
             // Prepare $args as if it were from the CLI
             $cliArgs = ['spp.php', $name];
             foreach ($args as $k => $v) {
-                if (is_numeric($k)) $cliArgs[] = $v;
-                else $cliArgs[] = "--{$k}={$v}";
+                if (is_numeric($k)) {
+                    $cliArgs[] = $v;
+                } else {
+                    $cliArgs[] = "--{$k}={$v}";
+                }
             }
-            
+
             $command->execute($cliArgs);
             $output = ob_get_clean();
             return ['success' => true, 'output' => $output];

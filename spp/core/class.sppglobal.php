@@ -1,15 +1,18 @@
 <?php
+
 namespace SPP;
+
 /**
  * class SPPGlobal
  * Manages global variables in SPP
  *
  * @author Satya Prakash Shukla
  */
-final class SPPGlobal extends \SPP\SPPObject {
-    private static $globals=array();
+final class SPPGlobal extends \SPP\SPPObject
+{
+    private static $globals = [];
 
-    
+
     /**
      * function __construct()
      * Private constructor.
@@ -26,10 +29,10 @@ final class SPPGlobal extends \SPP\SPPObject {
      * @param string $prop The property
      * @param mixed $val The value.
      */
-    public static function set($prop,$val)
+    public static function set($prop, $val)
     {
-        $context=\SPP\Scheduler::getContext();
-        self::$globals[$context][$prop]=$val;
+        $context = \SPP\Scheduler::getContext();
+        self::$globals[$context][$prop] = $val;
     }
 
     /**
@@ -42,12 +45,9 @@ final class SPPGlobal extends \SPP\SPPObject {
     public static function get($prop)
     {
         $context = \SPP\Scheduler::getContext();
-        if(array_key_exists($prop, self::$globals[$context]))
-        {
+        if (array_key_exists($prop, self::$globals[$context])) {
             return self::$globals[$context][$prop];
-        }
-        else
-        {
+        } else {
             throw new \SPP\SPPException('Invalid SPPGlobal variable "'.$prop.'" was accessed!');
         }
     }
@@ -60,7 +60,8 @@ final class SPPGlobal extends \SPP\SPPObject {
      * @param mixed $prop
      * @return mixed
      */
-    public function __get($prop){
+    public function __get($prop)
+    {
         return self::get($prop);
     }
 
@@ -71,8 +72,9 @@ final class SPPGlobal extends \SPP\SPPObject {
      * @param mixed $prop
      * @param mixed $val
      */
-    public function __set($prop,$val){
-        self::set($prop,$val);
+    public function __set($prop, $val)
+    {
+        self::set($prop, $val);
     }
 
     /**
@@ -85,12 +87,9 @@ final class SPPGlobal extends \SPP\SPPObject {
     public static function is_set($prop)
     {
         $context = \SPP\Scheduler::getContext();
-        if(array_key_exists($prop, self::$globals[$context]))
-        {
+        if (array_key_exists($prop, self::$globals[$context])) {
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }
@@ -104,14 +103,11 @@ final class SPPGlobal extends \SPP\SPPObject {
      */
     public static function do_unset($prop)
     {
-       $context = \SPP\Scheduler::getContext();
-       if(array_key_exists($prop, self::$globals[$context]))
-        {
+        $context = \SPP\Scheduler::getContext();
+        if (array_key_exists($prop, self::$globals[$context])) {
             unset(self::$globals[$context][$prop]);
             return true;
-        }
-        else
-        {
+        } else {
             return false;
         }
     }

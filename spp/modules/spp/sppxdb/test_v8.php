@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Verification script for SPP XDB Enterprise Features (Phase 11 & 12)
  */
@@ -11,12 +12,12 @@ echo "=== SPP XDB Enterprise Phase 11 & 12 Verification ===\n\n";
 
 try {
     $xdb = new SPP_XDB('enterprise_test');
-    
+
     // 1. Testing ACL (Access Control)
     echo "1. Testing ACL (Access Control)...\n";
     $xdb->querySQL("CREATE TABLE secure_data (id int, secret varchar)");
     $xdb->setPermissions('secure_data', ['read' => true, 'write' => false]);
-    
+
     $xdb->connect('secure_data');
     echo "   Attempting unauthorized write...\n";
     try {
@@ -35,12 +36,12 @@ try {
     $prop = $ref->getProperty('maxRowsPerSegment');
     $prop->setAccessible(true);
     $prop->setValue($xdb, 10); // Split every 10 rows
-    
+
     echo "   Inserting 25 rows (should create 3 segments)...\n";
     for ($i = 1; $i <= 25; $i++) {
         $xdb->insert(['id' => $i, 'val' => "Test $i"]);
     }
-    
+
     $results = $xdb->querySQL("SELECT COUNT(*) as total FROM large_table");
     echo "   Total rows across segments: " . $results[0]['total'] . "\n";
     if ($results[0]['total'] == 25) {
@@ -63,7 +64,7 @@ try {
         </xsl:template>
     </xsl:stylesheet>';
     file_put_contents($xslPath, $xslContent);
-    
+
     $html = $xdb->transform($xslPath);
     if (strpos($html, 'Product List') !== false && strpos($html, 'Test 1') !== false) {
         echo "   [CONFIRMED] XSLT Transformation generated correct HTML.\n";

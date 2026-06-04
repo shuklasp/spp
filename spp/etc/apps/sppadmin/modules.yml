@@ -26,22 +26,6 @@ modules:
             - sppcore
             - sppdb
             - sppsession
-    5:
-        name: sppprofile
-        path: spp/sppprofile
-        status: active
-        deps:
-            - sppcore
-            - sppdb
-            - sppsession
-    6:
-        name: sppwizard
-        path: spp/sppwizard
-        status: active
-        deps:
-            - sppcore
-            - sppdb
-            - sppsession
     7:
         name: sppview
         path: spp/sppview
@@ -57,12 +41,6 @@ modules:
         deps:
             - sppcore
             - sppview
-    9:
-        name: sppgroup
-        path: spp/sppgroup
-        status: active
-        deps:
-            - sppentity
     11:
         name: sppai
         path: spp/sppai

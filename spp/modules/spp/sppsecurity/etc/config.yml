@@ -1,0 +1,7 @@
+name: sppsecurity
+description: Core security module providing CSRF, XSS prevention, and Rate Limiting
+version: 1.0.0
+type: module
+bucket: spp
+enabled: true
+dependencies: []

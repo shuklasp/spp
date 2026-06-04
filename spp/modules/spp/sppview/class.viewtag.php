@@ -19,12 +19,12 @@ class ViewTag extends \SPP\SPPObject
     protected $tagname;
     protected $isemptyflag = false;
     protected $matter_text;
-    protected $children = array();
-    protected $attributes = array();
-    protected $attrlist = array('name', 'id');
-    protected $stdattrlist = array('name', 'id', 'title', 'dir', 'lang', 'xml:lang', 'accesskey', 'tabindex', 'coords', 'href', 'hreflang', 'rel', 'target', 'shape', 'type', 'usemap');
-    protected $emptytags = array('area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr');
-    protected $eventattrlist = array(
+    protected $children = [];
+    protected $attributes = [];
+    protected $attrlist = ['name', 'id'];
+    protected $stdattrlist = ['name', 'id', 'title', 'dir', 'lang', 'xml:lang', 'accesskey', 'tabindex', 'coords', 'href', 'hreflang', 'rel', 'target', 'shape', 'type', 'usemap'];
+    protected $emptytags = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr', 'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+    protected $eventattrlist = [
         'onclick',
         'ondblclick',
         'onmousedown',
@@ -42,7 +42,7 @@ class ViewTag extends \SPP\SPPObject
         'onscroll',
         'onselect',
         'onunload'
-    );
+    ];
     //public static mixed $started_tags='';
 
     /**

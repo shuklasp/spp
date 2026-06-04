@@ -20,6 +20,10 @@ func main() {
 	json.Unmarshal(input, &args)
 
 	// Business Logic for {{CLASS_NAME}}
+	// Example of calling PHP natively (requires go.mod setup or relative module import):
+	// import spp "spp/lib/go/spp"
+	// phpResult, err := spp.CallPhp("App\\Services\\NativeService", "someMethod", []string{"hello"})
+
 	resp := Response{
 		Status:  "success",
 		Message: "Hello from Go {{CLASS_NAME}} service!",

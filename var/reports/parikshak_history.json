@@ -2069,5 +2069,3659 @@
             "passed": 3,
             "failed": 3
         }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:16:22",
+        "seed": 4088,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 0,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "failed",
+                    "error": "Interface \"Psr\\Log\\LoggerInterface\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "failed",
+                    "error": "Class \"SPP\\Core\\PsrLoggerAdapter\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "failed",
+                    "error": "Class \"SPP\\Core\\PsrLoggerAdapter\" not found"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:17:50",
+        "seed": 3190,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 1,
+                "failed": 2
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "failed",
+                    "error": "Adapter threw exception on valid log level calls: Class \"SPPMod\\SPPLogger\\SPP_Logger\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "failed",
+                    "error": "Expected exception Psr\\Log\\InvalidArgumentException, but got Error"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:18:27",
+        "seed": 8721,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 2,
+                "failed": 1
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "failed",
+                    "error": "Expected exception Psr\\Log\\InvalidArgumentException was not thrown."
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:19:05",
+        "seed": 1566,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 3,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:41:16",
+        "seed": 5405,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 3,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:42:45",
+        "seed": 8693,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 3,
+                "passed": 3,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:49:15",
+        "seed": 7155,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 13,
+                "passed": 6,
+                "failed": 7
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPAuthTest::assertNotNull()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPDBTest::assertStringContainsString()"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:49:51",
+        "seed": 7607,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 13,
+                "passed": 13,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:58:22",
+        "seed": 2117,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 13,
+                "passed": 13,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:58:46",
+        "seed": 3893,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 13,
+                "passed": 13,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 12:59:13",
+        "seed": 8273,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 16,
+                "passed": 13,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "failed",
+                    "error": "Too few arguments to function SPPMod\\SPPView\\ViewTag::__construct(), 1 passed in C:\\projects\\apache\\school1\\tests\\core\\test.sppview.php on line 13 and at least 2 expected"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPPView\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "failed",
+                    "error": "Too few arguments to function SPPMod\\SPPView\\SPP_HTML_Table::__construct(), 0 passed in C:\\projects\\apache\\school1\\tests\\core\\test.sppview.php on line 43 and exactly 1 expected"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 13:00:35",
+        "seed": 1541,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 16,
+                "passed": 13,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "failed",
+                    "error": "HTML should contain class attribute"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "failed",
+                    "error": "Too few arguments to function SPPMod\\SPPView\\ViewTag::__construct(), 1 passed in C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppview\\class.spphtmltable.php on line 140 and at least 2 expected"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 13:01:14",
+        "seed": 7763,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 16,
+                "passed": 13,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "failed",
+                    "error": "HTML should contain class attribute"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "failed",
+                    "error": "Too few arguments to function SPPMod\\SPPView\\ViewTag::__construct(), 1 passed in C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppview\\class.spphtmltable.php on line 25 and at least 2 expected"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 13:01:40",
+        "seed": 2376,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 16,
+                "passed": 13,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "failed",
+                    "error": "HTML should contain class attribute"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "failed",
+                    "error": "Call to undefined method SPPMod\\SPPView\\SPP_HTML_TableField::endOne()"
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 13:02:45",
+        "seed": 4586,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 16,
+                "passed": 16,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 14:39:25",
+        "seed": 4221,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 19,
+                "passed": 19,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 14:40:57",
+        "seed": 6635,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 25,
+                "passed": 22,
+                "failed": 3
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "failed",
+                    "error": "Unknown property: silent"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "failed",
+                    "error": "Unknown property: silent"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "failed",
+                    "error": "Unknown property: silent"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 14:43:20",
+        "seed": 5660,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 25,
+                "passed": 24,
+                "failed": 1
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "failed",
+                    "error": "Should fail length < 5"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-05-31 14:43:49",
+        "seed": 6987,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 6,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 6
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 25,
+                "passed": 25,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "--app=default",
+        "timestamp": "2026-05-31 14:48:45",
+        "seed": 6681,
+        "entities": [],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 27,
+                "passed": 26,
+                "failed": 1
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testMakeCommand",
+                    "status": "failed",
+                    "error": "Call to undefined method SPP\\Tests\\Core\\SPPMigrateTest::assertNotEmpty()"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testRunCommand",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "--app=default",
+        "timestamp": "2026-05-31 14:48:59",
+        "seed": 2038,
+        "entities": [],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 0,
+            "passed": 0,
+            "failed": 0
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 27,
+                "passed": 27,
+                "failed": 0
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testMakeCommand",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testRunCommand",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
     }
 ]

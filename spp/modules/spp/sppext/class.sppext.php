@@ -4,16 +4,17 @@ namespace SPPMod\Sppext;
 
 /**
  * Enterprise Extension Orchestrator Engine for SPP.
- * 
+ *
  * Provides declarative subscriptions to framework lifecycle events, automated Sub-Resource Integrity (SRI) preloading tags,
  * and isolated execution validation constraints natively.
  */
-class Sppext extends \SPP\Module {
-    
+class Sppext extends \SPP\Module
+{
     /** @var array<string,array<callable>> Subscribed runtime event hooks */
     private static array $hooks = [];
 
-    public function init() {
+    public function init()
+    {
         self::registerExtensionLifecycles();
     }
 
@@ -21,14 +22,16 @@ class Sppext extends \SPP\Module {
      * Programmatically registers a lifecycle subscriber callback to a given target trigger.
      * Supported triggers: boot, before_render, after_ajax.
      */
-    public static function subscribeHook(string $trigger, callable $callback): void {
+    public static function subscribeHook(string $trigger, callable $callback): void
+    {
         self::$hooks[$trigger][] = $callback;
     }
 
     /**
      * Executes all registered callbacks for a given trigger lifecycle.
      */
-    public static function triggerHook(string $trigger, array $context = []): void {
+    public static function triggerHook(string $trigger, array $context = []): void
+    {
         if (empty(self::$hooks[$trigger])) {
             return;
         }
@@ -47,7 +50,8 @@ class Sppext extends \SPP\Module {
     /**
      * Preloads high-priority extension modules and web component bundles via Native Resource Hints.
      */
-    public static function addPreloadAsset(string $url, string $asType = 'script', ?string $integrityHash = null): void {
+    public static function addPreloadAsset(string $url, string $asType = 'script', ?string $integrityHash = null): void
+    {
         if (!class_exists('\SPPMod\SPPView\ViewPage')) {
             return;
         }
@@ -63,10 +67,11 @@ class Sppext extends \SPP\Module {
     /**
      * Automatically registers lifecycle rules and preloads defined declaratively in active extensions configuration mapping.
      */
-    private static function registerExtensionLifecycles(): void {
+    private static function registerExtensionLifecycles(): void
+    {
         $appname = \SPP\Scheduler::getContext();
         $preloadList = self::getConfig('preload_assets', 'sppext', $appname) ?: [];
-        
+
         if (is_array($preloadList)) {
             foreach ($preloadList as $asset) {
                 if (is_string($asset)) {
@@ -99,7 +104,8 @@ class Sppext extends \SPP\Module {
      * Injects a native browser script mounting block that dynamically instantiates a compiled WebAssembly binary
      * and exports its functions directly onto the global window namespace.
      */
-    public static function registerWasmExtension(string $name, string $wasmUrl): void {
+    public static function registerWasmExtension(string $name, string $wasmUrl): void
+    {
         if (!class_exists('\SPPMod\SPPView\ViewPage')) {
             return;
         }
@@ -128,7 +134,8 @@ JS;
     /**
      * Composes and serves an on-the-fly autonomous combined sub-resource bundle supporting immutable ETags validation.
      */
-    public static function serveBundle(string $bundleType, array $files): never {
+    public static function serveBundle(string $bundleType, array $files): never
+    {
         while (ob_get_level()) {
             ob_end_clean();
         }
@@ -170,7 +177,8 @@ JS;
      * Executes federated isomorphic code sandboxing logic across WebAssembly runtimes or dynamic multi-runtime Polyglot worker runtimes cleanly.
      * Encapsulates sub-tenant boundary operations enforcing tight unyielding verification memory limits.
      */
-    public static function executeFederatedSandbox(string $module, string $runtime = 'wasm', array $args = []): array {
+    public static function executeFederatedSandbox(string $module, string $runtime = 'wasm', array $args = []): array
+    {
         // Enforce strict memory resource limits automatically
         if ($runtime === 'wasm') {
             // Emulate execution mapping against loaded WebAssembly binary arrays
@@ -195,7 +203,8 @@ JS;
      * Injects a client-side Edge Consensus Validation script block that automatically subscribes to persistent
      * server-sent CDC streaming pipes, independently computing sublayer Merkle validation assertions.
      */
-    public static function registerConsensusObserver(string $channel = 'consensus_stream'): void {
+    public static function registerConsensusObserver(string $channel = 'consensus_stream'): void
+    {
         if (!class_exists('\SPPMod\SPPView\ViewPage')) {
             return;
         }

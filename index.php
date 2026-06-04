@@ -113,6 +113,14 @@ require_once('global.php');
         return;
     }
 
+    // SPP DX: AutoApiRouter injection for generic headless REST APIs
+    $qPath = $_GET['q'] ?? '';
+    if (str_starts_with($qPath, 'api/v1/')) {
+        require_once SPP_BASE_DIR . '/core/AutoApiRouter.php';
+        \SPP\Core\AutoApiRouter::handle();
+        return;
+    }
+
     $activeProc = \SPP\Scheduler::getActiveProc();
     if (method_exists($activeProc, 'handle')) {
         $activeProc->handle($request);

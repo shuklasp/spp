@@ -1,8 +1,8 @@
 {
-    "SELECT name, script, method FROM sppajax_services": 58,
-    "SELECT COUNT(*) as count FROM spp_jobs": 5,
-    "SHOW TABLES": 165,
-    "SELECT id FROM users WHERE username=?": 32,
-    "select * from users where id=?": 35,
-    "SELECT roleid FROM userroles WHERE userid=?": 38
+    "select * from users where id=?": 16,
+    "SHOW TABLES": 74,
+    "SELECT roleid FROM userroles WHERE userid=?": 14,
+    "SELECT id FROM users WHERE username=?": 12,
+    "SELECT name, script, method FROM sppajax_services": 28,
+    "SELECT id, username, email, status FROM users": 2
 }

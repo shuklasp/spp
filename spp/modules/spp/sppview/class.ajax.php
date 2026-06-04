@@ -1,23 +1,27 @@
 <?php
+
 namespace SPPMod\SPPView;
+
 use SPP\SPPGlobal;
 use SPP\Exceptions\AjaxRoutineNotFoundException;
 use SPP\Exceptions\AjaxVariableNotFoundException;
+
 require_once('ajaxexceptions.php');
 
 /**
  * class Ajax
  * extends \SPP\SPPObject
  * Deals with ajax calls
- * 
+ *
  * SPP Services are defined in SPP_DIR/services.php
  */
-class Ajax extends \SPP\SPPObject{
-    function __construct()
+class Ajax extends \SPP\SPPObject
+{
+    public function __construct()
     {
-        
+
     }
-    
+
     /**
      * function callService()
      * Calls a service defined in services.php
@@ -25,22 +29,22 @@ class Ajax extends \SPP\SPPObject{
      */
     public static function callService()
     {
-        $serv=$_REQUEST['service'];
+        $serv = $_REQUEST['service'];
         //global $services, $servdir;
-        $services=SPPGlobal::get('services');      // Gets the list of pages for services defined
-        $servdir=SPPGlobal::get('servdir');        // Gets directory of server scripts of services.
+        $services = SPPGlobal::get('services');      // Gets the list of pages for services defined
+        $servdir = SPPGlobal::get('servdir');        // Gets directory of server scripts of services.
         require_once($servdir.$services[$serv]);    // Call the page of service to be called.
     }
 
     /**
      * function getPageLocation($page)
      * Gets page location defined in services.php
-     * 
+     *
      */
     public static function getPageLocation($page)
     {
-        $pages=SPPGlobal::get('pages');
-        $pagedir=SPPGlobal::get('pagedir');
+        $pages = SPPGlobal::get('pages');
+        $pagedir = SPPGlobal::get('pagedir');
         return($pagedir.$pages[$page]['page']);
     }
 
@@ -50,7 +54,7 @@ class Ajax extends \SPP\SPPObject{
      */
     public static function loadPageComponent()
     {
-        $page=$_REQUEST['component'];
+        $page = $_REQUEST['component'];
         require(self::getPageLocation($page));
     }
 
@@ -58,20 +62,20 @@ class Ajax extends \SPP\SPPObject{
      * function isServiceRequest()
      * Returns true if the call is actually a service request and not a direct call
      */
-    public static function isServiceRequest(){
-        if(array_key_exists('service',$_REQUEST)){
+    public static function isServiceRequest()
+    {
+        if (array_key_exists('service', $_REQUEST)) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
 
-    public static function isComponentRequest(){
-        if(array_key_exists('component',$_REQUEST)){
+    public static function isComponentRequest()
+    {
+        if (array_key_exists('component', $_REQUEST)) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -84,11 +88,10 @@ class Ajax extends \SPP\SPPObject{
      */
     public static function callRoutine()
     {
-        $rout=$_REQUEST['rout'];
-        if(function_exists($rout)){
+        $rout = $_REQUEST['rout'];
+        if (function_exists($rout)) {
             call_user_func($rout);
-        }
-        else{
+        } else {
             throw new AjaxRoutineNotFoundException('Ajax routine '.$rout.' not found.');
         }
     }
@@ -103,10 +106,9 @@ class Ajax extends \SPP\SPPObject{
      */
     public static function existsVar($var): bool
     {
-        if(array_key_exists("$var",$_REQUEST)){
+        if (array_key_exists("$var", $_REQUEST)) {
             return true;
-        }
-        else{
+        } else {
             return false;
         }
     }
@@ -117,16 +119,15 @@ class Ajax extends \SPP\SPPObject{
      *
      * @param string $var
      * Ajax variable for which value is required.
-     * 
+     *
      * @return string
      * Value of the variable
      */
-    public static function getValue($var){
-        if(array_key_exists($var,$_REQUEST))
-        {
+    public static function getValue($var)
+    {
+        if (array_key_exists($var, $_REQUEST)) {
             return $_REQUEST["$var"];
-        }
-        else{
+        } else {
             throw new AjaxVariableNotFoundException('Ajax variable '.$var.' not found.');
         }
     }
@@ -139,30 +140,28 @@ class Ajax extends \SPP\SPPObject{
      * Result in array format
      * @return void
      */
-    public static function returnAjax($arr){
+    public static function returnAjax($arr)
+    {
         print(json_encode($arr));
     }
 
-    public static function getScript($path, $print = FALSE)
+    public static function getScript($path, $print = false)
     {
         //ob_end_flush();
         ob_start();
 
-        if( is_readable($path) && $path )
-        {
+        if (is_readable($path) && $path) {
             include $path;
-        }
-        else
-        {
-            return FALSE;
+        } else {
+            return false;
         }
 
         //echo('Done output');
 
-        if( $print == FALSE )
+        if ($print == false) {
             return ob_get_contents();
-        else
+        } else {
             echo ob_get_clean();
+        }
     }
 }
-?>

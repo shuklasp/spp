@@ -1,4 +1,5 @@
 <?php
+
 namespace SPPMod\SPPAI;
 
 /**
@@ -36,7 +37,9 @@ class ClaudeDriver implements AIDriverInterface
 
     public function chat(array $messages, array $options = []): string
     {
-        if (empty($this->apiKey)) return "Error: Anthropic API Key not configured.";
+        if (empty($this->apiKey)) {
+            return "Error: Anthropic API Key not configured.";
+        }
 
         $system = '';
         $filteredMessages = [];
@@ -55,7 +58,9 @@ class ClaudeDriver implements AIDriverInterface
             'temperature' => $options['temperature'] ?? 0.7
         ];
 
-        if (!empty($system)) $payload['system'] = $system;
+        if (!empty($system)) {
+            $payload['system'] = $system;
+        }
 
         $ch = curl_init($this->baseUrl);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -66,7 +71,7 @@ class ClaudeDriver implements AIDriverInterface
             'x-api-key: ' . $this->apiKey,
             'anthropic-version: 2023-06-01'
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -106,7 +111,7 @@ class ClaudeDriver implements AIDriverInterface
             'x-api-key: ' . $this->apiKey,
             'anthropic-version: 2023-06-01'
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 
@@ -148,7 +153,7 @@ class ClaudeDriver implements AIDriverInterface
             'x-api-key: ' . $this->apiKey,
             'anthropic-version: 2023-06-01'
         ]);
-        
+
         $response = curl_exec($ch);
         curl_close($ch);
 

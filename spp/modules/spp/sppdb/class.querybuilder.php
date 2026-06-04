@@ -5,7 +5,7 @@ namespace SPPMod\SPPDB;
 /**
  * class QueryBuilder
  * Modern, fluent SQL query builder for SPPDB.
- * 
+ *
  * @author Satya Prakash Shukla
  */
 class QueryBuilder
@@ -36,6 +36,9 @@ class QueryBuilder
 
     /** @var array */
     protected $bindings = [];
+
+    /** @var int|null */
+    protected $cacheTtl;
 
     public function __construct(SPPDB $db, string $table)
     {
@@ -120,7 +123,7 @@ class QueryBuilder
     {
         $query = new static($this->db, '');
         $query->table = ''; // Temporary for compilation
-        
+
         $callback($query);
 
         $this->wheres[] = [
@@ -171,11 +174,34 @@ class QueryBuilder
     }
 
     /**
+     * Cache the query result.
+     */
+    public function remember(int $ttl): self
+    {
+        $this->cacheTtl = $ttl;
+        return $this;
+    }
+
+    /**
      * Execute and return all results.
      */
     public function get(): array
     {
-        return $this->db->execute_query($this->toSql(), $this->getBindings());
+        $sql = $this->toSql();
+        $bindings = $this->getBindings();
+        
+        if ($this->cacheTtl !== null && class_exists('\SPP\Cache')) {
+            $cacheKey = 'query:' . md5($sql . serialize($bindings));
+            if (\SPP\Cache::has($cacheKey)) {
+                return \SPP\Cache::get($cacheKey);
+            }
+            
+            $results = $this->db->execute_query($sql, $bindings);
+            \SPP\Cache::setWithTags($cacheKey, $results, ['db_query', $this->table], $this->cacheTtl);
+            return $results;
+        }
+
+        return $this->db->execute_query($sql, $bindings);
     }
 
     /**
@@ -196,7 +222,7 @@ class QueryBuilder
         $this->columns = ['COUNT(*) as aggregate'];
         $result = $this->first();
         $this->columns = $originalColumns;
-        
+
         return (int)($result['aggregate'] ?? 0);
     }
 
@@ -205,13 +231,15 @@ class QueryBuilder
      */
     public function insert(array $values): bool
     {
-        if (empty($values)) return true;
+        if (empty($values)) {
+            return true;
+        }
 
         $columns = array_keys($values);
         $placeholders = array_fill(0, count($values), '?');
 
         $sql = "INSERT INTO {$this->table} (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
-        
+
         try {
             $stmt = $this->db->prepare($sql);
             return $stmt->execute(array_values($values));
@@ -225,7 +253,9 @@ class QueryBuilder
      */
     public function update(array $values): bool
     {
-        if (empty($values)) return true;
+        if (empty($values)) {
+            return true;
+        }
 
         $set = [];
         foreach ($values as $column => $value) {
@@ -234,9 +264,9 @@ class QueryBuilder
 
         // We need to merge update bindings with where bindings
         $bindings = array_merge(array_values($values), $this->getBindings());
-        
+
         $sql = "UPDATE {$this->table} SET " . implode(', ', $set) . $this->compileWheres();
-        
+
         try {
             $stmt = $this->db->prepare($sql);
             return $stmt->execute($bindings);
@@ -251,7 +281,7 @@ class QueryBuilder
     public function delete(): bool
     {
         $sql = "DELETE FROM {$this->table}" . $this->compileWheres();
-        
+
         try {
             $stmt = $this->db->prepare($sql);
             return $stmt->execute($this->getBindings());
@@ -298,7 +328,9 @@ class QueryBuilder
      */
     protected function compileWheres(): string
     {
-        if (empty($this->wheres)) return '';
+        if (empty($this->wheres)) {
+            return '';
+        }
 
         $sql = " WHERE ";
         $parts = [];

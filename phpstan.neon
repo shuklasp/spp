@@ -1,0 +1,15 @@
+includes:
+    - phpstan-baseline.neon
+
+parameters:
+    level: 0
+    paths:
+        - spp/core
+        - spp/modules
+    excludePaths:
+        - spp/core/oldsrc/*
+        - spp/modules/oldsrc/*
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Ignore legacy function calls that may not be loaded during static analysis
+        - '#Function [a-zA-Z0-9_]+ not found#'

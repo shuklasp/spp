@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP;
 
 /**
@@ -6,7 +7,7 @@ namespace SPP;
  * Enterprise-grade Redis wrapper for SPP.
  * Handles distributed caching and session state.
  */
-class RedisCache extends \SPP\SPPObject implements CacheInterface
+class RedisCache extends \SPP\SPPObject implements Core\CacheInterface
 {
     /** @var \Redis */
     private static $instance = null;
@@ -16,8 +17,10 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
      */
     public static function isAvailable(): bool
     {
-        if (!class_exists('\Redis')) return false;
-        
+        if (!class_exists('\Redis')) {
+            return false;
+        }
+
         try {
             $redis = self::getConnection();
             return $redis->ping() === '+PONG' || $redis->ping() === true;
@@ -28,7 +31,7 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
 
     /**
      * Get a connected Redis instance.
-     * 
+     *
      * @param string $type The usage type (e.g., 'cache', 'audit') to determine DB index.
      * @return \Redis
      */
@@ -41,8 +44,8 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
         $host = \SPP\Module::getConfig('host', 'redis') ?: '127.0.0.1';
         $port = \SPP\Module::getConfig('port', 'redis') ?: 6379;
         $password = \SPP\Module::getConfig('password', 'redis');
-        
-        // Logic: "store redis data according to config file setting in same db by default, 
+
+        // Logic: "store redis data according to config file setting in same db by default,
         // but in different db if set in the config file."
         $defaultDb = (int)(\SPP\Module::getConfig('db', 'redis') ?: 0);
         $specificDb = \SPP\Module::getConfig($type . '_db', 'redis');
@@ -117,4 +120,3 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
         return true;
     }
 }
-

@@ -470,3 +470,9 @@
 [2026-05-28 10:12:12] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
 [2026-05-28 10:12:20] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
 [2026-05-28 10:13:02] URI: /school1/index.php, VIEW: index, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/index.blade.php, IS_ADMIN: NO
+[2026-05-31 13:25:34] URI: /school1/lekhak/admin/login, VIEW: login, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php, IS_ADMIN: NO
+[2026-05-31 13:25:45] URI: /school1/lekhak/admin/login, VIEW: login, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php, IS_ADMIN: NO
+[2026-05-31 13:29:32] URI: /school1/lekhak/admin/login, VIEW: login, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php, IS_ADMIN: NO
+[2026-05-31 13:52:57] URI: /school1/lekhak/admin/login, VIEW: login, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php, IS_ADMIN: NO
+[2026-05-31 13:53:13] URI: /school1/lekhak/admin, VIEW: dashboard, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/dashboard.blade.php, IS_ADMIN: YES
+[2026-05-31 13:53:39] URI: /school1/lekhak/admin/content, VIEW: content, PATH: /mnt/c/projects/apache/school1/src/lekhak/resources/themes/lekhak_themes/glass_admin/views/content.blade.php, IS_ADMIN: YES

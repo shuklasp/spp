@@ -1,0 +1,66 @@
+<?php
+
+namespace SPP\CLI\Commands;
+
+use SPP\CLI\Command;
+
+/**
+ * Class MakePolyglotCommand
+ * Wrapper command to scaffold any polyglot service.
+ */
+class MakePolyglotCommand extends Command
+{
+    protected string $name = 'make:polyglot';
+    protected string $description = 'Scaffold a new polyglot service (e.g. php spp.php make:polyglot python MyService)';
+
+    public function execute(array $args): void
+    {
+        $language = $args[2] ?? null;
+        $serviceName = $args[3] ?? null;
+
+        if (!$language || !$serviceName) {
+            echo "Usage: spp make:polyglot <language> <service_name> [--app=context]\n";
+            echo "Supported languages: python, node, go, java, cpp, dotnet, perl\n";
+            return;
+        }
+
+        $language = strtolower($language);
+        $commandMap = [
+            'python' => MakePythonCommand::class,
+            'node' => MakeNodeCommand::class,
+            'go' => MakeGoCommand::class,
+            'java' => MakeJavaCommand::class,
+            'cpp' => MakeCppCommand::class,
+            'dotnet' => MakeDotNetCommand::class,
+            'cs' => MakeDotNetCommand::class,
+            'perl' => MakePerlCommand::class,
+        ];
+
+        if (!isset($commandMap[$language])) {
+            echo "Error: Unsupported language '{$language}'.\n";
+            echo "Supported languages: " . implode(', ', array_keys($commandMap)) . "\n";
+            return;
+        }
+
+        $className = $commandMap[$language];
+        
+        // Pass the remaining args to the specific command
+        $newArgs = [
+            $args[0],
+            'make:' . $language . '-service',
+            $serviceName
+        ];
+        
+        // Append any flags like --app
+        for ($i = 4; $i < count($args); $i++) {
+            $newArgs[] = $args[$i];
+        }
+
+        if (class_exists($className)) {
+            $cmd = new $className();
+            $cmd->execute($newArgs);
+        } else {
+            echo "Error: Command class {$className} not found.\n";
+        }
+    }
+}

@@ -1,4 +1,5 @@
 <?php
+
 namespace SPP\Core;
 
 /**
@@ -62,8 +63,10 @@ class Translation
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
                 if ($db->tableExists($table)) {
-                    $res = $db->exec_squery("SELECT translation FROM %tab% WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
-                        $table, [$key, $loc]
+                    $res = $db->exec_squery(
+                        "SELECT translation FROM %tab% WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
+                        $table,
+                        [$key, $loc]
                     );
                     if (!empty($res) && !empty($res[0]['translation'])) {
                         self::$translations[$loc][$key] = $res[0]['translation'];
