@@ -1,11 +1,4 @@
 modules:
-    1:
-        name: sppentity
-        path: spp/sppentity
-        status: active
-        deps:
-            - sppcore
-            - sppdb
     2:
         name: sppdb
         path: spp/sppdb
@@ -27,20 +20,20 @@ modules:
             - sppdb
             - sppsession
     7:
-        name: sppview
-        path: spp/sppview
+        name: drishyam
+        path: spp/drishyam
         status: active
         deps:
             - sppcore
             - sppdb
             - sppsession
     8:
-        name: sppajax
-        path: spp/sppajax
+        name: sppapi
+        path: spp/sppapi
         status: active
         deps:
             - sppcore
-            - sppview
+            - drishyam
     11:
         name: sppai
         path: spp/sppai

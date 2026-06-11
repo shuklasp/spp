@@ -14,33 +14,53 @@ namespace SPP;
  * @author
  *     Satya Prakash Shukla
  * @version
- *     2.1 compatible with legacy SPP 1.x
+ *     2.2 refactored internals
  */
 class Registry extends \SPP\SPPObject
 {
-    /** @var array<string,mixed> */
+    /** @var array<string,mixed> Main hierarchical data store */
     public static array $reg = [];
 
-    /** @var array<int,mixed> */
+    /** @deprecated No longer used. Kept for backwards compatibility. */
     public static array $values = [];
-
-    /** @var array<string,mixed> Flat lookup cache for O(1) performance */
-    private static array $lookupCache = [];
 
     /** @var array<string,string> Resolved name cache */
     private static array $resolvedNames = [];
 
-    /** @var string Active context prefix */
-    private static string $contextPrefix = '';
-
-    /** @var int */
-    private static int $valkey = 0;
+    /** @var array<string,bool> Keys that are permanently locked from modification */
+    private static array $lockedKeys = [];
 
     /** @var \SPP\Core\Container|null */
     private static ?\SPP\Core\Container $container = null;
 
+    /** @var \SPP\Core\Interfaces\SharedStorageInterface|null */
+    private static ?\SPP\Core\Interfaces\SharedStorageInterface $sharedStorage = null;
+
     /** @var bool Flag to debounce shared state writing */
     private static bool $sharedDirty = false;
+
+    /**
+     * Get the shared storage adapter.
+     */
+    private static function getSharedStorage(): \SPP\Core\Interfaces\SharedStorageInterface
+    {
+        if (self::$sharedStorage === null) {
+            $redisEnabled = false;
+            if (class_exists('\SPP\Module', false)) {
+                $redisEnabled = \SPP\Module::getConfig('enabled', 'redis');
+            }
+            if (($redisEnabled === true || $redisEnabled === '1' || $redisEnabled === 'true') && class_exists('\SPP\Core\RedisCache') && \SPP\Core\RedisCache::isAvailable()) {
+                try {
+                    self::$sharedStorage = new \SPP\Core\RedisSharedStorage();
+                } catch (\Throwable $e) {
+                    self::$sharedStorage = new \SPP\Core\FileSharedStorage();
+                }
+            } else {
+                self::$sharedStorage = new \SPP\Core\FileSharedStorage();
+            }
+        }
+        return self::$sharedStorage;
+    }
 
     /**
      * Get the service container instance.
@@ -85,44 +105,47 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
+     * Locks an entity configuration tree to prevent future modifications.
+     */
+    public static function lock(string $entity): void
+    {
+        $entity = str_replace('.', '=>', $entity);
+        $resolved = self::resolveEntityName($entity);
+        self::$lockedKeys[$resolved] = true;
+    }
+
+    /**
+     * Checks if a registry key operation is blocked by an active lock.
+     */
+    private static function checkLock(string $resolvedEntity): void
+    {
+        foreach (self::$lockedKeys as $lockedKey => $true) {
+            if ($resolvedEntity === $lockedKey || str_starts_with($resolvedEntity, $lockedKey . '=>')) {
+                throw new \RuntimeException("Registry key is locked and cannot be modified.");
+            }
+        }
+    }
+
+    /**
      * Registers an entity and assigns a value.
      * Also synchronizes to shared storage for polyglot support if prefix is __shared.
      */
     public static function register(string $entity, mixed $value): void
     {
+        $entity = str_replace('.', '=>', $entity);
         $entity = self::resolveEntityName($entity);
-        $key = self::getKey($entity);
-
-        if ($key !== false) {
-            self::$values[$key] = $value;
-            self::$lookupCache[$entity] = $value;
-            if (str_starts_with($entity, '__shared=>')) {
-                self::syncShared();
-            }
-            return;
-        }
-
-        // Create new hierarchical entry
+        self::checkLock($entity);
         $tokens = array_map('trim', explode('=>', $entity));
 
-        self::$values[self::$valkey] = $value;
-        $arr = [array_pop($tokens) => self::$valkey];
-        self::$valkey++;
-
-        while (!empty($tokens)) {
-            $val = array_pop($tokens);
-            $arr = [$val => $arr];
+        $ref = &self::$reg;
+        foreach ($tokens as $token) {
+            if (!is_array($ref)) {
+                $ref = [];
+            }
+            $ref = &$ref[$token];
         }
+        $ref = $value;
 
-        // Merge if existing entry
-        $rootKey = key($arr);
-        if (array_key_exists($rootKey, self::$reg)) {
-            $merged = array_merge_recursive(self::$reg[$rootKey], $arr[$rootKey]);
-        } else {
-            $merged = $arr[$rootKey];
-        }
-
-        self::$reg[$rootKey] = $merged;
         if (str_starts_with($entity, '__shared=>')) {
             self::syncShared();
         }
@@ -140,7 +163,7 @@ class Registry extends \SPP\SPPObject
     }
 
     /**
-     * Writes the shared registry state to the disk immediately.
+     * Writes the shared registry state to the disk/memory safely.
      */
     public static function forceSyncShared(): void
     {
@@ -154,30 +177,38 @@ class Registry extends \SPP\SPPObject
             return;
         }
 
-        $sharedDir = SPP_BASE_DIR . '/var/shared';
-        if (!is_dir($sharedDir)) {
-            @mkdir($sharedDir, 0777, true);
+        try {
+            self::getSharedStorage()->save($shared);
+        } catch (\Throwable $e) {
+            // Circuit Breaker: Downgrade to File storage if Redis fails mid-execution
+            if (self::$sharedStorage instanceof \SPP\Core\RedisSharedStorage) {
+                self::$sharedStorage = new \SPP\Core\FileSharedStorage();
+                self::$sharedStorage->save($shared);
+            }
         }
-
-        $sharedFile = $sharedDir . '/registry.json';
-        @file_put_contents($sharedFile, json_encode($shared, JSON_PRETTY_PRINT));
         
         self::$sharedDirty = false;
     }
 
     /**
-     * Loads shared registry entries from the JSON file.
+     * Loads shared registry entries from the JSON file/memory.
      */
     public static function loadShared(): void
     {
-        $sharedFile = SPP_BASE_DIR . '/var/shared/registry.json';
-        if (file_exists($sharedFile)) {
-            $data = json_decode(file_get_contents($sharedFile), true);
-            if (is_array($data)) {
-                foreach ($data as $k => $v) {
-                    self::register('__shared=>' . $k, $v);
-                }
+        try {
+            $data = self::getSharedStorage()->load();
+        } catch (\Throwable $e) {
+            // Circuit Breaker: Downgrade to File storage if Redis fails mid-execution
+            if (self::$sharedStorage instanceof \SPP\Core\RedisSharedStorage) {
+                self::$sharedStorage = new \SPP\Core\FileSharedStorage();
+                $data = self::$sharedStorage->load();
+            } else {
+                $data = [];
             }
+        }
+        
+        foreach ($data as $k => $v) {
+            self::register('__shared=>' . $k, $v);
         }
     }
 
@@ -231,8 +262,7 @@ class Registry extends \SPP\SPPObject
      */
     public static function getValue(string $entity): mixed
     {
-        $key = self::getKey($entity);
-        return is_int($key) ? self::$values[$key] : false;
+        return self::get($entity);
     }
 
     /**
@@ -241,27 +271,19 @@ class Registry extends \SPP\SPPObject
      */
     public static function get(string $entity): mixed
     {
+        $entity = str_replace('.', '=>', $entity);
         $entity = self::resolveEntityName($entity);
+        $tokens = array_map('trim', explode('=>', $entity));
 
-        // O(1) Flat Cache Hit
-        if (array_key_exists($entity, self::$lookupCache)) {
-            return self::$lookupCache[$entity];
+        $ref = self::$reg;
+        foreach ($tokens as $token) {
+            if (!is_array($ref) || !array_key_exists($token, $ref)) {
+                return false;
+            }
+            $ref = $ref[$token];
         }
 
-        $key = self::getKey($entity);
-
-        if (is_int($key)) {
-            $value = self::$values[$key];
-            self::$lookupCache[$entity] = $value; // Memoize for future
-            return $value;
-        }
-
-        if (is_array($key)) {
-            // It's a non-leaf node, attempt to resolve all children recursively
-            return self::resolveValueMap($key);
-        }
-
-        return false;
+        return $ref;
     }
 
     /**
@@ -305,24 +327,12 @@ class Registry extends \SPP\SPPObject
      */
     public static function remove(string $entity): void
     {
+        $entity = str_replace('.', '=>', $entity);
         $entity = self::resolveEntityName($entity);
-        
-        // Remove from O(1) cache
-        unset(self::$lookupCache[$entity]);
-
+        self::checkLock($entity);
         $tokens = array_map('trim', explode('=>', $entity));
-        $root = array_shift($tokens);
         
-        if (!array_key_exists($root, self::$reg)) {
-            return;
-        }
-
-        if (empty($tokens)) {
-            unset(self::$reg[$root]);
-            return;
-        }
-
-        $ref = &self::$reg[$root];
+        $ref = &self::$reg;
         foreach ($tokens as $i => $token) {
             if (!is_array($ref) || !array_key_exists($token, $ref)) {
                 return;
@@ -341,27 +351,9 @@ class Registry extends \SPP\SPPObject
     public static function clearAll(): void
     {
         self::$reg = [];
+        self::$resolvedNames = [];
+        self::$lockedKeys = [];
         self::$values = [];
-        self::$lookupCache = [];
-        self::$valkey = 0;
-    }
-
-    /**
-     * Recursively resolves an array of registry indices to their values.
-     */
-    private static function resolveValueMap(array $map): array
-    {
-        $result = [];
-        foreach ($map as $k => $v) {
-            if (is_int($v)) {
-                $result[$k] = self::$values[$v] ?? false;
-            } elseif (is_array($v)) {
-                $result[$k] = self::resolveValueMap($v);
-            } else {
-                $result[$k] = $v;
-            }
-        }
-        return $result;
     }
 
     /**
@@ -369,37 +361,19 @@ class Registry extends \SPP\SPPObject
      */
     public static function isRegistered(string $entity): bool
     {
+        $entity = str_replace('.', '=>', $entity);
         $entity = self::resolveEntityName($entity);
-
-        if (array_key_exists($entity, self::$lookupCache)) {
-            return true;
-        }
-
-        return self::getKey($entity) !== false;
-    }
-
-    /**
-     * Gets the registry key (internal helper).
-     *
-     * @param string $entity
-     * @return array|int|false
-     */
-    private static function getKey(string $entity): array|int|false
-    {
-        // Internal check: if we already have the integer key mapping
-        // but this is deeper than we usually cache.
-
         $tokens = array_map('trim', explode('=>', $entity));
-        $arr = self::$reg;
 
+        $ref = self::$reg;
         foreach ($tokens as $token) {
-            if (!is_array($arr) || !array_key_exists($token, $arr)) {
+            if (!is_array($ref) || !array_key_exists($token, $ref)) {
                 return false;
             }
-            $arr = $arr[$token];
+            $ref = $ref[$token];
         }
 
-        return $arr;
+        return true;
     }
 
     /**
@@ -408,7 +382,7 @@ class Registry extends \SPP\SPPObject
     private static function resolveEntityName(string $entity): string
     {
         // System-level global keys (starting with __) should not be prefixed with application context
-        if (strpos($entity, '__') === 0) {
+        if (str_starts_with($entity, '__')) {
             return $entity;
         }
 

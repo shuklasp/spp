@@ -1,0 +1,7 @@
+table: blogposts
+id_field: id
+sequence: blogposts_seq
+extends: ''
+login_enabled: false
+attributes: {  }
+relations: {  }

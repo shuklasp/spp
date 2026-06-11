@@ -25,6 +25,13 @@ if ($argc < 2) {
 
 $command = $argv[1];
 
+// Native fast-paths for performance critical commands (like cron)
+if ($command === 'sppreport:cron' || $command === 'cron') {
+    require_once __DIR__ . '/sppinit.php';
+    require_once __DIR__ . '/modules/spp/sppreport/sppreport_cron.php';
+    exit(0);
+}
+
 // Auto-enable quiet mode for commands that generate output to suppress discovery noise
 if (str_starts_with($command, 'xdb:') || str_starts_with($command, 'man') || $command === 'list') {
     define('SPP_SKIP_DISCOVERY', true);

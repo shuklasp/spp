@@ -11,10 +11,9 @@ module:
             - "../../../img"
             - "../../../resources"
     dependencies:
-        - sppentity
         - sppauth
-        - sppux
-        - sppblade
+        - drishyam
+        - sppapi
         - drishyam
     services:
         lekhak.renderer:

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" data-spp-theme="auto">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Report Builder</title>
+    <!-- Core SPP-UX -->
+    <link rel="stylesheet" href="/spp/modules/spp/drishyam/css/sppux.css">
+    <script type="module" src="/spp/modules/spp/drishyam/js/sppux.js"></script>
+    <script type="module" src="/spp/modules/spp/drishyam/js/sppux-ui.js"></script>
+    <script type="module" src="/spp/modules/spp/drishyam/js/spp-loader.js"></script>
+    <style>
+        body { padding: 20px; font-family: var(--sppux-font-sans); background: var(--sppux-bg); color: var(--sppux-text); }
+        .spp-header { margin-bottom: 20px; }
+        .spp-header h1 { font-size: 2rem; margin: 0; background: linear-gradient(135deg, var(--sppux-primary), var(--sppux-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body>
+
+    <div class="spp-header no-print">
+        <h1>SPP Advanced Reports</h1>
+        <p style="color: var(--sppux-text-dim);">Build complex queries, analyze data, and export with infinite nested filters.</p>
+    </div>
+
+    <!-- SPPUX Declarative Integration -->
+    <div data-spp-type="ux" data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"></div>
+
+</body>
+</html>

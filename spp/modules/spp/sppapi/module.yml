@@ -10,3 +10,11 @@ module:
     namespace: SPPMod\SPPAPI
     autoload:
         - { class: SPPAPI, file: class.sppapi.php }
+        - { class: SPPAjax, file: class.sppajax.php }
+        - { class: LiveAction, file: class.liveaction.php }
+        - { class: JWTAuth, file: src/JWTAuth.php }
+    config_variables:
+        require_key: true
+        enable_jwt: true
+        jwt_secret: "auto-generated-secret-key-change-me"
+        jwt_expires_in: 3600

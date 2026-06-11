@@ -121,6 +121,54 @@ export default class XdbView extends BaseComponent {
         }
     }
 
+    async runMigrations(rollback = false) {
+        this.setState({ loadingData: true, view: 'migrations', selectedTable: null, queryResults: null });
+        try {
+            const res = await this.api.post('xdb_migrate', { rollback: rollback });
+            if (res.success) {
+                this.notify(res.message || 'Migrations executed', 'success');
+                await this.fetchDatabases(); // Refresh schema
+            } else {
+                this.notify(res.message, 'error');
+            }
+        } catch (err) {
+            this.notify(err.message, 'error');
+        } finally {
+            this.setState({ loadingData: false });
+        }
+    }
+
+    async runSeeders() {
+        this.setState({ loadingData: true, view: 'migrations', selectedTable: null, queryResults: null });
+        try {
+            const res = await this.api.post('xdb_seed', {});
+            if (res.success) {
+                this.notify(res.message || 'Seeders executed', 'success');
+                await this.fetchDatabases();
+            } else {
+                this.notify(res.message, 'error');
+            }
+        } catch (err) {
+            this.notify(err.message, 'error');
+        } finally {
+            this.setState({ loadingData: false });
+        }
+    }
+
+    async showProfiler() {
+        this.setState({ view: 'profiler', loadingData: true, selectedTable: null, queryResults: null });
+        try {
+            const res = await this.api.post('xdb_get_profile_log', {});
+            const log = res.success ? res.data.log : [];
+            this.setState({ data: log });
+        } catch (err) {
+            this.notify('Profiler unavailable.', 'error');
+            this.setState({ data: [] });
+        } finally {
+            this.setState({ loadingData: false });
+        }
+    }
+
     openSchemaDesigner() {
         this.setState({ 
             designerTableName: '',
@@ -304,6 +352,8 @@ export default class XdbView extends BaseComponent {
                             <div style="display: flex; gap: 5px;">
                                 <button class="btn-icon" title="SQL Console" @click=${() => this.setState({ view: 'query', selectedTable: null, queryResults: null })}>💻</button>
                                 <button class="btn-icon" title="Audit Log" @click=${() => this.showAudit()}>📜</button>
+                                <button class="btn-icon" title="Migrations & Seeders" @click=${() => this.setState({ view: 'migrations', selectedTable: null, queryResults: null })}>🚀</button>
+                                <button class="btn-icon" title="Query Profiler" @click=${() => this.showProfiler()}>⏱️</button>
                             </div>
                         </div>
                         ${loadingTables ? html`<div class="loading-sm">...</div>` : ''}
@@ -325,25 +375,41 @@ export default class XdbView extends BaseComponent {
                         <div class="data-view glass-panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
                             <div class="view-header" style="padding: 15px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
                                 <h4 style="margin: 0;">
-                                    ${view === 'audit' ? 'Compliance Audit Trail' : (selectedTable ? `Table: ${selectedTable}` : 'Database Engine Explorer')}
+                                    ${view === 'audit' ? 'Compliance Audit Trail' : 
+                                      view === 'migrations' ? 'Migrations & Seeders' : 
+                                      view === 'profiler' ? 'Query Performance Profiler' : 
+                                      (selectedTable ? `Table: ${selectedTable}` : 'Database Engine Explorer')}
                                 </h4>
                                 <div class="actions" style="display: flex; gap: 8px;">
+                                    ${view === 'migrations' ? html`
+                                        <button class="btn primary-btn btn-sm" @click=${() => this.runMigrations(false)}>▶ Run Migrations</button>
+                                        <button class="btn ghost-btn btn-sm" @click=${() => this.runSeeders()}>🌱 Run Seeders</button>
+                                        <button class="btn ghost-btn btn-sm danger" @click=${() => this.runMigrations(true)}>⏪ Rollback 1</button>
+                                    ` : ''}
                                     ${selectedTable ? html`
                                         <button class="btn ghost-btn btn-sm" @click=${() => this.selectTable(selectedTable)}>🔄 Refresh</button>
                                     ` : ''}
                                     ${view === 'audit' ? html`<button class="btn ghost-btn btn-sm" @click=${() => this.showAudit()}>🔄 Refresh Logs</button>` : ''}
+                                    ${view === 'profiler' ? html`<button class="btn ghost-btn btn-sm" @click=${() => this.showProfiler()}>🔄 Refresh Profiler</button>` : ''}
                                 </div>
                             </div>
 
                             <div class="grid-container" style="flex: 1; overflow: auto; background: rgba(0,0,0,0.2);">
                                 ${loadingData ? html`<div class="loading-state">Syncing data...</div>` : ''}
-                                ${!loadingData && data.length === 0 && !selectedTable && view !== 'audit' ? html`
+                                ${!loadingData && data.length === 0 && !selectedTable && view !== 'audit' && view !== 'migrations' && view !== 'profiler' ? html`
                                     <div class="empty-state" style="padding: 60px; text-align: center;">
                                         <div style="font-size: 3rem; margin-bottom: 20px;">🛸</div>
                                         <h3>Select a table or open the SQL console to begin.</h3>
                                     </div>
                                 ` : ''}
-                                ${!loadingData && data.length === 0 && (selectedTable || view === 'audit') ? html`<div class="empty-state" style="padding: 40px;">No records found.</div>` : ''}
+                                ${!loadingData && view === 'migrations' ? html`
+                                    <div class="empty-state" style="padding: 60px; text-align: center;">
+                                        <div style="font-size: 3rem; margin-bottom: 20px;">🚀</div>
+                                        <h3>Migration Engine Ready</h3>
+                                        <p style="color: var(--text-dim);">Use the actions in the header to run migrations or seed the database.</p>
+                                    </div>
+                                ` : ''}
+                                ${!loadingData && data.length === 0 && (selectedTable || view === 'audit' || view === 'profiler') ? html`<div class="empty-state" style="padding: 40px;">No records found.</div>` : ''}
                                 ${!loadingData && (data.length > 0 || (selectedTable && this.state.columns.length > 0)) ? this.renderGrid(data) : ''}
                             </div>
                         </div>

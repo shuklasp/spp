@@ -8,8 +8,12 @@
  */
 
 require_once __DIR__ . '/class.sppxdb.php';
+require_once __DIR__ . '/class.migrationmanager.php';
+require_once __DIR__ . '/class.seedermanager.php';
 
 use SPPMod\SPPXDB\SPP_XDB;
+use SPPMod\SPPXDB\MigrationManager;
+use SPPMod\SPPXDB\SeederManager;
 
 class XDBShell
 {
@@ -80,6 +84,41 @@ class XDBShell
             $this->currentDb = $m[1];
             $this->xdb = new SPP_XDB($this->currentDb);
             echo "Database changed to: {$this->currentDb}\n";
+            return true;
+        }
+
+        // --- MIGRATIONS ---
+        if ($cmd === 'migrate') {
+            $mgr = new MigrationManager($this->xdb);
+            $c = $mgr->migrate();
+            echo "Migrated $c files.\n";
+            return true;
+        }
+        if ($cmd === 'rollback') {
+            $mgr = new MigrationManager($this->xdb);
+            $c = $mgr->rollback();
+            echo "Rolled back $c files.\n";
+            return true;
+        }
+        if (preg_match('/^make:migration\s+([a-zA-Z0-9_]+)/i', $line, $m)) {
+            $mgr = new MigrationManager($this->xdb);
+            $path = $mgr->create($m[1]);
+            echo "Created migration: $path\n";
+            return true;
+        }
+
+        // --- SEEDERS ---
+        if ($cmd === 'seed' || preg_match('/^seed\s+([a-zA-Z0-9_]+)/i', $line, $mSeed)) {
+            $mgr = new SeederManager($this->xdb);
+            $name = isset($mSeed[1]) ? $mSeed[1] : null;
+            $c = $mgr->seed($name);
+            echo "Executed $c seeders.\n";
+            return true;
+        }
+        if (preg_match('/^make:seeder\s+([a-zA-Z0-9_]+)/i', $line, $m)) {
+            $mgr = new SeederManager($this->xdb);
+            $path = $mgr->create($m[1]);
+            echo "Created seeder: $path\n";
             return true;
         }
 
@@ -158,6 +197,11 @@ class XDBShell
         echo "  USE [db]         Switch database context\n";
         echo "  HELP             Show this help\n";
         echo "  CLEAR            Clear screen\n";
+        echo "  MIGRATE          Run pending migrations\n";
+        echo "  ROLLBACK         Rollback last migration batch\n";
+        echo "  SEED [name]      Run database seeders\n";
+        echo "  MAKE:MIGRATION x Create a new migration file\n";
+        echo "  MAKE:SEEDER x    Create a new seeder file\n";
         echo "  EXIT / QUIT      Exit shell\n\n";
         echo "SQL/XPath Support:\n";
         echo "  SHOW DATABASES;  List all DBs\n";

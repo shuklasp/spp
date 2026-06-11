@@ -3,6 +3,17 @@ namespace Lekhak\Modules\LekhakDrupalBridge;
 
 class LekhakModuleDrupalBridge {
     public function hook_init() {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        try {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_lekhak_drupal_bridge_config (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                setting_key VARCHAR(100) UNIQUE,
+                setting_value TEXT
+            )");
+            
+            // Insert default config
+            $db->execute_query("INSERT OR IGNORE INTO lekhak_lekhak_drupal_bridge_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
+        } catch (\Exception $e) {}
         // Load the Drupal global class
         require_once __DIR__ . '/src/Drupal.php';
         

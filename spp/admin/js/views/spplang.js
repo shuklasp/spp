@@ -142,6 +142,7 @@ export default class SpplangView extends BaseComponent {
                         </h3>
                         <p style="margin: 4px 0 0 0; font-size: 0.8rem; color: var(--text-dim);">
                             Scan your PHP and YML codebases for translatable strings and manage active database overrides dynamically.
+                            <br><span style="color: var(--primary-hover); font-weight: 500;">Supports ICU MessageFormat (e.g. {count, plural, one{# item} other{# items}})</span>
                         </p>
                     </div>
                     <button class="btn primary-btn ${scanning ? 'loading' : ''}" 
@@ -162,10 +163,35 @@ export default class SpplangView extends BaseComponent {
                                 .value="${locale}" 
                                 @change="${(e) => this.handleLocaleChange(e.target.value)}">
                             <option value="en">🇺🇸 English (en)</option>
-                            <option value="es">🇪🇸 Spanish (es)</option>
-                            <option value="hi">🇮🇳 Hindi (hi)</option>
-                            <option value="fr">🇫🇷 French (fr)</option>
-                            <option value="de">🇩🇪 German (de)</option>
+                            <optgroup label="Indian Languages (Scheduled)">
+                                <option value="as">🇮🇳 Assamese (as)</option>
+                                <option value="bn">🇮🇳 Bengali (bn)</option>
+                                <option value="brx">🇮🇳 Bodo (brx)</option>
+                                <option value="doi">🇮🇳 Dogri (doi)</option>
+                                <option value="gu">🇮🇳 Gujarati (gu)</option>
+                                <option value="hi">🇮🇳 Hindi (hi)</option>
+                                <option value="kn">🇮🇳 Kannada (kn)</option>
+                                <option value="ks">🇮🇳 Kashmiri (ks)</option>
+                                <option value="kok">🇮🇳 Konkani (kok)</option>
+                                <option value="mai">🇮🇳 Maithili (mai)</option>
+                                <option value="ml">🇮🇳 Malayalam (ml)</option>
+                                <option value="mni">🇮🇳 Manipuri (mni)</option>
+                                <option value="mr">🇮🇳 Marathi (mr)</option>
+                                <option value="ne">🇮🇳 Nepali (ne)</option>
+                                <option value="or">🇮🇳 Odia (or)</option>
+                                <option value="pa">🇮🇳 Punjabi (pa)</option>
+                                <option value="sa">🇮🇳 Sanskrit (sa)</option>
+                                <option value="sat">🇮🇳 Santali (sat)</option>
+                                <option value="sd">🇮🇳 Sindhi (sd)</option>
+                                <option value="ta">🇮🇳 Tamil (ta)</option>
+                                <option value="te">🇮🇳 Telugu (te)</option>
+                                <option value="ur">🇮🇳 Urdu (ur)</option>
+                            </optgroup>
+                            <optgroup label="International">
+                                <option value="es">🇪🇸 Spanish (es)</option>
+                                <option value="fr">🇫🇷 French (fr)</option>
+                                <option value="de">🇩🇪 German (de)</option>
+                            </optgroup>
                         </select>
                     </div>
 
@@ -218,8 +244,8 @@ export default class SpplangView extends BaseComponent {
                                             <textarea id="trans-input-${row.id || row.key_code}" 
                                                       class="spp-element" 
                                                       rows="1" 
-                                                      style="width: 100%; padding: 6px 10px; font-size: 0.8rem; resize: vertical; min-height: 34px;" 
-                                                      placeholder="No translation defined. Standard key fallback will apply.">${row.translation || ''}</textarea>
+                                                      style="width: 100%; padding: 6px 10px; font-size: 0.8rem; resize: vertical; min-height: 34px; font-family: 'Mukta', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Tamil', sans-serif;" 
+                                                      placeholder="Enter standard string or ICU MessageFormat (e.g. {count, plural, one{# apple} other{# apples}})">${row.translation || ''}</textarea>
                                         </td>
                                         <td style="padding: 15px 20px; vertical-align: middle; text-align: center;">
                                             <select id="status-select-${row.id || row.key_code}" 

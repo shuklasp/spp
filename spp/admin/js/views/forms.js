@@ -336,7 +336,7 @@ export default class FormsView extends BaseComponent {
 
     async editStep(idx) {
         const step = this.state.currentFormConfig.steps[idx];
-        const res = await this.api('get_iam_form&type=step_editor');
+        const res = await this.api('get_form_html&type=step_editor');
         if (res.success) {
             this.openSubEditor('Edit Step Properties', res.data.html, step, (newData) => {
                 Object.assign(this.state.currentFormConfig.steps[idx], newData);
@@ -363,7 +363,7 @@ export default class FormsView extends BaseComponent {
     async editField(idx, stepIdx) {
         const fields = stepIdx !== null ? this.state.currentFormConfig.steps[stepIdx].fields : this.state.currentFormConfig.fields;
         const field = fields[idx];
-        const res = await this.api('get_iam_form&type=field_editor');
+        const res = await this.api('get_form_html&type=field_editor');
         if (res.success) {
             this.openSubEditor('Edit Field Properties', res.data.html, field, (newData) => {
                 Object.assign(fields[idx], newData);

@@ -81,12 +81,18 @@ class QueryBuilder
             $operator = '=';
         }
 
+        $validOperators = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'IS', 'IS NOT', 'BETWEEN', 'NOT BETWEEN'];
+        $operator = strtoupper(trim((string)$operator));
+        if (!in_array($operator, $validOperators)) {
+            $operator = '=';
+        }
+
         $this->wheres[] = [
             'type' => 'basic',
-            'column' => $column,
+            'column' => preg_replace('/[^a-zA-Z0-9_\.]/', '', $column),
             'operator' => $operator,
             'value' => $value,
-            'boolean' => $boolean
+            'boolean' => preg_replace('/[^a-zA-Z]/', '', $boolean)
         ];
 
         $this->addBindings([$value]);
@@ -151,6 +157,8 @@ class QueryBuilder
      */
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
+        $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
         $this->orders[] = compact('column', 'direction');
         return $this;
     }
@@ -235,10 +243,13 @@ class QueryBuilder
             return true;
         }
 
-        $columns = array_keys($values);
+        $safeCols = [];
+        foreach (array_keys($values) as $col) {
+            $safeCols[] = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
+        }
         $placeholders = array_fill(0, count($values), '?');
 
-        $sql = "INSERT INTO {$this->table} (" . implode(', ', $columns) . ") VALUES (" . implode(', ', $placeholders) . ")";
+        $sql = "INSERT INTO {$this->table} (" . implode(', ', $safeCols) . ") VALUES (" . implode(', ', $placeholders) . ")";
 
         try {
             $stmt = $this->db->prepare($sql);
@@ -259,7 +270,8 @@ class QueryBuilder
 
         $set = [];
         foreach ($values as $column => $value) {
-            $set[] = "$column = ?";
+            $safeCol = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+            $set[] = "{$safeCol} = ?";
         }
 
         // We need to merge update bindings with where bindings

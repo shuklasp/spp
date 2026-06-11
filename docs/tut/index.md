@@ -36,6 +36,12 @@ Welcome to the official tutorial for the **Satya Portal Pack (SPP) Framework**. 
     - `SPPAuth`: Authentication and Roles
     - `SPPLogger`: Flexible Logging
     - `SPPAI` & `SPPLive`: Vector ORM and WebSockets
+9.  [**Project: Building SPP-Twitter**](09_project_twitter.md)
+    - Putting it all together
+    - A real-world clone
+10. [**Business Intelligence & Reporting**](10_advanced_reporting.md)
+    - Zero-dependency dynamic reporting
+    - WYSIWYG Print Templates
 
 ---
 

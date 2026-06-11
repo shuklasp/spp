@@ -1,575 +1,560 @@
 [
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 11:36:18",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_modules&t=1781100600864",
+        "timestamp": "2026-06-10 14:10:04",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780565776.69116,
+                "timestamp": 1781100601.607359,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780565776.691615,
+                "timestamp": 1781100601.610332,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780565776.697657,
+                "timestamp": 1781100601.638668,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780565778.826149,
+                "timestamp": 1781100602.00183,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781100602.906455,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppadmin\/api.php?action=open_module_settings&t=1781100622091",
+        "timestamp": "2026-06-10 14:10:27",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781100622.227295,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781100622.233152,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781100622.275884,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781100623.158964,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781100626.086985,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 16:19:47",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781101183.204831,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781101183.205274,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781101183.320918,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781101183.397716,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:04:06",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781107424.800395,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781107424.802281,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107424.823177,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107425.009867,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:05:56",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781107551.818838,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781107551.82016,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107551.831833,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107551.901808,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:06:46",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781107602.000495,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781107602.001342,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107602.01175,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781107602.086691,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:28:54",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781108930.51348,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781108930.514282,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781108930.521819,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781108930.568131,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:29:49",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781108985.285405,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781108985.285835,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781108985.29173,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781108985.338223,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-10 18:30:18",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781109014.422839,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781109014.423377,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781109014.428253,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781109014.476283,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "CLI",
+        "timestamp": "2026-06-11 01:42:16",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781134934.343263,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781134934.344552,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781134934.350328,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781134934.500998,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "\/school1\/sppadmin\/",
-        "timestamp": "2026-06-04 09:48:23",
+        "timestamp": "2026-06-10 23:45:49",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780566498.066434,
+                "timestamp": 1781135146.112295,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780566498.072392,
+                "timestamp": 1781135146.116064,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566498.121388,
+                "timestamp": 1781135146.143232,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566501.739493,
+                "timestamp": 1781135146.898086,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566502.476548,
+                "timestamp": 1781135149.000769,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&t=1780566502714",
-        "timestamp": "2026-06-04 09:48:27",
+        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&t=1781135150113",
+        "timestamp": "2026-06-10 23:45:56",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780566503.79363,
+                "timestamp": 1781135150.560937,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780566503.799392,
+                "timestamp": 1781135150.567129,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566503.842565,
+                "timestamp": 1781135150.589444,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566506.109845,
+                "timestamp": 1781135151.960789,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566506.853826,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php",
-        "timestamp": "2026-06-04 09:48:39",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566515.489603,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566515.494927,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566515.531382,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566517.441523,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566518.142376,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&t=1780566519591",
-        "timestamp": "2026-06-04 09:48:42",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566519.853915,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566519.856727,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566519.885968,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566520.720506,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566521.302861,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&t=1780566519591",
-        "timestamp": "2026-06-04 09:48:42",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566519.854571,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566519.857208,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566519.903108,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566520.768007,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566521.342786,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&t=1780566531811",
-        "timestamp": "2026-06-04 09:48:55",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566531.512,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566531.517008,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566531.556997,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566532.653073,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566533.057758,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_modules&t=1780566531812",
-        "timestamp": "2026-06-04 09:48:56",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566531.51173,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566531.516449,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566531.556761,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566532.710459,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566533.05785,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_entities&t=1780566542308",
-        "timestamp": "2026-06-04 09:49:07",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780566543.459854,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780566543.465942,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566543.528402,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566545.838103,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780566546.644661,
+                "timestamp": 1781135154.34415,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "\/school1\/sppadmin\/api.php",
-        "timestamp": "2026-06-04 09:49:12",
+        "timestamp": "2026-06-10 23:46:07",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780566547.887061,
+                "timestamp": 1781135163.06691,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780566547.894245,
+                "timestamp": 1781135163.074019,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566547.935253,
+                "timestamp": 1781135163.099468,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566550.335011,
+                "timestamp": 1781135164.163754,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780566551.190447,
+                "timestamp": 1781135166.255305,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&t=1781135167925",
+        "timestamp": "2026-06-10 23:46:10",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781135168.084145,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781135168.090221,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135168.110264,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135168.453762,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135169.659856,
+                "handlers": []
+            }
+        ]
+    },
+    {
+        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&t=1781135167925",
+        "timestamp": "2026-06-10 23:46:10",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1781135168.100156,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1781135168.107991,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135168.130107,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135168.450159,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781135169.660116,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:32:41",
+        "timestamp": "2026-06-11 02:17:37",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780569159.194102,
+                "timestamp": 1781137056.351622,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780569159.195779,
+                "timestamp": 1781137056.35379,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780569159.211937,
+                "timestamp": 1781137056.358199,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780569161.091793,
+                "timestamp": 1781137056.408362,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:33:19",
+        "timestamp": "2026-06-11 02:27:49",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780569197.374776,
+                "timestamp": 1781137668.019402,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780569197.37568,
+                "timestamp": 1781137668.020115,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780569197.381566,
+                "timestamp": 1781137668.023551,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780569199.329113,
+                "timestamp": 1781137668.078985,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:50:06",
+        "timestamp": "2026-06-11 03:13:28",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780570204.300473,
+                "timestamp": 1781140392.280595,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780570204.301435,
+                "timestamp": 1781140392.28164,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570204.307617,
+                "timestamp": 1781140392.499242,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570205.961695,
+                "timestamp": 1781140393.236237,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:57:58",
+        "timestamp": "2026-06-11 03:15:04",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780570676.952348,
+                "timestamp": 1781140497.895211,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780570676.953137,
+                "timestamp": 1781140497.900552,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570676.96015,
+                "timestamp": 1781140497.905353,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570678.362947,
+                "timestamp": 1781140497.96655,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1781140499.749843,
                 "handlers": []
             }
         ]
     },
     {
         "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:57:58",
+        "timestamp": "2026-06-11 03:22:21",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1780570675.242722,
+                "timestamp": 1781140939.955694,
                 "handlers": []
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1780570675.243808,
+                "timestamp": 1781140939.956679,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570675.24953,
+                "timestamp": 1781140939.960593,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1780570676.730061,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570676.814903,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:58:17",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780570696.015104,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780570696.016062,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570696.021317,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570697.440081,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 12:58:17",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780570694.158406,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780570694.159444,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570694.164604,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570695.794001,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780570695.884787,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 16:26:41",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780583199.298241,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780583199.298975,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583199.306841,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583201.772644,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 16:32:40",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780583558.864727,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780583558.865801,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583558.871525,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583560.462488,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-04 16:32:40",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1780583550.601199,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1780583550.601905,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583550.730737,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1780583554.400343,
+                "timestamp": 1781140940.025103,
                 "handlers": []
             }
         ]

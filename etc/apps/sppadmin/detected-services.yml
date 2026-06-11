@@ -140,3 +140,51 @@ services:
     name: get_ajax_services
     script: spp/admin/services/General.php
     method: live_get_ajax_services
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_profile
+    script: spp/admin/services/General.php
+    method: live_get_profile
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: check_auth
+    script: spp/admin/services/General.php
+    method: live_check_auth
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_codebase_structure
+    script: spp/admin/services/General.php
+    method: live_get_codebase_structure
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_file_content
+    script: spp/admin/services/General.php
+    method: live_get_file_content
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: scaffold_template
+    script: spp/admin/services/General.php
+    method: live_scaffold_template
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: get_builder_context
+    script: spp/admin/services/General.php
+    method: live_get_builder_context
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: report_api
+    script: spp/modules/spp/sppreport/services/report_api.php
+    method: POST
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: run_xdb_query
+    script: spp/admin/services/General.php
+    method: live_run_xdb_query

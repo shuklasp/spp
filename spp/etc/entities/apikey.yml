@@ -1,0 +1,9 @@
+table: api_keys
+enable_api: false
+attributes:
+  name: varchar(255)
+  token: varchar(255)
+  user_id: bigint
+  status: int
+  created_at: datetime
+  expires_at: datetime

@@ -6,3 +6,441 @@
 [2026-06-04 09:48:54] Context set to sppadmin
 [2026-06-04 09:49:07] Context set to sppadmin
 [2026-06-04 09:49:11] Context set to sppadmin
+[2026-06-05 04:22:03] FATAL SHUTDOWN: Uncaught Error: Class "SPPMod\SPPEntity\SPPEntity" not found in C:\projects\apache\school1\spp\modules\spp\sppauth\class.sppuser.php:15
+Stack trace:
+#0 C:\projects\apache\school1\spp\admin\api.php(88): require_once()
+#1 C:\projects\apache\school1\scratch_test_login.php(9): require('C:\\projects\\apa...')
+#2 {main}
+  thrown in C:\projects\apache\school1\spp\modules\spp\sppauth\class.sppuser.php on line 15
+[2026-06-05 04:22:39] Context set to sppadmin
+[2026-06-05 02:23:29] Context set to sppadmin
+[2026-06-05 02:23:32] Context set to sppadmin
+[2026-06-05 02:23:32] Context set to sppadmin
+[2026-06-05 02:23:56] Context set to sppadmin
+[2026-06-05 02:23:59] Context set to sppadmin
+[2026-06-05 02:23:59] Context set to sppadmin
+[2026-06-05 02:27:35] Context set to sppadmin
+[2026-06-05 02:27:38] Context set to sppadmin
+[2026-06-05 02:27:38] Context set to sppadmin
+[2026-06-05 05:38:46] Context set to sppadmin
+[2026-06-05 05:38:46] API FATAL ERROR: SPPMod\SPPAjax\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 395 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 363
+#0 C:\projects\apache\school1\spp\admin\api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute(NULL, Array)
+#1 C:\projects\apache\school1\spp\modules\spp\sppdoc\src\DocParser.php(30): include_once('C:\\projects\\apa...')
+#2 C:\projects\apache\school1\spp\modules\spp\sppdoc\src\StaticGenerator.php(9): SPPMod\SPPDoc\DocParser::parseCodebase()
+#3 C:\projects\apache\school1\spp\commands\DocCommand.php(23): SPPMod\SPPDoc\StaticGenerator::build('C:\\projects\\apa...')
+#4 C:\projects\apache\school1\spp\spp.php(140): SPP\CLI\Commands\DocCommand->execute(Array)
+#5 C:\projects\apache\school1\spp.php(12): require_once('C:\\projects\\apa...')
+#6 {main}
+[2026-06-05 05:38:46] PHP Error (2): Cannot modify header information - headers already sent by (output started at C:\projects\apache\school1\spp\commands\DocCommand.php:17) in C:\projects\apache\school1\spp\admin\api.php on line 159
+[2026-06-05 04:39:14] Context set to sppadmin
+[2026-06-05 04:39:31] Context set to sppadmin
+[2026-06-05 04:39:37] Context set to sppadmin
+[2026-06-05 04:39:37] Context set to sppadmin
+[2026-06-05 04:43:16] Context set to sppadmin
+[2026-06-05 04:43:23] Context set to sppadmin
+[2026-06-05 04:43:23] Context set to sppadmin
+[2026-06-05 04:49:26] Context set to sppadmin
+[2026-06-05 04:49:33] Context set to sppadmin
+[2026-06-05 04:49:33] Context set to sppadmin
+[2026-06-05 04:49:41] Context set to sppadmin
+[2026-06-05 04:49:49] Context set to sppadmin
+[2026-06-05 04:55:25] Context set to sppadmin
+[2026-06-05 04:55:32] Context set to sppadmin
+[2026-06-05 04:55:32] Context set to sppadmin
+[2026-06-05 04:55:40] Context set to sppadmin
+[2026-06-05 04:57:52] Context set to sppadmin
+[2026-06-05 04:57:59] Context set to sppadmin
+[2026-06-05 04:57:59] Context set to sppadmin
+[2026-06-05 04:58:07] Context set to sppadmin
+[2026-06-05 05:05:45] Context set to sppadmin
+[2026-06-05 05:05:52] Context set to sppadmin
+[2026-06-05 05:05:52] Context set to sppadmin
+[2026-06-05 05:06:00] Context set to sppadmin
+[2026-06-05 07:03:41] Context set to sppadmin
+[2026-06-05 07:03:54] Context set to sppadmin
+[2026-06-05 07:04:00] Context set to sppadmin
+[2026-06-05 07:04:00] Context set to sppadmin
+[2026-06-05 07:04:26] Context set to sppadmin
+[2026-06-05 07:04:34] FATAL SHUTDOWN: Cannot redeclare camel_case() (previously declared in /mnt/c/projects/apache/school1/src/lekhak/expand_joomla_40.php:16) in /mnt/c/projects/apache/school1/src/lekhak/generate_sppux_ui.php on line 45
+[2026-06-05 07:38:13] Context set to sppadmin
+[2026-06-05 07:38:44] Context set to sppadmin
+[2026-06-05 07:38:47] Context set to sppadmin
+[2026-06-05 07:38:47] Context set to sppadmin
+[2026-06-05 07:38:59] Context set to sppadmin
+[2026-06-05 07:39:05] FATAL SHUTDOWN: Cannot redeclare camel_case() (previously declared in /mnt/c/projects/apache/school1/src/lekhak/expand_joomla_40.php:16) in /mnt/c/projects/apache/school1/src/lekhak/generate_sppux_ui.php on line 45
+[2026-06-05 08:03:17] Context set to sppadmin
+[2026-06-05 08:03:20] Context set to sppadmin
+[2026-06-05 08:03:20] Context set to sppadmin
+[2026-06-05 08:03:24] Context set to sppadmin
+[2026-06-05 08:03:28] FATAL SHUTDOWN: Cannot redeclare Lekhak\Modules\LekhakModuleCrop\LekhakModuleCrop::hook_entity_view_alter() in /mnt/c/projects/apache/school1/src/lekhak/modules/crop/module.php on line 18
+[2026-06-05 08:07:07] Context set to sppadmin
+[2026-06-05 08:07:10] Context set to sppadmin
+[2026-06-05 08:07:10] Context set to sppadmin
+[2026-06-05 08:07:15] Context set to sppadmin
+[2026-06-05 08:07:18] FATAL SHUTDOWN: Cannot redeclare Lekhak\Modules\LekhakModuleCrop\LekhakModuleCrop::hook_entity_view_alter() in /mnt/c/projects/apache/school1/src/lekhak/modules/crop/module.php on line 18
+[2026-06-05 08:16:47] Context set to sppadmin
+[2026-06-05 08:16:51] Context set to sppadmin
+[2026-06-05 08:16:51] Context set to sppadmin
+[2026-06-05 08:16:55] Context set to sppadmin
+[2026-06-05 08:18:07] Context set to sppadmin
+[2026-06-05 08:25:41] Context set to sppadmin
+[2026-06-05 08:27:49] Context set to sppadmin
+[2026-06-05 08:29:27] Context set to sppadmin
+[2026-06-05 08:43:37] Context set to sppadmin
+[2026-06-05 08:48:33] Context set to sppadmin
+[2026-06-05 08:48:50] Context set to sppadmin
+[2026-06-05 08:48:55] Context set to sppadmin
+[2026-06-05 08:48:55] Context set to sppadmin
+[2026-06-05 08:49:18] Context set to sppadmin
+[2026-06-05 09:15:53] Context set to sppadmin
+[2026-06-05 09:16:10] Context set to sppadmin
+[2026-06-05 09:16:17] Context set to sppadmin
+[2026-06-05 09:16:18] Context set to sppadmin
+[2026-06-05 09:16:28] Context set to sppadmin
+[2026-06-05 09:16:58] Context set to sppadmin
+[2026-06-05 09:34:22] Context set to sppadmin
+[2026-06-05 09:34:27] Context set to sppadmin
+[2026-06-05 09:34:27] Context set to sppadmin
+[2026-06-05 09:34:33] Context set to sppadmin
+[2026-06-05 09:35:32] Context set to sppadmin
+[2026-06-05 09:42:31] Context set to sppadmin
+[2026-06-05 09:42:36] Context set to sppadmin
+[2026-06-05 09:42:36] Context set to sppadmin
+[2026-06-05 09:42:44] Context set to sppadmin
+[2026-06-05 09:43:54] Context set to sppadmin
+[2026-06-05 09:44:16] Context set to sppadmin
+[2026-06-05 09:57:55] Context set to sppadmin
+[2026-06-05 09:57:58] Context set to sppadmin
+[2026-06-05 09:57:58] Context set to sppadmin
+[2026-06-05 09:58:02] Context set to sppadmin
+[2026-06-05 10:01:49] Context set to sppadmin
+[2026-06-05 10:04:25] Context set to sppadmin
+[2026-06-05 10:04:29] Context set to sppadmin
+[2026-06-05 10:04:29] Context set to sppadmin
+[2026-06-05 10:04:33] Context set to sppadmin
+[2026-06-05 10:04:59] Context set to sppadmin
+[2026-06-05 10:05:12] Context set to sppadmin
+[2026-06-05 10:21:53] Context set to sppadmin
+[2026-06-05 10:21:56] Context set to sppadmin
+[2026-06-05 10:21:56] Context set to sppadmin
+[2026-06-05 10:22:00] Context set to sppadmin
+[2026-06-05 10:29:32] Context set to sppadmin
+[2026-06-05 10:29:35] Context set to sppadmin
+[2026-06-05 10:29:35] Context set to sppadmin
+[2026-06-05 10:30:04] Context set to sppadmin
+[2026-06-05 10:30:04] Context set to sppadmin
+[2026-06-05 10:38:08] Context set to sppadmin
+[2026-06-05 10:38:14] Context set to sppadmin
+[2026-06-05 10:38:14] Context set to sppadmin
+[2026-06-05 10:38:18] Context set to sppadmin
+[2026-06-05 10:38:18] Context set to sppadmin
+[2026-06-05 10:42:16] Context set to sppadmin
+[2026-06-05 10:42:21] Context set to sppadmin
+[2026-06-05 10:42:21] Context set to sppadmin
+[2026-06-05 10:42:25] Context set to sppadmin
+[2026-06-05 10:42:25] Context set to sppadmin
+[2026-06-05 10:42:50] Context set to sppadmin
+[2026-06-05 10:43:16] Context set to sppadmin
+[2026-06-05 10:51:36] Context set to sppadmin
+[2026-06-05 10:51:43] Context set to sppadmin
+[2026-06-05 10:51:43] Context set to sppadmin
+[2026-06-05 10:51:47] Context set to sppadmin
+[2026-06-05 10:51:47] Context set to sppadmin
+[2026-06-05 10:52:23] Context set to sppadmin
+[2026-06-05 10:55:16] Context set to sppadmin
+[2026-06-05 10:55:21] Context set to sppadmin
+[2026-06-05 10:55:21] Context set to sppadmin
+[2026-06-05 10:55:25] Context set to sppadmin
+[2026-06-05 10:55:25] Context set to sppadmin
+[2026-06-05 11:03:46] Context set to sppadmin
+[2026-06-05 11:03:51] Context set to sppadmin
+[2026-06-05 11:03:51] Context set to sppadmin
+[2026-06-05 11:03:57] Context set to sppadmin
+[2026-06-05 11:03:57] Context set to sppadmin
+[2026-06-05 11:12:03] Context set to sppadmin
+[2026-06-05 11:12:08] Context set to sppadmin
+[2026-06-05 11:12:08] Context set to sppadmin
+[2026-06-05 11:12:12] Context set to sppadmin
+[2026-06-05 11:12:12] Context set to sppadmin
+[2026-06-05 12:15:23] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1780661712323","modname":"spplogger","public_name":"SPP Unified Logger","appname":"default","csrf_token":"25ee550508aee13473c858d2357b51c83fd229b2014a95b315976db6af59ad73"}
+[Modules] OpenSettings: mod=spplogger, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/spplogger/module.yml, settingsCount=6
+[Modules] Generated HTML length: 4740
+[2026-06-05 12:15:51] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1780661745562","modname":"spplogger","public_name":"SPP Unified Logger","appname":"default","csrf_token":"25ee550508aee13473c858d2357b51c83fd229b2014a95b315976db6af59ad73"}
+[Modules] OpenSettings: mod=spplogger, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/spplogger/module.yml, settingsCount=6
+[Modules] Generated HTML length: 4740
+[2026-06-05 12:16:38] Context set to sppadmin
+[2026-06-05 12:17:38] Context set to sppadmin
+[2026-06-05 12:19:03] Context set to sppadmin
+[2026-06-05 12:19:06] Context set to sppadmin
+[2026-06-05 12:19:06] Context set to sppadmin
+[2026-06-05 12:25:00] Context set to sppadmin
+[2026-06-05 12:25:02] Context set to sppadmin
+[2026-06-05 12:25:02] Context set to sppadmin
+[2026-06-09 13:09:56] Context set to sppadmin
+[2026-06-09 13:10:21] Context set to sppadmin
+[2026-06-09 13:10:31] Context set to sppadmin
+[2026-06-09 13:10:31] Context set to sppadmin
+[2026-06-09 13:11:28] Context set to sppadmin
+[2026-06-09 13:11:28] Context set to sppadmin
+[2026-06-09 13:12:05] Context set to sppadmin
+[2026-06-09 13:12:18] Context set to sppadmin
+[2026-06-09 13:19:28] Context set to sppadmin
+[2026-06-09 13:19:28] Context set to sppadmin
+[2026-06-09 13:19:51] Context set to sppadmin
+[2026-06-09 13:20:04] Context set to sppadmin
+[2026-06-09 13:20:12] Context set to sppadmin
+[2026-06-09 13:20:18] Context set to sppadmin
+[2026-06-09 13:20:18] Context set to sppadmin
+[2026-06-09 13:20:35] Context set to sppadmin
+[2026-06-09 13:20:35] Context set to sppadmin
+[2026-06-09 13:21:00] Context set to sppadmin
+[2026-06-09 13:21:13] Context set to sppadmin
+[2026-06-09 15:38:04] Context set to sppadmin
+[2026-06-09 15:38:22] Context set to sppadmin
+[2026-06-09 15:38:28] Context set to sppadmin
+[2026-06-09 15:38:28] Context set to sppadmin
+[2026-06-10 04:51:46] Context set to sppadmin
+[2026-06-10 04:53:06] Context set to sppadmin
+[2026-06-10 04:53:18] Context set to sppadmin
+[2026-06-10 04:53:18] Context set to sppadmin
+[2026-06-10 07:40:11] Context set to sppadmin
+[2026-06-10 07:40:47] Context set to sppadmin
+[2026-06-10 07:40:54] Context set to sppadmin
+[2026-06-10 07:40:54] Context set to sppadmin
+[2026-06-10 07:50:22] Context set to sppadmin
+[2026-06-10 07:50:29] Context set to sppadmin
+[2026-06-10 07:50:29] Context set to sppadmin
+[2026-06-10 08:05:04] Context set to sppadmin
+[2026-06-10 08:05:11] Context set to sppadmin
+[2026-06-10 08:05:11] Context set to sppadmin
+[2026-06-10 08:08:17] Context set to sppadmin
+[2026-06-10 08:08:24] Context set to sppadmin
+[2026-06-10 08:08:24] Context set to sppadmin
+[2026-06-10 08:09:17] Context set to sppadmin
+[2026-06-10 08:09:27] Context set to sppadmin
+[2026-06-10 08:09:28] Context set to sppadmin
+[2026-06-10 08:20:17] Context set to sppadmin
+[2026-06-10 08:20:18] API FATAL ERROR: syntax error, unexpected token "\", expecting ";" in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php on line 519
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(503): require_once()
+#1 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#2 {main}
+[2026-06-10 08:21:03] Context set to sppadmin
+[2026-06-10 08:36:37] Context set to sppadmin
+[2026-06-10 08:37:45] Context set to sppadmin
+[2026-06-10 08:37:53] Context set to sppadmin
+[2026-06-10 08:37:53] Context set to sppadmin
+[2026-06-10 08:38:20] Context set to sppadmin
+[2026-06-10 08:38:22] PHP Error (2): require_once(/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php): Failed to open stream: No such file or directory in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+[2026-06-10 08:38:22] API FATAL ERROR: Failed opening required '/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php' (include_path='.:/usr/share/php') in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(73): SPPReport->__construct()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(550): spp_report_api_handler()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#4 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#5 {main}
+[2026-06-10 08:38:32] Context set to sppadmin
+[2026-06-10 08:38:35] PHP Error (2): require_once(/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php): Failed to open stream: No such file or directory in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+[2026-06-10 08:38:35] API FATAL ERROR: Failed opening required '/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php' (include_path='.:/usr/share/php') in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(73): SPPReport->__construct()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(550): spp_report_api_handler()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#4 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#5 {main}
+[2026-06-10 08:38:49] Context set to sppadmin
+[2026-06-10 08:38:51] PHP Error (2): require_once(/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php): Failed to open stream: No such file or directory in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+[2026-06-10 08:38:51] API FATAL ERROR: Failed opening required '/mnt/c/projects/apache/school1/spp/modules/spp/sppreport/../sppdb/sppdb.php' (include_path='.:/usr/share/php') in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 30
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(73): SPPReport->__construct()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(550): spp_report_api_handler()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#4 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#5 {main}
+[2026-06-10 08:41:54] Context set to sppadmin
+[2026-06-10 08:42:03] Context set to sppadmin
+[2026-06-10 08:42:03] Context set to sppadmin
+[2026-06-10 08:42:16] Context set to sppadmin
+[2026-06-10 08:42:30] Context set to sppadmin
+[2026-06-10 08:42:44] Context set to sppadmin
+[2026-06-10 09:12:34] Context set to sppadmin
+[2026-06-10 09:13:16] Context set to sppadmin
+[2026-06-10 09:13:21] Context set to sppadmin
+[2026-06-10 09:13:21] Context set to sppadmin
+[2026-06-10 09:14:21] Context set to sppadmin
+[2026-06-10 09:14:28] Context set to sppadmin
+[2026-06-10 09:14:35] Context set to sppadmin
+[2026-06-10 09:17:56] Context set to sppadmin
+[2026-06-10 09:18:23] Context set to sppadmin
+[2026-06-10 09:18:23] API FATAL ERROR: Call to undefined method SPPMod\SPPAuth\AnonymousUser::getRoles() in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php on line 34
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(552): spp_report_api_handler()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 09:18:48] Context set to sppadmin
+[2026-06-10 09:19:24] Context set to sppadmin
+[2026-06-10 09:19:25] API FATAL ERROR: Cannot access private property SPPReport::$db in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php on line 94
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(553): spp_report_api_handler()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 09:19:54] Context set to sppadmin
+[2026-06-10 09:20:30] Context set to sppadmin
+[2026-06-10 09:22:26] Context set to sppadmin
+[2026-06-10 09:22:28] Context set to sppadmin
+[2026-06-10 09:22:28] Context set to sppadmin
+[2026-06-10 09:22:32] Context set to sppadmin
+[2026-06-10 09:22:40] Context set to sppadmin
+[2026-06-10 09:22:46] Context set to sppadmin
+[2026-06-10 09:25:10] Context set to sppadmin
+[2026-06-10 09:26:23] Context set to sppadmin
+[2026-06-10 09:26:27] Context set to sppadmin
+[2026-06-10 09:26:27] Context set to sppadmin
+[2026-06-10 09:26:30] Context set to sppadmin
+[2026-06-10 09:26:39] Context set to sppadmin
+[2026-06-10 09:26:47] Context set to sppadmin
+[2026-06-10 09:31:45] Context set to sppadmin
+[2026-06-10 09:37:09] Context set to sppadmin
+[2026-06-10 09:37:09] API FATAL ERROR: Call to undefined method SPP\Module::initWS() in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php on line 15
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(552): spp_report_api_handler()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 09:37:32] Context set to sppadmin
+[2026-06-10 09:37:32] API FATAL ERROR: Class "SPP\System" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php on line 18
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/api.php(557): spp_report_api_handler()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/services/report_api.php(3): require_once('...')
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(411): require_once('...')
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 09:38:06] Context set to sppadmin
+[2026-06-10 09:38:08] PHP Error (2): file_put_contents(c:/projects/apache/school1/users_debug.txt): Failed to open stream: No such file or directory in /mnt/c/projects/apache/school1/spp/modules/spp/sppreport/class.sppreport.php on line 79
+[2026-06-10 10:07:43] Context set to sppadmin
+[2026-06-10 10:08:01] Context set to sppadmin
+[2026-06-10 10:08:07] Context set to sppadmin
+[2026-06-10 10:08:07] Context set to sppadmin
+[2026-06-10 10:08:28] Context set to sppadmin
+[2026-06-10 10:08:41] Context set to sppadmin
+[2026-06-10 10:08:48] Context set to sppadmin
+[2026-06-10 10:10:19] Context set to sppadmin
+[2026-06-10 10:10:53] Context set to sppadmin
+[2026-06-10 10:13:00] Context set to sppadmin
+[2026-06-10 10:13:24] Context set to sppadmin
+[2026-06-10 10:13:48] Context set to sppadmin
+[2026-06-10 10:16:50] Context set to sppadmin
+[2026-06-10 10:16:56] Context set to sppadmin
+[2026-06-10 10:16:56] Context set to sppadmin
+[2026-06-10 10:17:03] Context set to sppadmin
+[2026-06-10 10:17:16] Context set to sppadmin
+[2026-06-10 10:17:25] Context set to sppadmin
+[2026-06-10 10:18:09] Context set to sppadmin
+[2026-06-10 10:18:55] Context set to sppadmin
+[2026-06-10 10:21:04] Context set to sppadmin
+[2026-06-10 10:21:08] Context set to sppadmin
+[2026-06-10 10:21:31] Context set to sppadmin
+[2026-06-10 10:26:01] Context set to sppadmin
+[2026-06-10 10:26:08] Context set to sppadmin
+[2026-06-10 10:26:08] Context set to sppadmin
+[2026-06-10 10:26:14] Context set to sppadmin
+[2026-06-10 10:26:28] Context set to sppadmin
+[2026-06-10 10:26:37] Context set to sppadmin
+[2026-06-10 10:27:34] Context set to sppadmin
+[2026-06-10 10:27:50] Context set to sppadmin
+[2026-06-10 13:35:50] Context set to sppadmin
+[2026-06-10 13:35:50] API FATAL ERROR: Class "SPPMod\SPPXDB\DOMDocument" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.query.php on line 82
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.sqlparser.php(965): SPPMod\SPPXDB\Engines\XMLEngine->queryX()
+#1 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(80): call_user_func_array()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(22): SPPMod\SPPXDB\SPP_XDB->__call()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(398): SPPMod\SPPInterDB\XDBAdapter->query()
+#5 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(578): SPPMod\SPPDB\SPPDB->execute_query()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(548): SPPMod\SPPAjax\SPPAjax::loadServiceRegistry()
+#7 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(369): SPPMod\SPPAjax\SPPAjax::findService()
+#8 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#9 {main}
+[2026-06-10 13:36:35] Context set to sppadmin
+[2026-06-10 13:36:35] API FATAL ERROR: Class "SPPMod\SPPXDB\DOMDocument" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.query.php on line 82
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.sqlparser.php(965): SPPMod\SPPXDB\Engines\XMLEngine->queryX()
+#1 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(80): call_user_func_array()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(22): SPPMod\SPPXDB\SPP_XDB->__call()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(398): SPPMod\SPPInterDB\XDBAdapter->query()
+#5 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(578): SPPMod\SPPDB\SPPDB->execute_query()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(548): SPPMod\SPPAjax\SPPAjax::loadServiceRegistry()
+#7 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(369): SPPMod\SPPAjax\SPPAjax::findService()
+#8 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#9 {main}
+[2026-06-10 13:37:39] Context set to sppadmin
+[2026-06-10 13:37:53] Context set to sppadmin
+[2026-06-10 13:37:56] Context set to sppadmin
+[2026-06-10 13:37:56] Context set to sppadmin
+[2026-06-10 13:38:14] Context set to sppadmin
+[2026-06-10 13:38:20] Context set to sppadmin
+[2026-06-10 13:39:22] Context set to sppadmin
+[2026-06-10 13:39:51] Context set to sppadmin
+[2026-06-10 13:46:39] Context set to sppadmin
+[2026-06-10 13:46:42] Context set to sppadmin
+[2026-06-10 13:46:42] Context set to sppadmin
+[2026-06-10 13:46:47] Context set to sppadmin
+[2026-06-10 13:46:54] Context set to sppadmin
+[2026-06-10 13:47:22] Context set to sppadmin
+[2026-06-10 13:47:22] Context set to sppadmin
+[2026-06-10 13:49:34] Context set to sppadmin
+[2026-06-10 13:50:22] Context set to sppadmin
+[2026-06-10 13:50:24] Context set to sppadmin
+[2026-06-10 13:50:24] Context set to sppadmin
+[2026-06-10 13:50:27] Context set to sppadmin
+[2026-06-10 13:50:27] Context set to sppadmin
+[2026-06-10 13:54:29] Context set to sppadmin
+[2026-06-10 13:54:32] Context set to sppadmin
+[2026-06-10 13:54:32] Context set to sppadmin
+[2026-06-10 13:54:34] Context set to sppadmin
+[2026-06-10 13:54:34] Context set to sppadmin
+[2026-06-10 13:56:34] Context set to sppadmin
+[2026-06-10 13:56:37] Context set to sppadmin
+[2026-06-10 13:56:37] Context set to sppadmin
+[2026-06-10 13:56:39] Context set to sppadmin
+[2026-06-10 13:56:39] Context set to sppadmin
+[2026-06-10 13:59:14] Context set to sppadmin
+[2026-06-10 13:59:17] Context set to sppadmin
+[2026-06-10 13:59:17] Context set to sppadmin
+[2026-06-10 13:59:21] Context set to sppadmin
+[2026-06-10 13:59:21] Context set to sppadmin
+[2026-06-10 14:02:53] Context set to sppadmin
+[2026-06-10 14:02:56] Context set to sppadmin
+[2026-06-10 14:02:56] Context set to sppadmin
+[2026-06-10 14:02:58] Context set to sppadmin
+[2026-06-10 14:02:58] Context set to sppadmin
+[2026-06-10 14:03:19] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1781100194462","modname":"sppxdb","public_name":"SPP XDB","appname":"default","csrf_token":"8d9b9a18c260def1d0317188322aadbcc345996b7a6fa2b6b2058cd462dacbb5"}
+[2026-06-10 14:03:19] API FATAL ERROR: SPP\Module::getAppConfig(): Return value must be of type array, null returned in /mnt/c/projects/apache/school1/spp/core/class.module.php on line 530
+#0 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(109): SPP\Module::getAppConfig()
+#1 /mnt/c/projects/apache/school1/spp/admin/services/General.php(68): live_OpenSettings()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_open_module_settings()
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 14:03:33] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1781100208570","modname":"sppxdb","public_name":"SPP XDB","appname":"default","csrf_token":"8d9b9a18c260def1d0317188322aadbcc345996b7a6fa2b6b2058cd462dacbb5"}
+[2026-06-10 14:03:34] API FATAL ERROR: SPP\Module::getAppConfig(): Return value must be of type array, null returned in /mnt/c/projects/apache/school1/spp/core/class.module.php on line 530
+#0 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(109): SPP\Module::getAppConfig()
+#1 /mnt/c/projects/apache/school1/spp/admin/services/General.php(68): live_OpenSettings()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_open_module_settings()
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#4 {main}
+[2026-06-10 14:09:58] Context set to sppadmin
+[2026-06-10 14:10:00] Context set to sppadmin
+[2026-06-10 14:10:00] Context set to sppadmin
+[2026-06-10 14:10:03] Context set to sppadmin
+[2026-06-10 14:10:03] Context set to sppadmin
+[2026-06-10 14:10:26] Context set to sppadmin
+[Modules] OpenSettings called with: {"action":"open_module_settings","t":"1781100622091","modname":"sppxdb","public_name":"SPP XDB","appname":"default","csrf_token":"8d9b9a18c260def1d0317188322aadbcc345996b7a6fa2b6b2058cd462dacbb5"}
+[Modules] OpenSettings: mod=sppxdb, manifest=/mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/module.yml, settingsCount=1
+[Modules] Generated HTML length: 1023
+[2026-06-10 23:45:55] Context set to sppadmin
+[2026-06-10 23:46:06] Context set to sppadmin
+[2026-06-10 23:46:10] Context set to sppadmin
+[2026-06-10 23:46:10] Context set to sppadmin

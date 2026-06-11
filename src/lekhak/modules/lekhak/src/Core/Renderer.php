@@ -120,6 +120,8 @@ class Renderer
             $output = $renderParams['html'];
         }
 
+        } // End if ($output === null)
+
         return $output;
     }
 

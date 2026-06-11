@@ -58,9 +58,16 @@ class SPPAuth extends \SPP\SPPObject
      */
     public static function login($uname, $passwd)
     {
-        // Simple mock for legacy compatibility
-        $user = (object)['id' => $uname, 'name' => $uname];
-        return self::guard('web')->login($user);
+        try {
+            if (SPPUser::verifyUserPassword($uname, $passwd)) {
+                $user = new SPPUser($uname);
+                self::guard('web')->login($user);
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Handle error or ignore to return false
+        }
+        return false;
     }
 
     /**

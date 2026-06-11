@@ -20,73 +20,81 @@ modules:
     3:
         name: spplogger
         path: spp/spplogger
-        status: inactive
+        status: active
         deps:
             - sppcore
-            - sppdb
-            - sppsession
-    6:
+    4:
         name: sppview
         path: spp/sppview
         status: active
         deps:
             - sppcore
-            - sppdb
-            - sppsession
-    7:
-        name: sppajax
-        path: spp/sppajax
+    5:
+        name: sppapi
+        path: spp/sppapi
         status: active
         deps:
             - sppcore
-            - sppview
-    8:
-        name: sppux
-        path: spp/sppux
+    6:
+        name: drishyam
+        path: spp/drishyam
         status: active
         deps:
             - sppview
-            - sppajax
-    9:
-        name: sppentity
-        path: spp/sppentity
+            - sppapi
+    7:
+        name: sppcache
+        path: spp/sppcache
+        status: active
+        deps:
+            - sppcore
+    8:
+        name: sppqueue
+        path: spp/sppqueue
         status: active
         deps:
             - sppdb
+    9:
+        name: sppstorage
+        path: spp/sppstorage
+        status: active
     10:
+        name: sppworkflow
+        path: spp/sppworkflow
+        status: active
+    11:
+        name: sppmaker
+        path: spp/sppmaker
+        status: active
+    12:
+        name: sppenv
+        path: spp/sppenv
+        status: active
+    13:
         name: parikshak
         path: spp/parikshak
         status: active
-        deps:
-            - sppdb
-            - sppentity
-    11:
-        name: sppblade
-        path: spp/sppblade
-        status: active
-        deps:
-            - sppview
-    12:
+    14:
         name: sppai
         path: spp/sppai
         status: active
-    14:
+    15:
         name: lekhni
         path: contrib/lekhni
-        status: active
-    15:
-        name: sppinterdb
-        path: spp/sppinterdb
         status: active
     16:
         name: sppxdb
         path: spp/sppxdb
         status: active
-    18:
+    17:
         name: sppmigrate
         path: spp/sppmigrate
         status: active
-    19:
+    18:
         name: sppsecurity
         path: spp/sppsecurity
+        status: active
+    19:
+        name: sppdocs
+        path: spp/sppdocs
         status: active

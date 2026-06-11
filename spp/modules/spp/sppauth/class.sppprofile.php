@@ -42,9 +42,9 @@ class SPPProfile extends \SPP\SPPObject
         $result = $db->execute_query($sql, $values);
         if (sizeof($result) > 0) {
             $this->profname = $result[0]['profname'];
-            $this->proftabname = $result[0]['proftabname'];
-            $this->profseqname = $result[0]['profseqname'];
-            $this->idfield = $result[0]['idfield'];
+            $this->proftabname = preg_replace('/[^a-zA-Z0-9_]/', '', $result[0]['proftabname']);
+            $this->profseqname = preg_replace('/[^a-zA-Z0-9_]/', '', $result[0]['profseqname']);
+            $this->idfield = preg_replace('/[^a-zA-Z0-9_]/', '', $result[0]['idfield']);
             $this->selectedrow = null;
         } else {
             throw new ProfileDoesNotExistException('Profile ' . $pname . ' does not exist!');
@@ -361,8 +361,8 @@ class SPPProfile extends \SPP\SPPObject
             $sql = 'select * from ' . \SPPMod\SPPDB\SPPDB::sppTable('profiletabs') . ' where profname=?';
             $values = [$pname];
             $result = $db->execute_query($sql, $values);
-            $tabname = $result[0]['proftabname'];
-            $seqname = $result[0]['profseqname'];
+            $tabname = preg_replace('/[^a-zA-Z0-9_]/', '', $result[0]['proftabname']);
+            $seqname = preg_replace('/[^a-zA-Z0-9_]/', '', $result[0]['profseqname']);
             //echo $tabname;
             $sql = 'drop table ' . \SPPMod\SPPDB\SPPDB::sppTable($tabname);
             $result = $db->execute_query($sql);

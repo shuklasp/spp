@@ -156,28 +156,6 @@ class Scheduler extends \SPP\SPPObject
 
         $apps = \SPP\App::getGlobalSettings('apps') ?: [];
 
-        // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
-        $srcDir = SPP_APP_DIR . SPP_DS . 'src';
-        if (is_dir($srcDir)) {
-            $dirs = array_diff(scandir($srcDir), ['.', '..']);
-            foreach ($dirs as $d) {
-                $appYml = $srcDir . SPP_DS . $d . SPP_DS . 'etc' . SPP_DS . 'app.yml';
-                if (file_exists($appYml)) {
-                    $appData = \Symfony\Component\Yaml\Yaml::parseFile($appYml);
-                    if ($appData) {
-                        $apps[$d] = array_merge($apps[$d] ?? [], $appData);
-                        // Ensure etc_path and src_path are set if not provided
-                        if (empty($apps[$d]['etc_path'])) {
-                            $apps[$d]['etc_path'] = 'src/' . $d . '/etc';
-                        }
-                        if (empty($apps[$d]['src_path'])) {
-                            $apps[$d]['src_path'] = 'src/' . $d;
-                        }
-                    }
-                }
-            }
-        }
-
         $params = ['uri' => &$uri, 'apps' => &$apps, 'context' => null];
         \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $params, function (&$p) {
             foreach ($p['apps'] as $name => $cfg) {

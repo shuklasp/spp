@@ -73,3 +73,50 @@ function live_Auth_Profile($la, $params) {
         $la->setStatus('error')->notify("Profile fetch failed: " . $e->getMessage());
     }
 }
+
+function live_Auth_ListApiKeys($la, $params) {
+    try {
+        $db = new \SPPMod\SPPDB\SPPDB();
+        if (!$db->tableExists('api_keys')) {
+            return $la->setData([]);
+        }
+        $keys = $db->execute_query("SELECT id, name, token, status, created_at, expires_at FROM api_keys ORDER BY created_at DESC");
+        $la->setData($keys);
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to list API keys: " . $e->getMessage());
+    }
+}
+
+function live_Auth_GenerateApiKey($la, $params) {
+    try {
+        $name = trim($params['name'] ?? '');
+        if (empty($name)) {
+            return $la->setStatus('error')->notify("API Key name is required.");
+        }
+        $token = bin2hex(random_bytes(32));
+        $id = uniqid();
+        $db = new \SPPMod\SPPDB\SPPDB();
+        
+        $db->execute_query(
+            "INSERT INTO api_keys (id, name, token, status, created_at) VALUES (?, ?, ?, 1, NOW())",
+            [$id, $name, $token]
+        );
+        $la->notify("API Key generated for '{$name}'.")->executeClientCode("app.apiKeys.loadKeys()");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to generate API key: " . $e->getMessage());
+    }
+}
+
+function live_Auth_RevokeApiKey($la, $params) {
+    try {
+        $id = $params['id'] ?? '';
+        if (empty($id)) {
+            return $la->setStatus('error')->notify("API Key ID is required.");
+        }
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $db->execute_query("UPDATE api_keys SET status = 0 WHERE id = ?", [$id]);
+        $la->notify("API Key revoked.")->executeClientCode("app.apiKeys.loadKeys()");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to revoke API key: " . $e->getMessage());
+    }
+}

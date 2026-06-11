@@ -26,9 +26,14 @@ class WebGuard implements GuardInterface
     public function can(string $permission): bool
     {
         if (empty($this->permissionCache)) {
-            $this->resolvePermissions();
+            $sessionCacheKey = '__sppauth_perms_' . ($this->id() ?? 'anon') . '__';
+            if (\SPP\SPPSession::sessionVarExists($sessionCacheKey)) {
+                $this->permissionCache = \SPP\SPPSession::getSessionVar($sessionCacheKey);
+            } else {
+                $this->resolvePermissions();
+                \SPP\SPPSession::setSessionVar($sessionCacheKey, $this->permissionCache);
+            }
         }
-
 
         return in_array($permission, $this->permissionCache) || in_array('*', $this->permissionCache);
     }
@@ -120,17 +125,9 @@ class WebGuard implements GuardInterface
             try {
                 $this->user = new SPPUser($userId);
             } catch (\Exception $e) {
-                $this->user = new class ($userId) {
-                    public $id;
-                    public function __construct($id)
-                    {
-                        $this->id = $id;
-                    }
-                    public function getId()
-                    {
-                        return $this->id;
-                    }
-                };
+                // If user doesn't exist anymore, log them out
+                $this->logout();
+                $this->user = new AnonymousUser();
             }
         } else {
             $this->user = new AnonymousUser();

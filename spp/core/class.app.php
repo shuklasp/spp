@@ -122,8 +122,12 @@ class App extends \SPP\SPPObject
     {
         static $settings = null;
         if ($settings === null) {
-            $path = SPP_ETC_DIR . '/global-settings.yml';
-            $settings = file_exists($path) ? Yaml::parseFile($path) : [];
+            $cacheFile = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'system' . DIRECTORY_SEPARATOR . 'config.php';
+            if (file_exists($cacheFile)) {
+                $settings = require $cacheFile;
+            } else {
+                $path = SPP_ETC_DIR . '/global-settings.yml';
+                $settings = file_exists($path) ? Yaml::parseFile($path) : [];
 
             // Dynamic Discovery: Scan src/*/etc/app.yml for self-contained apps
             if (!isset($settings['apps'])) {
@@ -173,6 +177,11 @@ class App extends \SPP\SPPObject
                 }
             } else {
                 // error_log("SPP Discovery: srcDir not found or invalid: " . ($srcDir ?: 'NULL'));
+            }
+                if (!is_dir(dirname($cacheFile))) {
+                    @mkdir(dirname($cacheFile), 0777, true);
+                }
+                @file_put_contents($cacheFile, "<?php\nreturn " . var_export($settings, true) . ";\n", LOCK_EX);
             }
 
         }
@@ -565,5 +574,103 @@ class App extends \SPP\SPPObject
     public function getContainer(): \SPP\Core\Container
     {
         return $this->container;
+    }
+
+    public static function boot(): void
+    {
+        // Load .env configuration
+        $envFile = SPP_APP_DIR . SPP_DS . '.env';
+        if (file_exists($envFile) && class_exists('\SPP\Core\DotEnvLoader')) {
+            \SPP\Core\DotEnvLoader::load($envFile);
+        }
+
+        // Register modern ignition-style error handler
+        if (class_exists('\SPP\Core\SPPErrorHandler')) {
+            \SPP\Core\SPPErrorHandler::register();
+        }
+
+        if (defined('SPP_DEBUG') && SPP_DEBUG && class_exists('\SPP\SPPError')) {
+            set_exception_handler('\SPP\SPPError::exceptionHandler');
+
+            // Initialize Debug metrics if active
+            if (class_exists('\SPP\Core\Debug')) {
+                \SPP\Core\Debug::start();
+            }
+        }
+
+        if (php_sapi_name() !== 'cli') {
+            if (session_status() === PHP_SESSION_NONE) {
+                // 1. Check for Redis Session Driver
+                $redisEnabled = \SPP\Module::getConfig('enabled', 'redis');
+                if (($redisEnabled === true || $redisEnabled === '1' || $redisEnabled === 'true') && class_exists('\SPP\Core\RedisCache') && \SPP\Core\RedisCache::isAvailable()) {
+                    session_set_save_handler(new \SPP\Core\RedisSessionHandler(), true);
+                }
+                session_start();
+            }
+        } else {
+            // In CLI mode, ensure $_SESSION is at least an empty array to prevent bridge/core failures
+            if (!isset($_SESSION)) {
+                $_SESSION = [];
+            }
+        }
+
+        \SPP\Scheduler::detectAndEnforceContext();
+        $context = \SPP\Scheduler::getContext();
+
+        // Resolve App Type
+        $appType = 'standard';
+        $drupalRoot = '../drupal';
+        $appConfig = self::getGlobalSettings('apps.' . $context) ?: [];
+        $appType = $appConfig['type'] ?? 'standard';
+        $drupalRoot = $appConfig['drupal_root'] ?? $drupalRoot;
+
+        $appClass = "\\App\\" . ucfirst($context) . "\\" . ucfirst($context) . "App";
+        if ($appType === 'drupal' && class_exists('\\SPP\\DrupalApp')) {
+            $app = new \SPP\DrupalApp($context, $drupalRoot);
+        } elseif (class_exists($appClass)) {
+            $app = new $appClass($context);
+        } else {
+            $app = new \SPP\App($context);
+        }
+
+        // Bridge Configuration Export
+        if (defined('SPP_BASE_DIR') && class_exists('\SPP\PolyglotBridge')) {
+            \SPP\PolyglotBridge::setup();
+        }
+
+        \SPP\SPPEvent::registerEvent('spp_init');
+        $appinit = \SPP\App::getGlobalSettings('apps.' . $context . '.app_init');
+        if ($appinit !== '' && $appinit !== null) {
+            $initFile = '';
+            if (str_contains($appinit, '/') || str_contains($appinit, '\\')) {
+                $initFile = SPP_APP_DIR . SPP_DS . ltrim($appinit, '/\\');
+            } else {
+                $srcPath = \SPP\App::getGlobalSettings("apps.{$context}.src_path");
+                if ($srcPath !== null && $srcPath !== '') {
+                    $initFile = SPP_APP_DIR . SPP_DS . rtrim($srcPath, '/\\') . SPP_DS . $appinit;
+                } else {
+                    $initFile = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . $appinit;
+                }
+            }
+            if (file_exists($initFile)) {
+                require_once $initFile;
+            }
+        }
+
+        \SPP\SPPEvent::registerEvent('event_spp_module_install');
+
+        // Universally guarantee cross-context registration for presentation layout overriding hooks
+        $themeEvtPath = SPP_APP_DIR . '/src/lekhak/modules/spptheme/events/ThemeEventHandler.php';
+        if (file_exists($themeEvtPath)) {
+            require_once $themeEvtPath;
+            \SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
+        }
+
+        // Perform Locale Negotiation & Translation Loading
+        if (class_exists('\SPP\Core\LocaleNegotiator')) {
+            \SPP\Core\LocaleNegotiator::negotiate();
+        }
+
+        register_shutdown_function(['\\SPP\\SPPEvent', 'persistTrace']);
     }
 }

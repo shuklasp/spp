@@ -1,5 +1,5 @@
 {
-    "timestamp": 1780583560,
+    "timestamp": 1781140941,
     "spp_version": "0.7",
     "base_dir": "C:\\projects\\apache\\school1\\spp",
     "database": {
@@ -10,26 +10,25 @@
         "dbpasswd": "hello123"
     },
     "modules": {
-        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
         "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
         "sppconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppconfig",
-        "spphtml": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
-        "sppajax": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppajax",
-        "sppux": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppux",
+        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
+        "spplogger": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spplogger",
+        "sppview": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
+        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
+        "drishyam": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/drishyam",
         "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/parikshak",
-        "sppblade": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppblade",
         "sppai": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppai",
         "lekhni": "C:\\projects\\apache\\school1\\spp\/modules\/contrib\/lekhni",
-        "sppinterdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppinterdb",
         "sppxdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppxdb",
-        "SPPMigrate": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppmigrate",
+        "sppmigrate": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppmigrate",
+        "sppsecurity": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppsecurity",
         "lekhak": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
         "lekhak_commerce": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
-        "Drupal Bridge": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
-        "Lekhak Peeche": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
-        "Sankhyaki Analytics": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
-        "sppadmin": false,
-        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi"
+        "lekhak_drupal_bridge": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
+        "lekhak_peeche": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
+        "sankhyaki": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
+        "sppadmin": false
     },
     "runtimes": {
         "python": {

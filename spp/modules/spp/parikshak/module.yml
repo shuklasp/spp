@@ -8,7 +8,6 @@ module:
   config: config.yml
   dependencies:
     - sppdb
-    - sppentity
   settings:
     active:
       type: boolean

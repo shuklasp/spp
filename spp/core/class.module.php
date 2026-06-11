@@ -527,7 +527,9 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         if (file_exists($yamlConfFile)) {
             try {
                 $data = Yaml::parseFile($yamlConfFile);
-                return $data['variables'] ?? $data;
+                if (is_array($data)) {
+                    return $data['variables'] ?? $data;
+                }
             } catch (\Exception $e) {
             }
         }

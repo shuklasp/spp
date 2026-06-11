@@ -17,6 +17,9 @@ require_once __DIR__ . '/Routing.php';
 require_once __DIR__ . '/IAM.php';
 require_once __DIR__ . '/AI.php';
 require_once __DIR__ . '/spplang.php';
+require_once __DIR__ . '/Legacy.php';
+require_once __DIR__ . '/Diagnostics.php';
+require_once __DIR__ . '/Docs.php';
 
 // Auth Redirects
 if (!function_exists('live_login')) { function live_login($la, $p) { live_Auth_Login($la, $p); } }
@@ -30,6 +33,9 @@ if (!function_exists('live_run_command')) { function live_run_command($la, $p) {
 if (!function_exists('live_health_check')) { function live_health_check($la, $p) { live_Core_HealthCheck($la, $p); } }
 if (!function_exists('live_get_system_info')) { function live_get_system_info($la, $p) { live_Core_GetSystemInfo($la, $p); } }
 if (!function_exists('live_get_bridge_info')) { function live_get_bridge_info($la, $p) { live_Core_GetBridgeInfo($la, $p); } }
+if (!function_exists('live_setup_bridge')) { function live_setup_bridge($la, $p) { live_Core_SetupBridge($la, $p); } }
+if (!function_exists('live_test_bridge')) { function live_test_bridge($la, $p) { live_Core_TestBridge($la, $p); } }
+if (!function_exists('live_compile_registry')) { function live_compile_registry($la, $p) { live_Core_CompileRegistry($la, $p); } }
 
 // Config Redirects
 if (!function_exists('live_get_interdb_config')) { function live_get_interdb_config($la, $p) { live_Config_InterDB_Get($la, $p); } }
@@ -45,6 +51,9 @@ if (!function_exists('live_get_xdb_table_columns')) { function live_get_xdb_tabl
 if (!function_exists('live_run_xdb_query')) { function live_run_xdb_query($la, $p) { live_XDB_RunQuery($la, $p); } }
 if (!function_exists('live_save_xdb_record')) { function live_save_xdb_record($la, $p) { live_XDB_SaveRecord($la, $p); } }
 if (!function_exists('live_delete_xdb_record')) { function live_delete_xdb_record($la, $p) { live_XDB_DeleteRecord($la, $p); } }
+if (!function_exists('live_xdb_migrate')) { function live_xdb_migrate($la, $p) { live_XDB_Migrate($la, $p); } }
+if (!function_exists('live_xdb_seed')) { function live_xdb_seed($la, $p) { live_XDB_Seed($la, $p); } }
+if (!function_exists('live_xdb_get_profile_log')) { function live_xdb_get_profile_log($la, $p) { live_XDB_GetProfileLog($la, $p); } }
 if (!function_exists('live_get_global_settings')) { function live_get_global_settings($la, $p) { live_Config_GetGlobalSettings($la, $p); } }
 if (!function_exists('live_save_global_settings')) { function live_save_global_settings($la, $p) { live_Config_SaveGlobalSettings($la, $p); } }
 

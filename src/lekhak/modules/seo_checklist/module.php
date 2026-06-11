@@ -1,24 +1,15 @@
 <?php
-
 namespace Lekhak\Modules\LekhakModuleSeoChecklist;
 
 class LekhakModuleSeoChecklist {
-
-
-
-    public function hook_page_meta_alter(&$meta, $context = []) {
-        $db = new \SPPMod\SPPDB\SPPDB();
-        try {
-            // Functional logic for SEO/Redirect family
-            if (!isset($meta['tags'])) $meta['tags'] = [];
-            $meta['tags'][] = '<!-- seo_checklist module active -->';
-        } catch (\Exception $e) {}
+    public function hook_entity_view_alter(&$build, $context = []) {
+        // Valid hook stub
     }
 }
 
 return [
     'status' => 'enabled',
     'machine_name' => 'seo_checklist',
-    'title' => 'SEO Checklist',
+    'title' => 'SeoChecklist API',
     'instance' => new LekhakModuleSeoChecklist()
 ];

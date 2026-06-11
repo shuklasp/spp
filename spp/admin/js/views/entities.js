@@ -188,16 +188,41 @@ export default class EntitiesView extends BaseComponent {
     // EDITOR LOGIC
     // =============================================
 
+    afterUpdate() {
+        if (this.state.activeMainTab === 'erd' && window.SPPUX && SPPUX.Draggable) {
+            const savedPositions = JSON.parse(localStorage.getItem('spp_erd_positions') || '{}');
+            document.querySelectorAll('.erd-node').forEach(node => {
+                if (!node.__draggable) {
+                    node.__draggable = new SPPUX.Draggable(node, {
+                        onDragEnd: (el, x, y) => {
+                            const name = el.getAttribute('data-entity-name');
+                            if (name) {
+                                savedPositions[name] = { x, y };
+                                localStorage.setItem('spp_erd_positions', JSON.stringify(savedPositions));
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
+
     renderERD(entities) {
         // Simple grid layout for nodes
         const spacingX = 250;
         const spacingY = 200;
+        const savedPositions = JSON.parse(localStorage.getItem('spp_erd_positions') || '{}');
         let cols = 3;
         
         let nodes = [];
         entities.forEach((ent, i) => {
-            const x = (i % cols) * spacingX + 50;
-            const y = Math.floor(i / cols) * spacingY + 50;
+            let x = (i % cols) * spacingX + 50;
+            let y = Math.floor(i / cols) * spacingY + 50;
+            
+            if (savedPositions[ent.name]) {
+                x = savedPositions[ent.name].x;
+                y = savedPositions[ent.name].y;
+            }
             
             let attrs = [];
             if (ent.yaml_content) {
@@ -210,7 +235,7 @@ export default class EntitiesView extends BaseComponent {
             }
 
             nodes.push(html`
-                <div class="erd-node spp-card" style="position: absolute; left: ${x}px; top: ${y}px; width: 200px; padding: 10px; z-index: 10; border-top: 4px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: move;">
+                <div class="erd-node spp-card" data-entity-name="${ent.name}" style="position: absolute; left: ${x}px; top: ${y}px; width: 200px; padding: 10px; z-index: 10; border-top: 4px solid var(--primary); box-shadow: 0 4px 15px rgba(0,0,0,0.1); cursor: move;">
                     <h4 style="margin: 0 0 10px 0; text-align: center; border-bottom: 1px solid var(--glass-border); padding-bottom: 5px;">${ent.name}</h4>
                     <ul style="list-style: none; padding: 0; margin: 0; font-size: 0.8rem; color: var(--text-dim);">
                         ${attrs.map(a => html`<li style="padding: 2px 0;">▫️ ${a}</li>`)}

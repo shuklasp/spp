@@ -1,0 +1,21 @@
+# Drishyam (Frontend & UI) Module Manifest
+
+module:
+    name: drishyam
+    version: "2.0"
+    pubname: SPP Drishyam
+    modgroup: Core
+    category: 'Core Required'
+    pubdesc: Consolidated Frontend Engine (Blade templating, PWA, SPPUX Components).
+    includes:
+        - class.sppblade.php
+        - class.sppux.php
+        - class.spppwa.php
+    services:
+        blade:
+            class: \SPPMod\Drishyam\SPPBlade
+            shared: true
+    config_variables:
+        views_path: "resources/views"
+        cache_path: "var/cache/blade"
+        mode: "auto" # auto, slow, fast

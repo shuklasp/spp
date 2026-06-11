@@ -29,6 +29,22 @@ class SPPUserSession extends SPPSession
     /** @var string $sessid The physical PHP session identifier */
     private $sessid;
 
+    private static $sessionTimeoutCache = null;
+
+    private function getSessionTimeout()
+    {
+        if (self::$sessionTimeoutCache !== null) {
+            return self::$sessionTimeoutCache;
+        }
+        try {
+            $timeout = (int)SPPConfig::get('spp.user_session_timeout', 'yaml') * 60;
+        } catch (\Exception $e) {
+            $timeout = 60 * 60; // Default: 60 minutes
+        }
+        self::$sessionTimeoutCache = $timeout;
+        return self::$sessionTimeoutCache;
+    }
+
     /**
      * SPPUserSession Constructor.
      *
@@ -81,11 +97,7 @@ class SPPUserSession extends SPPSession
     private function purgeExpiredSessions()
     {
         $db = new SPPDB();
-        try {
-            $timeout = (int)SPPConfig::get('spp.user_session_timeout', 'yaml') * 60; // seconds
-        } catch (\Exception $e) {
-            $timeout = 60 * 60;
-        }
+        $timeout = $this->getSessionTimeout();
         $sql = 'DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') .
                ' WHERE TIMESTAMPDIFF(SECOND, lastaccess, NOW()) > ?';
         $db->execute_query($sql, [$timeout]);
@@ -110,11 +122,7 @@ class SPPUserSession extends SPPSession
         if (count($result) > 0) {
             $elapsed = (int)$result[0]['elapsed_time'];
 
-            try {
-                $timeout = (int)SPPConfig::get('spp.user_session_timeout', 'yaml') * 60;
-            } catch (\Exception $e) {
-                $timeout = 60 * 60; // Default: 60 minutes
-            }
+            $timeout = $this->getSessionTimeout();
 
             if ($consider_timeout && $elapsed > $timeout) {
                 $this->kill();

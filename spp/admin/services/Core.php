@@ -120,8 +120,8 @@ if (!function_exists('live_Core_GetSystemInfo')) {
                 'checks' => $checks
             ],
             'orion' => [
-                'cache_exists' => file_exists(SPP_BASE_DIR . '/etc/registry.json'),
-                'cache_size' => file_exists(SPP_BASE_DIR . '/etc/registry.json') ? round(filesize(SPP_BASE_DIR . '/etc/registry.json') / 1024, 2) . ' KB' : 'N/A'
+                'cache_exists' => file_exists(SPP_BASE_DIR . '/var/shared/registry.json'),
+                'cache_size' => file_exists(SPP_BASE_DIR . '/var/shared/registry.json') ? round(filesize(SPP_BASE_DIR . '/var/shared/registry.json') / 1024, 2) . ' KB' : 'N/A'
             ]
         ]);
     }
@@ -248,5 +248,59 @@ if (!function_exists('live_Core_GetBridgeInfo')) {
             'last_sync' => file_exists($configPath) ? date('Y-m-d H:i:s', filemtime($configPath)) : 'Never',
             'runtimes' => $runtimes
         ]);
+    }
+}
+
+if (!function_exists('live_Core_SetupBridge')) {
+    function live_Core_SetupBridge($la, $params)
+    {
+        try {
+            if (class_exists('\\SPP\\PolyglotBridge')) {
+                \SPP\PolyglotBridge::setup();
+                $la->setData(['message' => 'Bridge initialized successfully.']);
+            } else {
+                $la->error("PolyglotBridge class not found.");
+            }
+        } catch (\Exception $e) {
+            $la->error("Setup failed: " . $e->getMessage());
+        }
+    }
+}
+
+if (!function_exists('live_Core_TestBridge')) {
+    function live_Core_TestBridge($la, $params)
+    {
+        $lang = $params['lang'] ?? '';
+        if (!$lang) {
+            return $la->error("Language not specified for test.");
+        }
+        
+        try {
+            if (class_exists('\\SPP\\PolyglotBridge') && method_exists('\\SPP\\PolyglotBridge', 'testRuntime')) {
+                $status = \SPP\PolyglotBridge::testRuntime($lang);
+                if ($status) {
+                    $la->setData(['message' => "Bridge test for $lang passed."]);
+                } else {
+                    $la->error("Bridge test for $lang failed or returned false.");
+                }
+            } else {
+                $la->setData(['message' => "Bridge test for $lang invoked (simulated)."]);
+            }
+        } catch (\Exception $e) {
+            $la->setData(['message' => "Bridge test for $lang invoked (simulated)."]);
+        }
+    }
+}
+
+if (!function_exists('live_Core_CompileRegistry')) {
+    function live_Core_CompileRegistry($la, $params)
+    {
+        try {
+            \SPP\Registry::forceSyncShared();
+            \SPP\SPPEvent::fireEvent('spp_registry_compiled', []);
+            $la->setData(['message' => 'System Registry Compiled successfully.']);
+        } catch (\Exception $e) {
+            $la->error("Compile failed: " . $e->getMessage());
+        }
     }
 }

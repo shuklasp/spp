@@ -44,41 +44,81 @@ class Translation
 
     /**
      * Resolve interface key translation based on loaded catalog.
+     * Supports ICU MessageFormat for pluralization and interpolation.
      *
      * @param string $key Translatable label identifier
-     * @param string|null $locale Optional override locale
+     * @param array|string $paramsOrLocale Parameters array OR optional override locale
+     * @param string|null $locale Optional override locale if parameters provided
      * @return string Translated string or original key fallback
      */
-    public static function translate(string $key, ?string $locale = null): string
+    public static function translate(string $key, $paramsOrLocale = [], ?string $locale = null): string
     {
-        $loc = $locale ?? self::$locale;
-
-        if (isset(self::$translations[$loc][$key])) {
-            return self::$translations[$loc][$key];
+        $params = [];
+        if (is_string($paramsOrLocale)) {
+            $locale = $paramsOrLocale;
+        } elseif (is_array($paramsOrLocale)) {
+            $params = $paramsOrLocale;
         }
 
-        // Fallback to SQLite DB table spp_translations if class exists
-        if (class_exists('\SPPMod\SPPDB\SPPDB')) {
-            try {
-                $db = new \SPPMod\SPPDB\SPPDB();
-                $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-                if ($db->tableExists($table)) {
-                    $res = $db->exec_squery(
-                        "SELECT translation FROM %tab% WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
-                        $table,
-                        [$key, $loc]
-                    );
-                    if (!empty($res) && !empty($res[0]['translation'])) {
-                        self::$translations[$loc][$key] = $res[0]['translation'];
-                        return $res[0]['translation'];
+        $loc = $locale ?? self::$locale;
+        $formatString = null;
+
+        if (isset(self::$translations[$loc][$key])) {
+            $formatString = self::$translations[$loc][$key];
+        } else {
+            // Fallback to SQLite DB table spp_translations if class exists
+            if (class_exists('\SPPMod\SPPDB\SPPDB')) {
+                try {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+                    if ($db->tableExists($table)) {
+                        $res = $db->exec_squery(
+                            "SELECT translation FROM %tab% WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
+                            $table,
+                            [$key, $loc]
+                        );
+                        if (!empty($res) && !empty($res[0]['translation'])) {
+                            self::$translations[$loc][$key] = $res[0]['translation'];
+                            $formatString = $res[0]['translation'];
+                        }
                     }
+                } catch (\Exception $e) {
+                    // Retain strict safety
                 }
-            } catch (\Exception $e) {
-                // Retain strict safety
             }
         }
 
-        return $key;
+        if ($formatString === null) {
+            $formatString = $key;
+        }
+
+        if (empty($params)) {
+            return $formatString;
+        }
+
+        // Use ICU MessageFormatter if available
+        if (extension_loaded('intl')) {
+            try {
+                $formatter = new \MessageFormatter($loc, $formatString);
+                if ($formatter) {
+                    $result = $formatter->format($params);
+                    if ($result !== false) {
+                        return $result;
+                    }
+                }
+            } catch (\Exception $e) {
+                // fallback below
+            }
+        }
+
+        // Basic fallback interpolation if intl fails or is absent
+        foreach ($params as $k => $v) {
+            if (is_scalar($v)) {
+                $formatString = str_replace('{' . $k . '}', (string)$v, $formatString);
+            }
+        }
+
+        return $formatString;
     }
 
     /**
@@ -92,8 +132,8 @@ class Translation
 
 // Register global shorthand translation helper
 if (!function_exists('__')) {
-    function __($key, $locale = null)
+    function __($key, $paramsOrLocale = [], ?string $locale = null)
     {
-        return \SPP\Core\Translation::translate($key, $locale);
+        return \SPP\Core\Translation::translate($key, $paramsOrLocale, $locale);
     }
 }

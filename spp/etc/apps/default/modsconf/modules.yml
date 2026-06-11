@@ -5,13 +5,6 @@ modules:
         status: active
         dependencies:
             - sppcore
-    1:
-        modname: sppentity
-        modpath: spp/sppentity
-        status: active
-        dependencies:
-            - sppcore
-            - sppdb
     2:
         modname: sppdb
         modpath: spp/sppdb
@@ -49,8 +42,8 @@ modules:
             - sppdb
             - sppsession
     11:
-        modname: sppajax
-        modpath: spp/sppajax
+        modname: sppapi
+        modpath: spp/sppapi
         status: active
         dependencies:
             - sppcore
@@ -69,6 +62,6 @@ modules:
         path: spp/sppxdb
         status: inactive
     14:
-        name: sppux
-        path: spp/sppux
+        name: drishyam
+        path: spp/drishyam
         status: active

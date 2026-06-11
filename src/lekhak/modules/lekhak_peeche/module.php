@@ -72,6 +72,15 @@ HTML;
             $html .= "\n" . $script;
         }
     }
+
+    public function hook_entity_view_alter(&$build, $context = []) {
+        // Generic entity display modifier
+        if (isset($build['#suffix'])) {
+            $build['#suffix'] .= '<!-- Processed by lekhak_peeche -->';
+        } else {
+            $build['#suffix'] = '<!-- Processed by lekhak_peeche -->';
+        }
+    }
 }
 
 return [

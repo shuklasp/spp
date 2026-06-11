@@ -1,11 +1,11 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
+use SPPMod\Parikshak\SPPTestCase;
 use SPP\Core\PsrLoggerAdapter;
 use Psr\Log\LogLevel;
 
-class PsrLoggerAdapterTest extends TestCase
+class PsrLoggerAdapterTest extends SPPTestCase
 {
     private $adapter;
     

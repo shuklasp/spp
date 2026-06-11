@@ -11,6 +11,17 @@ class SPPAdmin {
         console.log("SPP Admin Workbench v1.1 Loaded");
         this.apiEndpoint = 'api.php';
         
+        // i18n Configuration
+        window.SPP_I18N = window.SPP_I18N || {};
+        window.__ = function(key, params = {}) {
+            let str = window.SPP_I18N[key] || key;
+            for (let k in params) {
+                str = str.replace(new RegExp('\\{' + k + '\\}', 'g'), params[k]);
+            }
+            return str;
+        };
+        this.__ = window.__;
+
         // Ensure local aliases for namespaced SPPUX utilities
         if (typeof SPPUX !== 'undefined') {
             window.html = SPPUX.html;
@@ -37,37 +48,39 @@ class SPPAdmin {
             'entities': '🏗️',
             'forms': '📝',
             'identity': '🛡️',
-            'routing': '🔗',
-            'manage': '🛠️',
-            'trace': '🛰️',
+            'groups': '👥',
             'services': '🔌',
-            'ai': '🧠',
-            'lifecycle': '🚀',
-            'xdb': '🗄️',
+            'routing': '🛤️',
             'interdb': '🕸️',
+            'xdb': '🗄️',
+            'ai': '🧠',
             'parikshak': '🧪',
-            'spplang': '🌐',
-            'mobile': '📱'
+            'spplang': '💬',
+            'trace': '🐛',
+            'lifecycle': '🔄',
+            'commands': '⚡',
+            'reports': '📊'
         };
         this.viewTitles = {
             'dashboard': 'Welcome Dashboard',
             'system': 'System & Diagnostics',
-            'apps': 'Applications & Sharing',
-            'modules': 'System Modules',
-            'entities': 'Application Entities',
-            'forms': 'Form Configurations',
-            'identity': 'Identity & Access Management',
+            'apps': 'App Studio',
+            'modules': 'Module Marketplace',
+            'entities': 'Database & Entities',
+            'forms': 'Modern Form Engine',
+            'identity': 'Identity & Security',
+            'groups': 'Group Dynamics',
+            'services': 'Services (DI & AJAX)',
             'routing': 'Routing & Middleware',
-            'manage': 'Application Management',
-            'trace': 'Event Tracing',
-            'services': 'Service Registry (DI & AJAX)',
-            'ai': 'AI Studio',
-            'lifecycle': 'Lifecycle & Deployment',
             'xdb': 'XML Database',
             'interdb': 'InterDB Mesh',
             'parikshak': 'Parikshak Evaluator',
             'spplang': 'Translation Workbench',
-            'mobile': 'Mobile Studio'
+            'mobile': 'Mobile Studio',
+            'trace': 'Event Tracing',
+            'lifecycle': 'Lifecycle & Deployment',
+            'commands': 'CLI Workbench',
+            'reports': 'Report Builder'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
@@ -75,8 +88,10 @@ class SPPAdmin {
         this.theme = localStorage.getItem('spp_admin_theme') || 'night';
         
         // Define base configuration for components
+        const p = window.location.pathname;
+        const idx = p.indexOf('/sppadmin') !== -1 ? p.indexOf('/sppadmin') : p.indexOf('/spp/admin');
         this.config = {
-            baseUrl: window.location.origin + window.location.pathname.substring(0, window.location.pathname.indexOf('/spp/admin')),
+            baseUrl: window.location.origin + (idx !== -1 ? p.substring(0, idx) : ''),
             apiBase: 'api.php'
         };
 
@@ -130,6 +145,43 @@ class SPPAdmin {
                     location.hash = view;
                 });
             });
+
+            // Sidebar Search
+            const sidebarSearch = document.getElementById('sidebar-search');
+            if (sidebarSearch) {
+                sidebarSearch.addEventListener('input', (e) => {
+                    const term = e.target.value.toLowerCase();
+                    const navItems = document.querySelectorAll('#sidebar-nav li');
+                    navItems.forEach(li => {
+                        const text = li.textContent.toLowerCase();
+                        const aTag = li.querySelector('a');
+                        const keywords = aTag ? (aTag.getAttribute('data-keywords') || '').toLowerCase() : '';
+                        
+                        if (text.includes(term) || keywords.includes(term)) {
+                            li.style.display = '';
+                        } else {
+                            li.style.display = 'none';
+                        }
+                    });
+                    
+                    // Hide section titles if all items under them are hidden
+                    const sections = document.querySelectorAll('.sidebar-section-title');
+                    sections.forEach(sec => {
+                        let next = sec.nextElementSibling;
+                        let hasVisible = false;
+                        while (next && !next.classList.contains('sidebar-divider') && !next.classList.contains('sidebar-section-title')) {
+                            if (next.tagName === 'LI' && next.style.display !== 'none') {
+                                hasVisible = true;
+                            }
+                            next = next.nextElementSibling;
+                        }
+                        sec.style.display = (hasVisible || !term) ? '' : 'none';
+                    });
+                    
+                    const dividers = document.querySelectorAll('.sidebar-divider');
+                    dividers.forEach(div => div.style.display = term ? 'none' : '');
+                });
+            }
 
             // Hash change for routing
             window.addEventListener('hashchange', () => this.handleRouting());
@@ -497,27 +549,58 @@ class SPPAdmin {
 
     async loadView(view) {
         this.activeView = view;
-        const container = document.getElementById('view-container');
+        const mainContainer = document.getElementById('view-container');
         document.getElementById('header-actions').innerHTML = '';
         const params = {}; // Reserved for future deep-linking parameters
         
-        container.innerHTML = '<div class="loading-state">Loading section...</div>';
-        this.showSkeleton(container);
+        // Initialize View Cache
+        this.viewWrappers = this.viewWrappers || {};
+        this.viewInstances = this.viewInstances || {};
+
+        if (!this.viewCacheInitialized) {
+            mainContainer.innerHTML = ''; // Clear initial static loading state
+            this.viewCacheInitialized = true;
+        }
+
+        // Hide all existing view wrappers
+        for (let k in this.viewWrappers) {
+            this.viewWrappers[k].style.display = 'none';
+        }
+
+        let container = this.viewWrappers[view];
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'view-wrapper-' + view;
+            container.style.height = '100%';
+            mainContainer.appendChild(container);
+            this.viewWrappers[view] = container;
+            
+            container.innerHTML = '<div class="loading-state">Loading section...</div>';
+            this.showSkeleton(container);
+        } else {
+            container.style.display = 'block';
+            if (this.viewInstances[view]) {
+                // View already loaded and cached, instant switch!
+                this.updateViewTitle(view);
+                this.viewInstances[view].update(); // trigger a fast re-render without re-fetching
+                return;
+            }
+        }
 
         // List of views that should be loaded as PHP templates
         const phpHybridViews = []; // All views migrated to SPP-UX components
         
         if (phpHybridViews.includes(view)) {
             console.log(`[SPPAdmin] Loading PHP-Hybrid view: ${view}`);
-            this.activeViewInstance = new SPPAdmin.RemoteView(this, container, { viewName: view });
-            await this.activeViewInstance.onInit();
-            this.activeViewInstance.update();
+            this.viewInstances[view] = new SPPAdmin.RemoteView(this, container, { viewName: view });
+            await this.viewInstances[view].onInit();
+            this.viewInstances[view].update();
             this.updateViewTitle(view);
             return;
         }
 
         try {
-                const ts = Date.now();
+                const ts = Date.now(); // Dynamic version to force cache busting
                 // 1. Script-Relative Component paths
                 const scripts = document.getElementsByTagName('script');
                 let adminJsUrl = '';
@@ -543,7 +626,7 @@ class SPPAdmin {
 
                 let module;
                 // List of views that are strictly core framework views and should not be requested from apps
-                const coreOnlyViews = ['apps', 'commands', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace'];
+                const coreOnlyViews = ['apps', 'commands', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace', 'reports'];
                 const isCoreView = coreOnlyViews.includes(view);
                 
                 // If a specific app is selected (not 'default' or '__sppadmin__'), and it's not a strict core view, try app-side first
@@ -606,9 +689,9 @@ class SPPAdmin {
 
                 // 3. Render SPP-UX Component
                 if (module.default) {
-                    this.viewInstance = new module.default(this, container, params);
-                    await this.viewInstance.onInit();
-                    this.viewInstance.update();
+                    this.viewInstances[view] = new module.default(this, container, params);
+                    await this.viewInstances[view].onInit();
+                    this.viewInstances[view].update();
                 }
             } catch (err) {
                 console.error('View load error:', err);

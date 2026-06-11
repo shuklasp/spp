@@ -32,6 +32,36 @@ class SPPDB
     }
 
     /**
+     * Returns the appropriate compiler for the current database dialect.
+     */
+    public function getCompiler(): \SPPMod\SPPInterDB\Compilers\CompilerInterface
+    {
+        if (!interface_exists('\\SPPMod\\SPPInterDB\\Compilers\\CompilerInterface')) {
+            require_once __DIR__ . '/Compilers/CompilerInterface.php';
+        }
+
+        switch ($this->dbtype) {
+            case 'pgsql':
+            case 'postgres':
+                if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\PostgresCompiler')) {
+                    require_once __DIR__ . '/Compilers/PostgresCompiler.php';
+                }
+                return new \SPPMod\SPPInterDB\Compilers\PostgresCompiler();
+            case 'sqlite':
+                if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\SQLiteCompiler')) {
+                    require_once __DIR__ . '/Compilers/SQLiteCompiler.php';
+                }
+                return new \SPPMod\SPPInterDB\Compilers\SQLiteCompiler();
+            case 'mysql':
+            default:
+                if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\MySQLCompiler')) {
+                    require_once __DIR__ . '/Compilers/MySQLCompiler.php';
+                }
+                return new \SPPMod\SPPInterDB\Compilers\MySQLCompiler();
+        }
+    }
+
+    /**
      * Resolves a table name with current context's prefix, supporting shared group inheritance.
      *
      * @param string $tname
@@ -134,9 +164,9 @@ class SPPDB
     /**
      * public function __construct
      *
-     * Creates or reuses a database connection, supporting per-app overrides.
+     * Creates or reuses a database connection, supporting per-app overrides, sharding, and read/write splitting.
      */
-    public function __construct($dburl = null, $dbuser = null, $dbpasswd = null, $options = null, bool $shared = true)
+    public function __construct($dburl = null, $dbuser = null, $dbpasswd = null, $options = null, bool $shared = true, ?string $shardKey = null)
     {
         try {
             $url = null;
@@ -156,11 +186,29 @@ class SPPDB
                         $url = 'sqlite:' . ($sqlite_path === ':memory:' ? ':memory:' : ($project_root . '/' . ($sqlite_path ?: 'var/db/school.sqlite')));
                         $dbuser = 'root'; // Dummy for SQLite
                     } else {
-                        $dbhost = $dbOverride['dbhost'] ?? \SPP\Module::getConfig('dbhost', 'sppdb');
-                        $dbname = $dbOverride['dbname'] ?? \SPP\Module::getConfig('dbname', 'sppdb');
+                        // Sharding
+                        $shardPrefix = '';
+                        if ($shardKey !== null) {
+                            $totalShards = $dbOverride['total_shards'] ?? \SPP\Module::getConfig('total_shards', 'sppdb');
+                            if ($totalShards > 1) {
+                                $shardIndex = crc32($shardKey) % $totalShards;
+                                $shardPrefix = "shard_{$shardIndex}_";
+                            }
+                        }
+
+                        $dbhost = $dbOverride[$shardPrefix . 'dbhost'] ?? \SPP\Module::getConfig($shardPrefix . 'dbhost', 'sppdb');
+                        $dbname = $dbOverride[$shardPrefix . 'dbname'] ?? \SPP\Module::getConfig($shardPrefix . 'dbname', 'sppdb');
                         $url = $dbtype . ':host=' . $dbhost . ';dbname=' . $dbname;
-                        $dbuser = $dbOverride['dbuser'] ?? \SPP\Module::getConfig('dbuser', 'sppdb');
-                        $dbpasswd = $dbOverride['dbpasswd'] ?? \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                        $dbuser = $dbOverride[$shardPrefix . 'dbuser'] ?? \SPP\Module::getConfig($shardPrefix . 'dbuser', 'sppdb');
+                        $dbpasswd = $dbOverride[$shardPrefix . 'dbpasswd'] ?? \SPP\Module::getConfig($shardPrefix . 'dbpasswd', 'sppdb');
+
+                        // Read Replica Support
+                        $read_dbhost = $dbOverride[$shardPrefix . 'read_dbhost'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbhost', 'sppdb');
+                        if ($read_dbhost) {
+                            $read_url = $dbtype . ':host=' . $read_dbhost . ';dbname=' . $dbname;
+                            $read_dbuser = $dbOverride[$shardPrefix . 'read_dbuser'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbuser', 'sppdb') ?: $dbuser;
+                            $read_dbpasswd = $dbOverride[$shardPrefix . 'read_dbpasswd'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbpasswd', 'sppdb') ?: $dbpasswd;
+                        }
                     }
                 } else {
                     $dbtype = \SPP\Module::getConfig('dbtype', 'sppdb');
@@ -170,11 +218,29 @@ class SPPDB
                         $url = 'sqlite:' . ($sqlite_path === ':memory:' ? ':memory:' : ($project_root . '/' . ($sqlite_path ?: 'var/db/school.sqlite')));
                         $dbuser = 'root'; // Dummy for SQLite
                     } else {
-                        $dbhost = \SPP\Module::getConfig('dbhost', 'sppdb');
-                        $dbname = \SPP\Module::getConfig('dbname', 'sppdb');
+                        // Sharding
+                        $shardPrefix = '';
+                        if ($shardKey !== null) {
+                            $totalShards = \SPP\Module::getConfig('total_shards', 'sppdb');
+                            if ($totalShards > 1) {
+                                $shardIndex = crc32($shardKey) % $totalShards;
+                                $shardPrefix = "shard_{$shardIndex}_";
+                            }
+                        }
+
+                        $dbhost = \SPP\Module::getConfig($shardPrefix . 'dbhost', 'sppdb');
+                        $dbname = \SPP\Module::getConfig($shardPrefix . 'dbname', 'sppdb');
                         $url = ($dbtype && $dbhost && $dbname) ? ($dbtype . ':host=' . $dbhost . ';dbname=' . $dbname) : null;
-                        $dbuser = \SPP\Module::getConfig('dbuser', 'sppdb');
-                        $dbpasswd = \SPP\Module::getConfig('dbpasswd', 'sppdb');
+                        $dbuser = \SPP\Module::getConfig($shardPrefix . 'dbuser', 'sppdb');
+                        $dbpasswd = \SPP\Module::getConfig($shardPrefix . 'dbpasswd', 'sppdb');
+
+                        // Read Replica Support
+                        $read_dbhost = \SPP\Module::getConfig($shardPrefix . 'read_dbhost', 'sppdb');
+                        if ($read_dbhost) {
+                            $read_url = $dbtype . ':host=' . $read_dbhost . ';dbname=' . $dbname;
+                            $read_dbuser = \SPP\Module::getConfig($shardPrefix . 'read_dbuser', 'sppdb') ?: $dbuser;
+                            $read_dbpasswd = \SPP\Module::getConfig($shardPrefix . 'read_dbpasswd', 'sppdb') ?: $dbpasswd;
+                        }
                     }
                 }
             } else {
@@ -235,9 +301,19 @@ class SPPDB
 
             if (!$pdo) {
                 // error_log("Connecting to " . $url);
-                if ($dbuser == null && $dbpasswd == null && $options == null) {
+                if (!is_array($options)) {
+                    $options = [];
+                }
+                
+                // Add persistent connection if configured
+                $persist = $dbOverride['persist_connection'] ?? \SPP\Module::getConfig('persist_connection', 'sppdb');
+                if ($persist) {
+                    $options[\PDO::ATTR_PERSISTENT] = true;
+                }
+
+                if ($dbuser == null && $dbpasswd == null && empty($options)) {
                     $pdo = new \PDO($url);
-                } elseif ($options == null) {
+                } elseif (empty($options)) {
                     $pdo = new \PDO($url, $dbuser, $dbpasswd);
                 } else {
                     $pdo = new \PDO($url, $dbuser, $dbpasswd, $options);
@@ -248,12 +324,36 @@ class SPPDB
                 }
             }
 
-            $this->adapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo);
+            // Init Read PDO if configured
+            $readPdo = null;
+            if (isset($read_url)) {
+                $readKey = null;
+                if ($shared) {
+                    $readKey = md5(serialize([$read_url, $read_dbuser, $read_dbpasswd, $options]));
+                    if (isset(self::$sharedConnections[$readKey])) {
+                        $readPdo = self::$sharedConnections[$readKey];
+                    }
+                }
+                if (!$readPdo) {
+                    $readPdo = new \PDO($read_url, $read_dbuser, $read_dbpasswd, $options ?? []);
+                    $readPdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                    if ($shared && $readKey) {
+                        self::$sharedConnections[$readKey] = $readPdo;
+                    }
+                }
+            }
+
+            $this->adapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo, $readPdo);
 
         } catch (\Exception $e) {
             // error_log("Database Connection Error: " . $e->getMessage());
             throw new \SPP\SPPException("Database Connection Error: " . $e->getMessage(), (int) $e->getCode(), $e);
         }
+    }
+
+    public function isXDB(): bool
+    {
+        return $this->adapter instanceof \SPPMod\SPPInterDB\XDBAdapter;
     }
 
     /**
@@ -406,6 +506,21 @@ class SPPDB
         return $this->execute_query($qry, $values);
     }
 
+    public function exec_squery_cursor($sql, $tabname, $values = []): \Generator
+    {
+        $qry = $this->build_query($sql, $tabname);
+        $adapter = $this->getAdapterForQuery($qry);
+        if (method_exists($adapter, 'cursor')) {
+            return $adapter->cursor($qry, (array)$values);
+        }
+
+        // Fallback for adapters without cursor support
+        $result = $adapter->query($qry, (array)$values);
+        foreach ($result as $row) {
+            yield $row;
+        }
+    }
+
     private function build_query($sql, $tabname)
     {
         $result = $sql;
@@ -445,6 +560,84 @@ class SPPDB
             }
         }
         return $this->adapter->insert($table, $data);
+    }
+
+    public function insertMany(string $table, array $records)
+    {
+        if (empty($records)) {
+            return 0;
+        }
+
+        $columns = array_keys(reset($records));
+        $safeCols = [];
+        foreach ($columns as $col) {
+            $safeCols[] = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
+        }
+        $colsStr = implode(', ', $safeCols);
+        
+        $placeholders = [];
+        $values = [];
+        
+        $rowPlaceholder = '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
+        
+        foreach ($records as $record) {
+            $placeholders[] = $rowPlaceholder;
+            foreach ($columns as $col) {
+                $values[] = $record[$col] ?? null;
+            }
+        }
+        
+        $sql = "INSERT INTO {$table} ({$colsStr}) VALUES " . implode(', ', $placeholders);
+        $this->getAdapterForQuery($sql)->execute($sql, $values);
+        return count($records);
+    }
+
+    public function updateMany(string $table, array $records, string $index)
+    {
+        if (empty($records)) {
+            return 0;
+        }
+
+        $columns = array_keys(reset($records));
+        $columns = array_filter($columns, function($col) use ($index) { return $col !== $index; });
+
+        if (empty($columns)) {
+            return 0;
+        }
+
+        $values = [];
+        $cases = [];
+        $ids = [];
+
+        foreach ($columns as $col) {
+            $cases[$col] = "{$col} = CASE {$index}";
+        }
+
+        foreach ($records as $record) {
+            $id = $record[$index];
+            $ids[] = $id;
+
+            foreach ($columns as $col) {
+                $cases[$col] .= " WHEN ? THEN ?";
+                $values[] = $id;
+                $values[] = $record[$col];
+            }
+        }
+
+        $whereIn = implode(',', array_fill(0, count($ids), '?'));
+        
+        foreach ($columns as $col) {
+            $cases[$col] .= " END";
+        }
+        
+        $sql = "UPDATE {$table} SET " . implode(', ', $cases) . " WHERE {$index} IN ({$whereIn})";
+        
+        foreach ($ids as $id) {
+            $values[] = $id;
+        }
+
+        $this->getAdapterForQuery($sql)->execute($sql, $values);
+        return count($records);
     }
 
     public function updateValues(string $table, array $columns, string $where, array $values = [])
@@ -527,6 +720,22 @@ class SPPDB
     public function rollBack(): bool
     {
         return $this->adapter->rollBack();
+    }
+
+    /**
+     * Executes a Closure within a database transaction.
+     */
+    public function transaction(\Closure $callback)
+    {
+        $this->beginTransaction();
+        try {
+            $result = $callback($this);
+            $this->commit();
+            return $result;
+        } catch (\Throwable $e) {
+            $this->rollBack();
+            throw $e;
+        }
     }
 }
 //\SPP\Module::endWS();

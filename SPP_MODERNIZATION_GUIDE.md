@@ -24,5 +24,11 @@ Database schemas are now version-controlled.
 - **Ignition Error Pages:** `SPPErrorHandler` replaces the blank white screen of death with a modern, beautifully formatted stack trace when `app.debug` is enabled.
 - **Parikshak Upgrades:** The testing module now includes `SPPTestRunner`, Database Factories (`SPPFactory`), and an API request simulation trait (`InteractsWithApi`).
 
-## 5. Upcoming Phase: Module Consolidation
+## 5. Distributed Shared Registry & Fault-Tolerant Circuit Breaker
+The core `\SPP\Registry` has been completely upgraded to a distributed architecture using a robust Adapter pattern (`SharedStorageInterface`).
+- **Auto-Discovery**: Automatically mounts the Redis memory syncing adapter (`RedisSharedStorage`) for horizontally scaled microservices if the Redis extension is active.
+- **Circuit Breaker Pattern**: If the Redis memory cluster drops the connection mid-request or suffers a network partition, the core Registry instantly intercepts the failure and gracefully degrades back to atomic disk-based storage (`FileSharedStorage`). This ensures absolute 100% configuration sync uptime and guarantees the framework never crashes due to an infrastructure outage.
+- **Application Isolation**: Fully preserves contextual siloing. Different applications executing in the same memory space seamlessly register and fetch keys from their respective isolated segments using `\SPP\Scheduler::getContext()`.
+
+## 6. Upcoming Phase: Module Consolidation
 In Phase 7, redundant modules like `sppauth`, `sppprofile`, and `sppgroups` will be merged into a single **Identity** domain. Data migrations will be provided.

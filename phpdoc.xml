@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor
+    configVersion="3"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://docs.phpdoc.org/latest/phpdoc.xsd">
+
+    <title>SPP Framework &amp; Apps API</title>
+    
+    <paths>
+        <output>docs/phpdoc</output>
+        <cache>.phpdoc/cache</cache>
+    </paths>
+
+    <version number="3.0">
+        <api format="php">
+            <source dsn=".">
+                <path>spp/</path>
+                <path>src/</path>
+            </source>
+            <ignore>
+                <path>vendor/**/*</path>
+                <path>tests/**/*</path>
+                <path>tmp/**/*</path>
+            </ignore>
+            <extensions>
+                <extension>php</extension>
+            </extensions>
+            <visibility>public</visibility>
+            <visibility>protected</visibility>
+            <!-- Tailormade namespaces to highlight the architecture -->
+            <default-package-name>SPPFramework</default-package-name>
+        </api>
+    </version>
+</phpdocumentor>

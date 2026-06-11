@@ -6,7 +6,7 @@
  */
 
 /* === IMPORT FONTS (fallback if HTML link fails) === */
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Mukta:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600&family=Noto+Sans+Bengali:wght@400;500;600&family=Noto+Sans+Tamil:wght@400;500;600&display=swap');
 
 /* === DESIGN TOKENS === */
 /* === DESIGN TOKENS (Theme Aware) === */
@@ -291,7 +291,7 @@
 
 /* === BASE === */
 body {
-    font-family: 'Outfit', -apple-system, sans-serif;
+    font-family: 'Outfit', 'Mukta', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Tamil', -apple-system, sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
     line-height: 1.6;

@@ -18,28 +18,34 @@ class ApiDocController
 
         // 1. Discover all SPPEntity configs dynamically
         $yamlFiles = [];
-        $etcDir = defined('APP_ETC_DIR') ? APP_ETC_DIR : dirname($_SERVER['DOCUMENT_ROOT']) . '/etc';
+        $srcDir = SPP_APP_DIR . '/src';
         
-        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($etcDir));
-        foreach ($iterator as $file) {
-            if ($file->isFile() && strpos($file->getFilename(), 'entity.') === 0 && $file->getExtension() === 'yml') {
-                $yamlFiles[] = $file->getPathname();
+        if (is_dir($srcDir)) {
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($srcDir));
+            foreach ($iterator as $file) {
+                if ($file->isFile() && $file->getExtension() === 'yml') {
+                    // Check if it's in an 'entities' subfolder
+                    if (basename(dirname($file->getPathname())) === 'entities') {
+                        $yamlFiles[] = $file->getPathname();
+                    }
+                }
             }
         }
 
         foreach ($yamlFiles as $yaml) {
             $data = \Symfony\Component\Yaml\Yaml::parseFile($yaml);
-            $entityName = str_replace(['entity.', '.yml'], '', basename($yaml));
+            $base = basename($yaml, '.yml');
+            $entityName = preg_replace('/^entity\./', '', $base);
             
-            if (isset($data['sppentity'])) {
+            if ((isset($data['attributes']) || isset($data['table'])) && !empty($data['enable_api'])) {
                 $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
                 
                 foreach ($methods as $method) {
                     $endpoints[] = [
                         'method' => $method,
-                        'path' => '/api/' . $entityName . ($method !== 'POST' && $method !== 'GET' ? '/{id}' : ''),
+                        'path' => (defined('APP_BASE_URI') ? APP_BASE_URI : '') . '/api/v1/' . $entityName . ($method !== 'POST' && $method !== 'GET' ? '/{id}' : ''),
                         'summary' => "{$method} operation on {$entityName}",
-                        'attributes' => $data['sppentity']['attributes'] ?? []
+                        'attributes' => $data['attributes'] ?? []
                     ];
                 }
             }
@@ -72,6 +78,17 @@ class ApiDocController
             }
         }
 
+        // 3. Add Hardcoded Framework Endpoints
+        $endpoints[] = [
+            'method' => 'POST',
+            'path' => (defined('APP_BASE_URI') ? APP_BASE_URI : '') . '/api/v1/auth/token',
+            'summary' => 'Issue a temporary JWT for authentication',
+            'attributes' => [
+                'username' => 'string',
+                'password' => 'string'
+            ]
+        ];
+
         return $endpoints;
     }
 
@@ -101,9 +118,18 @@ class ApiDocController
             async function tryItOut(btn, method, path) {
                 const resDiv = btn.nextElementSibling;
                 resDiv.innerHTML = "Fetching...";
+                
+                const apiKey = document.getElementById("api-key-input").value.trim();
+                
                 try {
                     let realPath = path.replace("/{id}", "/1"); // Mock ID for testing
-                    let req = { method: method.split("/")[0], headers: {"Accept": "application/json"} };
+                    
+                    let headers = {"Accept": "application/json"};
+                    if (apiKey) {
+                        headers["Authorization"] = "Bearer " + apiKey;
+                    }
+                    
+                    let req = { method: method.split("/")[0], headers: headers };
                     if (req.method !== "GET" && req.method !== "DELETE") {
                         req.headers["Content-Type"] = "application/json";
                         req.body = "{}";
@@ -118,8 +144,12 @@ class ApiDocController
         </script>';
         
         $html .= '</head><body>';
+        $html .= '<div style="display: flex; justify-content: space-between; align-items: center;">';
         $html .= '<h1>📚 SPP Zero-Touch API Explorer</h1>';
-        $html .= '<p style="color: #94a3b8; margin-bottom: 2rem;">Auto-generated documentation based on Entities and Controllers.</p>';
+        $html .= '<div><input type="text" id="api-key-input" placeholder="Enter Bearer Token / API Key" style="padding: 0.5rem 1rem; border-radius: 4px; border: 1px solid #334155; background: #1e293b; color: #fff; width: 300px;"></div>';
+        $html .= '</div>';
+        $html .= '<p style="color: #94a3b8; margin-bottom: 0.5rem;">Auto-generated documentation based on Entities and Controllers.</p>';
+        $html .= '<p style="color: #94a3b8; margin-bottom: 2rem;"><strong>Authentication:</strong> All endpoints are protected by default. To authenticate, generate a permanent API Key via <code>sppadmin</code>, or request a temporary token using the <code>/api/v1/auth/token</code> endpoint below. Enter the token in the input box above.</p>';
 
         foreach ($endpoints as $ep) {
             $html .= '<div class="endpoint">';

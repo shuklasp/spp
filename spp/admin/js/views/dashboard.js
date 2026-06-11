@@ -20,9 +20,9 @@ export default class DashboardView extends BaseComponent {
                     <div style="position: absolute; top: -50%; left: -10%; width: 50%; height: 200%; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%); transform: rotate(30deg); pointer-events: none;"></div>
                     <div style="position: absolute; bottom: -50%; right: -10%; width: 50%; height: 200%; background: radial-gradient(circle, rgba(244, 63, 94, 0.1) 0%, transparent 70%); transform: rotate(-30deg); pointer-events: none;"></div>
                     
-                    <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Welcome to Developer Heaven</h1>
-                    <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 600px; margin: 0 auto 2rem auto;">
-                        Hello, ${this.state.username}. We've made the SPP Framework extremely easy and straightforward. Start building your next big idea right here.
+                    <h1 class="gradient-text" style="font-size: 3rem; margin-bottom: 0.5rem; font-family: 'Outfit', sans-serif;">Welcome to Satya Portal Platform</h1>
+                    <p style="color: var(--text-dim); font-size: 1.2rem; max-width: 700px; margin: 0 auto 2rem auto;">
+                        We're thrilled to have you here! SPP is designed to make building enterprise-grade applications incredibly fast and intuitive. Jump right in and start bringing your ideas to life.
                     </p>
                     
                     <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
@@ -66,7 +66,7 @@ export default class DashboardView extends BaseComponent {
                 
                 <!-- Documentation Links -->
                 <div style="margin-top: 3rem; text-align: center;">
-                    <a href="/api/docs" target="_blank" class="btn ghost-btn" style="color: var(--text-dim);">📚 View Interactive API Documentation</a>
+                    <a href="../index.php?__api=1&entity=docs" target="_blank" class="btn ghost-btn" style="color: var(--text-dim);">📚 View Interactive API Documentation</a>
                 </div>
             </div>
         `;

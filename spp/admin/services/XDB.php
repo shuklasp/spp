@@ -4,6 +4,8 @@
  */
 
 require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.sppxdb.php';
+require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.xdbmigrator.php';
+require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.seedermanager.php';
 
 function live_XDB_ListDB($la, $params) {
     $xdb = new \SPPMod\SPPXDB\SPP_XDB();
@@ -74,4 +76,41 @@ function live_XDB_DeleteRecord($la, $params) {
     $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname, $table);
     $res = $xdb->delete("id = ?", [$id]);
     $la->notify($res ? "Record deleted." : "Delete failed.");
+}
+
+function live_XDB_Migrate($la, $params) {
+    $rollback = $params['rollback'] ?? false;
+    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
+    $mgr = new \SPPMod\SPPXDB\MigrationManager($xdb);
+    try {
+        if ($rollback) {
+            $count = $mgr->rollback(1);
+            $la->setData(['count' => $count])->notify("Rolled back $count migrations.");
+        } else {
+            $count = $mgr->migrate();
+            $la->setData(['count' => $count])->notify("Executed $count migrations.");
+        }
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify($e->getMessage());
+    }
+}
+
+function live_XDB_Seed($la, $params) {
+    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
+    $mgr = new \SPPMod\SPPXDB\SeederManager($xdb);
+    try {
+        $count = $mgr->seed();
+        $la->setData(['count' => $count])->notify("Executed $count seeders.");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify($e->getMessage());
+    }
+}
+
+function live_XDB_GetProfileLog($la, $params) {
+    try {
+        $log = \SPPMod\SPPXDB\SPP_XDB::getQueryLog();
+        $la->setData(['log' => $log]);
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify($e->getMessage());
+    }
 }

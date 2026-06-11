@@ -12,3 +12,12 @@ module:
     deps:
         - sppdb
         - sppconfig
+    settings:
+        sys:db.engine:
+            type: select
+            label: 'XDB Engine'
+            options:
+                xml: 'XML Engine (Legacy)'
+                sqlite: 'SQLite Engine (High Performance)'
+            default: xml
+            description: 'The backing storage engine for SPPXDB operations.'

@@ -1,0 +1,16 @@
+module:
+  id: sppdoc
+  name: SPP Documentation Module
+  version: "1.0"
+  description: "Native SPP documentation generator and Code Explorer."
+  category: "Development"
+  author: "SPP Framework"
+  
+  classes:
+    - { class: SPPDoc, file: class.sppdoc.php }
+    - { class: DocParser, file: src/DocParser.php }
+    - { class: StaticGenerator, file: src/StaticGenerator.php }
+    
+  commands:
+    - { command: "docs:build", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Build native SPP documentation" }
+    - { command: "docs:phpdoc", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Run phpDocumentor.phar wrapper" }

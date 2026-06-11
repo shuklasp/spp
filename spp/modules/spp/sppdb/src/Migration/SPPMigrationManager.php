@@ -19,7 +19,7 @@ class SPPMigrationManager {
             batch INT NOT NULL,
             executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )";
-        $this->db->exec_squery($sql);
+        $this->db->exec($sql);
     }
 
     public function runPending(): array {
@@ -79,31 +79,31 @@ class SPPMigrationManager {
     }
 
     private function getRanMigrations(): array {
-        $res = $this->db->exec_squery("SELECT migration FROM {$this->migrationsTable}");
+        $res = $this->db->execute_query("SELECT migration FROM {$this->migrationsTable}");
         return array_column($res, 'migration');
     }
 
     private function getNextBatchNumber(): int {
-        $res = $this->db->exec_squery("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
+        $res = $this->db->execute_query("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
         return (int)($res[0]['max_batch'] ?? 0) + 1;
     }
 
     private function getLastBatchNumber(): int {
-        $res = $this->db->exec_squery("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
+        $res = $this->db->execute_query("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
         return (int)($res[0]['max_batch'] ?? 0);
     }
 
     private function getMigrationsByBatch(int $batch): array {
-        $res = $this->db->exec_squery("SELECT migration FROM {$this->migrationsTable} WHERE batch = ?", [$batch]);
+        $res = $this->db->execute_query("SELECT migration FROM {$this->migrationsTable} WHERE batch = ?", [$batch]);
         return array_column($res, 'migration');
     }
 
     private function logMigration(string $migration, int $batch): void {
-        $this->db->exec_squery("INSERT INTO {$this->migrationsTable} (migration, batch) VALUES (?, ?)", [$migration, $batch]);
+        $this->db->execute_query("INSERT INTO {$this->migrationsTable} (migration, batch) VALUES (?, ?)", [$migration, $batch]);
     }
 
     private function deleteMigrationLog(string $migration): void {
-        $this->db->exec_squery("DELETE FROM {$this->migrationsTable} WHERE migration = ?", [$migration]);
+        $this->db->execute_query("DELETE FROM {$this->migrationsTable} WHERE migration = ?", [$migration]);
     }
 
     private function runMigration(string $name, string $direction): void {

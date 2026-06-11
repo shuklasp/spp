@@ -43,6 +43,12 @@ class SPP_Logger extends \SPP\SPPObject
         $metadata = self::extractMetadata();
         $message  = self::interpolate($message, $context);
 
+        // [BEGIN CHANNEL SUPPORT]
+        $channel = $context['channel'] ?? 'app';
+        $metadata['channel'] = $channel;
+        unset($context['channel']); // remove from context after extraction
+        // [END CHANNEL SUPPORT]
+
         $dbSuccess = false;
         $fileSuccess = false;
 
@@ -153,13 +159,14 @@ class SPP_Logger extends \SPP\SPPObject
             }
 
             $appname = \SPP\Scheduler::getContext() ?: 'default';
+            $channel = $metadata['channel'] ?? 'app';
             $date = date('Y-m-d');
             $maxSize = (int) \SPP\Module::getConfig('max_file_size', 'spplogger') ?: 2097152;
-            $format = \SPP\Module::getConfig('log_filename_format', 'spplogger') ?: 'log-{appname}-{date}-{index}.txt';
+            $format = \SPP\Module::getConfig('log_filename_format', 'spplogger') ?: 'log-{appname}-{channel}-{date}-{index}.txt';
 
             // Find current log number of the day
             $logNumber = 1;
-            $currentFile = self::getFormattedFilename($format, $appname, $date, $level, $logNumber);
+            $currentFile = self::getFormattedFilename($format, $appname, $channel, $date, $level, $logNumber);
 
             while (file_exists($targetDir . "/" . $currentFile) && filesize($targetDir . "/" . $currentFile) >= $maxSize) {
                 $logNumber++;
@@ -195,10 +202,11 @@ class SPP_Logger extends \SPP\SPPObject
     /**
      * Formats the log filename based on the provided template and placeholders.
      */
-    private static function getFormattedFilename($format, $appname, $date, $level, $index)
+    private static function getFormattedFilename($format, $appname, $channel, $date, $level, $index)
     {
         $replace = [
             '{appname}' => $appname,
+            '{channel}' => $channel,
             '{date}'    => $date,
             '{level}'   => $level,
             '{index}'   => $index

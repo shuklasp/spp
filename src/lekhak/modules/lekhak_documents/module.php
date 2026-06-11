@@ -1,11 +1,6 @@
 <?php
 namespace Lekhak\Modules\LekhakDocuments;
 
-/**
- * Manages document repositories, file versioning, and secure downloads.
- * @configure admin/config/lekhak_documents
- */
-
 class Module {
     public static function init() {
         \Lekhak\ModuleRegistry::register('lekhak_documents', '\Lekhak\Modules\LekhakDocuments\Module');
@@ -13,32 +8,5 @@ class Module {
     public static function hook_install() {
         $db = new \SPPMod\SPPDB\SPPDB();
         $db->execute_query('CREATE TABLE IF NOT EXISTS lekhak_documents_config (key TEXT, value TEXT)');
-    }
-
-    /**
-     * Defines the configuration form schema for this module.
-     */
-    public static function hook_config_form(): array
-    {
-        return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
     }
 }

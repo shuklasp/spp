@@ -23,6 +23,7 @@ This manual is segmented into three dedicated perspectives to provide step-by-st
    - 2.6 [Zero-Direct-Access Security Enforcement & Drishyam Component Decoupling](#zero-direct-access)
    - 2.7 [XDB Embedded Database & Safe MySQL Parity](#xdb-core)
    - 2.8 [Dynamic Translations, Virtual Fields, and sppdiff Revisions](#translations-virtual-revisions)
+   - 2.9 [Distributed Shared Registry & Circuit Breaker](#registry-circuit-breaker)
 3. [Perspective C: The SPP User & Administrator Guide](#user-admin)
    - 3.1 [Declarative Visual Island Composer Studio (`drishyam:studio`)](#studio)
    - 3.2 [Cinematic Hardware-Accelerated View Transitions](#transitions)
@@ -248,6 +249,21 @@ SPP guarantees enterprise-grade historical accountability and auditability for a
 * **Granular Lifecycle Event Interceptors**: Revision tracking hooks cleanly into `entity:before_save` and `entity:after_save` event broadcasts.
 * **Gzip-Compressed Delta Storage**: The `RevisionManager::auditEntity()` method automatically decodes the `fields_data` JSON column for both the loaded database copy and the new active entity state, including virtual fields in the computed diff. After filtering out ephemeral columns and the raw `fields_data` string, the remaining granular changes are compressed via `gzcompress` and stored as base64-encoded delta buffers in the history table.
 * **Deterministic Reverse Reconstruction**: The high-performance `DeltaEngine::patch($current, $delta)` allows developers to pass any present entity state and revert it backwards to a precise past revision by applying computed deltas in reverse.
+
+<a name="registry-circuit-breaker"></a>
+### 2.9 Distributed Shared Registry & Circuit Breaker
+The framework utilizes `\SPP\Registry` as the absolute single source of truth for runtime configurations across all interlinked applications.
+
+#### 1. Distributed Storage Adapters
+The Registry seamlessly scales across multi-container orchestrations by dynamically discovering and mounting storage adapters (`\SPP\Core\Interfaces\SharedStorageInterface`):
+* **Redis Auto-Discovery**: Automatically mounts `RedisSharedStorage` to push cross-application configurations directly into the unified memory cluster.
+* **Atomic File Fallback**: Reverts to `FileSharedStorage` (via `flock(LOCK_EX)`) guaranteeing zero corruption when concurrency peaks locally without memory clusters.
+
+#### 2. Embedded Circuit Breaker / Graceful Degradation
+To eliminate Single Point of Failure (SPOF) risks, the core Registry intrinsically wraps Redis memory operations in a highly resilient Circuit Breaker logic loop.
+* If a remote Redis database drops a connection mid-execution, refuses a request, or times out, the Registry catches the resulting exception.
+* The system instantly trips the circuit, gracefully downgrades the active adapter to `FileSharedStorage`, and recursively re-attempts the read/write operation against the local disk.
+* **Result**: `100%` fault-tolerance. The framework survives massive infrastructure outages without crashing the master HTTP request or losing distributed shared state configurations.
 
 ---
 

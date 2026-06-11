@@ -723,7 +723,119 @@
             }
         });
     </script>
+    <script>
+        function toggleNavGroup(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        document.getElementById('nav-search').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const groups = document.querySelectorAll('.nav-group');
+
+            groups.forEach(group => {
+                const links = group.querySelectorAll('.nav-item');
+                let hasVisible = false;
+
+                links.forEach(link => {
+                    const text = link.querySelector('.nav-text').textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        link.style.display = 'block';
+                        hasVisible = true;
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+
+                const content = group.querySelector('.nav-group-content');
+                const icon = group.querySelector('.toggle-icon');
+                
+                if (term.length > 0) {
+                    if (hasVisible) {
+                        group.style.display = 'block';
+                        content.style.display = 'block';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        group.style.display = 'none';
+                    }
+                } else {
+                    group.style.display = 'block';
+                    link.style.display = 'block'; // Reset
+                }
+            });
+
+            // If empty search, reset everything to visible but maybe keep some collapsed
+            if (term.length === 0) {
+                document.querySelectorAll('.nav-item').forEach(l => l.style.display = 'block');
+                // You could collapse some by default here if desired.
+            }
+        });
+    </script>
+    <script>
+        function toggleNavGroup(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.style.transform = 'rotate(0deg)';
+            } else {
+                content.style.display = 'none';
+                icon.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        document.getElementById('nav-search').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase();
+            const groups = document.querySelectorAll('.nav-group');
+
+            groups.forEach(group => {
+                const links = group.querySelectorAll('.nav-item');
+                let hasVisible = false;
+
+                links.forEach(link => {
+                    const text = link.querySelector('.nav-text').textContent.toLowerCase();
+                    if (text.includes(term)) {
+                        link.style.display = 'block';
+                        hasVisible = true;
+                    } else {
+                        link.style.display = 'none';
+                    }
+                });
+
+                const content = group.querySelector('.nav-group-content');
+                const icon = group.querySelector('.toggle-icon');
+                
+                if (term.length > 0) {
+                    if (hasVisible) {
+                        group.style.display = 'block';
+                        content.style.display = 'block';
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        group.style.display = 'none';
+                    }
+                } else {
+                    group.style.display = 'block';
+                    link.style.display = 'block'; // Reset
+                }
+            });
+
+            // If empty search, reset everything to visible but maybe keep some collapsed
+            if (term.length === 0) {
+                document.querySelectorAll('.nav-item').forEach(l => l.style.display = 'block');
+                // You could collapse some by default here if desired.
+            }
+        });
+    </script>
 </body>
+</html>
+</html>
 </html>
 </html>
 </html>

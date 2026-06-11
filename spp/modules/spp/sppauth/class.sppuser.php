@@ -216,8 +216,14 @@ class SPPUser extends SPPEntity
             return password_verify($passwd, $hash);
         }
 
-        // Legacy plain-text fallback
-        return $passwd === $hash;
+        // Legacy plain-text fallback with automatic hash upgrade
+        if ($passwd === $hash) {
+            $this->password = password_hash($passwd, PASSWORD_DEFAULT);
+            $this->save();
+            return true;
+        }
+        
+        return false;
     }
 
     /**

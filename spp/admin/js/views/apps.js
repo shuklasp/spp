@@ -195,13 +195,22 @@ export default class AppsView extends BaseComponent {
 
     // --- Tab: Modules ---
     renderModulesTable() {
-        const { modules, modFilter, modGraphMode } = this.state;
+        const { modules, modFilter, modGraphMode, modSearch } = this.state;
         let filtered = modules;
         
         if (modFilter !== 'all') {
             if (modFilter === 'core') filtered = modules.filter(m => m.type === 'system');
             else if (modFilter === 'app') filtered = modules.filter(m => m.type === 'user');
             else filtered = modules.filter(m => (m.module_category || (m.type === 'system' ? 'Core Optional' : 'App Modules')) === modFilter);
+        }
+
+        if (modSearch) {
+            const term = modSearch.toLowerCase();
+            filtered = filtered.filter(m => 
+                (m.name || '').toLowerCase().includes(term) || 
+                (m.public_name || '').toLowerCase().includes(term) || 
+                (m.description || '').toLowerCase().includes(term)
+            );
         }
 
         if (modGraphMode) {
@@ -227,16 +236,32 @@ export default class AppsView extends BaseComponent {
 
         if (filtered.length === 0) {
             return html`
-                <div class="empty-state">
-                    <div class="empty-icon">📦</div>
-                    <h3>No Modules found</h3>
-                    <p>No modules match the current filter in this context.</p>
+                <div class="view-content-wrapper fade-in">
+                    <div style="margin-bottom: 20px;">
+                        <input type="text" 
+                               placeholder="🔍 Search modules by name or description..." 
+                               value="${modSearch || ''}" 
+                               @input=${(e) => this.setState({modSearch: e.target.value})}
+                               style="width: 100%; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text); font-size: 0.9rem;">
+                    </div>
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <h3>No Modules found</h3>
+                        <p>No modules match the current filter in this context.</p>
+                    </div>
                 </div>
             `;
         }
 
         return html`
             <div class="view-content-wrapper fade-in">
+                <div style="margin-bottom: 20px;">
+                    <input type="text" 
+                           placeholder="🔍 Search modules by name or description..." 
+                           value="${modSearch || ''}" 
+                           @input=${(e) => this.setState({modSearch: e.target.value})}
+                           style="width: 100%; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text); font-size: 0.9rem;">
+                </div>
                 ${groupNames.map(groupName => {
                     const groupModules = groups[groupName];
                     return html`

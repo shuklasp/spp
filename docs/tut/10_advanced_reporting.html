@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPP Framework Tutorial | 10. Advanced Reporting</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html" class="active">10. Advanced Reporting</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>10. Business Intelligence & Advanced Reporting</h1>
+            <p>Welcome to the final chapter of the tutorial. We'll explore the <strong>SPP Report Builder</strong>, a zero-dependency, highly dynamic Business Intelligence tool built natively into the SPP ecosystem.</p>
+
+            <h2>The SPPReport Engine</h2>
+            <p>Reporting traditionally requires heavy client-side libraries (like DataTables) or massive server-side code generation. The <code>sppreport</code> module changes this by offering a declarative SPP-UX web component and a JSON-to-SQL backend builder.</p>
+            
+            <h3>Key Capabilities:</h3>
+            <ul>
+                <li><strong>AI-Powered Builder (Ask AI):</strong> Translate natural language into complex SQL joins and aggregations instantly using <code>SPPAI</code>.</li>
+                <li><strong>Federated BI:</strong> Query completely external databases dynamically via secure PDO connections mapped in the UI.</li>
+                <li><strong>Dynamic Schema Introspection:</strong> Automatically reads your database entities.</li>
+                <li><strong>Relational Joins:</strong> Visually link multiple tables together (LEFT JOIN, INNER JOIN).</li>
+                <li><strong>Calculated Columns:</strong> Define custom arithmetic logic directly in the UI.</li>
+                <li><strong>Interactive Pivot Tables:</strong> Slice, dice, and cross-tabulate data securely in the browser without writing SQL.</li>
+                <li><strong>Infinite Nested Filters & RBAC:</strong> Supports AND/OR grouped conditions visually, and dynamic Row-Level Security (e.g. <code>{{CURRENT_USER_ID}}</code>).</li>
+                <li><strong>White-Labeling & Live Data:</strong> Embed with multi-tenant custom CSS themes (logos, fonts, brand colors) and auto-refresh intervals.</li>
+                <li><strong>Visual Dashboards:</strong> Chart.js integration out-of-the-box via CDN.</li>
+                <li><strong>Automated Cron Emails:</strong> Schedule background workers to email Rich HTML or PDF exports.</li>
+                <li><strong>WYSIWYG Print Templates:</strong> Design corporate PDF and print templates.</li>
+                <li><strong>Zero-Dependency:</strong> Built entirely with native browser features and core SPP PHP.</li>
+            </ul>
+
+            <h2>One-Line Integration</h2>
+            <p>Integrating the BI suite into any page of your app is completely declarative. SPP provides two distinct components depending on your user's role.</p>
+            
+            <h3>1. The Builder (For Admins & Authors)</h3>
+            <p>Give users the ability to build queries from scratch, configure columns, and design print templates.</p>
+            <pre><code>&lt;div 
+    data-spp-type="ux" 
+    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"&gt;
+&lt;/div&gt;</code></pre>
+            
+            <h3>2. The Viewer (For End-Users)</h3>
+            <p>Embed a read-only viewer for a specific saved report. It hides the complex query builder and only exposes the data grid, runtime filters, and export buttons.</p>
+            <pre><code>&lt;div 
+    data-spp-type="ux" 
+    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-viewer.js"
+    data-spp-props='{"reportName": "Monthly Sales"}'&gt;
+&lt;/div&gt;</code></pre>
+            
+            <p>When the page loads, <code>spp-loader.js</code> automatically mounts the isolated interactive application into this div container.</p>
+
+            <h2>Enterprise BI Features (V3)</h2>
+            <p>The SPPReport engine scales with your business by offering advanced SaaS-level capabilities zero-dependency.</p>
+
+            <h3>1. Natural Language "Ask AI" 🤖</h3>
+            <p>In the Builder (<code>sppreport-ui.js</code>), administrators will notice a <strong>✨ Ask AI</strong> bar. By typing an English request (e.g., <em>"Show me sum of sales grouped by region for 2024"</em>), the system contacts your local <code>SPPAI</code> driver, parses the database schema context, and automatically configures the Tables, Columns, Aggregates, and Joins in the visual builder instantly.</p>
+
+            <h3>2. Federated BI (Multi-Source Data) 🌐</h3>
+            <p>You are no longer restricted to the internal SPP application database. In the <strong>Settings Modal</strong>, you can define an <strong>External PDO DSN</strong> (e.g., <code>mysql:host=live.logistics;dbname=shipping</code>). The engine will dynamically build a secure PDO wrapper, fetch the external schema, and allow you to build reports over an entirely separate system completely transparently.</p>
+
+            <h3>3. Client-Side Pivot Tables 📊</h3>
+            <p>When embedding the Viewer (<code>sppreport-viewer.js</code>), end-users can click the <strong>Pivot View</strong> toggle. This replaces the standard data grid with a powerful Drag-and-Drop style cross-tabulation table. Users select Row, Column, and Value fields (with dynamic aggregations like COUNT/SUM/AVG) to slice the dataset on the fly without issuing new queries to the server.</p>
+
+            <h3>4. Multi-Tenant White Labeling & Live TV Dashboards 🎨</h3>
+            <p>The Report Viewer and Dashboards are designed for multi-tenant SaaS embedding.</p>
+            <ul>
+                <li><strong>Theming:</strong> Set a custom Logo URL, Primary Hex Color, and Google Font (like <code>Inter</code>) via the Builder Settings. The viewer securely maps these as CSS custom properties (<code>--sppux-primary</code>) to adopt any brand visually.</li>
+                <li><strong>Auto-Refresh:</strong> Set an interval in seconds (e.g., <code>30</code>). The viewer will silently poll the server to repaint the charts and grids, allowing you to project live data onto a big screen just like a TV Dashboard.</li>
+            </ul>
+
+            <h2>Advanced Enterprise BI (V4)</h2>
+            <p>With V4, SPPReport pushes into full-scale BI territory.</p>
+
+            <h3>1. Interactive Drill-Downs 🔍</h3>
+            <p>Users can interact directly with visualizations to see the raw underlying data. Clicking any bar, pie slice, or line point in a Chart.js dashboard, or any numerical cell inside a cross-tabulation Pivot Table, will instantly filter the dataset and pop up a modal showing the exact rows that contributed to that aggregate.</p>
+
+            <h3>2. Automated AI Insights ✨</h3>
+            <p>The Viewer features an <strong>✨ AI Insights</strong> button. When clicked, the engine sends a sample of the generated report dataset through <code>SPPAI</code>. The AI acts as an expert Data Analyst, returning a 3-bullet executive summary (identifying upward trends, anomalies, or outliers) directly into the UI.</p>
+
+            <h3>3. Threshold Alerts & Webhooks 🚨</h3>
+            <p>In the <strong>Settings Modal</strong>, authors can define a <strong>Webhook URL</strong> and an <strong>Alert Condition</strong> (e.g., <code>revenue < 10000</code>). During the background <code>sppreport_cron.php</code> execution, the engine evaluates the dataset against the condition. If breached, an HTTP POST request is instantly dispatched to the Webhook URL (e.g. Slack, MS Teams) containing the alert trigger and the top 5 rows.</p>
+
+            <h3>4. Geospatial Mapping 🌍</h3>
+            <p>The Dashboard component supports a <strong>Map</strong> chart type. It dynamically loads Leaflet JS from a CDN and automatically plots <code>lat/lng</code> or <code>latitude/longitude</code> columns onto an interactive OpenStreetMap.</p>
+
+            <h3>5. Report Version Control & Audit Trail 🕒</h3>
+            <p>Every time you save a report in the Builder, a timestamped <code>.yml.bak</code> copy is automatically generated in <code>etc/sppreports/history/</code>. A <strong>🕒 History</strong> button in the Builder toolbar allows one-click rollback to a safe state.</p>
+
+            <h2>Report Persistence & Scheduling</h2>
+            <p>Reports and templates are persisted using YAML files in the <code>etc/sppreports/</code> directory, continuing our philosophy of database-free configuration portability.</p>
+
+            <p>When building a report, you can access the <strong>Settings Modal</strong> to configure:</p>
+            <ul>
+                <li><strong>Allowed Roles:</strong> Comma-separated list to lock down report viewing (e.g. <code>admin,manager</code>).</li>
+                <li><strong>Cron Scheduling:</strong> A standard cron expression (e.g. <code>0 8 * * *</code>) that triggers the <code>sppreport_cron.php</code> worker to generate and email the report.</li>
+                <li><strong>Export Formats:</strong> Choose between a Rich HTML email with CSV attachment (zero dependencies) or a PDF attachment (requires installing <code>TCPDF</code> via Composer).</li>
+            </ul>
+
+            <h2>Visual Dashboards</h2>
+            <p>SPPReport also includes a Dashboard component to visually graph any saved report using Chart.js. Simply embed this component:</p>
+            <pre><code>&lt;div 
+    data-spp-type="ux" 
+    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-dashboard.js"
+    data-spp-props='{"report": "Monthly_Sales", "type": "pie"}'&gt;
+&lt;/div&gt;</code></pre>
+
+            <h2>Enterprise Security & Access Control 🛡️</h2>
+            <p>Reporting engines have direct access to sensitive database information, making security critical. The <code>sppreport</code> module employs multiple layers of defense:</p>
+            <ol>
+                <li><strong>Strict API Authentication:</strong> The <code>api.php</code> handler is strictly locked down using <code>SPPAuth</code>. Unauthenticated access is rejected, and destructive actions (e.g., saving queries, modifying templates, and version restoration) are hard-coded to require the <strong>Admin</strong> role.</li>
+                <li><strong>Role-Based Access Control (RBAC):</strong> Every saved report can specify <code>allowed_roles</code>. When an end-user attempts to view or export a report, the backend engine validates their active session roles against the report's configuration.</li>
+                <li><strong>SSRF Protection:</strong> The Federated BI functionality (External DSNs) is restricted entirely to Admin users. This prevents malicious actors from utilizing your server to scan or query internal network IP addresses via Server-Side Request Forgery.</li>
+                <li><strong>Export Sanitization:</strong> All CSV and XLS exports are automatically sanitized on-the-fly. Any dataset values beginning with executable formula characters (<code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>) are prefixed with a single quote (<code>'</code>), protecting administrators from spreadsheet macro injection attacks.</li>
+            </ol>
+
+            <footer class="footer-nav">
+                <a href="09_project_twitter.html" class="nav-button prev">
+                    <span class="label">Previous</span>
+                    <span class="title">&larr; 09. Project: SPP-Twitter</span>
+                </a>
+                <div></div>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>

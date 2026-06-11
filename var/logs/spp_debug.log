@@ -4021,3 +4021,5 @@ INDEX.PHP DEBUG: activeProc is App\Sppmobile\SppmobileApp. App getName() is sppm
 INDEX.PHP DEBUG: activeProc is App\Sppmobile\SppmobileApp. App getName() is sppmobile
 INDEX.PHP DEBUG: activeProc is App\Sppmobile\SppmobileApp. App getName() is sppmobile
 INDEX.PHP DEBUG: activeProc is App\Sppmobile\SppmobileApp. App getName() is sppmobile
+[2026-06-05 07:04:30] [AUTODEMO] init.php executed. Context: sppadmin
+[2026-06-05 07:39:03] [AUTODEMO] init.php executed. Context: sppadmin

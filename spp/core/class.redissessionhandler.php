@@ -2,7 +2,7 @@
 
 namespace SPP\Core;
 
-use SPP\RedisCache;
+
 
 /**
  * Class RedisSessionHandler

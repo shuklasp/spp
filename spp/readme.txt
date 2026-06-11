@@ -20,7 +20,7 @@ At present, following parts of this framework are in various stages of developme
 
 1) \SPPMod\SPPAuth\SPPAuth: Authentication System, complete with a login system and roles and rights management.
 
-2) SPPDB: Database handling module.
+2) \SPPMod\SPPXDB\SPP_XDB: Extensible Dual-Engine Database/ORM layer.
 
 3) SPPDigit: Module for dojo widgets.
 
