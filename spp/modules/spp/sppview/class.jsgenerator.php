@@ -37,10 +37,18 @@ class JSGenerator extends \SPP\SPPObject
         $initialState = $stateProp->getValue($instance);
 
         // 2. Extract Render Template
-        // We call a temporary instance to get the template
-        // Note: In a real transpiler, we might parse the AST, but for this framework
-        // we'll execute a dry-run or provide a static template property.
-        $template = $instance->render();
+        $template = '';
+        if ($reflect->hasMethod('getTemplate') && $reflect->getMethod('getTemplate')->isStatic()) {
+            $template = forward_static_call([$className, 'getTemplate']);
+        } else {
+            try {
+                // Warning: Executing render() on an uninitialized object may fail if it depends on constructor state
+                $template = $instance->render();
+            } catch (\Throwable $e) {
+                // If it fails, we provide a placeholder template and warn the developer
+                $template = "<div class='error'>Component template could not be statically resolved. Implement public static function getTemplate(): string.</div>";
+            }
+        }
 
         // 3. Extract Actions (Methods)
         $actions = [];
@@ -89,7 +97,14 @@ class JSGenerator extends \SPP\SPPObject
     private static function escapeTemplate(string $tpl): string
     {
         $tpl = str_replace('`', '\`', $tpl);
-        // Replace {$var} or {var} with ${var} for lit-html compatibility
-        return preg_replace('/\{(\$?[a-zA-Z0-9_]+)\}/', '${\1}', $tpl);
+        // Replace echo tags or {$var} with ${var}
+        $tpl = preg_replace('/<\?=\s*\$([a-zA-Z0-9_]+)\s*\?'.'>/', '${\1}', $tpl);
+        $tpl = preg_replace('/<\?php\s+echo\s+\$([a-zA-Z0-9_]+)\s*;\s*\?'.'>/', '${\1}', $tpl);
+        $tpl = preg_replace('/\{(\$?[a-zA-Z0-9_]+)\}/', '${\1}', $tpl);
+        
+        // Remove literal $ signs inside ${...} if they exist from the last regex
+        $tpl = preg_replace('/\$\{\$([a-zA-Z0-9_]+)\}/', '${\1}', $tpl);
+        
+        return $tpl;
     }
 }

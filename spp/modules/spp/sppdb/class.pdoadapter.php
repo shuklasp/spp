@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPInterDB;
+namespace SPPMod\SppDb;
 
 /**
  * Class PDOAdapter
@@ -124,8 +124,9 @@ class PDOAdapter implements DBAdapter
     public function getSchema(string $table): array
     {
         $driver = $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        $safe_table = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
         if ($driver === 'sqlite') {
-            $res = $this->query("PRAGMA table_info({$table})");
+            $res = $this->query("PRAGMA table_info({$safe_table})");
             $columns = [];
             foreach ($res as $row) {
                 $columns[$row['name']] = [
@@ -137,7 +138,7 @@ class PDOAdapter implements DBAdapter
                 ];
             }
         } else {
-            $res = $this->query("DESCRIBE {$table}");
+            $res = $this->query("DESCRIBE {$safe_table}");
             $columns = [];
             foreach ($res as $row) {
                 $columns[$row['Field']] = [

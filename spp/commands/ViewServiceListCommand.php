@@ -21,7 +21,7 @@ class ViewServiceListCommand extends Command
         echo "Listing services for app: {$appname}\n\n";
 
         $services = \SPP\Scheduler::withContext($appname, function() {
-            return \SPPMod\SPPAjax\SPPAjax::listServices();
+            return \SPPMod\SppApi\SPPAjax::listServices();
         });
 
         if (empty($services)) {

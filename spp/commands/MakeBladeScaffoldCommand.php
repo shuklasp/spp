@@ -45,7 +45,7 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
                 'description' => 'text'
             ]
         ];
-        \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appName, $config);
+        \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appName, $config);
         echo "DONE\n";
 
         // 2. Create YAML Form

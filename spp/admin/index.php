@@ -15,10 +15,13 @@ if (!defined('SPP_BASE_DIR')) {
 
 require_once dirname(SPP_BASE_DIR) . '/vendor/autoload.php';
 require_once SPP_BASE_DIR . '/sppinit.php';
-require_once dirname(SPP_BASE_DIR) . '/global.php';
 
 // Force Admin Context for Session consistency
-try { \SPP\Scheduler::getProcObj('sppadmin'); } catch (\Exception $e) { new \SPP\App('sppadmin', false, 3); }
+try { 
+    \SPP\Scheduler::getProcObj('sppadmin'); 
+} catch (\Exception $e) { 
+    new \SPP\App('sppadmin'); 
+}
 \SPP\Scheduler::setContext('sppadmin');
 
 
@@ -65,7 +68,7 @@ try {
     <link rel="icon" type="image/png" href="images/spp-logo.jpg">
 
     <!-- SPP-UX Infrastructure (Centralized) -->
-    <link rel="stylesheet" href="<?php echo \SPPMod\SPPUX\SPPUX::cssPath(); ?>?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="<?php echo \SPPMod\Drishyam\SPPUX::cssPath(); ?>?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="<?php echo SPP_CSS_URI; ?>/sppforms.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/admin.css?v=<?php echo time(); ?>">
     
@@ -100,13 +103,29 @@ try {
                     <label for="password">Secret Key</label>
                     <input type="password" id="password" placeholder="Enter password..." required autocomplete="current-password">
                 </div>
+                <div id="mfa-section" style="display:none;">
+                    <div class="input-group">
+                        <label for="mfa_code">Authenticator Code</label>
+                        <input type="text" id="mfa_code" placeholder="123456" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*">
+                    </div>
+                </div>
                 <button type="submit" class="btn primary-btn shine-effect" style="width:100%; justify-content:center;">
                     <span>Initialize Access</span>
                 </button>
             </form>
+            
+            <div id="magic-link-section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); text-align: center;">
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">Or sign in without a password</p>
+                <div class="input-group" style="display:none;" id="magic-email-group">
+                    <input type="email" id="magic_email" placeholder="Enter your email address...">
+                    <button class="btn secondary-btn" style="width:100%; margin-top:0.5rem;" onclick="app.sendMagicLink()">Send Magic Link</button>
+                </div>
+                <button class="btn secondary-btn" id="btn-show-magic" style="width:100%;" onclick="document.getElementById('magic-email-group').style.display='block'; this.style.display='none';">Use Magic Link</button>
+            </div>
+            
             <footer>
                 <p>SPP Framework Enterprise Edition</p>
-                <div class="version-tag">v2.4.0-evolve</div>
+                <div class="version-tag">v2.5.0-secure</div>
             </footer>
         </div>
     </div>
@@ -155,6 +174,9 @@ try {
                     <div class="sidebar-section-title" style="font-size: 0.65rem; color: #f59e0b; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">Security & Access</div>
                     <li><a href="#identity" class="nav-item" data-view="identity" data-keywords="identity access users roles permissions groups security login auth" title="Manage users, roles, permissions and groups">
                             <span class="icon">🛡️</span> Identity & Access
+                        </a></li>
+                    <li><a href="#api_keys" class="nav-item" data-view="api_keys" data-keywords="api keys tokens authentication rest oauth" title="Manage API Keys for external services">
+                            <span class="icon">🔑</span> API Keys
                         </a></li>
 
                     <div class="sidebar-divider" style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
@@ -273,8 +295,8 @@ try {
     <div id="global-suggestions" class="suggestions-list"></div>
 
     <!-- Framework Infrastructure (Centralized) -->
-    <script type="module" src="<?php echo \SPPMod\SPPUX\SPPUX::runtimePath(); ?>?v=<?php echo time(); ?>"></script>
-    <script type="module" src="<?php echo \SPPMod\SPPUX\SPPUX::uiPath(); ?>?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::runtimePath(); ?>?v=<?php echo time(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::uiPath(); ?>?v=<?php echo time(); ?>"></script>
     <script type="module" src="js/admin.js?v=<?php echo time(); ?>"></script>
     <!-- Schema-based module settings enhancement (overrides openModuleSettings only) -->
     <script type="module" src="js/admin-settings.js?v=<?php echo time(); ?>"></script>

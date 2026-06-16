@@ -17,36 +17,6 @@ require_once 'sppconstants.php';*/
  */
 class SPPBase extends \SPP\SPPObject
 {
-    /*public static function useModule($modname)
-    {
-        switch($modname)
-        {
-            case '\SPPMod\SPPAuth\SPPAuth':
-                require_once SPP_BASE_DIR.SPPUS.'sppauth.php';
-                break;
-            case 'SPPHtml':
-                require_once SPP_BASE_DIR.SPPUS.'spphtml.php';
-                break;
-            case '\SPPMod\SPProfile\SPPProfile':
-                require_once SPP_BASE_DIR.SPPUS.'sppprofile.php';
-                break;
-            case 'SPPDev':
-                require_once SPP_BASE_DIR.SPPUS.'sppdev.php';
-                break;
-            case 'SPPDB':
-                require_once SPP_BASE_DIR.SPPUS.'sppdb.php';
-                break;
-            case 'SPPSession':
-                require_once SPP_BASE_DIR.SPPUS.'sppsession.php';
-                break;
-            case 'SPP_Wizard':
-                require_once SPP_BASE_DIR.SPPUS.'sppwizard.php';
-                break;
-            default:
-                throw new \SPP\SPPException('Illegal module inclusion :'.$modname);
-        }
-    }*/
-
     public static function initSession()
     {
         if (!SPPSession::sessionExists()) {
@@ -63,41 +33,9 @@ class SPPBase extends \SPP\SPPObject
         }
     }
 
-    /*public static function sppLink($link)
-    {
-        if(strstr($link,":"))
-        {
-            return $link;
-        }
-        else
-        {
-            if(array_key_exists('sppmode', $_GET))
-            {
-                return 'index.php?sppmode='.$_GET['sppmode'].'&spppage='.$link;
-            }
-            else
-            {
-                return 'index.php?spppage='.$link;
-            }
-        }
-    }
-
-    public static function isAppSetup()
-    {
-        $currdir=dirname(__FILE__);
-        if(file_exists($currdir.SPPDS.'settings.php'))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }*/
-
     public static function sppTable($tname)
     {
-        return \SPPMod\SPPDB\SPPDB::sppTable($tname);
+        return \SPP\DB::sppTable($tname);
     }
 
     /**

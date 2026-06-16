@@ -15,7 +15,12 @@ class Sppext extends \SPP\Module
 
     public function init()
     {
-        self::registerExtensionLifecycles();
+        $appname = \SPP\Scheduler::getContext();
+        self::triggerHook('boot', ['app' => $appname]);
+
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::on('event_spp_view_pre_render', [self::class, 'registerExtensionLifecycles']);
+        }
     }
 
     /**
@@ -40,8 +45,10 @@ class Sppext extends \SPP\Module
             try {
                 call_user_func($callback, $context);
             } catch (\Throwable $e) {
-                if (class_exists('\SPPMod\SPPLogger\SPP_Logger')) {
-                    \SPPMod\SPPLogger\SPP_Logger::error("[SPPExt Hook Exception ($trigger)]: " . $e->getMessage());
+                if (class_exists('\\SPP\\SPPEvent')) {
+                    \SPP\SPPEvent::fireEvent('log.error', new \SPP\EventParams([
+                        'message' => "[SPPExt Hook Exception ($trigger)]: " . $e->getMessage()
+                    ]));
                 }
             }
         }
@@ -67,7 +74,7 @@ class Sppext extends \SPP\Module
     /**
      * Automatically registers lifecycle rules and preloads defined declaratively in active extensions configuration mapping.
      */
-    private static function registerExtensionLifecycles(): void
+    public static function registerExtensionLifecycles(): void
     {
         $appname = \SPP\Scheduler::getContext();
         $preloadList = self::getConfig('preload_assets', 'sppext', $appname) ?: [];
@@ -95,9 +102,6 @@ class Sppext extends \SPP\Module
                 }
             }
         }
-
-        // Trigger bootstrap notification event
-        self::triggerHook('boot', ['app' => $appname]);
     }
 
     /**
@@ -143,7 +147,8 @@ JS;
         $buffer = "";
         foreach ($files as $file) {
             $absPath = realpath(SPP_APP_DIR . '/' . ltrim($file, '/'));
-            if ($absPath && file_exists($absPath)) {
+            $basePath = realpath(SPP_APP_DIR);
+            if ($absPath && $basePath && strpos($absPath, $basePath) === 0 && file_exists($absPath)) {
                 $content = file_get_contents($absPath);
                 if ($bundleType === 'js') {
                     // Strip multi-line comments securely

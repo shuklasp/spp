@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12. Live Components | SPP Framework Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html" class="active">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html" class="active">12. Live Components</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>13. Security Hardening (The Brutal Audit)</h1>
+            <p>Welcome to the <strong>Security Hardening</strong> chapter. Security is the paramount feature of the SPP Framework. In order to construct an enterprise-grade portal, your core foundation must be cryptographically sound and mathematically secure against all vectors of attack.</p>
+            <p>The SPP Framework has recently undergone an exhaustive, framework-wide security audit known as the <strong>"Brutal Audit"</strong>. This chapter covers the major defenses implemented natively across the architecture.</p>
+
+            <hr>
+
+            <h2>1. SQL Injection (SQLi) Elimination</h2>
+            <p>Legacy database interactions are highly vulnerable to SQL injection, especially in dynamic <code>ORDER BY</code> or <code>WHERE</code> clauses.</p>
+            <ul>
+                <li><strong>QueryBuilder Sanitization:</strong> Both <code>sppdb</code> and <code>sppxdb</code> rigidly enforce regex column sanitization. Operators are actively whitelisted against a hard-coded array (<code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>LIKE</code>, <code>IN</code>, <code>IS NULL</code>, etc.). It is physically impossible to execute chained commands or subqueries through the QueryBuilder.</li>
+                <li><strong>Reporting Engine Integrity:</strong> <code>sppreport</code> completely blocks spaces and quotes in dynamic <code>CUSTOM</code> aggregate fields. This means dynamic reporting calculations are limited solely to math (<code>SUM(amount * tax_rate)</code>), completely rejecting any embedded subqueries.</li>
+            </ul>
+
+            <hr>
+
+            <h2>2. Path Traversal &amp; LFI Mitigations</h2>
+            <p>When frameworks dynamically resolve file paths based on URLs or template directives, they open themselves to Local File Inclusion (LFI).</p>
+            <ul>
+                <li><strong>View Router (<code>spprouter</code>):</strong> Deep directory traversal tokens (<code>..</code>) are stripped, and absolute paths are validated.</li>
+                <li><strong>PHP Components (<code>&lt;php-include&gt;</code>):</strong> <code>sppview</code> recursively checks included files and blocks path traversal characters natively at the AST compilation layer.</li>
+                <li><strong>File Disk Wrappers (<code>sppstorage</code>):</strong> <code>LocalDisk</code> aggressively filters path traversal payloads before executing any <code>fopen()</code> or <code>file_get_contents()</code> calls.</li>
+            </ul>
+
+            <hr>
+
+            <h2>3. RCE &amp; PHP Object Injection (POP) Blocking</h2>
+            <p>Deserializing arbitrary data is incredibly dangerous and historically leads to Remote Code Execution via POP chains.</p>
+            <ul>
+                <li><strong>Safe Caching:</strong> <code>sppcache</code> executes <code>unserialize()</code> with the strict <code>['allowed_classes' =&gt; false]</code> directive. If a malicious payload attempts to inject an object, PHP safely neuters it into <code>__PHP_Incomplete_Class</code>.</li>
+                <li><strong>Inheritance-Bound Queues:</strong> <code>sppqueue</code> job deserialization rigorously enforces <code>is_subclass_of($job, \SPP\Job::class)</code>. Rogue classes are dropped from memory instantly before any magic methods can fire.</li>
+                <li><strong>Code Stub Generation:</strong> <code>sppmaker</code> securely regex-whitelists entity names to prevent evaluating arbitrary code within the generation templates.</li>
+            </ul>
+
+            <hr>
+
+            <h2>4. Log Forging (Injection)</h2>
+            <p>When logging user behavior, inserting unfiltered payloads like HTTP User Agents directly into a text log file can allow attackers to inject carriage returns (<code>\r\n</code>) and write falsified log lines.</p>
+            <ul>
+                <li><strong>CRLF Stripping:</strong> <code>spplogger</code> actively sanitizes user-supplied HTTP headers and messages using <code>str_replace()</code>, condensing multiline payloads and preventing log manipulation.</li>
+            </ul>
+
+            <hr>
+
+            <h2>5. WebSocket Integrity</h2>
+            <p>WebSockets typically suffer from cross-site websocket hijacking (CSWSH) and unauthenticated broadcast spoofing.</p>
+            <ul>
+                <li><strong>HMAC Signatures:</strong> The <code>spplive</code> Engine utilizes HMAC SHA-256 digital signatures (<code>X-SPP-Live-Signature</code>) on all internal broadcast API requests.</li>
+            </ul>
+
+            <footer class="footer-nav">
+                <a href="12_live_components.html" class="nav-button">
+                    <span class="label">Previous</span>
+                    <span class="title">&larr; 12. Live Components</span>
+                </a>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>

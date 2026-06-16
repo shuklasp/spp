@@ -5,7 +5,7 @@ use App\Lekhak\Entities\Vocabulary;
 
 /**
  * Auto-generated Test for Vocabulary (Parikshak)
- * Generation Date: 2026-05-19 02:59:22
+ * Generation Date: 2026-06-14 02:23:45
  */
 class VocabularyAutoTest
 {
@@ -15,8 +15,8 @@ class VocabularyAutoTest
         try {
             $entity = new Vocabulary();
             $data = array (
-  'name' => 'PARIKSHAK_FUZZ_b148e',
-  'label' => 'PARIKSHAK_FUZZ_29c4a',
+  'name' => 'PARIKSHAK_FUZZ_bee57',
+  'label' => 'PARIKSHAK_FUZZ_0c15f',
   'description' => 'UNKNOWN_TYPE_text',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);

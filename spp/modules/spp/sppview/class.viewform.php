@@ -147,6 +147,20 @@ class ViewForm extends ViewTag
     }
 
 
+    public function fill(\SPPMod\SPPDB\SPPEntity $entity, array $data = null): self
+    {
+        $payload = $data ?? $_POST;
+        foreach ($this->elements as $id => $elem) {
+            $name = $elem->getAttribute('name') ?: $id;
+            $cleanName = rtrim($name, '[]');
+            if (isset($payload[$name])) {
+                $entity->set($cleanName, $payload[$name]);
+            }
+        }
+        return $this;
+    }
+
+
     /**
      * Function addElement()
      * Adds an element to the form.
@@ -178,6 +192,41 @@ class ViewForm extends ViewTag
 
     public function endForm()
     {
+        // Inject dynamic scripts from validators
+        $scripts = [];
+        if (isset($this->validators) && is_array($this->validators)) {
+            foreach ($this->validators as $validator) {
+                if (method_exists($validator, 'getClientScript')) {
+                    $script = $validator->getClientScript();
+                    if ($script) {
+                        $scripts[] = $script;
+                    }
+                }
+            }
+        }
+
+        if (!empty($scripts)) {
+            $formId = $this->getAttribute('id') ?: $this->getAttribute('name');
+            if ($formId) {
+                echo '<script>';
+                echo 'document.addEventListener("DOMContentLoaded", function() {';
+                echo '  var formElem = document.getElementById("' . $formId . '");';
+                echo '  if (formElem) {';
+                echo '    formElem.addEventListener("submit", function(e) {';
+                echo '      let hasError = false;';
+                foreach ($scripts as $script) {
+                    echo '      if (!hasError) { hasError = ((function() { ' . $script . ' })() === false); }';
+                }
+                echo '      if (hasError) {';
+                echo '        e.preventDefault();';
+                echo '      }';
+                echo '    });';
+                echo '  }';
+                echo '});';
+                echo '</script>';
+            }
+        }
+
         echo $this->getEnd();
     }
 
@@ -294,7 +343,7 @@ class ViewForm extends ViewTag
     /**
      * Binds an entity to the form by setting values of its elements.
      */
-    public function bind(\SPPMod\SPPEntity\SPPEntity $entity)
+    public function bind(\SPPMod\SppDb\SPPEntity $entity)
     {
         foreach ($this->elements as $id => $elem) {
             $name = $elem->getAttribute('name') ?: $id;

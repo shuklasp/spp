@@ -5,6 +5,8 @@ use SPPMod\Parikshak\SPPTestCase;
 use SPP\Core\PsrLoggerAdapter;
 use Psr\Log\LogLevel;
 
+require_once SPP_CORE_DIR . '/class.psrloggeradapter.php';
+
 class PsrLoggerAdapterTest extends SPPTestCase
 {
     private $adapter;

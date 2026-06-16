@@ -320,6 +320,70 @@ $proto = $settings['parsed']['prototyping'] ?? ['auto_evolution' => 'manual', 'v
         </table>
     </div>
 
+    <!-- Identity & Security (IAM) -->
+    <div class="section-title-bar">
+        <h3>Identity & Security (IAM)</h3>
+        <div class="section-line"></div>
+        <button class="btn ghost-btn btn-xs" onclick="location.hash = 'iam'">Manage IAM</button>
+    </div>
+    
+    <div class="dashboard-compact-grid">
+        <div class="compact-card" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 100%);">
+            <div class="card-top">
+                <span class="card-label">OAuth Clients</span>
+                <div class="card-icon-sm" style="color: #3b82f6;">🔑</div>
+            </div>
+            <div class="card-value" id="iam_oauth_count">--</div>
+            <div style="margin-top: auto;">
+                <button class="btn primary-btn btn-xs" onclick="admin.api('IAM_ListOAuthClients', {}, function(res){ console.log('OAuth Clients', res.data); alert('Check console for OAuth clients list.'); })">View Clients</button>
+                <button class="btn ghost-btn btn-xs" onclick="let name=prompt('App Name:'); let uri=prompt('Redirect URI:'); if(name&&uri) admin.api('IAM_SaveOAuthClient', {id: 'client_'+Math.random().toString(36).substr(2,6), name:name, redirect_uri:uri}, function(r){ if(r.status==='success') alert('Client Created! Secret: ' + r.data.client_secret); location.reload(); });">Create New</button>
+            </div>
+        </div>
+        
+        <div class="compact-card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.05) 0%, transparent 100%);">
+            <div class="card-top">
+                <span class="card-label">ABAC Policies</span>
+                <div class="card-icon-sm" style="color: #ef4444;">🛡️</div>
+            </div>
+            <div class="card-value" id="iam_abac_count">--</div>
+            <div style="margin-top: auto;">
+                <button class="btn primary-btn btn-xs" onclick="admin.api('IAM_ListABAC', {}, function(res){ console.log('ABAC Policies', res.data); alert('Check console for ABAC policies list.'); })">View Policies</button>
+                <button class="btn ghost-btn btn-xs" onclick="let perm=prompt('Permission (e.g. read:data):'); let logic=prompt('Condition Logic:'); if(perm&&logic) admin.api('IAM_SaveABAC', {permission:perm, condition_logic:logic, status:'active'}, function(){ location.reload(); });">New Policy</button>
+            </div>
+        </div>
+        
+        <div class="compact-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, transparent 100%);">
+            <div class="card-top">
+                <span class="card-label">RBAC Roles</span>
+                <div class="card-icon-sm" style="color: #10b981;">👥</div>
+            </div>
+            <div class="card-value" id="iam_role_count">--</div>
+            <div style="margin-top: auto;">
+                <button class="btn primary-btn btn-xs" onclick="admin.api('IAM_ListRoles', {}, function(res){ console.log('Roles', res.data); alert('Check console for Roles list.'); })">Manage Roles</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Auto-fetch basic IAM stats
+        setTimeout(() => {
+            admin.api('IAM_ListOAuthClients', {}, function(r) {
+                if(r.data && r.data.sources && r.data.sources[0]) {
+                    document.getElementById('iam_oauth_count').innerText = r.data.sources[0].items.length;
+                }
+            });
+            admin.api('IAM_ListABAC', {}, function(r) {
+                if(r.data && r.data.sources && r.data.sources[0]) {
+                    document.getElementById('iam_abac_count').innerText = r.data.sources[0].items.length;
+                }
+            });
+            admin.api('IAM_ListRoles', {}, function(r) {
+                if(r.data && r.data.sources && r.data.sources[0]) {
+                    document.getElementById('iam_role_count').innerText = r.data.sources[0].items.length;
+                }
+            });
+        }, 1000);
+    </script>
+
     <!-- Polyglot Bridge -->
     <?php if($bridge): ?>
         <div class="section-title-bar">

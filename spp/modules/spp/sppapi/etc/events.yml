@@ -1,0 +1,7 @@
+events:
+    core.error.exception:
+        listeners:
+            - { class: \SPPMod\SPPAPI\Subscribers\ApiErrorSubscriber, priority: 100 }
+    api.request.start:
+        listeners:
+            - { class: \SPPMod\SPPAPI\Middleware\ApiThrottleMiddleware, priority: 10 }

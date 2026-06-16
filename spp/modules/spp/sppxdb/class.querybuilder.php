@@ -84,6 +84,11 @@ class QueryBuilder
             $value = $operator;
             $operator = '=';
         }
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
+        $operator = strtoupper(trim($operator));
+        if (!in_array($operator, ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IN', 'IS NULL', 'IS NOT NULL'])) {
+            $operator = '=';
+        }
         $this->wheres[] = ['column' => $column, 'operator' => $operator, 'value' => $value, 'boolean' => 'AND'];
         return $this;
     }
@@ -94,25 +99,34 @@ class QueryBuilder
             $value = $operator;
             $operator = '=';
         }
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
+        $operator = strtoupper(trim($operator));
+        if (!in_array($operator, ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IN', 'IS NULL', 'IS NOT NULL'])) {
+            $operator = '=';
+        }
         $this->wheres[] = ['column' => $column, 'operator' => $operator, 'value' => $value, 'boolean' => 'OR'];
         return $this;
     }
 
     public function whereIn($column, array $values)
     {
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
         $this->wheres[] = ['column' => $column, 'operator' => 'IN', 'value' => $values, 'boolean' => 'AND'];
         return $this;
     }
 
     public function whereLike($column, $value)
     {
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
         $this->wheres[] = ['column' => $column, 'operator' => 'LIKE', 'value' => $value, 'boolean' => 'AND'];
         return $this;
     }
 
     public function orderBy($column, $direction = 'ASC')
     {
-        $this->orders[] = ['column' => $column, 'direction' => strtoupper($direction)];
+        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
+        $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
+        $this->orders[] = ['column' => $column, 'direction' => $direction];
         return $this;
     }
 

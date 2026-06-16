@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12. Live Components | SPP Framework Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html" class="active">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html" class="active">12. Live Components</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>14. Project: Blogging Platform (Dual Paradigm)</h1>
+            <p>In this chapter, we will build a simple, fully functional blogging platform using two different frontend paradigms supported by the SPP Framework: the native <strong>SPPView Paradigm</strong> (AST Pre-Compiled Components) and the modern <strong>Drishyam Paradigm</strong> (Blade/Twig).</p>
+
+            <hr>
+
+            <h2>The Database Schema</h2>
+            <p>First, let's create a migration for our <code>posts</code> table.</p>
+            <pre><code>php spp.php make:migration create_posts_table</code></pre>
+            <p>In the generated migration file, define the schema:</p>
+<pre><code>public function up()
+{
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $db-&gt;exec_squery('CREATE TABLE %tab% (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )', 'posts');
+}</code></pre>
+
+            <hr>
+
+            <h2>Part 1: The SPPView Paradigm</h2>
+            <p>The <strong>SPPView Paradigm</strong> uses native HTML files enhanced with pre-compiled XML-style tags (<code>&lt;php-comp&gt;</code>, <code>&lt;php-include&gt;</code>). It compiles into pure PHP at runtime.</p>
+
+            <h3>1. Creating the Controller</h3>
+            <pre><code>namespace App\Controllers;
+
+use SPPMod\SPPDB\SPPDB;
+
+class BlogController extends \SPP\SPPObject
+{
+    #[Route(path: '/blog', method: 'GET')]
+    public function index()
+    {
+        $db = new SPPDB();
+        $posts = $db-&gt;querySQL("SELECT * FROM " . SPPDB::sppTable('posts') . " ORDER BY created_at DESC");
+        
+        \SPPMod\SPPView\ViewPage::showPage('blog/index.html', ['posts' =&gt; $posts]);
+    }
+
+    #[Route(path: '/blog/create', method: 'POST')]
+    public function store()
+    {
+        $db = new SPPDB();
+        $db-&gt;insertArray('posts', [
+            'title' =&gt; $_POST['title'],
+            'content' =&gt; $_POST['content']
+        ]);
+        
+        header("Location: /blog");
+        exit;
+    }
+}</code></pre>
+
+            <h3>2. Creating the Component</h3>
+            <pre><code>namespace App\Components;
+
+class PostCard extends \SPPMod\SPPView\ViewComponent
+{
+    public $title;
+    public $content;
+    public $date;
+
+    public function render(): string
+    {
+        return &lt;&lt;&lt;HTML
+        &lt;div class="post-card"&gt;
+            &lt;h2&gt;{$this-&gt;title}&lt;/h2&gt;
+            &lt;p&gt;{$this-&gt;content}&lt;/p&gt;
+            &lt;small&gt;Posted on: {$this-&gt;date}&lt;/small&gt;
+        &lt;/div&gt;
+        HTML;
+    }
+}</code></pre>
+
+            <h3>3. Creating the View</h3>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+    &lt;h1&gt;Latest Posts&lt;/h1&gt;
+    &lt;form action="/blog/create" method="POST"&gt;
+        &lt;input type="text" name="title" required&gt;
+        &lt;textarea name="content" required&gt;&lt;/textarea&gt;
+        &lt;button type="submit"&gt;Publish&lt;/button&gt;
+    &lt;/form&gt;
+    &lt;hr&gt;
+    &lt;div class="posts-list"&gt;
+        &lt;?php foreach ($posts as $post): ?&gt;
+            &lt;php-comp name="\App\Components\PostCard" 
+                      title="&lt;?php echo $post['title']; ?&gt;" 
+                      content="&lt;?php echo $post['content']; ?&gt;"
+                      date="&lt;?php echo $post['created_at']; ?&gt;"&gt;
+            &lt;/php-comp&gt;
+        &lt;?php endforeach; ?&gt;
+    &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <hr>
+
+            <h2>Part 2: The Drishyam Paradigm</h2>
+            <p>The <strong>Drishyam Paradigm</strong> leverages modern engines like <strong>Blade</strong> or <strong>Twig</strong>.</p>
+            
+            <h3>1. Controller matches exactly</h3>
+            <p>The <code>ViewPage::showPage</code> automatically looks for <code>.blade.php</code> or <code>.twig</code> equivalents!</p>
+
+            <h3>2. Creating the Blade Layout</h3>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;&lt;title&gt;@yield('title')&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+    &lt;main&gt;
+        @yield('content')
+    &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <h3>3. Creating the Blade View</h3>
+            <pre><code>@extends('layouts.app')
+
+@section('content')
+    &lt;h2&gt;Create a Post&lt;/h2&gt;
+    &lt;form action="/blog/create" method="POST"&gt;
+        @csrf 
+        &lt;input type="text" name="title" required&gt;
+        &lt;textarea name="content" required&gt;&lt;/textarea&gt;
+        &lt;button type="submit"&gt;Publish&lt;/button&gt;
+    &lt;/form&gt;
+
+    &lt;hr&gt;
+
+    &lt;div class="posts-list"&gt;
+        @foreach ($posts as $post)
+            &lt;div class="post-card"&gt;
+                &lt;h2&gt;{{ $post['title'] }}&lt;/h2&gt;
+                &lt;p&gt;{{ $post['content'] }}&lt;/p&gt;
+                &lt;small&gt;Posted on: {{ $post['created_at'] }}&lt;/small&gt;
+            &lt;/div&gt;
+        @endforeach
+    &lt;/div&gt;
+@endsection</code></pre>
+
+            <hr>
+
+            <h2>Part 3: The SPPUX Paradigm (Islands Architecture)</h2>
+            <p>What if you want rich interactivity on the client side (like a React or Vue component), but you want to keep the initial page load incredibly fast using Server-Side Rendering (SSR)? Enter the <strong>SPPUX Paradigm</strong>.</p>
+            <p>SPPUX provides an Islands Architecture out of the box, allowing you to mount isolated Javascript UI components directly from PHP!</p>
+
+            <h3>1. The Javascript Component</h3>
+            <p>Create a native Javascript module at <code>src/App/comp/PostCard.js</code>:</p>
+            <pre><code>// SPPUX UI Components are standard ES Modules that export an init() function
+export async function init(el, props) {
+    // el is the native DOM element
+    // props are the JSON serialized variables passed from PHP
+
+    el.innerHTML = `
+        &lt;div class="post-card ux-island"&gt;
+            &lt;h2&gt;${props.title}&lt;/h2&gt;
+            &lt;p&gt;${props.content}&lt;/p&gt;
+            &lt;small&gt;Posted on: ${props.date}&lt;/small&gt;
+            &lt;button class="like-btn"&gt;❤️ Like&lt;/button&gt;
+        &lt;/div&gt;
+    `;
+
+    // Add pure frontend interactivity
+    el.querySelector('.like-btn').addEventListener('click', () =&gt; {
+        alert(`You liked: ${props.title}`);
+    });
+}</code></pre>
+
+            <h3>2. Rendering the Island in PHP</h3>
+            <p>Back in your Blade template or standard ViewPage, you can invoke the Island using the <code>SPPUX</code> helper class.</p>
+            <pre><code>@extends('layouts.app')
+
+@section('content')
+    &lt;!-- Remember to boot the SPPUX Javascript runtime! --&gt;
+    {!! \SPPMod\Drishyam\SPPUX::boot() !!}
+
+    &lt;h2&gt;Latest Posts (UX Islands)&lt;/h2&gt;
+    &lt;div class="posts-list"&gt;
+        @foreach ($posts as $post)
+            &lt;!-- The Javascript will only load when the element is visible! --&gt;
+            {!! \SPPMod\Drishyam\SPPUX::component('PostCard', [
+                'title' =&gt; $post['title'],
+                'content' =&gt; $post['content'],
+                'date' =&gt; $post['created_at'],
+                '__island' =&gt; 'visible' // Partial Hydration!
+            ]) !!}
+        @endforeach
+    &lt;/div&gt;
+@endsection</code></pre>
+
+            <hr>
+
+            <h3>Conclusion</h3>
+            <ul>
+                <li><strong>SPPView</strong> is perfect for projects where you want absolute maximum performance, native PHP strictness, and zero external templating libraries.</li>
+                <li><strong>Drishyam</strong> is perfect for developer experience (DX), enabling powerful template inheritance and familiar syntax.</li>
+                <li><strong>SPPUX</strong> is perfect for Islands Architecture, hydrating rich, interactive Javascript components only when they enter the viewport!</li>
+            </ul>
+            <p>Because the Framework operates a Multi-Engine Router, you can safely mix all three paradigms in the exact same application!</p>
+
+            <footer class="footer-nav">
+                <a href="13_security_hardening.html" class="nav-button">
+                    <span class="label">Previous</span>
+                    <span class="title">&larr; 13. Security Hardening</span>
+                </a>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>

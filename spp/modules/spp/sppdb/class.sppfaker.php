@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPInterDB\Seeding;
+namespace SPPMod\SppDb\Seeding;
 
 /**
  * Class SPPFaker

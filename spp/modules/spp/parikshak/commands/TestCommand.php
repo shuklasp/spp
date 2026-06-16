@@ -4,6 +4,9 @@ namespace SPPMod\Parikshak\Commands;
 use SPP\CLI\Command;
 use SPPMod\Parikshak\SPPTestRunner;
 
+require_once dirname(__DIR__) . '/src/SPPTestRunner.php';
+require_once dirname(__DIR__) . '/src/SPPTestCase.php';
+
 class TestCommand extends Command {
     protected string $name = 'test';
     protected string $description = 'Run Parikshak Unit and Feature Tests';
@@ -12,8 +15,15 @@ class TestCommand extends Command {
         $context = \SPP\Scheduler::getContext();
         echo "Running tests for [{$context}]...\n";
 
+        // Enforce Database Isolation for unit tests
+        \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb');
+        \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb');
+        \SPP\DB::setProvider(new \SPPMod\SPPDB\SPPDB());
+
+        $withCoverage = in_array('--coverage', $args);
+
         $runner = new SPPTestRunner();
-        $results = $runner->run($context);
+        $results = $runner->run($context, $withCoverage);
 
         $summary = $results['summary'] ?? ['total' => 0, 'passed' => 0, 'failed' => 0];
 

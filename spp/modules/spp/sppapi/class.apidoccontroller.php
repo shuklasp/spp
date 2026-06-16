@@ -132,7 +132,10 @@ class ApiDocController
                     let req = { method: method.split("/")[0], headers: headers };
                     if (req.method !== "GET" && req.method !== "DELETE") {
                         req.headers["Content-Type"] = "application/json";
+                        req.headers["X-SPP-API"] = "1";
                         req.body = "{}";
+                    } else if (req.method === "DELETE") {
+                        req.headers["X-SPP-API"] = "1";
                     }
                     const res = await fetch(realPath, req);
                     const json = await res.json();
@@ -154,19 +157,19 @@ class ApiDocController
         foreach ($endpoints as $ep) {
             $html .= '<div class="endpoint">';
             $html .= '<div class="header" onclick="toggle(this)">';
-            $html .= '<span class="method ' . explode('/', $ep['method'])[0] . '">' . $ep['method'] . '</span>';
-            $html .= '<span class="path">' . $ep['path'] . '</span>';
-            $html .= '<span class="summary">' . $ep['summary'] . '</span>';
+            $html .= '<span class="method ' . htmlspecialchars(explode('/', $ep['method'])[0]) . '">' . htmlspecialchars($ep['method']) . '</span>';
+            $html .= '<span class="path">' . htmlspecialchars($ep['path']) . '</span>';
+            $html .= '<span class="summary">' . htmlspecialchars($ep['summary']) . '</span>';
             $html .= '</div>';
             $html .= '<div class="body">';
             
             if (!empty($ep['attributes'])) {
                 $html .= '<h4 style="margin-top:0;">Payload Attributes:</h4><pre>';
-                $html .= json_encode($ep['attributes'], JSON_PRETTY_PRINT);
+                $html .= htmlspecialchars(json_encode($ep['attributes'], JSON_PRETTY_PRINT));
                 $html .= '</pre>';
             }
 
-            $html .= '<button class="try-btn" onclick="tryItOut(this, \''.$ep['method'].'\', \''.$ep['path'].'\')">⚡ Try it out!</button>';
+            $html .= '<button class="try-btn" onclick="tryItOut(this, \''.htmlspecialchars($ep['method']).'\', \''.htmlspecialchars($ep['path']).'\')">⚡ Try it out!</button>';
             $html .= '<pre style="margin-top: 1rem;">// Output will appear here</pre>';
 
             $html .= '</div></div>';

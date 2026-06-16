@@ -21,20 +21,23 @@ class ParikshakLogSubscriber extends EventHandler
         ];
     }
 
-    public function onSuiteStarted(array &$params)
+    public function onSuiteStarted(\SPP\EventParams $params)
     {
-        $this->log("--- Parikshak Suite Started for App: {$params['app']} ---");
+        $payload = $params->getPayload();
+        $this->log("--- Parikshak Suite Started for App: {$payload['app']} ---");
     }
 
-    public function onTestFailed(array &$params)
+    public function onTestFailed(\SPP\EventParams $params)
     {
-        $errors = implode(' | ', $params['errors'] ?? []);
-        $this->log("[CRITICAL] Test FAILED for Entity: {$params['class']}. Errors: {$errors}");
+        $payload = $params->getPayload();
+        $errors = implode(' | ', $payload['errors'] ?? []);
+        $this->log("[CRITICAL] Test FAILED for Entity: {$payload['class']}. Errors: {$errors}");
     }
 
-    public function onSuiteCompleted(array &$params)
+    public function onSuiteCompleted(\SPP\EventParams $params)
     {
-        $summary = $params['summary'];
+        $payload = $params->getPayload();
+        $summary = $payload['summary'];
         $this->log("--- Parikshak Suite Completed. Passed: {$summary['passed']}, Failed: {$summary['failed']} ---");
     }
 

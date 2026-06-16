@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 require_once('vendor/autoload.php');
 require_once('spp/sppinit.php');
@@ -49,13 +46,49 @@ require_once('global.php');
         return;
     }
 
-    if (\SPP\Module::isEnabled('sppajax') && \SPPMod\SPPAjax\SPPAjax::isAjaxRequest()) {
-        \SPPMod\SPPAjax\SPPAjax::handle();
+    if (\SPP\Module::isEnabled('sppajax') && class_exists('\SPPMod\SppApi\SPPAjax') && \SPPMod\SppApi\SPPAjax::isAjaxRequest()) {
+        \SPPMod\SppApi\SPPAjax::handle();
         return;
     }
 
     // SPP DX: AutoApiRouter injection for generic headless REST APIs
     $qPath = $_GET['q'] ?? '';
+
+    // Route SCIM API endpoints
+    if (str_starts_with($qPath, 'scim/v2/')) {
+        require_once SPP_BASE_DIR . '/modules/spp/sppauth/class.scim_handler.php';
+        $handler = new \SPPMod\SPPAuth\SCIMHandler();
+        $endpoint = substr($qPath, 8); // remove 'scim/v2/'
+        $parts = explode('/', $endpoint);
+        $resource = $parts[0] ?? '';
+        $payload = json_decode(file_get_contents('php://input'), true) ?: [];
+        if (isset($parts[1])) {
+            $payload['id'] = $parts[1]; // pass ID in payload for updates
+        }
+        $handler->handleRequest($_SERVER['REQUEST_METHOD'], $resource, $payload);
+        return;
+    }
+
+    // Route OAuth 2.0 endpoints
+    if (str_starts_with($qPath, 'oauth/')) {
+        require_once SPP_BASE_DIR . '/modules/spp/sppauth/class.oauth_server.php';
+        $server = new \SPPMod\SPPAuth\OAuthServer();
+        if ($qPath === 'oauth/authorize') {
+            $clientId = $_GET['client_id'] ?? '';
+            $redirectUri = $_GET['redirect_uri'] ?? '';
+            $state = $_GET['state'] ?? '';
+            $server->authorize($clientId, $redirectUri, $state);
+            return;
+        }
+        if ($qPath === 'oauth/token') {
+            $clientId = $_POST['client_id'] ?? '';
+            $clientSecret = $_POST['client_secret'] ?? '';
+            $code = $_POST['code'] ?? '';
+            $server->issueToken($clientId, $clientSecret, $code);
+            return;
+        }
+    }
+
     if (str_starts_with($qPath, 'api/v1/')) {
         require_once SPP_BASE_DIR . '/core/AutoApiRouter.php';
         \SPP\Core\AutoApiRouter::handle();

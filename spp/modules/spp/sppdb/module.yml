@@ -6,9 +6,6 @@ module:
     pubdesc: 'Core database abstraction layer providing prefixed table mapping, transaction management, and incremental schema synchronization.'
     modgroup: Core
     category: 'Core Required'
-    installation:
-        tables:
-            sequences: { seqname: 'VARCHAR(255) PRIMARY KEY', initval: INT, seqval: INT, incval: INT, lastaccess: INT }
     settings:
         dbtype:
             type: select
@@ -17,7 +14,7 @@ module:
             options:
                 mysql: 'MySQL / MariaDB'
                 sqlite: 'SQLite (File-based)'
-                pgsql: 'PostgreSQL'
+                pgsql: PostgreSQL
                 mssql: 'Microsoft SQL Server'
                 oracledb: 'Oracle Database'
                 msaccess: 'MS Access'
@@ -27,38 +24,71 @@ module:
             type: text
             label: 'Hostname / IP Address'
             help: 'The network location of your database server. Use "localhost" or "127.0.0.1" if the server is running on this same machine.'
-            depends_on: { dbtype: [mysql, pgsql, mssql, oracledb, xdb] }
+            depends_on:
+                dbtype:
+                    - mysql
+                    - pgsql
+                    - mssql
+                    - oracledb
+                    - xdb
             default: localhost
         dbport:
             type: number
             label: 'Network Port'
             help: 'The port number the database service is listening on (Standard defaults: MySQL: 3306, PostgreSQL: 5432, MSSQL: 1433).'
-            depends_on: { dbtype: [mysql, pgsql, mssql, oracledb, xdb] }
+            depends_on:
+                dbtype:
+                    - mysql
+                    - pgsql
+                    - mssql
+                    - oracledb
+                    - xdb
             default: 3306
         dbuser:
             type: text
             label: 'Administrative Username'
             help: 'The database user account. For development, "root" or "sa" is common; for production, use a dedicated application user.'
-            depends_on: { dbtype: [mysql, pgsql, mssql, oracledb, xdb] }
+            depends_on:
+                dbtype:
+                    - mysql
+                    - pgsql
+                    - mssql
+                    - oracledb
+                    - xdb
             default: root
         dbpasswd:
             type: password
             label: 'Security Password'
             help: 'Authentication secret for the specified user. Leave blank ONLY if your database server allows passwordless local connections (not recommended).'
-            depends_on: { dbtype: [mysql, pgsql, mssql, oracledb, xdb] }
+            depends_on:
+                dbtype:
+                    - mysql
+                    - pgsql
+                    - mssql
+                    - oracledb
+                    - xdb
             default: null
         dbname:
             type: text
             label: 'Database Name / Schema'
             help: 'The specific database or schema where the SPP tables will be installed. This must exist before the module can sync schemas.'
-            depends_on: { dbtype: [mysql, pgsql, mssql, oracledb, xdb] }
+            depends_on:
+                dbtype:
+                    - mysql
+                    - pgsql
+                    - mssql
+                    - oracledb
+                    - xdb
             default: school
         sqlite_path:
             type: text
             label: 'SQLite Database Path'
             help: 'The filesystem path to your .sqlite database file. This should be relative to the SPP application root.'
-            depends_on: { dbtype: [sqlite, msaccess] }
-            default: 'var/db/school.sqlite'
+            depends_on:
+                dbtype:
+                    - sqlite
+                    - msaccess
+            default: var/db/school.sqlite
         table_prefix:
             type: text
             label: 'Global Table Prefix'

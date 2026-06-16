@@ -26,10 +26,19 @@ if ($argc < 2) {
 $command = $argv[1];
 
 // Native fast-paths for performance critical commands (like cron)
-if ($command === 'sppreport:cron' || $command === 'cron') {
+// Attempt to dynamically resolve the command rather than hardcoding paths
+if ($command === 'cron' || str_ends_with($command, ':cron')) {
     require_once __DIR__ . '/sppinit.php';
-    require_once __DIR__ . '/modules/spp/sppreport/sppreport_cron.php';
-    exit(0);
+    // If it's a specific module cron, try to load it safely
+    $parts = explode(':', $command);
+    if (count($parts) === 2) {
+        $module = preg_replace('/[^a-zA-Z0-9_]/', '', $parts[0]);
+        $cronPath = __DIR__ . '/modules/spp/' . $module . '/' . $module . '_cron.php';
+        if (file_exists($cronPath)) {
+            require_once $cronPath;
+            exit(0);
+        }
+    }
 }
 
 // Auto-enable quiet mode for commands that generate output to suppress discovery noise
@@ -40,11 +49,16 @@ if (str_starts_with($command, 'xdb:') || str_starts_with($command, 'man') || $co
 // Load Composer autoloader for Yaml support
 require_once __DIR__ . '/sppinit.php';
 
-// Load CLI settings
+// Load CLI settings safely
 $cliSettingsPath = __DIR__ . '/etc/cli-settings.yml';
-$cliSettings = file_exists($cliSettingsPath) 
-    ? \Symfony\Component\Yaml\Yaml::parseFile($cliSettingsPath) 
-    : [];
+$cliSettings = [];
+if (file_exists($cliSettingsPath)) {
+    if (class_exists('\Symfony\Component\Yaml\Yaml')) {
+        $cliSettings = \Symfony\Component\Yaml\Yaml::parseFile($cliSettingsPath);
+    } else {
+        error_log("[SPP CLI] Warning: Symfony YAML component not found. CLI settings may not load correctly.");
+    }
+}
 $cliDefaultApp = $cliSettings['default_app'] ?? 'default';
 
 if ($cliDefaultApp !== 'default' && class_exists('\SPP\App')) {
@@ -53,49 +67,11 @@ if ($cliDefaultApp !== 'default' && class_exists('\SPP\App')) {
         new \SPP\App($cliDefaultApp);
         \SPP\Scheduler::setContext($cliDefaultApp);
     } catch (\Exception $e) {
-        // Fallback silently if the app doesn't exist or loading fails
+        error_log("[SPP CLI] Warning: Failed to boot default app context '{$cliDefaultApp}'. " . $e->getMessage());
     }
 }
 
-// Function to read interactive input
-function prompt($text, $default = '') {
-    $extra = ($default !== '') ? " [{$default}]" : "";
-    echo $text . $extra . ": ";
-    $input = trim(fgets(STDIN));
-    return ($input === '') ? $default : $input;
-}
-
-// Basic Table Formatter for CLI
-function printTable($headers, $rows) {
-    if (empty($rows)) {
-        echo "(Empty set)\n";
-        return;
-    }
-    $widths = array();
-    foreach ($headers as $i => $h) $widths[$i] = strlen($h);
-    foreach ($rows as $row) {
-        $rValues = array_values($row);
-        foreach ($rValues as $i => $v) {
-            $widths[$i] = max($widths[$i] ?? 0, strlen((string)$v));
-        }
-    }
-
-    $line = "+";
-    foreach ($widths as $w) $line .= str_repeat("-", $w + 2) . "+";
-    echo $line . "\n";
-
-    echo "|";
-    foreach ($headers as $i => $h) echo " " . str_pad($h, $widths[$i]) . " |";
-    echo "\n" . $line . "\n";
-
-    foreach ($rows as $row) {
-        echo "|";
-        $rValues = array_values($row);
-        foreach ($rValues as $i => $v) echo " " . str_pad((string)substr($v, 0, 50), $widths[$i]) . " |";
-        echo "\n";
-    }
-    echo $line . "\n";
-}
+// Note: prompt() and printTable() functions have been migrated to SPP\CLI\Console.
 
 /**
  * COMMAND DISCOVERY & EXECUTION (Evolution Phase 3)
@@ -104,59 +80,47 @@ $discoveredCommands = \SPP\CLI\CommandManager::discover();
 
 // Execution logic
 if (isset($discoveredCommands[$command])) {
-    try {
-        // Look for --app= explicit flag
-        $explicitApp = null;
-        foreach ($argv as $arg) {
-            if (str_starts_with($arg, '--app=')) {
-                $explicitApp = substr($arg, 6);
-            }
-        }
+    // Parse arguments robustly
+    require_once __DIR__ . '/core/class.argparser.php';
+    $parsedArgs = \SPP\CLI\ArgParser::parse($argv);
+    $explicitApp = $parsedArgs['options']['app'] ?? null;
 
-        if ($explicitApp) {
-            $settings = \SPP\App::getGlobalSettings();
-            if (isset($settings['apps'][$explicitApp])) {
-                try {
-                    new \SPP\App($explicitApp);
-                    \SPP\Scheduler::setContext($explicitApp);
-                    \SPP\Module::loadAllModules();
-                } catch (\Exception $e) {
-                    echo "[WARNING] Failed to load explicit app context: " . $explicitApp . "\n";
-                }
-            } else {
-                echo "[WARNING] App context '{$explicitApp}' not found in global settings.\n";
+    if ($explicitApp) {
+        $settings = \SPP\App::getGlobalSettings();
+        if (isset($settings['apps'][$explicitApp])) {
+            try {
+                new \SPP\App($explicitApp);
+                \SPP\Scheduler::setContext($explicitApp);
+                \SPP\Module::loadAllModules();
+            } catch (\Exception $e) {
+                error_log("[SPP CLI] Warning: Failed to boot explicit app context '{$explicitApp}'. " . $e->getMessage());
             }
-        } else if (strpos($command, ':') !== false) {
-            // Auto-switch context if command is app-prefixed (e.g. lekhak:setup)
-            $parts = explode(':', $command);
-            $appContext = $parts[0];
-            // Verify if it's a valid app before switching
-            $settings = \SPP\App::getGlobalSettings();
-            if (isset($settings['apps'][$appContext])) {
-                try {
-                    new \SPP\App($appContext);
-                    \SPP\Scheduler::setContext($appContext);
-                    // Re-load modules for the new context
-                    \SPP\Module::loadAllModules();
-                } catch (\Exception $e) {
-                    // Fallback silently
-                }
+        } else {
+            error_log("[SPP CLI] Warning: App context '{$explicitApp}' not found in global settings.\n");
+        }
+    } else if (strpos($command, ':') !== false) {
+        // Auto-switch context if command is app-prefixed (e.g. lekhak:setup)
+        $parts = explode(':', $command);
+        $appContext = $parts[0];
+        // Verify if it's a valid app before switching
+        $settings = \SPP\App::getGlobalSettings();
+        if (isset($settings['apps'][$appContext])) {
+            try {
+                new \SPP\App($appContext);
+                \SPP\Scheduler::setContext($appContext);
+                // Re-load modules for the new context
+                \SPP\Module::loadAllModules();
+            } catch (\Exception $e) {
+                error_log("[SPP CLI] Warning: Failed to boot app context '{$appContext}'. " . $e->getMessage());
             }
         }
-
-        $discoveredCommands[$command]->execute($argv);
-        exit(0);
-    } catch (\Exception $e) {
-        // Look for debug toggle
-        $isDebug = \SPP\App::getGlobalSettings('framework.debug') === true;
-        echo "\n\033[31m\033[1m[ERROR]\033[0m " . $e->getMessage() . "\n";
-        
-        if ($isDebug) {
-            echo "\033[33m[TRACE]\033[0m in " . $e->getFile() . " on line " . $e->getLine() . "\n";
-            echo $e->getTraceAsString() . "\n";
-        }
-        exit(1);
     }
+
+    $discoveredCommands[$command]->execute($argv);
+    exit(0);
 }
 
-
+// If we reach here, the command was not found
+echo "\n[ERROR] SPP CLI: Command '{$command}' not found.\n";
+echo "Use 'php spp.php list' to see available commands.\n";
+exit(1);

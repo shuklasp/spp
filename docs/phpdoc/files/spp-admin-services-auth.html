@@ -145,15 +145,11 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppblade.html" class="">SPPBlade</a>
+                <a href="namespaces/sppmod-drishyam.html" class="">Drishyam</a>
                 
             </li>
                     <li>
                 <a href="namespaces/sppmod-spppwa.html" class="">SPPPWA</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppux.html" class="">sppux</a>
                 
             </li>
                     <li>
@@ -169,10 +165,6 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppajax.html" class="">SPPAjax</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdiff.html" class="">SPPDiff</a>
                 
             </li>
@@ -182,10 +174,6 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppauth.html" class="">Sppauth</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppgroup.html" class="">SPPGroup</a>
                 
             </li>
                     <li>
@@ -209,15 +197,15 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppinterdb.html" class="">SPPInterDB</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdb.html" class="">Sppdb</a>
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppentity.html" class="">SPPEntity</a>
+                <a href="namespaces/sppmod-sppmigration.html" class="">SPPMigration</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppdoc.html" class="">SPPDoc</a>
                 
             </li>
                     <li>
@@ -254,6 +242,10 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppqueue.html" class="">SPPQueue</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppreport.html" class="">Sppreport</a>
                 
             </li>
                     <li>
@@ -307,6 +299,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/app-school1.html" class="">School1</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/app-sppmobile.html" class="">Sppmobile</a>
                 
             </li>
@@ -347,10 +343,6 @@
     <a href="packages/SPPMod.html" class="">SPPMod</a>
 </h4>
     <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/SPPMod-SPPAuth.html" class="">SPPAuth</a>
-                
-            </li>
                     <li>
                 <a href="packages/SPPMod-SPPViewDefinesresponseinSPPView.html" class="">SPPViewDefinesresponseinSPPView</a>
                 
@@ -414,6 +406,24 @@
                                 &nbsp;: mixed    </span>
 </dt>
 <dd>Auth Service Group for SPP Admin</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -function -">
+    <a href="namespaces/default.html#function_live_Auth_VerifyMFA">live_Auth_VerifyMFA()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -function -">
+    <a href="namespaces/default.html#function_live_Auth_SendMagicLink">live_Auth_SendMagicLink()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -function -">
+    <a href="namespaces/default.html#function_live_Auth_ConsumeMagicLink">live_Auth_ConsumeMagicLink()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -function -">
     <a href="namespaces/default.html#function_live_Auth_Logout">live_Auth_Logout()</a>
@@ -500,6 +510,129 @@
     
 </article>
                     <article class="phpdocumentor-element -function - ">
+    <h4 class="phpdocumentor-element__name" id="function_live_Auth_VerifyMFA">
+        live_Auth_VerifyMFA()
+        <a href="namespaces/default.html#function_live_Auth_VerifyMFA" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">37</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility"></span>
+                    <span class="phpdocumentor-signature__name">live_Auth_VerifyMFA</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$la</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$params</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$la</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$params</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+</article>
+                    <article class="phpdocumentor-element -function - ">
+    <h4 class="phpdocumentor-element__name" id="function_live_Auth_SendMagicLink">
+        live_Auth_SendMagicLink()
+        <a href="namespaces/default.html#function_live_Auth_SendMagicLink" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">78</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility"></span>
+                    <span class="phpdocumentor-signature__name">live_Auth_SendMagicLink</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$la</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$params</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$la</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$params</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+</article>
+                    <article class="phpdocumentor-element -function - ">
+    <h4 class="phpdocumentor-element__name" id="function_live_Auth_ConsumeMagicLink">
+        live_Auth_ConsumeMagicLink()
+        <a href="namespaces/default.html#function_live_Auth_ConsumeMagicLink" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">105</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility"></span>
+                    <span class="phpdocumentor-signature__name">live_Auth_ConsumeMagicLink</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$la</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$params</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$la</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$params</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+</article>
+                    <article class="phpdocumentor-element -function - ">
     <h4 class="phpdocumentor-element__name" id="function_live_Auth_Logout">
         live_Auth_Logout()
         <a href="namespaces/default.html#function_live_Auth_Logout" class="headerlink"><i class="fas fa-link"></i></a>
@@ -508,7 +641,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">36</span>
+    <span class="phpdocumentor-element-found-in__line">129</span>
 
     </aside>
 
@@ -549,7 +682,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">44</span>
+    <span class="phpdocumentor-element-found-in__line">137</span>
 
     </aside>
 
@@ -590,7 +723,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">77</span>
+    <span class="phpdocumentor-element-found-in__line">170</span>
 
     </aside>
 
@@ -631,7 +764,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">90</span>
+    <span class="phpdocumentor-element-found-in__line">183</span>
 
     </aside>
 
@@ -672,7 +805,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/admin/services/Auth.php"><a href="files/spp-admin-services-auth.html"><abbr title="spp/admin/services/Auth.php">Auth.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">110</span>
+    <span class="phpdocumentor-element-found-in__line">203</span>
 
     </aside>
 
@@ -817,12 +950,15 @@
                             <li class="phpdocumentor-on-this-page-section__title">Functions</li>
                 <li>
                     <ul class="phpdocumentor-list -clean">
+                                                    <li><a href="namespaces/default.html#function_live_Auth_ConsumeMagicLink">live_Auth_ConsumeMagicLink()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_GenerateApiKey">live_Auth_GenerateApiKey()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_ListApiKeys">live_Auth_ListApiKeys()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_Login">live_Auth_Login()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_Logout">live_Auth_Logout()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_Profile">live_Auth_Profile()</a></li>
                                                     <li><a href="namespaces/default.html#function_live_Auth_RevokeApiKey">live_Auth_RevokeApiKey()</a></li>
+                                                    <li><a href="namespaces/default.html#function_live_Auth_SendMagicLink">live_Auth_SendMagicLink()</a></li>
+                                                    <li><a href="namespaces/default.html#function_live_Auth_VerifyMFA">live_Auth_VerifyMFA()</a></li>
                                             </ul>
                 </li>
                     </ul>

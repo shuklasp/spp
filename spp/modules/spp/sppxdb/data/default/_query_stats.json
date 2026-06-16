@@ -1,7 +1,17 @@
 {
-    "SELECT name, script, method FROM sppajax_services": 35,
-    "SELECT id FROM users WHERE username=?": 22,
-    "select * from users where id=?": 22,
-    "SHOW TABLES": 99,
-    "SELECT roleid FROM userroles WHERE userid=?": 22
+    "SELECT name, script, method FROM sppajax_services": 14,
+    "SHOW TABLES": 30,
+    "INSERT INTO audit_logs (entity_type, entity_id, action, old_values, new_values, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)": 4,
+    "SELECT attempts, TIMESTAMPDIFF(MINUTE, last_attempt, NOW()) as mins_passed \n                FROM login_attempts \n                WHERE ip_address = ? AND username = ?": 2,
+    "SELECT id FROM users WHERE username=?": 6,
+    "select * from users where id=?": 6,
+    "SELECT roleid FROM userroles WHERE userid=?": 6,
+    "SELECT DISTINCT rt.name FROM rights rt \n                JOIN roleright rr ON rt.id = rr.rightid \n                WHERE rr.roleid IN (?)": 3,
+    "SELECT * FROM roleright": 6,
+    "DELETE FROM login_attempts WHERE ip_address = ? AND username = ?": 2,
+    "SELECT count(*) as cnt FROM loginrec WHERE sessid = ?": 2,
+    "INSERT INTO loginrec (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, NOW(), ?, NOW())": 2,
+    "INSERT INTO sppauth_audit_log (event_type, user_id, target_id, details, ip_address) VALUES (?, ?, ?, ?, ?)": 2,
+    "SELECT ? FROM loginrec WHERE sessid=?": 2,
+    "UPDATE loginrec SET lastaccess=NOW() WHERE sessid=?": 2
 }

@@ -145,15 +145,11 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppblade.html" class="">SPPBlade</a>
+                <a href="namespaces/sppmod-drishyam.html" class="">Drishyam</a>
                 
             </li>
                     <li>
                 <a href="namespaces/sppmod-spppwa.html" class="">SPPPWA</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppux.html" class="">sppux</a>
                 
             </li>
                     <li>
@@ -169,10 +165,6 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppajax.html" class="">SPPAjax</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdiff.html" class="">SPPDiff</a>
                 
             </li>
@@ -182,10 +174,6 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppauth.html" class="">Sppauth</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppgroup.html" class="">SPPGroup</a>
                 
             </li>
                     <li>
@@ -209,15 +197,15 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppinterdb.html" class="">SPPInterDB</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdb.html" class="">Sppdb</a>
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppentity.html" class="">SPPEntity</a>
+                <a href="namespaces/sppmod-sppmigration.html" class="">SPPMigration</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppdoc.html" class="">SPPDoc</a>
                 
             </li>
                     <li>
@@ -254,6 +242,10 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppqueue.html" class="">SPPQueue</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppreport.html" class="">Sppreport</a>
                 
             </li>
                     <li>
@@ -307,6 +299,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/app-school1.html" class="">School1</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/app-sppmobile.html" class="">Sppmobile</a>
                 
             </li>
@@ -347,10 +343,6 @@
     <a href="packages/SPPMod.html" class="">SPPMod</a>
 </h4>
     <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/SPPMod-SPPAuth.html" class="">SPPAuth</a>
-                
-            </li>
                     <li>
                 <a href="packages/SPPMod-SPPViewDefinesresponseinSPPView.html" class="">SPPViewDefinesresponseinSPPView</a>
                 
@@ -680,6 +672,12 @@ Defines a new module in Satya Portal Pack.</p>
 compared to the current database state.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/SPP-Module.html#method_getManifestCache">getManifestCache()</a>
+    <span>
+                                &nbsp;: array&lt;string|int, mixed&gt;|null    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-Module.html#method_getModule">getModule()</a>
     <span>
                                 &nbsp;: <a href="classes/SPP-Module.html"><abbr title="\SPP\Module">Module</abbr></a>    </span>
@@ -743,6 +741,12 @@ Scans all modules and independent app entities for installation deltas.</dd>
 </dt>
 <dd>Includes required files declared in module manifest, runs legacy mod-init,
 and triggers ServiceProvider if declared.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/SPP-Module.html#method_injectManifestCache">injectManifestCache()</a>
+    <span>
+                                &nbsp;: void    </span>
+</dt>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-Module.html#method_install">install()</a>
@@ -1210,7 +1214,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">141</span>
+    <span class="phpdocumentor-element-found-in__line">151</span>
 
     </aside>
 
@@ -1604,7 +1608,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1268</span>
+    <span class="phpdocumentor-element-found-in__line">1304</span>
 
     </aside>
 
@@ -1667,7 +1671,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">803</span>
+    <span class="phpdocumentor-element-found-in__line">815</span>
 
     </aside>
 
@@ -1735,7 +1739,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1560</span>
+    <span class="phpdocumentor-element-found-in__line">1596</span>
 
     </aside>
 
@@ -1795,7 +1799,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1704</span>
+    <span class="phpdocumentor-element-found-in__line">1740</span>
 
     </aside>
 
@@ -1858,7 +1862,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">524</span>
+    <span class="phpdocumentor-element-found-in__line">534</span>
 
     </aside>
 
@@ -1911,7 +1915,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2382</span>
+    <span class="phpdocumentor-element-found-in__line">2418</span>
 
     </aside>
 
@@ -1957,7 +1961,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">627</span>
+    <span class="phpdocumentor-element-found-in__line">639</span>
 
     </aside>
 
@@ -2010,7 +2014,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">665</span>
+    <span class="phpdocumentor-element-found-in__line">677</span>
 
     </aside>
 
@@ -2065,7 +2069,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">411</span>
+    <span class="phpdocumentor-element-found-in__line">421</span>
 
     </aside>
 
@@ -2147,7 +2151,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2318</span>
+    <span class="phpdocumentor-element-found-in__line">2354</span>
 
     </aside>
 
@@ -2210,7 +2214,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">642</span>
+    <span class="phpdocumentor-element-found-in__line">654</span>
 
     </aside>
 
@@ -2263,7 +2267,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">368</span>
+    <span class="phpdocumentor-element-found-in__line">378</span>
 
     </aside>
 
@@ -2327,7 +2331,7 @@ per-app YAML config file: spp/etc/apps/&lt;app&gt;/modsconf/&lt;modname&gt;/conf
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1932</span>
+    <span class="phpdocumentor-element-found-in__line">1968</span>
 
     </aside>
 
@@ -2356,6 +2360,51 @@ compared to the current database state.</p>
             -public
                                     -static                    "
 >
+    <h4 class="phpdocumentor-element__name" id="method_getManifestCache">
+        getManifestCache()
+        <a href="classes/SPP-Module.html#method_getManifestCache" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">138</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">getManifestCache</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|null</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$file</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+            <section>
+        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
+        <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;|null</span>
+            </section>
+
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                    -static                    "
+>
     <h4 class="phpdocumentor-element__name" id="method_getModule">
         getModule()
         <a href="classes/SPP-Module.html#method_getModule" class="headerlink"><i class="fas fa-link"></i></a>
@@ -2364,7 +2413,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">682</span>
+    <span class="phpdocumentor-element-found-in__line">694</span>
 
     </aside>
 
@@ -2425,7 +2474,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2469</span>
+    <span class="phpdocumentor-element-found-in__line">2505</span>
 
     </aside>
 
@@ -2482,7 +2531,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">712</span>
+    <span class="phpdocumentor-element-found-in__line">724</span>
 
     </aside>
 
@@ -2518,7 +2567,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1643</span>
+    <span class="phpdocumentor-element-found-in__line">1679</span>
 
     </aside>
 
@@ -2570,7 +2619,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1813</span>
+    <span class="phpdocumentor-element-found-in__line">1849</span>
 
     </aside>
 
@@ -2633,7 +2682,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2348</span>
+    <span class="phpdocumentor-element-found-in__line">2384</span>
 
     </aside>
 
@@ -2681,7 +2730,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">214</span>
+    <span class="phpdocumentor-element-found-in__line">224</span>
 
     </aside>
 
@@ -2717,7 +2766,7 @@ compared to the current database state.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2099</span>
+    <span class="phpdocumentor-element-found-in__line">2135</span>
 
     </aside>
 
@@ -2756,7 +2805,7 @@ Scans all modules and independent app entities for installation deltas.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">723</span>
+    <span class="phpdocumentor-element-found-in__line">735</span>
 
     </aside>
 
@@ -2779,6 +2828,54 @@ and triggers ServiceProvider if declared.</p>
         class="phpdocumentor-element
             -method
             -public
+                                    -static                    "
+>
+    <h4 class="phpdocumentor-element__name" id="method_injectManifestCache">
+        injectManifestCache()
+        <a href="classes/SPP-Module.html#method_injectManifestCache" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">133</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+            <span class="phpdocumentor-signature__static">static</span>        <span class="phpdocumentor-signature__name">injectManifestCache</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$file</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;&nbsp;</span><span class="phpdocumentor-signature__argument__name">$data</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$file</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$data</span>
+                : <span class="phpdocumentor-signature__argument__return-type">array&lt;string|int, mixed&gt;</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
                                                         "
 >
     <h4 class="phpdocumentor-element__name" id="method_install">
@@ -2789,7 +2886,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2019</span>
+    <span class="phpdocumentor-element-found-in__line">2055</span>
 
     </aside>
 
@@ -2837,7 +2934,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">389</span>
+    <span class="phpdocumentor-element-found-in__line">399</span>
 
     </aside>
 
@@ -2883,7 +2980,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1104</span>
+    <span class="phpdocumentor-element-found-in__line">1140</span>
 
     </aside>
 
@@ -2929,7 +3026,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">844</span>
+    <span class="phpdocumentor-element-found-in__line">856</span>
 
     </aside>
 
@@ -2965,7 +3062,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2401</span>
+    <span class="phpdocumentor-element-found-in__line">2437</span>
 
     </aside>
 
@@ -3011,7 +3108,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">859</span>
+    <span class="phpdocumentor-element-found-in__line">871</span>
 
     </aside>
 
@@ -3064,7 +3161,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1112</span>
+    <span class="phpdocumentor-element-found-in__line">1148</span>
 
     </aside>
 
@@ -3124,7 +3221,7 @@ and triggers ServiceProvider if declared.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1403</span>
+    <span class="phpdocumentor-element-found-in__line">1439</span>
 
     </aside>
 
@@ -3188,7 +3285,7 @@ structured YAML file. The XML file is left untouched.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">769</span>
+    <span class="phpdocumentor-element-found-in__line">781</span>
 
     </aside>
 
@@ -3235,7 +3332,7 @@ structured YAML file. The XML file is left untouched.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2037</span>
+    <span class="phpdocumentor-element-found-in__line">2073</span>
 
     </aside>
 
@@ -3275,7 +3372,7 @@ structured YAML file. The XML file is left untouched.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2182</span>
+    <span class="phpdocumentor-element-found-in__line">2218</span>
 
     </aside>
 
@@ -3312,7 +3409,7 @@ Runs the incremental installation routines for the entire system based on detect
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">545</span>
+    <span class="phpdocumentor-element-found-in__line">557</span>
 
     </aside>
 
@@ -3372,7 +3469,7 @@ Runs the incremental installation routines for the entire system based on detect
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">707</span>
+    <span class="phpdocumentor-element-found-in__line">719</span>
 
     </aside>
 
@@ -3408,7 +3505,7 @@ Runs the incremental installation routines for the entire system based on detect
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">2265</span>
+    <span class="phpdocumentor-element-found-in__line">2301</span>
 
     </aside>
 
@@ -3472,7 +3569,7 @@ Runs the incremental installation routines for the entire system based on detect
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">574</span>
+    <span class="phpdocumentor-element-found-in__line">586</span>
 
     </aside>
 
@@ -3561,7 +3658,7 @@ reflect the new value immediately.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1882</span>
+    <span class="phpdocumentor-element-found-in__line">1918</span>
 
     </aside>
 
@@ -3634,7 +3731,7 @@ reflect the new value immediately.</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.module.php"><a href="files/spp-core-class-module.html"><abbr title="spp/core/class.module.php">class.module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">1135</span>
+    <span class="phpdocumentor-element-found-in__line">1171</span>
 
     </aside>
 
@@ -3853,6 +3950,7 @@ reflect the new value immediately.</p>
                                             <li><a href="classes/SPP-Module.html#method_getExpectedConfigPath">getExpectedConfigPath()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getGlobalConfig">getGlobalConfig()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getInstallationDeltas">getInstallationDeltas()</a></li>
+                                            <li><a href="classes/SPP-Module.html#method_getManifestCache">getManifestCache()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getModule">getModule()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getModuleStatus">getModuleStatus()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getPath">getPath()</a></li>
@@ -3862,6 +3960,7 @@ reflect the new value immediately.</p>
                                             <li><a href="classes/SPP-Module.html#method_getSettingsDefinition">getSettingsDefinition()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_getSystemUpdateDeltas">getSystemUpdateDeltas()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_includeFiles">includeFiles()</a></li>
+                                            <li><a href="classes/SPP-Module.html#method_injectManifestCache">injectManifestCache()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_install">install()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_isCompulsory">isCompulsory()</a></li>
                                             <li><a href="classes/SPP-Module.html#method_isEnabled">isEnabled()</a></li>

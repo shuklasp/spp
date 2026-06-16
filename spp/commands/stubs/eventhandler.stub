@@ -9,9 +9,9 @@ class {{className}} extends EventHandler
     /**
      * Handle the event.
      * 
-     * @param mixed $params The parameters passed to the event dispatcher.
+     * @param \SPP\EventParams $params The event payload and context.
      */
-    public function overrideHandler(mixed &$params = []) 
+    public function __invoke(\SPP\EventParams $params) 
     {
         // Implement your event handler logic here
     }

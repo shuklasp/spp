@@ -1,11 +1,11 @@
 <?php
 namespace App\Default\Tests\Auto;
 
-use App\Default\Entities\TestEntity;
+use App\Default\Entities\Testentity;
 
 /**
  * Auto-generated Test for TestEntity (Parikshak)
- * Generation Date: 2026-04-26 15:40:23
+ * Generation Date: 2026-06-14 07:11:12
  */
 class TestEntityAutoTest
 {
@@ -15,18 +15,18 @@ class TestEntityAutoTest
         try {
             $entity = new TestEntity();
             $data = array (
-  'id' => 538276,
-  'username' => 'PARIKSHAK_FUZZ_6d849',
-  'email' => 'PARIKSHAK_FUZZ_040e7',
-  'password_hash' => 'PARIKSHAK_FUZZ_23eb4',
-  'password' => 'PARIKSHAK_FUZZ_f41c6',
-  'role_id' => 788606,
-  'status' => 'PARIKSHAK_FUZZ_1ed60',
-  'created_at' => '2026-04-26 15:40:23',
-  'updated_at' => '2026-04-26 15:40:23',
-  'name' => 'PARIKSHAK_FUZZ_ebfae',
-  'test1' => 382615,
-  'dob' => '2026-04-26 15:40:23',
+  'id' => 320536,
+  'username' => 'PARIKSHAK_FUZZ_7fb60',
+  'email' => 'PARIKSHAK_FUZZ_b0f3d',
+  'password_hash' => 'PARIKSHAK_FUZZ_27754',
+  'password' => 'PARIKSHAK_FUZZ_8a9f3',
+  'role_id' => 745885,
+  'status' => 'PARIKSHAK_FUZZ_dc23c',
+  'created_at' => '2026-06-14 07:11:12',
+  'updated_at' => '2026-06-14 07:11:12',
+  'name' => 'PARIKSHAK_FUZZ_2c087',
+  'test1' => 510199,
+  'dob' => '2026-06-14 07:11:12',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

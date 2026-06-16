@@ -426,7 +426,7 @@ class SPPViewForm_MasterGrid extends SPPViewForm_Element
     public function render()
     {
         $props = ["columns" => $this->columns, "data" => $this->data, "onUpdate" => $this->getAttribute("onUpdate")];
-        return \SPPMod\SPPUX\SPPUX::component("MasterGrid", $props);
+        return \SPPMod\Drishyam\SPPUX::component("MasterGrid", $props);
     }
 }
 
@@ -435,7 +435,7 @@ class SPPViewForm_Editor extends SPPViewForm_Element
     public function render()
     {
         $props = ["name" => $this->getAttribute("name"), "value" => $this->getAttribute("value"), "placeholder" => $this->getAttribute("placeholder"), "height" => $this->getAttribute("height")];
-        return \SPPMod\SPPUX\SPPUX::component("Editor", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Editor", $props, "sppext");
     }
 }
 
@@ -454,7 +454,7 @@ class SPPViewForm_Chart extends SPPViewForm_Element
     public function render()
     {
         $props = ["type" => $this->type, "data" => $this->data, "options" => $this->getAttribute("options")];
-        return \SPPMod\SPPUX\SPPUX::component("Chart", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Chart", $props, "sppext");
     }
 }
 
@@ -463,7 +463,7 @@ class SPPViewForm_CodeEditor extends SPPViewForm_Element
     public function render()
     {
         $props = ["name" => $this->getAttribute("name"), "value" => $this->getAttribute("value"), "language" => $this->getAttribute("language"), "height" => $this->getAttribute("height")];
-        return \SPPMod\SPPUX\SPPUX::component("Code", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Code", $props, "sppext");
     }
 }
 
@@ -472,7 +472,7 @@ class SPPViewForm_Map extends SPPViewForm_Element
     public function render()
     {
         $props = ["height" => $this->getAttribute("height"), "center" => $this->getAttribute("center"), "zoom" => $this->getAttribute("zoom"), "markers" => $this->getAttribute("markers")];
-        return \SPPMod\SPPUX\SPPUX::component("Map", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Map", $props, "sppext");
     }
 }
 
@@ -481,7 +481,7 @@ class SPPViewForm_AdvancedCalendar extends SPPViewForm_Element
     public function render()
     {
         $props = ["name" => $this->getAttribute("name"), "value" => $this->getAttribute("value"), "mode" => $this->getAttribute("mode"), "enableTime" => $this->getAttribute("enableTime")];
-        return \SPPMod\SPPUX\SPPUX::component("Calendar", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Calendar", $props, "sppext");
     }
 }
 
@@ -490,7 +490,7 @@ class SPPViewForm_Sortable extends SPPViewForm_Element
     public function render()
     {
         $props = ["items" => $this->getAttribute("items"), "onSort" => $this->getAttribute("onSort")];
-        return \SPPMod\SPPUX\SPPUX::component("Sortable", $props, "sppext");
+        return \SPPMod\Drishyam\SPPUX::component("Sortable", $props, "sppext");
     }
 }
 

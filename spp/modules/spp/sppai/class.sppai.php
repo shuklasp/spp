@@ -48,7 +48,7 @@ class SPPAI extends \SPP\SPPObject
             throw new \SPP\SPPException("AI Driver not found: {$className}");
         }
 
-        $driver = new $className($config);
+        $driver = \SPP\App::getInstance()->make($className, ['config' => $config]);
         if (self::$selectedModel) {
             $driver->setModel(self::$selectedModel);
         }

@@ -6,7 +6,7 @@ use SPP\SPPGlobal;
 use SPP\Exceptions\AjaxRoutineNotFoundException;
 use SPP\Exceptions\AjaxVariableNotFoundException;
 
-require_once('ajaxexceptions.php');
+
 
 /**
  * class Ajax
@@ -30,22 +30,33 @@ class Ajax extends \SPP\SPPObject
     public static function callService()
     {
         $serv = $_REQUEST['service'];
-        //global $services, $servdir;
         $services = SPPGlobal::get('services');      // Gets the list of pages for services defined
         $servdir = SPPGlobal::get('servdir');        // Gets directory of server scripts of services.
-        require_once($servdir.$services[$serv]);    // Call the page of service to be called.
+        
+        if (!isset($services[$serv])) {
+            throw new \SPP\SPPException('Service not registered.');
+        }
+        
+        $path = realpath($servdir . $services[$serv]);
+        $baseDir = realpath($servdir);
+        
+        if ($path === false || ($baseDir !== false && strpos($path, $baseDir) !== 0)) {
+            throw new \SPP\SPPException('Invalid service path.');
+        }
+        
+        require_once($path);    // Call the page of service to be called.
     }
 
     /**
      * function getPageLocation($page)
-     * Gets page location defined in services.php
-     *
-     */
     public static function getPageLocation($page)
     {
-        $pages = SPPGlobal::get('pages');
-        $pagedir = SPPGlobal::get('pagedir');
-        return($pagedir.$pages[$page]['page']);
+        $pageData = \SPPMod\SPPRouter\SPPRouter::getPage($page);
+        $pagedir = \SPP\SPPGlobal::get('pagedir');
+        if (!$pageData || !isset($pageData['url'])) {
+            return('');
+        }
+        return($pagedir.$pageData['url']);
     }
 
     /**
@@ -55,7 +66,16 @@ class Ajax extends \SPP\SPPObject
     public static function loadPageComponent()
     {
         $page = $_REQUEST['component'];
-        require(self::getPageLocation($page));
+        $path = self::getPageLocation($page);
+        
+        $pagedir = realpath(SPPGlobal::get('pagedir'));
+        $realPath = realpath($path);
+        
+        if ($realPath === false || ($pagedir !== false && strpos($realPath, $pagedir) !== 0)) {
+            throw new \SPP\SPPException('Invalid component path.');
+        }
+        
+        require($realPath);
     }
 
     /**
@@ -89,10 +109,10 @@ class Ajax extends \SPP\SPPObject
     public static function callRoutine()
     {
         $rout = $_REQUEST['rout'];
-        if (function_exists($rout)) {
+        if ((str_starts_with($rout, 'ajax_') || str_starts_with($rout, 'spp_ajax_')) && function_exists($rout)) {
             call_user_func($rout);
         } else {
-            throw new AjaxRoutineNotFoundException('Ajax routine '.$rout.' not found.');
+            throw new AjaxRoutineNotFoundException('Ajax routine '.$rout.' not found or not allowed (must start with ajax_ or spp_ajax_).');
         }
     }
 
@@ -142,24 +162,31 @@ class Ajax extends \SPP\SPPObject
      */
     public static function returnAjax($arr)
     {
+        if (!headers_sent()) {
+            header('Content-Type: application/json');
+        }
         print(json_encode($arr));
     }
 
     public static function getScript($path, $print = false)
     {
-        //ob_end_flush();
         ob_start();
 
-        if (is_readable($path) && $path) {
-            include $path;
-        } else {
+        $realPath = realpath($path);
+        if ($realPath === false || strpos($path, '../') !== false || strpos($path, '..\\') !== false) {
+            ob_end_clean();
             return false;
         }
 
-        //echo('Done output');
+        if (is_readable($realPath)) {
+            include $realPath;
+        } else {
+            ob_end_clean();
+            return false;
+        }
 
         if ($print == false) {
-            return ob_get_contents();
+            return ob_get_clean();
         } else {
             echo ob_get_clean();
         }

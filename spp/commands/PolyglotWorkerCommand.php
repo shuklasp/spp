@@ -125,27 +125,42 @@ class PolyglotWorkerCommand extends Command
             } elseif ($lang === 'go') {
                 $moduleDir = dirname(realpath($module) ?: $module);
                 $moduleFile = basename($module);
-                $cdCmd = PHP_OS_FAMILY === 'Windows' ? "cd /D \"{$moduleDir}\"" : "cd \"{$moduleDir}\"";
-                $command = "{$cdCmd} && \"{$binary}\" run \"{$moduleFile}\" --daemon \"{$portFile}\"";
+                
+                $safeModuleDir = escapeshellarg($moduleDir);
+                $safeBinary = escapeshellarg($binary);
+                $safeModuleFile = escapeshellarg($moduleFile);
+                $safePortFile = escapeshellarg($portFile);
+                
+                $cdCmd = PHP_OS_FAMILY === 'Windows' ? "cd /D {$safeModuleDir}" : "cd {$safeModuleDir}";
+                $command = "{$cdCmd} && {$safeBinary} run {$safeModuleFile} --daemon {$safePortFile}";
             } elseif ($lang === 'dotnet') {
-                $proj = (is_dir($module) || str_ends_with($module, '.csproj')) ? "--project \"{$module}\"" : "\"{$module}\"";
-                $command = "\"{$binary}\" run {$proj} -- --daemon \"{$portFile}\"";
+                $safeModule = escapeshellarg($module);
+                $safePortFile = escapeshellarg($portFile);
+                $safeBinary = escapeshellarg($binary);
+                
+                $proj = (is_dir($module) || str_ends_with($module, '.csproj')) ? "--project {$safeModule}" : $safeModule;
+                $command = "{$safeBinary} run {$proj} -- --daemon {$safePortFile}";
             } elseif ($lang === 'compiler') {
                 $outputExe = $daemonsDir . '/' . $hash . (PHP_OS_FAMILY === 'Windows' ? '.exe' : '.bin');
+                $safeBinary = escapeshellarg($binary);
+                $safeModule = escapeshellarg($module);
+                $safeOutputExe = escapeshellarg($outputExe);
+                
                 if (PHP_OS_FAMILY === 'Windows') {
                     $runtimes = \SPP\PolyglotBridge::discoverRuntimes();
                     $vcvars = $runtimes['compiler']['vcvars'] ?? '';
-                    $prefix = $vcvars ? "call \"{$vcvars}\" && " : "";
-                    $compileCmd = "{$prefix}\"{$binary}\" /EHsc \"{$module}\" /Fe:\"{$outputExe}\" 2>&1";
+                    $prefix = $vcvars ? "call " . escapeshellarg($vcvars) . " && " : "";
+                    $compileCmd = "{$prefix}{$safeBinary} /EHsc {$safeModule} /Fe:{$safeOutputExe} 2>&1";
                 } else {
-                    $compileCmd = "\"{$binary}\" \"{$module}\" -o \"{$outputExe}\" 2>&1";
+                    $compileCmd = "{$safeBinary} {$safeModule} -o {$safeOutputExe} 2>&1";
                 }
                 $cOut = shell_exec($compileCmd);
                 if (!file_exists($outputExe)) {
                     echo "C++ Compilation failed: {$cOut}\n";
                     return;
                 }
-                $command = "\"{$outputExe}\" --daemon \"{$portFile}\"";
+                $safePortFile = escapeshellarg($portFile);
+                $command = "{$safeOutputExe} --daemon {$safePortFile}";
             }
 
             if (!$command) {

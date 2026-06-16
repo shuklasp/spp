@@ -12,9 +12,12 @@ module:
         - class.jsgenerator.php
         - class.viewvalidator.php
         - class.viewpage.php
+        - class.viewassetmanager.php
+        - class.viewformdispatcher.php
+        - class.viewrenderer.php
+        - class.viewrouter.php
         - class.viewform.php
         - class.ajax.php
-        - class.pages.php
         - ajaxexceptions.php
         - formelements/classes.formelements.php
         - sppvalidator/class.validationresult.php
@@ -25,15 +28,12 @@ module:
         - class.formaugmentor.php
     deps:
         - sppdb
-        - sppconfig
+        - dbconfig
     config_variables:
         - page_source_primary
         - page_source_fallback
         - auto_page_augmentation
         - auto_js_injection
-    installation:
-        tables:
-            dropdowns: { ddid: VARCHAR(10), optgroupname: VARCHAR(50), optname: VARCHAR(50) }
     settings:
         page_source_primary:
             type: select
@@ -50,7 +50,7 @@ module:
                 yaml: 'YAML Definition'
                 db: 'Database Store'
                 file: 'Physical File'
-                none: 'None'
+                none: None
             default: db
         auto_page_augmentation:
             type: boolean

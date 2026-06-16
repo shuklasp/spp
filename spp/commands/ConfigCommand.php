@@ -53,8 +53,31 @@ class ConfigCommand extends \SPP\CLI\Command
                 echo "Success: Configuration cache cleared for app '{$appname}'\n";
                 break;
 
+            case 'delete':
+                $key = $args[1] ?? null;
+                if (!$key) {
+                    echo "Error: Key required. Usage: spp config delete <key>\n";
+                    return;
+                }
+                SPPConfig::delete($key);
+                echo "Success: Deleted {$key}\n";
+                break;
+
+            case 'list':
+                $appname = $args[1] ?? \SPP\Scheduler::getContext() ?: 'default';
+                $all = SPPConfig::getAll($appname);
+                $rows = [];
+                foreach ($all as $k => $v) {
+                    $rows[] = [
+                        'Key' => $k,
+                        'Value' => is_scalar($v) ? (string)$v : json_encode($v)
+                    ];
+                }
+                \SPP\CLI\Console::printTable(['Key', 'Value'], $rows);
+                break;
+
             default:
-                echo "Usage: spp config [get|set|cache|clear] [key] [value]\n";
+                echo "Usage: spp config [get|set|delete|list|cache|clear] [key] [value]\n";
                 break;
         }
     }

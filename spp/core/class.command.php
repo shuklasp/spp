@@ -71,6 +71,55 @@ abstract class Command
     }
 
     /**
+     * Extracts an option using the ArgParser.
+     * @param array $args The raw args array passed to execute()
+     * @param string $name The option name (without --)
+     * @param mixed $default
+     */
+    protected function getOption(array $args, string $name, $default = null)
+    {
+        if (!class_exists('\SPP\CLI\ArgParser')) {
+            require_once __DIR__ . '/class.argparser.php';
+        }
+        $parsed = \SPP\CLI\ArgParser::parse($args);
+        return $parsed['options'][$name] ?? $default;
+    }
+
+    /**
+     * Extracts a positional argument.
+     * @param array $args The raw args array passed to execute()
+     * @param int $index 0-based index of the positional argument (after the command name)
+     * @param mixed $default
+     */
+    protected function getArgument(array $args, int $index, $default = null)
+    {
+        if (!class_exists('\SPP\CLI\ArgParser')) {
+            require_once __DIR__ . '/class.argparser.php';
+        }
+        $parsed = \SPP\CLI\ArgParser::parse($args);
+        // Note: The first parsed argument is often the command itself.
+        // Index 0 generally maps to the first argument *after* the command.
+        // Depending on ArgParser behavior, we may need to offset by 1 if the command name is retained.
+        $actualIndex = $index;
+        if (!empty($parsed['arguments']) && $parsed['arguments'][0] === $this->getName()) {
+            $actualIndex++;
+        }
+        return $parsed['arguments'][$actualIndex] ?? $default;
+    }
+
+    /**
+     * Checks if a boolean flag is present.
+     */
+    protected function hasFlag(array $args, string $name): bool
+    {
+        if (!class_exists('\SPP\CLI\ArgParser')) {
+            require_once __DIR__ . '/class.argparser.php';
+        }
+        $parsed = \SPP\CLI\ArgParser::parse($args);
+        return isset($parsed['options'][$name]);
+    }
+
+    /**
      * Extracts and formats the command help text and usage.
      */
     public function getHelp(): string

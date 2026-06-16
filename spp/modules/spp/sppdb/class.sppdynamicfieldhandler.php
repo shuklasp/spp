@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPEntity;
+namespace SPPMod\SppDb;
 
 /**
  * Class SppDynamicFieldHandler

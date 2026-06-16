@@ -1,1 +1,0 @@
-a:1:{i:0;s:43:"spp_entity_e6179063fe075f7ec547ae4abc2f0632";}

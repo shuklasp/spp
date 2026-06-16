@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SPPInterDB\Compilers;
+namespace SPPMod\SppDb\Compilers;
 
-use SPPMod\SPPEntity\SppEntityQuery;
+use SPPMod\SppDb\SppEntityQuery;
 
 /**
  * Interface CompilerInterface

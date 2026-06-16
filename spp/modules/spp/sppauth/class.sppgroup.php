@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SPPGroup;
+namespace SPPMod\SPPAuth;
 
-use SPPMod\SPPEntity\SPPEntity;
+use SPPMod\SppDb\SPPEntity;
 use SPP\SPPException;
 
 /**

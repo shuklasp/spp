@@ -12,20 +12,27 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     /** @var \Redis */
     private static $instance = null;
 
+    /** @var bool|null */
+    private static $availabilityCache = null;
+
     /**
      * Check if Redis is usable in the current environment.
      */
     public static function isAvailable(): bool
     {
+        if (self::$availabilityCache !== null) {
+            return self::$availabilityCache;
+        }
         if (!class_exists('\Redis')) {
-            return false;
+            return self::$availabilityCache = false;
         }
 
         try {
             $redis = self::getConnection();
-            return $redis->ping() === '+PONG' || $redis->ping() === true;
+            self::$availabilityCache = ($redis->ping() === '+PONG' || $redis->ping() === true);
+            return self::$availabilityCache;
         } catch (\Exception $e) {
-            return false;
+            return self::$availabilityCache = false;
         }
     }
 
@@ -52,7 +59,8 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
         $dbIndex = ($specificDb !== false) ? (int)$specificDb : $defaultDb;
 
         $redis = new \Redis();
-        if (!$redis->connect($host, $port)) {
+        // 0.2 second timeout to prevent blocking if the server is offline
+        if (!$redis->connect($host, $port, 0.2)) {
             throw new \Exception("Could not connect to Redis at {$host}:{$port}");
         }
 
@@ -71,14 +79,14 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     public function set(string $key, $value, int $ttl = 3600): bool
     {
         $redis = self::getConnection();
-        return $redis->set($key, serialize($value), $ttl);
+        return $redis->set($key, json_encode($value), $ttl);
     }
 
     public function get(string $key)
     {
         $redis = self::getConnection();
         $val = $redis->get($key);
-        return ($val === false) ? null : unserialize($val);
+        return ($val === false) ? null : json_decode($val, true);
     }
 
     public function delete(string $key): bool
@@ -102,7 +110,7 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     public function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool
     {
         $redis = self::getConnection();
-        $result = $redis->set($key, serialize($value), $ttl);
+        $result = $redis->set($key, json_encode($value), $ttl);
         foreach ($tags as $tag) {
             $redis->sAdd('_tag:' . $tag, $key);
         }

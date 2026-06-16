@@ -19,14 +19,20 @@ class DefaultViewRenderHandler extends EventHandler {
         // Handle Blade templates
         if ($ext === 'blade' || str_ends_with($filename, '.blade.php')) {
             if (\SPP\Module::isEnabled('sppblade')) {
-                if (class_exists('\SPPMod\SPPBlade\SPPBlade')) {
-                    echo \SPPMod\SPPBlade\SPPBlade::render($filename, $pageData);
+                if (class_exists('\SPPMod\Drishyam\SPPBlade')) {
+                    echo \SPPMod\Drishyam\SPPBlade::render($filename, $pageData);
                     return;
                 }
             }
         }
 
-        // Default to standard PHP include
+        // Default to standard PHP include, but compile HTML views first via AST ViewCompiler
+        if ($ext === 'html') {
+            if (class_exists('\SPPMod\SPPView\ViewCompiler')) {
+                $filename = \SPPMod\SPPView\ViewCompiler::compile($filename);
+            }
+        }
+
         extract($pageData);
         include($filename);
     }

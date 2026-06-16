@@ -16,7 +16,7 @@ class AppConfigCommand extends Command
 
     public function execute(array $args): void
     {
-        $appName = $args[2] ?? null;
+        $appName = $this->getArgument($args, 0);
 
         if (!$appName) {
             echo "Usage: php spp.php app:config <app_name> [--base_url=...] [--table_prefix=...]\n";
@@ -39,16 +39,18 @@ class AppConfigCommand extends Command
         $appConfig = &$settings['apps'][$appName];
         $updated = false;
 
-        foreach ($args as $arg) {
-            if (str_starts_with($arg, '--base_url=')) {
-                $appConfig['base_url'] = substr($arg, 11);
-                $updated = true;
-                echo "Set base_url to '{$appConfig['base_url']}'\n";
-            } elseif (str_starts_with($arg, '--table_prefix=')) {
-                $appConfig['table_prefix'] = substr($arg, 15);
-                $updated = true;
-                echo "Set table_prefix to '{$appConfig['table_prefix']}'\n";
-            }
+        $baseUrl = $this->getOption($args, 'base_url');
+        if ($baseUrl !== null) {
+            $appConfig['base_url'] = $baseUrl;
+            $updated = true;
+            echo "Set base_url to '{$appConfig['base_url']}'\n";
+        }
+
+        $tablePrefix = $this->getOption($args, 'table_prefix');
+        if ($tablePrefix !== null) {
+            $appConfig['table_prefix'] = $tablePrefix;
+            $updated = true;
+            echo "Set table_prefix to '{$appConfig['table_prefix']}'\n";
         }
 
         if ($updated) {

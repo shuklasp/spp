@@ -23,6 +23,11 @@
                 <li><a href="08_advanced.html">08. Advanced Features</a></li>
                 <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
                 <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
             </ul>
         </nav>
     </aside>
@@ -30,12 +35,33 @@
     <main class="main-content">
         <article class="content-container">
             <h1>05. Routing and Views</h1>
-            <p>Routing in SPP is simple and flexible, allowing you to define static and dynamic pages with AJAX fragment loading.</p>
+            <p>Routing in SPP is simple and flexible, allowing you to define static routes, use modern PHP Attributes, or dynamic pages with AJAX fragment loading.</p>
             
             <hr>
 
-            <h2>Defining Routes in pages.yml</h2>
-            <p>The <span class="accent">etc/pages.yml</span> file is the central source of truth for routing. A typical page definition looks like this:</p>
+            <h2>Attribute-Based Routing (Modern Approach)</h2>
+            <p>SPP supports modern PHP attribute-based routing directly on your controller methods. This keeps your routing logic tightly coupled with your implementation.</p>
+            <pre><code>namespace App\Controllers;
+
+use SPPMod\SPPView\Attributes\Route;
+use SPPMod\SPPView\Attributes\Middleware;
+use App\Middleware\AuthMiddleware;
+
+#[Middleware(AuthMiddleware::class)]
+class UserController {
+    
+    #[Route('/users/{id}', method: 'GET', name: 'user.show')]
+    #[Middleware(LogMiddleware::class)]
+    public function show(string $id) {
+        // Render user view
+    }
+}</code></pre>
+            <p>The framework automatically scans <span class="accent">controllers/</span> and <span class="accent">src/Controllers/</span> directories and aggressively caches the routes for high performance. It will also queue and execute any Middleware classes defined via attributes.</p>
+
+            <hr>
+
+            <h2>Defining Routes in pages.yml (Legacy/Configuration Approach)</h2>
+            <p>The <span class="accent">etc/pages.yml</span> file allows you to define routes centrally. A typical page definition looks like this:</p>
             <pre><code>pages:
   - name: home
     url: /home.php
@@ -51,12 +77,29 @@ $userId = $pageData['params'][0]; // This retrieves "123"</code></pre>
 
             <hr>
 
-            <h2>The ViewPage Rendering Engine</h2>
-            <p>The <span class="accent">ViewPage</span> class manages the HTML output of your application.</p>
+            <h2>High-Performance View Engine & Pre-compilation</h2>
+            <p>SPPView utilizes a lightning-fast, AST-based DOM compiler (<span class="accent">ViewCompiler</span>). It parses HTML and custom elements down to highly optimized, natively cached <code>.php</code> files in <code>var/cache/views</code>.</p>
+            <p>To ensure maximum performance in production, you can pre-compile all views using the SPP CLI:</p>
+            <pre><code>php spp.php view:cache</code></pre>
+
+            <h3>AST-Based Control Structures</h3>
+            <p>SPPView provides custom HTML elements that compile directly to native PHP control structures, making your templates cleaner:</p>
+            <pre><code>&lt;spp-if condition="isset($user)"&gt;
+    &lt;p&gt;Welcome, &lt;?= $user-&gt;name ?&gt;&lt;/p&gt;
+&lt;/spp-if&gt;
+
+&lt;ul&gt;
+&lt;spp-foreach loop="$users as $u"&gt;
+    &lt;li&gt;&lt;?= $u-&gt;name ?&gt;&lt;/li&gt;
+&lt;/spp-foreach&gt;
+&lt;/ul&gt;
+
+&lt;!-- Flash Messages --&gt;
+&lt;spp-flash key="success"&gt;&lt;/spp-flash&gt;</code></pre>
 
             <h3>1. Show the Page</h3>
             <pre><code>\SPPMod\SPPView\ViewPage::showPage();</code></pre>
-            <p>This is the core rendering method. It handles routing and includes the appropriate PHP file from your <span class="accent">src/</span> directory.</p>
+            <p>This is the core rendering method. It handles routing and includes the appropriate compiled PHP file.</p>
 
             <h3>2. Include Assets Dynamically</h3>
             <pre><code>\SPPMod\SPPView\ViewPage::addCssIncludeFile('res/custom.css');

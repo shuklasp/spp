@@ -12,12 +12,7 @@ class CacheClearCommand extends Command
 
     public function execute(array $args): void
     {
-        $appname = 'default';
-        foreach ($args as $arg) {
-            if (str_starts_with($arg, '--app=')) {
-                $appname = substr($arg, 6);
-            }
-        }
+        $appname = $this->getOption($args, 'app', 'default');
 
         \SPP\Scheduler::withContext($appname, function() use ($appname) {
             try {

@@ -2,16 +2,24 @@
 namespace SPP\Tests\Core;
 
 require_once SPP_APP_DIR . '/spp/modules/spp/sppview/classes.htmlelements.php';
+require_once SPP_APP_DIR . '/spp/modules/spp/sppview/class.spphtmltable.php';
 
-
-use SPPMod\Parikshak\TestCase;
 use SPPMod\SPPView\ViewTag;
+use SPPMod\Parikshak\SPPTestCase;
+use SPPMod\SppView\ViewCompiler;
+use SPPMod\SppView\SppView;
 use SPPMod\SPP_HTML_Ul;
 use SPPMod\SPPView\SPP_HTML_Table;
 use SPPMod\SPPView\SPP_HTML_TableRow;
 use SPPMod\SPPView\SPP_HTML_TableField;
 
-class SPPViewTest extends TestCase
+/**
+ * Tests for the SPP View Engine.
+ *
+ * @group Core
+ * @group View
+ */
+class SPPViewTest extends SPPTestCase
 {
     public function testViewTagGeneration()
     {

@@ -17,12 +17,17 @@
                 <li><a href="02_getting_started.html">02. Getting Started</a></li>
                 <li><a href="03_modules.html">03. Modules Architecture</a></li>
                 <li><a href="04_data_models.html">04. Data Modeling</a></li>
-                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
-                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing &amp; Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms &amp; Validation</a></li>
                 <li><a href="07_events.html" class="active">07. The Event System</a></li>
                 <li><a href="08_advanced.html">08. Advanced Features</a></li>
                 <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
                 <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
             </ul>
         </nav>
     </aside>
@@ -30,62 +35,260 @@
     <main class="main-content">
         <article class="content-container">
             <h1>07. The Event System</h1>
-            <p>SPP is designed around a powerful, cross-cutting **Event-Driven Hook** system. This allows you to extend the core framework's behavior without modifying its internal code.</p>
-            
-            <hr>
-
-            <h2>What is an Event?</h2>
-            <p>An event is a specific point in the application lifecycle where custom logic can be "hooked." For example:</p>
-            <ul>
-                <li><strong>spp_init</strong>: When the framework is bootstrapping.</li>
-                <li><strong>PageNotFound</strong>: When a user requests a URL that doesn't exist.</li>
-                <li><strong>AttributeNotFoundException</strong>: When an invalid model attribute is accessed.</li>
-            </ul>
+            <p>SPP is designed around a powerful, cross-cutting <strong>Event-Driven Hook</strong> system. This allows you to extend the core framework's behavior without modifying its internal code.</p>
 
             <hr>
 
-            <h2>Registering and Firing Events</h2>
-            <h3>1. Registering a New Event</h3>
-            <p>Events must be registered before they are fired to ensure the event hub knows how to handle them.</p>
-            <pre><code>\SPP\SPPEvent::registerEvent('my_custom_event');</code></pre>
-
-            <h3>2. Firing an Event</h3>
-            <p>Events can be fired manually anywhere in your application:</p>
-            <pre><code>\SPP\SPPEvent::fireEvent('my_custom_event', ['data' => 'Hello World']);</code></pre>
+            <h2>Core Concepts</h2>
+            <table>
+                <thead>
+                    <tr><th>Term</th><th>Description</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>Event</strong></td><td>A named point in the application lifecycle where custom logic can be hooked.</td></tr>
+                    <tr><td><strong>EventParams</strong></td><td>A mutable object that carries data through the entire event chain.</td></tr>
+                    <tr><td><strong>Listener</strong></td><td>A callable (closure, method, function) registered against an event name.</td></tr>
+                    <tr><td><strong>Inline Handler</strong></td><td>An optional default closure passed directly to <code>fireEvent()</code>.</td></tr>
+                    <tr><td><strong>Instead Hook</strong></td><td>A listener that completely replaces the inline handler (override).</td></tr>
+                    <tr><td><strong>Priority</strong></td><td>An integer (0–1000). Higher values run first. Default is 500.</td></tr>
+                </tbody>
+            </table>
 
             <hr>
 
-            <h2>Handling Events (Hooks)</h2>
-            <p>To listen for an event, you specify the event name and the function (or method) that should be called when the event fires.</p>
-            <pre><code>\SPP\SPPEvent::registerHandler('my_custom_event', 'handle_my_event_logic');
+            <h2>EventParams</h2>
+            <p><code>EventParams</code> is the standard payload container for all events. It replaces the legacy <code>&amp;$params</code> array-by-reference pattern.</p>
+<pre><code>// Create
+$params = new \SPP\EventParams(['user' =&gt; $user, 'action' =&gt; 'login']);
 
-function handle_my_event_logic($payload) {
-    echo "Event fired with data: " . $payload['data'];
+// Read a single key
+$user = $params-&gt;get('user');
+
+// Write a single key
+$params-&gt;set('status', 'approved');
+
+// Bulk read/write
+$all = $params-&gt;getPayload();   // returns the full array
+$params-&gt;setPayload($all);      // replaces the full array
+
+// Stop the event chain
+$params-&gt;stopPropagation();</code></pre>
+            <p><strong>Key rule:</strong> Every <code>fireEvent()</code> call requires an <code>EventParams</code> instance. Raw arrays are no longer accepted.</p>
+
+            <hr>
+
+            <h2>Firing Events</h2>
+
+            <h3><code>fireEvent()</code> — Full Lifecycle (Overridable)</h3>
+            <p>This is the primary method for dispatching events. It executes a three-phase lifecycle:</p>
+<pre><code>before_{event} → inline handler / instead hook → after_{event}</code></pre>
+
+            <p><strong>Signature:</strong></p>
+<pre><code>\SPP\SPPEvent::fireEvent(
+    string          $event_name,
+    \SPP\EventParams $params,
+    ?callable       $inline_handler = null   // optional default behavior
+);</code></pre>
+
+            <h4>Simple event (no default behavior)</h4>
+<pre><code>$params = new \SPP\EventParams(['page' =&gt; $currentPage]);
+\SPP\SPPEvent::fireEvent('page_rendered', $params);</code></pre>
+
+            <h4>Event with inline default behavior</h4>
+<pre><code>$params = new \SPP\EventParams(['template' =&gt; 'home.blade.php']);
+
+\SPP\SPPEvent::fireEvent('render_template', $params, function ($params) {
+    // This is the DEFAULT behavior.
+    // It runs only if no "instead" hook has been registered.
+    $tpl = $params-&gt;get('template');
+    include SPP_APP_DIR . '/views/' . $tpl;
+});</code></pre>
+            <p>The inline handler acts as a safe default. If a module later registers an <code>instead</code> hook for <code>render_template</code>, the inline handler is skipped entirely, and the module's hook runs in its place.</p>
+
+            <h3><code>startEvent()</code> / <code>endEvent()</code> — Non-Overridable</h3>
+            <p>For events where you want <code>before</code> and <code>after</code> hooks but <strong>no possibility of override</strong>, use these methods directly:</p>
+<pre><code>$params = new \SPP\EventParams(['request' =&gt; $request]);
+
+// Fire only before_* listeners
+\SPP\SPPEvent::startEvent('http_request', $params);
+
+// ... your core logic that cannot be overridden ...
+
+// Fire only after_* listeners
+\SPP\SPPEvent::endEvent('http_request', $params);</code></pre>
+            <p>No <code>instead</code> hook can intercept this flow because the main event name is never dispatched.</p>
+
+            <hr>
+
+            <h2>Listening to Events</h2>
+
+            <h3>Inline Listener Registration</h3>
+<pre><code>// Listen to the main event
+\SPP\SPPEvent::listen('page_rendered', function (\SPP\EventParams $params) {
+    $page = $params-&gt;get('page');
+    // do something
+});
+
+// Listen to before/after phases
+\SPP\SPPEvent::listen('before_page_rendered', function ($params) {
+    // runs before the main handler
+});
+
+\SPP\SPPEvent::listen('after_page_rendered', function ($params) {
+    // runs after the main handler
+});</code></pre>
+
+            <h3>Overriding with an Instead Hook</h3>
+<pre><code>// This replaces the inline handler of 'render_template'
+\SPP\SPPEvent::listen('instead_render_template', function ($params) {
+    // Custom rendering logic
+    $tpl = $params-&gt;get('template');
+    echo MyCustomEngine::render($tpl);
+});</code></pre>
+            <p>When an <code>instead_</code> listener is registered, the inline handler passed to <code>fireEvent()</code> is <strong>completely skipped</strong>.</p>
+
+            <h3>Priority</h3>
+            <p>Higher priority listeners run first:</p>
+<pre><code>\SPP\SPPEvent::listen('page_rendered', $callbackA, false, 900); // runs first
+\SPP\SPPEvent::listen('page_rendered', $callbackB, false, 100); // runs last</code></pre>
+
+            <h3>Stopping Propagation</h3>
+            <p>Any listener can halt the entire chain:</p>
+<pre><code>\SPP\SPPEvent::listen('before_page_rendered', function ($params) {
+    if ($params-&gt;get('blocked')) {
+        $params-&gt;stopPropagation(); // skips main + after handlers
+    }
+});</code></pre>
+
+            <hr>
+
+            <h2>Class-Based Event Handlers</h2>
+            <p>For complex modules, extend <code>\SPP\EventHandler</code> and use <code>addHook()</code> to register methods:</p>
+<pre><code>namespace MyModule\Events;
+
+class UserEventHandler extends \SPP\EventHandler
+{
+    protected function initHandler()
+    {
+        $this-&gt;addHook('before', 'onBeforeLogin', 800);
+        $this-&gt;addHook('after',  'onAfterLogin');
+    }
+
+    public function onBeforeLogin(\SPP\EventParams $params)
+    {
+        // validate credentials, set flags, etc.
+    }
+
+    public function onAfterLogin(\SPP\EventParams $params)
+    {
+        // log the login, update session, etc.
+    }
 }</code></pre>
 
-            <h3>Class-based Handlers</h3>
-            <p>You can also use static methods or object methods as handlers:</p>
-            <pre><code>\SPP\SPPEvent::registerHandler('PageNotFound', [\MyMod\MyHandler::class, 'handle404']);</code></pre>
+            <h3><code>addHook()</code> Stages</h3>
+            <table>
+                <thead>
+                    <tr><th>Stage</th><th>Hook Name Generated</th><th>Purpose</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>before</code></td><td><code>before_{event_name}</code></td><td>Runs before the main handler</td></tr>
+                    <tr><td><code>after</code></td><td><code>after_{event_name}</code></td><td>Runs after the main handler</td></tr>
+                    <tr><td><code>instead</code> / <code>override</code></td><td><code>instead_{event_name}</code></td><td>Completely replaces the inline handler</td></tr>
+                    <tr><td><code>main</code></td><td><code>{event_name}</code></td><td>Adds a listener to the main event</td></tr>
+                </tbody>
+            </table>
+
+            <h3>Registering a Class Handler</h3>
+<pre><code>// Instantiating the handler auto-registers its hooks via initHandler()
+\SPP\SPPEvent::registerHandler('user_login', '\\MyModule\\Events\\UserEventHandler');</code></pre>
 
             <hr>
 
-            <h2>Real-world Examples</h2>
+            <h2>Declarative Registration via <code>events.yml</code></h2>
+            <p>Instead of registering handlers in PHP code, you can declare them in an <code>events.yml</code> file located at <code>etc/events.yml</code> within your app or module directory.</p>
+<pre><code>events:
+  user_login:
+    - class: \MyModule\Events\UserEventHandler
+      priority: 700
+
+  page_rendered:
+    - class: \MyModule\Events\PageHookHandler</code></pre>
+
+            <p>SPP automatically scans these files during <code>SPPEvent::boot()</code>:</p>
+            <ol>
+                <li><code>spp/etc/events.yml</code> (core)</li>
+                <li><code>src/{context}/etc/events.yml</code> (active app)</li>
+                <li><code>spp/modules/{vendor}/{module}/etc/events.yml</code> (each module)</li>
+            </ol>
+            <p>The compiled result is cached to <code>var/cache/events_compiled.php</code>. Clear this file after adding new handlers.</p>
+
+            <hr>
+
+            <h2>Event Lifecycle Summary</h2>
+<pre><code>fireEvent('my_event', $params, $inlineHandler)
+│
+├─ 1. before_my_event listeners  (sorted by priority, high → low)
+│      └─ if stopPropagation() → STOP
+│
+├─ 2. Main Phase:
+│      ├─ if instead_my_event listeners exist → run them (skip inline handler)
+│      └─ else → run $inlineHandler, then my_event listeners
+│      └─ if stopPropagation() → STOP
+│
+└─ 3. after_my_event listeners  (sorted by priority, high → low)</code></pre>
+
+            <hr>
+
+            <h2>Real-World Examples</h2>
+
             <h3>1. Adding Global CSS</h3>
-            <p>The <span class="accent">event_spp_include_css_files</span> event allows you to inject CSS into the <span class="accent">ViewPage</span> header dynamically:</p>
-            <pre><code>\SPP\SPPEvent::registerHandler('event_spp_include_css_files', function() {
+<pre><code>\SPP\SPPEvent::listen('event_spp_include_css_files', function ($params) {
     \SPPMod\SPPView\ViewPage::addCssIncludeFile('res/custom_theme.css');
 });</code></pre>
 
-            <h3>2. Dynamic Initialization</h3>
-            <p>Use the <span class="accent">spp_init</span> event to configure modules or state during the bootstrap process:</p>
-            <pre><code>\SPP\SPPEvent::registerHandler('spp_init', function() {
-    // Perform early-stage app setup
+            <h3>2. Intercepting Entity Save</h3>
+<pre><code>\SPP\SPPEvent::listen('before_entity:before_save', function (\SPP\EventParams $params) {
+    $entity = $params-&gt;get('entity');
+    // enforce business rules before any entity is saved
 });</code></pre>
+
+            <h3>3. Overriding Template Rendering</h3>
+<pre><code>// In your module's init or events.yml handler:
+\SPP\SPPEvent::listen('instead_render_template', function ($params) {
+    $tpl = $params-&gt;get('template');
+    echo MyThemeEngine::compile($tpl);
+});</code></pre>
+
+            <h3>4. Non-Overridable Security Check</h3>
+<pre><code>$params = new \SPP\EventParams(['request' =&gt; $request]);
+\SPP\SPPEvent::startEvent('security_check', $params);
+
+// Core security logic that MUST NOT be overridden
+$this-&gt;enforceCSRF($request);
+
+\SPP\SPPEvent::endEvent('security_check', $params);</code></pre>
+
+            <hr>
+
+            <h2>Migration from Legacy API</h2>
+            <table>
+                <thead>
+                    <tr><th>Legacy</th><th>Modern</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><code>SPPEvent::registerEvent('evt')</code></td><td><code>SPPEvent::defineEvent('evt')</code></td></tr>
+                    <tr><td><code>SPPEvent::registerHandler('evt', 'Handler')</code></td><td><code>SPPEvent::listen('evt', $callable)</code></td></tr>
+                    <tr><td><code>SPPEvent::fireEvent('evt', &amp;$array)</code></td><td><code>SPPEvent::fireEvent('evt', new EventParams($array))</code></td></tr>
+                    <tr><td><code>SPPEvent::scanHandlers()</code></td><td><code>SPPEvent::boot()</code> (automatic)</td></tr>
+                    <tr><td><code>SPP\Core\EventManager::trigger()</code></td><td><code>SPPEvent::fireEvent()</code></td></tr>
+                </tbody>
+            </table>
+            <p>Legacy methods like <code>registerHandler()</code>, <code>registerEvent()</code>, and <code>scanHandlers()</code> still exist as thin wrappers for backward compatibility but will be removed in a future release.</p>
 
             <footer class="footer-nav">
                 <a href="06_forms_and_validation.html" class="nav-button">
                     <span class="label">Previous</span>
-                    <span class="title">&larr; 06. Forms & Validation</span>
+                    <span class="title">&larr; 06. Forms &amp; Validation</span>
                 </a>
                 <a href="08_advanced.html" class="nav-button">
                     <span class="label">Next</span>

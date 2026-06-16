@@ -13,8 +13,25 @@ module:
         - { class: SPPAjax, file: class.sppajax.php }
         - { class: LiveAction, file: class.liveaction.php }
         - { class: JWTAuth, file: src/JWTAuth.php }
+        - { class: Subscribers\ApiErrorSubscriber, file: Subscribers/ApiErrorSubscriber.php }
+        - { class: Dispatchers\ComponentDispatcher, file: Dispatchers/ComponentDispatcher.php }
+        - { class: Dispatchers\ServiceDispatcher, file: Dispatchers/ServiceDispatcher.php }
+        - { class: Dispatchers\PageDispatcher, file: Dispatchers/PageDispatcher.php }
+        - { class: Dispatchers\StreamDispatcher, file: Dispatchers/StreamDispatcher.php }
+        - { class: Dispatchers\IntentDispatcher, file: Dispatchers/IntentDispatcher.php }
+        - { class: Dispatchers\CdcDispatcher, file: Dispatchers/CdcDispatcher.php }
+        - { class: Middleware\ApiThrottleMiddleware, file: Middleware/ApiThrottleMiddleware.php }
+        - { class: Middleware\ApiAuthMiddleware, file: Middleware/ApiAuthMiddleware.php }
+        - { class: Controllers\EntityGetController, file: Controllers/EntityGetController.php }
+        - { class: Controllers\EntityPostController, file: Controllers/EntityPostController.php }
+        - { class: Controllers\EntityPutPatchController, file: Controllers/EntityPutPatchController.php }
+        - { class: Controllers\EntityDeleteController, file: Controllers/EntityDeleteController.php }
+        - { class: SPPApiResource, file: class.sppapiresource.php }
+        - { class: SPPApiResponse, file: class.sppapiresponse.php }
+        - { class: SPPPaginator, file: class.spppaginator.php }
+        - { class: SPPRouteModelBinding, file: class.spproutemodelbinding.php }
     config_variables:
         require_key: true
         enable_jwt: true
-        jwt_secret: "auto-generated-secret-key-change-me"
+        jwt_secret: ""
         jwt_expires_in: 3600

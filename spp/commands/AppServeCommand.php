@@ -39,7 +39,8 @@ class AppServeCommand extends Command
         exec($hmrCmd);
 
         // Use PHP's built-in server as the primary driver for Native/Blade
-        $cmd = "php -S localhost:{$port} -t {$root}";
+        $safeRoot = escapeshellarg($root);
+        $cmd = "php -S localhost:{$port} -t {$safeRoot}";
         passthru($cmd);
     }
 }

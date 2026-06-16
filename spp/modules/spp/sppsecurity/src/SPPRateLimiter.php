@@ -19,31 +19,29 @@ class SPPRateLimiter {
             return true;
         }
 
-        // Fallback to session if no cache
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        // Fallback to local memory (only works for current request) if no cache
+        static $localCache = [];
         
-        if (!isset($_SESSION[$cacheKey])) {
-            $_SESSION[$cacheKey] = [
+        if (!isset($localCache[$cacheKey])) {
+            $localCache[$cacheKey] = [
                 'hits' => 0,
                 'expires' => time() + $decay
             ];
         }
 
-        if (time() > $_SESSION[$cacheKey]['expires']) {
-            $_SESSION[$cacheKey] = [
+        if (time() > $localCache[$cacheKey]['expires']) {
+            $localCache[$cacheKey] = [
                 'hits' => 1,
                 'expires' => time() + $decay
             ];
             return true;
         }
 
-        if ($_SESSION[$cacheKey]['hits'] >= $max) {
+        if ($localCache[$cacheKey]['hits'] >= $max) {
             return false;
         }
 
-        $_SESSION[$cacheKey]['hits']++;
+        $localCache[$cacheKey]['hits']++;
         return true;
     }
 }

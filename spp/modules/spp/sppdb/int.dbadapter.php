@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPInterDB;
+namespace SPPMod\SppDb;
 
 /**
  * Interface DBAdapter

@@ -174,10 +174,10 @@ HELP;
 
         try {
             // Ensure SPP environment is bootstrapped enough for this
-            if (!class_exists('\SPPMod\SPPEntity\SPPEntity')) {
+            if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
                 require_once dirname(__DIR__) . '/sppinit.php';
             }
-            \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+            \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
             echo "\nSuccess: Entity {$entityName} saved and scaffolded in {$appname} context.\n";
 
             // If --api or --resource flag is passed, scaffold a REST controller

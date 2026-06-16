@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>12. Live Components | SPP Framework Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html" class="active">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html" class="active">12. Live Components</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>12. Live Components (Livewire Clone)</h1>
+            <p>SPP now features a highly reactive frontend layer powered by <span class="accent">LiveComponent</span>, enabling you to build dynamic interfaces in pure PHP without writing complex JavaScript or managing separate API endpoints. This feature works similarly to Laravel Livewire.</p>
+
+            <hr>
+
+            <h2>Creating a Live Component</h2>
+            <p>To create a live component, extend the <code>\SPPMod\SPPView\LiveComponent</code> class and implement the <code>render()</code> method.</p>
+
+            <pre><code>namespace App\Components;
+
+use SPPMod\SPPView\LiveComponent;
+
+class Counter extends LiveComponent
+{
+    public int $count = 0;
+
+    public function increment()
+    {
+        $this->count++;
+    }
+
+    public function render(): string
+    {
+        return &lt;&lt;&lt;HTML
+        &lt;div&gt;
+            &lt;h2&gt;Count: {$this-&gt;count}&lt;/h2&gt;
+            &lt;!-- Use onclick to trigger backend methods --&gt;
+            &lt;button onclick="sppLive.call('{$this-&gt;id}', 'increment')"&gt;
+                Increment +
+            &lt;/button&gt;
+        &lt;/div&gt;
+        HTML;
+    }
+}</code></pre>
+
+            <h3>How it Works</h3>
+            <ol>
+                <li><strong>State Hydration:</strong> Any <code>public</code> properties (like <code>$count</code>) are automatically serialized (dehydrated) and sent to the client on the first render.</li>
+                <li><strong>Tamper Protection:</strong> SPP signs the state payload with an HMAC checksum (<code>spplive_secret</code>) to guarantee users cannot tamper with the component's internal state on the frontend.</li>
+                <li><strong>Execution:</strong> When a user clicks the "Increment" button, the frontend sends a tiny JSON payload to the backend containing the current state and the method to call (<code>increment</code>).</li>
+                <li><strong>Re-rendering:</strong> SPP reconstitutes the class instance, sets the public properties back to their current values, executes the method, and asks the component to re-render.</li>
+                <li><strong>DOM Patching:</strong> The new HTML is returned to the client and patched into the DOM.</li>
+            </ol>
+
+            <hr>
+
+            <h2>Using Views (Blade, Twig, or AST)</h2>
+            <p>You don't have to return raw HTML from the <code>render()</code> method. You can simply return a file path, and SPP will automatically render it using the <code>ViewCompiler</code> or your active template engine!</p>
+
+            <pre><code>    public function render(): string
+    {
+        // Renders using the AST ViewCompiler
+        return 'views/counter.html'; 
+    }</code></pre>
+
+            <p>Inside <code>views/counter.html</code>:</p>
+            <pre><code>&lt;div&gt;
+    &lt;h2&gt;Count: &lt;?php echo $count; ?&gt;&lt;/h2&gt;
+    &lt;button onclick="sppLive.call('&lt;?php echo $id; ?&gt;', 'increment')"&gt;Increment +&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+            <hr>
+
+            <h2>WebSockets vs AJAX</h2>
+            <p>Under the hood, SPP attempts to use a WebSocket connection via <code>\SPPMod\SPPLive\LiveEmitter</code> if available, enabling lightning-fast, bi-directional reactivity.</p>
+            <p>If WebSockets are disabled or fail to connect, it <strong>automatically falls back</strong> to the standard AJAX <code>/api.php?action=live_update</code> endpoint to ensure your components continue functioning perfectly in any environment!</p>
+
+            <footer class="footer-nav">
+                <a href="11_multi_engine_routing.html" class="nav-button">
+                    <span class="label">Previous</span>
+                    <span class="title">&larr; 11. Multi-Engine Routing</span>
+                </a>
+                <a href="13_security_hardening.html" class="nav-button">
+                    <span class="label">Next</span>
+                    <span class="title">13. Security Hardening &rarr;</span>
+                </a>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>

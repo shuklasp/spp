@@ -1,0 +1,65 @@
+tables:
+  users:
+    uid: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(uid)"
+    uname: "VARCHAR(50) UNIQUE NOT NULL"
+    passwd: "BLOB"
+    enabled: "CHAR(1)"
+  loginrec:
+    sessid: "VARCHAR(100)"
+    PRIMARY KEY: "(sessid)"
+    uid: "INTEGER REFERENCES users(uid)"
+    logintime: "DATETIME"
+    ipaddr: "VARCHAR(45)"
+    lastaccess: "DATETIME"
+  remember_tokens:
+    id: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(id)"
+    uid: "INTEGER REFERENCES users(uid)"
+    token: "VARCHAR(128) UNIQUE NOT NULL"
+    expires_at: "DATETIME"
+  roles:
+    roleid: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(roleid)"
+    rolename: "VARCHAR(50)"
+  rights:
+    rightid: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(rightid)"
+    rightname: "VARCHAR(50)"
+  roleright:
+    roleid: "INTEGER REFERENCES roles(roleid)"
+    rightid: "INTEGER REFERENCES rights(rightid)"
+  userroles:
+    uid: "INTEGER REFERENCES users(uid)"
+    roleid: "INTEGER REFERENCES roles(roleid)"
+  sppgroup:
+    id: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(id)"
+    name: "VARCHAR(100) UNIQUE NOT NULL"
+    description: "VARCHAR(500)"
+    metadata: "LONGTEXT"
+    created_at: "DATETIME DEFAULT CURRENT_TIMESTAMP"
+    updated_at: "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+  sppgroupmember:
+    id: "INTEGER AUTO_INCREMENT"
+    PRIMARY KEY: "(id)"
+    group_id: "INTEGER NOT NULL REFERENCES sppgroup(id) ON DELETE CASCADE"
+    member_entity: "VARCHAR(255) NOT NULL"
+    member_id: "INTEGER NOT NULL"
+    role: "VARCHAR(50) DEFAULT 'member'"
+    rights: "TEXT"
+    created_at: "DATETIME DEFAULT CURRENT_TIMESTAMP"
+
+seeds:
+  users:
+    - {uid: 1, uname: 'admin', passwd: "aes_encrypt('hello','hello')", enabled: 'Y'}
+    - {uid: 2, uname: 'op1', passwd: "aes_encrypt('hello','hello')", enabled: 'Y'}
+    - {uid: 3, uname: 'op2', passwd: "aes_encrypt('hello','hello')", enabled: 'Y'}
+    - {uid: 4, uname: 'op3', passwd: "aes_encrypt('hello','hello')", enabled: 'Y'}
+    - {uid: 5, uname: 'op4', passwd: "aes_encrypt('hello','hello')", enabled: 'Y'}
+  roles:
+    - {roleid: 1, rolename: 'Admin'}
+    - {roleid: 2, rolename: 'Operator'}
+  sppgroup:
+    - {id: 1, name: 'Administrators', description: 'System administrators with full access'}
+    - {id: 2, name: 'Operators', description: 'Standard operators with limited access'}

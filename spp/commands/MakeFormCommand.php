@@ -18,65 +18,64 @@ class MakeFormCommand extends BaseMakeCommand
     {
         $formName = $args[2] ?? null;
         if (!$formName) {
-            echo "Usage: php spp.php make:form <name> [--type=yml|xml]\n";
+            echo "Usage: php spp.php make:form <name> [--app=appname]\n";
             return;
         }
 
-        $type = 'yml';
-        foreach ($args as $arg) {
-            if (strpos($arg, '--type=') === 0) {
-                $type = substr($arg, 7);
-            }
+        $app = $this->getContext($args);
+        $className = ucfirst($formName);
+        if (strpos(strtolower($className), 'form') === false) {
+             $className .= 'Form';
         }
 
-        $appName = \SPP\Scheduler::getContext() ?: 'default';
-        $formsDir = SPP_APP_DIR . '/etc/apps/' . $appName . '/forms';
+        $namespace = $this->getNamespace('Forms', $app);
+        $targetDir = $this->getTargetDir('forms', $app);
+        $targetPath = "{$targetDir}/class." . strtolower($className) . ".php";
 
-        if (!is_dir($formsDir)) {
-            mkdir($formsDir, 0777, true);
+        $formRoute = strtolower(str_replace('Form', '', $className));
+
+        $success = $this->buildFromStub('form', $targetPath, [
+            'namespace' => $namespace,
+            'className' => $className,
+            'formName' => strtolower($className),
+            'formRoute' => $formRoute
+        ]);
+
+        if ($success) {
+            echo "Success: Modern PHP Form {$className} created at {$targetPath}\n";
         }
+    }
 
-        $filePath = $formsDir . '/' . $formName . '.' . $type;
-        if (file_exists($filePath)) {
-            echo "Error: Form '{$formName}' already exists at {$filePath}\n";
-            return;
-        }
+    public function renderAdminUI(): string
+    {
+        $name = htmlspecialchars($this->getName());
+        $desc = htmlspecialchars($this->getDescription());
 
-        if ($type === 'yml' || $type === 'yaml') {
-            $data = [
-                'form' => [
-                    'name' => $formName . '_form',
-                    'action' => '',
-                    'method' => 'post',
-                    'id' => $formName . '_form',
-                    'controls' => [
-                        'control' => [
-                            ['name' => 'example_field', 'type' => 'SPPText', 'label' => 'Example Field', 'id' => 'example_field'],
-                            ['name' => 'submit', 'type' => 'SPPSubmit', 'value' => 'Submit', 'id' => 'submit']
-                        ]
-                    ],
-                    'validations' => [
-                        'validation' => [
-                            ['control' => 'example_field', 'type' => 'SPPRequiredValidator', 'message' => 'This field is required']
-                        ]
-                    ]
-                ]
-            ];
-            file_put_contents($filePath, Yaml::dump($data, 8, 2));
-        } else {
-            $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n";
-            $xml .= "<form name=\"{$formName}_form\" action=\"\" method=\"post\" id=\"{$formName}_form\">\n";
-            $xml .= "    <controls>\n";
-            $xml .= "        <control name=\"example_field\" type=\"SPPText\" label=\"Example Field\" id=\"example_field\" />\n";
-            $xml .= "        <control name=\"submit\" type=\"SPPSubmit\" value=\"Submit\" id=\"submit\" />\n";
-            $xml .= "    </controls>\n";
-            $xml .= "    <validations>\n";
-            $xml .= "        <validation control=\"example_field\" type=\"SPPRequiredValidator\" message=\"This field is required\" />\n";
-            $xml .= "    </validations>\n";
-            $xml .= "</form>";
-            file_put_contents($filePath, $xml);
-        }
+        $html = '<div class="command-ui-container">';
+        $html .= '  <h3><span class="view-icon">📝</span> <code>' . $name . '</code></h3>';
+        $html .= '  <p>' . $desc . '</p>';
+        $html .= '  <hr>';
+        $html .= '  <div class="form-group">';
+        $html .= '    <label>Form Name (e.g. UserForm, ContactForm):</label>';
+        $html .= '    <input type="text" id="arg-form-name" class="spp-input" placeholder="FormName">';
+        $html .= '  </div>';
+        $html .= '  <div class="form-group">';
+        $html .= '    <label>Application Context (optional):</label>';
+        $html .= '    <input type="text" id="arg-app" class="spp-input" placeholder="e.g. school">';
+        $html .= '  </div>';
+        $html .= '  <button class="spp-btn" onclick="executeMakeForm()">Generate Form</button>';
+        $html .= '  <script>';
+        $html .= '    function executeMakeForm() {';
+        $html .= '      const formName = document.getElementById("arg-form-name").value.trim();';
+        $html .= '      const app = document.getElementById("arg-app").value.trim();';
+        $html .= '      if (!formName) { alert("Form Name is required!"); return; }';
+        $html .= '      let args = formName;';
+        $html .= '      if (app) args += " --app=" + app;';
+        $html .= '      window.executeCommand("' . $name . '", args);';
+        $html .= '    }';
+        $html .= '  </script>';
+        $html .= '</div>';
 
-        echo "Success: Form '{$formName}' created in {$type} format at {$filePath}\n";
+        return $html;
     }
 }

@@ -65,7 +65,7 @@ class ViewFormBuilder extends \SPP\SPPObject
         }
 
         $form = self::fromArray($config, $config['form']['name']);
-        if ($this->entity instanceof \SPPMod\SPPEntity\SPPEntity) {
+        if ($this->entity instanceof \SPPMod\SppDb\SPPEntity) {
             $form->setEntityInstance($this->entity);
             $form->setEntityClass(get_class($this->entity));
             $form->bind($this->entity);
@@ -685,9 +685,29 @@ class ViewFormBuilder extends \SPP\SPPObject
 
                         if (!empty($condition)) {
                             if (is_array($condition)) {
-                                $condition = implode(' AND ', $condition);
+                                $conds = [];
+                                foreach ($condition as $k => $v) {
+                                    if (is_int($k)) {
+                                        // Ignore integer keys since they can't be parameterized safely
+                                        continue;
+                                    } else {
+                                        if (preg_match('/^[a-zA-Z0-9_]+$/', $k)) {
+                                            $conds[] = "{$k} = ?";
+                                            $params[] = $v;
+                                        } else {
+                                            throw new \SPP\SPPException("Invalid column name in condition: {$k}");
+                                        }
+                                    }
+                                }
+                                $condition = implode(' AND ', $conds);
+                            } else if (is_string($condition)) {
+                                // For backward compatibility, allow strings but log a warning.
+                                // In strict mode, we should throw an exception.
+                                error_log("SPP Warning: Raw string conditions in resolveDataSource are deprecated and potentially vulnerable to SQLi.");
                             }
-                            $query .= " WHERE " . $condition;
+                            if (!empty($condition)) {
+                                $query .= " WHERE " . $condition;
+                            }
                         }
                     }
                 }
@@ -764,22 +784,27 @@ class ViewFormBuilder extends \SPP\SPPObject
                 break;
             case 'numeric':
                 $validator = new SPP_Validator_NumericValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('type', 'number');
                 break;
             case 'email':
                 $validator = new SPP_Validator_EmailValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('type', 'email');
                 break;
             case 'min':
                 $min = $vConfig['value'] ?? $vConfig['min'] ?? 0;
                 $validator = new SPP_Validator_MinLengthValidator($elem, $min, $errHolder, $msg);
                 $validator->minlength = $min;
+                $elem->setAttribute('minlength', $min);
                 break;
             case 'max':
                 $max = $vConfig['value'] ?? $vConfig['max'] ?? 100;
                 $validator = new SPP_Validator_MaxLengthValidator($elem, $max, $errHolder, $msg);
                 $validator->maxlength = $max;
+                $elem->setAttribute('maxlength', $max);
                 break;
             case 'url':
                 $validator = new SPP_Validator_UrlValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('type', 'url');
                 break;
             case 'json':
                 $validator = new SPP_Validator_JsonValidator($elem, $errHolder, $msg);
@@ -791,6 +816,8 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $min = $vConfig['min'] ?? 0;
                 $max = $vConfig['max'] ?? 100;
                 $validator = new SPP_Validator_RangeValidator($elem, $min, $max, $errHolder, $msg);
+                $elem->setAttribute('min', $min);
+                $elem->setAttribute('max', $max);
                 break;
             case 'match':
                 $target = $vConfig['target'] ?? '';
@@ -805,6 +832,12 @@ class ViewFormBuilder extends \SPP\SPPObject
                 $column = $vConfig['column'] ?? $elem->getAttribute('name');
                 $validator = new SPP_Validator_UniqueValidator($elem, $table, $column, $errHolder, $msg);
                 break;
+            case 'regex':
+            case 'pattern':
+                $pattern = $vConfig['pattern'] ?? $vConfig['regex'] ?? '';
+                $validator = new SPP_Validator_RegexValidator($elem, $pattern, $errHolder, $msg);
+                if ($pattern) $elem->setAttribute('pattern', ltrim(rtrim($pattern, '/'), '/'));
+                break;
             case 'filesize':
                 $max = $vConfig['max'] ?? 2097152;
                 $validator = new SPP_Validator_FileSizeValidator($elem, $max, $errHolder, $msg);
@@ -815,21 +848,27 @@ class ViewFormBuilder extends \SPP\SPPObject
                 break;
             case 'aadhaar':
                 $validator = new SPP_Validator_AadhaarValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '\d{12}');
                 break;
             case 'pan':
                 $validator = new SPP_Validator_PanValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '[A-Z]{5}[0-9]{4}[A-Z]{1}');
                 break;
             case 'gstin':
                 $validator = new SPP_Validator_GstinValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}');
                 break;
             case 'ifsc':
                 $validator = new SPP_Validator_IfscValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '^[A-Z]{4}0[A-Z0-9]{6}$');
                 break;
             case 'pincode':
                 $validator = new SPP_Validator_PincodeValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '^[1-9][0-9]{5}$');
                 break;
             case 'indmobile':
                 $validator = new SPP_Validator_IndiaMobileValidator($elem, $errHolder, $msg);
+                $elem->setAttribute('pattern', '^[6-9]\d{9}$');
                 break;
             case 'dateafter':
                 $target = $vConfig['target'] ?? '';

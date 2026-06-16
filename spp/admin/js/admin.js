@@ -249,6 +249,27 @@ class SPPAdmin {
     // =============================================
 
     async checkAuth() {
+        // Auto-consume magic link if present
+        const urlParams = new URLSearchParams(window.location.search);
+        const magicToken = urlParams.get('magic_token');
+        if (magicToken) {
+            try {
+                const formData = new FormData();
+                formData.append('action', 'ConsumeMagicLink');
+                formData.append('token', magicToken);
+                const res = await this.apiPost(formData);
+                if (res.success) {
+                    window.history.replaceState({}, document.title, window.location.pathname); // clear token from URL
+                    this.notify('Magic link login successful', 'success');
+                    // proceed to normal checkAuth logic
+                } else {
+                    this.notify(res.message || 'Invalid magic link', 'error');
+                }
+            } catch (e) {
+                console.error("Magic link error:", e);
+            }
+        }
+
         try {
             const res = await this.api('check_auth');
             if (res.success) {
@@ -266,6 +287,31 @@ class SPPAdmin {
             }
         } catch (e) {
             this.showLogin();
+        }
+    }
+
+    async sendMagicLink() {
+        const email = document.getElementById('magic_email').value.trim();
+        if (!email) {
+            this.notify('Please enter your email address.', 'error');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('action', 'SendMagicLink');
+            formData.append('email', email);
+            const res = await this.apiPost(formData);
+            if (res.success) {
+                this.notify('Magic link sent if the account exists.', 'success');
+                document.getElementById('magic_email').value = '';
+                document.getElementById('magic-email-group').style.display = 'none';
+                document.getElementById('btn-show-magic').style.display = 'block';
+            } else {
+                this.notify(res.message || 'Failed to send link', 'error');
+            }
+        } catch (e) {
+            this.notify('Connection error', 'error');
         }
     }
 
@@ -294,6 +340,8 @@ class SPPAdmin {
 
         const username = document.getElementById('username').value.trim();
         const password = document.getElementById('password').value;
+        const mfaCodeEl = document.getElementById('mfa_code');
+        const mfaCode = mfaCodeEl ? mfaCodeEl.value.trim() : '';
 
         if (!username || !password) {
             this.notify('Please enter both username and password.', 'error');
@@ -305,9 +353,21 @@ class SPPAdmin {
         }
 
         const formData = new FormData();
-        formData.append('action', 'login');
-        formData.append('username', username);
-        formData.append('password', password);
+        
+        if (this.mfaChallengeToken) {
+            formData.append('action', 'VerifyMFA');
+            formData.append('challenge_token', this.mfaChallengeToken);
+            formData.append('code', mfaCode);
+            if (!mfaCode) {
+                this.notify('Please enter your authenticator code.', 'error');
+                if (btn) { btn.textContent = origText; btn.disabled = false; }
+                return;
+            }
+        } else {
+            formData.append('action', 'login');
+            formData.append('username', username);
+            formData.append('password', password);
+        }
 
         console.log(`Attempting login for user: ${username}`);
         try {
@@ -315,20 +375,36 @@ class SPPAdmin {
             console.log("Login API response:", res);
             
             if (res.success) {
-                this.user = { username };
-                window.spp_root_store.set({ user: this.user });
-                location.hash = 'dashboard';
-                this.showWorkspace();
-                this.notify(`Welcome back, ${username}`, 'success');
+                if (res.data && res.data.mfa_challenge) {
+                    this.mfaChallengeToken = res.data.mfa_challenge;
+                    document.getElementById('mfa-section').style.display = 'block';
+                    document.getElementById('username').readOnly = true;
+                    document.getElementById('password').readOnly = true;
+                    mfaCodeEl.focus();
+                    if (btn) btn.textContent = 'Verify Code';
+                    this.notify('Multi-Factor Authentication required.', 'info');
+                } else {
+                    this.mfaChallengeToken = null;
+                    document.getElementById('mfa-section').style.display = 'none';
+                    this.user = { username: res.data.user || username };
+                    window.spp_root_store.set({ user: this.user });
+                    location.hash = 'dashboard';
+                    this.showWorkspace();
+                    this.notify(`Welcome back, ${this.user.username}`, 'success');
 
-                // Update Sidebar Profile
-                const profileRes = await this.api('get_profile');
-                if (profileRes.success) {
-                    this.updateUserDisplay(profileRes.data);
+                    // Update Sidebar Profile
+                    const profileRes = await this.api('get_profile');
+                    if (profileRes.success) {
+                        this.updateUserDisplay(profileRes.data);
+                    }
                 }
             } else {
                 this.handleApiErrors(res);
-                this.notify(res.message || 'Invalid username or password.', 'error');
+                this.notify(res.message || 'Invalid credentials.', 'error');
+                if (this.mfaChallengeToken) {
+                    mfaCodeEl.value = '';
+                    mfaCodeEl.focus();
+                }
             }
         } catch (err) {
             console.error("Login Error:", err);
@@ -401,10 +477,38 @@ class SPPAdmin {
                     <label>New Password (Leave blank to keep current)</label>
                     <input type="password" id="prof-password" placeholder="••••••••">
                 </div>
+                
+                <div class="mfa-settings" style="margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--glass-border); border-radius: 8px;">
+                    <h4>Multi-Factor Authentication (MFA)</h4>
+                    <p style="font-size: 0.85rem; color: var(--text-dim);">Protect your account with a TOTP Authenticator app.</p>
+                    <button id="btn-setup-mfa" class="btn secondary-btn" style="margin-top: 0.5rem;">Configure 2FA</button>
+                    
+                    <div id="mfa-setup-area" style="display: none; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+                        <div id="mfa-qr-container" style="text-align: center; margin-bottom: 1rem;"></div>
+                        <div class="input-group">
+                            <label>Secret Key (Manual Entry)</label>
+                            <code id="mfa-manual-code" style="display: block; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 4px; text-align: center; letter-spacing: 2px;"></code>
+                        </div>
+                        <div class="input-group">
+                            <label>Verify 6-digit Code</label>
+                            <input type="text" id="mfa-verify-code" placeholder="123456" maxlength="6" pattern="[0-9]*">
+                        </div>
+                        <button id="btn-enable-mfa" class="btn primary-btn" style="width: 100%;">Verify & Enable 2FA</button>
+                    </div>
+                </div>
+
                 <div class="alert info-alert" style="margin-top: 1rem;">
                     <span class="view-icon">ℹ️</span> Changes to identity may require you to log back in.
                 </div>
             </div>`;
+
+        setTimeout(() => {
+            const btnSetupMfa = document.getElementById('btn-setup-mfa');
+            const btnEnableMfa = document.getElementById('btn-enable-mfa');
+            
+            if (btnSetupMfa) btnSetupMfa.onclick = () => this.setupMFA();
+            if (btnEnableMfa) btnEnableMfa.onclick = () => this.enableMFA();
+        }, 100);
 
         const saveBtn = document.getElementById('modal-save');
         saveBtn.textContent = 'Save Profile';
@@ -445,6 +549,49 @@ class SPPAdmin {
         };
         
         modal.classList.add('active');
+    }
+
+    async setupMFA() {
+        const btn = document.getElementById('btn-setup-mfa');
+        btn.textContent = 'Generating...';
+        btn.disabled = true;
+        
+        try {
+            const res = await SPPAPI.call('Auth.GenerateMFASecret');
+            if (res) {
+                document.getElementById('mfa-setup-area').style.display = 'block';
+                document.getElementById('mfa-qr-container').innerHTML = `<img src="${res.qr_code_url}" alt="QR Code" style="border-radius: 8px; border: 4px solid white;">`;
+                document.getElementById('mfa-manual-code').textContent = res.manual_code;
+                btn.style.display = 'none';
+            }
+        } catch (e) {
+            this.notify(e.message || 'Failed to generate MFA secret', 'error');
+            btn.textContent = 'Configure 2FA';
+            btn.disabled = false;
+        }
+    }
+
+    async enableMFA() {
+        const codeInput = document.getElementById('mfa-verify-code');
+        const code = codeInput.value.trim();
+        if (!code) {
+            this.notify('Enter the 6-digit code', 'error');
+            return;
+        }
+        
+        const btn = document.getElementById('btn-enable-mfa');
+        btn.textContent = 'Verifying...';
+        btn.disabled = true;
+        
+        try {
+            await SPPAPI.call('Auth.EnableMFA', { code });
+            // Success! 
+            document.getElementById('mfa-setup-area').innerHTML = `<div class="alert success-alert" style="text-align:center;">✅ Multi-Factor Authentication is currently ENABLED.</div>`;
+        } catch (e) {
+            this.notify(e.message || 'Invalid code', 'error');
+            btn.textContent = 'Verify & Enable 2FA';
+            btn.disabled = false;
+        }
     }
 
     // =============================================
@@ -626,7 +773,7 @@ class SPPAdmin {
 
                 let module;
                 // List of views that are strictly core framework views and should not be requested from apps
-                const coreOnlyViews = ['apps', 'commands', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace', 'reports'];
+                const coreOnlyViews = ['apps', 'commands', 'dashboard', 'entities', 'forms', 'identity', 'interdb', 'lifecycle', 'modules', 'parikshak', 'routing', 'services', 'system', 'xdb', 'ai', 'trace', 'reports', 'api_keys', 'mobile', 'docs'];
                 const isCoreView = coreOnlyViews.includes(view);
                 
                 // If a specific app is selected (not 'default' or '__sppadmin__'), and it's not a strict core view, try app-side first
@@ -944,7 +1091,42 @@ class SPPAdmin {
         // Discovery & Resource Sync
         await this.loadApps();
 
+        // Load admin RBAC permissions and gate sidebar
+        await this.loadAdminPermissions();
+
         this.handleRouting();
+    }
+
+    /**
+     * Fetch the current user's admin scopes and hide sidebar items
+     * they don't have access to.
+     */
+    async loadAdminPermissions() {
+        try {
+            const res = await this.api('get_admin_permissions');
+            if (res.success && res.data) {
+                this.adminScopes = res.data.scopes || [];
+                this.adminScopeMap = res.data.scope_map || {};
+                this.applyAdminScopeGating();
+            }
+        } catch (e) {
+            console.warn('[RBAC] Could not load admin permissions, showing all:', e);
+            this.adminScopes = []; // Fail-open: show everything
+        }
+    }
+
+    applyAdminScopeGating() {
+        if (!this.adminScopes || this.adminScopes.length === 0) return;
+
+        document.querySelectorAll('#sidebar-nav .nav-item').forEach(link => {
+            const view = link.getAttribute('data-view');
+            if (!view) return;
+            const requiredScope = this.adminScopeMap[view];
+            if (requiredScope && !this.adminScopes.includes(requiredScope) && !this.adminScopes.includes('admin.*')) {
+                const li = link.closest('li');
+                if (li) li.style.display = 'none';
+            }
+        });
     }
 
     notify(message, type = 'info') {
@@ -1250,12 +1432,46 @@ class SPPAdmin {
     }
 
     async installModule(modname) {
-        this.updateModal('🚀 Synchronizing Module...', 
-            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Applying module structural changes...</div></div>`);
+        this.updateModal('🚀 Installing Module...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Installing module schema and dependencies...</div></div>`);
         
         try {
-            const res = await this.apiPost('install_module', { modname });
-            // The result modal is handled server-side via LiveAction
+            const res = await this.apiPost('setup_module', { modname });
+            if (res.success) {
+                this.updateModal('Success', SPPUX.html`<div class="alert success">${res.message}</div>`);
+            }
+        } catch (err) {
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
+        }
+    }
+
+    async installAllActiveModules() {
+        if (!await this.confirm(`Are you sure you want to install all active modules? This will create tables and execute seeders.`)) return;
+        
+        this.updateModal('📦 Bulk Installing Modules...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Installing all active modules...</div></div>`);
+        
+        try {
+            const res = await this.apiPost('install_all_active');
+            if (res.success) {
+                this.updateModal('Success', SPPUX.html`<div class="alert success">${res.message}</div>`);
+            }
+        } catch (err) {
+            this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
+        }
+    }
+
+    async uninstallModule(modname) {
+        if (!await this.confirm(`Are you sure you want to uninstall ${modname}? This will remove tracking, but retain data.`)) return;
+        
+        this.updateModal('🗑️ Uninstalling Module...', 
+            SPPUX.html`<div style="padding: 2rem; text-align: center;"><div class="sppux-spinner" style="width: 40px; height: 40px; margin: 0 auto 1.5rem auto;"></div><div style="font-size: 1.1rem; opacity: 0.8;">Uninstalling...</div></div>`);
+        
+        try {
+            const res = await this.apiPost('uninstall_module', { modname });
+            if (res.success) {
+                this.updateModal('Success', SPPUX.html`<div class="alert success">${res.message}</div>`);
+            }
         } catch (err) {
             this.updateModal('Error', SPPUX.html`<div class="alert error-alert">${err.message}</div>`);
         }

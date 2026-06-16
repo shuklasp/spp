@@ -14,19 +14,7 @@ ob_start();
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
 
-set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-    if (!(error_reporting() & $errno))
-        return;
-    $msg = "[" . date('Y-m-d H:i:s') . "] PHP Error ($errno): $errstr in $errfile on line $errline\n";
-    file_put_contents(dirname(__DIR__) . "/api_debug.log", $msg, FILE_APPEND);
-});
-register_shutdown_function(function () {
-    $error = error_get_last();
-    if ($error !== NULL && ($error['type'] === E_ERROR || $error['type'] === E_PARSE || $error['type'] === E_CORE_ERROR || $error['type'] === E_COMPILE_ERROR)) {
-        $msg = "[" . date('Y-m-d H:i:s') . "] FATAL SHUTDOWN: {$error['message']} in {$error['file']} on line {$error['line']}\n";
-        file_put_contents(dirname(__DIR__) . "/api_debug.log", $msg, FILE_APPEND);
-    }
-});
+// Relying on global SPPErrorHandler from sppinit.php instead of local handlers.
 
 // Polyfills for PHP < 8.0
 if (!function_exists('str_starts_with')) {
@@ -72,7 +60,7 @@ $dbDir = SPP_BASE_DIR . '/modules/spp/sppdb';
 $cfgDir = SPP_BASE_DIR . '/modules/spp/sppconfig';
 $entDir = SPP_BASE_DIR . '/modules/spp/sppdb';
 
-foreach (['class.sppobject.php', 'class.sppsession.php', 'class.sppbase.php', 'class.sppexception.php', 'sppsystemexceptions.php'] as $f) {
+foreach (['class.sppobject.php', 'class.sppsession.php', 'class.sppbase.php', 'class.sppexception.php', 'sppsystemexceptions.php', 'EntityInterface.php'] as $f) {
     if (file_exists($coreDir . '/' . $f))
         require_once $coreDir . '/' . $f;
 }
@@ -83,7 +71,7 @@ if (file_exists($cfgDir . '/class.sppconfig.php'))
 if (file_exists($entDir . '/class.sppentity.php'))
     require_once $entDir . '/class.sppentity.php';
 
-foreach (['class.sppuser.php', 'class.sppusersession.php'] as $f) {
+foreach (['class.sppuser.php'] as $f) {
     if (file_exists($authDir . '/' . $f))
         require_once $authDir . '/' . $f;
 }
@@ -93,7 +81,7 @@ require_once SPP_BASE_DIR . '/sppinit.php';
 // Load global handlers if available
 $globalPath = dirname(SPP_BASE_DIR) . '/global.php';
 if (file_exists($globalPath)) {
-    require_once $globalPath;
+    // global.php is deprecated, do nothing
 }
 
 /**
@@ -105,21 +93,10 @@ function sendResponse($success, $data = [], $message = '')
     $phpOutput = ob_get_clean();
     $instructions = [];
 
-    // Auto-convert SPPError to LiveAction notifications
-    if (class_exists('SPP\\SPPError')) {
-        $errobj = \SPP\Scheduler::getActiveErrorObj();
-        if ($errobj instanceof \SPP\SPPError) {
-            foreach ($errobj->getErrors() as $errno => $errors) {
-                foreach ($errors as $err) {
-                    $instructions[] = ['action' => 'notify', 'message' => $err['errmsg'], 'type' => 'error'];
-                }
-            }
-            $errobj->destroySelfErrors();
-        }
-    }
+    // Error extraction via LiveAction (SPPError deprecated)
 
     // Handle LiveAction object if passed as data
-    if ($data instanceof \SPPMod\SPPAjax\LiveAction) {
+    if ($data instanceof \SPPMod\SppApi\LiveAction) {
         $la = $data;
         $refl = new \ReflectionClass($la);
         $instrProp = $refl->getProperty('instructions');
@@ -236,7 +213,7 @@ function withContext($targetApp, $callback)
         try {
             \SPP\Scheduler::getProcObj($targetApp);
         } catch (\Exception $e) {
-            new \SPP\App($targetApp, false, 1);
+            new \SPP\App($targetApp);
         }
         \SPP\Scheduler::setContext($targetApp);
         $result = $callback();
@@ -323,7 +300,7 @@ function repairNamespace($class)
     if (empty($class) || strpos($class, '\\') !== false)
         return $class;
     if (strpos($class, 'SPPMod') === 0) {
-        return str_replace(['SPPMod', 'SPPAuth', 'SPPGroup', 'SPPDB'], ['\\SPPMod', '\\SPPAuth', '\\SPPGroup', '\\SPPDB'], $class);
+        return str_replace(['SPPMod', 'SPPAuth', 'SppDb'], ['\\SPPMod', '\\SPPAuth', '\\SppDb'], $class);
     }
     return $class;
 }
@@ -332,6 +309,41 @@ function checkDevMode()
 {
     $settings = getGlobalSettings();
     return strtolower($settings['profile'] ?? '') === 'dev';
+}
+
+function isPublicAdminAction(string $action): bool
+{
+    return in_array($action, [
+        'login',
+        'Auth_Login',
+        'Auth_VerifyMFA',
+        'Auth_SendMagicLink',
+        'Auth_ConsumeMagicLink',
+        'logout',
+        'check_auth',
+        'get_profile',
+    ], true);
+}
+
+function isAdminAuthenticated(): bool
+{
+    try {
+        if (isset($_SESSION['spp_admin_fallback'])) {
+            return true;
+        }
+        if (isset($_SESSION['spp_admin_user'])) {
+            return true;
+        }
+        if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth') && \SPPMod\SPPAuth\SPPAuth::check()) {
+            return true;
+        }
+        if (\SPP\SPPSession::sessionVarExists('__sppauth_user__')) {
+            return true;
+        }
+    } catch (\Throwable $e) {
+        return false;
+    }
+    return false;
 }
 
 // 1. Initial Gating
@@ -368,7 +380,7 @@ try {
         try {
             \SPP\Scheduler::getProcObj($authContext);
         } catch (\Exception $e) {
-            new \SPP\App($authContext, false, 3);
+            new \SPP\App($authContext);
         }
         \SPP\Scheduler::setContext($authContext);
         file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context set to $authContext\n", FILE_APPEND);
@@ -376,15 +388,25 @@ try {
         file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context failure: " . $e->getMessage() . "\n", FILE_APPEND);
     }
 
-    // 3. Action Routing
-    $action = $_POST['action'] ?? $_GET['action'] ?? null;
+    // 3. API Action Routing
+    if (isset($_REQUEST['__api']) && $_REQUEST['__api'] == '1') {
+        \SPPMod\SPPAPI\SPPAPI::handle();
+        exit;
+    }
+
+    if (isset($_REQUEST['__svc'])) {
+        \SPPMod\SppApi\SPPAjax::handle();
+        exit;
+    }
+
+    $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
     if (!$action) {
         $jsonInput = file_get_contents('php://input');
         if (!empty($jsonInput)) {
             $decoded = json_decode($jsonInput, true);
             if ($decoded) {
-                $action = $decoded['action'] ?? null;
+                $action = $decoded['action'] ?? '';
                 $_REQUEST = array_merge($_REQUEST, $decoded);
             }
         }
@@ -392,7 +414,25 @@ try {
 
     require_once __DIR__ . '/services/General.php';
     error_log("Dispatching action: " . $action);
-    \SPPMod\SPPAjax\SPPAjax::resolveAndExecute($action, $_REQUEST);
+
+    if (!isPublicAdminAction($action)) {
+        if (!isAdminAuthenticated()) {
+            sendResponse(false, [], "Authentication required.");
+        }
+        \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::enforceRequestGuards();
+    }
+
+    // Audit log every admin action
+    if (function_exists('spp_admin_audit_log') && !empty($action)) {
+        spp_admin_audit_log($action, $_REQUEST);
+    }
+
+    // RBAC: Gate admin actions by scope
+    if (!isPublicAdminAction($action) && function_exists('gateAdminAction') && !empty($action) && !gateAdminAction($action)) {
+        sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
+    }
+
+    \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $_REQUEST);
 } catch (\Throwable $e) {
     $errorMsg = "[" . date('Y-m-d H:i:s') . "] API FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";
     file_put_contents(SPP_BASE_DIR . "/api_debug.log", $errorMsg, FILE_APPEND);

@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace SPPMod\SPPAPI;
 
@@ -60,7 +61,7 @@ class JWTAuth
      * @param string $secret HMAC signature secret.
      * @return array|false Payload array if valid, false if invalid or expired.
      */
-    public static function decode(string $token, string $secret)
+    public static function decode(string $token, string $secret): array|false
     {
         $parts = explode('.', $token);
         if (count($parts) !== 3) {

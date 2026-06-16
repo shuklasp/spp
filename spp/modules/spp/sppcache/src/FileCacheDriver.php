@@ -26,7 +26,11 @@ class FileCache implements CacheInterface
         }
 
         $content = file_get_contents($file);
-        $data = unserialize($content);
+        $data = json_decode($content, true);
+
+        if (!is_array($data) || !isset($data['expires']) || !array_key_exists('value', $data)) {
+            return null;
+        }
 
         if ($data['expires'] !== 0 && time() > $data['expires']) {
             $this->delete($key);
@@ -51,7 +55,7 @@ class FileCache implements CacheInterface
 
         // Atomic write via temporary file
         $tempFile = $file . '.' . uniqid('', true) . '.tmp';
-        if (file_put_contents($tempFile, serialize($data), LOCK_EX) === false) {
+        if (file_put_contents($tempFile, json_encode($data), LOCK_EX) === false) {
             return false;
         }
 
@@ -100,10 +104,11 @@ class FileCache implements CacheInterface
                 mkdir($dir, 0777, true);
             }
 
-            $existing = file_exists($tagFile) ? unserialize(file_get_contents($tagFile)) : [];
+            $existing = file_exists($tagFile) ? json_decode(file_get_contents($tagFile), true) : [];
+            if (!is_array($existing)) $existing = [];
             $existing[] = $key;
             $existing = array_unique($existing);
-            file_put_contents($tagFile, serialize($existing), LOCK_EX);
+            file_put_contents($tagFile, json_encode($existing), LOCK_EX);
         }
         return $result;
     }
@@ -115,7 +120,7 @@ class FileCache implements CacheInterface
             return true;
         }
 
-        $keys = unserialize(file_get_contents($tagFile));
+        $keys = json_decode(file_get_contents($tagFile), true);
         if (is_array($keys)) {
             foreach ($keys as $key) {
                 $this->delete($key);

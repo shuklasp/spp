@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="sppgroup">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="id" type="INTEGER" autoIncrement="true"/><column name="PRIMARY" type="KEY"/><column name="name" type="VARCHAR" notNull="true" unique="true"/><column name="description" type="VARCHAR"/><column name="metadata" type="LONGTEXT"/><column name="created_at" type="DATETIME"/><column name="updated_at" type="DATETIME"/></_schema>
+  <data>
+  </data>
+<row id="1"><id>1</id><name>Administrators</name><description>System administrators with full access</description></row><row id="2"><id>2</id><name>Operators</name><description>Standard operators with limited access</description></row></database>

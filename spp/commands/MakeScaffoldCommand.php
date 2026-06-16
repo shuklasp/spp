@@ -53,10 +53,10 @@ class MakeScaffoldCommand extends BaseMakeCommand
 
         // 1. Save Entity Definition
         echo "\nSaving Entity Definition... ";
-        if (!class_exists('\SPPMod\SPPEntity\SPPEntity')) {
+        if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
             require_once dirname(__DIR__) . '/sppinit.php';
         }
-        \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+        \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
         echo "OK\n";
 
         // 2. Generate Controller

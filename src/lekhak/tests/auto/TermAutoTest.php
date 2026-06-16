@@ -5,7 +5,7 @@ use App\Lekhak\Entities\Term;
 
 /**
  * Auto-generated Test for Term (Parikshak)
- * Generation Date: 2026-05-19 02:58:30
+ * Generation Date: 2026-06-14 02:23:45
  */
 class TermAutoTest
 {
@@ -15,11 +15,11 @@ class TermAutoTest
         try {
             $entity = new Term();
             $data = array (
-  'vid' => 'PARIKSHAK_FUZZ_608cf',
-  'name' => 'PARIKSHAK_FUZZ_2ef07',
-  'parent_id' => 278537,
+  'vid' => 'PARIKSHAK_FUZZ_510ec',
+  'name' => 'PARIKSHAK_FUZZ_21df4',
+  'parent_id' => 796283,
   'description' => 'UNKNOWN_TYPE_text',
-  'weight' => 719523,
+  'weight' => 38814,
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

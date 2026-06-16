@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPBlade;
+namespace SPPMod\Drishyam;
 
 use eftec\bladeone\BladeOne;
 
@@ -46,97 +46,31 @@ class SPPBlade extends \SPP\SPPObject
         // @module_component('sppauth::login.form')
         // Cross-module component rendering support
         $this->engine->directive('module_component', function ($expression) {
-            return "<?php 
-                \$args = [$expression];
-                \$viewStr = \$args[0];
-                \$data = \$args[1] ?? [];
-                
-                if (strpos(\$viewStr, '::') !== false) {
-                    list(\$modName, \$viewFile) = explode('::', \$viewStr);
-                    \$modClass = \\SPP\\ModuleCompiler::getActiveModuleClass(\$modName);
-                    if (\$modClass) {
-                        \$modInstance = \\SPP\\Module::getModule(\$modClass);
-                        if (\$modInstance) {
-                            \$path = \$modInstance->getModuleDir() . '/views/' . str_replace('.', '/', \$viewFile) . '.blade.php';
-                            if (file_exists(\$path)) {
-                                echo \$this->runString(file_get_contents(\$path), \$data);
-                            }
-                        }
-                    }
-                }
-            ?>";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::module_component($expression); ?>";
         });
 
         // @sppform('login')
         // Loads form from XML/YAML in the app's forms directory
         $this->engine->directive('sppform', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$appName = \SPP\Scheduler::getContext();
-                \$fname = str_replace(['\'', '\"'], '', $expression);
-                \$app = \SPP\App::getApp(\$appName);
-                \$baseDir = \$app->getAppConfDir() . '/forms/';
-                
-                \$formFile = null;
-                foreach (['yml', 'yaml', 'xml'] as \$ext) {
-                    if (file_exists(\$baseDir . \$fname . '.' . \$ext)) {
-                        \$formFile = \$baseDir . \$fname . '.' . \$ext;
-                        break;
-                    }
-                }
-
-                if (\$formFile) {
-                    \SPPMod\SPPView\ViewPage::readFormFile(\$formFile);
-                }
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform($expression); ?>";
         });
 
         // @sppform_start('login')
         $this->engine->directive('sppform_start', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
-                \$fname = str_replace(['\'', '\"'], '', $expression);
-                if (isset(\$forms[\$fname])) {
-                    \$forms[\$fname]->startForm();
-                }
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform_start($expression); ?>";
         });
 
         // @sppform_end
         $this->engine->directive('sppform_end', function () {
-            return "<?php 
-                \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
-                \$activeForm = end(\$forms); // Simplification: get last registered form
-                if (\$activeForm) \$activeForm->endForm();
-            ?>";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform_end(); ?>";
         });
 
         // @sppelement('username', ['class' => 'form-control'])
         $this->engine->directive('sppelement', function ($expression) {
-            return "<?php 
-                \$args = [$expression];
-                \$elemId = \$args[0];
-                \$attrs = \$args[1] ?? [];
-                
-                \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
-                foreach (\$forms as \$form) {
-                    \$elements = \$form->get('element');
-                    if (isset(\$elements[\$elemId])) {
-                        \$el = \$elements[\$elemId];
-                        // If attributes are passed, try to apply them if the element supports it
-                        if (!empty(\$attrs) && method_exists(\$el, 'setAttributes')) {
-                            \$el->setAttributes(\$attrs);
-                        }
-                        echo \$el->getHTML();
-                        break;
-                    }
-                }
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppelement($expression); ?>";
         });
         // @sppauth
         $this->engine->directive('sppauth', function () {
@@ -159,70 +93,25 @@ class SPPBlade extends \SPP\SPPObject
         });
         // @sppbind($entity)
         $this->engine->directive('sppbind', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$forms = \SPPMod\SPPView\ViewPage::getFormsList();
-                \$activeForm = end(\$forms);
-                if (\$activeForm && isset($expression)) {
-                    \$activeForm->bind($expression);
-                }
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppbind($expression); ?>";
         });
         // @react('MyComponent', ['prop' => 'value'])
         $this->engine->directive('react', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$args = [$expression];
-                \$name = \$args[0];
-                \$props = json_encode(\$args[1] ?? []);
-                \$context = \SPP\Scheduler::getContext();
-                \$app = \SPP\App::getApp(\$context);
-                \$srcPath = \SPP\App::getAppConf('src_path', \$context) ?? ('src/' . \$context);
-                \$path = \"/{\$srcPath}/resources/js/react/{\$name}.js\";
-                echo \"<div data-spp-component='1' data-spp-type='react' data-spp-path='{\$path}' data-spp-props='{\$props}'></div>\";
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::react($expression); ?>";
         });
 
         // @vue('MyComponent', ['prop' => 'value'])
         $this->engine->directive('vue', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$args = [$expression];
-                \$name = \$args[0];
-                \$props = json_encode(\$args[1] ?? []);
-                \$context = \SPP\Scheduler::getContext();
-                \$app = \SPP\App::getApp(\$context);
-                \$srcPath = \SPP\App::getAppConf('src_path', \$context) ?? ('src/' . \$context);
-                \$path = \"/{\$srcPath}/resources/js/vue/{\$name}.js\";
-                echo \"<div data-spp-component='1' data-spp-type='vue' data-spp-path='{\$path}' data-spp-props='{\$props}'></div>\";
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::vue($expression); ?>";
         });
 
         // @sppux('ComponentName', ['prop' => 'value'])
         $this->engine->directive('sppux', function ($expression) {
-            if (empty($expression)) {
-                return "";
-            }
-            return "<?php 
-                \$args = [$expression];
-                \$name = \$args[0];
-                \$props = \$args[1] ?? [];
-                if (class_exists('\\\\SPPMod\\\\SPPUX\\\\SPPUX')) {
-                    echo \SPPMod\SPPUX\SPPUX::component(\$name, \$props);
-                } else {
-                    \$propsJson = htmlspecialchars(json_encode(\$props), ENT_QUOTES, 'UTF-8');
-                    \$context = \SPP\Scheduler::getContext();
-                    \$appBaseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
-                    \$path = rtrim(\$appBaseUri, '/') . \"/src/{\$context}/comp/{\$name}.js\";
-                    echo \"<div data-spp-component='1' data-spp-type='ux' data-spp-path='{\$path}' data-spp-props='{\$propsJson}'></div>\";
-                }
-            ?>";
+            if (empty($expression)) return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppux($expression); ?>";
         });
 
         // @drupal_node(123)

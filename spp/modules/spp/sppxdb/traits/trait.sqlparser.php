@@ -1152,7 +1152,7 @@ trait XDB_Sqlparser
             };
 
             // Extract all value blocks: (val1, val2), (val3, val4)
-            preg_match_all('/\((.*?)\)/s', $valuesPart, $valueBlocks);
+            preg_match_all('/\(((?>[^()]+|(?R))*)\)/s', $valuesPart, $valueBlocks);
 
             if (empty($valueBlocks[1])) {
                 throw new Exception("Invalid INSERT syntax: no values block found.");
@@ -1162,7 +1162,7 @@ trait XDB_Sqlparser
             $this->beginTransaction();
             try {
                 foreach ($valueBlocks[1] as $blockIndex => $block) {
-                    $values = array_map('trim', $splitCsv($block));
+                    $values = array_map(function($v) { return trim((string)$v); }, $splitCsv($block));
                     $data = [];
                     foreach ($fields as $i => $f) {
                         $val = $values[$i] ?? null;
@@ -1271,7 +1271,7 @@ trait XDB_Sqlparser
                             $root->appendChild($schemaNode);
                         }
                     }
-                    $this->xpath = new DOMXPath($this->doc);
+                    $this->xpath = new \DOMXPath($this->doc);
                 }
 
                 $colNode = $this->xpath->query("column[@name='{$colName}']", $schemaNode)->item(0);

@@ -26,7 +26,7 @@ function live_Config_InterDB_Save($la, $params) {
 }
 
 function live_Config_Ajax_List($la, $params) {
-    $services = \SPPMod\SPPAjax\SPPAjax::listServices();
+    $services = \SPPMod\SppApi\SPPAjax::listServices();
     $la->setData(['services' => $services]);
 }
 
@@ -40,7 +40,7 @@ function live_Config_Ajax_Save($la, $params) {
         return $la->setStatus('error')->notify("Service name and script are required.");
     }
     
-    \SPPMod\SPPAjax\SPPAjax::registerService($name, $script, $method, $source);
+    \SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source);
     $la->notify("Service '{$name}' registered successfully.", "success");
 }
 function live_Config_GetGlobalSettings($la, $params) {

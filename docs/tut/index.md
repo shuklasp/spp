@@ -36,12 +36,26 @@ Welcome to the official tutorial for the **Satya Portal Pack (SPP) Framework**. 
     - `SPPAuth`: Authentication and Roles
     - `SPPLogger`: Flexible Logging
     - `SPPAI` & `SPPLive`: Vector ORM and WebSockets
+    - `SPPConfig`: .env & YAML Configurations
 9.  [**Project: Building SPP-Twitter**](09_project_twitter.md)
     - Putting it all together
     - A real-world clone
 10. [**Business Intelligence & Reporting**](10_advanced_reporting.md)
     - Zero-dependency dynamic reporting
     - WYSIWYG Print Templates
+11. [**Multi-Engine View Rendering**](11_multi_engine_routing.md)
+    - Twig and Blade Support
+    - ViewCompiler (AST Engine)
+12. [**Live Components (Livewire Clone)**](12_live_components.md)
+    - Reactive State Hydration
+    - WebSockets & AJAX Fallback
+13. [**Security Hardening**](13_security_hardening.md)
+    - The Brutal Audit Defenses
+    - SQLi, LFI, and RCE Protections
+14. [**Project: Blogging Platform**](14_blogging_platform.md)
+    - SPPView Paradigm Implementation
+    - Drishyam Paradigm Implementation
+    - SPPUX Paradigm Implementation
 
 ---
 

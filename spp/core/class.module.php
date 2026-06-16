@@ -40,7 +40,9 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         'Installation',
         'RuntimeBridgeConfig',
         'Routes',
-        'ServiceProvider'
+        'ServiceProvider',
+        'Type',
+        'Compulsory'
     ];
 
     /** @var array<string> */
@@ -63,7 +65,9 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         'Installation',
         'RuntimeBridgeConfig',
         'Routes',
-        'ServiceProvider'
+        'ServiceProvider',
+        'Type',
+        'Compulsory'
     ];
 
     /**
@@ -130,6 +134,16 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         \SPP\Registry::register('__mods=>' . $name, false);
         \SPP\Registry::register('__modobj=>' . $name, null);
     }
+    public static function injectManifestCache(string $file, array $data): void
+    {
+        self::$moduleManifestCache[$file] = $data;
+    }
+
+    public static function getManifestCache(string $file): ?array
+    {
+        return self::$moduleManifestCache[$file] ?? null;
+    }
+
     /**
      * Module constructor.
      *
@@ -238,6 +252,12 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 case 'version':
                     $this->Version = (string) $val;
                     break;
+                case 'type':
+                    $this->Type = (string) $val;
+                    break;
+                case 'compulsory':
+                    $this->Compulsory = filter_var($val, FILTER_VALIDATE_BOOLEAN);
+                    break;
                 case 'pubname':
                 case 'publicname':
                     $this->PublicName = (string) $val;
@@ -300,38 +320,17 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 case 'assets':
                     $this->Assets = (array) $val;
                     break;
+                case 'type':
+                    $this->_attributes['type'] = (string) $val;
+                    break;
+                case 'compulsory':
+                    $this->_attributes['compulsory'] = (bool) $val;
+                    break;
                 default:
                     // Ignore unknown keys (keep robust)
                     break;
             }
         }
-
-        // Merge module-specific routes from etc/routes.yml
-        $routesYml = $this->ModPath . SPP_DS . 'etc' . SPP_DS . 'routes.yml';
-        if (file_exists($routesYml)) {
-            try {
-                $rdata = Yaml::parseFile($routesYml);
-                if (is_array($rdata)) {
-                    if (isset($rdata['routes']) && is_array($rdata['routes'])) {
-                        // Support list format
-                        foreach ($rdata['routes'] as $r) {
-                            if (isset($r['path'])) {
-                                $this->Routes[ltrim($r['path'], '/')] = $r;
-                            }
-                        }
-                    } elseif (isset($rdata['pages']) && is_array($rdata['pages'])) {
-                        // Support map format
-                        $this->Routes = array_merge($this->Routes, $rdata['pages']);
-                    } else {
-                        // Assume direct map
-                        $this->Routes = array_merge($this->Routes, $rdata);
-                    }
-                }
-            } catch (\Exception $e) {
-                // Silently ignore or log parsing error
-            }
-        }
-
         // Basic validation: internal name must be set
         if (empty($this->_attributes['InternalName'])) {
             throw new \SPP\SPPException('Module manifest missing "name" (InternalName).');
@@ -388,8 +387,29 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public static function isCompulsory(string $modname): bool
     {
+        // 1. Check legacy global-settings.yml
         $compulsory = self::getGlobalConfig('settings', 'compulsory_modules', []);
-        return in_array($modname, $compulsory);
+        if (in_array($modname, $compulsory)) {
+            return true;
+        }
+
+        // 2. Check modernized module.yml type and compulsory flag
+        try {
+            $mod = \SPP\Registry::get('__modobj=>' . $modname);
+            if (!$mod) {
+                $modPath = \SPP\Registry::get('__mods=>' . $modname);
+                if ($modPath && file_exists($modPath . '/module.yml')) {
+                    $mod = new self($modPath . '/module.yml');
+                }
+            }
+            if ($mod && $mod->Type === 'core' && $mod->Compulsory === true) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            // Ignore if module not found
+        }
+
+        return false;
     }
 
     /**
@@ -779,17 +799,6 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 \SPP\SPPConfig::registerSchema('mod:' . $this->InternalName, $this->Settings);
             }
 
-            // Automatically scan and register authorized asset routing routes mapping on startup
-            if (!empty($this->Assets)) {
-                $assetDirs = is_array($this->Assets['directories'] ?? null) ? $this->Assets['directories'] : (array) $this->Assets;
-                foreach ($assetDirs as $aDir) {
-                    if (is_string($aDir)) {
-                        $routeKey = 'modasset/' . strtolower($this->InternalName);
-                        \SPP\Registry::register('__asset_routes=>' . $routeKey, $this->ModPath . SPP_DS . trim($aDir, '/'));
-                        break; // Only map the primary asset directory to the root modasset/<modname> route
-                    }
-                }
-            }
         }
     }
 
@@ -876,11 +885,39 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             if (file_exists($cacheFile)) {
                 $compiled = require $cacheFile;
                 if (is_array($compiled)) {
-                    foreach ($compiled as $name => $data) {
-                        self::initFromCache($name, $data);
+                    $meta = $compiled['__meta'] ?? ['manifest_mtime' => 0];
+                    unset($compiled['__meta']);
+
+                    // Verify cache validity by checking timestamps
+                    $isValid = true;
+                    $manifests = [
+                        SPP_ETC_DIR . SPP_DS . 'modules.yml',
+                        SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules.yml',
+                        APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml'
+                    ];
+                    foreach ($manifests as $m) {
+                        if (file_exists($m) && filemtime($m) > $meta['manifest_mtime']) {
+                            $isValid = false; break;
+                        }
                     }
-                    self::$allModulesLoaded = true;
-                    return;
+
+                    if ($isValid) {
+                        foreach ($compiled as $name => $data) {
+                            $modManifest = $data['path'] . SPP_DS . 'module.yml';
+                            if (!file_exists($modManifest)) $modManifest = $data['path'] . SPP_DS . 'module.xml';
+                            if (file_exists($modManifest) && filemtime($modManifest) > $meta['manifest_mtime']) {
+                                $isValid = false; break;
+                            }
+                        }
+                    }
+
+                    if ($isValid) {
+                        foreach ($compiled as $name => $data) {
+                            self::initFromCache($name, $data);
+                        }
+                        self::$allModulesLoaded = true;
+                        return;
+                    }
                 }
             }
         }
@@ -892,6 +929,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         try {
             $registry = $compiler->compileToArray();
             foreach ($registry as $name => $data) {
+                if ($name === '__meta') continue;
                 self::initFromCache($name, $data);
             }
         } catch (\SPP\Exceptions\MissingDependencyException $e) {
@@ -915,6 +953,10 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             $manifestPath = $data['path'] . SPP_DS . 'module.xml';
         }
 
+        if (isset($data['raw_manifest'])) {
+            self::injectManifestCache($manifestPath, $data['raw_manifest']);
+        }
+
         $module = new self($manifestPath);
         $module->ModuleType = $data['type'];
 
@@ -925,20 +967,11 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         }
 
         foreach ($data['includes'] as $file) {
-            $path = $data['path'] . SPP_DS . $file;
-            if (file_exists($path)) {
-                require_once $path;
-            }
+            require_once $data['path'] . SPP_DS . $file;
         }
 
-        $initFile = $data['path'] . SPP_DS . 'modinit.php';
-        if (file_exists($initFile)) {
-            require_once $initFile;
-        }
-
-        $eventsDir = $data['path'] . SPP_DS . 'events';
-        if (is_dir($eventsDir)) {
-            \SPP\SPPEvent::scanAndRegisterDirs($eventsDir);
+        if (!empty($data['has_modinit'])) {
+            require_once $data['path'] . SPP_DS . 'modinit.php';
         }
     }
 
@@ -1933,7 +1966,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public function getInstallationDeltas(): array
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = \SPP\DB::getInstance();
         $deltas = [
             'tables' => [],
             'entities' => [],
@@ -1946,7 +1979,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         // 1. Tables check
         $tables = $install['tables'] ?? [];
         foreach ($tables as $tname => $cols) {
-            $tnameFull = \SPPMod\SPPDB\SPPDB::sppTable($tname);
+            $tnameFull = \SPP\DB::sppTable($tname);
             if (!$db->tableExists($tnameFull)) {
                 $deltas['tables'][] = ['name' => $tname, 'status' => 'missing', 'columns' => $cols];
             } else {
@@ -1971,14 +2004,14 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             if (class_exists($entityClass)) {
                 try {
                     $reflection = new \ReflectionClass($entityClass);
-                    if ($reflection->isSubclassOf('\\SPPMod\\SPPEntity\\SPPEntity')) {
+                    if ($reflection->isSubclassOf('\\SPP\\Core\\EntityInterface')) {
                         // Check if the table for this entity exists
                         $entityName = $reflection->getShortName();
                         $tableName = $entityClass::getMetadata('table');
                         if (!$tableName) {
                             $tableName = strtolower($entityName) . 's';
                         }
-                        $tableName = \SPPMod\SPPDB\SPPDB::sppTable($tableName);
+                        $tableName = \SPP\DB::sppTable($tableName);
 
                         if (!$db->tableExists($tableName)) {
                             $deltas['entities'][] = ['class' => $entityClass, 'status' => 'missing'];
@@ -1996,17 +2029,15 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             $seqName = is_int($key) ? $val : $key;
             $sDef = is_int($key) ? 1 : $val;
 
-            if (!\SPPMod\SPPDB\SPPSequence::sequenceExists($seqName)) {
-                $start = is_array($sDef) ? ($sDef['start'] ?? 1) : $sDef;
-                $inc = is_array($sDef) ? ($sDef['increment'] ?? 1) : 1;
+            $start = is_array($sDef) ? ($sDef['start'] ?? 1) : $sDef;
+            $inc = is_array($sDef) ? ($sDef['increment'] ?? 1) : 1;
 
-                $deltas['sequences'][] = [
-                    'name' => $seqName,
-                    'status' => 'missing',
-                    'start' => (int) $start,
-                    'increment' => (int) $inc
-                ];
-            }
+            $deltas['sequences'][] = [
+                'name' => $seqName,
+                'status' => 'missing',
+                'start' => (int) $start,
+                'increment' => (int) $inc
+            ];
         }
 
         return $deltas;
@@ -2038,13 +2069,13 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      */
     public function runInstallation(): array
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = \SPP\DB::getInstance();
         $deltas = $this->getInstallationDeltas();
         $log = [];
 
         // 1. Process Tables
         foreach ($deltas['tables'] as $t) {
-            $tableName = \SPPMod\SPPDB\SPPDB::sppTable($t['name']);
+            $tableName = \SPP\DB::sppTable($t['name']);
             if ($t['status'] === 'missing') {
                 $db->createTableIncremental($tableName, $t['columns']);
                 $log[] = "Created table: " . $tableName;
@@ -2065,7 +2096,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
         // 3. Process Sequences
         foreach ($deltas['sequences'] as $s) {
-            \SPPMod\SPPDB\SPPSequence::createSequence($s['name'], $s['start'] ?? 1, $s['increment'] ?? 1);
+            \SPP\DB\Sequence::createSequence($s['name'], $s['start'] ?? 1, $s['increment'] ?? 1);
             $log[] = "Created sequence: " . $s['name'];
         }
 
@@ -2140,21 +2171,20 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         $entitiesDir = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'entities';
         if (is_dir($entitiesDir)) {
             $files = glob($entitiesDir . '/*.yml');
-            $db = new \SPPMod\SPPDB\SPPDB();
+            $db = \SPP\DB::getInstance();
             foreach ($files as $f) {
                 $ename = basename($f, '.yml');
 
                 // Refined Class Discovery
                 $classCandidates = [
-                    "\\SPPMod\\SPPEntity\\" . ucfirst($ename),
-                    "\\SPPMod\\SPPEntity\\" . $ename,
+                    "\\App\\" . ucfirst($appname) . "\\Entities\\" . ucfirst($ename),
                     ucfirst($ename),
                     $ename
                 ];
 
                 $className = null;
                 foreach ($classCandidates as $candidate) {
-                    if (class_exists($candidate) && is_subclass_of($candidate, "\\SPPMod\\SPPEntity\\SPPEntity")) {
+                    if (class_exists($candidate) && is_subclass_of($candidate, "\\SPP\\Core\\EntityInterface")) {
                         $className = $candidate;
                         break;
                     }
@@ -2165,7 +2195,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                     $tname = $className::getMetadata('table');
                 } else {
                     // Fallback to basic pluralization/convention if class not found or matched
-                    $tname = \SPPMod\SPPDB\SPPDB::sppTable(strtolower($ename) . 's');
+                    $tname = \SPP\DB::sppTable(strtolower($ename) . 's');
                 }
 
                 if (!empty($tname) && !$db->tableExists((string) $tname)) {
@@ -2222,15 +2252,14 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         foreach ($summary['entities'] as $e) {
             $ename = $e['name'];
             $classCandidates = [
-                "\\SPPMod\\SPPEntity\\" . ucfirst($ename),
-                "\\SPPMod\\SPPEntity\\" . $ename,
+                "\\App\\" . ucfirst(\SPP\Scheduler::getContext()) . "\\Entities\\" . ucfirst($ename),
                 ucfirst($ename),
                 $ename
             ];
 
             $className = null;
             foreach ($classCandidates as $candidate) {
-                if (class_exists($candidate) && is_subclass_of($candidate, "\\SPPMod\\SPPEntity\\SPPEntity")) {
+                if (class_exists($candidate) && is_subclass_of($candidate, "\\SPP\\Core\\EntityInterface")) {
                     $className = $candidate;
                     break;
                 }

@@ -53,10 +53,10 @@ class GenerateCommand extends BaseMakeCommand
                 ]
             ];
 
-            if (!class_exists('\SPPMod\SPPEntity\SPPEntity')) {
+            if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
                 require_once dirname(__DIR__) . '/sppinit.php';
             }
-            \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entity, 'default', $config);
+            \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entity, 'default', $config);
         }
 
         sleep(1);

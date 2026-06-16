@@ -43,19 +43,14 @@ class Queue
 
     public static function push(Job $job, int $delay = 0): bool
     {
-        $payload = base64_encode(serialize($job));
+        $payload = json_encode([
+            'class' => get_class($job),
+            'data' => $job->getData()
+        ]);
         try {
             if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $availableAt = time() + $delay;
-                $db->exec("CREATE TABLE IF NOT EXISTS " . self::$table . " (
-                    id INT AUTO_INCREMENT PRIMARY KEY,
-                    payload LONGTEXT NOT NULL,
-                    attempts INT DEFAULT 0,
-                    reserved_at INT NULL,
-                    available_at INT NOT NULL,
-                    created_at INT NOT NULL
-                )");
                 $db->execute_query("INSERT INTO " . self::$table . " (payload, available_at, created_at) VALUES (?, ?, ?)", [$payload, $availableAt, time()]);
                 return true;
             }
@@ -74,23 +69,33 @@ class Queue
         try {
             if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
                 $db = new \SPPMod\SPPDB\SPPDB();
-                $db->exec("START TRANSACTION");
-                
                 $now = time();
-                $sql = "SELECT id, payload FROM " . self::$table . " WHERE reserved_at IS NULL AND available_at <= $now ORDER BY id ASC LIMIT 1 FOR UPDATE";
+                
+                // Fetch candidate without locking the whole table
+                $sql = "SELECT id, payload FROM " . self::$table . " WHERE reserved_at IS NULL AND available_at <= $now ORDER BY id ASC LIMIT 1";
                 $res = $db->query($sql);
                 
                 if (!empty($res) && isset($res[0])) {
                     $jobRow = $res[0];
-                    $db->execute_query("UPDATE " . self::$table . " SET reserved_at = ?, attempts = attempts + 1 WHERE id = ?", [$now, $jobRow['id']]);
-                    $db->exec("COMMIT");
+                    // Optimistic lock attempt
+                    $db->execute_query("UPDATE " . self::$table . " SET reserved_at = ?, attempts = attempts + 1 WHERE id = ? AND reserved_at IS NULL", [$now, $jobRow['id']]);
                     
-                    $job = unserialize(base64_decode($jobRow['payload']));
-                    if ($job instanceof Job) {
-                        return ['id' => $jobRow['id'], 'job' => $job];
+                    // Verify if we won the reservation
+                    $check = $db->query("SELECT id FROM " . self::$table . " WHERE id = ? AND reserved_at = ?", [$jobRow['id'], $now]);
+                    
+                    if (!empty($check)) {
+                        $decoded = json_decode($jobRow['payload'], true);
+                        if (is_array($decoded) && isset($decoded['class'])) {
+                            $jobClass = $decoded['class'];
+                            if (class_exists($jobClass) && is_subclass_of($jobClass, Job::class)) {
+                                $job = new $jobClass($decoded['data'] ?? []);
+                                if ($job instanceof Job) {
+                                    return ['id' => $jobRow['id'], 'job' => $job];
+                                }
+                            }
+                        }
                     }
                 }
-                $db->exec("COMMIT");
             }
         } catch (\Exception $e) {
             error_log("Queue pop failed: " . $e->getMessage());

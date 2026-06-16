@@ -320,6 +320,24 @@ class SPP_Validator_MatchValidator extends SPP_Single_validator
         return parent::getJsFunction();
     }
 
+    public function getClientScript(): ?string
+    {
+        $id = $this->element ? $this->element->getAttribute('id') : '';
+        if (!$id || !$this->targetField) return null;
+
+        return <<<JS
+        const source = document.getElementById('{$id}');
+        const target = document.querySelector('[name="{$this->targetField}"]') || document.getElementById('{$this->targetField}');
+        if (source && target && source.value !== target.value) {
+            source.setCustomValidity('{$this->msg}');
+            source.reportValidity();
+            return false;
+        } else if (source) {
+            source.setCustomValidity('');
+        }
+JS;
+    }
+
     public function validate(mixed $value): bool
     {
         // Server-side match requires access to the data array, which validateAll provides.
@@ -865,6 +883,28 @@ class SPP_Validator_RequiredIfValidator extends SPP_Single_validator
     {
         $this->setJsParams([$this->targetField, $this->targetValue]);
         return parent::getJsFunction();
+    }
+
+    public function getClientScript(): ?string
+    {
+        $id = $this->element ? $this->element->getAttribute('id') : '';
+        if (!$id || !$this->targetField) return null;
+
+        return <<<JS
+        const source = document.getElementById('{$id}');
+        const target = document.querySelector('[name="{$this->targetField}"]') || document.getElementById('{$this->targetField}');
+        if (source && target && target.value === '{$this->targetValue}') {
+            if (!source.value || source.value.trim() === '') {
+                source.setCustomValidity('{$this->msg}');
+                source.reportValidity();
+                return false;
+            } else {
+                source.setCustomValidity('');
+            }
+        } else if (source) {
+            source.setCustomValidity('');
+        }
+JS;
     }
 
     public function validate(mixed $value): bool

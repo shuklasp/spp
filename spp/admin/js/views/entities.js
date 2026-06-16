@@ -19,7 +19,7 @@ export default class EntitiesView extends BaseComponent {
             currentEntityName: '',
             currentEntitySource: '',
             currentEntityConfig: { table: '', attributes: {}, relations: [] },
-            availableClasses: ['\\SPPMod\\SPPEntity\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'],
+            availableClasses: ['\\SPPMod\\SppDb\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'],
             // --- Inlined SchemaBuilder state ---
             sbEntityName: 'NewEntity',
             sbTableName: '',
@@ -941,7 +941,7 @@ export default class EntitiesView extends BaseComponent {
         const extendsMatch = phpSource.match(/class\s+\w+\s+extends\s+([\w\\]+)/i);
         if (extendsMatch) {
             let cls = extendsMatch[1].trim();
-            if (cls !== 'SPPEntity' && cls !== '\\SPPMod\\SPPEntity\\SPPEntity') {
+            if (cls !== 'SPPEntity' && cls !== '\\SPPMod\\SppDb\\SPPEntity') {
                 config.extends = cls.startsWith('\\') ? cls : '\\\\' + cls;
             } else {
                 delete config.extends;
@@ -978,7 +978,7 @@ export default class EntitiesView extends BaseComponent {
         if (config.extends) {
             php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends ${config.extends}`);
         } else {
-            php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends \\SPPMod\\SPPEntity\\SPPEntity`);
+            php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends \\SPPMod\\SppDb\\SPPEntity`);
         }
         
         if (config.table) {

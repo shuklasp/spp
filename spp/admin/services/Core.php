@@ -297,7 +297,7 @@ if (!function_exists('live_Core_CompileRegistry')) {
     {
         try {
             \SPP\Registry::forceSyncShared();
-            \SPP\SPPEvent::fireEvent('spp_registry_compiled', []);
+            \SPP\SPPEvent::fireEvent('spp_registry_compiled', new \SPP\EventParams([]));
             $la->setData(['message' => 'System Registry Compiled successfully.']);
         } catch (\Exception $e) {
             $la->error("Compile failed: " . $e->getMessage());

@@ -16,6 +16,20 @@ class SPPConfig extends \SPP\SPPObject
 
     private static $schemas = [];
 
+    /** @var array<string, array{getter: callable, setter: callable}> */
+    private static array $providers = [];
+
+    /**
+     * Registers a custom configuration provider for a prefix.
+     */
+    public static function registerProvider(string $prefix, callable $getter, callable $setter): void
+    {
+        self::$providers[$prefix] = [
+            'getter' => $getter,
+            'setter' => $setter
+        ];
+    }
+
     /**
      * Registers a validation schema for a configuration namespace.
      *
@@ -131,19 +145,12 @@ class SPPConfig extends \SPP\SPPObject
             case 'env':
                 $val = self::getFromEnv(implode(':', array_slice($parts, 1)));
                 break;
-            case 'mod':
-                if (count($parts) >= 3) {
-                    $modname = $parts[1];
-                    $modkey = implode(':', array_slice($parts, 2));
-                    $val = \SPP\Module::getConfig($modkey, $modname, $appname);
-                }
-                break;
-            case 'db':
-                $val = self::getFromDb(implode(':', array_slice($parts, 1)), $appname);
-                break;
             default:
-                // No prefix priority: app > global > sys > env
-                $val = self::getFromApp($key, $appname);
+                if (isset(self::$providers[$type])) {
+                    $val = call_user_func(self::$providers[$type]['getter'], implode(':', array_slice($parts, 1)), $appname, $key);
+                } else {
+                    // No prefix priority: app > global > sys > env
+                    $val = self::getFromApp($key, $appname);
                 if ($val === null) {
                     $val = self::getFromGlobal($key);
                 }
@@ -153,12 +160,55 @@ class SPPConfig extends \SPP\SPPObject
                 if ($val === null) {
                     $val = self::getFromEnv($key);
                 }
+                }
                 break;
         }
 
         $result = ($val !== null) ? $val : $default;
+        $result = self::resolveInterpolations($result);
+        
         self::$cache[$cacheKey] = $result;
         return $result;
+    }
+
+    private static function resolveInterpolations(mixed $value): mixed
+    {
+        if (is_string($value) && str_starts_with($value, 'env:')) {
+            $envExp = substr($value, 4);
+            $fallback = null;
+            
+            if (str_contains($envExp, '|')) {
+                $parts = explode('|', $envExp, 2);
+                $envKey = trim($parts[0]);
+                $fallback = trim($parts[1]);
+            } else {
+                $envKey = trim($envExp);
+            }
+
+            $envVal = self::getFromEnv($envKey);
+            $resolved = ($envVal !== null) ? $envVal : $fallback;
+
+            if (is_string($resolved)) {
+                $lower = strtolower($resolved);
+                if ($lower === 'true') return true;
+                if ($lower === 'false') return false;
+                if ($lower === 'null') return null;
+                if (is_numeric($resolved)) {
+                    if (str_contains($resolved, '.')) {
+                        return (float) $resolved;
+                    } elseif (preg_match('/^-?[1-9][0-9]*$/', $resolved) || $resolved === '0') {
+                        return (int) $resolved;
+                    }
+                }
+            }
+            return $resolved;
+        }
+        if (is_array($value)) {
+            foreach ($value as $k => $v) {
+                $value[$k] = self::resolveInterpolations($v);
+            }
+        }
+        return $value;
     }
 
     /**
@@ -191,15 +241,10 @@ class SPPConfig extends \SPP\SPPObject
             case 'sys':
                 self::putToSys($realKey, $value);
                 break;
-            case 'mod':
-                if (count($parts) >= 3) {
-                    $modname = $parts[1];
-                    $modkey = implode(':', array_slice($parts, 2));
-                    \SPP\Module::setConfig($modkey, $value, $modname, $appname);
+            default:
+                if (isset(self::$providers[$type])) {
+                    call_user_func(self::$providers[$type]['setter'], $realKey, $value, $appname, $key);
                 }
-                break;
-            case 'db':
-                self::putToDb($realKey, $value, $appname);
                 break;
         }
 
@@ -225,8 +270,34 @@ class SPPConfig extends \SPP\SPPObject
         return self::getNestedValue($data, $key);
     }
 
+    private static bool $envLoaded = false;
+
+    private static function loadEnv(): void
+    {
+        if (self::$envLoaded) return;
+        self::$envLoaded = true;
+
+        $envFile = defined('SPP_APP_DIR') ? SPP_APP_DIR . SPP_DS . '.env' : '';
+        if ($envFile && file_exists($envFile)) {
+            $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                $line = trim($line);
+                if (str_starts_with($line, '#')) continue;
+                $parts = explode('=', $line, 2);
+                if (count($parts) === 2) {
+                    $k = trim($parts[0]);
+                    $v = trim(trim($parts[1]), '"\'');
+                    $_ENV[$k] = $v;
+                    putenv("$k=$v");
+                }
+            }
+        }
+    }
+
     private static function getFromEnv(string $key): mixed
     {
+        self::loadEnv();
+        
         if (isset($_ENV[$key])) {
             return $_ENV[$key];
         }
@@ -275,21 +346,6 @@ class SPPConfig extends \SPP\SPPObject
         $data = self::loadYaml($file);
         self::setNestedValue($data, $key, $value);
         self::saveYaml($file, $data);
-    }
-
-    private static function getFromDb(string $key, string $appname): mixed
-    {
-        if (class_exists('\\SPPMod\\DBSettings\\DBSettings')) {
-            return \SPPMod\DBSettings\DBSettings::get($key, $appname);
-        }
-        return null;
-    }
-
-    private static function putToDb(string $key, mixed $value, string $appname): void
-    {
-        if (class_exists('\\SPPMod\\DBSettings\\DBSettings')) {
-            \SPPMod\DBSettings\DBSettings::set($key, $value, $appname);
-        }
     }
 
     // --- Performance Caching Layer ---

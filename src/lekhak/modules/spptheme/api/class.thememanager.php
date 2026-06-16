@@ -814,10 +814,10 @@ DRUPAL_FOOTER;
                     // Write to a scoped temporary execution proxy template to render safely
                     $proxyFile = dirname($layoutFile) . DIRECTORY_SEPARATOR . 'layout_proxy.blade.php';
                     file_put_contents($proxyFile, $rawBlade);
-                    echo \SPPMod\SPPBlade\SPPBlade::render($proxyFile, $vars);
+                    echo \SPPMod\Drishyam\SPPBlade::render($proxyFile, $vars);
                     @unlink($proxyFile);
                 } else {
-                    echo \SPPMod\SPPBlade\SPPBlade::render($layoutFile, $vars);
+                    echo \SPPMod\Drishyam\SPPBlade::render($layoutFile, $vars);
                 }
             } else {
                 extract($vars);

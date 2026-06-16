@@ -3,7 +3,7 @@
 namespace SPPMod\SPPLogger;
 
 /*require_once 'class.sppdatabase.php';
-require_once 'class.sppusersession.php';
+
 require_once 'sppfuncs.php';
 require_once 'class.sppsequence.php';
 require_once 'class.sppbase.php';*/
@@ -84,64 +84,29 @@ class SPP_Logger extends \SPP\SPPObject
         }
     }
 
+    private static $targetsMap = [];
+
+    public static function setTarget(string $name, LoggerTargetInterface $target): void
+    {
+        self::$targetsMap[$name] = $target;
+    }
+
     /**
      * Writes log entry to the database.
      */
     public static function write_to_db($message, $level, array $metadata, array $context = [])
     {
-        try {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $tableName = \SPPMod\SPPDB\SPPDB::sppTable('logger');
-
-            // Ensure table and columns exist
-            if (!$db->tableExists($tableName)) {
-                // Must pass the accurately resolved prefixed table block
-                $db->exec_squery('create table %tab% (loggerid varchar(40))', $tableName);
-            }
-
-            // Automatically patch mapping Sequence parameters resolving fatal exception crashes
-            if (!\SPPMod\SPPDB\SPPSequence::sequenceExists('loggerid')) {
-                \SPPMod\SPPDB\SPPSequence::createSequence('loggerid', 1, 1);
-            }
-
-            $requiredCols = [
-                'uid' => 'varchar(50)',
-                'uname' => 'varchar(100)',
-                'ip' => 'varchar(50)',
-                'logtime' => 'datetime',
-                'sessid' => 'varchar(100)',
-                'level' => 'varchar(20)',
-                'descr' => 'text',
-                'context' => 'text',
-                'request_uri' => 'text',
-                'method' => 'varchar(10)',
-                'agent' => 'text'
-            ];
-            $db->add_columns($tableName, $requiredCols);
-
-            $sql = 'insert into %tab%(loggerid,uid,uname,ip,logtime,sessid,level,descr,context,request_uri,method,agent) values(?,?,?,?,?,?,?,?,?,?,?,?)';
-
-            $values = [
-                date('Ymd', time()) . \SPPMod\SPPDB\SPPSequence::next('loggerid', true),
-                $metadata['uid'],
-                $metadata['uname'],
-                $metadata['ip'],
-                $metadata['timestamp'],
-                $metadata['sessid'],
-                $level,
-                $message,
-                json_encode($context),
-                $metadata['uri'],
-                $metadata['method'],
-                $metadata['agent']
-            ];
-
-            $db->exec_squery($sql, $tableName, $values);
-            return true;
-        } catch (\Exception $e) {
-            error_log("Logging to DB failed: " . $e->getMessage());
-            return false;
+        if (isset(self::$targetsMap['db'])) {
+            return self::$targetsMap['db']->write($message, $level, $metadata, $context);
         }
+        
+        if (class_exists('\SPPMod\SPPLogger\DBLoggerProvider')) {
+            $provider = new \SPPMod\SPPLogger\DBLoggerProvider();
+            self::setTarget('db', $provider);
+            return $provider->write($message, $level, $metadata, $context);
+        }
+
+        return false;
     }
 
     /**
@@ -174,15 +139,18 @@ class SPP_Logger extends \SPP\SPPObject
             }
 
             $filePath = $targetDir . "/" . $currentFile;
+            $cleanMessage = str_replace(["\r", "\n"], ' ', $message);
+            $cleanUri = str_replace(["\r", "\n"], ' ', $metadata['uri']);
+            $cleanUid = str_replace(["\r", "\n"], ' ', $metadata['uid']);
             $logLine = sprintf(
                 "[%s] %s.%s: %s %s [URI: %s, UID: %s]\n",
                 $metadata['timestamp'],
                 strtoupper($appname),
                 strtoupper($level),
-                $message,
+                $cleanMessage,
                 json_encode($context),
-                $metadata['uri'],
-                $metadata['uid']
+                $cleanUri,
+                $cleanUid
             );
 
             file_put_contents($filePath, $logLine, FILE_APPEND);

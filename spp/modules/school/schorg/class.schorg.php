@@ -7,7 +7,7 @@ require_once('entityexceptions.php');
  * extends \SPP\SPPObject
  * Deals with ajax calls
  */
-class Organiusation extends \SPPMod\SPPEntity\SPPEntity
+class Organiusation extends \SPPMod\SppDb\SPPEntity
 {
     protected $enttab;
     protected $props = [['pname','varchar(40)'],

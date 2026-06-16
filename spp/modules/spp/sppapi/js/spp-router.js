@@ -191,6 +191,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (data.status === 'redirect' && data.redirect_url) {
+                const lowerUrl = data.redirect_url.trim().toLowerCase();
+                if (lowerUrl.startsWith('javascript:') || lowerUrl.startsWith('vbscript:') || lowerUrl.startsWith('data:')) {
+                    console.error("SPPAjax Blocked Unsafe Redirect");
+                    return;
+                }
                 return await navigate(data.redirect_url);
             }
 
@@ -258,7 +263,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            if (method === 'GET') window.location.href = url;
+            if (method === 'GET') {
+                const lowerFallback = url.trim().toLowerCase();
+                if (!lowerFallback.startsWith('javascript:') && !lowerFallback.startsWith('vbscript:') && !lowerFallback.startsWith('data:')) {
+                    window.location.href = url;
+                }
+            }
         }
     }
 

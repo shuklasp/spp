@@ -4,7 +4,7 @@
  * Tests a polyglot runtime by calling a simple addition function in the bridge library.
  */
 
-$la = $la ?? new \SPPMod\SPPAjax\LiveAction();
+$la = $la ?? new \SPPMod\SppApi\LiveAction();
 $params = $params ?? $_REQUEST;
 
 $lang = $params['lang'] ?? 'python';

@@ -237,10 +237,12 @@ trait XDB_Crud
             }
         }
 
-        $triggerData = ['table' => $this->tableName, 'data' => &$data, 'where' => $where, 'params' => $params];
+        $triggerData = ['table' => $this->tableName, 'data' => $data, 'where' => $where, 'params' => $params];
         if (class_exists('\\SPP\\SPPEvent')) {
-            \SPP\SPPEvent::fireEvent('xdb.before_update', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_update", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.before_update', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_update", $evtTriggerData);
+            $data = $evtTriggerData->getPayload()['data'];
         }
         $xpath = "//row";
         if ($where) {
@@ -347,8 +349,9 @@ trait XDB_Crud
 
         if (class_exists('\\SPP\\SPPEvent')) {
             $triggerData = ['table' => $this->tableName, 'data' => $data, 'count' => $nodes->length ?? 0];
-            \SPP\SPPEvent::fireEvent('xdb.after_update', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_update", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.after_update', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_update", $evtTriggerData);
         }
 
         if (method_exists($this, 'fireObserverEvent')) {
@@ -378,8 +381,11 @@ trait XDB_Crud
 
         $triggerData = ['table' => $this->tableName, 'where' => $where, 'params' => $params];
         if (class_exists('\\SPP\\SPPEvent')) {
-            \SPP\SPPEvent::fireEvent('xdb.before_delete', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_delete", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.before_delete', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_delete", $evtTriggerData);
+            $where = $evtTriggerData->getPayload()['where'];
+            $params = $evtTriggerData->getPayload()['params'];
         }
         $xpath = "//row";
         if ($where) {
@@ -410,8 +416,9 @@ trait XDB_Crud
 
         if (class_exists('\\SPP\\SPPEvent')) {
             $triggerData = ['table' => $this->tableName, 'where' => $where, 'count' => $nodes->length ?? 0];
-            \SPP\SPPEvent::fireEvent('xdb.after_delete', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_delete", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.after_delete', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_delete", $evtTriggerData);
         }
 
         if (method_exists($this, 'fireObserverEvent')) {
@@ -458,10 +465,12 @@ trait XDB_Crud
             }
         }
 
-        $triggerData = ['table' => $this->tableName, 'data' => &$data];
+        $triggerData = ['table' => $this->tableName, 'data' => $data];
         if (class_exists('\\SPP\\SPPEvent')) {
-            \SPP\SPPEvent::fireEvent('xdb.before_insert', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_insert", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.before_insert', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.before_insert", $evtTriggerData);
+            $data = $evtTriggerData->getPayload()['data'];
         }
 
         $this->lastInsertId = $data['id'];
@@ -512,8 +521,9 @@ trait XDB_Crud
 
         if (class_exists('\\SPP\\SPPEvent')) {
             $triggerData = ['table' => $this->tableName, 'data' => $data, 'id' => $this->lastInsertId];
-            \SPP\SPPEvent::fireEvent('xdb.after_insert', $triggerData);
-            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_insert", $triggerData);
+            $evtTriggerData = new \SPP\EventParams($triggerData);
+            \SPP\SPPEvent::fireEvent('xdb.after_insert', $evtTriggerData);
+            \SPP\SPPEvent::fireEvent("xdb.{$this->tableName}.after_insert", $evtTriggerData);
         }
 
         if (method_exists($this, 'fireObserverEvent')) {
@@ -559,13 +569,20 @@ trait XDB_Crud
         $result = $this->doc->save($tempFile);
 
         if ($result !== false) {
-            // Atomic swap
-            if (file_exists($this->filePath)) {
-                @unlink($this->filePath);
-            }
-            $result = @rename($tempFile, $this->filePath);
-            if (!$result) {
-                error_log("SPPXDB::save - FAILED TO RENAME temp file '{$tempFile}' to '{$this->filePath}'");
+            if ($this->lockHandle) {
+                ftruncate($this->lockHandle, 0);
+                rewind($this->lockHandle);
+                $result = fwrite($this->lockHandle, file_get_contents($tempFile)) !== false;
+                fflush($this->lockHandle);
+                @unlink($tempFile);
+            } else {
+                if (file_exists($this->filePath)) {
+                    @unlink($this->filePath);
+                }
+                $result = @rename($tempFile, $this->filePath);
+                if (!$result) {
+                    error_log("SPPXDB::save - FAILED TO RENAME temp file '{$tempFile}' to '{$this->filePath}'");
+                }
             }
         } else {
             error_log("SPPXDB::save - DOMDocument::save FAILED for '{$tempFile}'");

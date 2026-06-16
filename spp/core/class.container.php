@@ -15,6 +15,7 @@ class Container implements ContainerInterface
 {
     private array $bindings = [];
     private array $instances = [];
+    private static array $reflectorCache = [];
 
     /**
      * Bind a service to the container.
@@ -87,19 +88,32 @@ class Container implements ContainerInterface
             return $concrete;
         }
 
-        $reflector = new \ReflectionClass($concrete);
+        if (isset(self::$reflectorCache[$concrete])) {
+            $reflector = self::$reflectorCache[$concrete]['reflector'];
+            $parameters = self::$reflectorCache[$concrete]['parameters'];
+            if ($parameters === null) {
+                return new $concrete();
+            }
+        } else {
+            $reflector = new \ReflectionClass($concrete);
 
-        if (!$reflector->isInstantiable()) {
-            throw new SPPException("Class {$concrete} is not instantiable.");
+            if (!$reflector->isInstantiable()) {
+                throw new SPPException("Class {$concrete} is not instantiable.");
+            }
+
+            $constructor = $reflector->getConstructor();
+            $parameters = $constructor ? $constructor->getParameters() : null;
+
+            self::$reflectorCache[$concrete] = [
+                'reflector' => $reflector,
+                'parameters' => $parameters
+            ];
+
+            if ($parameters === null) {
+                return new $concrete();
+            }
         }
 
-        $constructor = $reflector->getConstructor();
-
-        if (is_null($constructor)) {
-            return new $concrete();
-        }
-
-        $parameters = $constructor->getParameters();
         $dependencies = $this->resolveDependencies($parameters);
 
         return $reflector->newInstanceArgs($dependencies);

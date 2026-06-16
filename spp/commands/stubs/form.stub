@@ -1,0 +1,23 @@
+<?php
+
+namespace {{namespace}};
+
+use SPPMod\SPPView\Form;
+
+/**
+ * Class {{className}}
+ * Auto-generated Form class.
+ */
+class {{className}}
+{
+    /**
+     * Builds and returns the form instance.
+     */
+    public static function build(): \SPPMod\SPPView\ViewForm
+    {
+        return Form::create('{{formName}}', '/{{formRoute}}')
+            ->addText('example_field', 'Example Field', ['required' => true])
+            ->addSubmit('submit_btn', 'Submit')
+            ->build();
+    }
+}

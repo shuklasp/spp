@@ -4,128 +4,151 @@ namespace SPP;
 
 /**
  * class \SPP\SPPEvent
- * Implements event system in Satya Portal Pack.
+ * Modern, fast array-based pub/sub routing for the Event System.
  *
  * @author Satya Prakash Shukla
- *
  */
 class SPPEvent extends \SPP\SPPObject
 {
-    private static array $events = [];
-    private static array $activeHandlers = [];
-    private static array $collectedTrace = [];
-    private static array $scannedDirs = [];
-    private static bool $dirsRegistered = false;
     private static array $listeners = [];
+    private static array $eventDefinitions = [];
+    private static array $collectedTrace = [];
+    private static bool $booted = false;
 
-    public static function registerEventHandler(string $event_name, callable $callback)
-    {
-        self::$listeners[$event_name][] = $callback;
-        self::registerEvent($event_name);
-    }
-
-    /**
-     * Constructor
-     * Declared private to prevent creation of an object.
-     */
-    private function __construct()
-    {
-        // parent::__construct();
-    }
+    private function __construct() {}
 
     /**
-     * function registerEvent()
-     * Registers an event.
-     *
-     * @param string $event_name Name of event.
+     * Boot the event system by loading explicit definitions from events.yml 
+     * in core, app, and modules.
      */
-    public static function registerEvent(string $event_name, ?string $default_handler = null)
+    public static function boot()
     {
-        if (!array_key_exists($event_name, self::$events)) {
-            self::$events[$event_name] = [
-                'defaulthandler' => $default_handler,
-                'handlers' => [],
-                'overriders' => false
-            ];
+        if (self::$booted) return;
+        self::$booted = true;
+
+        // Try to load cached events
+        $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
+        if (file_exists($cacheFile)) {
+            $data = require $cacheFile;
+            self::$listeners = $data['listeners'] ?? [];
+            self::$eventDefinitions = $data['definitions'] ?? [];
+            return;
+        }
+
+        // We only scan explicitly known yml files, NO SCANDIR loops over class files!
+        self::parseEventsYml(SPP_BASE_DIR . SPP_DS . 'etc' . SPP_DS . 'events.yml');
+        self::parseEventsYml((defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'etc' . SPP_DS . 'events.yml');
+
+        // Check active context
+        $context = \SPP\Scheduler::getContext();
+        if ($context !== '') {
+            $appDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR;
+            self::parseEventsYml($appDir . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'etc' . SPP_DS . 'events.yml');
+        }
+
+        // Modules
+        $mods = \SPP\Registry::get('__mods');
+        if (is_array($mods)) {
+            foreach ($mods as $modname => $modpath) {
+                self::parseEventsYml($modpath . SPP_DS . 'etc' . SPP_DS . 'events.yml');
+            }
+        }
+
+        // Save cache
+        $dir = dirname($cacheFile);
+        if (!is_dir($dir)) {
+            @mkdir($dir, 0777, true);
+        }
+        $cacheableListeners = [];
+        foreach (self::$listeners as $evt => $handlers) {
+            foreach ($handlers as $h) {
+                if (!($h['callback'] instanceof \Closure)) {
+                    $cacheableListeners[$evt][] = $h;
+                }
+            }
+        }
+        $export = var_export(['listeners' => $cacheableListeners, 'definitions' => self::$eventDefinitions], true);
+        @file_put_contents($cacheFile, "<?php\nreturn " . $export . ";\n");
+    }
+
+    private static function parseEventsYml(string $ymlFile)
+    {
+        if (!file_exists($ymlFile)) return;
+
+        $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($ymlFile);
+        if (is_array($parsed) && isset($parsed['events']) && is_array($parsed['events'])) {
+            foreach ($parsed['events'] as $evtName => $eventData) {
+                // If it's a complex definition object
+                if (is_array($eventData) && (isset($eventData['listeners']) || isset($eventData['overridable']) || isset($eventData['default_handler']))) {
+                    
+                    if (isset($eventData['overridable']) || isset($eventData['default_handler'])) {
+                        self::defineEvent($evtName, $eventData['default_handler'] ?? null, $eventData['overridable'] ?? false);
+                    }
+                    
+                    $handlersList = $eventData['listeners'] ?? [];
+                } else {
+                    // Backwards compatible simple list of handlers
+                    $handlersList = $eventData;
+                }
+
+                if (is_array($handlersList)) {
+                    foreach ($handlersList as $handlerData) {
+                        if (is_array($handlerData) && isset($handlerData['class'])) {
+                            self::registerHandler($evtName, $handlerData['class'], false, $handlerData['priority'] ?? 500);
+                        } else {
+                            self::registerHandler($evtName, $handlerData);
+                        }
+                    }
+                } elseif (is_string($handlersList)) {
+                    self::registerHandler($evtName, $handlersList);
+                }
+            }
         }
     }
 
     /**
-     * function getEvents()
-     * Returns all registered events.
-     *
-     * @return array All registered events.
+     * Define an overridable event
      */
-    public static function getEvents()
+    public static function defineEvent(string $event, $defaultHandler = null, bool $overridable = false): void
     {
-        return self::$events;
-    }
-
-    public static function markOverrider($event_name)
-    {
-        if (isset(self::$events[$event_name])) {
-            self::$events[$event_name]['overriders'] = true;
-        }
-    }
-
-    public static function getDefaultHandler($event_name)
-    {
-        $events = self::getEvents();
-
-        if (array_key_exists($event_name, $events)) {
-            return $events[$event_name]['defaulthandler'];
-        } else {
-            throw new \SPP\SPPException('Event "' . $event_name . '" not registered!');
-        }
+        self::$eventDefinitions[$event] = [
+            'default_handler' => $defaultHandler,
+            'overridable' => $overridable,
+        ];
     }
 
     /**
-     * function hasDefaultHandler()
-     * Checks if a default handler is registered for an event.
-     *
-     * @param string $event_name Name of event.
+     * Explicit hook registration
      */
-    public static function hasDefaultHandler($event_name)
+    public static function listen(string $event, $callback, bool $isOverride = false, int $priority = 500): void
     {
-        return (self::getDefaultHandler($event_name) !== null);
+        if ($isOverride) {
+            $def = self::$eventDefinitions[$event] ?? null;
+            if ($def && !$def['overridable']) {
+                throw new \SPP\SPPException("Event {$event} is not overridable.");
+            }
+            // Override completely replaces listeners for the main event hook
+            self::$listeners[$event] = [['callback' => $callback, 'priority' => $priority]];
+            return;
+        }
+
+        if (!isset(self::$listeners[$event])) {
+            self::$listeners[$event] = [];
+        }
+
+        self::$listeners[$event][] = ['callback' => $callback, 'priority' => $priority];
+
+        // Sort by priority
+        usort(self::$listeners[$event], function($a, $b) {
+            return $b['priority'] <=> $a['priority'];
+        });
     }
 
     /**
-     * function registerEvents()
-     * Registers multiple events.
-     *
-     * @param array $events Array of event names.
+     * Legacy registration wrapper
      */
-    public static function registerEvents(array $events)
+    public static function registerHandler(string $event_name, string $handler_name, bool $default = false, int $priority = 500)
     {
-        foreach ($events as $event) {
-            self::registerEvent($event);
-        }
-    }
-
-    /**
-     * function registerHandler()
-     * Registers a handler for an event.
-     *
-     * @param string $event_name Name of event.
-     * @param string $handler_name Name of handler function or FQCN.
-     * @param bool $default Default handler.
-     * @param string|null $method Specific method for Subscribers.
-     * @param int|null $priority Execution priority.
-     */
-    public static function registerHandler(string $event_name, string $handler_name, bool $default = false, ?string $method = null, ?int $priority = null)
-    {
-        // Normalize event name if it's a class
-        if (class_exists($event_name) && is_subclass_of($event_name, SPPEventObject::class)) {
-            $temp = new $event_name();
-            $event_name = $temp->getName();
-        }
-
-        if (!array_key_exists($event_name, self::$events)) {
-            self::registerEvent($event_name, $default ? $handler_name : null);
-        }
-
-        // Resolve class name
         $className = $handler_name;
         if (!class_exists($className)) {
             if (class_exists('EventHandlers\\' . $handler_name)) {
@@ -135,683 +158,114 @@ class SPPEvent extends \SPP\SPPObject
             }
         }
 
-        if (!is_subclass_of($className, '\\SPP\\EventHandler')) {
-            return false;
+        // For backwards compatibility, if they pass a class name, we assume it's an EventHandler 
+        // that handles its own registration via initHandler(), so we instantiate it ONCE.
+        if (class_exists($className) && is_subclass_of($className, '\\SPP\\EventHandler')) {
+            $instance = new $className($event_name, $default);
+            return true;
         }
-
-        if ($default) {
-            self::$events[$event_name]['defaulthandler'] = $handler_name;
+        
+        // If it's a string but not an EventHandler class, we register it as a callable fallback
+        if (!$default) {
+            self::listen($event_name, $className, false, $priority);
         } else {
-            // Check for duplicates
-            foreach (self::$events[$event_name]['handlers'] as $h) {
-                if (is_array($h) && $h['class'] === $className && $h['method'] === $method) {
-                    return true;
-                }
-                if (!is_array($h) && $h === $className && $method === null) {
-                    return true;
-                }
-            }
-
-            // Get priority from class if not provided
-            if ($priority === null) {
-                $instance = self::getHandlerInstance($className);
-                $priority = $instance ? $instance->getPriority() : 500;
-            }
-
-            self::$events[$event_name]['handlers'][] = [
-                'class'    => $className,
-                'method'   => $method,
-                'priority' => $priority
-            ];
+            self::defineEvent($event_name, $className, true);
         }
-
         return true;
     }
 
     /**
-     * function registerHandlers()
-     * Registers multiple handlers for an event.
-     *
-     * @param array $handlers Array of handler names.
-     * @param bool $default Default handler.
+     * Trigger explicit before hooks
      */
-    public static function registerHandlers(string $event_name, array $handlers, bool $default = false)
+    public static function startEvent(string $event_name, \SPP\EventParams $params)
     {
-        foreach ($handlers as $handler) {
-            self::registerHandler($event_name, $handler, $default);
-        }
-    }
-
-    /****
-     * function startEvent()
-     * Starts an event.
-     */
-    public static function startEvent(string $event_name, array &$params = [])
-    {
-        if (!array_key_exists($event_name, self::$events)) {
-            return;
-        }
-
-        self::trace("Starting event: [{$event_name}]");
-        $handlers = self::getSortedHandlers($event_name);
-        foreach ($handlers as $h) {
-            $instance = self::callHandler($h, 'before', $params);
-            if ($instance instanceof \SPP\EventHandler && $instance->isPropagationStopped()) {
-                self::trace("  !! Propagation STOPPED during StartEvent");
-                break;
-            }
-        }
+        self::triggerHook('before_' . $event_name, $params);
     }
 
     /**
-     * function endEvent()
-     * Ends an event.
+     * Trigger explicit after hooks
      */
-    public static function endEvent($event_name, &$params = [])
+    public static function endEvent(string $event_name, \SPP\EventParams $params)
     {
-        if (!array_key_exists($event_name, self::$events)) {
-            return;
-        }
-
-        self::trace("Ending event: [{$event_name}]");
-        $handlers = self::getSortedHandlers($event_name);
-        foreach ($handlers as $h) {
-            $instance = self::callHandler($h, 'after', $params);
-            if ($instance instanceof \SPP\EventHandler && $instance->isPropagationStopped()) {
-                self::trace("  !! Propagation STOPPED during EndEvent");
-                break;
-            }
-        }
+        self::triggerHook('after_' . $event_name, $params);
     }
 
     /**
-     * function overrideEvent()
-     * Overrides a fireable event.
+     * Dispatch an event.
      */
-    public static function overrideEvent($event_name, &$params = [])
-    {
-        if (!array_key_exists($event_name, self::$events)) {
-            return;
-        }
-
-        self::trace("Overriding event: [{$event_name}]");
-        $handlers = self::getSortedHandlers($event_name);
-        foreach ($handlers as $h) {
-            $h_class = is_array($h) ? $h['class'] : $h;
-            if (self::hasOverrider($h_class)) {
-                $instance = self::callHandler($h, 'override', $params);
-                self::$events[$event_name]['overriders'] = true;
-                if ($instance instanceof \SPP\EventHandler && $instance->isPropagationStopped()) {
-                    self::trace("  !! Propagation STOPPED during OverrideEvent");
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * function hasOverrider()
-     * Checks if an event has an overrider.
-     *
-     * @param string $handler_name Name of handler.
-     * @return bool
-     */
-    public static function hasOverrider($handler_name)
-    {
-        return method_exists($handler_name, 'overrideHandler') ||
-               method_exists('EventHandlers\\' . $handler_name, 'overrideHandler');
-    }
-
-    /**
-     * function dispatch()
-     * Dispatches a modern Event Object.
-     *
-     * @param SPPEventObject $event
-     */
-    public static function dispatch(SPPEventObject $event)
-    {
-        self::fireEvent($event->getName(), $event);
-    }
-
-    /**
-     * function fireEvent()
-     * Fires an overridable event.
-     */
-    public static function fireEvent($event_name, mixed &$params = [], mixed $inline_handler = null)
-    {
-        // Bridge: Route through the new EventManager
-        $result = \SPP\Core\EventManager::trigger($event_name, $params);
-        if ($result !== null) {
-            return $result; // If handled purely by EventManager overrides
-        }
-
-        if (!array_key_exists($event_name, self::$events) && !isset(self::$listeners[$event_name])) {
-            return;
-        }
-
-        self::trace("Firing event: [{$event_name}]");
-        $traceId = count(self::$collectedTrace);
-        self::$collectedTrace[] = [
-            'event' => $event_name,
-            'timestamp' => microtime(true),
-            'handlers' => []
-        ];
-
-        if (isset(self::$listeners[$event_name])) {
-            foreach (self::$listeners[$event_name] as $cb) {
-                self::trace("  -> Executing inline listener closure");
-                $cb($params);
-            }
-        }
-
-        $overridden = false;
-        $handlers = self::getSortedHandlers($event_name);
-
-        // Stage 1: Before
-        foreach ($handlers as $h) {
-            $h_desc = is_array($h) ? ($h['class'] . ($h['method'] ? "@{$h['method']}" : "")) : $h;
-            self::trace("  -> Executing Before: {$h_desc}");
-            $instance = self::callHandler($h, 'before', $params);
-
-            self::$collectedTrace[$traceId]['handlers'][] = [
-                'stage' => 'before',
-                'handler' => $h_desc,
-                'stopped' => false
-            ];
-
-            // Handle propagation stop (for both legacy and object modes)
-            $stopped = ($params instanceof SPPEventObject) ? $params->isPropagationStopped() : ($instance && $instance->isPropagationStopped());
-            if ($stopped) {
-                self::trace("  !! Propagation STOPPED by {$h_desc}");
-                $lastIdx = count(self::$collectedTrace[$traceId]['handlers']) - 1;
-                self::$collectedTrace[$traceId]['handlers'][$lastIdx]['stopped'] = true;
-                return;
-            }
-        }
-
-        // Stage 2: Override
-        foreach ($handlers as $h) {
-            $h_class = is_array($h) ? $h['class'] : $h;
-            if (self::hasOverrider($h_class)) {
-                $h_desc = is_array($h) ? ($h['class'] . ($h['method'] ? "@{$h['method']}" : "")) : $h;
-                self::trace("  -> Executing Override: {$h_desc}");
-                $instance = self::callHandler($h, 'override', $params);
-                $overridden = true;
-
-                self::$collectedTrace[$traceId]['handlers'][] = [
-                    'stage' => 'override',
-                    'handler' => $h_desc,
-                    'stopped' => false
-                ];
-
-                $stopped = ($params instanceof SPPEventObject) ? $params->isPropagationStopped() : ($instance && $instance->isPropagationStopped());
-                if ($stopped) {
-                    self::trace("  !! Propagation STOPPED during Override");
-                    $lastIdx = count(self::$collectedTrace[$traceId]['handlers']) - 1;
-                    self::$collectedTrace[$traceId]['handlers'][$lastIdx]['stopped'] = true;
-                    break;
-                }
-            }
-        }
-
-        // Stage 3: Default (if not overridden)
-        if (!$overridden) {
-            if ($inline_handler !== null && (is_object($inline_handler) || is_array($inline_handler)) && is_callable($inline_handler)) {
-                self::trace("  -> Executing Inline/Anonymous handler");
-                $inline_handler($params);
-            } elseif ($inline_handler !== null && is_string($inline_handler)) {
-                // String handler class name passed as inline default
-                self::trace("  -> Executing Inline Default Handler (class): {$inline_handler}");
-                self::callHandler($inline_handler, 'default', $params);
-            } else {
-                $default = self::$events[$event_name]['defaulthandler'];
-
-                if ($default !== null) {
-                    self::trace("  -> Executing Default Handler: {$default}");
-                    self::callHandler($default, 'default', $params);
-                } else {
-                    // Optional event hook - return silently
-                    self::trace("  .. Event '{$event_name}' has no handlers. Continuing.");
-                    return;
-                }
-            }
-        }
-
-        // Stage 4: After
-        foreach ($handlers as $h) {
-            $h_desc = is_array($h) ? ($h['class'] . ($h['method'] ? "@{$h['method']}" : "")) : $h;
-            self::trace("  -> Executing After: {$h_desc}");
-            $instance = self::callHandler($h, 'after', $params);
-
-            self::$collectedTrace[$traceId]['handlers'][] = [
-                'stage' => 'after',
-                'handler' => $h_desc,
-                'stopped' => false
-            ];
-
-            $stopped = ($params instanceof SPPEventObject) ? $params->isPropagationStopped() : ($instance && $instance->isPropagationStopped());
-            if ($stopped) {
-                self::trace("  !! Propagation STOPPED during After stage");
-                $lastIdx = count(self::$collectedTrace[$traceId]['handlers']) - 1;
-                self::$collectedTrace[$traceId]['handlers'][$lastIdx]['stopped'] = true;
-                break;
-            }
-        }
-    }
-
-    /**
-     * Internal helper to sort handlers by priority.
-     */
-    private static function getSortedHandlers(string $event_name): array
-    {
-        $handlers = self::$events[$event_name]['handlers'] ?? [];
-        if (empty($handlers)) {
-            return [];
-        }
-
-        // Normalize handlers and get priorities
-        $normalized = [];
-        foreach ($handlers as $h) {
-            if (is_array($h)) {
-                $normalized[] = $h;
-            } else {
-                $instance = self::getHandlerInstance($h);
-                $priority = $instance ? $instance->getPriority() : 500;
-                $normalized[] = ['class' => $h, 'method' => null, 'priority' => $priority];
-            }
-        }
-
-        usort($normalized, function ($a, $b) {
-            return ($b['priority'] ?? 500) <=> ($a['priority'] ?? 500);
-        });
-
-        return $normalized;
-    }
-
-    /**
-     * Internal helper to get/create handler instance and call it.
-     */
-    private static function callHandler($handler_data, $occurence, mixed &$params = []): ?\SPP\EventHandler
-    {
-        $handler_name = is_array($handler_data) ? $handler_data['class'] : $handler_data;
-        $custom_method = is_array($handler_data) ? $handler_data['method'] : null;
-
-        $instance = self::getHandlerInstance($handler_name, $occurence);
-        if (!$instance) {
-            return null;
-        }
-
-        // If a custom method is provided (Subscriber), we call it instead of stage-specific ones
-        if ($custom_method && $occurence !== 'default') {
-            if (method_exists($instance, $custom_method)) {
-                $instance->$custom_method($params, $occurence);
-            }
-            return $instance;
-        }
-
-        if ($occurence === 'before' && method_exists($instance, 'beforeHandler')) {
-            $instance->beforeHandler($params);
-        } elseif ($occurence === 'override' && method_exists($instance, 'overrideHandler')) {
-            $instance->overrideHandler($params);
-        } elseif ($occurence === 'after' && method_exists($instance, 'afterHandler')) {
-            $instance->afterHandler($params);
-        } elseif ($occurence === 'default' && method_exists($instance, 'overrideHandler')) {
-            $instance->overrideHandler($params);
-        }
-
-        return $instance;
-    }
-
-    private static function trace(string $message): void
+    public static function fireEvent($event_name, \SPP\EventParams $params, ?callable $inline_handler = null)
     {
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
             $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
-            if (!is_dir($logDir)) {
-                @mkdir($logDir, 0777, true);
-            }
-            $logFile = $logDir . '/events.log';
-            $timestamp = date('Y-m-d H:i:s');
-            @file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
-        }
-    }
-
-    /**
-     * Internal helper to get/create handler instance.
-     */
-    private static function getHandlerInstance(string $handler_name, string $occurence = 'before'): ?\SPP\EventHandler
-    {
-        $class = $handler_name;
-        if (!class_exists($class)) {
-            $namespace = ($occurence === 'default') ? '\\EventHandlers\\Defaults\\' : '\\EventHandlers\\';
-            $class = $namespace . $handler_name;
+            if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
+            @file_put_contents($logDir . '/events.log', "[" . date('Y-m-d H:i:s') . "] Firing event: [{$event_name}]\n", FILE_APPEND);
         }
 
-        // File-based fallback: try to load from known event directories
-        if (!class_exists($class)) {
-            $subDir = ($occurence === 'default') ? 'Defaults' . SPP_DS : '';
-            $candidateDirs = [
-                SPP_BASE_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
-                SPP_APP_DIR . SPP_DS . 'events' . SPP_DS . $subDir,
-            ];
+        self::triggerHook('before_' . $event_name, $params);
 
-            $context = \SPP\Scheduler::getContext();
-            if ($context !== '') {
-                $candidateDirs[] = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'events' . SPP_DS . $subDir;
-            }
-
-            $srcBase = SPP_APP_DIR . SPP_DS . 'src';
-            if (is_dir($srcBase)) {
-                foreach (scandir($srcBase) as $d) {
-                    if ($d !== '.' && $d !== '..') {
-                        $candidateDirs[] = $srcBase . SPP_DS . $d . SPP_DS . 'events' . SPP_DS . $subDir;
-                    }
+        if (!$params->isPropagationStopped()) {
+            if (!empty(self::$listeners['instead_' . $event_name])) {
+                self::triggerHook('instead_' . $event_name, $params);
+            } else {
+                if (is_callable($inline_handler)) {
+                    call_user_func($inline_handler, $params);
                 }
-            }
-
-            foreach ($candidateDirs as $dir) {
-                $file = $dir . $handler_name . '.php';
-                if (file_exists($file)) {
-                    require_once $file;
-                    break;
-                }
+                self::triggerHook($event_name, $params);
             }
         }
-
-        if (!class_exists($class)) {
-            return null;
-        }
-
-        if (!isset(self::$activeHandlers[$class])) {
-            $instance = new $class();
-            if (!$instance instanceof \SPP\EventHandler) {
-                return null;
-            }
-            self::$activeHandlers[$class] = $instance;
-        }
-        return self::$activeHandlers[$class];
-    }
-
-    /**
-     * function scanHandlers()
-     * Scans the event handlers.
-     */
-    public static function scanHandlers()
-    {
-        $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
-
-        $globalSettingsFile = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : SPP_BASE_DIR . SPP_DS . 'etc') . SPP_DS . 'global-settings.yml';
-        $alwaysScan = false;
-        if (file_exists($globalSettingsFile)) {
-            $parsedGlobal = @\Symfony\Component\Yaml\Yaml::parseFile($globalSettingsFile);
-            if (isset($parsedGlobal['settings']['events']['auto_scan']) && $parsedGlobal['settings']['events']['auto_scan'] === true) {
-                $alwaysScan = true;
-            }
-        }
-
-        if (!$alwaysScan && file_exists($cacheFile)) {
-            $cached = require $cacheFile;
-            if (is_array($cached)) {
-                foreach ($cached as $evt => $data) {
-                    if (!isset(self::$events[$evt])) self::$events[$evt] = $data;
-                    else self::$events[$evt]['handlers'] = array_merge(self::$events[$evt]['handlers'], $data['handlers']);
-                }
-            }
-            return;
-        }
-
-        self::scanDirectory(SPP_BASE_DIR . SPP_DS . 'events', 'EventHandlers');
-        self::scanDirectory(SPP_APP_DIR . SPP_DS . 'events', 'EventHandlers');
-
-        $context = \SPP\Scheduler::getContext();
-        if ($context !== '') {
-            $appEventsDir = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $context . SPP_DS . 'events';
-            if (is_dir($appEventsDir)) {
-                self::scanDirectory($appEventsDir, 'EventHandlers');
-            }
-        }
-
-        $srcBase = SPP_APP_DIR . SPP_DS . 'src';
-        if (is_dir($srcBase)) {
-            foreach (scandir($srcBase) as $d) {
-                if ($d !== '.' && $d !== '..') {
-                    $evDir = $srcBase . SPP_DS . $d . SPP_DS . 'events';
-                    if (is_dir($evDir)) {
-                        self::scanDirectory($evDir, 'EventHandlers');
-                    }
-                    
-                    // Parse etc/events.yml for explicit declarations
-                    $appEventsYml = $srcBase . SPP_DS . $d . SPP_DS . 'etc' . SPP_DS . 'events.yml';
-                    if (file_exists($appEventsYml)) {
-                        $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($appEventsYml);
-                        if (is_array($parsed) && isset($parsed['events']) && is_array($parsed['events'])) {
-                            foreach ($parsed['events'] as $evtName => $handlersList) {
-                                if (is_array($handlersList)) {
-                                    foreach ($handlersList as $handlerClass) {
-                                        self::registerHandler($evtName, $handlerClass);
-                                    }
-                                } else {
-                                    self::registerHandler($evtName, $handlersList);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $mods = \SPP\Registry::get('__mods');
-        if (is_array($mods)) {
-            foreach ($mods as $modname => $modpath) {
-                $dir = $modpath . SPP_DS . 'events';
-                $namespace = 'SPPMod\\' . ucfirst($modname) . '\\Events';
-                self::scanDirectory($dir, $namespace);
-                
-                // Parse module.yml for explicit event declarations
-                $ymlFile = $modpath . SPP_DS . 'module.yml';
-                if (file_exists($ymlFile)) {
-                    $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($ymlFile);
-                    if (is_array($parsed) && isset($parsed['module']['events']) && is_array($parsed['module']['events'])) {
-                        foreach ($parsed['module']['events'] as $evtName => $handlersList) {
-                            if (is_array($handlersList)) {
-                                foreach ($handlersList as $handlerClass) {
-                                    self::registerHandler($evtName, $handlerClass);
-                                }
-                            } else {
-                                self::registerHandler($evtName, $handlersList);
-                            }
-                        }
-                    }
-                }
-
-                // Parse etc/events.yml for dedicated module event declarations
-                $modEventsYml = $modpath . SPP_DS . 'etc' . SPP_DS . 'events.yml';
-                if (file_exists($modEventsYml)) {
-                    $parsed = @\Symfony\Component\Yaml\Yaml::parseFile($modEventsYml);
-                    if (is_array($parsed) && isset($parsed['events']) && is_array($parsed['events'])) {
-                        foreach ($parsed['events'] as $evtName => $handlersList) {
-                            if (is_array($handlersList)) {
-                                foreach ($handlersList as $handlerClass) {
-                                    self::registerHandler($evtName, $handlerClass);
-                                }
-                            } else {
-                                self::registerHandler($evtName, $handlersList);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        $dir = dirname($cacheFile);
-        if (!is_dir($dir)) {
-            @mkdir($dir, 0777, true);
-        }
-        $export = var_export(self::$events, true);
-        @file_put_contents($cacheFile, "<?php\nreturn " . $export . ";\n");
-    }
-
-    /**
-     * Internal helper to scan a directory for handlers.
-     */
-    private static function scanDirectory(string $dir, string $namespace): void
-    {
-        if (!is_dir($dir) || isset(self::$scannedDirs[$dir])) {
-            return;
-        }
-        self::$scannedDirs[$dir] = true;
-
-        $files = scandir($dir);
-        foreach ($files as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
-            }
-
-            $path = $dir . SPP_DS . $file;
-            if (is_file($path) && pathinfo($path, PATHINFO_EXTENSION) === 'php') {
-                require_once $path;
-                $class = pathinfo($file, PATHINFO_FILENAME);
-
-                $fqcn = '\\' . trim($namespace, '\\') . '\\' . $class;
-                if (class_exists($fqcn) && is_subclass_of($fqcn, '\\SPP\\EventHandler')) {
-                    // Check for Subscriber
-                    $subscribed = $fqcn::getSubscribedEvents();
-                    if (!empty($subscribed)) {
-                        foreach ($subscribed as $event => $mapping) {
-                            $method = is_array($mapping) ? $mapping[0] : $mapping;
-                            $priority = is_array($mapping) ? ($mapping[1] ?? 500) : 500;
-                            self::registerHandler($event, $fqcn, false, $method, $priority);
-                        }
-                    } else {
-                        self::registerHandler($class, $fqcn);
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * function registerDirs()
-     * Registers directories for events.
-     */
-    public static function registerDirs()
-    {
-        if (self::$dirsRegistered) {
-            return;
-        }
-
-        $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
         
-        $globalSettingsFile = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : SPP_BASE_DIR . SPP_DS . 'etc') . SPP_DS . 'global-settings.yml';
-        $alwaysScan = false;
-        if (file_exists($globalSettingsFile)) {
-            $parsedGlobal = @\Symfony\Component\Yaml\Yaml::parseFile($globalSettingsFile);
-            if (isset($parsedGlobal['settings']['events']['auto_scan']) && $parsedGlobal['settings']['events']['auto_scan'] === true) {
-                $alwaysScan = true;
-            }
-        }
+        if (self::checkStop($params)) return;
 
-        if (!$alwaysScan && file_exists($cacheFile)) {
-            self::$dirsRegistered = true;
-            return;
-        }
-
-        self::scanAndRegisterDirs(SPP_BASE_DIR . SPP_DS . 'events');
-        self::scanAndRegisterDirs(SPP_APP_DIR . SPP_DS . 'events');
-
-        $srcBase = SPP_APP_DIR . SPP_DS . 'src';
-        if (is_dir($srcBase)) {
-            foreach (scandir($srcBase) as $d) {
-                if ($d !== '.' && $d !== '..') {
-                    $evDir = $srcBase . SPP_DS . $d . SPP_DS . 'events';
-                    if (is_dir($evDir)) {
-                        self::scanAndRegisterDirs($evDir);
-                    }
-                }
-            }
-        }
-
-        $mods = \SPP\Registry::get('__mods');
-        if (is_array($mods)) {
-            foreach ($mods as $modname => $modpath) {
-                $dir = $modpath . SPP_DS . 'events';
-                if (is_dir($dir)) {
-                    self::scanAndRegisterDirs($dir);
-                }
-            }
-        }
-        self::$dirsRegistered = true;
+        // 3. After Hooks
+        self::endEvent($event_name, $params);
     }
 
-    /**
-     * function scanAndRegisterDirs()
-     * Recursively scans and registers directories for events.
-     */
-    public static function scanAndRegisterDirs($dir, $top_dir = true)
+    public static function triggerHook(string $hookName, &$params)
     {
-        if (!is_dir($dir)) {
-            return;
-        }
-        if ($top_dir) {
-            \SPP\Registry::registerDir('events', $dir);
-        }
+        if (empty(self::$listeners[$hookName])) return;
 
-        foreach (scandir($dir) as $file) {
-            if ($file === '.' || $file === '..') {
-                continue;
+        foreach (self::$listeners[$hookName] as $listener) {
+            $callback = $listener['callback'];
+            
+            // Auto-instantiate class names with __invoke
+            if (is_string($callback) && class_exists($callback)) {
+                $callback = [new $callback, '__invoke'];
             }
-            $path = $dir . SPP_DS . $file;
-            if (is_dir($path)) {
-                if (is_link($path)) {
-                    continue;
-                }
-                \SPP\Registry::registerDir('events', $path);
-                self::scanAndRegisterDirs($path, false);
+            
+            if (is_callable($callback)) {
+                call_user_func_array($callback, [&$params]);
+            }
+            if (self::checkStop($params)) {
+                break;
             }
         }
     }
 
-    public static function getCollectedTrace(): array
+    private static function checkStop(&$params): bool
     {
-        return self::$collectedTrace;
+        if ($params instanceof \SPP\EventParams) {
+            return $params->isPropagationStopped();
+        }
+        return false;
     }
 
-    public static function clearTrace(): void
-    {
-        self::$collectedTrace = [];
+    // Keep legacy signatures alive but gut them
+    public static function registerEvent(string $event_name, ?string $default_handler = null) {
+        self::defineEvent($event_name, $default_handler, true);
     }
-
-    public static function persistTrace(): void
-    {
-        if (empty(self::$collectedTrace)) {
-            return;
-        }
-
-        $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
-        if (!is_dir($logDir)) {
-            @mkdir($logDir, 0777, true);
-        }
-
-        $logFile = $logDir . '/event_trace.json';
-        $existing = [];
-        if (file_exists($logFile)) {
-            $data = json_decode(file_get_contents($logFile), true);
-            if (is_array($data)) {
-                $existing = $data;
-            }
-        }
-
-        // Keep only last 20 traces
-        $existing[] = [
-            'request_uri' => $_SERVER['REQUEST_URI'] ?? 'CLI',
-            'timestamp' => date('Y-m-d H:i:s'),
-            'trace' => self::$collectedTrace
-        ];
-
-        if (count($existing) > 20) {
-            $existing = array_slice($existing, -20);
-        }
-
-        @file_put_contents($logFile, json_encode($existing, JSON_PRETTY_PRINT));
-    }
+    public static function getEvents() { return []; }
+    public static function markOverrider($event_name) {}
+    public static function getDefaultHandler($event_name) { return null; }
+    public static function hasDefaultHandler($event_name) { return false; }
+    public static function registerEvents(array $events) {}
+    public static function registerHandlers(string $event_name, array $handlers, bool $default = false) {}
+    public static function overrideEvent($event_name, &$params = []) {}
+    public static function hasOverrider($handler_name) { return false; }
+    public static function dispatch($event) {}
+    public static function scanHandlers() { self::boot(); }
+    public static function registerDirs() { self::boot(); }
+    public static function scanAndRegisterDirs($dir, $top_dir = true) {}
+    public static function getCollectedTrace(): array { return self::$collectedTrace; }
+    public static function clearTrace(): void { self::$collectedTrace = []; }
+    public static function persistTrace(): void {}
 }
-

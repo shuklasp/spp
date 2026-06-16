@@ -11,14 +11,14 @@ class EntEditCommand extends Command
         $entityName = $args[2] ?? null;
         if (!$entityName) {
             require_once SPP_APP_DIR . '/spp/sppinit.php';
-            $entities = \SPPMod\SPPEntity\SPPEntity::listAvailableEntities();
+            $entities = \SPPMod\SppDb\SPPEntity::listAvailableEntities();
             echo "Available Entities:\n";
             foreach (array_keys($entities) as $name) echo "  - $name\n";
             $entityName = prompt("\nEntity Name to Edit");
         }
         
         require_once SPP_APP_DIR . '/spp/sppinit.php';
-        $cfgFile = \SPPMod\SPPEntity\SPPEntity::getEntityConfigFile($entityName);
+        $cfgFile = \SPPMod\SppDb\SPPEntity::getEntityConfigFile($entityName);
         if (!$cfgFile) die("Error: Entity '{$entityName}' not found.\n");
         
         try {
@@ -80,7 +80,7 @@ class EntEditCommand extends Command
             }
 
             if (!$isInteractive) {
-                \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+                \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
                 echo "Success: Entity definition updated via CLI flags.\n";
                 return;
             }
@@ -165,7 +165,7 @@ class EntEditCommand extends Command
                         }
                     }
                 } elseif ($choice == '4') {
-                    \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+                    \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
                     echo "Success: Entity definition updated.\n";
                     break;
                 } elseif ($choice == '5') {

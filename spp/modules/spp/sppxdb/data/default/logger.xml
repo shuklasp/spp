@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="logger">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="loggerid" type="VARCHAR"/><column name="PRIMARY" type="KEY"/><column name="uid" type="INTEGER"/><column name="uname" type="VARCHAR"/><column name="ip" type="VARCHAR"/><column name="logtime" type="DATETIME"/><column name="sessid" type="VARCHAR"/><column name="descr" type="VARCHAR"/></_schema>
+  <data>
+  </data>
+</database>

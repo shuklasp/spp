@@ -188,3 +188,9 @@ services:
     name: run_xdb_query
     script: spp/admin/services/General.php
     method: live_run_xdb_query
+    source: yaml
+    source_path: /mnt/c/projects/apache/school1/etc/apps/sppadmin/detected-services.yml
+  -
+    name: install_all_active
+    script: spp/admin/services/General.php
+    method: live_install_all_active

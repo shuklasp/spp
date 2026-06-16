@@ -121,7 +121,7 @@ class ViewsBuilderController
         }
 
         try {
-            $query = new \SPPMod\SPPEntity\SppEntityQuery($entityClass);
+            $query = new \SPPMod\SppDb\SppEntityQuery($entityClass);
 
             if (!empty($config['conditions'])) {
                 foreach ($config['conditions'] as $cond) {

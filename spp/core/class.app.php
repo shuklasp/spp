@@ -62,7 +62,8 @@ class App extends \SPP\SPPObject
         }
 
         \SPP\SPPEvent::registerEvent('event_spp_app_init');
-        \SPP\SPPEvent::fireEvent('event_spp_app_init', $this, function ($app) {
+        $evtParams = new \SPP\EventParams($this);
+        \SPP\SPPEvent::fireEvent('event_spp_app_init', $evtParams, function ($p) {
             // Default init: do nothing
         });
         if ($init_level >= 2) {
@@ -605,6 +606,14 @@ class App extends \SPP\SPPObject
                 if (($redisEnabled === true || $redisEnabled === '1' || $redisEnabled === 'true') && class_exists('\SPP\Core\RedisCache') && \SPP\Core\RedisCache::isAvailable()) {
                     session_set_save_handler(new \SPP\Core\RedisSessionHandler(), true);
                 }
+                // Secure session cookies
+                session_set_cookie_params([
+                    'lifetime' => 0,
+                    'path' => '/',
+                    'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on',
+                    'httponly' => true,
+                    'samesite' => 'Lax'
+                ]);
                 session_start();
             }
         } else {
@@ -659,12 +668,7 @@ class App extends \SPP\SPPObject
 
         \SPP\SPPEvent::registerEvent('event_spp_module_install');
 
-        // Universally guarantee cross-context registration for presentation layout overriding hooks
-        $themeEvtPath = SPP_APP_DIR . '/src/lekhak/modules/spptheme/events/ThemeEventHandler.php';
-        if (file_exists($themeEvtPath)) {
-            require_once $themeEvtPath;
-            \SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
-        }
+        // Theme registration must be handled by the app context's init script or the module itself
 
         // Perform Locale Negotiation & Translation Loading
         if (class_exists('\SPP\Core\LocaleNegotiator')) {

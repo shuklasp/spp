@@ -8,28 +8,27 @@ namespace SPPMod\SPPLang;
  */
 class SPPLang
 {
+    private static ?TranslationRepositoryInterface $repository = null;
+
+    public static function setRepository(TranslationRepositoryInterface $repo): void
+    {
+        self::$repository = $repo;
+    }
+
+    public static function getRepository(): TranslationRepositoryInterface
+    {
+        if (self::$repository === null) {
+            self::$repository = new SqlTranslationRepository();
+        }
+        return self::$repository;
+    }
+
     /**
-     * Ensure translations dynamic SQLite table exists.
+     * Ensure translations repository schema is ready.
      */
     public static function ensureSchema(): void
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-        if (!$db->tableExists($table)) {
-            $db->exec_squery("CREATE TABLE %tab% (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                key_code TEXT NOT NULL,
-                locale VARCHAR(10) NOT NULL,
-                translation TEXT,
-                status VARCHAR(20) DEFAULT 'active'
-            )", $table);
-
-            try {
-                $db->exec_squery("CREATE UNIQUE INDEX IF NOT EXISTS idx_translations_key_locale ON %tab% (key_code, locale)", $table);
-            } catch (\Exception $e) {
-                // Ignore silent unique index parsing constraint violations under emulated XDB engine
-            }
-        }
+        self::getRepository()->ensureSchema();
     }
 
     /**
@@ -74,19 +73,24 @@ class SPPLang
             }
         }
 
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+        $repo = self::getRepository();
         $discovered = array_keys($keys);
         $newlyAdded = [];
 
         foreach ($discovered as $key) {
-            $res = $db->exec_squery("SELECT id FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
-            if (empty($res)) {
-                $db->exec_squery(
-                    "INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, 'active')",
-                    $table,
-                    [$key, $locale, $key]
-                );
+            // we use getOne to check if it exists in repo? 
+            // Wait, getOne falls back to the key itself. So we just blindly save if we only want to ensure it's there.
+            // But we might overwrite translation? Actually, let's just use getMany or direct insert.
+            // Since this is scanning, we don't want to overwrite if exists.
+            $existing = $repo->getMany(['search' => $key, 'locale' => $locale]);
+            $exists = false;
+            foreach ($existing as $row) {
+                if ($row['key_code'] === $key) {
+                    $exists = true; break;
+                }
+            }
+            if (!$exists) {
+                $repo->save($key, $locale, $key);
                 $newlyAdded[] = $key;
             }
         }
@@ -99,24 +103,7 @@ class SPPLang
      */
     public static function saveTranslation(string $key, string $locale, string $translation, string $status = 'active'): void
     {
-        self::ensureSchema();
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-
-        $res = $db->exec_squery("SELECT id FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
-        if (!empty($res)) {
-            $db->exec_squery(
-                "UPDATE %tab% SET translation = ?, status = ? WHERE key_code = ? AND locale = ?",
-                $table,
-                [$translation, $status, $key, $locale]
-            );
-        } else {
-            $db->exec_squery(
-                "INSERT INTO %tab% (key_code, locale, translation, status) VALUES (?, ?, ?, ?)",
-                $table,
-                [$key, $locale, $translation, $status]
-            );
-        }
+        self::getRepository()->save($key, $locale, $translation, $status);
     }
 
     /**
@@ -124,34 +111,14 @@ class SPPLang
      */
     public static function getTranslations(array $filters = []): array
     {
-        self::ensureSchema();
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+        return self::getRepository()->getMany($filters);
+    }
 
-        $sql = "SELECT * FROM %tab%";
-        $clauses = [];
-        $values = [];
-
-        if (!empty($filters['locale'])) {
-            $clauses[] = "locale = ?";
-            $values[] = $filters['locale'];
-        }
-        if (!empty($filters['status'])) {
-            $clauses[] = "status = ?";
-            $values[] = $filters['status'];
-        }
-        if (!empty($filters['search'])) {
-            $clauses[] = "(key_code LIKE ? OR translation LIKE ?)";
-            $values[] = '%' . $filters['search'] . '%';
-            $values[] = '%' . $filters['search'] . '%';
-        }
-
-        if (!empty($clauses)) {
-            $sql .= " WHERE " . implode(" AND ", $clauses);
-        }
-
-        $sql .= " ORDER BY key_code ASC";
-
-        return $db->exec_squery($sql, $table, $values);
+    /**
+     * Retrieve a specific translation by key and locale.
+     */
+    public static function getTranslation(string $key, string $locale = 'en'): string
+    {
+        return self::getRepository()->getOne($key, $locale);
     }
 }

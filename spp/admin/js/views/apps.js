@@ -255,12 +255,14 @@ export default class AppsView extends BaseComponent {
 
         return html`
             <div class="view-content-wrapper fade-in">
-                <div style="margin-bottom: 20px;">
+                <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; gap: 10px;">
                     <input type="text" 
                            placeholder="🔍 Search modules by name or description..." 
                            value="${modSearch || ''}" 
                            @input=${(e) => this.setState({modSearch: e.target.value})}
-                           style="width: 100%; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text); font-size: 0.9rem;">
+                           style="flex: 1; max-width: 400px; padding: 10px 15px; border-radius: 8px; border: 1px solid var(--glass-border); background: var(--surface-1); color: var(--text); font-size: 0.9rem;">
+                    
+                    <button class="btn secondary-btn" @click=${() => this.app.installAllActiveModules()}>📦 Install All Active</button>
                 </div>
                 ${groupNames.map(groupName => {
                     const groupModules = groups[groupName];
@@ -297,7 +299,8 @@ export default class AppsView extends BaseComponent {
                                         <div class="card-footer">
                                             <small title="${mod.path}">${this.app.truncatePath ? this.app.truncatePath(mod.path, 40) : mod.path}</small>
                                             <div class="card-actions">
-                                                <button type="button" class="btn ghost-btn btn-sm" @click=${() => this.app.openModuleMaintenance(mod.name, mod.public_name || mod.name)}>🏗️ Sync</button>
+                                                <button type="button" class="btn primary-btn btn-sm" @click=${() => this.app.installModule(mod.name)}>📦 Install</button>
+                                                <button type="button" class="btn danger-ghost-btn btn-sm" @click=${() => this.app.uninstallModule(mod.name)}>🗑️ Uninstall</button>
                                                 ${mod.has_config ? html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.app.openModuleSettings(mod.name, mod.public_name || mod.name)}>⚙️ Setup</button>` : ''}
                                             </div>
                                         </div>
@@ -477,7 +480,11 @@ export default class AppsView extends BaseComponent {
                         <li><code>--force</code>: Overwrites the service class if it already exists.</li>
                     </ul>
                 </div>
-            `
+            `,
+            'make:blade': html`<div style="margin-top: 8px;"><strong>Usage:</strong> Creates a new Drishyam Blade view.</div>`,
+            'make:twig': html`<div style="margin-top: 8px;"><strong>Usage:</strong> Creates a new Drishyam Twig view.</div>`,
+            'make:sppview': html`<div style="margin-top: 8px;"><strong>Usage:</strong> Creates a new native AST-based SPPView.</div>`,
+            'make:mixed-paradigm': html`<div style="margin-top: 8px;"><strong>Usage:</strong> Scaffolds a Kitchen Sink example blending SPPView, Blade/Twig, and SPPUX.</div>`
         };
 
         return html`
@@ -507,6 +514,10 @@ export default class AppsView extends BaseComponent {
                             <option value="make:controller" ?selected=${currentCmd === 'make:controller'}>make:controller - Scaffold Controller</option>
                             <option value="make:scaffold" ?selected=${currentCmd === 'make:scaffold'}>make:scaffold - Full Entity/View Stack</option>
                             <option value="make:service" ?selected=${currentCmd === 'make:service'}>make:service - Dependency Injected Service</option>
+                            <option value="make:blade" ?selected=${currentCmd === 'make:blade'}>make:blade - Scaffold Blade View</option>
+                            <option value="make:twig" ?selected=${currentCmd === 'make:twig'}>make:twig - Scaffold Twig View</option>
+                            <option value="make:sppview" ?selected=${currentCmd === 'make:sppview'}>make:sppview - Scaffold Native AST View</option>
+                            <option value="make:mixed-paradigm" ?selected=${currentCmd === 'make:mixed-paradigm'}>make:mixed-paradigm - Scaffold Kitchen Sink View</option>
                         </select>
                     </div>
                     <div class="input-group">

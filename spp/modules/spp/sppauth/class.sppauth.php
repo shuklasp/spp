@@ -44,9 +44,7 @@ class SPPAuth extends \SPP\SPPObject
             case 'web':
                 return new WebGuard();
             case 'api':
-                // For now, return a placeholder for TokenGuard
-                // In a full implementation, this would be a separate class
-                return new WebGuard();
+                return new TokenGuard();
             default:
                 throw new \SPP\Exceptions\SPPException("Unknown auth guard: " . $name);
         }
@@ -58,15 +56,43 @@ class SPPAuth extends \SPP\SPPObject
      */
     public static function login($uname, $passwd)
     {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+        if (RateLimiter::tooManyAttempts($uname, $ip)) {
+            AuditLogger::log('login_failed_bruteforce', null, $uname, "IP: $ip");
+            throw new \Exception("Too many login attempts. Please try again later.");
+        }
+
         try {
             if (SPPUser::verifyUserPassword($uname, $passwd)) {
+                RateLimiter::clear($uname, $ip);
                 $user = new SPPUser($uname);
+                
+                // Intercept for MFA (use isset/try to avoid warnings)
+                $mfaEnabled = false;
+                try {
+                    $mfaEnabled = $user->get('mfa_enabled') ?: false;
+                } catch (\Exception $e) { }
+                
+                if ($mfaEnabled) {
+                    $token = bin2hex(random_bytes(16));
+                    \SPP\SPPSession::setSessionVar('mfa_challenge_user', $user->id);
+                    \SPP\SPPSession::setSessionVar('mfa_challenge_token', $token);
+                    throw new \Exception("MFA_REQUIRED:$token");
+                }
+                
                 self::guard('web')->login($user);
+                AuditLogger::log('login_success', $user->id, null, "IP: $ip via SPPAuth::login");
                 return true;
             }
         } catch (\Exception $e) {
-            // Handle error or ignore to return false
+            if (str_starts_with($e->getMessage(), 'MFA_REQUIRED:')) {
+                throw $e; // Bubble up MFA challenges
+            }
+            throw $e; // Rethrow other exceptions so they aren't masked as Invalid Password!
         }
+        
+        RateLimiter::hit($uname, $ip);
+        AuditLogger::log('login_failed', null, $uname, "IP: $ip");
         return false;
     }
 

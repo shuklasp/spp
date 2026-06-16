@@ -23,6 +23,11 @@
                 <li><a href="08_advanced.html" class="active">08. Advanced Features</a></li>
                 <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
                 <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
             </ul>
         </nav>
     </aside>
@@ -74,6 +79,37 @@ foreach ($results as $r) {
             <h2>SPPNexus: Edge Compiler</h2>
             <p>For maximum performance, the <span class="accent">SPPNexus</span> compiler can bundle your application core and modules into a single, optimized "Edge Node."</p>
             <pre><code>php spp/spp.php build:edge</code></pre>
+
+            <hr>
+
+            <h2>SPPConfig: The .env & YAML Engine</h2>
+            <p><span class="accent">SPPConfig</span> is the heart of the configuration management system. It securely maps environment variables (from <code>.env</code> files or OS injections) into your YAML configuration files using <strong>YAML Interpolation</strong>.</p>
+            
+            <h3>The Problem with Hardcoding Secrets</h3>
+            <p>Never commit passwords to Git! Instead of writing your database password into <code>settings.yml</code>, use the <code>env:</code> prefix:</p>
+<pre><code># etc/settings.yml
+sppdb:
+  host: "env:DB_HOST"
+  password: "env:DB_PASS"</code></pre>
+
+            <h3>The .env File</h3>
+            <p>Create a <code>.env</code> file at the root of your project:</p>
+<pre><code>DB_HOST=127.0.0.1
+DB_PASS=SuperSecretPassword123!</code></pre>
+
+            <h3>Accessing the Interpolated Config</h3>
+            <p>When your application requests <code>SPPConfig::get('mod:sppdb:password')</code>, the framework automatically detects the <code>env:</code> prefix in the YAML file and replaces it with the actual value from your <code>.env</code> file on-the-fly.</p>
+<pre><code>// Returns "SuperSecretPassword123!"
+$password = \SPP\SPPConfig::get('mod:sppdb:password');</code></pre>
+
+            <h3>Fallbacks and Type-Casting</h3>
+            <p>You can provide default fallback values using the pipe (<code>|</code>) operator. Furthermore, the engine automatically casts <code>"true"</code>, <code>"false"</code>, <code>"null"</code>, and numerics into their strict PHP types.</p>
+<pre><code># etc/settings.yml
+sppapi:
+  enable_jwt: "env:JWT_ENABLED|true"
+  max_retries: "env:API_RETRIES|5"</code></pre>
+            <p>If <code>JWT_ENABLED</code> is missing from the <code>.env</code> file, it will safely fallback to the <strong>boolean</strong> <code>true</code>.</p>
+            <p>This guarantees your application is "Twelve-Factor App" compliant and completely secure for production Docker/Kubernetes deployments.</p>
 
             <footer class="footer-nav">
                 <a href="07_events.html" class="nav-button">

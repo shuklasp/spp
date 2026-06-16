@@ -40,13 +40,22 @@ class SPPAudit extends \SPP\SPPObject
                 'created_at'  => date('Y-m-d H:i:s')
             ];
 
-            // In an enterprise environment, we might use a separate Audit connection
-            // For now, we use the default connection
             $fields = implode(', ', array_keys($data));
             $placeholders = implode(', ', array_fill(0, count($data), '?'));
-
             $sql = "INSERT INTO {$tableName} ({$fields}) VALUES ({$placeholders})";
-            $db->exec_squery($sql, $tableName, array_values($data));
+
+            try {
+                $db->exec_squery($sql, $tableName, array_values($data));
+            } catch (\Exception $insertEx) {
+                // Table might not exist yet — auto-create and retry once
+                if (stripos($insertEx->getMessage(), 'no such table') !== false 
+                    || stripos($insertEx->getMessage(), "doesn't exist") !== false) {
+                    self::install();
+                    $db->exec_squery($sql, $tableName, array_values($data));
+                } else {
+                    throw $insertEx;
+                }
+            }
 
         } catch (\Exception $e) {
             // Enterprise rule: Don't let an audit failure crash the main transaction
@@ -63,17 +72,40 @@ class SPPAudit extends \SPP\SPPObject
         $db = new SPPDB();
         $tableName = $db->sppTable('audit_logs');
 
-        $sql = "CREATE TABLE IF NOT EXISTS {$tableName} (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            entity_type VARCHAR(100) NOT NULL,
-            entity_id VARCHAR(100) NOT NULL,
-            action VARCHAR(20) NOT NULL,
-            old_values TEXT,
-            new_values TEXT,
-            user_id INT,
-            ip_address VARCHAR(45),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        // Detect driver for dialect-aware DDL
+        $driver = 'sqlite';
+        try {
+            $pdo = $db->getPDO();
+            if ($pdo) {
+                $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            }
+        } catch (\Exception $e) {}
+
+        if ($driver === 'sqlite') {
+            $sql = "CREATE TABLE IF NOT EXISTS {$tableName} (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                entity_type VARCHAR(100) NOT NULL,
+                entity_id VARCHAR(100) NOT NULL,
+                action VARCHAR(20) NOT NULL,
+                old_values TEXT,
+                new_values TEXT,
+                user_id INTEGER,
+                ip_address VARCHAR(45),
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )";
+        } else {
+            $sql = "CREATE TABLE IF NOT EXISTS {$tableName} (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                entity_type VARCHAR(100) NOT NULL,
+                entity_id VARCHAR(100) NOT NULL,
+                action VARCHAR(20) NOT NULL,
+                old_values TEXT,
+                new_values TEXT,
+                user_id INT,
+                ip_address VARCHAR(45),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+        }
 
         $db->exec_squery($sql, $tableName);
     }

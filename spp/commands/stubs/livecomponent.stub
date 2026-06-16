@@ -1,0 +1,36 @@
+<?php
+
+namespace {{namespace}};
+
+use SPPMod\SPPView\LiveComponent;
+
+/**
+ * Class {{className}}
+ * A Live Component with real-time reactivity.
+ */
+class {{className}} extends LiveComponent
+{
+    public string $title = 'Hello LiveComponent';
+
+    public function mount(array $params = []): void
+    {
+        // Component initialization logic
+    }
+
+    public function render(): string
+    {
+        return <<<HTML
+        <div class="live-component" id="{\$this->getComponentId()}">
+            <h2>{{ \$this->title }}</h2>
+            <p>Counter: {{ \$this->getState('counter', 0) }}</p>
+            <button spp-click="increment">Increment</button>
+        </div>
+        HTML;
+    }
+
+    public function increment(): void
+    {
+        $current = $this->getState('counter', 0);
+        $this->setState('counter', $current + 1);
+    }
+}

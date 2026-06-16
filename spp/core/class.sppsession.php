@@ -18,74 +18,56 @@ require_once 'class.spperror.php';*/
 
 class SPPSession extends \SPP\SPPObject
 {
-    private $sessvars = [];
+    private static ?\SPP\Core\Interfaces\SPPSessionBridgeInterface $bridge = null;
 
-    /** @var ?SPPSession Local memory cache to prevent duplicate deserialization */
-    /** @var array<string, SPPSession> Cache of loaded session buckets */
-    private static array $caches = [];
+    public static function setBridge(\SPP\Core\Interfaces\SPPSessionBridgeInterface $bridge): void
+    {
+        self::$bridge = $bridge;
+    }
 
     private static function fetchSession(): SPPSession
     {
         $ssname = \SPP\App::getSessionName();
-        if (isset(self::$caches[$ssname])) {
-            return self::$caches[$ssname];
-        }
-
         if (!isset($_SESSION[$ssname])) {
             if (session_status() === PHP_SESSION_ACTIVE || php_sapi_name() === 'cli') {
-                // Auto-initialize the session bucket if we are in an active session context
-                $session = new SPPSession();
-                $_SESSION[$ssname] = serialize($session);
-                self::$caches[$ssname] = $session;
-                return $session;
+                $_SESSION[$ssname] = ['vars' => []];
+            } else {
+                throw new SessionDoesNotExistException('No session exists! (Bucket ' . $ssname . ' not found in $_SESSION)');
             }
-            throw new SessionDoesNotExistException('No session exists! (Bucket ' . $ssname . ' not found in $_SESSION)');
+        } elseif (is_string($_SESSION[$ssname])) {
+            // Migration: convert old serialized object to array
+            $oldObj = unserialize($_SESSION[$ssname], ['allowed_classes' => true]);
+            $vars = [];
+            if ($oldObj instanceof SPPSession && property_exists($oldObj, 'sessvars')) {
+                $ref = new \ReflectionProperty(get_class($oldObj), 'sessvars');
+                $ref->setAccessible(true);
+                $vars = $ref->getValue($oldObj);
+            }
+            $_SESSION[$ssname] = ['vars' => $vars];
         }
 
-        // Restrict allowed classes to prevent POI vectors, but allow the user session classes
-        self::$caches[$ssname] = unserialize($_SESSION[$ssname], ['allowed_classes' => true]);
-        return self::$caches[$ssname];
+        return new self();
     }
 
     private static function saveSession(): void
     {
-        $ssname = \SPP\App::getSessionName();
-        if (isset(self::$caches[$ssname])) {
-            $_SESSION[$ssname] = serialize(self::$caches[$ssname]);
-            self::syncToBridge();
+        if (self::$bridge !== null) {
+            $ssname = \SPP\App::getSessionName();
+            if (isset($_SESSION[$ssname]['vars'])) {
+                self::$bridge->sync(session_id(), $_SESSION[$ssname]['vars']);
+            }
         }
     }
 
-    private static function syncToBridge(): void
+    public static function destroySession(): void
     {
-        $ssname = \SPP\App::getSessionName();
-        if (!isset(self::$caches[$ssname])) {
-            return;
+        if (self::$bridge !== null) {
+            self::$bridge->destroy(session_id());
         }
-
-        $bridgedData = [];
-        foreach (self::$caches[$ssname]->sessvars as $name => $data) {
-            if (!empty($data['bridged']) && !empty($data['isactive'])) {
-                $bridgedData[$name] = $data['val'];
-            }
+        
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            session_destroy();
         }
-
-        if (empty($bridgedData)) {
-            return;
-        }
-
-        $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';
-        if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
-            $sharedDir = SPP_APP_DIR . SPP_DS . $sharedDir;
-        }
-
-        $sessionBridgeDir = $sharedDir . SPP_DS . 'sessions';
-        if (!is_dir($sessionBridgeDir)) {
-            mkdir($sessionBridgeDir, 0777, true);
-        }
-
-        $file = $sessionBridgeDir . SPP_DS . session_id() . '.json';
-        file_put_contents($file, json_encode($bridgedData, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -94,12 +76,7 @@ class SPPSession extends \SPP\SPPObject
      */
     public function __construct()
     {
-        $ssname = \SPP\App::getSessionName();
-        if (!array_key_exists($ssname, $_SESSION)) {
-            //   $ssn=new SPPSession();
-            $this->setVar('__wizards__', []);
-            //$this->setVar('__errors__', SPPError::getErrors());
-        }
+        // Initialization handled in fetchSession
     }
 
     /**
@@ -210,9 +187,12 @@ class SPPSession extends \SPP\SPPObject
      */
     public function setVar($varname, $varval, $bridged = false)
     {
-        $this->sessvars[$varname]['val'] = $varval;
-        $this->sessvars[$varname]['isactive'] = true;
-        $this->sessvars[$varname]['bridged'] = $bridged;
+        $ssname = \SPP\App::getSessionName();
+        $_SESSION[$ssname]['vars'][$varname] = [
+            'val' => $varval,
+            'isactive' => true,
+            'bridged' => $bridged
+        ];
     }
 
     /**
@@ -223,7 +203,8 @@ class SPPSession extends \SPP\SPPObject
      */
     public function unsetVar($varname)
     {
-        unset($this->sessvars[$varname]);
+        $ssname = \SPP\App::getSessionName();
+        unset($_SESSION[$ssname]['vars'][$varname]);
     }
 
     /**
@@ -235,11 +216,8 @@ class SPPSession extends \SPP\SPPObject
      */
     public function varExists($varname)
     {
-        if (array_key_exists($varname, $this->sessvars)) {
-            return true;
-        } else {
-            return false;
-        }
+        $ssname = \SPP\App::getSessionName();
+        return isset($_SESSION[$ssname]['vars']) && array_key_exists($varname, $_SESSION[$ssname]['vars']);
     }
 
     /**
@@ -251,15 +229,11 @@ class SPPSession extends \SPP\SPPObject
      */
     public function validVarExists($varname)
     {
-        if (array_key_exists($varname, $this->sessvars)) {
-            if ($this->sessvars[$varname]['isactive']) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        $ssname = \SPP\App::getSessionName();
+        if (isset($_SESSION[$ssname]['vars']) && array_key_exists($varname, $_SESSION[$ssname]['vars'])) {
+            return !empty($_SESSION[$ssname]['vars'][$varname]['isactive']);
         }
+        return false;
     }
 
     /**
@@ -272,7 +246,8 @@ class SPPSession extends \SPP\SPPObject
     public function getVar($varname)
     {
         if ($this->validVarExists($varname)) {
-            return $this->sessvars[$varname]['val'];
+            $ssname = \SPP\App::getSessionName();
+            return $_SESSION[$ssname]['vars'][$varname]['val'];
         } else {
             throw new UnknownSessionVarException('Undefined session variable ' . $varname . ' accessed.');
         }
@@ -287,7 +262,8 @@ class SPPSession extends \SPP\SPPObject
     public function invalidateVar($varname)
     {
         if ($this->validVarExists($varname)) {
-            $this->sessvars[$varname]['isactive'] = false;
+            $ssname = \SPP\App::getSessionName();
+            $_SESSION[$ssname]['vars'][$varname]['isactive'] = false;
         } else {
             throw new UnknownSessionVarException('Undefined session variable ' . $varname . ' accessed.');
         }
@@ -308,5 +284,33 @@ class SPPSession extends \SPP\SPPObject
         self::setSessionVar('__csrf_token__', $token);
         return $token;
     }
+
+    public static function setFlash(string $key, $value): void
+    {
+        $flashes = self::validSessionVarExists('__flashes') ? self::getSessionVar('__flashes') : [];
+        $flashes[$key] = $value;
+        self::setSessionVar('__flashes', $flashes);
+    }
+
+    public static function hasFlash(string $key): bool
+    {
+        if (!self::validSessionVarExists('__flashes')) return false;
+        $flashes = self::getSessionVar('__flashes');
+        return isset($flashes[$key]);
+    }
+
+    public static function getFlash(string $key)
+    {
+        if (!self::validSessionVarExists('__flashes')) return null;
+        $flashes = self::getSessionVar('__flashes');
+        if (isset($flashes[$key])) {
+            $val = $flashes[$key];
+            unset($flashes[$key]);
+            self::setSessionVar('__flashes', $flashes);
+            return $val;
+        }
+        return null;
+    }
+
 
 }

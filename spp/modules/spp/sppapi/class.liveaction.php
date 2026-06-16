@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace SPPMod\SPPAjax;
+namespace SPPMod\SppApi;
 
 /**
  * class LiveAction
@@ -26,6 +27,14 @@ class LiveAction
     {
         $this->status = $status;
         return $this;
+    }
+
+    /**
+     * Get current status.
+     */
+    public function getStatus(): string
+    {
+        return $this->status;
     }
 
     /**
@@ -146,20 +155,27 @@ class LiveAction
     public function render(string $template, array $data = [], string $selector = '', string $action = 'replace'): self
     {
         ob_start();
-        extract($data);
+        extract($data, EXTR_SKIP);
 
         $src = \SPPMod\SPPView\Pages::getDefault('pagedir') ?: '/src/pages';
         $fullPath = SPP_APP_DIR . $src . '/' . ltrim($template, '/');
+        $realBasePages = realpath(SPP_APP_DIR . $src);
+        $realBasePartials = realpath(SPP_APP_DIR . '/src/partials');
 
-        if (!file_exists($fullPath)) {
+        $realFile = realpath($fullPath);
+        if ($realFile === false || !str_starts_with($realFile, $realBasePages . DIRECTORY_SEPARATOR)) {
             // Check in src/partials fallback
             $fullPath = SPP_APP_DIR . '/src/partials/' . ltrim($template, '/');
+            $realFile = realpath($fullPath);
+            if ($realFile === false || !str_starts_with($realFile, $realBasePartials . DIRECTORY_SEPARATOR)) {
+                $realFile = false;
+            }
         }
 
-        if (file_exists($fullPath)) {
-            include $fullPath;
+        if ($realFile !== false && file_exists($realFile)) {
+            include $realFile;
         } else {
-            echo "<!-- Partial not found: {$template} -->";
+            echo "<!-- Partial not found or forbidden: " . htmlspecialchars($template) . " -->";
         }
 
         $html = ob_get_clean();
@@ -265,7 +281,7 @@ class LiveAction
     public function send(): never
     {
         // Use fully qualified name to avoid ambiguity with the namespace name
-        \SPPMod\SPPAjax\SPPAjax::respond($this->status, [
+        \SPPMod\SppApi\SPPAjax::respond($this->status, [
             'data' => $this->data,
             'instructions' => $this->instructions
         ]);
@@ -280,7 +296,7 @@ class LiveAction
             throw new \Exception("SPPInterDB module is required for LiveAction::query()");
         }
 
-        $db = new \SPPMod\SPPInterDB\SPPInterDB();
+        $db = new \SPPMod\SppDb\SPPInterDB();
         $res = $db->graphql($query, $variables);
         return new self($res);
     }

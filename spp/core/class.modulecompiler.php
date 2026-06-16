@@ -42,7 +42,8 @@ class ModuleCompiler
     public function compileToArray(): array
     {
         $registry = [];
-        $discovered = $this->discoverActiveModules();
+        $meta = ['manifest_mtime' => 0];
+        $discovered = $this->discoverActiveModules($meta);
 
         // Sort modules by dependency graph (Topological Sort)
         $sortedNames = $this->topologicalSort($discovered);
@@ -51,8 +52,18 @@ class ModuleCompiler
             $modData = $discovered[$modName];
             $manifestPath = $modData['manifest'];
             try {
+                // Fetch raw parsed manifest from Yaml so the runtime doesn't have to
+                $parsedYaml = Yaml::parseFile($manifestPath);
+                $rawManifest = $parsedYaml['module'] ?? ($parsedYaml['modules'][0]['module'] ?? ($parsedYaml['modules'][0] ?? $parsedYaml));
+                
                 $module = new Module($manifestPath);
                 $module->ModuleType = $modData['type'];
+
+                // Track max mtime across all individual module manifests
+                $mtime = filemtime($manifestPath);
+                if ($mtime > $meta['manifest_mtime']) {
+                    $meta['manifest_mtime'] = $mtime;
+                }
 
                 // Collect basic metadata
                 $registry[$modName] = [
@@ -63,7 +74,9 @@ class ModuleCompiler
                     'dependencies' => $module->Dependencies,
                     'includes' => $module->IncludeFiles,
                     'services' => $this->extractServices($module),
-                    'config' => $this->extractConfig($module)
+                    'config' => $this->extractConfig($module),
+                    'raw_manifest' => $rawManifest,
+                    'has_modinit' => file_exists($module->ModPath . SPP_DS . 'modinit.php')
                 ];
             } catch (\Exception $e) {
                 // Skip broken modules during compilation
@@ -71,6 +84,7 @@ class ModuleCompiler
             }
         }
 
+        $registry['__meta'] = $meta;
         return $registry;
     }
 
@@ -125,7 +139,7 @@ class ModuleCompiler
     /**
      * Discovers which modules should be active based on manifest hierarchy.
      */
-    private function discoverActiveModules(): array
+    private function discoverActiveModules(array &$meta): array
     {
         $active = [];
         $manifests = [
@@ -137,6 +151,11 @@ class ModuleCompiler
         foreach ($manifests as $m) {
             if (!file_exists($m['file'])) {
                 continue;
+            }
+
+            $mtime = filemtime($m['file']);
+            if ($mtime > $meta['manifest_mtime']) {
+                $meta['manifest_mtime'] = $mtime;
             }
 
             $data = Yaml::parseFile($m['file']);

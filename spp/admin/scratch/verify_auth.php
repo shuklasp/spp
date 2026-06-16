@@ -78,7 +78,7 @@ echo "\n--- Mocking Administrator ---\n";
 // or just mock the administrator group for the user.
 // For the test, I'll create a dummy administrator group and add the user to it.
 try {
-    $adminGroup = new \SPPMod\SPPGroup\SPPGroup();
+    $adminGroup = new \SPPMod\SPPAuth\SPPGroup();
     $adminGroup->load('administrator');
     $adminGroup->addMember($user);
     echo "Added user to Administrator group.\n";

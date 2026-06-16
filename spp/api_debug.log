@@ -444,3 +444,1316 @@ Stack trace:
 [2026-06-10 23:46:06] Context set to sppadmin
 [2026-06-10 23:46:10] Context set to sppadmin
 [2026-06-10 23:46:10] Context set to sppadmin
+[2026-06-11 04:31:27] Context set to sppadmin
+[2026-06-11 04:31:39] Context set to sppadmin
+[2026-06-11 04:31:40] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SPPEntity\SPPEntity->load()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
+#2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#6 {main}
+[2026-06-11 04:31:56] Context set to sppadmin
+[2026-06-11 04:31:57] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SPPEntity\SPPEntity->load()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
+#2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAjax\SPPAjax::resolveAndExecute()
+#6 {main}
+[2026-06-11 04:34:10] Context set to sppadmin
+[2026-06-11 04:34:13] Context set to sppadmin
+[2026-06-11 04:34:13] Context set to sppadmin
+[2026-06-11 12:01:45] Context set to sppadmin
+[2026-06-11 12:01:57] Context set to sppadmin
+[2026-06-11 12:01:58] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
+#2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#6 {main}
+[2026-06-11 12:02:10] Context set to sppadmin
+[2026-06-11 12:02:11] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
+#2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#6 {main}
+[2026-06-11 12:03:31] Context set to sppadmin
+[2026-06-11 12:03:32] API FATAL ERROR: Class "SPP\Core\EventHandler" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
+#2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
+#3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#6 {main}
+[2026-06-11 12:08:04] Context set to sppadmin
+[2026-06-11 12:08:08] Context set to sppadmin
+[2026-06-11 12:08:08] Context set to sppadmin
+[2026-06-11 12:08:30] Context set to sppadmin
+[2026-06-11 12:08:30] Context set to sppadmin
+[2026-06-11 14:53:51] Context set to sppadmin
+[2026-06-11 14:53:52] API FATAL ERROR: Class "SPPMod\SPPAjax\SPPAjax" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 395
+#0 {main}
+[2026-06-12 10:59:08] Context set to sppadmin
+[2026-06-12 10:59:08] API FATAL ERROR: Class "SPPMod\SPPAjax\SPPAjax" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 395
+#0 {main}
+[2026-06-12 11:59:53] Context set to sppadmin
+[2026-06-12 11:59:53] API FATAL ERROR: Class "SPPMod\SPPAjax\SPPAjax" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 395
+#0 {main}
+[2026-06-12 12:00:08] Context set to sppadmin
+[2026-06-12 12:00:08] API FATAL ERROR: Class "SPPMod\SPPAjax\SPPAjax" not found in /mnt/c/projects/apache/school1/spp/admin/api.php on line 395
+#0 {main}
+[2026-06-12 12:03:55] Context set to sppadmin
+[2026-06-12 12:04:12] Context set to sppadmin
+[2026-06-12 12:04:30] Context set to sppadmin
+[2026-06-12 12:11:26] Context set to sppadmin
+[2026-06-12 12:13:44] Context set to sppadmin
+[2026-06-12 12:19:08] Context set to sppadmin
+[2026-06-12 12:29:00] Context set to sppadmin
+[2026-06-12 12:29:17] Context set to sppadmin
+[2026-06-12 12:29:33] Context set to sppadmin
+[2026-06-12 12:32:54] Context set to sppadmin
+[2026-06-12 12:33:37] Context set to sppadmin
+[2026-06-12 12:34:12] Context set to sppadmin
+[2026-06-12 12:36:00] Context set to sppadmin
+[2026-06-12 12:36:17] Context set to sppadmin
+[2026-06-12 12:40:23] Context set to sppadmin
+[2026-06-12 12:40:42] Context set to sppadmin
+[2026-06-12 12:51:57] Context set to sppadmin
+[2026-06-12 12:55:40] Context set to sppadmin
+[2026-06-12 12:55:44] Context set to sppadmin
+[2026-06-12 12:55:44] Context set to sppadmin
+[2026-06-12 14:54:33] Context set to sppadmin
+[2026-06-12 14:54:46] Context set to sppadmin
+[2026-06-12 14:54:50] Context set to sppadmin
+[2026-06-12 14:54:50] Context set to sppadmin
+[2026-06-12 14:55:01] Context set to sppadmin
+[2026-06-12 14:55:01] Context set to sppadmin
+[2026-06-12 14:56:02] Context set to sppadmin
+[2026-06-12 14:56:18] API FATAL ERROR: Class "SPPMod\SPPXDB\DOMXPath" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.sqlparser.php on line 1274
+#0 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(86): call_user_func_array()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(28): SPPMod\SPPXDB\SPP_XDB->__call()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SppDb\XDBAdapter->execute()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(668): SPPMod\SPPDB\SPPDB->exec()
+#5 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(687): SPPMod\SPPDB\SPPDB->add_columns()
+#6 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(110): SPPMod\SPPDB\SPPDB->createTableIncremental()
+#7 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(73): SPP\Core\ModuleInstaller::executeDbYml()
+#8 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(307): SPP\Core\ModuleInstaller::install()
+#9 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(43): SPP\Core\ModuleInstaller::installAllActive()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(510): live_install_all_active()
+#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#12 {main}
+[2026-06-12 14:57:36] Context set to sppadmin
+[2026-06-12 14:57:38] API FATAL ERROR: Class "SPPMod\SPPXDB\DOMXPath" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.sqlparser.php on line 1274
+#0 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(86): call_user_func_array()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(28): SPPMod\SPPXDB\SPP_XDB->__call()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SppDb\XDBAdapter->execute()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(668): SPPMod\SPPDB\SPPDB->exec()
+#5 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(687): SPPMod\SPPDB\SPPDB->add_columns()
+#6 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(110): SPPMod\SPPDB\SPPDB->createTableIncremental()
+#7 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(73): SPP\Core\ModuleInstaller::executeDbYml()
+#8 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(307): SPP\Core\ModuleInstaller::install()
+#9 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(43): SPP\Core\ModuleInstaller::installAllActive()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(510): live_install_all_active()
+#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#12 {main}
+[2026-06-12 14:59:16] Context set to sppadmin
+[2026-06-12 15:06:55] Context set to sppadmin
+[2026-06-12 15:25:29] Context set to sppadmin
+[2026-06-12 15:26:56] Context set to sppadmin
+[2026-06-12 15:29:11] Context set to sppadmin
+[2026-06-12 15:30:51] Context set to sppadmin
+[2026-06-12 15:43:24] Context set to sppadmin
+[2026-06-12 15:54:49] Context set to sppadmin
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 14:56:05","id":"1","@id":"1"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[2026-06-12 16:46:59] Context set to sppadmin
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('sppconfig') returned: {"name":"sppconfig","version":"1.1","installed_at":"2026-06-12 14:56:13","last_updated_at":"2026-06-12 14:56:13","id":"2","@id":"2"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[2026-06-12 23:05:09] Context set to sppadmin
+[2026-06-12 23:05:25] Context set to sppadmin
+[2026-06-12 23:05:30] Context set to sppadmin
+[2026-06-12 23:05:30] Context set to sppadmin
+[2026-06-13 02:01:06] Context set to sppadmin
+[2026-06-13 07:46:32] Context set to sppadmin
+[2026-06-13 07:46:33] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:46:34] Context set to sppadmin
+[2026-06-13 07:46:34] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:46:36] Context set to sppadmin
+[2026-06-13 07:46:36] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:46:38] Context set to sppadmin
+[2026-06-13 07:46:38] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:46:40] Context set to sppadmin
+[2026-06-13 07:46:40] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:11] Context set to sppadmin
+[2026-06-13 07:47:11] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:12] Context set to sppadmin
+[2026-06-13 07:47:12] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:14] Context set to sppadmin
+[2026-06-13 07:47:14] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:16] Context set to sppadmin
+[2026-06-13 07:47:16] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:18] Context set to sppadmin
+[2026-06-13 07:47:18] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:47:43] Context set to sppadmin
+[2026-06-13 07:47:43] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:47:45] Context set to sppadmin
+[2026-06-13 07:47:45] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:47:47] Context set to sppadmin
+[2026-06-13 07:47:47] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:47:48] Context set to sppadmin
+[2026-06-13 07:47:48] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:47:50] Context set to sppadmin
+[2026-06-13 07:47:50] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:09] Context set to sppadmin
+[2026-06-13 07:48:09] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:10] Context set to sppadmin
+[2026-06-13 07:48:10] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:12] Context set to sppadmin
+[2026-06-13 07:48:12] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:14] Context set to sppadmin
+[2026-06-13 07:48:14] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:15] Context set to sppadmin
+[2026-06-13 07:48:15] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+#0 Command line code(1): require()
+#1 {main}
+[2026-06-13 07:48:54] Context set to sppadmin
+[2026-06-13 07:48:54] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:48:56] Context set to sppadmin
+[2026-06-13 07:48:56] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:48:58] Context set to sppadmin
+[2026-06-13 07:48:58] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:48:59] Context set to sppadmin
+[2026-06-13 07:48:59] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:01] Context set to sppadmin
+[2026-06-13 07:49:01] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:19] Context set to sppadmin
+[2026-06-13 07:49:19] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:21] Context set to sppadmin
+[2026-06-13 07:49:21] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:23] Context set to sppadmin
+[2026-06-13 07:49:23] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:24] Context set to sppadmin
+[2026-06-13 07:49:24] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:49:26] Context set to sppadmin
+[2026-06-13 07:49:26] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 07:52:33] Context set to sppadmin
+[2026-06-13 07:52:35] Context set to sppadmin
+[2026-06-13 07:52:37] Context set to sppadmin
+[2026-06-13 07:52:39] Context set to sppadmin
+[2026-06-13 07:52:41] Context set to sppadmin
+[2026-06-13 07:58:14] Context set to sppadmin
+[2026-06-13 07:58:15] Context set to sppadmin
+[2026-06-13 07:58:17] Context set to sppadmin
+[2026-06-13 07:58:19] Context set to sppadmin
+[2026-06-13 07:58:21] Context set to sppadmin
+[2026-06-13 07:59:02] Context set to sppadmin
+[2026-06-13 07:59:04] Context set to sppadmin
+[2026-06-13 07:59:06] Context set to sppadmin
+[2026-06-13 07:59:08] Context set to sppadmin
+[2026-06-13 07:59:10] Context set to sppadmin
+[2026-06-13 07:59:38] Context set to sppadmin
+[2026-06-13 07:59:39] Context set to sppadmin
+[2026-06-13 07:59:41] Context set to sppadmin
+[2026-06-13 07:59:43] Context set to sppadmin
+[2026-06-13 07:59:45] Context set to sppadmin
+[2026-06-13 08:00:19] Context set to sppadmin
+[2026-06-13 08:00:21] Context set to sppadmin
+[2026-06-13 08:00:23] Context set to sppadmin
+[2026-06-13 08:00:25] Context set to sppadmin
+[2026-06-13 08:00:26] Context set to sppadmin
+[2026-06-13 08:03:15] Context set to sppadmin
+[2026-06-13 08:03:17] Context set to sppadmin
+[2026-06-13 08:03:19] Context set to sppadmin
+[2026-06-13 08:03:21] Context set to sppadmin
+[2026-06-13 08:03:23] Context set to sppadmin
+[2026-06-13 08:04:13] Context set to sppadmin
+[2026-06-13 08:04:15] Context set to sppadmin
+[2026-06-13 08:04:16] Context set to sppadmin
+[2026-06-13 08:04:18] Context set to sppadmin
+[2026-06-13 08:04:20] Context set to sppadmin
+[2026-06-13 08:04:51] Context set to sppadmin
+[2026-06-13 08:04:53] Context set to sppadmin
+[2026-06-13 08:04:55] Context set to sppadmin
+[2026-06-13 08:04:57] Context set to sppadmin
+[2026-06-13 08:04:59] Context set to sppadmin
+[2026-06-13 08:05:19] Context set to sppadmin
+[2026-06-13 08:05:21] Context set to sppadmin
+[2026-06-13 08:05:23] Context set to sppadmin
+[2026-06-13 08:05:25] Context set to sppadmin
+[2026-06-13 08:05:28] Context set to sppadmin
+[2026-06-13 08:05:50] Context set to sppadmin
+[2026-06-13 08:05:52] Context set to sppadmin
+[2026-06-13 08:05:54] Context set to sppadmin
+[2026-06-13 08:05:56] Context set to sppadmin
+[2026-06-13 08:05:58] Context set to sppadmin
+[2026-06-13 08:08:03] Context set to sppadmin
+[2026-06-13 08:08:05] Context set to sppadmin
+[2026-06-13 08:08:07] Context set to sppadmin
+[2026-06-13 08:08:09] Context set to sppadmin
+[2026-06-13 08:08:11] Context set to sppadmin
+[2026-06-13 08:08:34] Context set to sppadmin
+[2026-06-13 08:08:36] Context set to sppadmin
+[2026-06-13 08:08:38] Context set to sppadmin
+[2026-06-13 08:08:39] Context set to sppadmin
+[2026-06-13 08:08:41] Context set to sppadmin
+[2026-06-13 08:09:00] Context set to sppadmin
+[2026-06-13 08:09:01] Context set to sppadmin
+[2026-06-13 08:09:03] Context set to sppadmin
+[2026-06-13 08:09:05] Context set to sppadmin
+[2026-06-13 08:09:07] Context set to sppadmin
+[2026-06-13 08:12:25] Context set to sppadmin
+[2026-06-13 08:12:27] Context set to sppadmin
+[2026-06-13 08:12:29] Context set to sppadmin
+[2026-06-13 08:12:31] Context set to sppadmin
+[2026-06-13 08:12:33] Context set to sppadmin
+[2026-06-13 11:02:50] Context set to sppadmin
+[2026-06-13 11:02:50] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:02:51] Context set to sppadmin
+[2026-06-13 11:02:51] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:02:53] Context set to sppadmin
+[2026-06-13 11:02:53] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:02:55] Context set to sppadmin
+[2026-06-13 11:02:55] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:02:57] Context set to sppadmin
+[2026-06-13 11:02:57] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:25] Context set to sppadmin
+[2026-06-13 11:03:25] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:27] Context set to sppadmin
+[2026-06-13 11:03:27] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:29] Context set to sppadmin
+[2026-06-13 11:03:29] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:31] Context set to sppadmin
+[2026-06-13 11:03:31] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:33] Context set to sppadmin
+[2026-06-13 11:03:33] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:47] Context set to sppadmin
+[2026-06-13 11:03:47] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:49] Context set to sppadmin
+[2026-06-13 11:03:49] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 15 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php(15): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:51] Context set to sppadmin
+[2026-06-13 11:03:51] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:53] Context set to sppadmin
+[2026-06-13 11:03:53] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:03:55] Context set to sppadmin
+[2026-06-13 11:03:55] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:04:15] Context set to sppadmin
+[2026-06-13 11:04:17] Context set to sppadmin
+[2026-06-13 11:04:19] Context set to sppadmin
+[2026-06-13 11:04:19] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:04:21] Context set to sppadmin
+[2026-06-13 11:04:21] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:04:23] Context set to sppadmin
+[2026-06-13 11:04:23] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:04:39] Context set to sppadmin
+[2026-06-13 11:04:40] Context set to sppadmin
+[2026-06-13 11:04:42] Context set to sppadmin
+[2026-06-13 11:04:42] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:04:44] Context set to sppadmin
+[2026-06-13 11:04:44] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:04:46] Context set to sppadmin
+[2026-06-13 11:04:46] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:05:13] Context set to sppadmin
+[2026-06-13 11:05:15] Context set to sppadmin
+[2026-06-13 11:05:17] Context set to sppadmin
+[2026-06-13 11:05:17] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:05:20] Context set to sppadmin
+[2026-06-13 11:05:20] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:05:22] Context set to sppadmin
+[2026-06-13 11:05:22] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:05:53] Context set to sppadmin
+[2026-06-13 11:05:55] Context set to sppadmin
+[2026-06-13 11:05:58] Context set to sppadmin
+[2026-06-13 11:05:58] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:06:00] Context set to sppadmin
+[2026-06-13 11:06:00] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:06:02] Context set to sppadmin
+[2026-06-13 11:06:02] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:08:28] Context set to sppadmin
+[2026-06-13 11:08:30] Context set to sppadmin
+[2026-06-13 11:08:32] Context set to sppadmin
+[2026-06-13 11:08:34] Context set to sppadmin
+[2026-06-13 11:08:34] API FATAL ERROR: Call to private method SPPMod\SppApi\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in C:\projects\apache\school1\spp\modules\spp\sppapi\Dispatchers\ServiceDispatcher.php on line 16
+#0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(75): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::dispatch('test_service')
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#2 Command line code(1): require('C:\\projects\\apa...')
+#3 {main}
+[2026-06-13 11:08:37] Context set to sppadmin
+[2026-06-13 11:09:29] Context set to sppadmin
+[2026-06-13 11:09:31] Context set to sppadmin
+[2026-06-13 11:09:34] Context set to sppadmin
+[2026-06-13 11:09:36] Context set to sppadmin
+[2026-06-13 11:09:38] Context set to sppadmin
+[2026-06-13 11:46:08] Context set to sppadmin
+[2026-06-13 11:46:08] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:46:10] Context set to sppadmin
+[2026-06-13 11:46:10] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:46:11] Context set to sppadmin
+[2026-06-13 11:46:13] Context set to sppadmin
+[2026-06-13 11:46:15] Context set to sppadmin
+[2026-06-13 11:46:46] Context set to sppadmin
+[2026-06-13 11:46:46] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:46:47] Context set to sppadmin
+[2026-06-13 11:46:47] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:46:49] Context set to sppadmin
+[2026-06-13 11:46:51] Context set to sppadmin
+[2026-06-13 11:46:53] Context set to sppadmin
+[2026-06-13 11:47:44] Context set to sppadmin
+[2026-06-13 11:47:44] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:47:46] Context set to sppadmin
+[2026-06-13 11:47:46] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPApiResponse" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppapi.php on line 26
+#0 C:\projects\apache\school1\spp\admin\api.php(358): SPPMod\SPPAPI\SPPAPI::handle()
+#1 Command line code(1): require('C:\\projects\\apa...')
+#2 {main}
+[2026-06-13 11:47:48] Context set to sppadmin
+[2026-06-13 11:47:49] Context set to sppadmin
+[2026-06-13 11:47:51] Context set to sppadmin
+[2026-06-13 11:49:21] Context set to sppadmin
+[2026-06-13 11:49:23] Context set to sppadmin
+[2026-06-13 11:49:25] Context set to sppadmin
+[2026-06-13 11:49:27] Context set to sppadmin
+[2026-06-13 11:49:29] Context set to sppadmin
+[2026-06-13 12:02:13] Context set to sppadmin
+[2026-06-13 12:02:15] Context set to sppadmin
+[2026-06-13 12:02:16] Context set to sppadmin
+[2026-06-13 12:02:18] Context set to sppadmin
+[2026-06-13 12:02:20] Context set to sppadmin
+[2026-06-13 12:21:30] Context set to sppadmin
+[2026-06-13 12:21:30] API FATAL ERROR: Call to undefined method SPPMod\SppApi\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
+#0 {main}
+[2026-06-13 12:22:01] Context set to sppadmin
+[2026-06-13 12:22:01] API FATAL ERROR: Call to undefined method SPPMod\SppApi\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
+#0 {main}
+[2026-06-13 12:23:54] Context set to sppadmin
+[2026-06-13 12:23:54] API FATAL ERROR: Call to private method SPPMod\SppApi\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php on line 80
+#0 /mnt/c/projects/apache/school1/spp/admin/api.php(382): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#1 {main}
+[2026-06-13 12:24:34] Context set to sppadmin
+[2026-06-13 12:25:04] Context set to sppadmin
+[2026-06-13 12:25:05] API FATAL ERROR: Too few arguments to function live_check_auth(), 1 passed and exactly 2 expected in /mnt/c/projects/apache/school1/spp/admin/services/Legacy.php on line 732
+#0 [internal function]: live_check_auth()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(129): call_user_func()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(382): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#3 {main}
+[2026-06-13 12:26:58] Context set to sppadmin
+[2026-06-13 12:27:58] Context set to sppadmin
+[2026-06-13 12:28:17] Context set to sppadmin
+[2026-06-13 12:29:25] Context set to sppadmin
+[2026-06-13 12:32:14] Context set to sppadmin
+[2026-06-13 12:32:20] Context set to sppadmin
+[2026-06-13 12:32:20] Context set to sppadmin
+[2026-06-13 12:32:35] Context set to sppadmin
+[2026-06-13 12:32:58] Context set to sppadmin
+[2026-06-13 12:33:17] Context set to sppadmin
+[2026-06-13 12:33:24] Context set to sppadmin
+[2026-06-13 12:33:24] Context set to sppadmin
+[2026-06-13 12:33:46] Context set to sppadmin
+[2026-06-13 12:33:46] Context set to sppadmin
+[2026-06-13 12:34:08] Context set to sppadmin
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('sppdb') returned: {"name":"sppdb","version":"1.2","installed_at":"2026-06-12 14:56:05","last_updated_at":"2026-06-12 17:54:02","id":"1","history":"sppdb1.22026-06-12 14:56:052026-06-12 14:56:051","@id":"1"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('spplogger') returned: {"name":"spplogger","version":"1.2","installed_at":"2026-06-12 14:56:14","last_updated_at":"2026-06-12 14:56:14","id":"3","@id":"3"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('sppapi') returned: {"name":"sppapi","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"4","@id":"4"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('drishyam') returned: {"name":"drishyam","version":"2.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"5","@id":"5"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('sppai') returned: {"name":"sppai","version":"1.0","installed_at":"2026-06-12 14:56:15","last_updated_at":"2026-06-12 14:56:15","id":"6","@id":"6"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('lekhni') returned: {"name":"lekhni","version":"1.2.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"7","@id":"7"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('sppmigrate') returned: {"name":"sppmigrate","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"8","@id":"8"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_drupal_bridge') returned: {"name":"lekhak_drupal_bridge","version":"1.0.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"9","@id":"9"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('lekhak_peeche') returned: {"name":"lekhak_peeche","version":"1.0","installed_at":"2026-06-12 14:56:16","last_updated_at":"2026-06-12 14:56:16","id":"10","@id":"10"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('sankhyaki') returned: {"name":"sankhyaki","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"11","@id":"11"}
+[ModuleInstaller] getModuleState('dbconfig') returned: null
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('parikshak') returned: {"name":"parikshak","version":"1.0.0","installed_at":"2026-06-12 14:56:17","last_updated_at":"2026-06-12 14:56:17","id":"12","@id":"12"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppauth') returned: {"name":"sppauth","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"13","@id":"13"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppview') returned: {"name":"sppview","version":"0.5","installed_at":"2026-06-12 14:59:23","last_updated_at":"2026-06-12 14:59:23","id":"14","@id":"14"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppxdb') returned: {"name":"sppxdb","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"15","@id":"15"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('sppsecurity') returned: {"name":"sppsecurity","version":"1.0.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"16","@id":"16"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak') returned: {"name":"lekhak","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"17","@id":"17"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[ModuleInstaller] getModuleState('lekhak_commerce') returned: {"name":"lekhak_commerce","version":"1.0","installed_at":"2026-06-12 14:59:24","last_updated_at":"2026-06-12 14:59:24","id":"18","@id":"18"}
+[2026-06-13 17:53:45] Context set to sppadmin
+[2026-06-13 15:55:02] Context set to sppadmin
+[2026-06-13 15:55:25] Context set to sppadmin
+[2026-06-13 15:55:32] Context set to sppadmin
+[2026-06-13 15:55:32] Context set to sppadmin
+[2026-06-14 02:27:28] Context set to sppadmin
+[2026-06-14 02:27:53] Context set to sppadmin
+[2026-06-14 02:28:01] Context set to sppadmin
+[2026-06-14 02:28:01] Context set to sppadmin
+[2026-06-14 04:08:25] Context set to sppadmin
+[2026-06-14 04:08:25] Context set to sppadmin
+[2026-06-14 04:22:31] Context set to sppadmin
+[2026-06-14 04:23:23] Context set to sppadmin
+[2026-06-14 04:23:30] Context set to sppadmin
+[2026-06-14 04:23:30] Context set to sppadmin
+[2026-06-14 04:31:40] Context set to sppadmin
+[2026-06-14 04:31:40] Context set to sppadmin
+[2026-06-14 05:14:36] Context set to sppadmin
+[2026-06-14 05:14:57] Context set to sppadmin
+[2026-06-14 05:15:06] Context set to sppadmin
+[2026-06-14 05:15:06] Context set to sppadmin
+[2026-06-14 05:15:15] Context set to sppadmin
+[2026-06-14 05:15:21] Context set to sppadmin
+[2026-06-14 05:15:21] Context set to sppadmin
+[2026-06-14 05:15:22] Context set to sppadmin
+[2026-06-14 05:15:22] Context set to sppadmin
+[2026-06-14 05:15:23] Context set to sppadmin
+[2026-06-14 05:16:00] Context set to sppadmin
+[2026-06-14 05:16:00] Context set to sppadmin
+[2026-06-14 05:16:02] Context set to sppadmin
+[2026-06-14 05:16:02] Context set to sppadmin
+[2026-06-14 05:16:02] Context set to sppadmin
+[2026-06-14 05:16:30] Context set to sppadmin
+[2026-06-14 05:16:30] Context set to sppadmin
+[2026-06-14 05:16:32] Context set to sppadmin
+[2026-06-14 05:16:32] Context set to sppadmin
+[2026-06-14 05:16:32] Context set to sppadmin
+[2026-06-14 05:17:00] Context set to sppadmin
+[2026-06-14 05:17:00] Context set to sppadmin
+[2026-06-14 05:17:02] Context set to sppadmin
+[2026-06-14 05:17:02] Context set to sppadmin
+[2026-06-14 05:17:03] Context set to sppadmin
+[2026-06-14 05:17:30] Context set to sppadmin
+[2026-06-14 05:17:30] Context set to sppadmin
+[2026-06-14 05:17:30] Context set to sppadmin
+[2026-06-14 05:17:30] Context set to sppadmin
+[2026-06-14 05:17:32] Context set to sppadmin
+[2026-06-14 05:18:00] Context set to sppadmin
+[2026-06-14 05:18:00] Context set to sppadmin
+[2026-06-14 05:18:00] Context set to sppadmin
+[2026-06-14 05:18:00] Context set to sppadmin
+[2026-06-14 05:18:01] Context set to sppadmin
+[2026-06-14 05:18:30] Context set to sppadmin
+[2026-06-14 05:18:30] Context set to sppadmin
+[2026-06-14 05:18:31] Context set to sppadmin
+[2026-06-14 05:18:31] Context set to sppadmin
+[2026-06-14 05:18:32] Context set to sppadmin
+[2026-06-14 05:18:32] Context set to sppadmin
+[2026-06-14 05:19:01] Context set to sppadmin
+[2026-06-14 05:19:01] Context set to sppadmin
+[2026-06-14 05:19:01] Context set to sppadmin
+[2026-06-14 05:19:01] Context set to sppadmin
+[2026-06-14 05:19:03] Context set to sppadmin
+[2026-06-14 05:19:31] Context set to sppadmin
+[2026-06-14 05:19:31] Context set to sppadmin
+[2026-06-14 05:19:32] Context set to sppadmin
+[2026-06-14 05:19:33] Context set to sppadmin
+[2026-06-14 05:19:33] Context set to sppadmin
+[2026-06-14 05:20:01] Context set to sppadmin
+[2026-06-14 05:20:01] Context set to sppadmin
+[2026-06-14 05:20:02] Context set to sppadmin
+[2026-06-14 05:20:02] Context set to sppadmin
+[2026-06-14 05:20:03] Context set to sppadmin
+[2026-06-14 05:20:31] Context set to sppadmin
+[2026-06-14 05:20:31] Context set to sppadmin
+[2026-06-14 05:20:32] Context set to sppadmin
+[2026-06-14 05:20:32] Context set to sppadmin
+[2026-06-14 05:20:33] Context set to sppadmin
+[2026-06-14 05:20:34] Context set to sppadmin
+[2026-06-14 05:21:01] Context set to sppadmin
+[2026-06-14 05:21:01] Context set to sppadmin
+[2026-06-14 05:21:02] Context set to sppadmin
+[2026-06-14 05:21:02] Context set to sppadmin
+[2026-06-14 05:21:03] Context set to sppadmin
+[2026-06-14 05:21:30] Context set to sppadmin
+[2026-06-14 05:21:30] Context set to sppadmin
+[2026-06-14 05:21:31] Context set to sppadmin
+[2026-06-14 05:21:31] Context set to sppadmin
+[2026-06-14 05:21:31] Context set to sppadmin
+[2026-06-14 05:22:00] Context set to sppadmin
+[2026-06-14 05:22:00] Context set to sppadmin
+[2026-06-14 05:22:01] Context set to sppadmin
+[2026-06-14 05:22:01] Context set to sppadmin
+[2026-06-14 05:22:02] Context set to sppadmin
+[2026-06-14 05:22:29] Context set to sppadmin
+[2026-06-14 05:22:29] Context set to sppadmin
+[2026-06-14 05:22:30] Context set to sppadmin
+[2026-06-14 05:22:30] Context set to sppadmin
+[2026-06-14 05:22:31] Context set to sppadmin
+[2026-06-14 05:23:00] Context set to sppadmin
+[2026-06-14 05:23:00] Context set to sppadmin
+[2026-06-14 05:23:00] Context set to sppadmin
+[2026-06-14 05:23:00] Context set to sppadmin
+[2026-06-14 05:23:01] Context set to sppadmin
+[2026-06-14 05:23:43] Context set to sppadmin
+[2026-06-14 05:23:43] Context set to sppadmin
+[2026-06-14 05:23:43] Context set to sppadmin
+[2026-06-14 05:23:43] Context set to sppadmin
+[2026-06-14 05:23:44] Context set to sppadmin
+[2026-06-14 05:24:43] Context set to sppadmin
+[2026-06-14 05:24:43] Context set to sppadmin
+[2026-06-14 05:24:43] Context set to sppadmin
+[2026-06-14 05:24:43] Context set to sppadmin
+[2026-06-14 05:24:45] Context set to sppadmin
+[2026-06-14 05:25:43] Context set to sppadmin
+[2026-06-14 05:25:43] Context set to sppadmin
+[2026-06-14 05:25:44] Context set to sppadmin
+[2026-06-14 05:25:44] Context set to sppadmin
+[2026-06-14 05:25:45] Context set to sppadmin
+[2026-06-14 05:26:21] Context set to sppadmin
+[2026-06-14 05:26:21] Context set to sppadmin
+[2026-06-14 05:26:22] Context set to sppadmin
+[2026-06-14 05:26:22] Context set to sppadmin
+[2026-06-14 05:26:23] Context set to sppadmin
+[2026-06-14 05:26:30] Context set to sppadmin
+[2026-06-14 05:26:30] Context set to sppadmin
+[2026-06-14 05:26:30] Context set to sppadmin
+[2026-06-14 05:26:30] Context set to sppadmin
+[2026-06-14 05:26:32] Context set to sppadmin
+[2026-06-14 05:26:42] Context set to sppadmin
+[2026-06-14 05:26:48] Context set to sppadmin
+[2026-06-14 05:26:48] Context set to sppadmin
+[2026-06-14 05:26:57] Context set to sppadmin
+[2026-06-14 05:27:03] Context set to sppadmin
+[2026-06-14 05:27:03] Context set to sppadmin
+[2026-06-14 05:27:04] Context set to sppadmin
+[2026-06-14 05:27:04] Context set to sppadmin
+[2026-06-14 05:27:05] Context set to sppadmin
+[2026-06-14 05:27:43] Context set to sppadmin
+[2026-06-14 05:27:43] Context set to sppadmin
+[2026-06-14 05:27:43] Context set to sppadmin
+[2026-06-14 05:27:45] Context set to sppadmin
+[2026-06-14 05:27:46] Context set to sppadmin
+[2026-06-14 05:28:14] Context set to sppadmin
+[2026-06-14 05:28:14] Context set to sppadmin
+[2026-06-14 05:28:15] Context set to sppadmin
+[2026-06-14 05:28:15] Context set to sppadmin
+[2026-06-14 05:28:16] Context set to sppadmin
+[2026-06-14 05:28:43] Context set to sppadmin
+[2026-06-14 05:28:43] Context set to sppadmin
+[2026-06-14 05:28:44] Context set to sppadmin
+[2026-06-14 05:28:44] Context set to sppadmin
+[2026-06-14 05:28:45] Context set to sppadmin
+[2026-06-14 05:29:13] Context set to sppadmin
+[2026-06-14 05:29:13] Context set to sppadmin
+[2026-06-14 05:29:13] Context set to sppadmin
+[2026-06-14 05:29:13] Context set to sppadmin
+[2026-06-14 05:29:15] Context set to sppadmin
+[2026-06-14 05:29:43] Context set to sppadmin
+[2026-06-14 05:29:43] Context set to sppadmin
+[2026-06-14 05:29:43] Context set to sppadmin
+[2026-06-14 05:29:43] Context set to sppadmin
+[2026-06-14 05:29:44] Context set to sppadmin
+[2026-06-14 05:30:12] Context set to sppadmin
+[2026-06-14 05:30:12] Context set to sppadmin
+[2026-06-14 05:30:13] Context set to sppadmin
+[2026-06-14 05:30:13] Context set to sppadmin
+[2026-06-14 05:30:14] Context set to sppadmin
+[2026-06-14 05:30:43] Context set to sppadmin
+[2026-06-14 05:30:43] Context set to sppadmin
+[2026-06-14 05:30:44] Context set to sppadmin
+[2026-06-14 05:30:44] Context set to sppadmin
+[2026-06-14 05:30:45] Context set to sppadmin
+[2026-06-14 05:31:12] Context set to sppadmin
+[2026-06-14 05:31:12] Context set to sppadmin
+[2026-06-14 05:31:13] Context set to sppadmin
+[2026-06-14 05:31:14] Context set to sppadmin
+[2026-06-14 05:31:14] Context set to sppadmin
+[2026-06-14 05:31:43] Context set to sppadmin
+[2026-06-14 05:31:43] Context set to sppadmin
+[2026-06-14 05:31:44] Context set to sppadmin
+[2026-06-14 05:31:44] Context set to sppadmin
+[2026-06-14 05:31:44] Context set to sppadmin
+[2026-06-14 05:32:13] Context set to sppadmin
+[2026-06-14 05:32:13] Context set to sppadmin
+[2026-06-14 05:32:13] Context set to sppadmin
+[2026-06-14 05:32:13] Context set to sppadmin
+[2026-06-14 05:32:15] Context set to sppadmin
+[2026-06-14 05:32:44] Context set to sppadmin
+[2026-06-14 05:32:44] Context set to sppadmin
+[2026-06-14 05:32:44] Context set to sppadmin
+[2026-06-14 05:32:44] Context set to sppadmin
+[2026-06-14 05:32:46] Context set to sppadmin
+[2026-06-14 05:33:44] Context set to sppadmin
+[2026-06-14 05:33:44] Context set to sppadmin
+[2026-06-14 05:33:45] Context set to sppadmin
+[2026-06-14 05:33:45] Context set to sppadmin
+[2026-06-14 05:33:46] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-14 05:34:43] Context set to sppadmin
+[2026-06-14 05:34:43] Context set to sppadmin
+[2026-06-14 05:34:44] Context set to sppadmin
+[2026-06-14 05:34:44] Context set to sppadmin
+[2026-06-14 05:34:46] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-14 05:35:44] Context set to sppadmin
+[2026-06-14 05:35:44] Context set to sppadmin
+[2026-06-14 05:35:45] Context set to sppadmin
+[2026-06-14 05:35:45] Context set to sppadmin
+[2026-06-14 05:35:45] Context set to sppadmin
+[2026-06-14 05:36:44] Context set to sppadmin
+[2026-06-14 05:36:44] Context set to sppadmin
+[2026-06-14 05:36:44] Context set to sppadmin
+[2026-06-14 05:36:45] Context set to sppadmin
+[2026-06-14 05:36:45] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-14 05:37:44] Context set to sppadmin
+[2026-06-14 05:37:44] Context set to sppadmin
+[2026-06-14 05:37:44] Context set to sppadmin
+[2026-06-14 05:37:45] Context set to sppadmin
+[2026-06-14 05:37:45] Context set to sppadmin
+[2026-06-14 05:38:13] Context set to sppadmin
+[2026-06-14 05:38:15] API FATAL ERROR: Call to undefined method SPPMod\SPPAuth\SPPUser::getValue() in /mnt/c/projects/apache/school1/spp/admin/services/Legacy.php on line 739
+#0 [internal function]: live_check_auth()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(130): call_user_func()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(393): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#3 {main}
+[2026-06-14 05:38:50] Context set to sppadmin
+[2026-06-14 05:38:52] API FATAL ERROR: Call to undefined method SPPMod\SPPAuth\SPPUser::getValue() in /mnt/c/projects/apache/school1/spp/admin/services/Legacy.php on line 739
+#0 [internal function]: live_check_auth()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(130): call_user_func()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(393): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#3 {main}
+[2026-06-14 05:44:43] Context set to sppadmin
+[2026-06-14 05:44:49] Context set to sppadmin
+[2026-06-14 05:44:49] Context set to sppadmin
+[2026-06-14 05:44:56] Context set to sppadmin
+[2026-06-14 05:45:01] Context set to sppadmin
+[2026-06-14 05:45:01] Context set to sppadmin
+[2026-06-14 05:45:01] Context set to sppadmin
+[2026-06-14 05:45:02] Context set to sppadmin
+[2026-06-14 05:45:02] Context set to sppadmin
+[2026-06-14 06:22:46] Context set to sppadmin
+[2026-06-14 06:22:46] Context set to sppadmin
+[2026-06-14 06:22:47] Context set to sppadmin
+[2026-06-14 06:22:47] Context set to sppadmin
+[2026-06-14 06:22:49] Context set to sppadmin
+[2026-06-14 06:23:09] Context set to sppadmin
+[2026-06-14 06:23:09] Context set to sppadmin
+[2026-06-14 06:23:10] Context set to sppadmin
+[2026-06-14 06:23:10] Context set to sppadmin
+[2026-06-14 06:23:10] Context set to sppadmin
+[2026-06-14 06:23:39] Context set to sppadmin
+[2026-06-14 06:23:39] Context set to sppadmin
+[2026-06-14 06:23:39] Context set to sppadmin
+[2026-06-14 06:23:39] Context set to sppadmin
+[2026-06-14 06:23:41] Context set to sppadmin
+[2026-06-14 06:24:09] Context set to sppadmin
+[2026-06-14 06:24:09] Context set to sppadmin
+[2026-06-14 06:24:10] Context set to sppadmin
+[2026-06-14 06:24:10] Context set to sppadmin
+[2026-06-14 06:24:11] Context set to sppadmin
+[2026-06-14 06:24:39] Context set to sppadmin
+[2026-06-14 06:24:39] Context set to sppadmin
+[2026-06-14 06:24:39] Context set to sppadmin
+[2026-06-14 06:24:39] Context set to sppadmin
+[2026-06-14 06:24:40] Context set to sppadmin
+[2026-06-14 06:25:09] Context set to sppadmin
+[2026-06-14 06:25:09] Context set to sppadmin
+[2026-06-14 06:25:09] Context set to sppadmin
+[2026-06-14 06:25:09] Context set to sppadmin
+[2026-06-14 06:25:10] Context set to sppadmin
+[2026-06-14 06:25:44] Context set to sppadmin
+[2026-06-14 06:25:44] Context set to sppadmin
+[2026-06-14 06:25:45] Context set to sppadmin
+[2026-06-14 06:25:45] Context set to sppadmin
+[2026-06-14 06:25:46] Context set to sppadmin
+[2026-06-14 06:26:43] Context set to sppadmin
+[2026-06-14 06:26:43] Context set to sppadmin
+[2026-06-14 06:26:44] Context set to sppadmin
+[2026-06-14 06:26:45] Context set to sppadmin
+[2026-06-14 06:26:45] Context set to sppadmin
+[2026-06-14 06:27:44] Context set to sppadmin
+[2026-06-14 06:27:44] Context set to sppadmin
+[2026-06-14 06:27:44] Context set to sppadmin
+[2026-06-14 06:27:44] Context set to sppadmin
+[2026-06-14 06:27:46] Context set to sppadmin
+[2026-06-14 06:28:44] Context set to sppadmin
+[2026-06-14 06:28:44] Context set to sppadmin
+[2026-06-14 06:28:44] Context set to sppadmin
+[2026-06-14 06:28:44] Context set to sppadmin
+[2026-06-14 06:28:46] Context set to sppadmin
+[2026-06-14 06:29:44] Context set to sppadmin
+[2026-06-14 06:29:44] Context set to sppadmin
+[2026-06-14 06:29:45] Context set to sppadmin
+[2026-06-14 06:29:45] Context set to sppadmin
+[2026-06-14 06:29:45] Context set to sppadmin
+[2026-06-14 06:30:44] Context set to sppadmin
+[2026-06-14 06:30:44] Context set to sppadmin
+[2026-06-14 06:30:44] Context set to sppadmin
+[2026-06-14 06:30:45] Context set to sppadmin
+[2026-06-14 06:30:46] Context set to sppadmin
+[2026-06-14 09:14:29] Context set to sppadmin
+[2026-06-14 09:14:29] Context set to sppadmin
+[2026-06-14 09:14:29] Context set to sppadmin
+[2026-06-14 09:14:30] Context set to sppadmin
+[2026-06-14 09:14:30] Context set to sppadmin
+[2026-06-14 09:14:30] Context set to sppadmin
+[2026-06-14 09:14:31] Context set to sppadmin
+[2026-06-14 09:14:31] Context set to sppadmin
+[2026-06-14 13:24:54] Context set to sppadmin
+[2026-06-14 13:24:58] Context set to sppadmin
+[2026-06-14 13:25:11] Context set to sppadmin
+[2026-06-14 13:25:11] Context set to sppadmin
+[2026-06-14 13:25:11] Context set to sppadmin
+[2026-06-14 13:25:11] Context set to sppadmin
+[2026-06-14 13:25:15] Context set to sppadmin
+[2026-06-14 13:25:25] Context set to sppadmin
+[2026-06-14 13:25:25] Context set to sppadmin
+[2026-06-14 13:25:25] Context set to sppadmin
+[2026-06-14 13:25:25] Context set to sppadmin
+[2026-06-14 13:25:29] Context set to sppadmin
+[2026-06-14 13:25:35] Context set to sppadmin
+[2026-06-14 13:25:36] Context set to sppadmin
+[2026-06-14 13:25:39] Context set to sppadmin
+[2026-06-14 13:25:41] Context set to sppadmin
+[2026-06-14 13:25:45] Context set to sppadmin
+[2026-06-14 13:26:01] Context set to sppadmin
+[2026-06-14 13:26:01] Context set to sppadmin
+[2026-06-14 13:26:02] Context set to sppadmin
+[2026-06-14 13:26:02] Context set to sppadmin
+[2026-06-14 13:26:04] Context set to sppadmin
+[2026-06-14 13:26:32] Context set to sppadmin
+[2026-06-14 13:26:32] Context set to sppadmin
+[2026-06-14 13:26:33] Context set to sppadmin
+[2026-06-14 13:26:33] Context set to sppadmin
+[2026-06-14 13:26:34] Context set to sppadmin
+[2026-06-14 13:26:35] Context set to sppadmin
+[2026-06-14 13:27:00] Context set to sppadmin
+[2026-06-14 13:27:00] Context set to sppadmin
+[2026-06-14 13:27:00] Context set to sppadmin
+[2026-06-14 13:27:00] Context set to sppadmin
+[2026-06-14 13:27:03] Context set to sppadmin
+[2026-06-14 13:27:04] Context set to sppadmin
+[2026-06-14 13:27:14] Context set to sppadmin
+[2026-06-14 13:27:30] Context set to sppadmin
+[2026-06-14 13:27:30] Context set to sppadmin
+[2026-06-14 13:27:30] Context set to sppadmin
+[2026-06-14 13:27:30] Context set to sppadmin
+[2026-06-14 13:27:32] Context set to sppadmin
+[2026-06-14 13:28:00] Context set to sppadmin
+[2026-06-14 13:28:00] Context set to sppadmin
+[2026-06-14 13:28:02] Context set to sppadmin
+[2026-06-14 13:28:02] Context set to sppadmin
+[2026-06-14 13:28:02] Context set to sppadmin
+[2026-06-14 13:28:30] Context set to sppadmin
+[2026-06-14 13:28:31] Context set to sppadmin
+[2026-06-14 13:28:31] Context set to sppadmin
+[2026-06-14 13:28:31] Context set to sppadmin
+[2026-06-14 13:28:32] Context set to sppadmin
+[2026-06-14 13:29:01] Context set to sppadmin
+[2026-06-14 13:29:01] Context set to sppadmin
+[2026-06-14 13:29:01] Context set to sppadmin
+[2026-06-14 13:29:01] Context set to sppadmin
+[2026-06-14 13:29:03] Context set to sppadmin
+[2026-06-14 13:29:30] Context set to sppadmin
+[2026-06-14 13:29:30] Context set to sppadmin
+[2026-06-14 13:29:31] Context set to sppadmin
+[2026-06-14 13:29:32] Context set to sppadmin
+[2026-06-14 13:29:32] Context set to sppadmin
+[2026-06-14 13:30:35] Context set to sppadmin
+[2026-06-14 13:30:35] Context set to sppadmin
+[2026-06-14 13:30:36] Context set to sppadmin
+[2026-06-14 13:30:36] Context set to sppadmin
+[2026-06-14 13:30:37] Context set to sppadmin
+[2026-06-14 13:31:36] Context set to sppadmin
+[2026-06-14 13:31:36] Context set to sppadmin
+[2026-06-14 13:31:37] Context set to sppadmin
+[2026-06-14 13:31:37] Context set to sppadmin
+[2026-06-14 13:31:38] Context set to sppadmin
+[2026-06-14 13:32:35] Context set to sppadmin
+[2026-06-14 13:32:35] Context set to sppadmin
+[2026-06-14 13:32:36] Context set to sppadmin
+[2026-06-14 13:32:36] Context set to sppadmin
+[2026-06-14 13:32:37] Context set to sppadmin
+[2026-06-14 13:33:36] Context set to sppadmin
+[2026-06-14 13:33:36] Context set to sppadmin
+[2026-06-14 13:33:36] Context set to sppadmin
+[2026-06-14 13:33:36] Context set to sppadmin
+[2026-06-14 13:33:37] Context set to sppadmin
+[2026-06-14 13:34:35] Context set to sppadmin
+[2026-06-14 13:34:35] Context set to sppadmin
+[2026-06-14 13:34:36] Context set to sppadmin
+[2026-06-14 13:34:36] Context set to sppadmin
+[2026-06-14 13:34:37] Context set to sppadmin
+[2026-06-14 13:35:36] Context set to sppadmin
+[2026-06-14 13:35:36] Context set to sppadmin
+[2026-06-14 13:35:36] Context set to sppadmin
+[2026-06-14 13:35:36] Context set to sppadmin
+[2026-06-14 13:35:37] Context set to sppadmin
+[2026-06-14 13:36:35] Context set to sppadmin
+[2026-06-14 13:36:35] Context set to sppadmin
+[2026-06-14 13:36:36] Context set to sppadmin
+[2026-06-14 13:36:36] Context set to sppadmin
+[2026-06-14 13:36:37] Context set to sppadmin
+[2026-06-14 13:37:36] Context set to sppadmin
+[2026-06-14 13:37:36] Context set to sppadmin
+[2026-06-14 13:37:36] Context set to sppadmin
+[2026-06-14 13:37:36] Context set to sppadmin
+[2026-06-14 13:37:38] Context set to sppadmin
+[2026-06-14 13:38:36] Context set to sppadmin
+[2026-06-14 13:38:36] Context set to sppadmin
+[2026-06-14 13:38:36] Context set to sppadmin
+[2026-06-14 13:38:37] Context set to sppadmin
+[2026-06-14 13:38:37] Context set to sppadmin
+[2026-06-14 13:39:36] Context set to sppadmin
+[2026-06-14 13:39:36] Context set to sppadmin
+[2026-06-14 13:39:37] Context set to sppadmin
+[2026-06-14 13:39:37] Context set to sppadmin
+[2026-06-14 13:39:38] Context set to sppadmin
+[2026-06-14 13:40:36] Context set to sppadmin
+[2026-06-14 13:40:36] Context set to sppadmin
+[2026-06-14 13:40:36] Context set to sppadmin
+[2026-06-14 13:40:36] Context set to sppadmin
+[2026-06-14 13:40:38] Context set to sppadmin
+[2026-06-14 13:41:36] Context set to sppadmin
+[2026-06-14 13:41:36] Context set to sppadmin
+[2026-06-14 13:41:37] Context set to sppadmin
+[2026-06-14 13:41:37] Context set to sppadmin
+[2026-06-14 13:41:38] Context set to sppadmin
+[2026-06-14 13:42:36] Context set to sppadmin
+[2026-06-14 13:42:36] Context set to sppadmin
+[2026-06-14 13:42:36] Context set to sppadmin
+[2026-06-14 13:42:36] Context set to sppadmin
+[2026-06-14 13:42:38] Context set to sppadmin
+[2026-06-14 13:43:37] Context set to sppadmin
+[2026-06-14 13:43:37] Context set to sppadmin
+[2026-06-14 13:43:37] Context set to sppadmin
+[2026-06-14 13:43:37] Context set to sppadmin
+[2026-06-14 13:43:38] Context set to sppadmin
+[2026-06-14 13:44:36] Context set to sppadmin
+[2026-06-14 13:44:36] Context set to sppadmin
+[2026-06-14 13:44:37] Context set to sppadmin
+[2026-06-14 13:44:37] Context set to sppadmin
+[2026-06-14 13:44:37] Context set to sppadmin
+[2026-06-14 13:45:30] Context set to sppadmin
+[2026-06-14 13:45:30] Context set to sppadmin
+[2026-06-14 13:45:31] Context set to sppadmin
+[2026-06-14 13:45:31] Context set to sppadmin
+[2026-06-14 13:45:32] Context set to sppadmin
+[2026-06-14 13:45:51] Context set to sppadmin
+[2026-06-14 13:46:14] Context set to sppadmin
+[2026-06-14 13:46:22] Context set to sppadmin
+[2026-06-14 13:46:22] Context set to sppadmin
+[2026-06-14 13:46:32] Context set to sppadmin
+[2026-06-14 13:46:39] Context set to sppadmin
+[2026-06-14 13:46:39] Context set to sppadmin
+[2026-06-14 13:46:41] Context set to sppadmin
+[2026-06-14 13:46:41] Context set to sppadmin
+[2026-06-14 13:46:42] Context set to sppadmin
+[2026-06-14 13:50:12] Context set to sppadmin
+[2026-06-15 07:07:34] Context set to sppadmin
+[2026-06-15 07:07:39] Context set to sppadmin
+[2026-06-15 07:08:24] Context set to sppadmin
+[2026-06-15 07:08:30] Context set to sppadmin
+[2026-06-15 07:08:35] Context set to sppadmin
+[2026-06-15 05:23:13] Context set to sppadmin
+[2026-06-15 05:23:47] Context set to sppadmin
+[2026-06-16 02:39:15] Context set to sppadmin
+[2026-06-16 02:39:36] Context set to sppadmin
+[2026-06-16 02:39:50] Context set to sppadmin
+[2026-06-16 02:39:50] Context set to sppadmin
+[2026-06-16 02:39:58] Context set to sppadmin
+[2026-06-16 02:40:08] Context set to sppadmin
+[2026-06-16 02:40:08] Context set to sppadmin
+[2026-06-16 02:40:08] Context set to sppadmin
+[2026-06-16 02:40:09] Context set to sppadmin
+[2026-06-16 02:40:11] Context set to sppadmin
+[2026-06-16 02:40:30] Context set to sppadmin
+[2026-06-16 02:40:30] Context set to sppadmin
+[2026-06-16 02:40:35] Context set to sppadmin
+[2026-06-16 02:40:35] Context set to sppadmin
+[2026-06-16 02:40:40] Context set to sppadmin
+[2026-06-16 02:40:40] Context set to sppadmin

@@ -1,5 +1,5 @@
 sppdb: '1.2'
-sppconfig: '1.1'
+dbconfig: '1.1'
 sppauth: '0.5'
 sppprofile: '1.1'
 sppwizard: '0.5'

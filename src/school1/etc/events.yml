@@ -1,0 +1,7 @@
+events:
+  test_event:
+    - App\School1\Events\MyHandler
+  test_overridable:
+    listeners: {  }
+    overridable: true
+    default_handler: App\School1\Events\OverridableHandler

@@ -8,14 +8,24 @@ namespace SPPMod\Parikshak;
  */
 abstract class SPPTestCase
 {
+    use InteractsWithMockery;
+    use InteractsWithBrowser;
+
     public function setUp(): void
     {
-        // Setup logic before each test runs
+        // Re-initialize DB provider for the current context (e.g. lekhak's in-memory SQLite)
+        if (class_exists('\\SPP\\DB')) {
+            \SPP\DB::setProvider(new \SPPMod\SPPDB\SPPDB());
+        }
     }
 
     public function tearDown(): void
     {
         // Teardown logic after each test runs
+        if (class_exists('\Mockery')) {
+            \Mockery::close();
+        }
+        $this->closeBrowser();
     }
 
     protected function assertTrue($condition, string $message = ''): void

@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\sppux\Migrations;
+namespace SPPMod\Drishyam\Migrations;
 
 use SPP\Core\Migration;
 

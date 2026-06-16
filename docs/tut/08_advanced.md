@@ -75,6 +75,50 @@ php spp/spp.php build:edge
 
 ---
 
+## SPPConfig: The .env & YAML Engine
+
+`SPPConfig` is the heart of the configuration management system. It securely maps environment variables (from `.env` files or OS injections) into your YAML configuration files using **YAML Interpolation**.
+
+### The Problem with Hardcoding Secrets
+Never commit passwords to Git! Instead of writing your database password into `settings.yml`, use the `env:` prefix:
+
+```yaml
+# etc/settings.yml
+sppdb:
+  host: "env:DB_HOST"
+  password: "env:DB_PASS"
+```
+
+### The .env File
+Create a `.env` file at the root of your project:
+```env
+DB_HOST=127.0.0.1
+DB_PASS=SuperSecretPassword123!
+```
+
+### Accessing the Interpolated Config
+When your application requests `SPPConfig::get('mod:sppdb:password')`, the framework automatically detects the `env:` prefix in the YAML file and replaces it with the actual value from your `.env` file on-the-fly.
+
+```php
+// Returns "SuperSecretPassword123!"
+$password = \SPP\SPPConfig::get('mod:sppdb:password');
+```
+
+### Fallbacks and Type-Casting
+You can provide default fallback values using the pipe (`|`) operator. Furthermore, the engine automatically casts `"true"`, `"false"`, `"null"`, and numerics into their strict PHP types.
+
+```yaml
+# etc/settings.yml
+sppapi:
+  enable_jwt: "env:JWT_ENABLED|true"
+  max_retries: "env:API_RETRIES|5"
+```
+If `JWT_ENABLED` is missing from the `.env` file, it will safely fallback to the **boolean** `true`.
+
+This guarantees your application is "Twelve-Factor App" compliant and completely secure for production Docker/Kubernetes deployments.
+
+---
+
 ## Final Thoughts
 
 You've now covered the basics of the SPP framework! For more advanced implementations, refer to the source code of the core modules in `spp/modules/spp/`.

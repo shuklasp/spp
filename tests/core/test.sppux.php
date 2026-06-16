@@ -1,10 +1,10 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
-use SPPMod\SPPUX\SPPUX;
+use SPPMod\Parikshak\SPPTestCase;
+use SPPMod\Drishyam\SPPUX;
 
-class SPPUXTest extends TestCase
+class SPPUXTest extends SPPTestCase
 {
     public function testComponentMarkupGeneration()
     {

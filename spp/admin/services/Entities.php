@@ -7,7 +7,7 @@ if (!function_exists('live_Entities_List')) {
     function live_Entities_List($la, $params) {
         $appname = $params['appname'] ?? 'default';
         $entities = \SPP\Scheduler::withContext($appname, function() {
-            return \SPPMod\SPPEntity\SPPEntity::listAvailableEntities();
+            return \SPPMod\SppDb\SPPEntity::listAvailableEntities();
         });
         $la->setData(['entities' => array_values($entities)]);
     }
@@ -24,7 +24,7 @@ if (!function_exists('live_Entities_Save')) {
         }
 
         try {
-            \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($name, $appname, $config);
+            \SPPMod\SppDb\SPPEntity::saveEntityDefinition($name, $appname, $config);
             $la->notify("Entity '$name' saved successfully.", "success");
         } catch (\Exception $e) {
             $la->setStatus('error')->notify("Failed: " . $e->getMessage());

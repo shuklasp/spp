@@ -8,4 +8,4 @@ module:
     - class.sppentity.php
     - entityexceptions.php
   deps:
-    depends: sppconfig
+    depends: dbconfig

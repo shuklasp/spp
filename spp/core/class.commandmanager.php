@@ -9,6 +9,61 @@ namespace SPP\CLI;
 class CommandManager
 {
     /**
+     * Safely checks if a file contains a class extending SPP\CLI\Command before requiring it.
+     * @param string $file The path to the PHP file.
+     * @param string $expectedClass The expected class name (without namespace).
+     * @param string $expectedNamespace The expected namespace (optional).
+     * @return bool True if safe to load, false otherwise.
+     */
+    private static function isSafeToLoadCommand(string $file, string $expectedClass, string $expectedNamespace = ''): bool
+    {
+        if (!file_exists($file)) return false;
+        
+        $content = file_get_contents($file);
+        if ($content === false) return false;
+
+        // Basic sanity check: Does it even mention 'extends [Anything]Command'?
+        if (!preg_match('/extends\s+[a-zA-Z0-9_\\\\]*Command\b/i', $content)) {
+            return false;
+        }
+
+        // Token-based parsing for more robust validation
+        $tokens = token_get_all($content);
+        $namespace = '';
+        $className = '';
+        $extends = '';
+        $inNamespace = false;
+        $inClass = false;
+        $inExtends = false;
+
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                if ($token[0] === T_NAMESPACE) {
+                    $inNamespace = true;
+                } elseif ($inNamespace && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED)) {
+                    $namespace = $token[1];
+                    $inNamespace = false;
+                } elseif ($token[0] === T_CLASS) {
+                    $inClass = true;
+                } elseif ($inClass && $token[0] === T_STRING) {
+                    $className = $token[1];
+                    $inClass = false;
+                } elseif ($token[0] === T_EXTENDS) {
+                    $inExtends = true;
+                } elseif ($inExtends && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED)) {
+                    $extends = $token[1];
+                    $inExtends = false;
+                }
+            }
+        }
+
+        if ($className !== $expectedClass) return false;
+        if ($expectedNamespace && $namespace !== $expectedNamespace) return false;
+
+        return stripos($extends, 'Command') !== false;
+    }
+
+    /**
      * Discovers all available commands from core and apps.
      *
      * @return array<string, Command>
@@ -39,9 +94,15 @@ class CommandManager
 
                     $className = basename($file, '.php');
                     $class = 'SPP\\CLI\\Commands\\' . $className;
+                    
                     if (!class_exists($class, false)) {
-                        require_once $file;
+                        if (self::isSafeToLoadCommand($file, $className, 'SPP\CLI\Commands')) {
+                            require_once $file;
+                        } else {
+                            continue; // Unsafe or not a command
+                        }
                     }
+                    
                     if (class_exists($class)) {
                         $reflection = new \ReflectionClass($class);
                         if ($reflection->isAbstract()) {
@@ -83,10 +144,17 @@ class CommandManager
                             $loadedFiles[$realFile] = true;
 
                             $className = basename($file, '.php');
-                            $class = "App\\" . ucfirst($appName) . "\\Commands\\" . $className;
+                            $expectedNamespace = "App\\" . ucfirst($appName) . "\\Commands";
+                            $class = $expectedNamespace . "\\" . $className;
+                            
                             if (!class_exists($class, false)) {
-                                require_once $file;
+                                if (self::isSafeToLoadCommand($file, $className, $expectedNamespace)) {
+                                    require_once $file;
+                                } else {
+                                    continue;
+                                }
                             }
+                            
                             if (class_exists($class)) {
                                 $cmdObj = new $class();
                                 if ($cmdObj instanceof Command) {
@@ -139,10 +207,15 @@ class CommandManager
                         // SPPMod\{ModuleName}\Commands\{ClassName}
                         $modName = $modObj->InternalName ?? basename($modDir);
                         $nsMod = str_replace('.', '\\', ucwords($modName, '.'));
-                        $class = "SPPMod\\{$nsMod}\\Commands\\{$className}";
+                        $expectedNamespace = "SPPMod\\{$nsMod}\\Commands";
+                        $class = "{$expectedNamespace}\\{$className}";
 
                         if (!class_exists($class, false)) {
-                            require_once $file;
+                            if (self::isSafeToLoadCommand($file, $className, $expectedNamespace)) {
+                                require_once $file;
+                            } else {
+                                continue;
+                            }
                         }
 
                         if (class_exists($class)) {

@@ -25,14 +25,12 @@ class CachePurgeCommand extends Command
         $tags = [];
         $url = null;
 
-        foreach ($args as $arg) {
-            if ($arg === 'cache:purge' || $arg === 'spp.php') continue;
-            if (str_starts_with($arg, '--tags=')) {
-                $tags = explode(',', substr($arg, 7));
-            } elseif (str_starts_with($arg, '--url=')) {
-                $url = substr($arg, 6);
-            }
+        $tagsOpt = $this->getOption($args, 'tags');
+        if ($tagsOpt) {
+            $tags = explode(',', $tagsOpt);
         }
+        
+        $url = $this->getOption($args, 'url');
 
         if (empty($tags) && !$url) {
             $this->error("Usage: php spp.php cache:purge [--tags=tag1,tag2] [--url=/path]");

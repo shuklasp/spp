@@ -44,94 +44,33 @@ class AutoApiRouter
                 exit;
             }
 
-            $user = null;
-            if (class_exists('\\SPPMod\\SPPAuth\\SPPUser')) {
-                $user = \SPPMod\SPPAuth\SPPUser::find_one(['username' => $username]);
+            $params = new \SPP\EventParams([
+                'username' => $username,
+                'password' => $password,
+                'authenticated' => false,
+                'token' => null,
+                'expires_in' => 3600
+            ]);
+
+            if (class_exists('\\SPP\\SPPEvent')) {
+                \SPP\SPPEvent::fireEvent('api.auth.token_request', $params);
             }
 
-            if (!$user || !password_verify($password, $user->password)) {
+            if (!$params->get('authenticated')) {
                 http_response_code(401);
                 echo json_encode(["status" => "error", "message" => "Invalid credentials."]);
                 exit;
             }
 
-            $secret = \SPP\Module::getConfig('jwt_secret', 'sppapi') ?: 'default-secret';
-            $expires = \SPP\Module::getConfig('jwt_expires_in', 'sppapi') ?: 3600;
-            
-            $payload = [
-                'user_id' => $user->id,
-                'username' => $user->username
-            ];
-
-            if (!class_exists('\\SPPMod\\SPPAPI\\JWTAuth')) {
-                require_once SPP_APP_DIR . '/spp/modules/spp/sppapi/src/JWTAuth.php';
-            }
-
-            $token = \SPPMod\SPPAPI\JWTAuth::encode($payload, $secret, (int)$expires);
-            echo json_encode(["status" => "success", "token" => $token, "expires_in" => (int)$expires]);
+            echo json_encode([
+                "status" => "success", 
+                "token" => $params->get('token'), 
+                "expires_in" => $params->get('expires_in')
+            ]);
             exit;
         }
 
-        if ($requireAuth) {
-            $authHeader = '';
-            if (function_exists('getallheaders')) {
-                $headers = getallheaders();
-                $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
-            } else {
-                $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-            }
-            
-            $token = '';
-            if (str_starts_with($authHeader, 'Bearer ')) {
-                $token = substr($authHeader, 7);
-            } elseif (isset($_GET['api_key'])) {
-                $token = $_GET['api_key'];
-            }
-
-            if (empty($token)) {
-                http_response_code(401);
-                echo json_encode(["status" => "error", "message" => "Unauthorized. Token required."]);
-                exit;
-            }
-
-            $isValid = false;
-
-            // 1. Check JWT
-            $configVal2 = \SPP\Module::getConfig('enable_jwt', 'sppapi');
-            $enableJwt2 = $configVal2 === true || $configVal2 === 'true' || $configVal2 === '1' || $configVal2 === 1;
-
-            if ($enableJwt2) {
-                if (!class_exists('\\SPPMod\\SPPAPI\\JWTAuth')) {
-                    require_once SPP_APP_DIR . '/spp/modules/spp/sppapi/src/JWTAuth.php';
-                }
-                $secret = \SPP\Module::getConfig('jwt_secret', 'sppapi') ?: 'default-secret';
-                $payload = \SPPMod\SPPAPI\JWTAuth::decode($token, $secret);
-                if ($payload !== false) {
-                    $isValid = true;
-                    // Optional: Setup session/guard user context here if needed
-                }
-            }
-
-            // 2. Check Permanent API Key
-            if (!$isValid) {
-                $db = new \SPPMod\SPPDB\SPPDB();
-                if ($db->tableExists('api_keys')) {
-                    $keys = $db->execute_query("SELECT id, status, expires_at FROM api_keys WHERE token = ? LIMIT 1", [$token]);
-                    if (!empty($keys)) {
-                        $key = $keys[0];
-                        if ($key['status'] == 1 && (empty($key['expires_at']) || strtotime($key['expires_at']) > time())) {
-                            $isValid = true;
-                        }
-                    }
-                }
-            }
-
-            if (!$isValid) {
-                http_response_code(401);
-                echo json_encode(["status" => "error", "message" => "Unauthorized. Invalid or expired token."]);
-                exit;
-            }
-        }
+        // API Validation delegated to \SPP\Core\Middleware\ApiAuthMiddleware
         
         if (count($parts) < 3) {
             http_response_code(400);
@@ -176,7 +115,14 @@ class AutoApiRouter
             } else {
                 // Zero-touch: Dynamically define the class at runtime if no PHP file exists
                 $namespace = "App\\" . ucfirst($context) . "\\Entities";
-                $evalCode = "namespace $namespace { class {$entityName} extends \\SPPMod\\SPPEntity\\SPPEntity {} }";
+                $baseClass = '\\stdClass';
+                if (class_exists('\\SPP\\SPPEvent')) {
+                    $params = new \SPP\EventParams(['base_class' => '\\stdClass']);
+                    \SPP\SPPEvent::fireEvent('api.resolve_base_entity', $params);
+                    $baseClass = $params->get('base_class');
+                }
+                
+                $evalCode = "namespace $namespace { class {$entityName} extends {$baseClass} {} }";
                 eval($evalCode);
             }
         }

@@ -20,12 +20,22 @@ require_once __DIR__ . '/spplang.php';
 require_once __DIR__ . '/Legacy.php';
 require_once __DIR__ . '/Diagnostics.php';
 require_once __DIR__ . '/Docs.php';
+require_once __DIR__ . '/Audit.php';
+require_once __DIR__ . '/AdminRBAC.php';
 
 // Auth Redirects
 if (!function_exists('live_login')) { function live_login($la, $p) { live_Auth_Login($la, $p); } }
+if (!function_exists('live_Auth_VerifyMFA')) { function live_Auth_VerifyMFA($la, $p) { live_Auth_VerifyMFA($la, $p); } }
+if (!function_exists('live_Auth_SendMagicLink')) { function live_Auth_SendMagicLink($la, $p) { live_Auth_SendMagicLink($la, $p); } }
+if (!function_exists('live_Auth_ConsumeMagicLink')) { function live_Auth_ConsumeMagicLink($la, $p) { live_Auth_ConsumeMagicLink($la, $p); } }
 if (!function_exists('live_logout')) { function live_logout($la, $p) { live_Auth_Logout($la, $p); } }
 if (!function_exists('live_check_auth')) { function live_check_auth($la, $p) { live_Auth_Profile($la, $p); } }
 if (!function_exists('live_get_profile')) { function live_get_profile($la, $p) { live_Auth_Profile($la, $p); } }
+if (!function_exists('live_Auth_ListApiKeys')) { function live_Auth_ListApiKeys($la, $p) { live_IAM_ListApiKeys($la, $p); } }
+if (!function_exists('live_Auth_GenerateApiKey')) { function live_Auth_GenerateApiKey($la, $p) { live_IAM_GenerateApiKey($la, $p); } }
+if (!function_exists('live_Auth_RevokeApiKey')) { function live_Auth_RevokeApiKey($la, $p) { live_IAM_RevokeApiKey($la, $p); } }
+if (!function_exists('live_Auth_GenerateMFASecret')) { function live_Auth_GenerateMFASecret($la, $p) { live_IAM_GenerateMFASecret($la, $p); } }
+if (!function_exists('live_Auth_EnableMFA')) { function live_Auth_EnableMFA($la, $p) { live_IAM_EnableMFA($la, $p); } }
 
 // Core Redirects
 if (!function_exists('live_list_apps')) { function live_list_apps($la, $p) { live_Core_ListApps($la, $p); } }
@@ -61,6 +71,7 @@ if (!function_exists('live_save_global_settings')) { function live_save_global_s
 if (!function_exists('live_list_modules')) { function live_list_modules($la, $p) { live_List($la, $p); } }
 if (!function_exists('live_scan_module')) { function live_scan_module($la, $p) { live_Scan($la, $p); } }
 if (!function_exists('live_setup_module')) { function live_setup_module($la, $p) { live_Setup($la, $p); } }
+if (!function_exists('live_uninstall_module')) { function live_uninstall_module($la, $p) { live_Uninstall($la, $p); } }
 if (!function_exists('live_get_module_config')) { function live_get_module_config($la, $p) { live_GetConfig($la, $p); } }
 if (!function_exists('live_save_module_config')) { function live_save_module_config($la, $p) { live_SaveConfig($la, $p); } }
 if (!function_exists('live_save_module_config_raw')) { function live_save_module_config_raw($la, $p) { live_SaveConfigRaw($la, $p); } }
@@ -84,6 +95,7 @@ if (!function_exists('live_dump_form_yaml')) { function live_dump_form_yaml($la,
 if (!function_exists('live_system_update_list')) { function live_system_update_list($la, $p) { live_lifecycle_updatelist($la, $p); } }
 if (!function_exists('live_system_update_run')) { function live_system_update_run($la, $p) { live_lifecycle_updaterun($la, $p); } }
 if (!function_exists('live_sync_deployment_token')) { function live_sync_deployment_token($la, $p) { live_lifecycle_rotatetoken($la, $p); } }
+if (!function_exists('live_sys_upgrade')) { function live_sys_upgrade($la, $p) { live_sys_upgrade($la, $p); } }
 
 // Routing Redirects
 if (!function_exists('live_list_pages')) { function live_list_pages($la, $p) { live_Routing_ListPages($la, $p); } }
@@ -98,6 +110,12 @@ if (!function_exists('live_list_users')) { function live_list_users($la, $p) { l
 if (!function_exists('live_list_roles')) { function live_list_roles($la, $p) { live_IAM_ListRoles($la, $p); } }
 if (!function_exists('live_list_rights')) { function live_list_rights($la, $p) { live_IAM_ListRights($la, $p); } }
 if (!function_exists('live_list_rbac')) { function live_list_rbac($la, $p) { live_IAM_ListRBAC($la, $p); } }
+if (!function_exists('live_list_abac_policies')) { function live_list_abac_policies($la, $p) { live_IAM_ListABAC($la, $p); } }
+if (!function_exists('live_save_abac_policy')) { function live_save_abac_policy($la, $p) { live_IAM_SaveABAC($la, $p); } }
+if (!function_exists('live_delete_abac_policy')) { function live_delete_abac_policy($la, $p) { live_IAM_DeleteABAC($la, $p); } }
+if (!function_exists('live_list_oauth_clients')) { function live_list_oauth_clients($la, $p) { live_IAM_ListOAuthClients($la, $p); } }
+if (!function_exists('live_save_oauth_client')) { function live_save_oauth_client($la, $p) { live_IAM_SaveOAuthClient($la, $p); } }
+if (!function_exists('live_delete_oauth_client')) { function live_delete_oauth_client($la, $p) { live_IAM_DeleteOAuthClient($la, $p); } }
 if (!function_exists('live_list_entity_assignments')) { function live_list_entity_assignments($la, $p) { live_IAM_ListEntityAssignments($la, $p); } }
 if (!function_exists('live_get_iam_details')) { function live_get_iam_details($la, $p) { live_IAM_GetDetails($la, $p); } }
 if (!function_exists('live_search_entities')) { function live_search_entities($la, $p) { live_IAM_SearchEntities($la, $p); } }
@@ -143,19 +161,19 @@ if (!function_exists('live_load_view')) {
         $data = [];
         if ($view === 'system') {
             error_log("[SPPAdmin] Collecting system data...");
-            $la_sys = new \SPPMod\SPPAjax\LiveAction();
+            $la_sys = new \SPPMod\SppApi\LiveAction();
             live_Core_GetSystemInfo($la_sys, []);
             $data['system'] = $la_sys->getData();
             
-            $la_bridge = new \SPPMod\SPPAjax\LiveAction();
+            $la_bridge = new \SPPMod\SppApi\LiveAction();
             live_Core_GetBridgeInfo($la_bridge, []);
             $data['bridge'] = $la_bridge->getData();
             
-            $la_apps = new \SPPMod\SPPAjax\LiveAction();
+            $la_apps = new \SPPMod\SppApi\LiveAction();
             live_Core_ListApps($la_apps, []);
             $data['apps'] = $la_apps->getData()['apps'] ?? [];
             
-            $la_settings = new \SPPMod\SPPAjax\LiveAction();
+            $la_settings = new \SPPMod\SppApi\LiveAction();
             live_Config_GetGlobalSettings($la_settings, []);
             $data['settings'] = $la_settings->getData();
         }

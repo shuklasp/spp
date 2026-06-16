@@ -25,8 +25,8 @@ class SPP_Wizard extends \SPP\SPPObject
         if (!\SPP\SPPSession::sessionExists()) {
             throw new SessionDoesNotExistException('No session exists!');
         }
-        $wizards = \SPP\SPPSession::getSessionVar('__wizards__');
-        return $wizards[$wname];
+        $wizards = \SPP\SPPSession::sessionVarExists('__wizards__') ? \SPP\SPPSession::getSessionVar('__wizards__') : [];
+        return $wizards[$wname] ?? null;
     }
 
     /**
@@ -57,7 +57,7 @@ class SPP_Wizard extends \SPP\SPPObject
                 {
                     self::createWizard($wname);
                 }*/
-        $wizards = \SPP\SPPSession::getSessionVar('__wizards__');
+        $wizards = \SPP\SPPSession::sessionVarExists('__wizards__') ? \SPP\SPPSession::getSessionVar('__wizards__') : [];
         unset($wizards[$wname]);
         \SPP\SPPSession::setSessionVar('__wizards__', $wizards);
     }
@@ -79,7 +79,7 @@ class SPP_Wizard extends \SPP\SPPObject
                 {
                     self::createWizard($wname);
                 }*/
-        $wizards = \SPP\SPPSession::getSessionVar('__wizards__');
+        $wizards = \SPP\SPPSession::sessionVarExists('__wizards__') ? \SPP\SPPSession::getSessionVar('__wizards__') : [];
         if (array_key_exists($wname, $wizards)) {
             return true;
         } else {
@@ -118,7 +118,7 @@ class SPP_Wizard extends \SPP\SPPObject
                 {
                     self::createWizard($wname);
                 }*/
-        $wizards = \SPP\SPPSession::getSessionVar('__wizards__');
+        $wizards = \SPP\SPPSession::sessionVarExists('__wizards__') ? \SPP\SPPSession::getSessionVar('__wizards__') : [];
         if ($method == 'post') {
             foreach ($_POST as $key => $val) {
                 $wizards[$key] = $val;

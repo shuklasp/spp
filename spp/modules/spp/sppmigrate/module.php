@@ -19,24 +19,8 @@ class SppMigrateModule
         $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 
         // --- Server API Endpoints ---
-        if (preg_match('#/api/sppmigrate/ping/?$#', $path)) {
-            require_once __DIR__ . '/src/Api/PingEndpoint.php';
-            exit;
-        }
-
-        if (preg_match('#/api/sppmigrate/diff/?$#', $path)) {
-            require_once __DIR__ . '/src/Api/DiffEndpoint.php';
-            exit;
-        }
-
-        if (preg_match('#/api/sppmigrate/deploy/files/?$#', $path)) {
-            require_once __DIR__ . '/src/Api/DeployFilesEndpoint.php';
-            exit;
-        }
-
-        if (preg_match('#/api/sppmigrate/deploy/db/?$#', $path)) {
-            require_once __DIR__ . '/src/Api/DeployDbEndpoint.php';
-            exit;
+        if (preg_match('#/api/sppmigrate/(ping|diff|deploy|deploy/files|deploy/db)/?$#', $path)) {
+            \SPPMod\SPPMigrate\Api\Receiver::handle($path);
         }
 
         // --- Client UI Endpoints ---

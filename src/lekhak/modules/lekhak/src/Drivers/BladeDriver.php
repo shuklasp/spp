@@ -12,7 +12,7 @@ class BladeDriver
     public static function register(Renderer $renderer): void
     {
         $renderer->registerDriver('blade', function($content, $data, $context) {
-            $blade = new \SPPMod\SPPBlade\SPPBlade();
+            $blade = new \SPPMod\Drishyam\SPPBlade();
             
             // If we have a file path, extract the view name for BladeOne
             // BladeOne expects a view name (e.g. 'node'), not a full filesystem path

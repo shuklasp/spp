@@ -32,3 +32,7 @@ if (class_exists('\\SPP\\SPPEvent')) {
     \SPP\SPPEvent::registerEvent('xdb.before_delete');
     \SPP\SPPEvent::registerEvent('xdb.after_delete');
 }
+
+if (class_exists('\\SPP\\Core\\XDB\\XDBFacade')) {
+    \SPP\Core\XDB\XDBFacade::setProvider('\\SPPMod\\SPPXDB\\SPPXDB');
+}

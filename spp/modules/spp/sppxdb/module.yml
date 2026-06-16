@@ -11,7 +11,7 @@ module:
         - sppxdb.php
     deps:
         - sppdb
-        - sppconfig
+        - dbconfig
     settings:
         sys:db.engine:
             type: select

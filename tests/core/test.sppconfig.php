@@ -1,10 +1,10 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
+use SPPMod\Parikshak\SPPTestCase;
 use SPP\SPPConfig;
 
-class SPPConfigTest extends TestCase
+class SPPConfigTest extends SPPTestCase
 {
     public function testGetEnvValue()
     {

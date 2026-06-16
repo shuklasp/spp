@@ -12,17 +12,25 @@ namespace SPP\Core\XDB;
  */
 class XDBFacade
 {
+    private static $provider = null;
+
+    public static function setProvider($providerClass): void
+    {
+        self::$provider = $providerClass;
+    }
+
     /**
      * Initializes an XDB Entity by name.
-     * Delegates to the legacy SPPDB/SPPXDB engines.
+     * Delegates to the registered provider engine.
      */
     public static function getEntity(string $entityName)
     {
-        if (class_exists('\\SPPMod\\SPPXDB\\SPPXDB')) {
-            return new \SPPMod\SPPXDB\SPPXDB($entityName);
+        if (self::$provider !== null && class_exists(self::$provider)) {
+            $class = self::$provider;
+            return new $class($entityName);
         }
 
-        throw new \Exception("SPPXDB legacy module is not loaded or available.");
+        throw new \Exception("XDB provider module is not loaded or available.");
     }
 
     /**

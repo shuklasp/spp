@@ -1,12 +1,37 @@
 # 05. Routing and Views
 
-Routing in SPP is simple and flexible, allowing you to define static and dynamic pages with AJAX fragment loading.
+Routing in SPP is simple and flexible, allowing you to define static routes, use modern PHP Attributes, or dynamic pages with AJAX fragment loading.
 
 ---
 
-## Defining Routes in `pages.yml`
+## Attribute-Based Routing (Modern Approach)
 
-The `etc/pages.yml` file is the central source of truth for routing. A typical page definition looks like this:
+SPP supports modern PHP attribute-based routing directly on your controller methods. This keeps your routing logic tightly coupled with your implementation.
+
+```php
+namespace App\Controllers;
+
+use SPPMod\SPPView\Attributes\Route;
+use SPPMod\SPPView\Attributes\Middleware;
+use App\Middleware\AuthMiddleware;
+
+#[Middleware(AuthMiddleware::class)]
+class UserController {
+    
+    #[Route('/users/{id}', method: 'GET', name: 'user.show')]
+    #[Middleware(LogMiddleware::class)]
+    public function show(string $id) {
+        // Render user view
+    }
+}
+```
+The framework automatically scans `controllers/` and `src/Controllers/` directories and aggressively caches the routes for high performance. It will also queue and execute any Middleware classes defined via attributes.
+
+---
+
+## Defining Routes in `pages.yml` (Legacy/Configuration Approach)
+
+The `etc/pages.yml` file allows you to define routes centrally. A typical page definition looks like this:
 
 ```yaml
 pages:
@@ -29,15 +54,38 @@ $userId = $pageData['params'][0]; // This retrieves "123"
 
 ---
 
-## The `ViewPage` Rendering Engine
+## High-Performance View Engine & Pre-compilation
 
-The `ViewPage` class manages the HTML output of your application. You can add global CSS/JS assets, set page titles, and more.
+SPPView utilizes a lightning-fast, AST-based DOM compiler (`ViewCompiler`). It parses HTML and custom elements down to highly optimized, natively cached `.php` files in `var/cache/views`.
+
+To ensure maximum performance in production, you can pre-compile all views using the SPP CLI:
+```bash
+php spp.php view:cache
+```
+
+### AST-Based Control Structures
+SPPView provides custom HTML elements that compile directly to native PHP control structures, making your templates cleaner:
+
+```html
+<spp-if condition="isset($user)">
+    <p>Welcome, <?= $user->name ?></p>
+</spp-if>
+
+<ul>
+<spp-foreach loop="$users as $u">
+    <li><?= $u->name ?></li>
+</spp-foreach>
+</ul>
+
+<!-- Flash Messages -->
+<spp-flash key="success"></spp-flash>
+```
 
 ### 1. Show the Page
 ```php
 \SPPMod\SPPView\ViewPage::showPage();
 ```
-This is the core rendering method. It handles routing and includes the appropriate PHP file from your `src/` directory.
+This is the core rendering method. It handles routing and includes the appropriate compiled PHP file.
 
 ### 2. Include Assets Dynamically
 ```php

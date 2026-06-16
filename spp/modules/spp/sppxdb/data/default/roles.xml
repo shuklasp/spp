@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
   <_meta>
-    <next_id>2</next_id>
+    <next_id>4</next_id>
   </_meta>
-<row id="1"><role_name>Admin</role_name><description>System Administrator with full access</description><id>1</id></row></database>
+<_schema><column name="roleid" type="INTEGER" autoIncrement="true"/><column name="PRIMARY" type="KEY"/><column name="rolename" type="VARCHAR"/></_schema><row id="1"><role_name>Admin</role_name><description>System Administrator with full access</description><id>1</id></row><row id="2"><roleid>1</roleid><rolename>Admin</rolename><id>2</id></row><row id="3"><roleid>2</roleid><rolename>Operator</rolename><id>3</id></row></database>

@@ -27,7 +27,7 @@ class ViewServiceRemoveCommand extends Command
         }
 
         \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
-            \SPPMod\SPPAjax\SPPAjax::unregisterService($name, $source);
+            \SPPMod\SppApi\SPPAjax::unregisterService($name, $source);
         });
 
         echo "Success: AJAX Service '{$name}' removed for app '{$appname}' (Source: {$source}).\n";

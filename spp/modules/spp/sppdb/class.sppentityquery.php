@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPEntity;
+namespace SPPMod\SppDb;
 
 /**
  * Class SppEntityQuery
@@ -220,7 +220,7 @@ class SppEntityQuery
         $sql = preg_replace('/^SELECT base\.\* FROM/i', 'SELECT COUNT(*) as total FROM', $sqlData['sql']);
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
+        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
@@ -253,7 +253,7 @@ class SppEntityQuery
         $sql = $sqlData['sql'];
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
+        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
@@ -312,7 +312,7 @@ class SppEntityQuery
         $sql = $sqlData['sql'];
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
+        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
@@ -328,7 +328,7 @@ class SppEntityQuery
             }
             $entity->after_load();
             if (class_exists('\\SPP\\Core\\EventManager')) {
-                \SPP\Core\EventManager::trigger('entity:after_load', $entity);
+                \SPP\SPPEvent::triggerHook('entity:after_load', $entity);
             }
             yield $entity;
         }
@@ -339,11 +339,11 @@ class SppEntityQuery
      */
     protected function hydrateFromRaw(array $result): array
     {
-        /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
+        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $entities = [];
         foreach ($result as $row) {
-            /** @var \SPPMod\SPPEntity\SPPEntity $entity */
+            /** @var \SPPMod\SppDb\SPPEntity $entity */
             $entity = new $this->entityClass();
             $entity->setId($row[$entityInstance::getMetadata('id_field')]);
             foreach ($row as $attribute => $value) {
@@ -355,7 +355,7 @@ class SppEntityQuery
         }
 
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SPPEntity\SppDynamicFieldHandler::loadFields($entities);
+            \SPPMod\SppDb\SppDynamicFieldHandler::loadFields($entities);
         }
 
         if (!empty($entities) && !empty($this->withRelations)) {
@@ -365,7 +365,7 @@ class SppEntityQuery
         foreach ($entities as $entity) {
             $entity->after_load();
             if (class_exists('\\SPP\\Core\\EventManager')) {
-                \SPP\Core\EventManager::trigger('entity:after_load', $entity);
+                \SPP\SPPEvent::triggerHook('entity:after_load', $entity);
             }
         }
 
@@ -559,7 +559,7 @@ class SppEntityQuery
             }
         }
 
-        /** @var \SPPMod\SPPEntity\SPPEntity $entityInstance */
+        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 

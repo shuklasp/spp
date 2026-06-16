@@ -9,7 +9,7 @@ class CreateAppCommand extends Command
     {
         $appName = $args[2] ?? '';
         if (empty($appName) || str_starts_with($appName, '--')) {
-            echo "Error: Please provide a valid target application identifier. Example: php spp.php create:app dashboard\n";
+            echo "Error: Please provide a valid target application identifier. Example: php spp.php make:app dashboard\n";
             return;
         }
 
@@ -30,7 +30,7 @@ class CreateAppCommand extends Command
 
     public function getName(): string
     {
-        return 'create:app';
+        return 'make:app';
     }
 
     public function getDescription(): string

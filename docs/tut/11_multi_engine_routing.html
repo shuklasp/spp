@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>11. Multi-Engine Routing | SPP Framework Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html" class="active">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>11. Multi-Engine Paradigm Routing</h1>
+            <p>Welcome to the future of frontend development in SPP!</p>
+            <p>In earlier tutorials, we built classical SPP applications using <code>sppview</code> and the legacy <code>.html</code> + PHP rendering pipeline. Today, we're going to explore how SPP's <span class="accent">Multi-Engine Paradigm Router</span> allows you to seamlessly integrate modern reactive paradigms—using either <strong>Blade</strong> or <strong>Twig</strong>—right alongside your existing legacy routes.</p>
+
+            <hr>
+
+            <h2>What is the Paradigm Router?</h2>
+            <p>The Paradigm Router is a transparent interceptor built directly into <code>sppview</code>. When you define a route in your configuration (like <code>url: pages/dashboard.html</code>), the framework checks to see if the <code>drishyam</code> module is enabled.</p>
+            
+            <p>If it is, the router searches for modern template equivalents in your <code>resources/views</code> directory. It uses a cascading fallback sequence:</p>
+            <ol>
+                <li><strong>Twig:</strong> <code>resources/views/pages/dashboard.twig</code></li>
+                <li><strong>Blade:</strong> <code>resources/views/pages/dashboard.blade.php</code></li>
+                <li><strong>Legacy HTML/PHP:</strong> <code>apps/your_app/pages/dashboard.html</code> (or <code>.php</code>)</li>
+            </ol>
+            <p>This architecture allows you to selectively "upgrade" individual routes to modern reactive templates without touching your routing definitions or breaking your legacy pages!</p>
+
+            <hr>
+
+            <h2>Step 1: Enabling Drishyam</h2>
+            <p>To use Blade or Twig, ensure the <code>drishyam</code> (SPP-UX) module is enabled in your <code>app.yml</code>:</p>
+            <pre><code>modules:
+  - sppview
+  - drishyam</code></pre>
+
+            <hr>
+
+            <h2>Step 2: Defining a Route</h2>
+            <p>Let's define a basic route in our <code>routes.yml</code>. Notice how we still specify the <code>.html</code> extension, preserving our application's contract.</p>
+            <pre><code>routes:
+  dashboard:
+    url: pages/dashboard.html
+    auth: true</code></pre>
+
+            <hr>
+
+            <h2>Step 3: Choosing Your Engine</h2>
+            <p>Now, instead of creating <code>apps/myapp/pages/dashboard.html</code>, we'll create a modern template in the <code>resources/views/pages/</code> folder. You can use whichever syntax you prefer!</p>
+
+            <h3>Option A: Using Twig</h3>
+            <p>Create <code>resources/views/pages/dashboard.twig</code>:</p>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Dashboard&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to the Twig Dashboard&lt;/h1&gt;
+    
+    &lt;div class="user-info"&gt;
+        {# Using our unified SPP macros! #}
+        {% if sppauth() %}
+            &lt;p&gt;You are logged in.&lt;/p&gt;
+            {{ sppform('profile_update') }}
+        {% else %}
+            &lt;p&gt;Please log in.&lt;/p&gt;
+        {% endif %}
+    &lt;/div&gt;
+
+    &lt;!-- Mount an SPP-UX Component seamlessly --&gt;
+    {{ sppux('DashboardWidget', {'color': 'blue'}) }}
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <h3>Option B: Using Blade</h3>
+            <p>Alternatively, if you prefer Laravel's Blade syntax, create <code>resources/views/pages/dashboard.blade.php</code>:</p>
+            <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Dashboard&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome to the Blade Dashboard&lt;/h1&gt;
+    
+    &lt;div class="user-info"&gt;
+        {{-- Using the exact same unified SPP macros! --}}
+        @sppauth
+            &lt;p&gt;You are logged in.&lt;/p&gt;
+            @sppform('profile_update')
+        @endsppauth
+    &lt;/div&gt;
+
+    &lt;!-- Mount an SPP-UX Component seamlessly --&gt;
+    @sppux('DashboardWidget', ['color' =&gt; 'blue'])
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+            <hr>
+
+            <h2>Unified Template Macros</h2>
+            <p>Notice how both engines utilize the exact same custom SPP directives! We maintain a single source of truth (<code>TemplateMacros</code>) for all our custom tags.</p>
+            <p>Here are the most common macros available across both Twig and Blade:</p>
+            <ul>
+                <li><strong>Forms:</strong> <code>@sppform('form_name')</code> / <code>{{ sppform('form_name') }}</code></li>
+                <li><strong>Elements:</strong> <code>@sppelement('element_id')</code> / <code>{{ sppelement('element_id') }}</code></li>
+                <li><strong>Auth Checks:</strong> <code>@sppauth ... @endsppauth</code> / <code>{% if sppauth() %}</code></li>
+                <li><strong>Reactive Components:</strong> <code>@sppux('Comp')</code> / <code>{{ sppux('Comp') }}</code></li>
+                <li><strong>React/Vue Components:</strong> <code>@react('Comp')</code> / <code>{{ react('Comp') }}</code></li>
+            </ul>
+
+            <hr>
+
+            <h2>Step 4: Simple PHP Execution</h2>
+            <p>What if you have a microservice route that just returns a raw script, or you just want a standard native PHP file? You can bypass the Paradigm Router entirely by defining the extension specifically in your route:</p>
+            <pre><code>routes:
+  export:
+    url: pages/export.php</code></pre>
+            <p>Because the URL does not end in <code>.html</code>, the router will skip Twig and Blade checks and natively <code>include()</code> your <code>pages/export.php</code> file using the <code>DefaultViewRenderHandler</code>!</p>
+
+            <footer class="footer-nav">
+                <a href="10_advanced_reporting.html" class="nav-button">
+                    <span class="label">Previous</span>
+                    <span class="title">&larr; 10. Advanced Reporting</span>
+                </a>
+            </footer>
+        </article>
+    </main>
+</body>
+</html>

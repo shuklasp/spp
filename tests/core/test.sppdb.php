@@ -1,7 +1,7 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
+use SPPMod\Parikshak\SPPTestCase;
 use SPPMod\SPPDB\QueryBuilder;
 use SPPMod\SPPDB\SPPDB;
 
@@ -13,7 +13,7 @@ class DummySPPDB extends SPPDB
     }
 }
 
-class SPPDBTest extends TestCase
+class SPPDBTest extends SPPTestCase
 {
     private $db;
 

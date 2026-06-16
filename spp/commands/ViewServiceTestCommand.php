@@ -51,7 +51,7 @@ class ViewServiceTestCommand extends Command
         \SPP\Scheduler::withContext($appname, function() use ($name, $payload) {
             try {
                 // Suppress headers already sent warnings in CLI mode
-                @\SPPMod\SPPAjax\SPPAjax::resolveAndExecute($name, $payload);
+                @\SPPMod\SppApi\SPPAjax::resolveAndExecute($name, $payload);
             } catch (\Exception $e) {
                 echo json_encode([
                     'status' => 'error',

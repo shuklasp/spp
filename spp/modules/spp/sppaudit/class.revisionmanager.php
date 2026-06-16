@@ -22,7 +22,8 @@ class RevisionManager
         self::ensureSchema();
 
         // Listen for save hook to record delta snapshots automatically
-        \SPP\Core\EventManager::listen('entity:before_save', function ($entity) {
+        \SPP\SPPEvent::listen('entity:before_save', function (\SPP\EventParams $params) {
+            $entity = $params->get('entity');
             self::auditEntity($entity);
         });
 

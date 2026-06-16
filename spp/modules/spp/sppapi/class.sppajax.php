@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPAjax;
+namespace SPPMod\SppApi;
 
 use Symfony\Component\Yaml\Yaml;
 
@@ -37,160 +37,53 @@ class SPPAjax extends \SPP\SPPObject
      */
     public static function handle(): void
     {
+        // Enforce API Rate Limiting via Event-Driven Middleware
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::fireEvent('api.request.start', new \SPP\EventParams());
+        }
+
         if (!self::isSpaEnabled()) {
             self::respond('error', ['message' => 'SPA mode is disabled.'], 503);
         }
 
         // SSE Streaming Handler: ?__spa_stream=service_name
         if (isset($_GET['__spa_stream'])) {
-            self::dispatchStream(trim($_GET['__spa_stream']));
+            \SPPMod\SPPAPI\Dispatchers\StreamDispatcher::dispatch(trim($_GET['__spa_stream']));
             return;
         }
 
         // Component Action: ?__svc=component_action
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'component_action') {
-            self::dispatchComponentAction();
+            \SPPMod\SPPAPI\Dispatchers\ComponentDispatcher::dispatchAction();
             return;
         }
 
         // Autonomous Intent API Route Morphing: ?__svc=intent_morph
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'intent_morph') {
-            self::dispatchIntentMorph();
+            \SPPMod\SPPAPI\Dispatchers\IntentDispatcher::dispatch();
             return;
         }
 
         // Real-Time Native CDC Event Streamer: ?__svc=cdc_stream
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'cdc_stream') {
-            self::dispatchCdcStream();
+            \SPPMod\SPPAPI\Dispatchers\CdcDispatcher::dispatch();
             return;
         }
 
         // Service call: ?__svc=service_name
         if (isset($_GET['__svc'])) {
-            self::dispatchService(trim($_GET['__svc']));
+            \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::dispatch(trim($_GET['__svc']));
             return;
         }
 
         // Component JS: ?__js_comp=ComponentName
         if (isset($_GET['__js_comp'])) {
-            self::dispatchComponentJS(trim($_GET['__js_comp']));
+            \SPPMod\SPPAPI\Dispatchers\ComponentDispatcher::dispatchJS(trim($_GET['__js_comp']));
             return;
         }
 
         // Page fragment request: ?q=page_name&__spa=1
-        self::dispatchPage();
-    }
-
-    /**
-     * Executes a backend service script in real-time streaming mode via standard Server-Sent Events.
-     */
-    public static function dispatchStream(string $service): void
-    {
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-
-        http_response_code(200);
-        header('Content-Type: text/event-stream; charset=utf-8');
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no'); // Bypass Nginx/proxy layer buffering
-
-        $emit = function (string $event, array $data) {
-            $payload = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-            echo "event: {$event}\ndata: {$payload}\n\n";
-            @ob_flush();
-            @flush();
-        };
-
-        // Notify client stream instantiated successfully
-        $emit('start', ['message' => 'SSE stream pipeline instantiated successfully.']);
-
-        $svc = self::findService($service);
-        $serviceFile = null;
-
-        if ($svc && !empty($svc['script'])) {
-            $serviceFile = realpath(SPP_APP_DIR . '/' . ltrim($svc['script'], '/'));
-        } else {
-            // Fallback dynamic lookup
-            $context = \SPP\Scheduler::getContext();
-            $srcPath = \SPP\App::getAppConf('src_path', $context) ?: ('src/' . $context);
-            $servFile = realpath(SPP_APP_DIR . '/' . ltrim($srcPath, '/') . '/serv/' . $service . '.php');
-            if ($servFile && file_exists($servFile)) {
-                $serviceFile = $servFile;
-            }
-        }
-
-        if ($serviceFile && file_exists($serviceFile)) {
-            try {
-                // Pass closure helper to current service inclusion context
-                $sseEmit = $emit;
-                include $serviceFile;
-                $emit('complete', ['status' => 'success']);
-            } catch (\Throwable $e) {
-                $emit('error', ['message' => 'Stream exception: ' . $e->getMessage()]);
-            }
-        } else {
-            $emit('error', ['message' => "Requested stream target '{$service}' unresolvable."]);
-        }
-
-        exit;
-    }
-
-    /**
-     * Handles an AJAX action from a generated JS component by routing it
-     * back to the corresponding PHPComponent class and method.
-     */
-    public static function dispatchComponentAction(): void
-    {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $compName = $input['component'] ?? null;
-        $method = $input['method'] ?? null;
-        $data = $input['data'] ?? [];
-
-        if (!$compName || !$method) {
-            self::respond('error', ['message' => 'Invalid component action request.']);
-        }
-
-        try {
-            $app = \SPP\Scheduler::getContext();
-            $className = "App\\" . ucfirst($app) . "\\Components\\" . $compName;
-
-            if (!class_exists($className)) {
-                self::respond('error', ['message' => "Component '{$compName}' not found."]);
-            }
-
-            $component = new $className();
-            if (!method_exists($component, $method)) {
-                self::respond('error', ['message' => "Method '{$method}' not found in component '{$compName}'."]);
-            }
-
-            // Execute the action
-            $result = $component->$method($data);
-
-            self::respond('ok', [
-                'result' => $result,
-                'state' => $component->getState()
-            ]);
-        } catch (\Throwable $e) {
-            self::respond('error', ['message' => 'Component Action Error: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Dynamically generates and serves the JS for a PHP component.
-     */
-    public static function dispatchComponentJS(string $name): void
-    {
-        header('Content-Type: application/javascript; charset=utf-8');
-        try {
-            $app = \SPP\Scheduler::getContext();
-            $className = "App\\" . ucfirst($app) . "\\Components\\" . $name;
-            echo \SPPMod\SPPView\JSGenerator::generate($className);
-        } catch (\Exception $e) {
-            echo "// Error generating component JS: " . $e->getMessage();
-        }
-        exit;
+        \SPPMod\SPPAPI\Dispatchers\PageDispatcher::dispatch();
     }
 
     /**
@@ -213,321 +106,6 @@ class SPPAjax extends \SPP\SPPObject
     }
 
     // -------------------------------------------------------------------------
-    // Page fragment dispatcher
-    // -------------------------------------------------------------------------
-
-    /**
-     * Resolves the requested page via Pages::getPage(), captures its output,
-     * and returns JSON { status, html, title }.
-     */
-    public static function dispatchPage(): void
-    {
-        $q = isset($_GET['q']) ? trim($_GET['q']) : null;
-
-        try {
-            $page = \SPPMod\SPPView\Pages::getPage($q);
-        } catch (\SPP\SPPException $e) {
-            self::respond('error', ['message' => $e->getMessage()], 404);
-        }
-
-        if (empty($page['url'])) {
-            self::respond('error', ['message' => 'Page not found.'], 404);
-        }
-
-        $pageDir = \SPP\Module::getConfig('spa_page_dir', 'sppajax') ?: '/src/pages';
-        $filename = SPP_APP_DIR . $pageDir . '/' . ltrim($page['url'], '/');
-
-        // Resolve symlinks and prevent path traversal
-        $realBase = realpath(SPP_APP_DIR . $pageDir);
-        $realFile = realpath($filename);
-
-        if ($realFile === false || !str_starts_with($realFile, $realBase)) {
-            self::respond('error', ['message' => 'Forbidden.'], 403);
-        }
-
-        if (!file_exists($realFile) || !is_file($realFile)) {
-            self::respond('error', ['message' => 'Page file not found.'], 404);
-        }
-
-        // Capture the page output
-        ob_start();
-        try {
-            include $realFile;
-        } catch (\Throwable $e) {
-            ob_end_clean();
-            \SPPMod\SPPLogger\SPP_Logger::error("SPPAjax Page Exception ($filename): " . $e->getMessage());
-            self::respond('error', ['message' => 'Page render error: ' . $e->getMessage()], 500);
-        }
-        $html = ob_get_clean();
-
-        self::respond('ok', [
-            'html' => $html,
-            'title' => \SPPMod\SPPView\ViewPage::getPageTitle() ?? $page['name'] ?? '',
-            'page' => $page['name'] ?? '',
-            'params' => $page['params'] ?? [],
-        ]);
-    }
-
-    // -------------------------------------------------------------------------
-    // Service dispatcher
-    // -------------------------------------------------------------------------
-
-    /**
-     * Dispatches to a registered service script and returns its $response as JSON.
-     * Only services declared in services.yml can be called.
-     */
-    public static function dispatchService(string $name): void
-    {
-        // Sanitize
-        $name = preg_replace('/[^a-zA-Z0-9_\-]/', '', $name);
-
-        $service = self::findService($name);
-        if ($service === null) {
-            self::respond('error', ['message' => 'Unknown service: ' . $name], 403);
-        }
-
-        // SPA Native Auth interceptor protecting endpoint dynamically
-        if (!empty($service['requires_auth']) && filter_var($service['requires_auth'], FILTER_VALIDATE_BOOLEAN)) {
-            if (!\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
-                self::respond('error', ['message' => 'Unauthorized component execution.'], 401);
-            }
-        }
-
-        // Enforce HTTP method constraint
-        $allowedMethod = strtoupper($service['method'] ?? 'GET');
-        if ($_SERVER['REQUEST_METHOD'] !== $allowedMethod) {
-            self::respond('error', [
-                'message' => "Service '{$name}' requires {$allowedMethod}.",
-            ], 405);
-        }
-
-        // Resolve script path securely
-        if (isset($service['runtime']) && isset($service['target'])) {
-            // Polyglot Service Execution
-            try {
-                $args = array_merge($_GET, $_POST, json_decode(file_get_contents('php://input'), true) ?: []);
-                $res = \SPP\PolyglotBridge::call($service['runtime'], $service['target'], $service['method'] ?? 'main', $args);
-
-                if ($res['success']) {
-                    $la = new \SPPMod\SPPAjax\LiveAction();
-                    $data = $res['data'] ?? [];
-                    if (isset($data['status'])) {
-                        $la->setStatus($data['status']);
-                        unset($data['status']);
-                    }
-                    if (isset($data['message'])) {
-                        $la->notify($data['message']);
-                        unset($data['message']);
-                    }
-                    $la->setData($data);
-                    $la->send();
-                    exit;
-                } else {
-                    self::respond('error', ['message' => 'Polyglot Service Error: ' . ($res['error'] ?? 'Unknown')], 500);
-                }
-            } catch (\Exception $e) {
-                self::respond('error', ['message' => 'Bridge Exception: ' . $e->getMessage()], 500);
-            }
-        }
-
-        $servDir = \SPP\Module::getConfig('spa_service_dir', 'sppajax') ?: '/src/serv';
-        $script = basename($service['script']); // strip any directory component
-        $fullPath = SPP_APP_DIR . $servDir . '/' . $script;
-
-        $realBase = realpath(SPP_APP_DIR . $servDir);
-        $realFile = realpath($fullPath);
-
-        if ($realFile === false || !str_starts_with($realFile, $realBase)) {
-            self::respond('error', ['message' => 'Forbidden.'], 403);
-        }
-
-        if (!file_exists($realFile) || !is_file($realFile)) {
-            self::respond('error', ['message' => "Service script '{$script}' not found."], 404);
-        }
-
-        // Execute the service script — it must set $response array
-        $response = [];
-        try {
-            include $realFile;
-        } catch (\Throwable $e) {
-            self::respond('error', ['message' => 'Service error: ' . $e->getMessage()], 500);
-        }
-
-        self::respond($response['status'] ?? 'ok', $response['data'] ?? [], $response['message'] ?? '');
-    }
-
-    /**
-     * Advanced Dispatcher: Resolves and executes a service using Dynamic Discovery.
-     * This is the core of the "Zero-Boring-Code" architecture.
-     */
-    public static function resolveAndExecute(string $action, array $params = []): void
-    {
-        $serviceFile = null;
-        $funcName = null;
-
-        // 1. Try Registry First (Dual Architecture - Manual & Detected)
-        $svc = self::findService($action);
-        if ($svc) {
-            // Polyglot Service Check
-            if (isset($svc['runtime']) && isset($svc['target'])) {
-                try {
-                    $args = array_merge($params, json_decode(file_get_contents('php://input'), true) ?: []);
-                    $res = \SPP\PolyglotBridge::call($svc['runtime'], $svc['target'], $svc['method'] ?? 'main', $args);
-                    if ($res['success']) {
-                        $la = new \SPPMod\SPPAjax\LiveAction();
-                        $data = $res['data'] ?? [];
-                        if (isset($data['status'])) {
-                            $la->setStatus($data['status']);
-                            unset($data['status']);
-                        }
-                        if (isset($data['message'])) {
-                            $la->notify($data['message']);
-                            unset($data['message']);
-                        }
-                        $la->setData($data);
-                        $la->send();
-                        exit;
-                    } else {
-                        self::respond('error', ['message' => 'Polyglot Service Error: ' . ($res['error'] ?? 'Unknown')], 500);
-                    }
-                } catch (\Exception $e) {
-                    self::respond('error', ['message' => 'Bridge Exception: ' . $e->getMessage()], 500);
-                }
-            }
-
-            $serviceFile = $svc['script'];
-            $funcName = $svc['method'] ?? null;
-            if ($funcName && ($funcName === 'POST' || $funcName === 'ANY' || $funcName === 'GET')) {
-                $funcName = null;
-            }
-
-            if (!str_starts_with($serviceFile, '/') && !str_contains($serviceFile, ':')) {
-                $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
-            }
-
-            $serviceFile = realpath($serviceFile);
-
-            if ($serviceFile && file_exists($serviceFile)) {
-                require_once $serviceFile;
-            }
-        }
-
-        if (!$serviceFile) {
-            // 2. Fallback: Dynamic Discovery
-            $context = \SPP\Scheduler::getContext();
-            $srcPath = \SPP\App::getAppConf('src_path', $context) ?: ('src/' . $context);
-            $servicesPath = \SPP\App::getAppConf('services_path', $context) ?: (rtrim($srcPath, '/') . '/services');
-            $servicesDir = SPP_APP_DIR . '/' . ltrim($servicesPath, '/');
-
-            // Fallback 1: Standalone file in services directory
-            $standaloneFile = $servicesDir . '/' . $action . '.php';
-            if (file_exists($standaloneFile)) {
-                $serviceFile = $standaloneFile;
-            }
-
-            // Fallback 2: Standalone file in src/serv directory (SPA pattern)
-            if (!$serviceFile) {
-                $servFile = SPP_APP_DIR . '/' . ltrim($srcPath, '/') . '/serv/' . $action . '.php';
-                if (file_exists($servFile)) {
-                    $serviceFile = $servFile;
-                }
-            }
-
-            // Fallback 3: Grouped service (e.g. User.Save -> User.php with live_Save)
-            if (!$serviceFile && strpos($action, '.') !== false) {
-                $parts = explode('.', $action);
-                $group = $parts[0];
-                $method = $parts[1];
-
-                $groupFile = $servicesDir . '/' . $group . '.php';
-                if (file_exists($groupFile)) {
-                    $testFunc = 'live_' . $method;
-                    require_once $groupFile;
-                    if (function_exists($testFunc)) {
-                        $serviceFile = $groupFile;
-                        $funcName = $testFunc;
-                    }
-                }
-            }
-
-            // Fallback 4: Check in General.php
-            if (!$serviceFile) {
-                $generalFile = $servicesDir . '/General.php';
-                if (!file_exists($generalFile) && \SPP\Scheduler::getContext() === 'sppadmin') {
-                    $generalFile = SPP_BASE_DIR . '/admin/services/General.php';
-                }
-
-                if (file_exists($generalFile)) {
-                    require_once $generalFile;
-                    $testFunc = 'live_' . $action;
-                    if (function_exists($testFunc) || function_exists('\\' . $testFunc)) {
-                        $serviceFile = $generalFile;
-                        $funcName = $testFunc;
-                    }
-                }
-            }
-
-            // Fallback 5: Check in module-specific services
-            if (!$serviceFile && isset($params['modname'])) {
-                $mod = $params['modname'];
-                $modServiceFile = SPP_MODULES_DIR . '/spp/' . $mod . '/services/' . $action . '.php';
-                if (file_exists($modServiceFile)) {
-                    $serviceFile = $modServiceFile;
-                }
-            }
-
-            // 3. Persistence: If discovered dynamically, cache it for future calls
-            if ($serviceFile) {
-                self::persistDetectedService($action, $serviceFile, $funcName);
-            }
-        }
-
-        if ($serviceFile) {
-            $serviceFile = realpath($serviceFile);
-            $la = new \SPPMod\SPPAjax\LiveAction();
-
-            ob_start();
-            if ($funcName) {
-                if (function_exists($funcName)) {
-                    $funcName($la, $params);
-                } else {
-                    $globalFunc = '\\' . $funcName;
-                    if (function_exists($globalFunc)) {
-                        $globalFunc($la, $params);
-                    } else {
-                        throw new \Exception("Service function '$funcName' not found.");
-                    }
-                }
-            } else {
-                if ($serviceFile && file_exists($serviceFile)) {
-                    require_once $serviceFile;
-                }
-            }
-            $output = ob_get_clean();
-
-            // Auto-capture echoed HTML
-            if (!empty($output)) {
-                $currentData = $la->getData();
-                if (empty($currentData['html'])) {
-                    $la->setData(array_merge($currentData, ['html' => $output]));
-                }
-            }
-
-            $la->send();
-            exit;
-        }
-
-        // If no discovery worked, return error
-        header('Content-Type: application/json');
-        echo json_encode([
-            'success' => false,
-            'message' => "Service '{$action}' could not be resolved via Dynamic Discovery.",
-            'data' => []
-        ]);
-        exit;
-    }
-
-    // -------------------------------------------------------------------------
     // Service registry
     // -------------------------------------------------------------------------
 
@@ -543,7 +121,7 @@ class SPPAjax extends \SPP\SPPObject
      * Looks up a service by name from the services registry YAML.
      * @return array<string,string>|null
      */
-    private static function findService(string $name): ?array
+    public static function findService(string $name): ?array
     {
         $registry = self::loadServiceRegistry();
         foreach ($registry as $svc) {
@@ -851,57 +429,6 @@ class SPPAjax extends \SPP\SPPObject
     }
 
     /**
-     * Synthesizes and executes intent-based dynamic endpoints at runtime via SPPAI generation.
-     * Takes natural language intent queries, returns dynamically generated JSON objects conforming to runtime requirements.
-     */
-    public static function dispatchIntentMorph(): void
-    {
-        $intent = trim($_REQUEST['intent'] ?? '');
-        $schemaStr = trim($_REQUEST['schema'] ?? '{}');
-        $schema = json_decode($schemaStr, true) ?: ['type' => 'object', 'properties' => ['synthesized_response' => ['type' => 'string']]];
-
-        if (empty($intent)) {
-            self::respond('error', ['message' => 'Intent query prompt string required.'], 400);
-        }
-
-        try {
-            $aiResult = \SPPMod\SPPAI\SPPAI::structured($intent, $schema);
-            self::appendMerkleLineage('intent_morph', is_array($aiResult) ? $aiResult : ['result' => $aiResult]);
-            self::respond('ok', ['synthesized' => $aiResult]);
-        } catch (\Throwable $e) {
-            self::respond('error', ['message' => 'Intent API Synthesis Failure: ' . $e->getMessage()], 500);
-        }
-    }
-
-    /**
-     * Native SQL-to-UI Change Data Capture (CDC) streaming socket simulator.
-     * Streams continuous mutation event blocks directly targeting partial Reactivity Islands on client screens.
-     */
-    public static function dispatchCdcStream(): void
-    {
-        while (ob_get_level()) {
-            ob_end_clean();
-        }
-        http_response_code(200);
-        header('Content-Type: text/event-stream; charset=utf-8');
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no');
-
-        $island = trim($_REQUEST['island'] ?? 'global');
-        $emit = function (string $type, array $data) use ($island) {
-            $payload = json_encode(['island' => $island, 'timestamp' => microtime(true), 'mutation' => $data]);
-            echo "event: {$type}\ndata: {$payload}\n\n";
-            @ob_flush();
-            @flush();
-        };
-
-        $emit('cdc_init', ['status' => 'listening', 'target_island' => $island]);
-        // Simulate initial state tail payload block
-        $emit('cdc_update', ['operation' => 'SYNC', 'records_affected' => 1]);
-        exit;
-    }
-
     /**
      * Appends cryptographically validated tamper-evident Merkle DAG links into log tracking storage.
      * Guarantees absolute proof of state transformation histories across distributed service components.
@@ -937,15 +464,25 @@ class SPPAjax extends \SPP\SPPObject
     public static function verifyTransportIntegrity($request = null): bool
     {
         $hmacRequired = \SPP\Module::getConfig('api_integrity_hmac', 'sppajax');
-        if ($hmacRequired === false || $hmacRequired === 'false') {
+        if ($hmacRequired === false || $hmacRequired === 0 || $hmacRequired === '0' || $hmacRequired === 'false') {
             return true;
         }
         $clientSig = $_SERVER['HTTP_X_SPP_SIGNATURE'] ?? $_REQUEST['__sig'] ?? '';
         if (empty($clientSig)) {
-            return true;
+            return false;
         }
         $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : 'spp-enterprise-integrity-secret-key-v1';
-        $computed = hash_hmac('sha256', json_encode($_POST ?: $_GET), $secret);
+        
+        $rawPayload = file_get_contents('php://input');
+        if (!empty($rawPayload)) {
+            $dataToSign = $rawPayload;
+        } else {
+            $getParams = $_GET;
+            unset($getParams['__sig']); // Ensure signature doesn't invalidate itself
+            $dataToSign = json_encode($_POST ?: $getParams);
+        }
+        
+        $computed = hash_hmac('sha256', $dataToSign, $secret);
         return hash_equals($computed, $clientSig);
     }
 }

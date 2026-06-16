@@ -2,7 +2,7 @@
 namespace SPPMod\Lekhak\Serv;
 
 use SPPMod\SPPAuth\SPPAuth;
-use SPPMod\SPPEntity\SppEntity;
+use SPPMod\SppDb\SppEntity;
 
 /**
  * Class ApiController

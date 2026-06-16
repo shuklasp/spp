@@ -1,13 +1,13 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
+use SPPMod\Parikshak\SPPTestCase;
 use SPPMod\SPPMigrate\Commands\MakeCommand;
 use SPPMod\SPPMigrate\Commands\MigrateCommand;
 use SPPMod\Sppdb\Migration\SPPMigrationManager;
 use SPP\DB;
 
-class SPPMigrateTest extends TestCase
+class SPPMigrateTest extends SPPTestCase
 {
     public function setUp(): void
     {

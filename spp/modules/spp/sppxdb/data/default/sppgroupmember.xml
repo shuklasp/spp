@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="sppgroupmember">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="id" type="INTEGER" autoIncrement="true"/><column name="PRIMARY" type="KEY"/><column name="group_id" type="INTEGER" notNull="true"/><column name="member_entity" type="VARCHAR" notNull="true"/><column name="member_id" type="INTEGER" notNull="true"/><column name="role" type="VARCHAR"/><column name="rights" type="TEXT"/><column name="created_at" type="DATETIME"/></_schema>
+  <data>
+  </data>
+</database>

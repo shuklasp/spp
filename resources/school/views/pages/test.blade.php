@@ -1,0 +1,1 @@
+Hello Blade from {{ $pageData["base_url"] }}! @sppauth Auth @endsppauth

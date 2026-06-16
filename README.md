@@ -6,6 +6,9 @@ A high-performance, modular PHP framework for modern application development.
 
 - [Lifecycle & Security Engine](file:///c:/projects/apache/school1/documentation/framework/lifecycle-and-security.md)
 - [SPPUX UI System](file:///c:/projects/apache/school1/documentation/framework/sppux.md)
+- [Routing Engine & Attributes](file:///c:/projects/apache/school1/documentation/framework/routing-engine.md)
+- [Live Components & Reactivity](file:///c:/projects/apache/school1/documentation/framework/live-components.md)
+- [Tutorial: Modern SPP Application Development](file:///c:/projects/apache/school1/documentation/framework/tutorial-modern-spp.md)
 - [Module Architecture](file:///c:/projects/apache/school1/documentation/framework/modules.md)
 - [API Authentication](file:///c:/projects/apache/school1/docs/api-authentication.md)
 - [PHPDoc Codebase Documentation](file:///c:/projects/apache/school1/docs/phpdoc/index.html)

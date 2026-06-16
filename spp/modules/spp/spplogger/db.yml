@@ -1,0 +1,10 @@
+tables:
+  logger:
+    loggerid: "VARCHAR(20)"
+    PRIMARY KEY: "(loggerid)"
+    uid: "INTEGER"
+    uname: "VARCHAR(10)"
+    ip: "VARCHAR(16)"
+    logtime: "DATETIME"
+    sessid: "VARCHAR(100)"
+    descr: "VARCHAR(10000)"

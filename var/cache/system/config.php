@@ -295,7 +295,7 @@ created_at: 1780656744',
   'settings' => 
   array (
     'site_name' => 'Lekhak Portal',
-    'debug' => true,
+    'debug' => false,
     'compulsory_modules' => 
     array (
       0 => 'sppauth',

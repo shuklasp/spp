@@ -1,7 +1,7 @@
 <?php
 require 'c:/projects/apache/school1/spp/sppinit.php';
 
-use SPPMod\SPPEntity\SPPEntity;
+use SPPMod\SppDb\SPPEntity;
 use SPPMod\SPPGroup\SPPGroup;
 
 // Mock DB row with extra column

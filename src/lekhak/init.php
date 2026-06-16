@@ -9,7 +9,7 @@
 // Register any app-specific hooks or event listeners here.
 // Lekhak is now a fully decoupled SPP application.
 require_once __DIR__ . '/modules/spptheme/events/ThemeEventHandler.php';
-\SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\SPPMod\\SppTheme\\Events\\ThemeEventHandler', false, 'onRenderTheme');
+\SPP\SPPEvent::listen('event_spp_view_render_theme', [new \SPPMod\SppTheme\Events\ThemeEventHandler('event_spp_view_render_theme'), 'onRenderTheme']);
 
 // ── Module Registry Initialization ──────────────────────────────────────
 require_once __DIR__ . '/ModuleRegistry.php';
@@ -19,7 +19,7 @@ if (php_sapi_name() !== 'cli') {
 
 // Register PageRenderHookEventHandler
 require_once __DIR__ . '/events/PageRenderHookEventHandler.php';
-\SPP\SPPEvent::registerHandler('event_spp_view_render_theme', '\\EventHandlers\\PageRenderHookEventHandler', false, 'onPostTheme', 100);
+\SPP\SPPEvent::listen('event_spp_view_render_theme', [new \EventHandlers\PageRenderHookEventHandler('event_spp_view_render_theme'), 'onPostTheme'], 100);
 
 // ── Content Workflow Registration ──────────────────────────────────────
 // Register editorial workflow states and transitions with the core engine.

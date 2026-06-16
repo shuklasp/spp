@@ -1,0 +1,5 @@
+tables:
+    dropdowns:
+        ddid: VARCHAR(10)
+        optgroupname: VARCHAR(50)
+        optname: VARCHAR(50)

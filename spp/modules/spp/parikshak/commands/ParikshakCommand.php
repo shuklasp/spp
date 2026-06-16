@@ -42,6 +42,7 @@ class ParikshakCommand extends Command
         // Inject in-memory SQLite for testing to isolate database state
         \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb');
         \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb');
+        \SPP\DB::setProvider(new \SPPMod\SPPDB\SPPDB());
 
         try {
             $tester = new Parikshak();

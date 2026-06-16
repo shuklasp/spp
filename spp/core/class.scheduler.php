@@ -156,23 +156,30 @@ class Scheduler extends \SPP\SPPObject
 
         $apps = \SPP\App::getGlobalSettings('apps') ?: [];
 
-        $params = ['uri' => &$uri, 'apps' => &$apps, 'context' => null];
-        \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $params, function (&$p) {
-            foreach ($p['apps'] as $name => $cfg) {
+        $params = ['uri' => $uri, 'apps' => $apps, 'context' => null];
+        $evtParams = new \SPP\EventParams($params);
+        \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $evtParams, function ($p) {
+            $payload = $p->getPayload();
+            foreach ($payload['apps'] as $name => $cfg) {
                 $base = $cfg['base_url'] ?? '/' . $name;
-                if ($p['uri'] === $base || strpos($p['uri'], $base . '/') === 0) {
-                    $p['context'] = $name;
+                if ($payload['uri'] === $base || strpos($payload['uri'], $base . '/') === 0) {
+                    $payload['context'] = $name;
+                    $p->setPayload($payload);
                     return;
                 }
             }
         });
+        $params = $evtParams->getPayload();
 
         $matchedApp = $params['context'] ?: (\SPP\App::getGlobalSettings('base_app') ?: 'default');
 
-        $routeParams = ['uri' => $uri, 'context' => &$matchedApp];
-        \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeParams, function (&$p) {
+        $routeParams = ['uri' => $uri, 'context' => $matchedApp];
+        $routeEvtParams = new \SPP\EventParams($routeParams);
+        \SPP\SPPEvent::fireEvent('event_spp_route_resolve', $routeEvtParams, function ($p) {
             // Default: do nothing, context already matched
         });
+        $routeParams = $routeEvtParams->getPayload();
+        $matchedApp = $routeParams['context'];
 
         self::$AppContext = $matchedApp;
     }

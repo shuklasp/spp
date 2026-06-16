@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
   <_meta>
-    <next_id>2</next_id>
+    <next_id>7</next_id>
   </_meta>
-<row id="1"><username>admin</username><password>$2y$10$gl9h4HJHO/t.7pBpPafOuO.ROkMs29rzCoSRZ182zHlHl05VbWtXy</password><status>active</status><id>1</id></row></database>
+<_schema><column name="uid" type="INTEGER" autoIncrement="true"/><column name="PRIMARY" type="KEY"/><column name="uname" type="VARCHAR" notNull="true" unique="true"/><column name="passwd" type="BLOB"/><column name="enabled" type="CHAR"/></_schema><row id="1"><username>admin</username><password>$2y$10$kGfzmB6iXK2bMG9GL3yGXuMC.TW5AK6/GiCj9PtrxvERanKOco2.6</password><status>active</status><id>1</id></row><row id="2"><uid>1</uid><uname>admin</uname><passwd>aes_encrypt('hello','hello')</passwd><enabled>Y</enabled><id>2</id></row><row id="3"><uid>2</uid><uname>op1</uname><passwd>aes_encrypt('hello','hello')</passwd><enabled>Y</enabled><id>3</id></row><row id="4"><uid>3</uid><uname>op2</uname><passwd>aes_encrypt('hello','hello')</passwd><enabled>Y</enabled><id>4</id></row><row id="5"><uid>4</uid><uname>op3</uname><passwd>aes_encrypt('hello','hello')</passwd><enabled>Y</enabled><id>5</id></row><row id="6"><uid>5</uid><uname>op4</uname><passwd>aes_encrypt('hello','hello')</passwd><enabled>Y</enabled><id>6</id></row></database>

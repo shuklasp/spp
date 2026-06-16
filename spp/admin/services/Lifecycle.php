@@ -7,19 +7,36 @@ function live_lifecycle_receive($la, $params) {
     // Note: getDeploymentToken and absolutizePath are defined in api.php 
     // or should be moved to a shared library. For now, we assume they are accessible.
     $token = $params['spp_deploy_token'] ?? '';
-    if ($token !== getDeploymentToken()) return $la->setStatus('error')->notify("Unauthorized sync attempt.");
+    $expectedToken = getDeploymentToken();
+    if (!$expectedToken || $expectedToken === 'DISABLED' || !$token || !hash_equals($expectedToken, $token)) {
+        return $la->setStatus('error')->notify("Unauthorized sync attempt.");
+    }
 
     $type = $params['type'] ?? '';
     $payload = $params['payload'] ?? [];
     
     if ($type === 'file') {
         $path = $params['path'] ?? '';
+        if (!isSafeLifecyclePath($path)) {
+            return $la->setStatus('error')->notify("Unsafe deployment path.");
+        }
         $absPath = absolutizePath($path);
         $dir = dirname($absPath);
         if (!is_dir($dir)) mkdir($dir, 0777, true);
         file_put_contents($absPath, base64_decode($payload['content']));
     }
     $la->notify("Successfully received {$type} update.");
+}
+
+function isSafeLifecyclePath(string $path): bool {
+    $normalized = str_replace('\\', '/', $path);
+    if ($normalized === '' || preg_match('/^([a-zA-Z]:|\/)/', $normalized)) {
+        return false;
+    }
+    if (str_contains($normalized, '../') || str_contains($normalized, '/..') || $normalized === '..') {
+        return false;
+    }
+    return true;
 }
 
 function live_lifecycle_backup($la, $params) {
@@ -155,5 +172,34 @@ function live_lifecycle_save_target($la, $params) {
         }
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("Invalid YAML: " . $e->getMessage());
+    }
+}
+
+function live_sys_upgrade($la, $params) {
+    if (!\SPP\Module::isEnabled('sppdb')) {
+        return $la->setStatus('error')->notify("Error: sppdb module is not enabled. Upgrades cannot run.");
+    }
+
+    try {
+        // Ensure system tables first
+        \SPP\Core\ModuleInstaller::setupSystemTables();
+
+        \SPP\Module::loadAllModules();
+        $modules = \SPP\Registry::get('__mods') ?? [];
+        
+        $count = 0;
+        foreach ($modules as $modName => $modPath) {
+            $module = \SPP\Module::getModule($modName);
+            if ($module) {
+                $dbFile = $module->ModPath . DIRECTORY_SEPARATOR . 'db.yml';
+                if (file_exists($dbFile)) {
+                    \SPP\Core\ModuleInstaller::executeDbYml($module);
+                    $count++;
+                }
+            }
+        }
+        $la->notify("System upgrade completed successfully. {$count} modules synchronized.");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Upgrade Failed: " . $e->getMessage());
     }
 }

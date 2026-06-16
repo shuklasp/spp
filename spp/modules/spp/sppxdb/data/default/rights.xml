@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="rights">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="rightid" type="INTEGER" autoIncrement="true"/><column name="PRIMARY" type="KEY"/><column name="rightname" type="VARCHAR"/></_schema>
+  <data>
+  </data>
+</database>

@@ -28,8 +28,12 @@ class ModuleUpdateCommand extends Command
             return;
         }
 
-        $fromVersion = $this->getOption('from', $args) ?? 'unknown';
-        $toVersion = $this->getOption('to', $args) ?? 'latest';
+        $fromVersion = 'unknown';
+        $toVersion = 'latest';
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--from=')) $fromVersion = substr($arg, 7);
+            if (str_starts_with($arg, '--to=')) $toVersion = substr($arg, 5);
+        }
 
         \SPP\Module::loadAllModules();
         $module = \SPP\Module::getModule($moduleName);

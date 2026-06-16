@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="dropdowns">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="ddid" type="VARCHAR"/><column name="optgroupname" type="VARCHAR"/><column name="optname" type="VARCHAR"/></_schema>
+  <data>
+  </data>
+</database>

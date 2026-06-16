@@ -1,9 +1,9 @@
 <?php
 
-namespace SPPMod\SPPEntity\Traits;
+namespace SPPMod\SppDb\Traits;
 
 use SPP\Core\EventManager;
-use SPPMod\SPPEntity\SPPEntity;
+use SPPMod\SppDb\SPPEntity;
 
 /**
  * Trait HasUuid
@@ -16,7 +16,8 @@ trait HasUuid
      */
     public static function bootHasUuid()
     {
-        EventManager::listen('entity:before_save', function (SPPEntity $entity) {
+        \SPP\SPPEvent::listen('entity:before_save', function (\SPP\EventParams $params) {
+            $entity = $params->get('entity');
             // Check if this entity uses the HasUuid trait
             $traits = class_uses($entity);
             if (!in_array(HasUuid::class, $traits)) {

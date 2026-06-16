@@ -66,9 +66,16 @@ class SPPError extends \SPP\SPPObject
     private function init()
     {
         $this->appname = \SPP\Scheduler::getContext();
-        if (SPPSession::sessionVarExists('__errors__' . $this->appname)) {
-            $this->errors = SPPSession::getSessionVar('__errors__' . $this->appname);
+        
+        // Use event to load errors to decouple from SPPSession
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $params = new \SPP\EventParams(['appname' => $this->appname, 'errors' => null]);
+            \SPP\SPPEvent::fireEvent('core.error.load', $params);
+            if ($params->get('errors') !== null) {
+                $this->errors = $params->get('errors');
+            }
         }
+        
         if (is_callable($this->customerrhnd) && $this->customerrhnd != '') {
             set_error_handler('SPPError::errorHandler');
         }
@@ -123,6 +130,18 @@ class SPPError extends \SPP\SPPObject
             exit(1);
         }
 
+        // --- NEW: Event-Driven API Error Delegation ---
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $params = new \SPP\EventParams(['exception' => $e, 'handled' => false]);
+            \SPP\SPPEvent::fireEvent('core.error.exception', $params);
+            
+            // If an API module intercepted and rendered JSON, it flags 'handled' => true
+            if ($params->get('handled')) {
+                exit(1);
+            }
+        }
+        // ----------------------------------------------
+
         if ($debug) {
             include __DIR__ . '/error_template.php';
         } else {
@@ -156,7 +175,11 @@ class SPPError extends \SPP\SPPObject
                 call_user_func($err->customerrhnd);
             }
         }
-        SPPSession::setSessionVar('__errors__' . $pname, $err->errors);
+        
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $params = new \SPP\EventParams(['appname' => $pname, 'errors' => $err->errors]);
+            \SPP\SPPEvent::fireEvent('core.error.sync', $params);
+        }
     }
 
 
@@ -319,7 +342,11 @@ class SPPError extends \SPP\SPPObject
         } else {
             $this->errors[$errnum] = [];
         }
-        SPPSession::setSessionVar('__errors__' . $this->appname, $this->errors);
+        
+        if (class_exists('\\SPP\\SPPEvent')) {
+            $params = new \SPP\EventParams(['appname' => $this->appname, 'errors' => $this->errors]);
+            \SPP\SPPEvent::fireEvent('core.error.sync', $params);
+        }
     }
 
     public static function getErrorDetails($errno)

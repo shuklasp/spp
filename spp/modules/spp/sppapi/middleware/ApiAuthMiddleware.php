@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppapi\Middleware;
+namespace SPPMod\SPPAPI\Middleware;
 
 use SPP\Core\MiddlewareInterface;
 use SPP\Core\Request;
@@ -8,7 +8,6 @@ use SPP\Core\SPPException;
 class ApiAuthMiddleware implements MiddlewareInterface {
     
     public function handle($request, $next) {
-        // Bearer Token Validation
         $headers = getallheaders();
         $authHeader = $headers['Authorization'] ?? '';
         
@@ -18,8 +17,6 @@ class ApiAuthMiddleware implements MiddlewareInterface {
 
         $token = $matches[1];
         
-        // This is a placeholder for token validation (e.g. JWT or DB token check)
-        // If we had the sppauth module ready, we would call it here.
         if (!$this->validateToken($token)) {
             throw new SPPException("Unauthorized. Invalid token.", 401);
         }
@@ -28,8 +25,14 @@ class ApiAuthMiddleware implements MiddlewareInterface {
     }
     
     private function validateToken(string $token): bool {
-        // Mock validation for now until sppauth is fully unified
-        // E.g. Check if the token is valid. Let's assume 'test-token' is valid.
-        return $token === 'test-token' || strlen($token) > 20;
+        if (!class_exists('\SPPMod\SPPAPI\JWTAuth')) {
+            require_once SPP_MODULES_DIR . '/spp/sppapi/src/JWTAuth.php';
+        }
+        $secret = \SPP\Module::getConfig('jwt_secret', 'sppapi') ?: getenv('SPP_JWT_SECRET');
+        if (!$secret || $secret === 'auto-generated-secret-key-change-me' || $secret === 'default-secret') {
+            return false;
+        }
+        $payload = \SPPMod\SPPAPI\JWTAuth::decode($token, $secret);
+        return $payload !== false;
     }
 }

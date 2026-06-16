@@ -116,6 +116,41 @@ The framework maps these declarations into its persistent internal virtual route
 *   **Resolved Disk Target**: `[ROOT]/src/lekhak/modules/lekhak/comp/lekhak.js`
 *   **Security Outcome**: Safely delivered via controlled dispatcher streams while maintaining true disk location privacy.
 
+## 6. Attribute-Based Routing (PHP 8)
+
+The routing engine now fully supports PHP 8 `#[Route]` attributes, allowing developers to define routes directly alongside their controller logic, eliminating the need to maintain external `pages.yml` files for application logic.
+
+### A. The Route Attribute
+You can decorate any class method (usually extending `SPPObject` or `ResourceController`) with `#[Route]`:
+
+```php
+namespace App\Controllers;
+
+use SPP\Core\Attributes\Route;
+
+class UserController extends \SPP\SPPObject
+{
+    #[Route(path: '/api/v1/users', method: 'GET')]
+    public function index()
+    {
+        // Route implementation...
+    }
+}
+```
+
+### B. The Attribute Router (`AttributeRouter`)
+During the application boot sequence, `Pages::getYaml()` internally invokes the `AttributeRouter`.
+This component recursively scans the `src/` directory (or specific controller namespaces), using PHP's native Reflection API to identify classes and methods decorated with `#[Route]`.
+
+### C. Performance & Caching
+To maintain the framework's strict performance guarantees, reflection parsing is **not** performed on every request.
+1. In development (`app.debug` = true), routes are dynamically discovered.
+2. The router caches the entire attribute map into `var/cache/routes.cache.php`.
+3. In production, this cache is natively required, providing O(1) array access without any reflection overhead.
+
+### D. Parallel Coexistence
+Attribute routing seamlessly coexists with `pages.yml` and database-driven routing. The engine merges these definitions into a unified routing table, prioritizing them intelligently.
+
 ---
 
 *Documentation maintained by the SPP Framework Team.*

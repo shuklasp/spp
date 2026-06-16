@@ -59,4 +59,13 @@ abstract class SPP_Single_validator extends ViewValidator
 
         return $this->jsfunc . '(' . implode(', ', $params) . ')';
     }
+
+    /**
+     * Generates pure JavaScript logic for this validator when HTML5 native validation is insufficient.
+     * Inheriting classes should override this if they cannot be mapped to simple HTML5 attributes.
+     */
+    public function getClientScript(): ?string
+    {
+        return null;
+    }
 }

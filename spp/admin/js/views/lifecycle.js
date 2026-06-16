@@ -50,6 +50,9 @@ export default class LifecycleView extends BaseComponent {
                     <button class="btn btn-secondary" id="btn-backup">
                         <span class="icon">📦</span> Local Backup
                     </button>
+                    <button class="btn btn-warning" id="btn-sys-upgrade">
+                        <span class="icon">🗄️</span> Sync DB Schema
+                    </button>
                     <button class="btn btn-primary" id="btn-compare">
                         <span class="icon">🔍</span> Check Sync Status
                     </button>
@@ -133,6 +136,7 @@ export default class LifecycleView extends BaseComponent {
     bindEvents(container) {
         container.querySelector('#btn-compare').addEventListener('click', () => this.checkStatus());
         container.querySelector('#btn-backup').addEventListener('click', () => this.createBackup());
+        container.querySelector('#btn-sys-upgrade').addEventListener('click', () => this.sysUpgrade());
         container.querySelector('#btn-sync-all').addEventListener('click', () => this.syncAll());
         container.querySelector('#btn-fetch-remote-config').addEventListener('click', () => this.fetchRemoteConfig());
         container.querySelector('#btn-config-env').addEventListener('click', () => this.openEnvConfig());
@@ -422,6 +426,25 @@ export default class LifecycleView extends BaseComponent {
             }
         } catch (err) {
             console.error(err);
+        } finally {
+            this.admin.showLoading(false);
+        }
+    }
+
+    async sysUpgrade() {
+        if (!confirm("Are you sure you want to synchronize the database schema from all active modules?")) return;
+        
+        this.admin.showLoading(true);
+        try {
+            const res = await this.admin.api('sys_upgrade');
+            if (res.success) {
+                alert("Schema synchronized successfully!");
+            } else {
+                alert("Schema synchronization failed: " + res.message);
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Error running schema synchronization.");
         } finally {
             this.admin.showLoading(false);
         }

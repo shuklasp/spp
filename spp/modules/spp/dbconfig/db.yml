@@ -1,0 +1,44 @@
+tables:
+  config:
+    propname: "VARCHAR(100)"
+    PRIMARY KEY: "(propname)"
+    propval: "VARCHAR(500) NOT NULL"
+    tabname: "VARCHAR(100)"
+    colname: "VARCHAR(100)"
+    pkname: "VARCHAR(100)"
+    pkval: "VARCHAR(100)"
+  dropdowns:
+    ddid: "VARCHAR(10)"
+    optgroupname: "VARCHAR(50)"
+    optname: "VARCHAR(50)"
+  sequences:
+    seqname: "VARCHAR(20)"
+    PRIMARY KEY: "(seqname)"
+    initval: "BIGINT NOT NULL"
+    seqval: "BIGINT NOT NULL"
+    incval: "INTEGER NOT NULL"
+    lastaccess: "BIGINT NOT NULL"
+
+seeds:
+  config:
+    - {propname: 'policypay', propval: '10000'}
+    - {propname: 'maxfirstmemlimit', propval: '10'}
+    - {propname: 'poladvdays', propval: '15'}
+    - {propname: 'memadvdays', propval: '15'}
+    - {propname: 'restcomm', propval: '0.05'}
+    - {propname: 'tds', propval: '11.33'}
+    - {propname: 'max_higher_comm_days', propval: '365'}
+    - {propname: 'min_second_comm_days', propval: '183'}
+    - {propname: 'adminemail', propval: 'admin@example.com'}
+    - {propname: 'policyvalidity', propval: 'fromtabs', tabname: 'paytypes', colname: 'validity', pkname: 'paytypeid', pkval: '1'}
+    - {propname: 'policypayment', propval: 'fromtabs', tabname: 'paytypes', colname: 'payval', pkname: 'paytypeid', pkval: '1'}
+    - {propname: 'memvalidity', propval: 'fromtabs', tabname: 'paytypes', colname: 'validity', pkname: 'paytypeid', pkval: '2'}
+    - {propname: 'mempayment', propval: 'fromtabs', tabname: 'paytypes', colname: 'payval', pkname: 'paytypeid', pkval: '2'}
+    - {propname: 'poladvalert', propval: '15'}
+    - {propname: 'memadvalert', propval: '15'}
+    - {propname: 'user_session_timeout', propval: '60'}
+  sequences:
+    - {seqname: 'memberid', initval: 1000, seqval: 1000, incval: 1, lastaccess: 0}
+    - {seqname: 'nomid', initval: 1000, seqval: 1000, incval: 1, lastaccess: 0}
+    - {seqname: 'transid', initval: 1000000, seqval: 1000000, incval: 1, lastaccess: 0}
+    - {seqname: 'loggerid', initval: 1000000, seqval: 1000000, incval: 1, lastaccess: 0}

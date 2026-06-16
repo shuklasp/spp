@@ -8,8 +8,8 @@ require_once __DIR__ . '/../../spp/sppinit.php';
     <meta charset="UTF-8">
     <title>PremiumSppUx - SPP-UX</title>
     <!-- SPP-UX Runtime -->
-    <script src="<?php echo \SPPMod\SPPUX\SPPUX::runtimePath(); ?>"></script>
-    <script src="<?php echo \SPPMod\SPPUX\SPPUX::loaderPath(); ?>" type="module"></script>
+    <script src="<?php echo \SPPMod\Drishyam\SPPUX::runtimePath(); ?>"></script>
+    <script src="<?php echo \SPPMod\Drishyam\SPPUX::loaderPath(); ?>" type="module"></script>
     <script>
         // Minimal admin bridge for standalone apps
         window.spp_admin = {

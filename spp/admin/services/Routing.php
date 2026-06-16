@@ -57,7 +57,7 @@ function live_Routing_RemovePage($la, $params) {
 function live_Routing_ListServices($la, $params) {
     $appname = $params['appname'] ?? 'default';
     $services = \SPP\Scheduler::withContext($appname, function() {
-        return \SPPMod\SPPAjax\SPPAjax::listServices();
+        return \SPPMod\SppApi\SPPAjax::listServices();
     });
 
     $sources = [];
@@ -88,7 +88,7 @@ function live_Routing_SaveService($la, $params) {
     }
 
     \SPP\Scheduler::withContext($appname, function() use ($name, $script, $method, $source) {
-        \SPPMod\SPPAjax\SPPAjax::registerService($name, $script, $method, $source);
+        \SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source);
     });
     $la->notify("Service '$name' registered successfully.", "success");
 }
@@ -101,7 +101,7 @@ function live_Routing_RemoveService($la, $params) {
     if (empty($name)) return $la->setStatus('error')->notify("Name required.");
 
     \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
-        \SPPMod\SPPAjax\SPPAjax::unregisterService($name, $source);
+        \SPPMod\SppApi\SPPAjax::unregisterService($name, $source);
     });
     $la->notify("Service '$name' removed.");
 }

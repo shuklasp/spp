@@ -1,0 +1,10 @@
+module:
+    name: dbconfig
+    pubname: 'Database Configuration'
+    version: 1.1
+    author: 'Satya Prakash Shukla'
+    pubdesc: 'Database configuration extensions for SPP.'
+    modgroup: Core
+    category: 'Core Required'
+    deps:
+        - sppdb

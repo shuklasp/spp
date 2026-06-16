@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SPPEntity\SPPEntity;
+use SPPMod\SppDb\SPPEntity;
 
 /**
  * Class LekhakNode

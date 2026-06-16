@@ -37,7 +37,7 @@ $node->save();
 echo "Saved dynamic fields.\n";
 
 // Test SppEntityQuery
-$query = new \SPPMod\SPPEntity\SppEntityQuery('\\SPPMod\\Lekhak\\Core\\LekhakNode');
+$query = new \SPPMod\SppDb\SppEntityQuery('\\SPPMod\\Lekhak\\Core\\LekhakNode');
 $query->condition('bundle', 'page');
 $query->dynamicCondition('seo_score', 80, '>');
 $query->sort('id', 'DESC');

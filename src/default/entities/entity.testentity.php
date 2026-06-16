@@ -1,7 +1,7 @@
 <?php
 namespace App\Default\Entities;
 
-use SPPMod\SPPEntity\SPPEntity;
+use SPPMod\SppDb\SPPEntity;
 
 /**
  * Class TestEntity

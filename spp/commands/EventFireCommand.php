@@ -33,7 +33,7 @@ class EventFireCommand extends Command
         \SPP\Scheduler::withContext($appname, function() use ($event, $payload) {
             if (class_exists('\\SPP\\Core\\EventManager')) {
                 echo "Firing event '{$event}'...\n";
-                \SPP\Core\EventManager::trigger($event, $payload);
+                \SPP\SPPEvent::triggerHook($event, $payload);
                 echo "Event triggered successfully.\n";
             } else {
                 echo "EventManager not found.\n";

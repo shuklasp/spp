@@ -145,15 +145,11 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppblade.html" class="">SPPBlade</a>
+                <a href="namespaces/sppmod-drishyam.html" class="">Drishyam</a>
                 
             </li>
                     <li>
                 <a href="namespaces/sppmod-spppwa.html" class="">SPPPWA</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppux.html" class="">sppux</a>
                 
             </li>
                     <li>
@@ -169,10 +165,6 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppajax.html" class="">SPPAjax</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdiff.html" class="">SPPDiff</a>
                 
             </li>
@@ -182,10 +174,6 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppauth.html" class="">Sppauth</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppgroup.html" class="">SPPGroup</a>
                 
             </li>
                     <li>
@@ -209,15 +197,15 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppinterdb.html" class="">SPPInterDB</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdb.html" class="">Sppdb</a>
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppentity.html" class="">SPPEntity</a>
+                <a href="namespaces/sppmod-sppmigration.html" class="">SPPMigration</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppdoc.html" class="">SPPDoc</a>
                 
             </li>
                     <li>
@@ -254,6 +242,10 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppqueue.html" class="">SPPQueue</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppreport.html" class="">Sppreport</a>
                 
             </li>
                     <li>
@@ -307,6 +299,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/app-school1.html" class="">School1</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/app-sppmobile.html" class="">Sppmobile</a>
                 
             </li>
@@ -347,10 +343,6 @@
     <a href="packages/SPPMod.html" class="">SPPMod</a>
 </h4>
     <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/SPPMod-SPPAuth.html" class="">SPPAuth</a>
-                
-            </li>
                     <li>
                 <a href="packages/SPPMod-SPPViewDefinesresponseinSPPView.html" class="">SPPViewDefinesresponseinSPPView</a>
                 
@@ -459,6 +451,12 @@
 <dd>Defines the configuration form schema for this module.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
+    <a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_entity_view_alter">hook_entity_view_alter()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_init">hook_init()</a>
     <span>
                                 &nbsp;: mixed    </span>
@@ -500,7 +498,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/lekhak/modules/lekhak_toolbar/module.php"><a href="files/src-lekhak-modules-lekhak-toolbar-module.html"><abbr title="src/lekhak/modules/lekhak_toolbar/module.php">module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">66</span>
+    <span class="phpdocumentor-element-found-in__line">77</span>
 
     </aside>
 
@@ -521,6 +519,54 @@
         <span class="phpdocumentor-signature__response_type">array&lt;string|int, mixed&gt;</span>
             </section>
 
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -public
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_hook_entity_view_alter">
+        hook_entity_view_alter()
+        <a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_entity_view_alter" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="src/lekhak/modules/lekhak_toolbar/module.php"><a href="files/src-lekhak-modules-lekhak-toolbar-module.html"><abbr title="src/lekhak/modules/lekhak_toolbar/module.php">module.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">101</span>
+
+    </aside>
+
+    
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">public</span>
+                    <span class="phpdocumentor-signature__name">hook_entity_view_alter</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__reference-operator">&amp;</span><span class="phpdocumentor-signature__argument__name">$build</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$context</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+    
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$build</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$context</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">[]</span>            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
 </article>
                     <article
         class="phpdocumentor-element
@@ -567,7 +613,7 @@
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="src/lekhak/modules/lekhak_toolbar/module.php"><a href="files/src-lekhak-modules-lekhak-toolbar-module.html"><abbr title="src/lekhak/modules/lekhak_toolbar/module.php">module.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">20</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
@@ -716,6 +762,7 @@
             <li>
                 <ul class="phpdocumentor-list -clean">
                                             <li><a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_config_form">hook_config_form()</a></li>
+                                            <li><a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_entity_view_alter">hook_entity_view_alter()</a></li>
                                             <li><a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_init">hook_init()</a></li>
                                             <li><a href="classes/Lekhak-Modules-LekhakToolbar-LekhakModuleAdminToolbar.html#method_hook_page_meta_alter">hook_page_meta_alter()</a></li>
                                     </ul>

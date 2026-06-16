@@ -13,8 +13,9 @@ class SPPMigrationManager {
     }
 
     private function ensureMigrationsTable(): void {
+        $autoInc = $this->db->getDriver() === 'sqlite' ? 'AUTOINCREMENT' : 'AUTO_INCREMENT';
         $sql = "CREATE TABLE IF NOT EXISTS {$this->migrationsTable} (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            id INTEGER PRIMARY KEY {$autoInc},
             migration VARCHAR(255) NOT NULL,
             batch INT NOT NULL,
             executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

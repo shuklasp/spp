@@ -1,0 +1,7 @@
+tables:
+    sequences:
+        seqname: 'VARCHAR(255) PRIMARY KEY'
+        initval: INT
+        seqval: INT
+        incval: INT
+        lastaccess: INT

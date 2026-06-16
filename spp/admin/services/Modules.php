@@ -24,16 +24,52 @@ function live_Scan($la, $params) {
 
 function live_Setup($la, $params) {
     $modname = $params['modname'] ?? '';
-    $appname = $params['appname'] ?? 'default';
     if (!$modname) return $la->setStatus('error')->notify("Module name required.");
     
-    $manifest = \SPP\Module::findManifestPath($modname);
-    $mod = new \SPP\Module($manifest);
+    try {
+        if (\SPP\Core\ModuleInstaller::install($modname)) {
+            $la->notify("Module '$modname' setup successful.", "success");
+            $la->dispatch('refresh');
+        } else {
+            $la->setStatus('error')->notify("Setup failed.");
+        }
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Setup Error: " . $e->getMessage());
+    }
+}
+
+function live_install_all_active($la, $params) {
+    try {
+        $results = \SPP\Core\ModuleInstaller::installAllActive();
+        $successCount = 0;
+        $failCount = 0;
+        foreach ($results as $mod => $res) {
+            if ($res['success']) $successCount++;
+            else $failCount++;
+        }
+        $msg = "Installed $successCount modules successfully.";
+        if ($failCount > 0) $msg .= " ($failCount failed).";
+        
+        $la->notify($msg, $failCount === 0 ? "success" : "warning");
+        $la->dispatch('refresh');
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Bulk Install Error: " . $e->getMessage());
+    }
+}
+
+function live_Uninstall($la, $params) {
+    $modname = $params['modname'] ?? '';
+    if (!$modname) return $la->setStatus('error')->notify("Module name required.");
     
-    if ($mod->install($appname)) {
-        $la->notify("Module '$modname' setup successful.", "success");
-    } else {
-        $la->setStatus('error')->notify("Setup failed.");
+    try {
+        if (\SPP\Core\ModuleInstaller::uninstall($modname)) {
+            $la->notify("Module '$modname' uninstalled successful.", "success");
+            $la->dispatch('refresh');
+        } else {
+            $la->setStatus('error')->notify("Uninstall failed.");
+        }
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Uninstall Error: " . $e->getMessage());
     }
 }
 
@@ -164,7 +200,7 @@ function live_Toggle($la, $params) {
     if (!$modname) return $la->setStatus('error')->notify("Module name required.");
     
     try {
-        \SPP\Module::toggleModuleStatus($modname, $status, $appname);
+        \SPP\Core\ModuleInstaller::setModuleStatus($modname, $status);
         $la->notify("Module '$modname' status updated to $status.", "success");
         // Trigger a list refresh if the component supports it
         $la->dispatch('refresh');

@@ -147,7 +147,18 @@ class QueryBuilder
      */
     public function join(string $table, string $first, string $operator, string $second, string $type = 'INNER'): self
     {
-        $table = SPPDB::sppTable($table);
+        $table = SPPDB::sppTable(preg_replace('/[^a-zA-Z0-9_\.]/', '', $table));
+        $first = preg_replace('/[^a-zA-Z0-9_\.]/', '', $first);
+        $second = preg_replace('/[^a-zA-Z0-9_\.]/', '', $second);
+        
+        $validOperators = ['=', '<', '>', '<=', '>=', '<>', '!='];
+        $operator = strtoupper(trim($operator));
+        if (!in_array($operator, $validOperators)) {
+            $operator = '=';
+        }
+        
+        $type = strtoupper(preg_replace('/[^a-zA-Z]/', '', $type));
+
         $this->joins[] = compact('table', 'first', 'operator', 'second', 'type');
         return $this;
     }

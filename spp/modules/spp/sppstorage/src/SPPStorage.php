@@ -89,6 +89,9 @@ class LocalDisk implements DiskInterface
 
     protected function getFullPath(string $path): string
     {
+        if (strpos($path, '..') !== false) {
+            throw new \Exception('Path traversal attempt detected in Storage mechanism.');
+        }
         return $this->basePath . SPP_DS . ltrim($path, SPP_DS);
     }
 }

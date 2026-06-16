@@ -1,11 +1,11 @@
 <?php
 namespace App\Default\Tests\Auto;
 
-use App\Default\Entities\DummyEntity;
+use App\Default\Entities\Dummyentity;
 
 /**
  * Auto-generated Test for DummyEntity (Parikshak)
- * Generation Date: 2026-04-22 23:52:53
+ * Generation Date: 2026-06-14 07:11:11
  */
 class DummyEntityAutoTest
 {
@@ -15,6 +15,8 @@ class DummyEntityAutoTest
         try {
             $entity = new DummyEntity();
             $data = array (
+  'name' => 'PARIKSHAK_FUZZ_f5022',
+  'dob' => '2026-06-14 07:11:11',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

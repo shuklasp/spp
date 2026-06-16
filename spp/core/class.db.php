@@ -2,18 +2,39 @@
 
 namespace SPP;
 
-use SPPMod\SPPDB\SPPDB;
-
 class DB
 {
-    private static ?SPPDB $instance = null;
+    private static $provider = null;
 
-    public static function getInstance(): SPPDB
+    /**
+     * Set the global database provider dynamically.
+     */
+    public static function setProvider($provider): void
     {
-        if (self::$instance === null) {
-            self::$instance = new SPPDB();
+        self::$provider = $provider;
+    }
+
+    /**
+     * Get the registered database provider instance.
+     */
+    public static function getInstance()
+    {
+        if (self::$provider === null) {
+            throw new \Exception("Database provider not registered.");
         }
-        return self::$instance;
+        return self::$provider;
+    }
+
+    /**
+     * Get properly prefixed table name.
+     */
+    public static function sppTable(string $tname): string
+    {
+        if (self::$provider !== null && method_exists(self::$provider, 'sppTable')) {
+            return self::$provider::sppTable($tname);
+        }
+        $prefix = \SPP\App::getGlobalSettings('db_prefix') ?: 'spp_';
+        return $prefix . $tname;
     }
 
     public static function query(string $query, array $values = [])

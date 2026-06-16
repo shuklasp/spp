@@ -12,8 +12,8 @@ modules:
         deps:
             - sppcore
     2:
-        name: sppconfig
-        path: spp/sppconfig
+        name: dbconfig
+        path: spp/dbconfig
         status: active
         deps:
             - sppcore
@@ -97,4 +97,8 @@ modules:
     19:
         name: sppdocs
         path: spp/sppdocs
+        status: active
+    20:
+        name: spprouter
+        path: spp/spprouter
         status: active

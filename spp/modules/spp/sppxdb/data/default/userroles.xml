@@ -3,4 +3,4 @@
   <_meta>
     <next_id>2</next_id>
   </_meta>
-<row id="1"><userid>1</userid><roleid>1</roleid><id>1</id></row></database>
+<_schema><column name="uid" type="INTEGER"/><column name="roleid" type="INTEGER"/></_schema><row id="1"><userid>1</userid><roleid>1</roleid><id>1</id></row></database>

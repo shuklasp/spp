@@ -99,6 +99,7 @@ export default class IdentityView extends BaseComponent {
             if (tab === 'rights') action = 'list_rights';
             if (tab === 'modern_rbac') action = 'list_rbac';
             if (tab === 'assignments') action = 'list_entity_assignments';
+            if (tab === 'abac') action = 'list_abac_policies';
 
             const res = await this.api(action);
             if (res.success) {
@@ -511,6 +512,8 @@ export default class IdentityView extends BaseComponent {
                     <button class="sub-tab-btn ${iamActiveTab === 'rights' ? 'active' : ''}" @click=${() => this.switchIamTab('rights')}>🔑 Legacy Rights</button>
                     <button class="sub-tab-btn ${iamActiveTab === 'modern_rbac' ? 'active' : ''}" @click=${() => this.switchIamTab('modern_rbac')}>⚡ Modern RBAC</button>
                     <button class="sub-tab-btn ${iamActiveTab === 'assignments' ? 'active' : ''}" @click=${() => this.switchIamTab('assignments')}>🔗 Assignments</button>
+                    <button class="sub-tab-btn ${iamActiveTab === 'abac' ? 'active' : ''}" @click=${() => this.switchIamTab('abac')}>📜 ABAC Policies</button>
+                    <button class="sub-tab-btn ${iamActiveTab === 'oauth' ? 'active' : ''}" @click=${() => this.switchIamTab('oauth')}>🔌 OAuth Clients</button>
                 </div>
 
                 <div id="iam-content">
@@ -566,7 +569,13 @@ export default class IdentityView extends BaseComponent {
                                 ? this.renderAssignmentsTable(pagedItems, totalItems, totalPages)
                                 : (iamActiveTab === 'modern_rbac' 
                                     ? this.renderModernRbacTable(pagedItems, totalItems, totalPages)
-                                    : this.renderStandardTable(pagedItems, totalItems, totalPages)
+                                    : (iamActiveTab === 'abac'
+                                        ? this.renderAbacTable(pagedItems, totalItems, totalPages)
+                                        : (iamActiveTab === 'oauth'
+                                            ? this.renderOAuthTable(pagedItems, totalItems, totalPages)
+                                            : this.renderStandardTable(pagedItems, totalItems, totalPages)
+                                        )
+                                    )
                                 )
                             }
                         </div>
@@ -733,6 +742,80 @@ export default class IdentityView extends BaseComponent {
             ${this.renderPagination(totalItems, totalPages)}
         `;
     }
+    renderAbacTable(items, totalItems, totalPages) {
+        const { filters } = this.state;
+        return html`
+            <div class="glass-panel">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Permission</th>
+                            <th>Status</th>
+                            <th>Condition Logic (JSON)</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                        <tr class="filter-row">
+                            <th><input type="text" class="table-filter" placeholder="Filter..." value="${filters.permission || ''}" oninput="${(e) => this.updateFilter('permission', e.target.value)}"></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(p => {
+                            return html`
+                                <tr>
+                                    <td><code>${p.permission}</code></td>
+                                    <td><span class="badge ${p.status === 'active' ? 'success' : 'warning'}">${p.status}</span></td>
+                                    <td><pre style="max-width: 300px; max-height: 100px; overflow: auto; margin:0; padding: 4px; font-size: 0.75rem;">${p.condition_logic}</pre></td>
+                                    <td class="text-right">
+                                        <button class="btn ghost-btn btn-sm" onclick="${() => this.openAbacEditor(p.id)}">Edit</button>
+                                        <button class="btn danger-btn btn-sm" onclick="${() => this.deleteAbacPolicy(p.id)}">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        })}
+                    </tbody>
+                </table>
+    renderOAuthTable(items, totalItems, totalPages) {
+        const { filters } = this.state;
+        return html`
+            <div class="glass-panel">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client ID</th>
+                            <th>Name</th>
+                            <th>Redirect URI</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                        <tr class="filter-row">
+                            <th><input type="text" class="table-filter" placeholder="Filter..." value="${filters.id || ''}" oninput="${(e) => this.updateFilter('id', e.target.value)}"></th>
+                            <th><input type="text" class="table-filter" placeholder="Filter..." value="${filters.name || ''}" oninput="${(e) => this.updateFilter('name', e.target.value)}"></th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${items.map(client => {
+                            return html`
+                                <tr>
+                                    <td><code>${client.id}</code></td>
+                                    <td><strong>${client.name}</strong></td>
+                                    <td><code>${client.redirect_uri}</code></td>
+                                    <td class="text-right">
+                                        <button class="btn ghost-btn btn-sm" onclick="${() => this.openOAuthEditor(client.id)}">Edit</button>
+                                        <button class="btn danger-btn btn-sm" onclick="${() => this.deleteOAuthClient(client.id)}">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                        })}
+                    </tbody>
+                </table>
+            </div>
+            ${this.renderPagination(totalItems, totalPages)}
+        `;
+    }
 
     // =========================================================================
     //  IAM: HELPERS
@@ -881,7 +964,7 @@ export default class IdentityView extends BaseComponent {
                         <label>1. Select Entity Type</label>
                         <select name="target_class" id="asgn-class" class="spp-element" ${targetId ? 'disabled' : ''}>
                             <option value="SPPMod\\SPPAuth\\SPPUser" ${targetClass === 'SPPMod\\SPPAuth\\SPPUser' ? 'selected' : ''}>User</option>
-                            <option value="SPPMod\\SPPEntity\\SPPGroup" ${targetClass === 'SPPMod\\SPPEntity\\SPPGroup' ? 'selected' : ''}>Group</option>
+                            <option value="SPPMod\\SPPAuth\\SPPGroup" ${targetClass === 'SPPMod\\SPPAuth\\SPPGroup' ? 'selected' : ''}>Group</option>
                         </select>
                         ${targetId ? html`<input type="hidden" name="target_class" value="${targetClass}">` : ''}
                     </div>
@@ -1290,6 +1373,168 @@ export default class IdentityView extends BaseComponent {
             this.notify('Modern role saved to Registry.', 'success');
             this.closeModal();
             this.switchIamTab('modern_rbac', true);
+        } else {
+            this.handleApiErrors(res);
+        }
+    }
+
+    // =========================================================================
+    //  IAM: ABAC POLICY EDITOR
+    // =========================================================================
+
+    async openAbacEditor(id = null) {
+        const title = id ? 'Edit ABAC Policy' : 'Create ABAC Policy';
+        this.openModal(title, html`<div class="loader">Fetching...</div>`.toString());
+
+        let policy = { permission: '', condition_logic: '{\n  "field": "user.id",\n  "operator": "equals",\n  "value": "context.owner_id"\n}', status: 'active' };
+
+        if (id) {
+            const item = this.state.items.find(i => i.id == id);
+            if (item) policy = item;
+        }
+
+        document.getElementById('modal-body').innerHTML = html`
+            <form id="abac-policy-form">
+                <input type="hidden" name="id" value="${id || ''}">
+                <div class="form-group">
+                    <label>Permission</label>
+                    <input type="text" name="permission" class="spp-element" value="${policy.permission}" placeholder="e.g. content.edit">
+                </div>
+                <div class="form-group mt-4">
+                    <label>Condition Logic (JSON)</label>
+                    <textarea name="condition_logic" class="spp-element" style="height: 150px; font-family: monospace;">${policy.condition_logic}</textarea>
+                </div>
+                <div class="form-group mt-4">
+                    <label>Status</label>
+                    <select name="status" class="spp-element">
+                        <option value="active" ${policy.status === 'active' ? 'selected' : ''}>Active</option>
+                        <option value="inactive" ${policy.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                    </select>
+                </div>
+            </form>
+        `.toString();
+
+        const saveBtn = document.getElementById('modal-save');
+        saveBtn.textContent = 'Save Policy';
+        saveBtn.onclick = () => this.saveAbacPolicy();
+    }
+
+    async saveAbacPolicy() {
+        const form = document.getElementById('abac-policy-form');
+        const fd = new FormData(form);
+        
+        try {
+            JSON.parse(fd.get('condition_logic'));
+        } catch(e) {
+            this.notify('Invalid JSON in Condition Logic.', 'error');
+            return;
+        }
+        
+        fd.append('action', 'save_abac_policy');
+
+        const res = await this.apiPost(fd);
+        if (res.success) {
+            this.notify('ABAC Policy saved.', 'success');
+            this.closeModal();
+            this.switchIamTab('abac', true);
+        } else {
+            this.handleApiErrors(res);
+        }
+    }
+
+    async deleteAbacPolicy(id) {
+        if (!confirm('Delete this ABAC policy?')) return;
+
+        const fd = new FormData();
+        fd.append('action', 'delete_abac_policy');
+        fd.append('id', id);
+
+        const res = await this.apiPost(fd);
+        if (res.success) {
+            this.notify('ABAC Policy deleted.', 'success');
+            this.switchIamTab('abac', true);
+        } else {
+            this.handleApiErrors(res);
+        }
+    }
+
+    // =========================================================================
+    //  IAM: OAUTH CLIENT EDITOR
+    // =========================================================================
+
+    async openOAuthEditor(id = null) {
+        const title = id ? 'Edit OAuth Client' : 'Create OAuth Client';
+        this.openModal(title, html`<div class="loader">Fetching...</div>`.toString());
+
+        let client = { id: '', name: '', redirect_uri: '' };
+
+        if (id) {
+            const item = this.state.items.find(i => i.id == id);
+            if (item) client = item;
+        } else {
+            // Generate random client ID for new clients
+            client.id = 'client_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        document.getElementById('modal-body').innerHTML = html`
+            <form id="oauth-client-form">
+                <div class="form-group">
+                    <label>Client ID</label>
+                    <input type="text" name="id" class="spp-element" value="${client.id}" ${id ? 'readonly' : ''}>
+                </div>
+                <div class="form-group mt-4">
+                    <label>Application Name</label>
+                    <input type="text" name="name" class="spp-element" value="${client.name}" placeholder="e.g. Acme App">
+                </div>
+                <div class="form-group mt-4">
+                    <label>Redirect URI</label>
+                    <input type="text" name="redirect_uri" class="spp-element" value="${client.redirect_uri}" placeholder="e.g. https://app.example.com/callback">
+                </div>
+                ${!id ? html`
+                <div class="alert info mt-4">
+                    <p>A secure <code>client_secret</code> will be generated automatically and displayed after creation.</p>
+                </div>
+                ` : ''}
+            </form>
+        `.toString();
+
+        const saveBtn = document.getElementById('modal-save');
+        saveBtn.textContent = 'Save Client';
+        saveBtn.onclick = () => this.saveOAuthClient();
+    }
+
+    async saveOAuthClient() {
+        const form = document.getElementById('oauth-client-form');
+        const fd = new FormData(form);
+        
+        fd.append('action', 'save_oauth_client');
+
+        const res = await this.apiPost(fd);
+        if (res.success) {
+            if (res.data && res.data.client_secret) {
+                this.notify('OAuth Client saved. Secret: ' + res.data.client_secret, 'success');
+                alert('IMPORTANT: Copy this Client Secret now, it will not be shown again.\n\n' + res.data.client_secret);
+            } else {
+                this.notify('OAuth Client saved.', 'success');
+            }
+            this.closeModal();
+            this.switchIamTab('oauth', true);
+        } else {
+            this.handleApiErrors(res);
+        }
+    }
+
+    async deleteOAuthClient(id) {
+        if (!confirm('Delete this OAuth Client? This will break authentication for apps using it.')) return;
+
+        const fd = new FormData();
+        fd.append('action', 'delete_oauth_client');
+        fd.append('id', id);
+
+        const res = await this.apiPost(fd);
+        if (res.success) {
+            this.notify('OAuth Client deleted.', 'success');
+            this.switchIamTab('oauth', true);
         } else {
             this.handleApiErrors(res);
         }

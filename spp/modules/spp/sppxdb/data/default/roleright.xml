@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="roleright">
+  <_schema>
+    <column name="placeholder" type="INT"/>
+  <column name="roleid" type="INTEGER"/><column name="rightid" type="INTEGER"/></_schema>
+  <data>
+  </data>
+</database>

@@ -126,10 +126,22 @@ class SPPResponse extends \SPP\SPPObject
      * function redirect()
      * Redirect to url
      * @param string $url
+     * @param array $flashes Optional flashes to set
      */
-    public static function redirect(string $url)
+    public static function redirect(string $url, array $flashes = [])
     {
+        foreach ($flashes as $key => $message) {
+            \SPP\SPPSession::setFlash($key, $message);
+        }
         header("Location: $url");
         exit;
+    }
+
+    /**
+     * Set a flash message directly
+     */
+    public static function withFlash(string $key, $message): void
+    {
+        \SPP\SPPSession::setFlash($key, $message);
     }
 }

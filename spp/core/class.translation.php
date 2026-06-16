@@ -67,14 +67,13 @@ class Translation
             $formatString = self::$translations[$loc][$key];
         } else {
             // Fallback to SQLite DB table spp_translations if class exists
-            if (class_exists('\SPPMod\SPPDB\SPPDB')) {
+            if (class_exists('\\SPP\\DB')) {
                 try {
-                    $db = new \SPPMod\SPPDB\SPPDB();
-                    $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+                    $db = \SPP\DB::getInstance();
+                    $table = \SPP\DB::sppTable('translations');
                     if ($db->tableExists($table)) {
-                        $res = $db->exec_squery(
-                            "SELECT translation FROM %tab% WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
-                            $table,
+                        $res = $db->execute_query(
+                            "SELECT translation FROM {$table} WHERE key_code = ? AND locale = ? AND status = 'active' LIMIT 1",
                             [$key, $loc]
                         );
                         if (!empty($res) && !empty($res[0]['translation'])) {

@@ -1,12 +1,12 @@
 <?php
 namespace SPP\Tests\Core;
 
-use SPPMod\Parikshak\TestCase;
+use SPPMod\Parikshak\SPPTestCase;
 use SPPMod\SPPView\SPP_Validator_RequiredValidator;
 use SPPMod\SPPView\SPP_Validator_EmailValidator;
 use SPPMod\SPPView\SPP_Validator_MinLengthValidator;
 
-class SPPValidatorTest extends TestCase
+class SPPValidatorTest extends SPPTestCase
 {
     public function testRequiredValidator()
     {

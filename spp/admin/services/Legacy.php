@@ -732,8 +732,13 @@ if (!function_exists('live_check_auth')) {
     function live_check_auth($la, $params) {
         $appContext = $params['appname'] ?? 'default';
         if (\SPPMod\SPPAuth\SPPAuth::check()) {
+            $user = \SPPMod\SPPAuth\SPPAuth::user();
             $userId = (string) \SPPMod\SPPAuth\SPPAuth::guard()->id();
-            return $la->setData(['username' => $userId])->notify("Authenticated.", "success");
+            $username = $userId;
+            if ($user) {
+                $username = $user->username ?? $user->get('UserName') ?? $userId;
+            }
+            return $la->setData(['username' => $username, 'user_id' => $userId])->notify("Authenticated.", "success");
         } else {
             return $la->setStatus('error')->notify("Please Authenticate yourself.", "error");
         }
@@ -933,7 +938,7 @@ if (!function_exists('live_get_builder_context')) {
     function live_get_builder_context($la, $params) {
         $appContext = $params['appname'] ?? 'default';
             $savePath = "src/{$appContext}/entities";
-            $classes = ['\\SPPMod\\SPPEntity\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'];
+            $classes = ['\\SPPMod\\SppDb\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'];
             
             // Scan current app entities
             $entDir = SPP_APP_DIR . "/src/{$appContext}/entities";
@@ -960,7 +965,7 @@ if (!function_exists('live_get_builder_context')) {
                 foreach ($rit as $file) {
                     if ($file->isFile() && $file->getExtension() === 'php') {
                         $content = file_get_contents($file->getPathname());
-                        if (str_contains($content, 'extends SPPEntity') || str_contains($content, 'extends \\SPPMod\\SPPEntity\\SPPEntity')) {
+                        if (str_contains($content, 'extends SPPEntity') || str_contains($content, 'extends \\SPPMod\\SppDb\\SPPEntity')) {
                             if (preg_match('/namespace\s+([^;]+);/', $content, $nsMatches) && preg_match('/class\s+([a-zA-Z0-9_]+)/', $content, $clsMatches)) {
                                 $classes[] = '\\' . trim($nsMatches[1]) . '\\' . trim($clsMatches[1]);
                             }
@@ -1205,7 +1210,7 @@ if (!function_exists('live_seed_entity')) {
         try {
             $class = "\\SPPMod\\SPPEntity\\{$entityName}";
             if (!class_exists($class)) {
-                $file = SPP_BASE_DIR . "/modules/spp/sppentity/entities/class." . strtolower($entityName) . ".php";
+                $file = SPP_BASE_DIR . "/modules/spp/sppdb/entities/class." . strtolower($entityName) . ".php";
                 if (file_exists($file)) require_once $file;
             }
             if (!class_exists($class)) return $la->setStatus('error')->notify("Entity class not found.", "error");
@@ -1247,7 +1252,7 @@ if (!function_exists('live_save_entity_config')) {
         if (!$name) return $la->setStatus('error')->notify("Entity name required.", "error");
         
         try {
-            if (!class_exists('\SPPMod\SPPEntity\SPPEntity')) {
+            if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
                 require_once SPP_BASE_DIR . '/sppinit.php';
             }
             createEntityRevision($appContext, $name);
@@ -1255,13 +1260,13 @@ if (!function_exists('live_save_entity_config')) {
             if (!empty($config['extends'])) {
                 $extendsClass = ltrim($config['extends'], '\\');
                 if ($extendsClass !== 'SPPMod\SPPEntity\SPPEntity') {
-                    if (!class_exists($extendsClass) || !is_subclass_of($extendsClass, '\SPPMod\SPPEntity\SPPEntity')) {
+                    if (!class_exists($extendsClass) || !is_subclass_of($extendsClass, '\SPPMod\SppDb\SPPEntity')) {
                         return $la->setStatus('error')->notify("Error: Extended class '{$config['extends']}' does not exist or does not extend SPPEntity.", "error");
                     }
                 }
             }
 
-            \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($name, $appContext, $config);
+            \SPPMod\SppDb\SPPEntity::saveEntityDefinition($name, $appContext, $config);
             return $la->notify("Entity saved.", "success");
         } catch (\Exception $e) {
             sendResponse(false, [], "Save error: " . $e->getMessage());
@@ -1294,11 +1299,11 @@ if (!function_exists('live_save_entity_source')) {
                 $phpFileName = "entity." . strtolower($name) . ".php";
                 $phpPath = $srcDir . '/' . $phpFileName;
                 if (!file_exists($phpPath)) {
-                    if (!class_exists('\SPPMod\SPPEntity\SPPEntity')) {
+                    if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
                         require_once SPP_BASE_DIR . '/sppinit.php';
                     }
                     $config = \Symfony\Component\Yaml\Yaml::parse($source);
-                    \SPPMod\SPPEntity\SPPEntity::saveEntityDefinition($name, $appContext, $config);
+                    \SPPMod\SppDb\SPPEntity::saveEntityDefinition($name, $appContext, $config);
                 }
                 
             } else {
@@ -1584,7 +1589,8 @@ if (!function_exists('live_execute_scaffold')) {
         
         $allowedCommands = [
             'make:app', 'make:module', 'make:entity', 
-            'make:controller', 'make:scaffold', 'make:service'
+            'make:controller', 'make:scaffold', 'make:service',
+            'make:blade', 'make:twig', 'make:sppview', 'make:mixed-paradigm', 'make:ux'
         ];
         
         if (!in_array($command, $allowedCommands)) {

@@ -31,7 +31,7 @@ class ViewServiceAddCommand extends Command
         }
 
         \SPP\Scheduler::withContext($appname, function() use ($name, $script, $method, $source) {
-            \SPPMod\SPPAjax\SPPAjax::registerService($name, $script, $method, $source);
+            \SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source);
         });
 
         echo "Success: AJAX Service '{$name}' -> '{$script}' [{$method}] registered for app '{$appname}' (Source: {$source}).\n";

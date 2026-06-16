@@ -54,6 +54,99 @@ function live_IAM_ListRBAC($la, $params) {
     ]);
 }
 
+function live_IAM_ListABAC($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $policies = $db->execute_query('SELECT id, permission, condition_logic, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('abac_policies') . ' ORDER BY id DESC');
+    $la->setData([
+        'sources' => [[
+            'label' => $db->getConnectionSummary(),
+            'type' => 'database',
+            'items' => $policies
+        ]]
+    ]);
+}
+
+function live_IAM_SaveABAC($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $id = $params['id'] ?? null;
+    $permission = $params['permission'] ?? '';
+    $logic = $params['condition_logic'] ?? '';
+    $status = $params['status'] ?? 'active';
+
+    if (empty($permission) || empty($logic)) {
+        return $la->setStatus('error')->notify("Permission and Condition Logic are required.");
+    }
+
+    $table = \SPPMod\SPPDB\SPPDB::sppTable('abac_policies');
+
+    if ($id) {
+        $db->execute_query("UPDATE $table SET permission = ?, condition_logic = ?, status = ? WHERE id = ?", [$permission, $logic, $status, $id]);
+        $la->setStatus('success')->notify('ABAC Policy updated.');
+    } else {
+        $db->execute_query("INSERT INTO $table (permission, condition_logic, status) VALUES (?, ?, ?)", [$permission, $logic, $status]);
+        $la->setStatus('success')->notify('ABAC Policy created.');
+    }
+}
+
+function live_IAM_DeleteABAC($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $id = $params['id'] ?? null;
+    if (!$id) return $la->setStatus('error')->notify("Policy ID required.");
+
+    $table = \SPPMod\SPPDB\SPPDB::sppTable('abac_policies');
+    $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
+    $la->setStatus('success')->notify('Policy deleted.');
+}
+
+function live_IAM_ListOAuthClients($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $clients = $db->execute_query('SELECT id, name, redirect_uri FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients') . ' ORDER BY name ASC');
+    $la->setData([
+        'sources' => [[
+            'label' => 'OAuth Clients',
+            'type' => 'database',
+            'items' => $clients
+        ]]
+    ]);
+}
+
+function live_IAM_SaveOAuthClient($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $id = $params['id'] ?? null;
+    $name = $params['name'] ?? '';
+    $redirect_uri = $params['redirect_uri'] ?? '';
+
+    if (empty($id) || empty($name) || empty($redirect_uri)) {
+        return $la->setStatus('error')->notify("ID, Name, and Redirect URI are required.");
+    }
+
+    $table = \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients');
+
+    // Check if client exists
+    $existing = $db->execute_query("SELECT id FROM $table WHERE id = ?", [$id]);
+
+    if (!empty($existing)) {
+        // Update
+        $db->execute_query("UPDATE $table SET name = ?, redirect_uri = ? WHERE id = ?", [$name, $redirect_uri, $id]);
+        $la->setStatus('success')->notify('OAuth Client updated.');
+    } else {
+        // Create
+        $client_secret = bin2hex(random_bytes(32));
+        $db->execute_query("INSERT INTO $table (id, secret, name, redirect_uri) VALUES (?, ?, ?, ?)", [$id, $client_secret, $name, $redirect_uri]);
+        $la->setStatus('success')->setData(['client_secret' => $client_secret])->notify('OAuth Client created.');
+    }
+}
+
+function live_IAM_DeleteOAuthClient($la, $params) {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    $id = $params['id'] ?? null;
+    if (!$id) return $la->setStatus('error')->notify("Client ID required.");
+
+    $table = \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients');
+    $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
+    $la->setStatus('success')->notify('Client deleted.');
+}
+
 function live_IAM_ListEntityAssignments($la, $params) {
     $db = new \SPPMod\SPPDB\SPPDB();
     $sql = 'SELECT er.target_class, er.target_id, er.role_id, r.role_name 
@@ -118,18 +211,18 @@ function live_IAM_SearchEntities($la, $params) {
         $sql = 'SELECT id, name as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppgroups') . ' WHERE name LIKE ? LIMIT 10';
         $rows = $db->execute_query($sql, ["%$q%"]);
         foreach ($rows as $r) {
-            $results[] = ['id' => $r['id'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPGroup\\SPPGroup', 'score' => 1.0];
+            $results[] = ['id' => $r['id'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPGroup', 'score' => 1.0];
         }
     }
 
     // 2. Natural search fallback
     if (empty($results)) {
-        $results = \SPPMod\SPPEntity\SPPEntity::searchNatural($q);
+        $results = \SPPMod\SppDb\SPPEntity::searchNatural($q);
     }
     
     // 3. Manual broad search fallback
     if (empty($results)) {
-        $entities = \SPPMod\SPPEntity\SPPEntity::listAvailableEntities();
+        $entities = \SPPMod\SppDb\SPPEntity::listAvailableEntities();
         foreach ($entities as $name => $meta) {
             try {
                 $class = "App\\Default\\Entities\\" . ucfirst($name);
@@ -418,12 +511,12 @@ function live_IAM_SaveModernRole($la, $params) {
 
 function live_IAM_ListGroups($la, $params) {
     $appname = $params['appname'] ?? 'default';
-    $rawGroups = \SPPMod\SPPGroup\SPPGroupLoader::listAllGroups($appname);
+    $rawGroups = \SPPMod\SPPAuth\SPPGroupLoader::listAllGroups($appname);
     
     $sources = [];
     
     foreach ($rawGroups as $g) {
-        $group = new \SPPMod\SPPGroup\SPPGroup();
+        $group = new \SPPMod\SPPAuth\SPPGroup();
         $group->load($g['name']);
         if ($group->id) {
             $sourceKey = $g['source'] === 'database' ? $g['db_summary'] : ($g['path'] ?? 'Unknown File');
@@ -451,7 +544,7 @@ function live_IAM_ListGroupMembers($la, $params) {
     $groupId = $params['group_id'] ?? null;
     if (!$groupId) return $la->setStatus('error')->notify("Group ID required.");
 
-    $group = new \SPPMod\SPPGroup\SPPGroup();
+    $group = new \SPPMod\SPPAuth\SPPGroup();
     $group->load($groupId);
     if (!$group->id) return $la->setStatus('error')->notify("Group not found.");
 
@@ -496,7 +589,7 @@ function live_IAM_AddGroupMember($la, $params) {
     $role = $params['role'] ?? 'member';
 
     try {
-        \SPPMod\SPPGroup\SPPGroup::addMemberToGroup($groupId, $memberClass, $memberId, $role);
+        \SPPMod\SPPAuth\SPPGroup::addMemberToGroup($groupId, $memberClass, $memberId, $role);
         $la->notify("Member added to group.", "success");
     } catch (\Exception $e) {
         $la->setStatus('error')->notify($e->getMessage());
@@ -509,7 +602,7 @@ function live_IAM_RemoveGroupMember($la, $params) {
     $memberId = $params['member_id'] ?? '';
 
     try {
-        \SPPMod\SPPGroup\SPPGroup::removeMemberFromGroup($groupId, $memberClass, $memberId);
+        \SPPMod\SPPAuth\SPPGroup::removeMemberFromGroup($groupId, $memberClass, $memberId);
         $la->notify("Member removed from group.");
     } catch (\Exception $e) {
         $la->setStatus('error')->notify($e->getMessage());
@@ -518,7 +611,7 @@ function live_IAM_RemoveGroupMember($la, $params) {
 
 function live_IAM_SaveGroup($la, $params) {
     try {
-        \SPPMod\SPPGroup\SPPGroup::saveGroupInfo($params);
+        \SPPMod\SPPAuth\SPPGroup::saveGroupInfo($params);
         $la->notify("Group saved successfully.", "success");
     } catch (\Exception $e) {
         $la->setStatus('error')->notify($e->getMessage());
@@ -529,13 +622,137 @@ function live_IAM_DeleteGroup($la, $params) {
     $id = $params['id'] ?? null;
     if (!$id) return $la->setStatus('error')->notify("Group ID required.");
 
-    $group = new \SPPMod\SPPGroup\SPPGroup();
+    $group = new \SPPMod\SPPAuth\SPPGroup();
     $group->load($id);
     if ($group->id) {
         $group->delete();
         $la->notify("Group '$id' deleted.");
     } else {
         $la->setStatus('error')->notify("Group not found.");
+    }
+}
+
+// --- API Keys Management ---
+
+function live_IAM_ListApiKeys($la, $params) {
+    try {
+        $user = \SPP\Scheduler::getActiveUser();
+        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
+        
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $sql = "SELECT id, name, created_at, expires_at, 
+                CASE WHEN expires_at IS NULL OR expires_at > NOW() THEN 1 ELSE 0 END as status
+                FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . "
+                WHERE userid = ? ORDER BY created_at DESC";
+        $tokens = $db->execute_query($sql, [$user->id]);
+        
+        // Add pseudo token masks
+        foreach ($tokens as &$t) {
+            $t['token'] = 'spp_' . substr(md5($t['id'] . $t['created_at']), 0, 8) . '...';
+        }
+        
+        $la->setData($tokens);
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to list API keys: " . $e->getMessage());
+    }
+}
+
+function live_IAM_GenerateApiKey($la, $params) {
+    try {
+        $user = \SPP\Scheduler::getActiveUser();
+        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
+        
+        $name = $params['name'] ?? 'API Key';
+        $token = \SPPMod\SPPAuth\TokenGuard::createToken($user, $name);
+        
+        $la->notify("API Key generated successfully! Please copy it now, it won't be shown again: $token", "success");
+        // Instruct frontend to reload keys
+        $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to generate API key: " . $e->getMessage());
+    }
+}
+
+function live_IAM_RevokeApiKey($la, $params) {
+    try {
+        $user = \SPP\Scheduler::getActiveUser();
+        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
+        
+        $id = $params['id'] ?? null;
+        if (!$id) return $la->setStatus('error')->notify("Token ID required.");
+        
+        $db = new \SPPMod\SPPDB\SPPDB();
+        $db->execute_query("DELETE FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . " WHERE id = ? AND userid = ?", [$id, $user->id]);
+        
+        $la->notify("API Key revoked.", "success");
+        $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to revoke API key: " . $e->getMessage());
+    }
+}
+
+// --- MFA Management ---
+
+function live_IAM_GenerateMFASecret($la, $params) {
+    try {
+        $user = \SPP\Scheduler::getActiveUser();
+        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
+        
+        require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
+        
+        // Generate new secret
+        $secret = \SPPMod\SPPAuth\MFA::generateSecret();
+        
+        // Temporarily store in session to prevent DB save until verified
+        \SPP\SPPSession::setSessionVar('mfa_setup_secret', $secret);
+        
+        // Create an otpauth URI
+        $issuer = urlencode('SPP Enterprise');
+        $accountName = urlencode($user->username);
+        $otpauthUrl = "otpauth://totp/$issuer:$accountName?secret=$secret&issuer=$issuer";
+        
+        // Use Google Charts API to generate a QR Code image URL
+        $qrCodeUrl = "https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=" . urlencode($otpauthUrl);
+        
+        $la->setData([
+            'secret' => $secret,
+            'qr_code_url' => $qrCodeUrl,
+            'manual_code' => trim(chunk_split($secret, 4, ' '))
+        ]);
+        
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to generate MFA secret: " . $e->getMessage());
+    }
+}
+
+function live_IAM_EnableMFA($la, $params) {
+    try {
+        $user = \SPP\Scheduler::getActiveUser();
+        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
+        
+        $code = $params['code'] ?? '';
+        if (empty($code)) return $la->setStatus('error')->notify("Please provide the 6-digit verification code.");
+        
+        $secret = \SPP\SPPSession::getSessionVar('mfa_setup_secret');
+        if (empty($secret)) return $la->setStatus('error')->notify("MFA setup session expired. Please restart the process.");
+        
+        require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
+        
+        if (\SPPMod\SPPAuth\MFA::verifyCode($secret, $code)) {
+            $db = new \SPPMod\SPPDB\SPPDB();
+            $db->execute_query(
+                "UPDATE " . \SPPMod\SPPDB\SPPDB::sppTable('users') . " SET mfa_secret = ?, mfa_enabled = 1 WHERE id = ?",
+                [$secret, $user->id]
+            );
+            
+            \SPP\SPPSession::unsetSessionVar('mfa_setup_secret');
+            $la->notify("Multi-Factor Authentication is now enabled!", "success");
+        } else {
+            $la->setStatus('error')->notify("Invalid Authenticator code. Try again.");
+        }
+        
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to enable MFA: " . $e->getMessage());
     }
 }
 

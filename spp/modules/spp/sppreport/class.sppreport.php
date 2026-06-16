@@ -131,8 +131,8 @@ class SPPReport {
             $aliasSql = $alias ? " AS \"" . str_replace('"', '\"', $alias) . "\"" : "";
 
             if ($aggregate === 'CUSTOM') {
-                // Formula field. Ensure it only contains safe math/sql chars
-                if (!preg_match('/^[a-zA-Z0-9_\.\s\(\)\+\-\*\/\,\']+$/', $field)) continue;
+                // Formula field. Ensure it only contains safe math/sql chars (removed space and quotes)
+                if (!preg_match('/^[a-zA-Z0-9_\.\(\)\+\-\*\/\,]+$/', $field)) continue;
                 $selects[] = $field . $aliasSql;
                 continue;
             }

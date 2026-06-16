@@ -19,11 +19,25 @@ class Parikshak
     private string $tablePrefix = 'parikshak_';
     private string $storageStrategy = 'same_db';
     private ?int $seed = null;
+    private ParikshakFuzzer $fuzzer;
+    private ParikshakOracle $oracle;
+    private ParikshakCodeGenerator $generator;
 
     public function __construct(?\SPPMod\SPPDB\SPPDB $db = null, ?int $seed = null)
     {
+        $this->fuzzer = new ParikshakFuzzer();
+        $this->oracle = new ParikshakOracle();
+        $this->generator = new ParikshakCodeGenerator($this->fuzzer);
+        
+        // Enforce SQLite Memory DB to isolate tests and avoid shadow tables
+        \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb');
+        \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb');
+
         try {
-            $this->db = $db ?? (class_exists('\SPPMod\SPPDB\SPPDB') ? new \SPPMod\SPPDB\SPPDB() : null);
+            $this->db = new \SPPMod\SPPDB\SPPDB();
+            if (class_exists('\\SPP\\DB')) {
+                \SPP\DB::setProvider($this->db);
+            }
         } catch (\Exception $e) {
             $this->db = null;
             error_log("Parikshak Warning: Database unavailable. Evolutionary tests will fail, but unit tests can proceed. ({$e->getMessage()})");
@@ -32,14 +46,14 @@ class Parikshak
         mt_srand($this->seed);
 
         // Modern Config Integration
-        $this->tablePrefix = \SPP\SPPConfig::get('parikshak.table_prefix', 'spptest__');
-        $this->storageStrategy = \SPP\SPPConfig::get('parikshak.table_prefix', 'same_db'); // or spptest__
+        $this->tablePrefix = '';
+        $this->storageStrategy = 'isolated';
     }
 
     /**
      * Entry point to run a full test suite for an app.
      */
-    public function runSuite(string $appname): array
+    public function runSuite(string $appname, bool $withCoverage = false): array
     {
         // Check if module is active via Modern Config
         if (!\SPP\SPPConfig::get('parikshak.active', true)) {
@@ -47,7 +61,7 @@ class Parikshak
         }
 
         $evtSuiteStart = ['app' => $appname];
-        \SPP\SPPEvent::fireEvent('parikshak.suite_started', $evtSuiteStart);
+        \SPP\SPPEvent::fireEvent('parikshak.suite_started', new \SPP\EventParams($evtSuiteStart));
 
         $appEntitiesDir = SPP_APP_DIR . '/src/' . $appname . '/entities';
         $files = glob($appEntitiesDir . '/entity.*.php');
@@ -79,7 +93,7 @@ class Parikshak
         // --- NEW: Execute Unit Tests ---
         if (class_exists('\\SPPMod\\Parikshak\\SPPTestRunner')) {
             $unitRunner = new \SPPMod\Parikshak\SPPTestRunner();
-            $unitResults = $unitRunner->run($appname);
+            $unitResults = $unitRunner->run($appname, $withCoverage);
             $this->results['unit_tests'] = $unitResults;
         }
 
@@ -89,7 +103,7 @@ class Parikshak
             'app' => $appname,
             'summary' => $this->results['summary']
         ];
-        \SPP\SPPEvent::fireEvent('parikshak.suite_completed', $evtSuiteComp);
+        \SPP\SPPEvent::fireEvent('parikshak.suite_completed', new \SPP\EventParams($evtSuiteComp));
 
         return $this->results;
     }
@@ -130,7 +144,7 @@ class Parikshak
     {
         $dir = SPP_APP_DIR . "/var/reports";
         if (!is_dir($dir)) {
-            @mkdir($dir, 0777, true);
+            mkdir($dir, 0777, true);
         }
         $historyPath = $dir . "/parikshak_history.json";
         $history = [];
@@ -142,7 +156,7 @@ class Parikshak
         if (count($history) > 50) {
             $history = array_slice($history, -50);
         }
-        @file_put_contents($historyPath, json_encode($history, JSON_PRETTY_PRINT));
+        file_put_contents($historyPath, json_encode($history, JSON_PRETTY_PRINT));
     }
 
     /**
@@ -164,7 +178,7 @@ class Parikshak
         ];
 
         $evtData = ['class' => $entityClass];
-        \SPP\SPPEvent::fireEvent('parikshak.entity_test_started', $evtData);
+        \SPP\SPPEvent::fireEvent('parikshak.entity_test_started', new \SPP\EventParams($evtData));
 
         try {
             // 0. Metadata Validation
@@ -179,7 +193,7 @@ class Parikshak
             $this->setupShadowTable($entityClass);
 
             // 2. Generate Test Code Artifact
-            $this->generateTestCode($entityClass, $appname);
+            $this->generator->generateTestCode($entityClass, $appname);
 
             // 3. Execution Phase
             $report['scenarios'][] = $this->runCrudScenario($entityClass, 'ValidData');
@@ -215,14 +229,14 @@ class Parikshak
         if ($report['status'] === 'passed') {
             $this->results['summary']['passed']++;
             $evtData = ['class' => $entityClass];
-            \SPP\SPPEvent::fireEvent('parikshak.entity_test_passed', $evtData);
+            \SPP\SPPEvent::fireEvent('parikshak.entity_test_passed', new \SPP\EventParams($evtData));
         } elseif ($report['status'] === 'failed') {
             $this->results['summary']['failed']++;
             $evtData = [
                 'class' => $entityClass,
                 'errors' => $report['errors']
             ];
-            \SPP\SPPEvent::fireEvent('parikshak.entity_test_failed', $evtData);
+            \SPP\SPPEvent::fireEvent('parikshak.entity_test_failed', new \SPP\EventParams($evtData));
         } else {
             if (!isset($this->results['summary']['skipped'])) {
                 $this->results['summary']['skipped'] = 0;
@@ -234,67 +248,42 @@ class Parikshak
     }
 
     /**
-     * Creates a temporary table for testing using the configured prefix.
+     * Prepares the isolated table for testing.
      */
     private function setupShadowTable(string $entityClass): void
     {
         $originalTable = $entityClass::getMetadata('table');
-        $testTable = $this->tablePrefix . $originalTable;
 
         $db = new \SPPMod\SPPDB\SPPDB();
 
         // Drop if exists (clean start)
-        $db->exec_squery("DROP TABLE IF EXISTS %tab%", $testTable);
+        $db->exec_squery("DROP TABLE IF EXISTS %tab%", $originalTable);
 
-        // Copy schema from original (or install using test table)
-        $this->withShadowMetadata($entityClass, $testTable, function () use ($entityClass) {
-            $entityClass::install();
-        });
+        // Install schema
+        $entityClass::install();
     }
 
     private function teardownShadowTable(string $entityClass): void
     {
         $originalTable = $entityClass::getMetadata('table');
-        $testTable = $this->tablePrefix . $originalTable;
         $db = new \SPPMod\SPPDB\SPPDB();
-        $db->exec_squery("DROP TABLE IF EXISTS %tab%", $testTable);
+        $db->exec_squery("DROP TABLE IF EXISTS %tab%", $originalTable);
     }
 
     /**
-     * Executes logic with modified metadata temporarily.
+     * Deprecated: Executes logic (no longer uses reflection).
      */
     private function withShadowMetadata(string $entityClass, string $shadowTable, callable $work)
     {
-        return $this->withAllShadowMetadata([$entityClass => $shadowTable], $work);
+        return $work();
     }
 
     /**
-     * Executes logic with multiple modified metadata entries.
+     * Deprecated: Executes logic (no longer uses reflection).
      */
     private function withAllShadowMetadata(array $classToTableMap, callable $work)
     {
-        $refl = new \ReflectionClass('\SPPMod\SPPEntity\SPPEntity');
-        $metaProp = $refl->getProperty('_metadata');
-        $metaProp->setAccessible(true);
-        $meta = $metaProp->getValue();
-
-        $originals = [];
-        foreach ($classToTableMap as $class => $table) {
-            if (isset($meta[$class])) {
-                $originals[$class] = $meta[$class]['table'];
-                $meta[$class]['table'] = $table;
-            }
-        }
-        $metaProp->setValue(null, $meta);
-
-        try {
-            return $work();
-        } finally {
-            foreach ($originals as $class => $table) {
-                $meta[$class]['table'] = $table;
-            }
-            $metaProp->setValue(null, $meta);
-        }
+        return $work();
     }
 
     /**
@@ -318,10 +307,10 @@ class Parikshak
                 $parentClass = $rel['parent_entity'];
                 $fkField = $rel['child_entity_field'];
 
-                // Ensure parent shadow table exists
+                // Ensure parent isolated table exists
                 $this->setupShadowTable($parentClass);
 
-                $parentShadowTable = $this->tablePrefix . $parentClass::getMetadata('table');
+                $parentShadowTable = $parentClass::getMetadata('table');
                 $this->withShadowMetadata($parentClass, $parentShadowTable, function () use ($parentClass, $fkField, &$overrides, &$visited) {
                     $parent = new $parentClass();
                     $pAttributes = $parentClass::getMetadata('attributes');
@@ -337,7 +326,7 @@ class Parikshak
                         if ($name === $pIdField || isset($pDeps[$name])) {
                             continue;
                         }
-                        $parent->set($name, $this->fuzz($type, $name . '_dep'));
+                        $parent->set($name, $this->fuzzer->fuzz($type, $name . '_dep'));
                     }
                     $parentId = $parent->save();
                     $overrides[$fkField] = $parentId;
@@ -378,7 +367,7 @@ class Parikshak
                     if ($name === $idField || isset($depOverrides[$name])) {
                         continue;
                     }
-                    $testData[$name] = $this->fuzz($type, $name);
+                    $testData[$name] = $this->fuzzer->fuzz($type, $name);
                     $entity->set($name, $testData[$name]);
                 }
                 $id = $entity->save();
@@ -390,8 +379,7 @@ class Parikshak
                 try {
                     $loaded = new $entityClass($id);
                 } catch (\Exception $e) {
-                    $realTable = $entityClass::getMetadata('table');
-                    throw new \Exception("Read failed for ID $id. Expected table: $testTable. Current metadata table: $realTable. Error: " . $e->getMessage());
+                    throw new \Exception("Read failed for ID $id. Error: " . $e->getMessage());
                 }
 
                 foreach ($testData as $name => $val) {
@@ -421,7 +409,7 @@ class Parikshak
                     if ($name === $idField) {
                         continue;
                     }
-                    $updateData[$name] = $this->fuzz($type, $name . '_updated');
+                    $updateData[$name] = $this->fuzzer->fuzz($type, $name . '_updated');
                     $loaded->set($name, $updateData[$name]);
                 }
                 $loaded->save();
@@ -452,7 +440,7 @@ class Parikshak
         } catch (\Exception $e) {
             $res['status'] = 'failed';
             $res['error'] = $e->getMessage();
-            $res['diagnostics'] = $this->diagnoseError($e->getMessage(), $entityClass);
+            $res['diagnostics'] = $this->oracle->diagnoseError($e->getMessage(), $entityClass);
         }
 
         return $res;
@@ -516,7 +504,7 @@ class Parikshak
                         continue;
                     }
                     // Inject security payload
-                    $payload = $this->fuzz($type, $name, true);
+                    $payload = $this->fuzzer->fuzz($type, $name, true);
                     $entity->set($name, $payload);
                 }
 
@@ -547,7 +535,7 @@ class Parikshak
                     if ($name === $idField) {
                         continue;
                     }
-                    $entity->set($name, $this->fuzz($type, $name));
+                    $entity->set($name, $this->fuzzer->fuzz($type, $name));
                 }
                 $id = $entity->save();
 
@@ -591,7 +579,7 @@ class Parikshak
                     if ($name === $idField) {
                         continue;
                     }
-                    $payload = $this->fuzz($type, $name, false, true); // unicode mode
+                    $payload = $this->fuzzer->fuzz($type, $name, false, true); // unicode mode
                     $entity->set($name, $payload);
                 }
                 $id = $entity->save();
@@ -637,7 +625,7 @@ class Parikshak
                         if ($name === $idField) {
                             continue;
                         }
-                        $entity->set($name, $this->fuzz($type, $name));
+                        $entity->set($name, $this->fuzzer->fuzz($type, $name));
                     }
                     $entity->save();
                 }
@@ -751,54 +739,6 @@ class Parikshak
         $xml->asXML($outputPath);
     }
 
-    /**
-     * The Dreamer: Local Shorthand Architect
-     * Format: ClassName(attr:type, attr:type)
-     */
-    public function dreamEntity(string $shorthand, string $appname): bool
-    {
-        if (preg_match('/([a-zA-Z0-9_]+)\(([^)]+)\)/', $shorthand, $m)) {
-            $name = $m[1];
-            $attrsStr = $m[2];
-            $attrs = [];
-            foreach (explode(',', $attrsStr) as $pair) {
-                $p = explode(':', trim($pair));
-                if (count($p) === 2) {
-                    $attrs[trim($p[0])] = trim($p[1]);
-                }
-            }
-
-            $yaml = "table: " . strtolower($name) . "s\n";
-            $yaml .= "audit: true\n"; // Enable auditing by default for Elite entities
-            $yaml .= "attributes:\n";
-            foreach ($attrs as $k => $v) {
-                if (strtolower($v) === 'string') {
-                    $v = 'varchar(255)';
-                } // Elite-ready length
-                $yaml .= "  $k: $v\n";
-            }
-            // Auto-add Lifecycle hooks for QA compliance
-            $yaml .= "  created_at: varchar(50)\n";
-            $yaml .= "  updated_at: varchar(50)\n";
-
-            $path = SPP_APP_DIR . "/etc/apps/{$appname}/entities/" . strtolower($name) . ".yml";
-            if (!is_dir(dirname($path))) {
-                mkdir(dirname($path), 0777, true);
-            }
-            file_put_contents($path, $yaml);
-
-            $php = "<?php\nnamespace App\\" . ucfirst($appname) . "\\Entities;\nclass {$name} extends \\SPPMod\\SPPEntity\\SPPEntity {}\n";
-            $phpPath = SPP_APP_DIR . "/src/{$appname}/entities/entity.{$name}.php";
-            if (!is_dir(dirname($phpPath))) {
-                mkdir(dirname($phpPath), 0777, true);
-            }
-            file_put_contents($phpPath, $php);
-
-            return true;
-        }
-        return false;
-    }
-
     private function runGhostScan(string $entityClass, string $scenarioName): array
     {
         $res = ['name' => $scenarioName, 'status' => 'passed'];
@@ -810,59 +750,6 @@ class Parikshak
     /**
      * Elite Upgrade Engine: Mass-refactors existing entities to enterprise standards.
      */
-    public function bulkUpgradeAll(string $appname): array
-    {
-        $entities = $this->getEntitiesForApp($appname);
-        $results = ['total' => count($entities), 'upgraded' => 0, 'errors' => []];
-
-        foreach ($entities as $class) {
-            try {
-                if ($this->upgradeEntityToElite($class)) {
-                    $results['upgraded']++;
-                }
-            } catch (\Exception $e) {
-                $results['errors'][] = $class . ": " . $e->getMessage();
-            }
-        }
-        return $results;
-    }
-
-    public function upgradeEntityToElite(string $entityClass): bool
-    {
-        $refl = new \ReflectionClass($entityClass);
-        $appname = strtolower(explode('\\', $entityClass)[1]);
-        $entityName = $refl->getShortName();
-        $yamlPath = SPP_APP_DIR . "/etc/apps/{$appname}/entities/" . strtolower($entityName) . ".yml";
-
-        if (!file_exists($yamlPath)) {
-            return false;
-        }
-
-        $content = file_get_contents($yamlPath);
-
-        // 1. Force Auditing
-        if (strpos($content, 'audit:') === false) {
-            $content = preg_replace("/(table:.*)/", "$1\naudit: true", $content);
-        }
-
-        // 2. Harden Columns (e.g. varchar(20) -> varchar(255))
-        $content = preg_replace_callback("/:\s+varchar\((\d+)\)/", function ($m) {
-            $len = (int)$m[1];
-            return ($len < 255) ? ": varchar(255)" : $m[0];
-        }, $content);
-
-        // 3. Inject Timestamps if missing
-        if (strpos($content, 'created_at:') === false) {
-            $content .= "  created_at: varchar(50)\n";
-        }
-        if (strpos($content, 'updated_at:') === false) {
-            $content .= "  updated_at: varchar(50)\n";
-        }
-
-        file_put_contents($yamlPath, $content);
-        $this->logMigration($entityClass, "Upgraded to Elite Standards (Auditing, Hardened Columns, Timestamps)");
-        return true;
-    }
 
     private function getEntitiesForApp(string $appname): array
     {
@@ -879,138 +766,20 @@ class Parikshak
     }
 
     /**
-     * Predictive Failure Analysis (The Oracle)
-     */
-    public function runOracleAnalysis(): array
-    {
-        $historyPath = SPP_APP_DIR . "/var/reports/parikshak_history.json";
-        if (!file_exists($historyPath)) {
-            return ['message' => 'Insufficient data for analysis.'];
-        }
-
-        $history = json_decode(file_get_contents($historyPath), true);
-        $totalFailures = 0;
-        $failedEntities = [];
-
-        foreach ($history as $run) {
-            $totalFailures += $run['summary']['failed'];
-        }
-
-        return [
-            'risk_level' => $totalFailures > 10 ? 'High' : 'Low',
-            'insight' => "Based on " . count($history) . " runs, your system has a " . round(($totalFailures / count($history)), 1) . " avg failure rate per scan.",
-            'recommendation' => $totalFailures > 0 ? "Focus on hardening Entity boundaries and Audit compliance." : "Architecture is stable."
-        ];
-    }
-
-    /**
-     * CRUD Blueprint Generator: Produces boilerplate code based on entity metadata.
-     */
-    public function generateBlueprint(string $entityClass): array
-    {
-        $refl = new \ReflectionClass($entityClass);
-        $name = $refl->getShortName();
-        $lcName = strtolower($name);
-
-        $controller = "<?php\nnamespace App\Default\Controllers;\nclass {$name}Controller extends \SPP\Controller {\n";
-        $controller .= "    public function index() {\n        \$this->view('{$lcName}');\n    }\n}\n";
-
-        return [
-            'controller' => $controller,
-            'view' => "// Auto-generated SPP-UX View for {$name}\nclass {$name}View extends SPPView {\n    render() { return html`<h1>{$name} Management</h1>`; }\n}"
-        ];
-    }
-
     /**
      * Migration Tracking: Logs schema changes for version control.
      */
-    private function logMigration(string $entityClass, string $change): void
-    {
-        $dir = SPP_APP_DIR . "/var/migrations";
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-        $version = date('YmdHis');
-        $file = $dir . "/migration_{$version}.sql";
-        file_put_contents($file, "-- Migration for {$entityClass}\n-- Change: {$change}\n");
-    }
+
 
     /**
      * Autonomous Self-Correction: Updates the YAML manifest with suggested fixes.
      */
-    public function applyFix(string $entityClass, array $fix): bool
-    {
-        try {
-            $refl = new \ReflectionClass($entityClass);
-            $appname = strtolower(explode('\\', $entityClass)[1]);
-            $entityName = $refl->getShortName();
-            $yamlPath = SPP_APP_DIR . "/etc/apps/{$appname}/entities/" . strtolower($entityName) . ".yml";
 
-            if (!file_exists($yamlPath)) {
-                return false;
-            }
-
-            // Simple heuristic fix: if it's a length fix, we update the type
-            if ($fix['type'] === 'Schema Fix' && preg_match("/column '([^']+)'/i", $fix['message'], $m)) {
-                $col = $m[1];
-                $content = file_get_contents($yamlPath);
-
-                // Use regex to update the type to a larger one
-                // e.g., varchar(20) -> varchar(255) -> text
-                $content = preg_replace_callback("/{$col}:\s+([a-zA-Z\(\)0-9]+)/", function ($matches) {
-                    $type = strtolower($matches[1]);
-                    if (strpos($type, 'varchar') !== false) {
-                        return $matches[0] . " # Adjusted to text";
-                    } // Upgrade to text for safety
-                    return $matches[0];
-                }, $content);
-
-                file_put_contents($yamlPath, $content);
-                $this->logMigration($entityClass, "Upgraded column '{$col}' to text due to overflow.");
-                return true;
-            }
-        } catch (\Exception $e) {
-        }
-        return false;
-    }
 
     /**
      * Deterministic Expert System: Heuristic Error Diagnosis
      */
-    private function diagnoseError(string $error, string $entityClass): array
-    {
-        $suggestions = [];
 
-        // Pattern 1: String Truncation
-        if (preg_match("/String data, right truncated/i", $error) || preg_match("/Data too long for column '([^']+)'/i", $error, $m)) {
-            $col = $m[1] ?? "unknown_column";
-            $suggestions[] = [
-                'type' => 'Schema Fix',
-                'message' => "The value provided exceeds the column width of '{$col}'.",
-                'action' => "Increase the length of '{$col}' in your YAML manifest or database."
-            ];
-        }
-
-        // Pattern 2: Integrity Constraint
-        if (preg_match("/Integrity constraint violation/i", $error)) {
-            $suggestions[] = [
-                'type' => 'Architectural Fix',
-                'message' => "A required relationship or unique constraint was violated.",
-                'action' => "Check if all mandatory foreign keys (ManyToOne) are correctly mapped in your metadata."
-            ];
-        }
-
-        // Pattern 3: Unicode / Collation
-        if (preg_match("/Incorrect string value/i", $error) || preg_match("/UTF-8 Corrupted/i", $error)) {
-            $suggestions[] = [
-                'type' => 'Database Fix',
-                'message' => "Non-standard characters (Unicode) caused a storage failure.",
-                'action' => "Ensure your database table collation is set to 'utf8mb4_unicode_ci'."
-            ];
-        }
-
-        return $suggestions;
-    }
 
     /**
      * Local Dependency Graph Generator
@@ -1043,105 +812,11 @@ class Parikshak
     /**
      * Intelligent Data Generator (Fuzzer)
      */
-    private function fuzz(string $type, string $hint = '', bool $security = false, bool $unicode = false, array $rules = []): mixed
-    {
-        // Boundary Fuzzing logic
-        if (isset($rules['min']) || isset($rules['max'])) {
-            $min = $rules['min'] ?? 0;
-            $max = $rules['max'] ?? 1000000;
-            $boundaries = [$min - 1, $min, $min + 1, $max - 1, $max, $max + 1];
-            return $boundaries[array_rand($boundaries)];
-        }
-
-        $type = strtolower($type);
-
-        if ($unicode && (strpos($type, 'varchar') !== false || strpos($type, 'string') !== false || strpos($type, 'text') !== false)) {
-            $chars = ["🚀", "漢", "الشروق", "✨", "ñ", "ü", "©️"];
-            return $chars[array_rand($chars)] . "_" . substr(md5(uniqid()), 0, 5);
-        }
-
-        if ($security && (strpos($type, 'varchar') !== false || strpos($type, 'string') !== false || strpos($type, 'text') !== false)) {
-            $payloads = [
-                "<script>alert('XSS')</script>",
-                "' OR 1=1 --",
-                "$(rm -rf /)",
-                "../../../../etc/passwd",
-                "{\"json\":\"malicious\"}",
-                str_repeat("A", 1000) // Buffer overflow test
-            ];
-            return $payloads[array_rand($payloads)];
-        }
-
-        if (strpos($type, 'varchar') !== false || strpos($type, 'string') !== false) {
-            $len = 10;
-            if (preg_match('/\((\d+)\)/', $type, $m)) {
-                $len = (int)$m[1];
-            }
-            $str = "PARIKSHAK_" . strtoupper($hint) . "_" . substr(md5(uniqid()), 0, 5);
-            return substr($str, 0, $len);
-        }
-
-        if (strpos($type, 'int') !== false) {
-            return rand(1, 1000000);
-        }
-
-        if (strpos($type, 'decimal') !== false || strpos($type, 'float') !== false) {
-            return (float)(rand(1, 1000) . '.' . rand(0, 99));
-        }
-
-        if (strpos($type, 'date') !== false || strpos($type, 'timestamp') !== false) {
-            return date($type === 'datetime' || $type === 'timestamp' ? 'Y-m-d H:i:s' : 'Y-m-d');
-        }
-
-        if (strpos($type, 'time') !== false) {
-            return date('H:i:s');
-        }
-
-        if (strpos($type, 'bool') !== false) {
-            return rand(0, 1) ? true : false;
-        }
-
-        return "UNKNOWN_TYPE_" . $type;
-    }
 
     /**
      * Generates a reusable test code file.
      */
-    public function generateTestCode(string $entityClass, string $appname): void
-    {
-        $refl = new \ReflectionClass($entityClass);
-        $entityShortName = $refl->getShortName();
-        $targetDir = SPP_APP_DIR . '/src/' . $appname . '/tests/auto';
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0777, true);
-        }
 
-        $fileName = $targetDir . '/' . $entityShortName . 'AutoTest.php';
-
-        $attributes = $entityClass::getMetadata('attributes');
-        $dataStr = var_export(array_map(fn ($t) => $this->fuzz($t, 'fuzz'), $attributes), true);
-
-        $code = "<?php\n";
-        $code .= "namespace App\\" . ucfirst($appname) . "\\Tests\\Auto;\n\n";
-        $code .= "use $entityClass;\n\n";
-        $code .= "/**\n * Auto-generated Test for $entityShortName (Parikshak)\n * Generation Date: " . date('Y-m-d H:i:s') . "\n */\n";
-        $code .= "class " . $entityShortName . "AutoTest\n";
-        $code .= "{\n    public static function run()\n    {\n";
-        $code .= "        echo \"Running evaluator for $entityShortName... \";\n";
-        $code .= "        try {\n";
-        $code .= "            \$entity = new $entityShortName();\n";
-        $code .= "            \$data = $dataStr;\n";
-        $code .= "            foreach (\$data as \$k => \$v) \$entity->set(\$k, \$v);\n";
-        $code .= "            \$id = \$entity->save();\n";
-        $code .= "            if (!\$id) throw new \\Exception('Failed to save entity');\n";
-        $code .= "            echo \"OK (ID: \$id)\\n\";\n";
-        $code .= "        } catch (\\Exception \$e) {\n";
-        $code .= "            echo \"FAILED: \" . \$e->getMessage() . \"\\n\";\n";
-        $code .= "        }\n";
-        $code .= "    }\n}\n";
-
-        file_put_contents($fileName, $code);
-    }
 
     public function getResults(): array
     {

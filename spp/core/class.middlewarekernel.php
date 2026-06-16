@@ -20,9 +20,11 @@ class MiddlewareKernel
             return;
         }
 
-        // 1. Load from Registry (Programmatic registration)
+        // 1. Load Core Middleware and Registry (Programmatic registration)
         $registered = \SPP\Registry::get('__middleware=>global') ?: [];
-        self::$middleware = (array) $registered;
+        self::$middleware = array_merge([
+            \SPP\Core\Middleware\ApiAuthMiddleware::class
+        ], (array) $registered);
 
         // 2. Load from Global Config
         $globalPath = SPP_ETC_DIR . SPP_DS . 'middleware.yml';
@@ -69,7 +71,8 @@ class MiddlewareKernel
         \SPP\Scheduler::setContext($context);
 
         \SPP\SPPEvent::registerEvent('event_spp_kernel_boot');
-        \SPP\SPPEvent::fireEvent('event_spp_kernel_boot');
+        $params = new \SPP\EventParams();
+        \SPP\SPPEvent::fireEvent('event_spp_kernel_boot', $params);
 
         return (new Pipeline())
             ->send($_REQUEST)

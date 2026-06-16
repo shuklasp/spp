@@ -5,7 +5,7 @@ use App\Lekhak\Entities\Contenttype;
 
 /**
  * Auto-generated Test for ContentType (Parikshak)
- * Generation Date: 2026-05-19 03:03:43
+ * Generation Date: 2026-06-14 02:23:45
  */
 class ContentTypeAutoTest
 {
@@ -15,10 +15,10 @@ class ContentTypeAutoTest
         try {
             $entity = new ContentType();
             $data = array (
-  'name' => 'PARIKSHAK_FUZZ_75cf4',
-  'label' => 'PARIKSHAK_FUZZ_f532c',
+  'name' => 'PARIKSHAK_FUZZ_344ee',
+  'label' => 'PARIKSHAK_FUZZ_51ac2',
   'description' => 'UNKNOWN_TYPE_text',
-  'storage_strategy' => 'PARIKSHAK_FUZZ_9d78a',
+  'storage_strategy' => 'PARIKSHAK_FUZZ_9a0d8',
   'help_text' => 'UNKNOWN_TYPE_text',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);

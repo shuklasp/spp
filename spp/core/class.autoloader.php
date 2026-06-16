@@ -56,9 +56,46 @@ class Autoloader
     private static function resolveClass(string $className): ?string
     {
         // 1. Interface Compatibility Aliases (handle early)
+        if (self::resolveInterfaceAliases($className)) {
+            return null;
+        }
+
+        // 2. Core Migration Aliasing
+        if ($file = self::resolveCoreMigration($className)) {
+            return $file;
+        }
+
+        $path = explode('\\', $className);
+        $class = array_pop($path);
+
+        // 3. Core Class Search
+        if ($file = self::resolveCoreClass($className, $path, $class)) {
+            return $file;
+        }
+
+        // 4. Modules: SPPMod\*, ContribMod\*, AppMod\*
+        if ($file = self::resolveModuleClass($className, $path, $class)) {
+            return $file;
+        }
+
+        // 5. General SPP\* resolving to root & PSR Polyfills
+        if ($file = self::resolvePsrClass($className, $path)) {
+            return $file;
+        }
+
+        // 6. App\* mapping
+        if ($file = self::resolveAppClass($className, $path, $class)) {
+            return $file;
+        }
+
+        return null;
+    }
+
+    private static function resolveInterfaceAliases(string $className): bool
+    {
         if ($className === 'SPP\\CacheInterface' || $className === 'SPP\\MiddlewareInterface' || $className === 'SPP\\iModule') {
             class_alias('\\SPP\\Core\\' . substr($className, 4), '\\' . $className);
-            return null; // Don't cache alias creation as a file path
+            return true;
         }
         if (substr($className, -9) === 'Exception' && $className !== 'SPPException' && $className !== 'SPP\\SPPException') {
             require_once SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'class.sppexception.php';
@@ -69,10 +106,13 @@ class Autoloader
             if (!class_exists($className, false)) {
                 class_alias('SPP\\SPPException', $className);
             }
-            return null;
+            return true;
         }
+        return false;
+    }
 
-        // 2. Core Migration Aliasing
+    private static function resolveCoreMigration(string $className): ?string
+    {
         $coreToModuleMap = [
             'SPP\\Cache' => 'sppcache/src/SPPCacheManager.php',
             'SPP\\Core\\FileCache' => 'sppcache/src/FileCacheDriver.php',
@@ -81,7 +121,7 @@ class Autoloader
             'SPP\\Core\\SPPJobInterface' => 'sppqueue/src/SPPJobInterface.php',
             'SPP\\Core\\AppLogger' => 'spplogger/src/AppLogger.php',
             'SPP\\Core\\PsrLoggerAdapter' => 'spplogger/src/PsrLoggerAdapter.php',
-            'SPP\\Core\\RequestLogger' => 'spplogger/src/RequestLogger.php',
+            'SPPMod\\SPPLogger\\RequestLogger' => 'spplogger/src/RequestLogger.php',
             'SPP\\Core\\Storage' => 'sppstorage/src/SPPStorage.php',
             'SPP\\Core\\WorkflowManager' => 'sppworkflow/src/SPPWorkflowManager.php',
             'SPP\\Core\\DotEnvLoader' => 'sppenv/src/DotEnvLoader.php',
@@ -89,11 +129,11 @@ class Autoloader
         if (isset($coreToModuleMap[$className])) {
             return SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . $coreToModuleMap[$className];
         }
+        return null;
+    }
 
-        $path = explode('\\', $className);
-        $class = array_pop($path);
-
-        // 3. Core Class Search
+    private static function resolveCoreClass(string $className, array $path, string $class): ?string
+    {
         if (empty($path) || (count($path) >= 1 && $path[0] === 'SPP')) {
             $search_paths = [
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'class.' . strtolower($class) . '.php',
@@ -101,138 +141,143 @@ class Autoloader
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'interface.' . strtolower(str_replace('Interface', '', $class)) . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'interfaces' . DIRECTORY_SEPARATOR . $class . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . 'class.' . strtolower($class) . '.php',
-                SPP_CORE_DIR . DIRECTORY_SEPARATOR . strtolower($class) . '.php'
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . strtolower($class) . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . $class . '.php'
             ];
             foreach ($search_paths as $file) {
                 if (file_exists($file)) return $file;
             }
         }
+        return null;
+    }
 
-        // 4. Modules: SPPMod\*
-        if (strpos($className, 'SPPMod\\') === 0) {
-            $parts = explode('\\', $className);
-            array_shift($parts); // Remove SPPMod
-            $mod = strtolower(array_shift($parts));
+    private static function resolveModuleClass(string $className, array $path, string $class): ?string
+    {
+        $prefix = $path[0] ?? '';
 
-            // Module Consolidation Aliasing
-            $aliasMap = [
-                'sppentity'  => 'sppdb',
-                'sppinterdb' => 'sppdb',
-                'sppajax'    => 'sppapi',
-                'sppblade'   => 'drishyam',
-                'sppux'      => 'drishyam'
-            ];
-            if (isset($aliasMap[$mod])) {
-                $mod = $aliasMap[$mod];
+        if ($prefix === 'SPPMod' || $prefix === 'ContribMod' || $prefix === 'AppMod') {
+            $parts = $path;
+            array_shift($parts); // Remove prefix
+            
+            $modDir = null;
+
+            if ($prefix === 'SPPMod') {
+                if (empty($parts)) return null;
+                $mod = strtolower(array_shift($parts));
+                $modDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . $mod;
+            } elseif ($prefix === 'ContribMod') {
+                if (empty($parts)) return null;
+                $mod = strtolower(array_shift($parts));
+                $modDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'contrib' . DIRECTORY_SEPARATOR . $mod;
+            } elseif ($prefix === 'AppMod') {
+                if (count($parts) < 2) return null;
+                $appName = strtolower(array_shift($parts));
+                $mod = strtolower(array_shift($parts));
+                
+                $srcPath = '';
+                if (class_exists('\\SPP\\App', false)) {
+                    $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
+                }
+                if (!empty($srcPath)) {
+                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
+                } else {
+                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
+                }
+                $modDir = $baseSrc . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $mod;
             }
 
-            $remaining = $parts;
-            $class = array_pop($remaining);
-
-            // Buckets
-            foreach (['spp', 'school'] as $bucket) {
-                $modDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . $bucket . DIRECTORY_SEPARATOR . $mod;
-                if (is_dir($modDir)) {
-                    if ($file = self::resolveModuleFromDir($modDir, $class, $parts)) return $file;
-                }
-            }
-
-            // App-specific modules
-            if (class_exists('\\SPP\\Scheduler', false)) {
-                $ctx = \SPP\Scheduler::getContext();
-                if ($ctx && $ctx !== '') {
-                    $srcPath = \SPP\App::getAppConf('src_path', $ctx) ?? ('src' . DIRECTORY_SEPARATOR . $ctx);
-                    $appModDir = SPP_APP_DIR . DIRECTORY_SEPARATOR . $srcPath . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $mod;
-                    if (is_dir($appModDir)) {
-                        if ($file = self::resolveModuleFromDir($appModDir, $class, $parts)) return $file;
-                    }
-                }
+            if ($modDir && is_dir($modDir)) {
+                return self::resolveModuleFromDir($modDir, $class, $parts);
             }
         }
+        return null;
+    }
 
-        // 5. General SPP\* resolving to root
+    private static function resolvePsrClass(string $className, array $path): ?string
+    {
         if (strpos($className, 'SPP\\') === 0 && strpos($className, 'SPPMod\\') !== 0 && strpos($className, 'SPP\\Core\\') !== 0) {
-            $parts = explode('\\', $className);
+            $parts = $path;
             array_shift($parts); // Remove SPP
             $file = SPP_BASE_DIR . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $parts) . '.php';
             if (file_exists($file)) return $file;
         }
 
-        // 6. Polyfill PSR Autoloader
         if (strpos($className, 'Psr\\') === 0) {
             $file = SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $className) . '.php';
             if (file_exists($file)) return $file;
         }
 
-        // 7. App\* mapping
-        if (strpos($className, 'App\\') === 0) {
-            $parts = explode('\\', $className);
-            if (count($parts) >= 3) {
-                $appName = strtolower($parts[1]);
-                $srcPath = '';
-                if (class_exists('\\SPP\\App', false)) {
-                    $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
-                }
-                if ($srcPath !== null && $srcPath !== '') {
-                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
+        return null;
+    }
+
+    private static function resolveAppClass(string $className, array $path, string $class): ?string
+    {
+        if (strpos($className, 'App\\') !== 0) {
+            return null;
+        }
+        
+        if (count($path) >= 3) {
+            $appName = strtolower($path[1]);
+            $srcPath = '';
+            if (class_exists('\\SPP\\App', false)) {
+                $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
+            }
+            if ($srcPath !== null && $srcPath !== '') {
+                $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
+            } else {
+                $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
+            }
+
+            if (count($path) >= 4) {
+                $type = strtolower($path[2]);
+                $name = strtolower($path[3]);
+
+                $file = '';
+                if ($type === 'entities') {
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'entities' . DIRECTORY_SEPARATOR . 'entity.' . $name . '.php';
+                } elseif ($type === 'components') {
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $path[3] . '.php';
+                } elseif ($type === 'serv') {
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'serv' . DIRECTORY_SEPARATOR . $path[3] . '.php';
                 } else {
-                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
+                    // General PSR-4 fallback within the app's src directory
+                    $remaining = array_slice($path, 2);
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $remaining) . '.php';
                 }
 
-                if (count($parts) >= 4) {
-                    $type = strtolower($parts[2]);
-                    $name = strtolower($parts[3]);
-
-                    $file = '';
-                    if ($type === 'entities') {
-                        $file = $baseSrc . DIRECTORY_SEPARATOR . 'entities' . DIRECTORY_SEPARATOR . 'entity.' . $name . '.php';
-                    } elseif ($type === 'components') {
-                        $file = $baseSrc . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $parts[3] . '.php';
-                    } elseif ($type === 'serv') {
-                        $file = $baseSrc . DIRECTORY_SEPARATOR . 'serv' . DIRECTORY_SEPARATOR . $parts[3] . '.php';
-                    } else {
-                        // General PSR-4 fallback within the app's src directory
-                        $remaining = array_slice($parts, 2);
-                        $file = $baseSrc . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $remaining) . '.php';
-                    }
-
-                    if ($file && file_exists($file)) return $file;
-                } elseif (count($parts) === 3) {
-                    $classNamePart = $parts[2];
-                    $file = $baseSrc . DIRECTORY_SEPARATOR . $classNamePart . '.php';
-                    if (file_exists($file)) return $file;
-                }
+                if ($file && file_exists($file)) return $file;
+            } elseif (count($path) === 3) {
+                $classNamePart = $path[2];
+                $file = $baseSrc . DIRECTORY_SEPARATOR . $classNamePart . '.php';
+                if (file_exists($file)) return $file;
             }
         }
-
         return null;
     }
 
     private static function resolveModuleFromDir(string $modDir, string $class, array $parts): ?string
     {
-        // Legacy class.<name>.php at root
-        $legacyFile = $modDir . DIRECTORY_SEPARATOR . 'class.' . strtolower($class) . '.php';
-        if (file_exists($legacyFile)) return $legacyFile;
-        
-        // Fallback: strip underscores for legacy names (e.g. SPP_Logger -> class.spplogger.php)
-        $legacyFileNoUnderscore = $modDir . DIRECTORY_SEPARATOR . 'class.' . str_replace('_', '', strtolower($class)) . '.php';
-        if (file_exists($legacyFileNoUnderscore)) return $legacyFileNoUnderscore;
-        
-        // Interfaces
-        $interfaceFile = $modDir . DIRECTORY_SEPARATOR . 'int.' . strtolower($class) . '.php';
-        if (file_exists($interfaceFile)) return $interfaceFile;
-
-        // PSR-4 style in src/ and root
+        $relPath = '';
         if (!empty($parts)) {
-            $relPath = implode(DIRECTORY_SEPARATOR, $parts) . '.php';
-            $psrPaths = [
-                $modDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $relPath,
-                $modDir . DIRECTORY_SEPARATOR . $relPath
-            ];
-            foreach ($psrPaths as $psrPath) {
-                if (file_exists($psrPath)) return $psrPath;
-            }
+            $relPath = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR;
         }
+
+        $lowerClass = strtolower($class);
+        $searchFiles = [
+            $modDir . DIRECTORY_SEPARATOR . $relPath . 'class.' . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . 'int.' . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . 'trait.' . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . $class . '.php',
+            $modDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $relPath . $class . '.php',
+            $modDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $relPath . $lowerClass . '.php'
+        ];
+
+        foreach ($searchFiles as $file) {
+            if (file_exists($file)) return $file;
+        }
+        
         return null;
     }
 

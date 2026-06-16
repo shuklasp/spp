@@ -23,6 +23,11 @@
                 <li><a href="08_advanced.html">08. Advanced Features</a></li>
                 <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
                 <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
             </ul>
         </nav>
     </aside>
@@ -30,50 +35,73 @@
     <main class="main-content">
         <article class="content-container">
             <h1>06. Forms & Validation</h1>
-            <p>SPP provides a powerful XML/YAML-based form system that automatically handles server-side processing and client-side validation.</p>
+            <p>SPP provides a powerful form system that handles server-side processing, automated client-side validation mapping, and data binding.</p>
             
             <hr>
 
-            <h2>Defining a Form</h2>
-            <p>A typical form is defined in an XML file, specifying the controls, their types, and any linked validation rules.</p>
-            <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
-&lt;forms&gt;
-    &lt;form name="login_form" action="/login.php"&gt;
-        &lt;controls&gt;
-            &lt;control name="username" type="ViewInputText"&gt;
-                &lt;placeholder&gt;Enter Username&lt;/placeholder&gt;
-                &lt;id&gt;username_id&lt;/id&gt;
-            &lt;/control&gt;
-            &lt;control name="password" type="ViewInputPassword"&gt;
-                &lt;placeholder&gt;Enter Password&lt;/placeholder&gt;
-                &lt;id&gt;password_id&lt;/id&gt;
-            &lt;/control&gt;
-            &lt;control name="login_btn" type="ViewInputSubmit"&gt;
-                &lt;value&gt;Login&lt;/value&gt;
-                &lt;id&gt;login_btn_id&lt;/id&gt;
-            &lt;/control&gt;
-        &lt;/controls&gt;
-        &lt;validations&gt;
-            &lt;validation type="ViewValidatorRequired" message="Username is required"&gt;
-                &lt;attach element="username_id" event="onblur" errorholder="error_username"/&gt;
-            &lt;/validation&gt;
-            &lt;validation type="ViewValidatorRequired" message="Password is required"&gt;
-                &lt;attach element="password_id" event="onblur" errorholder="error_password"/&gt;
-            &lt;/validation&gt;
-        &lt;/validations&gt;
-    &lt;/form&gt;
-&lt;/forms&gt;</code></pre>
+            <h2>The Fluent Builder API (Modern Approach)</h2>
+            <p>The recommended way to build forms programmatically in SPP is using the new Fluent Builder API via <span class="accent">class.form.php</span>. This allows you to construct complex, validated forms entirely in PHP with a clean, chainable syntax.</p>
+            <pre><code>use SPPMod\SPPView\Form;
+
+$form = Form::create('login_form', '/login')
+    ->addText('username', 'Username', ['required' => true, 'min' => 3])
+    ->addPassword('password', 'Password', ['required' => true])
+    ->addSubmit('login_btn', 'Login')
+    ->build();
+
+echo $form->render();</code></pre>
 
             <hr>
 
-            <h2>Automatic Form Augmentation</h2>
-            <p>When the <span class="accent">FormAugmentor</span> is active, it detects your XML-defined forms and:</p>
-            <ol>
-                <li><strong>Injects</strong> necessary JavaScript for client-side validation.</li>
-                <li><strong>Wraps</strong> the form in an AJAX-compatible container.</li>
-                <li><strong>Applies</strong> CSS classes for error states and success messages.</li>
-            </ol>
-            <p>This allows you to add complex validation to any page with minimal extra code.</p>
+            <h2>Defining Forms in YAML</h2>
+            <p>You can also define forms declaratively using YAML. The <span class="accent">ViewFormBuilder::fromArray</span> method can parse these definitions into complete <code>ViewForm</code> objects.</p>
+            <pre><code># forms/login.yml
+name: login_form
+action: /login.php
+method: POST
+controls:
+  - name: username
+    type: text
+    label: Username
+    required: true
+    min: 3
+  - name: password
+    type: password
+    label: Password
+    required: true
+  - name: login_btn
+    type: submit
+    value: Login</code></pre>
+            <p>To render this:</p>
+            <pre><code>$config = \SPPMod\SPPView\ViewFormBuilder::loadConfig('forms/login.yml');
+$form = \SPPMod\SPPView\ViewFormBuilder::fromArray($config);
+echo $form->render();</code></pre>
+
+            <hr>
+
+            <h2>Native HTML5 Validation Mapping</h2>
+            <p>When you define validation rules (whether via Fluent Builder or YAML), SPP automatically translates them into native HTML5 attributes (<code>required</code>, <code>minlength</code>, <code>pattern</code>, etc.).</p>
+            <p>For example, assigning a rule like <code>aadhaar</code> or <code>pan</code> will natively inject the correct regex into the <code>&lt;input pattern="..."&gt;</code> attribute. This guarantees zero-JS, instant client-side validation while still enforcing the identical rules on the backend upon submission.</p>
+            <p>For complex logic that cannot be represented via simple attributes, validators dynamically inject lightweight JS (<code>getClientScript()</code>) to automatically execute on form submission.</p>
+
+            <hr>
+
+            <h2>Direct Entity Data Binding</h2>
+            <p>SPP Forms provide a direct data binding layer to map forms to your database entities using <code>SPPEntity</code>.</p>
+            
+            <h3>Hydrating Forms (Read)</h3>
+            <p>Use <code>bind()</code> to automatically populate form inputs with values from an existing database entity:</p>
+            <pre><code>$user = new UserEntity(123); // Load user
+$form->bind($user); 
+// Now all &lt;input&gt; elements will have their "value" attributes pre-filled</code></pre>
+
+            <h3>Hydrating Entities (Write)</h3>
+            <p>When a form is submitted, use <code>fill()</code> to automatically pull <code>$_POST</code> data and populate the entity:</p>
+            <pre><code>$user = clone $userEntity;
+$form->fill($user); // Fills properties from $_POST
+if ($form->isValid()) {
+    $user->save();
+}</code></pre>
 
             <hr>
 
@@ -88,16 +116,6 @@ function login_form_submitted() {
     $password = $_POST['password'];
     // ... authentication logic
 }</code></pre>
-
-            <hr>
-
-            <h2>Manual Form Generation</h2>
-            <p>If you prefer building forms manually, you can still use SPP's <span class="accent">ViewTag</span> classes for consistent rendering:</p>
-            <pre><code>$form = new \SPPMod\SPPView\ViewForm('my_form', '/submit.php');
-$uname = new \SPPMod\SPPView\ViewInputText('username');
-$uname->setAttribute('placeholder', 'Enter Username');
-$form->addElement($uname);
-echo $form->render();</code></pre>
 
             <footer class="footer-nav">
                 <a href="05_routing_and_views.html" class="nav-button">

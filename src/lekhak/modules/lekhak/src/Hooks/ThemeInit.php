@@ -17,8 +17,8 @@ class ThemeInit
         $theme->set('lekhak_version', '2.0-Alpha');
         
         // We can also register global Blade variables here if needed
-        if (class_exists('\SPPMod\SPPBlade\SPPBlade')) {
-            $blade = \SPPMod\SPPBlade\SPPBlade::getInstance()->getEngine();
+        if (class_exists('\SPPMod\Drishyam\SPPBlade')) {
+            $blade = \SPPMod\Drishyam\SPPBlade::getInstance()->getEngine();
             $blade->setShare('cms_brand', 'Lekhak CMS');
         }
     }

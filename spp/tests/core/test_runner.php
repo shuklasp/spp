@@ -21,7 +21,7 @@ spl_autoload_register(function ($class) {
 
 $tests = [
     __DIR__ . '/RegistryTest.php',
-    __DIR__ . '/EventManagerTest.php',
+    __DIR__ . '/EventHandlerTest.php',
     __DIR__ . '/SPPEntityQueryTest.php'
 ];
 

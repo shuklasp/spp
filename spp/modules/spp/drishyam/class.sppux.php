@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPUX;
+namespace SPPMod\Drishyam;
 
 /**
  * SPP-UX module facade.

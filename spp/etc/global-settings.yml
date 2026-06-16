@@ -188,7 +188,7 @@ dev:
         fuzz_intensity: 10
 settings:
     site_name: 'Lekhak Portal'
-    debug: true
+    debug: false
     compulsory_modules:
         - sppauth
         - sppdb

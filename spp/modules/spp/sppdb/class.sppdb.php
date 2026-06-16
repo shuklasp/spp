@@ -34,7 +34,7 @@ class SPPDB
     /**
      * Returns the appropriate compiler for the current database dialect.
      */
-    public function getCompiler(): \SPPMod\SPPInterDB\Compilers\CompilerInterface
+    public function getCompiler(): \SPPMod\SppDb\Compilers\CompilerInterface
     {
         if (!interface_exists('\\SPPMod\\SPPInterDB\\Compilers\\CompilerInterface')) {
             require_once __DIR__ . '/Compilers/CompilerInterface.php';
@@ -46,18 +46,18 @@ class SPPDB
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\PostgresCompiler')) {
                     require_once __DIR__ . '/Compilers/PostgresCompiler.php';
                 }
-                return new \SPPMod\SPPInterDB\Compilers\PostgresCompiler();
+                return new \SPPMod\SppDb\Compilers\PostgresCompiler();
             case 'sqlite':
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\SQLiteCompiler')) {
                     require_once __DIR__ . '/Compilers/SQLiteCompiler.php';
                 }
-                return new \SPPMod\SPPInterDB\Compilers\SQLiteCompiler();
+                return new \SPPMod\SppDb\Compilers\SQLiteCompiler();
             case 'mysql':
             default:
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\MySQLCompiler')) {
                     require_once __DIR__ . '/Compilers/MySQLCompiler.php';
                 }
-                return new \SPPMod\SPPInterDB\Compilers\MySQLCompiler();
+                return new \SPPMod\SppDb\Compilers\MySQLCompiler();
         }
     }
 
@@ -85,13 +85,13 @@ class SPPDB
             if ($appMeta && isset($appMeta['table_prefix'])) {
                 $prefix = $appMeta['table_prefix'];
             } else {
-                $prefix = \SPP\Module::getConfig('table_prefix', 'sppdb');
+                $prefix = \SPP\SPPConfig::get('app:sppdb.table_prefix');
             }
         }
 
         // 3. Global Default Fallback
         if ($prefix === false && $context !== 'default') {
-            $prefix = \SPP\Module::getConfig('table_prefix', 'sppdb', 'default');
+            $prefix = \SPP\SPPConfig::get('sys:sppdb.table_prefix');
         }
 
         $finalTable = ($prefix ?: '') . $tname;
@@ -156,8 +156,8 @@ class SPPDB
         return is_array($cached) ? $cached : ['apps' => [], 'shared_groups' => []];
     }
 
-    /** @var \SPPMod\SPPInterDB\DBAdapter The active database adapter */
-    private \SPPMod\SPPInterDB\DBAdapter $adapter;
+    /** @var \SPPMod\SppDb\DBAdapter The active database adapter */
+    private \SPPMod\SppDb\DBAdapter $adapter;
 
     private $numrows;
 
@@ -179,9 +179,9 @@ class SPPDB
 
             if ($dburl == null) {
                 if ($dbOverride) {
-                    $dbtype = $dbOverride['dbtype'] ?? \SPP\Module::getConfig('dbtype', 'sppdb');
+                    $dbtype = $dbOverride['dbtype'] ?? \SPP\SPPConfig::get('app:sppdb.dbtype') ?? 'mysql';
                     if ($dbtype === 'sqlite') {
-                        $sqlite_path = $dbOverride['sqlite_path'] ?? \SPP\Module::getConfig('sqlite_path', 'sppdb');
+                        $sqlite_path = $dbOverride['sqlite_path'] ?? \SPP\SPPConfig::get('app:sppdb.sqlite_path') ?? 'var/db/school.sqlite';
                         $project_root = defined('SPP_BASE_DIR') ? dirname(SPP_BASE_DIR) : dirname(__DIR__, 4);
                         $url = 'sqlite:' . ($sqlite_path === ':memory:' ? ':memory:' : ($project_root . '/' . ($sqlite_path ?: 'var/db/school.sqlite')));
                         $dbuser = 'root'; // Dummy for SQLite
@@ -189,25 +189,27 @@ class SPPDB
                         // Sharding
                         $shardPrefix = '';
                         if ($shardKey !== null) {
-                            $totalShards = $dbOverride['total_shards'] ?? \SPP\Module::getConfig('total_shards', 'sppdb');
+                            $totalShards = $dbOverride['total_shards'] ?? \SPP\SPPConfig::get('app:sppdb.total_shards') ?? 1;
                             if ($totalShards > 1) {
                                 $shardIndex = crc32($shardKey) % $totalShards;
                                 $shardPrefix = "shard_{$shardIndex}_";
                             }
                         }
 
-                        $dbhost = $dbOverride[$shardPrefix . 'dbhost'] ?? \SPP\Module::getConfig($shardPrefix . 'dbhost', 'sppdb');
-                        $dbname = $dbOverride[$shardPrefix . 'dbname'] ?? \SPP\Module::getConfig($shardPrefix . 'dbname', 'sppdb');
-                        $url = $dbtype . ':host=' . $dbhost . ';dbname=' . $dbname;
-                        $dbuser = $dbOverride[$shardPrefix . 'dbuser'] ?? \SPP\Module::getConfig($shardPrefix . 'dbuser', 'sppdb');
-                        $dbpasswd = $dbOverride[$shardPrefix . 'dbpasswd'] ?? \SPP\Module::getConfig($shardPrefix . 'dbpasswd', 'sppdb');
+                        $dbhost = $dbOverride[$shardPrefix . 'dbhost'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'dbhost') ?? 'localhost';
+                        $dbname = $dbOverride[$shardPrefix . 'dbname'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'dbname') ?? 'school';
+                        $dbuser = $dbOverride[$shardPrefix . 'dbuser'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'dbuser') ?? 'root';
+                        $dbpasswd = $dbOverride[$shardPrefix . 'dbpasswd'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'dbpasswd');
+                        $dbport = $dbOverride[$shardPrefix . 'dbport'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'dbport') ?? 3306;
+                        $url = $dbtype . ':host=' . $dbhost . ';port=' . $dbport . ';dbname=' . $dbname;
 
                         // Read Replica Support
-                        $read_dbhost = $dbOverride[$shardPrefix . 'read_dbhost'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbhost', 'sppdb');
+                        $read_dbhost = $dbOverride[$shardPrefix . 'read_dbhost'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'read_dbhost');
                         if ($read_dbhost) {
-                            $read_url = $dbtype . ':host=' . $read_dbhost . ';dbname=' . $dbname;
-                            $read_dbuser = $dbOverride[$shardPrefix . 'read_dbuser'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbuser', 'sppdb') ?: $dbuser;
-                            $read_dbpasswd = $dbOverride[$shardPrefix . 'read_dbpasswd'] ?? \SPP\Module::getConfig($shardPrefix . 'read_dbpasswd', 'sppdb') ?: $dbpasswd;
+                            $read_dbport = $dbOverride[$shardPrefix . 'read_dbport'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'read_dbport') ?? $dbport;
+                            $read_url = $dbtype . ':host=' . $read_dbhost . ';port=' . $read_dbport . ';dbname=' . $dbname;
+                            $read_dbuser = $dbOverride[$shardPrefix . 'read_dbuser'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'read_dbuser') ?: $dbuser;
+                            $read_dbpasswd = $dbOverride[$shardPrefix . 'read_dbpasswd'] ?? \SPP\SPPConfig::get('app:sppdb.' . $shardPrefix . 'read_dbpasswd') ?: $dbpasswd;
                         }
                     }
                 } else {
@@ -267,7 +269,7 @@ class SPPDB
                 }
 
                 $xdb = new \SPPMod\SPPXDB\SPP_XDB($this->dbname ?: 'default');
-                $this->adapter = new \SPPMod\SPPInterDB\XDBAdapter($xdb);
+                $this->adapter = new \SPPMod\SppDb\XDBAdapter($xdb);
                 return;
             }
 
@@ -343,7 +345,7 @@ class SPPDB
                 }
             }
 
-            $this->adapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo, $readPdo);
+            $this->adapter = new \SPPMod\SppDb\PDOAdapter($pdo, $readPdo);
 
         } catch (\Exception $e) {
             // error_log("Database Connection Error: " . $e->getMessage());
@@ -353,7 +355,7 @@ class SPPDB
 
     public function isXDB(): bool
     {
-        return $this->adapter instanceof \SPPMod\SPPInterDB\XDBAdapter;
+        return $this->adapter instanceof \SPPMod\SppDb\XDBAdapter;
     }
 
     /**
@@ -398,7 +400,7 @@ class SPPDB
     /**
      * Returns the underlying database adapter instance.
      */
-    public function getAdapter(): \SPPMod\SPPInterDB\DBAdapter
+    public function getAdapter(): \SPPMod\SppDb\DBAdapter
     {
         return $this->adapter;
     }
@@ -435,14 +437,14 @@ class SPPDB
         }
     }
 
-    /** @var \SPPMod\SPPInterDB\DBAdapter|null Lazy-loaded read replica adapter */
-    private ?\SPPMod\SPPInterDB\DBAdapter $readAdapter = null;
+    /** @var \SPPMod\SppDb\DBAdapter|null Lazy-loaded read replica adapter */
+    private ?\SPPMod\SppDb\DBAdapter $readAdapter = null;
     private bool $forcePrimary = false;
 
     /**
      * Intelligently routes the query to the read replica or primary DB.
      */
-    private function getAdapterForQuery(string $sql): \SPPMod\SPPInterDB\DBAdapter
+    private function getAdapterForQuery(string $sql): \SPPMod\SppDb\DBAdapter
     {
         if ($this->forcePrimary || preg_match('/^\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|TRUNCATE)/i', $sql)) {
             $this->forcePrimary = true; // Stick to primary for rest of request to avoid replication lag
@@ -464,7 +466,7 @@ class SPPDB
                 $dbtype = $replica['dbtype'] ?? $this->dbtype;
                 $pdo = new \PDO("{$dbtype}:host={$replica['dbhost']};dbname={$this->dbname}", $replica['dbuser'] ?? null, $replica['dbpasswd'] ?? null);
                 $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                $this->readAdapter = new \SPPMod\SPPInterDB\PDOAdapter($pdo);
+                $this->readAdapter = new \SPPMod\SppDb\PDOAdapter($pdo);
                 return $this->readAdapter;
             } catch (\Exception $e) {
                 error_log("SPPDB Replica connection failed, falling back to primary: " . $e->getMessage());
@@ -668,7 +670,9 @@ class SPPDB
                 $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
             } catch (\Exception $e) {
                 $message = $e->getMessage();
-                if (stripos($message, 'Duplicate column') !== false || stripos($message, 'already exists') !== false) {
+                if (stripos($message, 'Duplicate column') !== false || 
+                    stripos($message, 'already exists') !== false ||
+                    stripos($message, 'Multiple primary key defined') !== false) {
                     continue;
                 }
                 throw $e;
@@ -679,10 +683,21 @@ class SPPDB
     public function createTableIncremental(string $tableName, array $columns)
     {
         if (!$this->tableExists($tableName)) {
-            // Basic DDL proxy
-            $this->adapter->execute("CREATE TABLE {$tableName} (placeholder INT)");
+            $defs = [];
+            foreach ($columns as $colName => $colDef) {
+                if (strtoupper($colName) === 'PRIMARY KEY') {
+                    $defs[] = "PRIMARY KEY $colDef";
+                } elseif (strtoupper($colName) === 'UNIQUE') {
+                    $defs[] = "UNIQUE $colDef";
+                } else {
+                    $defs[] = "$colName $colDef";
+                }
+            }
+            $query = "CREATE TABLE {$tableName} (" . implode(', ', $defs) . ")";
+            $this->adapter->execute($query);
+        } else {
+            $this->add_columns($tableName, $columns);
         }
-        $this->add_columns($tableName, $columns);
     }
 
     /**

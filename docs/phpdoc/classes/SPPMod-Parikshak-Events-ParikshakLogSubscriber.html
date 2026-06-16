@@ -145,15 +145,11 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppblade.html" class="">SPPBlade</a>
+                <a href="namespaces/sppmod-drishyam.html" class="">Drishyam</a>
                 
             </li>
                     <li>
                 <a href="namespaces/sppmod-spppwa.html" class="">SPPPWA</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppux.html" class="">sppux</a>
                 
             </li>
                     <li>
@@ -169,10 +165,6 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppajax.html" class="">SPPAjax</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdiff.html" class="">SPPDiff</a>
                 
             </li>
@@ -182,10 +174,6 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppauth.html" class="">Sppauth</a>
-                
-            </li>
-                    <li>
-                <a href="namespaces/sppmod-sppgroup.html" class="">SPPGroup</a>
                 
             </li>
                     <li>
@@ -209,15 +197,15 @@
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppinterdb.html" class="">SPPInterDB</a>
-                
-            </li>
-                    <li>
                 <a href="namespaces/sppmod-sppdb.html" class="">Sppdb</a>
                 
             </li>
                     <li>
-                <a href="namespaces/sppmod-sppentity.html" class="">SPPEntity</a>
+                <a href="namespaces/sppmod-sppmigration.html" class="">SPPMigration</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppdoc.html" class="">SPPDoc</a>
                 
             </li>
                     <li>
@@ -254,6 +242,10 @@
             </li>
                     <li>
                 <a href="namespaces/sppmod-sppqueue.html" class="">SPPQueue</a>
+                
+            </li>
+                    <li>
+                <a href="namespaces/sppmod-sppreport.html" class="">Sppreport</a>
                 
             </li>
                     <li>
@@ -307,6 +299,10 @@
                 
             </li>
                     <li>
+                <a href="namespaces/app-school1.html" class="">School1</a>
+                
+            </li>
+                    <li>
                 <a href="namespaces/app-sppmobile.html" class="">Sppmobile</a>
                 
             </li>
@@ -347,10 +343,6 @@
     <a href="packages/SPPMod.html" class="">SPPMod</a>
 </h4>
     <ul class="phpdocumentor-list">
-                    <li>
-                <a href="packages/SPPMod-SPPAuth.html" class="">SPPAuth</a>
-                
-            </li>
                     <li>
                 <a href="packages/SPPMod-SPPViewDefinesresponseinSPPView.html" class="">SPPViewDefinesresponseinSPPView</a>
                 
@@ -492,47 +484,38 @@
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function __construct
-Constructor</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_afterHandler">afterHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function afterHandler()
-Calls after handler for the event</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_beforeHandler">beforeHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function beforeHandler
-Calls before handler for the event</dd>
+<dd>Legacy stage triggers. We keep these for instances that were manually called,
+though the router won&#039;t use them anymore.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_getEventName">getEventName()</a>
     <span>
-                                &nbsp;: string    </span>
+                                &nbsp;: mixed    </span>
 </dt>
-<dd>function getEventName
-Gets event name of the handler</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_getHandlerName">getHandlerName()</a>
     <span>
-                                &nbsp;: string    </span>
+                                &nbsp;: mixed    </span>
 </dt>
-<dd>function getHandlerName
-Gets handler name of the handler</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_getPriority">getPriority()</a>
     <span>
                                 &nbsp;: int    </span>
 </dt>
-<dd>Returns the handler priority.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPPMod-Parikshak-Events-ParikshakLogSubscriber.html#method_getSubscribedEvents">getSubscribedEvents()</a>
@@ -546,7 +529,6 @@ Gets handler name of the handler</dd>
     <span>
                                 &nbsp;: bool    </span>
 </dt>
-<dd>Checks if propagation has been stopped.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPPMod-Parikshak-Events-ParikshakLogSubscriber.html#method_onSuiteCompleted">onSuiteCompleted()</a>
@@ -571,55 +553,45 @@ Gets handler name of the handler</dd>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function overrideHandler
-Calls override handler for the event</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -public">
     <a href="classes/SPP-EventHandler.html#method_stopPropagation">stopPropagation()</a>
     <span>
                                 &nbsp;: void    </span>
 </dt>
-<dd>Halts the event chain. No further handlers will be executed for this event.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -protected">
     <a href="classes/SPP-EventHandler.html#method_addAfterHandler">addAfterHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function addAfterHandler
-Adds after handler</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -protected">
     <a href="classes/SPP-EventHandler.html#method_addBeforeHandler">addBeforeHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function addBeforeHandler
-Adds before handler</dd>
+<dd>Legacy mappings to the new addHook router.</dd>
+
+            <dt class="phpdocumentor-table-of-contents__entry -method -protected">
+    <a href="classes/SPP-EventHandler.html#method_addHook">addHook()</a>
+    <span>
+                                &nbsp;: mixed    </span>
+</dt>
+<dd>Modern explicit hook registration.</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -protected">
     <a href="classes/SPP-EventHandler.html#method_addOverrideHandler">addOverrideHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function addOverrideHandler
-Adds override handler</dd>
-
-            <dt class="phpdocumentor-table-of-contents__entry -method -protected">
-    <a href="classes/SPP-EventHandler.html#method_dispatch">dispatch()</a>
-    <span>
-                                &nbsp;: void    </span>
-</dt>
-<dd>Modern helper to dispatch an event</dd>
 
             <dt class="phpdocumentor-table-of-contents__entry -method -protected">
     <a href="classes/SPP-EventHandler.html#method_initHandler">initHandler()</a>
     <span>
                                 &nbsp;: mixed    </span>
 </dt>
-<dd>function initHandler
-Initializes the handler
-To be overridden in child classes</dd>
+<dd>Initializes the handler. To be overridden in child classes.</dd>
 
     </dl>
 
@@ -652,7 +624,7 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">10</span>
+    <span class="phpdocumentor-element-found-in__line">12</span>
 
     </aside>
 
@@ -685,7 +657,7 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">9</span>
+    <span class="phpdocumentor-element-found-in__line">11</span>
 
     </aside>
 
@@ -784,7 +756,7 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">11</span>
+    <span class="phpdocumentor-element-found-in__line">13</span>
 
     </aside>
 
@@ -817,7 +789,7 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">15</span>
+    <span class="phpdocumentor-element-found-in__line">16</span>
 
     </aside>
 
@@ -857,7 +829,7 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">186</span>
+    <span class="phpdocumentor-element-found-in__line">114</span>
 
     </aside>
 
@@ -905,16 +877,14 @@ To be overridden in child classes</dd>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">52</span>
+    <span class="phpdocumentor-element-found-in__line">36</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function __construct
-Constructor</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$event_name</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">bool&nbsp;</span><span class="phpdocumentor-signature__argument__name">$is_default</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">false</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">__construct</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$event_name</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">null</span><span> ]</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$is_default</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">false</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -923,14 +893,14 @@ Constructor</p>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$event_name</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                  = <span class="phpdocumentor-signature__argument__default-value">null</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
             </dd>
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$is_default</span>
-                : <span class="phpdocumentor-signature__argument__return-type">bool</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                  = <span class="phpdocumentor-signature__argument__default-value">false</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
@@ -955,13 +925,11 @@ Constructor</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">117</span>
+    <span class="phpdocumentor-element-found-in__line">109</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function afterHandler()
-Calls after handler for the event</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">afterHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__reference-operator">&amp;</span><span class="phpdocumentor-signature__argument__name">$params</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
@@ -998,12 +966,12 @@ Calls after handler for the event</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">85</span>
+    <span class="phpdocumentor-element-found-in__line">99</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function beforeHandler
-Calls before handler for the event</p>
+        <p class="phpdocumentor-summary">Legacy stage triggers. We keep these for instances that were manually called,
+though the router won&#039;t use them anymore.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
@@ -1041,16 +1009,14 @@ Calls before handler for the event</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">198</span>
+    <span class="phpdocumentor-element-found-in__line">119</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function getEventName
-Gets event name of the handler</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">getEventName</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">getEventName</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1058,11 +1024,7 @@ Gets event name of the handler</p>
     
     
 
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-            </section>
-
+    
 </article>
                     <article
         class="phpdocumentor-element
@@ -1078,16 +1040,14 @@ Gets event name of the handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">214</span>
+    <span class="phpdocumentor-element-found-in__line">128</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function getHandlerName
-Gets handler name of the handler</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
-                    <span class="phpdocumentor-signature__name">getHandlerName</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">string</span></code>
+                    <span class="phpdocumentor-signature__name">getHandlerName</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1095,11 +1055,7 @@ Gets handler name of the handler</p>
     
     
 
-            <section>
-        <h5 class="phpdocumentor-return-value__heading">Return values</h5>
-        <span class="phpdocumentor-signature__response_type">string</span>
-            </section>
-
+    
 </article>
                     <article
         class="phpdocumentor-element
@@ -1115,12 +1071,11 @@ Gets handler name of the handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">39</span>
+    <span class="phpdocumentor-element-found-in__line">31</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Returns the handler priority.</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">getPriority</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">int</span></code>
@@ -1187,12 +1142,11 @@ Gets handler name of the handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">31</span>
+    <span class="phpdocumentor-element-found-in__line">26</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Checks if propagation has been stopped.</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">isPropagationStopped</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">bool</span></code>
@@ -1346,13 +1300,11 @@ Gets handler name of the handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">102</span>
+    <span class="phpdocumentor-element-found-in__line">104</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function overrideHandler
-Calls override handler for the event</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">overrideHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span>[</span><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__reference-operator">&amp;</span><span class="phpdocumentor-signature__argument__name">$params</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">[]</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
@@ -1389,12 +1341,11 @@ Calls override handler for the event</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">23</span>
+    <span class="phpdocumentor-element-found-in__line">21</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">Halts the event chain. No further handlers will be executed for this event.</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">public</span>
                     <span class="phpdocumentor-signature__name">stopPropagation</span><span>(</span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
@@ -1421,16 +1372,14 @@ Calls override handler for the event</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">162</span>
+    <span class="phpdocumentor-element-found-in__line">85</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function addAfterHandler
-Adds after handler</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">protected</span>
-                    <span class="phpdocumentor-signature__name">addAfterHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">addAfterHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1439,7 +1388,7 @@ Adds after handler</p>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$handler</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
@@ -1464,16 +1413,15 @@ Adds after handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">148</span>
+    <span class="phpdocumentor-element-found-in__line">80</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function addBeforeHandler
-Adds before handler</p>
+        <p class="phpdocumentor-summary">Legacy mappings to the new addHook router.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">protected</span>
-                    <span class="phpdocumentor-signature__name">addBeforeHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">addBeforeHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1482,8 +1430,66 @@ Adds before handler</p>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$handler</span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+            </dl>
+
+    
+
+    
+</article>
+                    <article
+        class="phpdocumentor-element
+            -method
+            -protected
+                                                        "
+>
+    <h4 class="phpdocumentor-element__name" id="method_addHook">
+        addHook()
+        <a href="classes/SPP-EventHandler.html#method_addHook" class="headerlink"><i class="fas fa-link"></i></a>
+
+    </h4>
+    <aside class="phpdocumentor-element-found-in">
+    <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
+    :
+    <span class="phpdocumentor-element-found-in__line">66</span>
+
+    </aside>
+
+        <p class="phpdocumentor-summary">Modern explicit hook registration.</p>
+
+    <code class="phpdocumentor-code phpdocumentor-signature ">
+    <span class="phpdocumentor-signature__visibility">protected</span>
+                    <span class="phpdocumentor-signature__name">addHook</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$stage</span></span><span class="phpdocumentor-signature__argument"><span>, </span><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$methodName</span></span><span class="phpdocumentor-signature__argument"><span>[</span><span>, </span><span class="phpdocumentor-signature__argument__return-type">int&nbsp;</span><span class="phpdocumentor-signature__argument__name">$priority</span><span> = </span><span class="phpdocumentor-signature__argument__default-value">500</span><span> ]</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+
+    <div class="phpdocumentor-label-line">
+        </div>
+        <section class="phpdocumentor-description"><p>Routes the callable directly into SPPEvent's fast router.</p>
+</section>
+
+        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
+    <dl class="phpdocumentor-argument-list">
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$stage</span>
                 : <span class="phpdocumentor-signature__argument__return-type">string</span>
                             </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$methodName</span>
+                : <span class="phpdocumentor-signature__argument__return-type">string</span>
+                            </dt>
+            <dd class="phpdocumentor-argument-list__definition">
+                
+            </dd>
+                    <dt class="phpdocumentor-argument-list__entry">
+                <span class="phpdocumentor-signature__argument__name">$priority</span>
+                : <span class="phpdocumentor-signature__argument__return-type">int</span>
+                 = <span class="phpdocumentor-signature__argument__default-value">500</span>            </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
             </dd>
@@ -1507,16 +1513,14 @@ Adds before handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">176</span>
+    <span class="phpdocumentor-element-found-in__line">90</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function addOverrideHandler
-Adds override handler</p>
-
+    
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">protected</span>
-                    <span class="phpdocumentor-signature__name">addOverrideHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">string&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
+                    <span class="phpdocumentor-signature__name">addOverrideHandler</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type">mixed&nbsp;</span><span class="phpdocumentor-signature__argument__name">$handler</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">mixed</span></code>
 
     <div class="phpdocumentor-label-line">
         </div>
@@ -1525,49 +1529,7 @@ Adds override handler</p>
     <dl class="phpdocumentor-argument-list">
                     <dt class="phpdocumentor-argument-list__entry">
                 <span class="phpdocumentor-signature__argument__name">$handler</span>
-                : <span class="phpdocumentor-signature__argument__return-type">string</span>
-                            </dt>
-            <dd class="phpdocumentor-argument-list__definition">
-                
-            </dd>
-            </dl>
-
-    
-
-    
-</article>
-                    <article
-        class="phpdocumentor-element
-            -method
-            -protected
-                                                        "
->
-    <h4 class="phpdocumentor-element__name" id="method_dispatch">
-        dispatch()
-        <a href="classes/SPP-EventHandler.html#method_dispatch" class="headerlink"><i class="fas fa-link"></i></a>
-
-    </h4>
-    <aside class="phpdocumentor-element-found-in">
-    <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
-    :
-    <span class="phpdocumentor-element-found-in__line">222</span>
-
-    </aside>
-
-        <p class="phpdocumentor-summary">Modern helper to dispatch an event</p>
-
-    <code class="phpdocumentor-code phpdocumentor-signature ">
-    <span class="phpdocumentor-signature__visibility">protected</span>
-                    <span class="phpdocumentor-signature__name">dispatch</span><span>(</span><span class="phpdocumentor-signature__argument"><span class="phpdocumentor-signature__argument__return-type"><a href="classes/SPP-SPPEventObject.html"><abbr title="\SPP\SPPEventObject">SPPEventObject</abbr></a>&nbsp;</span><span class="phpdocumentor-signature__argument__name">$event</span></span><span>)</span><span> : </span><span class="phpdocumentor-signature__response_type">void</span></code>
-
-    <div class="phpdocumentor-label-line">
-        </div>
-    
-        <h5 class="phpdocumentor-argument-list__heading">Parameters</h5>
-    <dl class="phpdocumentor-argument-list">
-                    <dt class="phpdocumentor-argument-list__entry">
-                <span class="phpdocumentor-signature__argument__name">$event</span>
-                : <span class="phpdocumentor-signature__argument__return-type"><a href="classes/SPP-SPPEventObject.html"><abbr title="\SPP\SPPEventObject">SPPEventObject</abbr></a></span>
+                : <span class="phpdocumentor-signature__argument__return-type">mixed</span>
                             </dt>
             <dd class="phpdocumentor-argument-list__definition">
                 
@@ -1592,13 +1554,11 @@ Adds override handler</p>
     <aside class="phpdocumentor-element-found-in">
     <abbr class="phpdocumentor-element-found-in__file" title="spp/core/class.eventhandler.php"><a href="files/spp-core-class-eventhandler.html"><abbr title="spp/core/class.eventhandler.php">class.eventhandler.php</abbr></a></abbr>
     :
-    <span class="phpdocumentor-element-found-in__line">137</span>
+    <span class="phpdocumentor-element-found-in__line">58</span>
 
     </aside>
 
-        <p class="phpdocumentor-summary">function initHandler
-Initializes the handler
-To be overridden in child classes</p>
+        <p class="phpdocumentor-summary">Initializes the handler. To be overridden in child classes.</p>
 
     <code class="phpdocumentor-code phpdocumentor-signature ">
     <span class="phpdocumentor-signature__visibility">protected</span>
@@ -1753,8 +1713,8 @@ To be overridden in child classes</p>
                                             <li><a href="classes/SPP-EventHandler.html#method_stopPropagation">stopPropagation()</a></li>
                                             <li><a href="classes/SPP-EventHandler.html#method_addAfterHandler">addAfterHandler()</a></li>
                                             <li><a href="classes/SPP-EventHandler.html#method_addBeforeHandler">addBeforeHandler()</a></li>
+                                            <li><a href="classes/SPP-EventHandler.html#method_addHook">addHook()</a></li>
                                             <li><a href="classes/SPP-EventHandler.html#method_addOverrideHandler">addOverrideHandler()</a></li>
-                                            <li><a href="classes/SPP-EventHandler.html#method_dispatch">dispatch()</a></li>
                                             <li><a href="classes/SPP-EventHandler.html#method_initHandler">initHandler()</a></li>
                                     </ul>
             </li>

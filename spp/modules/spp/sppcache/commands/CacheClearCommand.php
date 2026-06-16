@@ -1,21 +1,17 @@
 <?php
 namespace SPPMod\SppCache\Commands;
 
-use SPP\Core\Command;
+use SPP\CLI\Command;
 use SPP\Cache;
 
 class CacheClearCommand extends Command {
-    protected $signature = 'cache:clear';
-    protected $description = 'Flush the application cache.';
+    protected string $signature = 'cache:clear';
+    protected string $description = 'Clear the entire SPP Cache directory';
 
-    public function handle() {
-        $this->info("Clearing application cache...");
-        if (Cache::clear()) {
-            $this->info("Cache cleared successfully.");
-            return 0;
-        } else {
-            $this->error("Failed to clear cache.");
-            return 1;
-        }
+    public function execute(array $args): void {
+        echo "Clearing application cache...\n";
+        $cache = \SPP\Cache::getInstance();
+        $cache->flush();
+        echo "Cache cleared successfully.\n";
     }
 }

@@ -11,20 +11,11 @@ class TestRunCommand extends Command
 
     public function execute(array $args): void
     {
-        $appname = 'default';
-        $entity = null;
-        
-        foreach ($args as $arg) {
-            if ($arg === 'spp.php' || $arg === $this->name || str_starts_with($arg, '--')) continue;
-            if (!$entity) $entity = $arg;
-        }
-        foreach ($args as $arg) {
-            if (str_starts_with($arg, '--app=')) {
-                $appname = substr($arg, 6);
-            }
-        }
+        $appname = $this->getOption($args, 'app', 'default');
+        $entity = $this->getArgument($args, 0);
+        $withCoverage = in_array('--coverage', $args);
 
-        \SPP\Scheduler::withContext($appname, function() use ($appname, $entity) {
+        \SPP\Scheduler::withContext($appname, function() use ($appname, $entity, $withCoverage) {
             try {
                 \SPP\Module::loadModule('parikshak');
                 if (!class_exists('\\SPPMod\\Parikshak\\Parikshak')) {
@@ -38,7 +29,7 @@ class TestRunCommand extends Command
                     $tester->testEntity($entity, $appname);
                 } else {
                     echo "Running test suite for app: {$appname}\n";
-                    $results = $tester->runSuite($appname);
+                    $results = $tester->runSuite($appname, $withCoverage);
                     echo "\nSuite Summary:\n";
                     echo "Passed: " . $results['summary']['passed'] . " / " . $results['summary']['total'] . "\n";
                 }

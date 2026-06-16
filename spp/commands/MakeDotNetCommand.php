@@ -32,12 +32,16 @@ class MakeDotNetCommand extends BaseMakeCommand
         }
 
         // 1. Scaffold console project
-        $cmd1 = "dotnet new console -n Service.{$className} -o \"{$projectDir}\"";
+        // Note: dotnet restricts project names, but we escape it anyway to prevent injection
+        $safeClassName = escapeshellarg("Service.{$className}");
+        $safeProjectDir = escapeshellarg($projectDir);
+        $cmd1 = "dotnet new console -n {$safeClassName} -o {$safeProjectDir}";
         echo shell_exec($cmd1 . " 2>&1");
 
         // 2. Add reference to SppClient
         $sppClientPath = str_replace('\\', '/', realpath(SPP_BASE_DIR . '/lib/dotnet/SppClient/SppClient.csproj'));
-        $cmd2 = "dotnet add \"{$projectDir}\" reference \"{$sppClientPath}\"";
+        $safeSppClientPath = escapeshellarg($sppClientPath);
+        $cmd2 = "dotnet add {$safeProjectDir} reference {$safeSppClientPath}";
         echo shell_exec($cmd2 . " 2>&1");
 
         // 3. Overwrite Program.cs with our stub

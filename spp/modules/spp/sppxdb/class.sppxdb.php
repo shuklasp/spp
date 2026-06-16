@@ -65,8 +65,17 @@ class SPP_XDB
             $tableName = $this->adapter->getTableName();
         }
 
+        // Check if querySQL is actually a read query
+        $isReadQuery = false;
+        if ($name === 'querySQL') {
+            $sql = trim($args[0] ?? '');
+            if (stripos($sql, 'SELECT') === 0 || stripos($sql, 'SHOW') === 0 || stripos($sql, 'DESCRIBE') === 0) {
+                $isReadQuery = true;
+            }
+        }
+
         // Cache read queries
-        if ($cacheEnabled && $name === 'querySQL' && $tableName) {
+        if ($cacheEnabled && $isReadQuery && $tableName) {
             $sql = $args[0] ?? '';
             $params = $args[1] ?? [];
             
@@ -85,6 +94,11 @@ class SPP_XDB
 
         $result = call_user_func_array([$this->adapter, $name], $args);
 
+        // Try to get tableName again in case it was resolved during execution
+        if (!$tableName && method_exists($this->adapter, 'getTableName')) {
+            $tableName = $this->adapter->getTableName();
+        }
+
         if ($start > 0) {
             $time = round((microtime(true) - $start) * 1000, 2);
             self::$queryLog[] = [
@@ -100,7 +114,12 @@ class SPP_XDB
         }
 
         // Cache busting on mutations
-        if ($cacheEnabled && in_array($name, ['insert', 'update', 'delete', 'save', 'insertBatch', 'updateBatch']) && $tableName) {
+        $isMutation = in_array($name, ['insert', 'update', 'delete', 'save', 'insertBatch', 'updateBatch']);
+        if ($name === 'querySQL' && !$isReadQuery) {
+            $isMutation = true;
+        }
+
+        if ($cacheEnabled && $isMutation && $tableName) {
             \SPP\Cache::invalidateTag("xdb_table_$tableName");
         }
 

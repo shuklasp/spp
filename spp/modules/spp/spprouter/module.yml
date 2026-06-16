@@ -1,0 +1,9 @@
+module:
+  name: spprouter
+  version: 1.0.0
+  type: core
+  compulsory: true
+  publicname: SPP Router
+  publicdesc: "Decoupled Routing Engine for HTTP dispatch."
+  includes:
+    - class.spprouter.php

@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPInterDB;
+namespace SPPMod\SppDb;
 
 use SPPMod\SPPDB\SPPDB;
 

@@ -91,7 +91,7 @@ class SppmobileApp extends \SPP\App {
 
         // Use Framework Routines for Page Rendering
         if (class_exists('\SPPMod\SPPView\ViewPage')) {
-            \SPPMod\SPPUX\SPPUX::boot();
+            \SPPMod\Drishyam\SPPUX::boot();
             
             \SPPMod\SPPView\ViewPage::setPageTitle('SPP Mobile Studio | Visual Builder');
             

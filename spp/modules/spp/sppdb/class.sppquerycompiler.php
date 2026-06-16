@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SPPInterDB;
+namespace SPPMod\SppDb;
 
-use SPPMod\SPPEntity\SppEntityQuery;
+use SPPMod\SppDb\SppEntityQuery;
 
 /**
  * Class SPPQueryCompiler

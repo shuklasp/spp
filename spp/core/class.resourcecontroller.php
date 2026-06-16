@@ -2,7 +2,6 @@
 
 namespace SPP\Core;
 
-use SPPMod\SPPEntity\SPPEntity;
 use SPP\Exceptions\EntityNotFoundException;
 
 /**
@@ -88,11 +87,17 @@ abstract class ResourceController
      */
     public function destroy($id)
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = \SPP\DB::getInstance();
         $entity = new $this->entityClass($id);
-        $table = $entity->getTable();
-        $sql = "DELETE FROM %tab% WHERE " . $entity->getMetadata('id_field') . " = ?";
-        $db->exec_squery($sql, $table, [$id]);
+        
+        if (method_exists($entity, 'delete')) {
+            $entity->delete();
+        } else {
+            $table = method_exists($entity, 'getTable') ? $entity->getTable() : strtolower((new \ReflectionClass($entity))->getShortName()) . 's';
+            $idField = method_exists($entity, 'getMetadata') ? $entity->getMetadata('id_field') : 'id';
+            $sql = "DELETE FROM %tab% WHERE {$idField} = ?";
+            $db->exec_squery($sql, $table, [$id]);
+        }
 
         return [
             'success' => true,

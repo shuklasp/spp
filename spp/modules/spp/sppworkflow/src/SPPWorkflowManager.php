@@ -99,28 +99,52 @@ class WorkflowManager
 
             if ((in_array($oldStatus, $from) || in_array('*', $from)) && $to === $newStatus) {
                 $allowed = true;
-                $requiredPermission = $transitionMeta['permission'] ?? null;
+                $matchedTransition = $transitionMeta;
                 break;
             }
         }
-
         if (!$allowed) {
             throw new \SPP\Exceptions\SPPException("Workflow Transition Error: Invalid transition from status '{$oldStatus}' to '{$newStatus}' for {$entityType} ({$bundle}).");
         }
 
+        return self::validateTransitionPermission($matchedTransition, ['entity' => $entity, 'user' => $user]);
+    }
+
+    private static function validateTransitionPermission(array $transitionMeta, array $context): bool
+    {
+        $requiredPermission = $transitionMeta['permission'] ?? null;
         if ($requiredPermission) {
-            if (class_exists('\SPPMod\SPPAuth\SPPAuth')) {
-                if (!\SPPMod\SPPAuth\SPPAuth::can($requiredPermission)) {
-                    throw new \SPP\Exceptions\SPPException("Workflow Authorization Error: You do not have the required permission '{$requiredPermission}' to transition from '{$oldStatus}' to '{$newStatus}'.");
-                }
-            } else {
-                throw new \SPP\Exceptions\SPPException("Workflow System Error: sppauth module is required but not loaded.");
+            $eventData = [
+                'permission' => $requiredPermission,
+                'context' => $context,
+                'authorized' => null // Listeners should set this to true or false
+            ];
+            
+            \SPP\SPPEvent::fireEvent('workflow.transition.authorize', $eventData);
+            
+            // If no listener explicitly authorized it, deny by default.
+            if ($eventData['authorized'] !== true) {
+                throw new \SPP\Exceptions\SPPException("Workflow Authorization Error: Insufficient permissions.");
             }
         }
-
         return true;
     }
 
+    public static function canTransition($entity, string $newStatus, $user = null): bool
+    {
+        $statusField = 'status';
+        if (method_exists($entity, 'getWorkflowStatusField')) {
+            $statusField = $entity->getWorkflowStatusField();
+        }
+
+        $oldStatus = $entity->get($statusField) ?: 'draft';
+
+        try {
+            return self::validateTransition($entity, $oldStatus, $newStatus, $user);
+        } catch (\SPP\Exceptions\SPPException $e) {
+            return false;
+        }
+    }
     /**
      * Register a workflow definition at runtime.
      * This allows applications (e.g., Lekhak) to define workflows programmatically

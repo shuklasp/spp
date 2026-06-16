@@ -2,6 +2,8 @@
 
 namespace {{namespace}};
 
+use SPPMod\SPPView\Attributes\Route;
+
 /**
  * Class {{className}}
  * Auto-generated controller class.
@@ -11,14 +13,16 @@ class {{className}}
     /**
      * Display a listing of the resource.
      */
+    #[Route('/{{routeName}}', method: 'GET')]
     public function index()
     {
-        //
+        // return new ViewResponse('index', ['data' => 'Hello']);
     }
 
     /**
      * Store a newly created resource in storage.
      */
+    #[Route('/{{routeName}}', method: 'POST')]
     public function store(array $data)
     {
         //
@@ -27,6 +31,7 @@ class {{className}}
     /**
      * Display the specified resource.
      */
+    #[Route('/{{routeName}}/{id}', method: 'GET')]
     public function show($id)
     {
         //
@@ -35,6 +40,7 @@ class {{className}}
     /**
      * Update the specified resource in storage.
      */
+    #[Route('/{{routeName}}/{id}', method: 'PUT')]
     public function update($id, array $data)
     {
         //
@@ -43,6 +49,7 @@ class {{className}}
     /**
      * Remove the specified resource from storage.
      */
+    #[Route('/{{routeName}}/{id}', method: 'DELETE')]
     public function destroy($id)
     {
         //

@@ -2,11 +2,14 @@
     "require": {
         "symfony/yaml": "^7.1",
         "eftec/bladeone": "^4.19",
-        "psr/container": "^2.0"
+        "psr/container": "^2.0",
+        "twig/twig": "^3.27"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.2",
-        "friendsofphp/php-cs-fixer": "^3.95"
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "mockery/mockery": "^1.6",
+        "symfony/panther": "^2.4"
     },
     "scripts": {
         "analyze": "vendor/bin/phpstan analyse -c phpstan.neon",
