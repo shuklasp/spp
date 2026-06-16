@@ -46,7 +46,7 @@ class SPPAuth extends \SPP\SPPObject
             case 'api':
                 return new TokenGuard();
             default:
-                throw new \SPP\Exceptions\SPPException("Unknown auth guard: " . $name);
+                throw new \SPP\SPPException("Unknown auth guard: " . $name);
         }
     }
 
@@ -67,13 +67,8 @@ class SPPAuth extends \SPP\SPPObject
                 RateLimiter::clear($uname, $ip);
                 $user = new SPPUser($uname);
                 
-                // Intercept for MFA (use isset/try to avoid warnings)
-                $mfaEnabled = false;
-                try {
-                    $mfaEnabled = $user->get('mfa_enabled') ?: false;
-                } catch (\Exception $e) { }
-                
-                if ($mfaEnabled) {
+                // Intercept for MFA
+                if ($user->get('mfa_enabled')) {
                     $token = bin2hex(random_bytes(16));
                     \SPP\SPPSession::setSessionVar('mfa_challenge_user', $user->id);
                     \SPP\SPPSession::setSessionVar('mfa_challenge_token', $token);
@@ -88,7 +83,6 @@ class SPPAuth extends \SPP\SPPObject
             if (str_starts_with($e->getMessage(), 'MFA_REQUIRED:')) {
                 throw $e; // Bubble up MFA challenges
             }
-            throw $e; // Rethrow other exceptions so they aren't masked as Invalid Password!
         }
         
         RateLimiter::hit($uname, $ip);
