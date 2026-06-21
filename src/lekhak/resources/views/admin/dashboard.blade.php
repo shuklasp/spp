@@ -19,5 +19,10 @@
         <a href="{{ $admin_root }}/structure/types" class="btn btn-primary">Manage Structure</a>
         <a href="#editor" class="btn btn-secondary" data-spp-evt="nav-editor" data-spp-type="click">Add Content</a>
     </div>
+
+    <!-- Live Component Implementation -->
+    <div class="mt-4">
+        {!! \App\Lekhak\Components\LiveStats::embed() !!}
+    </div>
 </div>
 @endsection

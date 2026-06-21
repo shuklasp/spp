@@ -2,6 +2,14 @@
 return array (
   'listeners' => 
   array (
+    'lekhak_render_pipeline' => 
+    array (
+      0 => 
+      array (
+        'callback' => '\\SPPMod\\Lekhak\\Events\\RenderPipelineHandler',
+        'priority' => 500,
+      ),
+    ),
     'core.error.exception' => 
     array (
       0 => 

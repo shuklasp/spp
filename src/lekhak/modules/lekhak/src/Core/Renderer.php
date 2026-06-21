@@ -14,7 +14,7 @@ class Renderer
     public function __construct()
     {
         // Trigger event to allow other modules to register filters
-        $params = ['renderer' => $this];
+        $params = new \SPP\EventParams(['renderer' => $this]);
         \SPP\SPPEvent::fireEvent('lekhak_render_pipeline', $params);
         $this->sortFilters();
     }
@@ -60,10 +60,10 @@ class Renderer
             if (!file_exists($templatePath)) {
                 $viewName = ltrim($templateName, '/');
                 $candidatePaths = [
-                    $viewsDir . '/' . $viewName . '.blade.php',
-                    $viewsDir . '/admin/' . $viewName . '.blade.php',
                     $srcDir . '/resources/themes/lekhak_themes/glass_admin/views/' . $viewName . '.blade.php',
                     $srcDir . '/resources/themes/glass_admin/views/' . $viewName . '.blade.php',
+                    $viewsDir . '/' . $viewName . '.blade.php',
+                    $viewsDir . '/admin/' . $viewName . '.blade.php',
                     $viewsDir . '/' . $viewName,
                     $viewsDir . '/admin/' . $viewName,
                 ];
@@ -111,13 +111,13 @@ class Renderer
         $isAdmin = str_contains($reqUri, '/admin') || (str_contains($templateName, 'admin') && !str_contains($templateName, 'landing-page'));
         if (!$isAdmin) {
             $app = \SPP\App::getApp();
-            $renderParams = [
+            $renderParams = new \SPP\EventParams([
                 'html'     => &$output,
                 'pageData' => $data,
                 'theme'    => $app ? $app->getAppConf('theme') : 'eduxpro'
-            ];
+            ]);
             \SPP\SPPEvent::fireEvent('event_spp_view_render_theme', $renderParams);
-            $output = $renderParams['html'];
+            $output = $renderParams->get('html');
         }
 
         } // End if ($output === null)

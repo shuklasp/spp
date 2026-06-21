@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>2</next_id>
+  </_meta>
+<row id="1"><username>admin</username><password>$2y$10$q00YzzdsWhVVSm2UcaB.SucOT2NpaRCgjF9YJVRs9vEdrv3LiQtcq</password><email>admin@admin.com</email><id>1</id><history timestamp="2026-06-20 10:39:56"><username>admin</username><password>$2y$10$q00YzzdsWhVVSm2UcaB.SucOT2NpaRCgjF9YJVRs9vEdrv3LiQtcq</password><email>admin@admin.com</email><id>1</id></history><active>1</active><status>active</status></row></database>

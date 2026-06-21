@@ -1,11 +1,13 @@
 profile: dev
 shared_groups:
     core:
-        table_prefix: ''
+        table_prefix: 'spp_'
         entities:
             - users
             - roles
             - rights
+            - userroles
+            - roleright
     academic:
         extends: core
         table_prefix: sch_

@@ -370,6 +370,8 @@ if (!function_exists('createEntityRevision')) {
 }
 
 try {
+    file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] API Request: action=" . ($_REQUEST['action'] ?? 'none') . " session_keys=" . (isset($_SESSION) ? implode(',', array_keys($_SESSION)) : 'none') . "\n", FILE_APPEND);
+
     // 2. Authentication & Context Setup
     $authContext = 'sppadmin';
     $appContext = $_REQUEST['appname'] ?? $_REQUEST['context'] ?? 'default';
@@ -430,6 +432,20 @@ try {
     // RBAC: Gate admin actions by scope
     if (!isPublicAdminAction($action) && function_exists('gateAdminAction') && !empty($action) && !gateAdminAction($action)) {
         sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
+    }
+
+    // Switch context if target app context differs from auth context
+    if ($appContext !== $authContext) {
+        try {
+            try {
+                \SPP\Scheduler::getProcObj($appContext);
+            } catch (\Exception $e) {
+                new \SPP\App($appContext);
+            }
+            \SPP\Scheduler::setContext($appContext);
+        } catch (\Exception $e) {
+            file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Failed to switch to context $appContext: " . $e->getMessage() . "\n", FILE_APPEND);
+        }
     }
 
     \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $_REQUEST);

@@ -18,7 +18,7 @@ class RequestLogger implements MiddlewareInterface
 
         // Log the request (MOCKED for now as I don't want to rely on the full logger module)
         // \SPPMod\SPPLogger\SPP_Logger::info("Incoming Request: $method $uri");
-        error_log("[SPP Middleware] Incoming Request: $method $uri");
+        // error_log("[SPP Middleware] Incoming Request: $method $uri");
 
         // Pass to the next middleware
         $response = $next($request);

@@ -40,6 +40,32 @@ class SPPLive extends \SPP\SPPObject
         return self::$engine;
     }
 
+    public static function authorizeTopic(string $topic): bool
+    {
+        if ($topic === 'global') {
+            return true;
+        }
+
+        // Admin-only topics
+        if (str_starts_with($topic, 'admin_')) {
+            if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
+                return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && \SPPMod\SPPAuth\SPPAuth::hasRole(1); // Assuming 1 is admin
+            }
+            // Fallback for dev mode
+            return \SPP\Config\YamlLoader::get('app', 'dev_mode', false);
+        }
+
+        // User-specific topics
+        if (str_starts_with($topic, 'user_')) {
+            $userId = substr($topic, 5);
+            if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
+                return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && (string)\SPPMod\SPPAuth\SPPAuth::getUserId() === $userId;
+            }
+        }
+
+        return true; // Default allow for unknown custom topics
+    }
+
     public static function bootLive()
     {
         return true;

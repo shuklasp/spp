@@ -20,7 +20,7 @@ class SetupCommand extends Command
         echo "Setting up Lekhak tables...\n";
 
         $db->execute_query("CREATE TABLE IF NOT EXISTS lek_nodes (
-            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
             title VARCHAR(255),
             alias VARCHAR(255),
             body LONGTEXT,

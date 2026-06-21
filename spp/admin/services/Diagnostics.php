@@ -15,7 +15,9 @@ if (!function_exists('live_diagnostics_health')) {
         // 1. Database Health
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
-            $db->exec_squery("SELECT 1");
+            if ($db->getDriver() !== 'xdb') {
+                $db->execute_query("SELECT 1");
+            }
             $health['components']['database'] = ['status' => 'UP'];
         } catch (\Exception $e) {
             $health['status'] = 'DEGRADED';
@@ -25,11 +27,15 @@ if (!function_exists('live_diagnostics_health')) {
         // 2. Redis Health (If configured)
         try {
             if (\SPP\Module::getConfig('host', 'redis')) {
-                $redis = \SPP\RedisCache::getConnection();
-                $redis->ping();
-                $health['components']['redis'] = ['status' => 'UP'];
+                if (class_exists('\SPP\Core\RedisCache')) {
+                    $redis = \SPP\Core\RedisCache::getConnection();
+                    $redis->ping();
+                    $health['components']['redis'] = ['status' => 'UP'];
+                } else {
+                    $health['components']['redis'] = ['status' => 'DOWN', 'message' => 'Redis module not loaded'];
+                }
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $health['status'] = 'DEGRADED';
             $health['components']['redis'] = ['status' => 'DOWN', 'message' => $e->getMessage()];
         }

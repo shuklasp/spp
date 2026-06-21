@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>12. Live Components | SPP Framework Tutorial</title>
+    <title>13. Security Hardening | SPP Framework Tutorial</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 </head>
@@ -17,8 +17,8 @@
                 <li><a href="02_getting_started.html">02. Getting Started</a></li>
                 <li><a href="03_modules.html">03. Modules Architecture</a></li>
                 <li><a href="04_data_models.html">04. Data Modeling</a></li>
-                <li><a href="05_routing_and_views.html">05. Routing & Views</a></li>
-                <li><a href="06_forms_and_validation.html">06. Forms & Validation</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing &amp; Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms &amp; Validation</a></li>
                 <li><a href="07_events.html">07. The Event System</a></li>
                 <li><a href="08_advanced.html">08. Advanced Features</a></li>
                 <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
@@ -27,7 +27,7 @@
                 <li><a href="12_live_components.html">12. Live Components</a></li>
                 <li><a href="13_security_hardening.html" class="active">13. Security Hardening</a></li>
                 <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
-                <li><a href="12_live_components.html" class="active">12. Live Components</a></li>
+                <li><a href="15_middleware.html">15. Middleware Pipeline</a></li>
             </ul>
         </nav>
     </aside>
@@ -83,10 +83,69 @@
                 <li><strong>HMAC Signatures:</strong> The <code>spplive</code> Engine utilizes HMAC SHA-256 digital signatures (<code>X-SPP-Live-Signature</code>) on all internal broadcast API requests.</li>
             </ul>
 
+            <hr>
+
+            <h2>6. Middleware-Based Security Layer</h2>
+            <p>SPP enforces critical security policies through its <strong>Middleware Pipeline</strong> — a layered onion architecture that intercepts every HTTP request before routing occurs. Security middleware runs automatically on every request via the <code>MiddlewareKernel</code>.</p>
+
+            <h3>CSRF Protection</h3>
+            <p>SPP provides two complementary CSRF middleware implementations:</p>
+            <p><strong>Global CSRF Middleware</strong> (<code>SPP\Core\Middleware\CSRFMiddleware</code>) runs on every request via <code>middleware.yml</code>. It validates tokens on all <code>api.php</code> and <code>sppux_api</code> endpoints, checking both the <code>csrf_token</code> request parameter and the <code>X-CSRF-TOKEN</code> header.</p>
+            <p><strong>Route-level CSRF Middleware</strong> (<code>SPPMod\Sppsecurity\Middleware\CsrfMiddleware</code>) can be applied to specific controllers via the <code>#[Middleware]</code> attribute. It validates only state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:</p>
+<pre><code>#[Middleware(\SPPMod\Sppsecurity\Middleware\CsrfMiddleware::class)]
+class AdminController {
+    // CSRF enforced on all POST/PUT/DELETE/PATCH requests
+}</code></pre>
+
+            <h3>API Authentication</h3>
+            <p><code>ApiAuthMiddleware</code> is <strong>hardcoded</strong> as the first middleware in the global pipeline. It intercepts all <code>api/v1/*</code> routes and enforces authentication via:</p>
+            <ul>
+                <li><strong>Bearer tokens</strong> (JWT) from the <code>Authorization</code> header</li>
+                <li><strong>API keys</strong> from the <code>api_key</code> query parameter</li>
+            </ul>
+            <p>Token verification is delegated to the event system (<code>api.auth.verify_token</code>), allowing modules to plug in custom validation logic.</p>
+
+            <h3>Rate Limiting &amp; Throttling</h3>
+            <p>Two middleware implementations handle rate limiting:</p>
+            <ul>
+                <li><strong><code>RateLimiterMiddleware</code></strong> — IP-based rate limiting using <code>SPP\Cache</code>. Returns <code>429 Too Many Requests</code> with <code>Retry-After</code> and <code>X-RateLimit-*</code> response headers.</li>
+                <li><strong><code>ThrottleMiddleware</code></strong> — Token-bucket algorithm via <code>SPPSecurityService</code>. Configurable max requests and decay window.</li>
+            </ul>
+<pre><code>// Apply throttling to specific routes
+#[Route('/api/heavy-endpoint')]
+#[Middleware(\SPPMod\Sppsecurity\Middleware\ThrottleMiddleware::class)]
+public function heavyEndpoint() { ... }</code></pre>
+
+            <h3>Security Headers</h3>
+            <p><code>SecurityHeadersMiddleware</code> adds defensive HTTP headers on the <strong>response</strong> path (post-processing):</p>
+<pre><code>X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains</code></pre>
+
+            <h3>Configuration</h3>
+            <p>Global security middleware is declared in <code>spp/etc/middleware.yml</code>:</p>
+<pre><code>global:
+  - SPP\Core\Middleware\CSRFMiddleware
+  - SPPMod\SPPLogger\RequestLogger</code></pre>
+            <p>Apps can layer additional security middleware in their own <code>etc/middleware.yml</code>.</p>
+
+            <div class="alert alert-tip">
+                <strong>Tip:</strong> For a complete guide to the middleware architecture, see <a href="15_middleware.html">Chapter 15: The Middleware Pipeline</a>.
+            </div>
+
+            <hr>
+
+            <p>By utilizing the standard framework primitives (<code>SPPDB</code>, <code>SPPLogger</code>, <code>SPPCache</code>, <code>SPPQueue</code>, <code>LiveComponent</code>) and the middleware pipeline, your application automatically inherits this impenetrable defense matrix.</p>
+
             <footer class="footer-nav">
                 <a href="12_live_components.html" class="nav-button">
                     <span class="label">Previous</span>
                     <span class="title">&larr; 12. Live Components</span>
+                </a>
+                <a href="14_blogging_platform.html" class="nav-button">
+                    <span class="label">Next</span>
+                    <span class="title">14. Project: Blogging Platform &rarr;</span>
                 </a>
             </footer>
         </article>

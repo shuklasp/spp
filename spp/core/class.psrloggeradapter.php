@@ -3,7 +3,6 @@
 namespace SPP\Core;
 
 use Psr\Log\LoggerInterface;
-use SPPMod\SPPLogger\SPP_Logger;
 
 class PsrLoggerAdapter implements LoggerInterface
 {
@@ -57,6 +56,14 @@ class PsrLoggerAdapter implements LoggerInterface
 
         if (!in_array($level, $validLevels, true)) {
             throw new \Psr\Log\InvalidArgumentException("Invalid log level: {$level}");
+        }
+
+        $messageString = (string) $message;
+        
+        if (class_exists('\\SPPMod\\SPPLogger\\SPP_Logger')) {
+            \SPPMod\SPPLogger\SPP_Logger::log($messageString, $level, 'psr', $context);
+        } else {
+            error_log(strtoupper($level) . ': ' . $messageString . ' ' . json_encode($context));
         }
 
         \SPP\SPPEvent::dispatch('spp.log', ['level' => $level, 'message' => (string)$message, 'context' => $context]);

@@ -5,12 +5,14 @@ return array (
   array (
     'core' => 
     array (
-      'table_prefix' => '',
+      'table_prefix' => 'spp_',
       'entities' => 
       array (
         0 => 'users',
         1 => 'roles',
         2 => 'rights',
+        3 => 'userroles',
+        4 => 'roleright',
       ),
     ),
     'academic' => 

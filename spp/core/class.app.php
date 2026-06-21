@@ -628,14 +628,14 @@ class App extends \SPP\SPPObject
 
         // Resolve App Type
         $appType = 'standard';
-        $drupalRoot = '../drupal';
         $appConfig = self::getGlobalSettings('apps.' . $context) ?: [];
         $appType = $appConfig['type'] ?? 'standard';
-        $drupalRoot = $appConfig['drupal_root'] ?? $drupalRoot;
+        $customAppClass = $appConfig['app_class'] ?? null;
 
         $appClass = "\\App\\" . ucfirst($context) . "\\" . ucfirst($context) . "App";
-        if ($appType === 'drupal' && class_exists('\\SPP\\DrupalApp')) {
-            $app = new \SPP\DrupalApp($context, $drupalRoot);
+        
+        if ($customAppClass && class_exists($customAppClass)) {
+            $app = new $customAppClass($context);
         } elseif (class_exists($appClass)) {
             $app = new $appClass($context);
         } else {

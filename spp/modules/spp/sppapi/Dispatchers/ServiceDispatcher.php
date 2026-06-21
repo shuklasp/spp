@@ -118,7 +118,11 @@ class ServiceDispatcher
             }
         }
 
-        if (!$serviceFile) {
+        if (!$funcName && function_exists('live_' . $action)) {
+            $funcName = 'live_' . $action;
+        }
+
+        if (!$serviceFile && !$funcName) {
             SPPAjax::respond('error', ['message' => "Service script for '{$action}' not found."], 404);
         }
 
@@ -126,7 +130,11 @@ class ServiceDispatcher
             $input = json_decode(file_get_contents('php://input'), true) ?: [];
             $args = array_merge($params, $input);
             $la = new \SPPMod\SppApi\LiveAction();
-            $result = call_user_func($funcName, $la, $args);
+            
+            $appContext = $args['appname'] ?? $args['context'] ?? \SPP\Scheduler::getContext();
+            $result = \SPP\Scheduler::withContext($appContext, function() use ($funcName, $la, $args) {
+                return call_user_func($funcName, $la, $args);
+            });
             
             if ($result instanceof \SPPMod\SppApi\LiveAction) {
                 $result->send();
@@ -139,7 +147,10 @@ class ServiceDispatcher
         } else {
             // Ensure no stray output
             ob_start();
-            $result = include $serviceFile;
+            $appContext = $params['appname'] ?? $params['context'] ?? \SPP\Scheduler::getContext();
+            $result = \SPP\Scheduler::withContext($appContext, function() use ($serviceFile) {
+                return include $serviceFile;
+            });
             $output = ob_get_clean();
 
             if ($result instanceof \SPPMod\SppApi\LiveAction) {
@@ -153,7 +164,16 @@ class ServiceDispatcher
     private static function resolveSafeServiceFile(string $serviceFile): ?string
     {
         if (!str_starts_with($serviceFile, '/') && !str_contains($serviceFile, ':')) {
-            $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
+            if (str_starts_with($serviceFile, 'spp/')) {
+                $baseAttempt = SPP_BASE_DIR . '/' . ltrim(substr($serviceFile, 4), '/');
+                if (file_exists($baseAttempt)) {
+                    $serviceFile = $baseAttempt;
+                } else {
+                    $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
+                }
+            } else {
+                $serviceFile = SPP_APP_DIR . '/' . ltrim($serviceFile, '/');
+            }
         }
 
         $realFile = realpath($serviceFile);

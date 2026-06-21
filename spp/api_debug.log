@@ -1757,3 +1757,395 @@ Stack trace:
 [2026-06-16 02:40:35] Context set to sppadmin
 [2026-06-16 02:40:40] Context set to sppadmin
 [2026-06-16 02:40:40] Context set to sppadmin
+[2026-06-17 09:06:12] Context set to sppadmin
+[2026-06-20 07:34:44] Context set to sppadmin
+[2026-06-20 09:19:09] Context set to sppadmin
+[2026-06-20 09:19:29] Context set to sppadmin
+[2026-06-20 09:19:42] Context set to sppadmin
+[2026-06-20 09:32:09] Context set to sppadmin
+[2026-06-20 09:32:35] Context set to sppadmin
+[2026-06-20 09:32:53] Context set to sppadmin
+[2026-06-20 09:36:54] Context set to sppadmin
+[2026-06-20 10:16:30] Context set to sppadmin
+[2026-06-20 10:16:47] Context set to sppadmin
+[2026-06-20 10:17:56] Context set to sppadmin
+[2026-06-20 10:21:39] Context set to sppadmin
+[2026-06-20 10:21:58] Context set to sppadmin
+[2026-06-20 10:22:20] Context set to sppadmin
+[2026-06-20 10:23:39] Context set to sppadmin
+[2026-06-20 10:26:14] Context set to sppadmin
+[2026-06-20 10:26:54] Context set to sppadmin
+[2026-06-20 10:27:22] Context set to sppadmin
+[2026-06-20 10:30:37] Context set to sppadmin
+[2026-06-20 10:33:34] Context set to sppadmin
+[2026-06-20 10:34:22] Context set to sppadmin
+[2026-06-20 10:34:57] Context set to sppadmin
+[2026-06-20 10:38:39] Context set to sppadmin
+[2026-06-20 10:39:14] Context set to sppadmin
+[2026-06-20 10:40:12] Context set to sppadmin
+[2026-06-20 10:41:25] Context set to sppadmin
+[2026-06-20 10:42:20] Context set to sppadmin
+[2026-06-20 11:02:04] Context set to sppadmin
+[2026-06-20 11:02:19] Context set to sppadmin
+[2026-06-20 11:02:28] Context set to sppadmin
+[2026-06-20 11:02:28] Context set to sppadmin
+[2026-06-20 11:02:28] Context set to sppadmin
+[2026-06-20 11:02:28] Context set to sppadmin
+[2026-06-20 11:02:30] Context set to sppadmin
+[2026-06-20 11:02:30] Context set to sppadmin
+[2026-06-20 11:02:34] Context set to sppadmin
+[2026-06-20 11:02:34] Context set to sppadmin
+[2026-06-20 11:03:20] Context set to sppadmin
+[2026-06-20 11:03:25] Context set to sppadmin
+[2026-06-20 11:03:25] Context set to sppadmin
+[2026-06-20 11:03:32] Context set to sppadmin
+[2026-06-20 11:03:37] Context set to sppadmin
+[2026-06-20 11:03:37] Context set to sppadmin
+[2026-06-20 11:03:37] Context set to sppadmin
+[2026-06-20 11:03:37] Context set to sppadmin
+[2026-06-20 11:03:38] Context set to sppadmin
+[2026-06-20 11:07:28] Context set to sppadmin
+[2026-06-20 11:08:01] Context set to sppadmin
+[2026-06-20 11:08:40] Context set to sppadmin
+[2026-06-20 11:09:56] Context set to sppadmin
+[2026-06-20 11:10:19] Context set to sppadmin
+[2026-06-20 11:17:02] Context set to sppadmin
+[2026-06-20 11:19:04] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-20 11:19:06] Context set to sppadmin
+[2026-06-20 11:20:10] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:20:12] Context set to sppadmin
+[2026-06-20 11:21:52] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:21:54] Context set to sppadmin
+[2026-06-20 11:26:05] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:26:07] Context set to sppadmin
+gateAdminAction: action='list_apps'
+getAdminUserScopes: checking sessionExists()
+getAdminUserScopes: sessionExists() returned TRUE
+gateAdminAction: hasAdminScope returned false
+[2026-06-20 11:27:38] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:27:40] Context set to sppadmin
+gateAdminAction: action='list_apps'
+getAdminUserScopes: checking sessionExists()
+getAdminUserScopes: sessionExists() returned TRUE
+getAdminUserScopes: caught exception: Undefined session variable __user_id__ accessed.
+gateAdminAction: hasAdminScope returned false
+[2026-06-20 11:28:26] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:28:28] Context set to sppadmin
+gateAdminAction: action='list_apps'
+getAdminUserScopes: checking sessionExists()
+getAdminUserScopes: sessionExists() returned TRUE
+RBAC: userId='', username='admin', sppauth='admin', superAdmin='admin', roleId=''
+gateAdminAction: hasAdminScope returned true
+[2026-06-20 11:30:10] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 11:30:12] Context set to sppadmin
+[2026-06-20 11:30:30] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 11:30:32] Context set to sppadmin
+[2026-06-20 11:30:42] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:30:42] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:30:43] Context set to sppadmin
+[2026-06-20 11:30:43] Context set to sppadmin
+[2026-06-20 11:30:53] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:30:54] Context set to sppadmin
+[2026-06-20 11:31:01] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:31:01] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:31:03] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:31:03] Context set to sppadmin
+[2026-06-20 11:31:03] Context set to sppadmin
+[2026-06-20 11:31:03] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:31:03] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:31:05] Context set to sppadmin
+[2026-06-20 11:31:05] Context set to sppadmin
+[2026-06-20 11:31:06] Context set to sppadmin
+[2026-06-20 11:39:40] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:39:41] Context set to sppadmin
+[2026-06-20 11:39:43] API FATAL ERROR: Too few arguments to function SPPMod\SPPDB\SPPDB::exec_squery(), 1 passed in /mnt/c/projects/apache/school1/spp/admin/services/Diagnostics.php on line 18 and at least 2 expected in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php on line 505
+#0 /mnt/c/projects/apache/school1/spp/admin/services/Diagnostics.php(18): SPPMod\SPPDB\SPPDB->exec_squery()
+#1 [internal function]: live_diagnostics_health()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(129): call_user_func()
+#3 /mnt/c/projects/apache/school1/spp/admin/api.php(437): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#4 {main}
+[2026-06-20 11:40:23] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:40:26] Context set to sppadmin
+[2026-06-20 11:40:28] API FATAL ERROR: Class "SPP\RedisCache" not found in /mnt/c/projects/apache/school1/spp/admin/services/Diagnostics.php on line 28
+#0 [internal function]: live_diagnostics_health()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(129): call_user_func()
+#2 /mnt/c/projects/apache/school1/spp/admin/api.php(437): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#3 {main}
+[2026-06-20 11:41:01] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:41:03] Context set to sppadmin
+[2026-06-20 11:47:40] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:47:41] Context set to sppadmin
+[2026-06-20 11:47:47] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:47:48] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:47:49] Context set to sppadmin
+[2026-06-20 11:47:49] Context set to sppadmin
+[2026-06-20 11:48:00] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:02] Context set to sppadmin
+[2026-06-20 11:48:11] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:11] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:11] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:11] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:12] Context set to sppadmin
+[2026-06-20 11:48:12] Context set to sppadmin
+[2026-06-20 11:48:12] Context set to sppadmin
+[2026-06-20 11:48:12] Context set to sppadmin
+[2026-06-20 11:48:14] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:48:16] Context set to sppadmin
+[2026-06-20 11:50:23] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:50:26] Context set to sppadmin
+[2026-06-20 11:51:33] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:51:35] Context set to sppadmin
+[2026-06-20 11:51:41] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:51:41] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:51:42] Context set to sppadmin
+[2026-06-20 11:51:42] Context set to sppadmin
+[2026-06-20 11:51:52] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:51:54] Context set to sppadmin
+[2026-06-20 11:52:01] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:52:01] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:52:02] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:52:02] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:52:02] Context set to sppadmin
+[2026-06-20 11:52:02] Context set to sppadmin
+[2026-06-20 11:52:04] Context set to sppadmin
+[2026-06-20 11:52:04] Context set to sppadmin
+[2026-06-20 11:52:04] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:52:06] Context set to sppadmin
+[2026-06-20 11:53:09] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:53:09] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:53:09] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:53:09] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:53:10] Context set to sppadmin
+[2026-06-20 11:53:10] Context set to sppadmin
+[2026-06-20 11:53:11] Context set to sppadmin
+[2026-06-20 11:53:11] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:53:11] Context set to sppadmin
+[2026-06-20 11:53:13] Context set to sppadmin
+[2026-06-20 11:55:40] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 11:55:43] Context set to sppadmin
+[2026-06-20 12:03:22] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 12:03:24] Context set to sppadmin
+[2026-06-20 12:04:35] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 12:04:36] Context set to sppadmin
+[2026-06-20 12:04:57] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 12:04:59] Context set to sppadmin
+[2026-06-20 12:05:18] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 12:05:20] Context set to sppadmin
+[2026-06-20 12:10:15] API Request: action=Auth_Login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 12:10:16] Context set to sppadmin
+[2026-06-20 12:32:48] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-20 12:32:49] Context set to sppadmin
+[2026-06-20 12:33:27] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 12:33:29] Context set to sppadmin
+[2026-06-20 12:33:50] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 12:33:52] Context set to sppadmin
+[2026-06-20 13:05:19] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-20 13:05:21] Context set to sppadmin
+[2026-06-20 13:07:57] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 13:08:00] Context set to sppadmin
+[2026-06-20 13:08:20] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-20 13:08:22] Context set to sppadmin
+[2026-06-20 13:08:35] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:08:35] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:08:36] Context set to sppadmin
+[2026-06-20 13:08:36] Context set to sppadmin
+[2026-06-20 13:08:48] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:08:49] Context set to sppadmin
+[2026-06-20 13:09:10] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:09:10] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:09:10] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:09:11] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:09:12] Context set to sppadmin
+[2026-06-20 13:09:12] Context set to sppadmin
+[2026-06-20 13:09:13] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:09:14] Context set to sppadmin
+[2026-06-20 13:09:14] Context set to sppadmin
+[2026-06-20 13:09:17] Context set to sppadmin
+[2026-06-20 13:16:08] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-20 13:16:09] Context set to sppadmin
+[2026-06-20 13:16:18] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-20 13:16:19] Context set to sppadmin
+[2026-06-20 13:20:53] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:20:55] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:20:59] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:20:59] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:20:59] Context set to sppadmin
+[2026-06-20 13:20:59] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:21:08] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:21:09] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:21:15] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:21:15] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:21:16] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:21:16] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:21:16] Context set to sppadmin
+[2026-06-20 13:21:17] Context set to sppadmin
+[2026-06-20 13:21:17] Context set to sppadmin
+[2026-06-20 13:21:17] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:21:17] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:21:19] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:08] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:09] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:13] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:13] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:14] Context set to sppadmin
+[2026-06-20 13:24:14] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:22] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:23] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:29] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:29] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:29] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:29] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:24:30] Context set to sppadmin
+[2026-06-20 13:24:30] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:31] Context set to sppadmin
+[2026-06-20 13:24:31] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:31] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:24:32] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:25:19] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:25:19] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:25:20] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:25:20] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:25:20] Context set to sppadmin
+[2026-06-20 13:25:20] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:25:21] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-20 13:25:21] Context set to sppadmin
+[2026-06-20 13:25:21] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-20 13:25:22] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))

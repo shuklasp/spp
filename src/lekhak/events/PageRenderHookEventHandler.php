@@ -13,8 +13,14 @@ class PageRenderHookEventHandler extends EventHandler {
     public function onPostTheme(&$params, $occurence = null) {
         if ($occurence !== null && $occurence !== 'before') return;
         
-        if (isset($params['html']) && class_exists('\\Lekhak\\ModuleRegistry')) {
-            \Lekhak\ModuleRegistry::invokeAlter('page_render', $params['html']);
+        $html = $params instanceof \SPP\EventParams ? $params->get('html') : ($params['html'] ?? null);
+        if ($html !== null && class_exists('\\Lekhak\\ModuleRegistry')) {
+            \Lekhak\ModuleRegistry::invokeAlter('page_render', $html);
+            if ($params instanceof \SPP\EventParams) {
+                $params->set('html', $html);
+            } else {
+                $params['html'] = $html;
+            }
         }
     }
 }

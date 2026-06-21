@@ -54,6 +54,8 @@ class SPPEvent extends \SPP\SPPObject
             }
         }
 
+        self::scanAttributes();
+
         // Save cache
         $dir = dirname($cacheFile);
         if (!is_dir($dir)) {
@@ -69,6 +71,58 @@ class SPPEvent extends \SPP\SPPObject
         }
         $export = var_export(['listeners' => $cacheableListeners, 'definitions' => self::$eventDefinitions], true);
         @file_put_contents($cacheFile, "<?php\nreturn " . $export . ";\n");
+    }
+
+    private static function scanAttributes()
+    {
+        if (PHP_VERSION_ID < 80000) return;
+
+        $dirsToScan = [];
+        $appDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR;
+        if (is_dir($appDir . SPP_DS . 'src')) $dirsToScan[] = $appDir . SPP_DS . 'src';
+        
+        $mods = \SPP\Registry::get('__mods');
+        if (is_array($mods)) {
+            foreach ($mods as $modpath) {
+                if (is_dir($modpath)) $dirsToScan[] = $modpath;
+            }
+        }
+
+        foreach ($dirsToScan as $dir) {
+            $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+            foreach ($iterator as $file) {
+                if ($file->isFile() && $file->getExtension() === 'php') {
+                    $content = file_get_contents($file->getPathname());
+                    if (str_contains($content, '#[On')) {
+                        self::parseFileForOnAttribute($content);
+                    }
+                }
+            }
+        }
+    }
+
+    private static function parseFileForOnAttribute(string $content)
+    {
+        if (preg_match('/namespace\s+([^;]+);/i', $content, $nsMatch)) {
+            if (preg_match('/class\s+([a-zA-Z0-9_]+)/i', $content, $clsMatch)) {
+                $className = trim($nsMatch[1]) . '\\' . trim($clsMatch[1]);
+                if (class_exists($className, true)) {
+                    // Skip Frontend UI Components to prevent them from being instantiated on backend server events
+                    if (is_subclass_of($className, '\\SPP\\Core\\Interfaces\\FrontendComponentInterface')) return;
+                    
+                    try {
+                        $ref = new \ReflectionClass($className);
+                        foreach ($ref->getMethods() as $method) {
+                            $attributes = $method->getAttributes('SPP\Attributes\On');
+                            foreach ($attributes as $attr) {
+                                $instance = $attr->newInstance();
+                                self::listen($instance->event, [$className, $method->getName()], false, $instance->priority);
+                            }
+                        }
+                    } catch (\Throwable $e) {}
+                }
+            }
+        }
     }
 
     private static function parseEventsYml(string $ymlFile)
@@ -230,6 +284,16 @@ class SPPEvent extends \SPP\SPPObject
             // Auto-instantiate class names with __invoke
             if (is_string($callback) && class_exists($callback)) {
                 $callback = [new $callback, '__invoke'];
+            }
+            
+            // Auto-instantiate array callbacks if method is not static
+            if (is_array($callback) && is_string($callback[0]) && class_exists($callback[0])) {
+                try {
+                    $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
+                    if (!$refMethod->isStatic()) {
+                        $callback[0] = new $callback[0]();
+                    }
+                } catch (\ReflectionException $e) {}
             }
             
             if (is_callable($callback)) {

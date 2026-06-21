@@ -17,3 +17,6 @@ function test_form_submitted() {
         exit;
     }
 }
+
+require_once __DIR__ . '/DashboardComponent.php';
+require_once __DIR__ . '/TasksComponent.php';

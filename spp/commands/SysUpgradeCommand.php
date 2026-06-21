@@ -38,6 +38,9 @@ class SysUpgradeCommand extends Command
             
             $count = 0;
             foreach ($modules as $modName => $modPath) {
+                if (empty($modPath)) {
+                    continue;
+                }
                 $module = \SPP\Module::getModule($modName);
                 if ($module) {
                     $dbFile = $module->ModPath . DIRECTORY_SEPARATOR . 'db.yml';
@@ -51,7 +54,7 @@ class SysUpgradeCommand extends Command
 
             echo "✅ System upgrade completed successfully. {$count} modules synchronized.\n";
         } catch (\Exception $e) {
-            echo "❌ Upgrade Failed: " . $e->getMessage() . "\n";
+            echo "❌ Upgrade Failed: " . $e->getMessage() . "\n" . $e->getTraceAsString() . "\n";
         }
     }
 }

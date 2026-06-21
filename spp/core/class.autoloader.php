@@ -60,11 +60,6 @@ class Autoloader
             return null;
         }
 
-        // 2. Core Migration Aliasing
-        if ($file = self::resolveCoreMigration($className)) {
-            return $file;
-        }
-
         $path = explode('\\', $className);
         $class = array_pop($path);
 
@@ -111,27 +106,6 @@ class Autoloader
         return false;
     }
 
-    private static function resolveCoreMigration(string $className): ?string
-    {
-        $coreToModuleMap = [
-            'SPP\\Cache' => 'sppcache/src/SPPCacheManager.php',
-            'SPP\\Core\\FileCache' => 'sppcache/src/FileCacheDriver.php',
-            'SPP\\Core\\RedisCache' => 'sppcache/src/RedisCacheDriver.php',
-            'SPP\\Core\\Queue' => 'sppqueue/src/SPPQueue.php',
-            'SPP\\Core\\SPPJobInterface' => 'sppqueue/src/SPPJobInterface.php',
-            'SPP\\Core\\AppLogger' => 'spplogger/src/AppLogger.php',
-            'SPP\\Core\\PsrLoggerAdapter' => 'spplogger/src/PsrLoggerAdapter.php',
-            'SPPMod\\SPPLogger\\RequestLogger' => 'spplogger/src/RequestLogger.php',
-            'SPP\\Core\\Storage' => 'sppstorage/src/SPPStorage.php',
-            'SPP\\Core\\WorkflowManager' => 'sppworkflow/src/SPPWorkflowManager.php',
-            'SPP\\Core\\DotEnvLoader' => 'sppenv/src/DotEnvLoader.php',
-        ];
-        if (isset($coreToModuleMap[$className])) {
-            return SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . $coreToModuleMap[$className];
-        }
-        return null;
-    }
-
     private static function resolveCoreClass(string $className, array $path, string $class): ?string
     {
         if (empty($path) || (count($path) >= 1 && $path[0] === 'SPP')) {
@@ -166,6 +140,7 @@ class Autoloader
                 if (empty($parts)) return null;
                 $mod = strtolower(array_shift($parts));
                 $modDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . $mod;
+
             } elseif ($prefix === 'ContribMod') {
                 if (empty($parts)) return null;
                 $mod = strtolower(array_shift($parts));
@@ -217,8 +192,10 @@ class Autoloader
             return null;
         }
         
-        if (count($path) >= 3) {
-            $appName = strtolower($path[1]);
+        $fullPath = explode('\\', $className);
+        
+        if (count($fullPath) >= 3) {
+            $appName = strtolower($fullPath[1]);
             $srcPath = '';
             if (class_exists('\\SPP\\App', false)) {
                 $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
@@ -229,26 +206,26 @@ class Autoloader
                 $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
             }
 
-            if (count($path) >= 4) {
-                $type = strtolower($path[2]);
-                $name = strtolower($path[3]);
+            if (count($fullPath) >= 4) {
+                $type = strtolower($fullPath[2]);
+                $name = strtolower($fullPath[3]);
 
                 $file = '';
                 if ($type === 'entities') {
                     $file = $baseSrc . DIRECTORY_SEPARATOR . 'entities' . DIRECTORY_SEPARATOR . 'entity.' . $name . '.php';
                 } elseif ($type === 'components') {
-                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $path[3] . '.php';
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'components' . DIRECTORY_SEPARATOR . $fullPath[3] . '.php';
                 } elseif ($type === 'serv') {
-                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'serv' . DIRECTORY_SEPARATOR . $path[3] . '.php';
+                    $file = $baseSrc . DIRECTORY_SEPARATOR . 'serv' . DIRECTORY_SEPARATOR . $fullPath[3] . '.php';
                 } else {
                     // General PSR-4 fallback within the app's src directory
-                    $remaining = array_slice($path, 2);
+                    $remaining = array_slice($fullPath, 2);
                     $file = $baseSrc . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $remaining) . '.php';
                 }
 
                 if ($file && file_exists($file)) return $file;
-            } elseif (count($path) === 3) {
-                $classNamePart = $path[2];
+            } elseif (count($fullPath) === 3) {
+                $classNamePart = $fullPath[2];
                 $file = $baseSrc . DIRECTORY_SEPARATOR . $classNamePart . '.php';
                 if (file_exists($file)) return $file;
             }

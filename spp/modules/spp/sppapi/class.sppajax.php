@@ -58,6 +58,49 @@ class SPPAjax extends \SPP\SPPObject
             return;
         }
 
+        // SPPLive Update: ?__svc=live_update
+        if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_update') {
+            \SPPMod\SPPAPI\Dispatchers\LiveDispatcher::dispatch();
+            return;
+        }
+
+        // SPPLive SSE Stream: ?__svc=live_sse
+        if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_sse') {
+            $topics = isset($_GET['topics']) ? explode(',', $_GET['topics']) : ['global'];
+            if (class_exists('\\SPPMod\\SPPLive\\SSEHandler')) {
+                \SPPMod\SPPLive\SSEHandler::stream($topics);
+            }
+            return;
+        }
+
+        // SPPLive File Upload: ?__svc=live_upload
+        if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_upload') {
+            if (class_exists('\\SPPMod\\SPPLive\\UploadHandler')) {
+                $response = \SPPMod\SPPLive\UploadHandler::handle();
+                header('Content-Type: application/json');
+                echo json_encode($response);
+            }
+            return;
+        }
+
+        // SPPLive Presence Heartbeat: ?__svc=live_presence
+        if (isset($_GET['__svc']) && $_GET['__svc'] === 'live_presence') {
+            $input = json_decode(file_get_contents('php://input'), true);
+            $topics = $input['topics'] ?? ['global'];
+            $userId = class_exists('\\SPPMod\\SPPAuth\\SPPAuth') ? \SPPMod\SPPAuth\SPPAuth::getUserId() : 'anonymous_' . session_id();
+            
+            $engine = \SPPMod\SPPLive\SPPLive::getEngine();
+            foreach ($topics as $topic) {
+                if (\SPPMod\SPPLive\SPPLive::authorizeTopic($topic)) {
+                    $engine->trackPresence($topic, $userId);
+                }
+            }
+            
+            header('Content-Type: application/json');
+            echo json_encode(['success' => true]);
+            return;
+        }
+
         // Autonomous Intent API Route Morphing: ?__svc=intent_morph
         if (isset($_GET['__svc']) && $_GET['__svc'] === 'intent_morph') {
             \SPPMod\SPPAPI\Dispatchers\IntentDispatcher::dispatch();

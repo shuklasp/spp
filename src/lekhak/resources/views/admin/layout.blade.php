@@ -36,5 +36,8 @@
             @yield('content')
         </div>
     </div>
+    
+    <!-- SPP Live Subsystem -->
+    <script src="/school1/spp/modules/spp/sppview/js/spplive.js"></script>
 </body>
 </html>

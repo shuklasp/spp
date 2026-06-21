@@ -207,8 +207,36 @@ class SPPUser extends SPPEntity
      */
     public function verifyPassword($passwd)
     {
-        $hash = $this->password ?? $this->password_hash ?? '';
+        try {
+            $hash = $this->password ?? '';
+        } catch (\Exception $e) {
+            $hash = '';
+        }
+        
+        try {
+            $hash2 = $this->password_hash ?? '';
+        } catch (\Exception $e) {
+            $hash2 = '';
+        }
+
+        $hash = $hash ?: $hash2;
+
         if (empty($hash)) {
+            return false;
+        }
+
+        $isActive = true;
+        try {
+            if (isset($this->active)) {
+                $isActive = $this->active;
+            } elseif (isset($this->status)) {
+                $isActive = ($this->status === 'active' || $this->status === '1');
+            }
+        } catch (\Exception $e) {
+            // Ignore if neither attribute exists
+        }
+
+        if (!$isActive) {
             return false;
         }
 
@@ -243,6 +271,7 @@ class SPPUser extends SPPEntity
             $user = new self($uname);
             return $user->verifyPassword($passwd);
         } catch (\Exception $e) {
+            file_put_contents(SPP_BASE_DIR . '/../var/logs/my_auth_debug.log', "verifyUserPassword EXCEPTION: " . $e->getMessage() . "\n", FILE_APPEND);
             return false;
         }
     }

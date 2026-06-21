@@ -28,45 +28,32 @@ class LandingDesignerController extends AdminController
     {
         $db = new \SPPMod\SPPDB\SPPDB();
         
-        // Landing Pages Table
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('landing_pages') . ' (
-            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            title VARCHAR(255) NOT NULL,
-            alias VARCHAR(255) NOT NULL UNIQUE,
-            bundle VARCHAR(50) NOT NULL,
-            body LONGTEXT,
-            author_id BIGINT,
-            status VARCHAR(20),
-            langcode VARCHAR(10),
-            translation_id BIGINT,
-            created DATETIME,
-            changed DATETIME,
-            is_default TINYINT(1) DEFAULT 0,
-            layout_id VARCHAR(50)
-        )');
+        $tables = [
+            'landing_pages' => [
+                'mysql' => 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, alias VARCHAR(255) NOT NULL UNIQUE, bundle VARCHAR(50) NOT NULL, body LONGTEXT, author_id BIGINT, status VARCHAR(20), langcode VARCHAR(10), translation_id BIGINT, created DATETIME, changed DATETIME, is_default TINYINT(1) DEFAULT 0, layout_id VARCHAR(50)',
+                'sqlite' => 'id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(255) NOT NULL, alias VARCHAR(255) NOT NULL UNIQUE, bundle VARCHAR(50) NOT NULL, body LONGTEXT, author_id BIGINT, status VARCHAR(20), langcode VARCHAR(10), translation_id BIGINT, created DATETIME, changed DATETIME, is_default TINYINT(1) DEFAULT 0, layout_id VARCHAR(50)'
+            ],
+            'landing_blocks' => [
+                'mysql' => 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, page_id BIGINT NOT NULL, block_type VARCHAR(50) NOT NULL, data LONGTEXT, weight INT DEFAULT 0, region VARCHAR(50), created DATETIME',
+                'sqlite' => 'id INTEGER PRIMARY KEY AUTOINCREMENT, page_id BIGINT NOT NULL, block_type VARCHAR(50) NOT NULL, data LONGTEXT, weight INT DEFAULT 0, region VARCHAR(50), created DATETIME'
+            ],
+            'audit_logs' => [
+                'mysql' => 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, entity_type VARCHAR(100), entity_id VARCHAR(50), action VARCHAR(50), old_data LONGTEXT, new_data LONGTEXT, user_id VARCHAR(50), timestamp DATETIME',
+                'sqlite' => 'id INTEGER PRIMARY KEY AUTOINCREMENT, entity_type VARCHAR(100), entity_id VARCHAR(50), action VARCHAR(50), old_data LONGTEXT, new_data LONGTEXT, user_id VARCHAR(50), timestamp DATETIME'
+            ]
+        ];
 
-        // Landing Blocks Table
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('landing_blocks') . ' (
-            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            page_id BIGINT NOT NULL,
-            block_type VARCHAR(50) NOT NULL,
-            data LONGTEXT,
-            weight INT DEFAULT 0,
-            region VARCHAR(50),
-            created DATETIME
-        )');
-
-        // Audit Logs Table (to prevent warnings)
-        $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('audit_logs') . ' (
-            id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-            entity_type VARCHAR(100),
-            entity_id VARCHAR(50),
-            action VARCHAR(50),
-            old_data LONGTEXT,
-            new_data LONGTEXT,
-            user_id VARCHAR(50),
-            timestamp DATETIME
-        )');
+        foreach ($tables as $name => $defs) {
+            try {
+                $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable($name) . ' (' . $defs['mysql'] . ')');
+            } catch (\Exception $e) {
+                if (strpos($e->getMessage(), 'syntax error') !== false || strpos($e->getMessage(), 'AUTO_INCREMENT') !== false) {
+                    $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable($name) . ' (' . $defs['sqlite'] . ')');
+                } else {
+                    throw $e;
+                }
+            }
+        }
     }
 
     public function create()

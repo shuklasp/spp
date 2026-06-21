@@ -14,7 +14,7 @@ Welcome to the technical documentation for the SPP (Satya Portal Pack) Framework
 *   [**Scheduler**](core-scheduler.md): Context detection, routing, and process management.
 *   [**Booting & App Loading**](booting-and-app-loading.md): Full bootstrap sequence, app discovery, context detection, and middleware loading.
 *   [**App Lifecycle**](app-lifecycle.md): Application instantiation, bootstrap level, and environment setup.
-*   [**Middleware Pipeline**](middleware.md): Onion-style request/response layers.
+*   [**Middleware Pipeline**](middleware.md): Onion-style request/response layers, MiddlewareKernel, global and route-level middleware, built-in inventory, and CLI commands.
 *   [**Registry**](registry.md): Global state and hierarchical storage.
 *   [**Service Container**](container.md): Dependency Injection (DI), PSR-11, and auto-wiring.
 *   [**Event System**](event-system.md): Stage-based execution, overridable handlers, and subscriber patterns.

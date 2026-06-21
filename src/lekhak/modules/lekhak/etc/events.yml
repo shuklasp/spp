@@ -1,0 +1,3 @@
+events:
+    lekhak_render_pipeline:
+        - \SPPMod\Lekhak\Events\RenderPipelineHandler

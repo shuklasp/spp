@@ -12,9 +12,11 @@ class DrupalApp extends App
 {
     protected string $drupalRoot;
 
-    public function __construct(string $appname, string $drupalRoot)
+    public function __construct(string $appname)
     {
-        $this->drupalRoot = $drupalRoot;
+        $appConfig = \SPP\App::getGlobalSettings('apps.' . $appname) ?: [];
+        $this->drupalRoot = $appConfig['drupal_root'] ?? '../drupal';
+        
         // Level 2 init: load modules, but skip session/error for now
         // as Drupal handles its own.
         parent::__construct($appname, false, 2);

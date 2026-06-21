@@ -6,18 +6,11 @@ use SPPMod\Lekhak\Drivers\BladeDriver;
 use SPPMod\Lekhak\Drivers\TwigShimDriver;
 use SPPMod\Lekhak\Drivers\WPSimDriver;
 
-class RenderPipelineHandler extends EventHandler
+class RenderPipelineHandler
 {
-    public static function getSubscribedEvents(): array
+    public function __invoke(&$params)
     {
-        return [
-            'lekhak_render_pipeline' => 'onRenderPipeline'
-        ];
-    }
-
-    public function onRenderPipeline(&$params)
-    {
-        $renderer = $params['renderer'];
+        $renderer = $params instanceof \SPP\EventParams ? $params->get('renderer') : $params['renderer'];
         
         // Register Drivers
         if (class_exists(BladeDriver::class)) {

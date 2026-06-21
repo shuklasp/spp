@@ -62,7 +62,7 @@ class WebGuard implements GuardInterface
                 
                 \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
                 // Update lastaccess for accurate active devices dashboard
-                $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=NOW() WHERE sessid=?', [$sessid]);
+                $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=? WHERE sessid=?', [date('Y-m-d H:i:s'), $sessid]);
             }
         }
 
@@ -226,8 +226,8 @@ class WebGuard implements GuardInterface
             try {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $result = $db->execute_query(
-                    'SELECT user_id FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens') . ' WHERE token_hash = ? AND expires_at > NOW()',
-                    [$tokenHash]
+                    'SELECT user_id FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens') . ' WHERE token_hash = ? AND expires_at > ?',
+                    [$tokenHash, date('Y-m-d H:i:s')]
                 );
                 
                 if (!empty($result)) {
@@ -259,8 +259,12 @@ class WebGuard implements GuardInterface
     {
         $id = is_object($user) ? $user->id : $user;
         
-        if (session_status() === PHP_SESSION_ACTIVE) {
-            session_regenerate_id(true);
+        if (!defined('SPP_NO_SESSION_REGENERATE')) {
+            //try {
+            //    @session_regenerate_id(true);
+            //} catch (\Exception $e) {
+            //    // Ignore session destruction errors
+            //}
         }
         
         \SPP\SPPSession::setSessionVar($this->sessionKey, $id);
@@ -291,10 +295,11 @@ class WebGuard implements GuardInterface
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
             $res = $db->execute_query("SELECT count(*) as cnt FROM $table WHERE sessid = ?", [$sessid]);
+            $now = date('Y-m-d H:i:s');
             if (!empty($res) && (int)$res[0]['cnt'] > 0) {
-                $db->execute_query("UPDATE $table SET lastaccess = NOW() WHERE sessid = ?", [$sessid]);
+                $db->execute_query("UPDATE $table SET lastaccess = ? WHERE sessid = ?", [$now, $sessid]);
             } else {
-                $db->execute_query("INSERT INTO $table (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, NOW(), ?, NOW())", [$sessid, $id, $ip]);
+                $db->execute_query("INSERT INTO $table (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, ?, ?, ?)", [$sessid, $id, $now, $ip, $now]);
             }
         }
 

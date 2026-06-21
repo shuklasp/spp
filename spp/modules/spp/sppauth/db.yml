@@ -39,7 +39,7 @@ tables:
     description: "VARCHAR(500)"
     metadata: "LONGTEXT"
     created_at: "DATETIME DEFAULT CURRENT_TIMESTAMP"
-    updated_at: "DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"
+    updated_at: "DATETIME DEFAULT CURRENT_TIMESTAMP"
   sppgroupmember:
     id: "INTEGER AUTO_INCREMENT"
     PRIMARY KEY: "(id)"

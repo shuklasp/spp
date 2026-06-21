@@ -23,10 +23,17 @@ class Translation
             self::$translations[$locale] = [];
         }
 
+        $appName = \SPP\Scheduler::getContext() ?: 'default';
+        $srcPath = '';
+        if (class_exists('\\SPP\\App', false)) {
+            $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
+        }
+        $baseSrc = !empty($srcPath) ? trim($srcPath, '/\\') : "src/{$appName}";
+
         // Candidates for translation dictionaries
         $candidates = [
-            SPP_APP_DIR . "/src/lekhak/resources/translations/{$locale}.json",
-            SPP_APP_DIR . "/src/lekhak/translations/{$locale}.json",
+            SPP_APP_DIR . "/{$baseSrc}/resources/translations/{$locale}.json",
+            SPP_APP_DIR . "/{$baseSrc}/translations/{$locale}.json",
         ];
 
         foreach ($candidates as $file) {

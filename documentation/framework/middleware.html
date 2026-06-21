@@ -83,6 +83,11 @@
 
         pre code { color: #e2e8f0; background: transparent; padding: 0; }
 
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+        th { color: var(--accent); font-weight: 600; }
+        td { color: var(--text-dim); }
+
         hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
 
         .back-link {
@@ -115,30 +120,187 @@
         
         <main>
             <h1>Core Component: Middleware Pipeline</h1>
-<p>The SPP Middleware Pipeline provides a structured, onion-style execution model for request and response processing. It allows developers to inject protective or transformative logic before and after the core application logic. </p>
+<p>The SPP Middleware Pipeline provides a structured, onion-style execution model for request and response processing. It allows developers to inject protective or transformative logic before and after the core application logic.</p>
+
 <h2>1. The Onion Pattern</h2>
-<p>Middlewares wrap the request in layers. A request flows <strong>IN</strong> through the layers and a response flows <strong>OUT</strong> through the same layers. </p>
+<p>Middlewares wrap the request in layers. A request flows <strong>IN</strong> through the layers and a response flows <strong>OUT</strong> through the same layers.</p>
 <pre><code>[ Request ] -&gt; [ Layer 1 ] -&gt; [ Layer 2 ] -&gt; [ App Logic ]
-<p>| [ Response ] &lt;- [ Layer 1 ] &lt;- [ Layer 2 ] &lt;--------&#039;</code></pre> </p>
+                                                    |
+[ Response ] &lt;- [ Layer 1 ] &lt;- [ Layer 2 ] &lt;--------'</code></pre>
+
 <hr>
+
 <h2>2. Technical Contract</h2>
-<p>Every middleware must implement the <code>\SPP\Core\MiddlewareInterface</code>. </p>
-<pre><code>namespace SPP\App\Middleware;
-<p>use \SPP\Core\MiddlewareInterface; </p>
-<p>class AuthMiddleware implements MiddlewareInterface { public function handle($request, callable $next) { // 1. Logic BEFORE the app runs if (!\SPP\Auth::check()) { return redirect(&#039;/login&#039;); } </p>
-<p>// 2. Pass to the NEXT layer $response = $next($request); </p>
-<p>// 3. Logic AFTER the app runs return $response; } }</code></pre> </p>
+<p>Every middleware must implement <code>\SPP\Core\MiddlewareInterface</code>:</p>
+<pre><code>namespace SPP\Core;
+
+interface MiddlewareInterface
+{
+    public function handle($request, \Closure $next);
+}</code></pre>
+<p>The <code>$next</code> closure represents the next middleware layer. A middleware can:</p>
+<ul>
+    <li><strong>Pass through</strong> by calling <code>return $next($request)</code></li>
+    <li><strong>Short-circuit</strong> by returning a response or calling <code>exit</code></li>
+    <li><strong>Post-process</strong> by capturing <code>$next($request)</code> return value and modifying it</li>
+</ul>
+
+<h3>Example: Authentication Middleware</h3>
+<pre><code>namespace App\Middleware;
+
+use SPP\Core\MiddlewareInterface;
+
+class AuthMiddleware implements MiddlewareInterface
+{
+    public function handle($request, \Closure $next)
+    {
+        if (!\SPPMod\SPPAuth\SPPAuth::isLoggedIn()) {
+            http_response_code(401);
+            echo json_encode(['error' =&gt; 'Unauthorized']);
+            exit;
+        }
+
+        $response = $next($request);
+        return $response;
+    }
+}</code></pre>
+
+<h3>Example: Post-Processing (Security Headers)</h3>
+<pre><code>class SecurityHeadersMiddleware implements MiddlewareInterface
+{
+    public function handle($request, \Closure $next)
+    {
+        $response = $next($request);
+
+        if (!headers_sent()) {
+            header('X-Content-Type-Options: nosniff');
+            header('X-Frame-Options: SAMEORIGIN');
+            header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+        }
+
+        return $response;
+    }
+}</code></pre>
+
 <hr>
-<h2>3. Configuration</h2>
-<p>Middlewares can be registered globally or per application. </p>
-<h3>Global Registration (<code>spp/etc/middleware.yml</code>)</h3>
-<pre><code>global:
-<p>- \SPP\App\Middleware\CorsMiddleware - \SPP\App\Middleware\SecurityHeadersMiddleware</code></pre> </p>
+
+<h2>3. The Pipeline Engine</h2>
+<p><code>\SPP\Core\Pipeline</code> uses <code>array_reduce</code> on a reversed middleware array to build a nested closure stack:</p>
+<pre><code>(new Pipeline())
+    -&gt;send($_REQUEST)
+    -&gt;through($middlewareList)
+    -&gt;then($destination);</code></pre>
+<p>Middleware resolution inside the pipeline:</p>
+<ol>
+    <li><strong>String class names</strong> → instantiated via <code>\SPP\Registry::make($pipe)</code> (DI-aware)</li>
+    <li><strong>MiddlewareInterface objects</strong> → <code>-&gt;handle($passable, $stack)</code> called</li>
+    <li><strong>Plain callables</strong> → invoked directly</li>
+</ol>
+
 <hr>
-<h2>4. Performance</h2>
-<p>The pipeline uses a highly optimized <code>array_reduce</code> implementation, ensuring that even deep middleware stacks have negligible overhead on request performance. </p>
+
+<h2>4. The Middleware Kernel</h2>
+<p><code>\SPP\Core\MiddlewareKernel</code> orchestrates the global middleware stack. Its <code>boot()</code> assembles middleware from three sources:</p>
+<table>
+    <thead><tr><th>Priority</th><th>Source</th><th>Method</th></tr></thead>
+    <tbody>
+        <tr><td>1</td><td>Hardcoded + Registry</td><td><code>ApiAuthMiddleware</code> always first, plus <code>Registry::get('__middleware=&gt;global')</code></td></tr>
+        <tr><td>2</td><td>Global YAML</td><td><code>spp/etc/middleware.yml</code> → <code>global:</code></td></tr>
+        <tr><td>3</td><td>App YAML</td><td><code>&lt;app&gt;/etc/middleware.yml</code> → <code>global:</code></td></tr>
+    </tbody>
+</table>
+
+<h3>Global Configuration</h3>
+<pre><code># spp/etc/middleware.yml
+global:
+  - SPP\Core\Middleware\CSRFMiddleware
+  - SPPMod\SPPLogger\RequestLogger</code></pre>
+
+<h3>Programmatic Registration</h3>
+<pre><code>\SPP\Core\MiddlewareKernel::addGlobalMiddleware(
+    \App\Middleware\CustomMiddleware::class
+);</code></pre>
+
 <hr>
-<p><a href="index.html">Back to Index</a> </p>
+
+<h2>5. Kernel Invocation</h2>
+<p>In <code>index.php</code>, the kernel wraps all application routing:</p>
+<pre><code>\SPP\Core\MiddlewareKernel::run(function($request) {
+    \SPPMod\SPPView\ViewPage::showPage();
+});</code></pre>
+<p>The <code>run()</code> method boots the stack, fires <code>event_spp_kernel_boot</code>, then sends <code>$_REQUEST</code> through all middleware before calling the destination closure.</p>
+
+<hr>
+
+<h2>6. Route-Level Middleware</h2>
+<p>SPP supports route-scoped middleware via PHP 8 Attributes:</p>
+
+<h3><code>#[Middleware]</code> Attribute</h3>
+<pre><code>use SPPMod\SPPView\Attributes\{Route, Middleware};
+
+#[Middleware(AuthMiddleware::class)]
+class AdminController
+{
+    #[Route('/admin/settings')]
+    #[Middleware(CsrfMiddleware::class)]
+    public function settings() { ... }
+}</code></pre>
+
+<h3><code>#[Route]</code> Inline Middleware</h3>
+<pre><code>#[Route('/api/data', middleware: [RateLimiterMiddleware::class])]
+public function getData() { ... }</code></pre>
+
+<h3>Merge Order</h3>
+<pre><code>class-level + method-level + #[Route] middleware param</code></pre>
+
+<hr>
+
+<h2>7. Built-In Middleware</h2>
+<table>
+    <thead><tr><th>Middleware</th><th>Scope</th><th>Purpose</th></tr></thead>
+    <tbody>
+        <tr><td><code>ApiAuthMiddleware</code></td><td>Global (hardcoded)</td><td>JWT/API key auth for <code>api/v1/*</code></td></tr>
+        <tr><td><code>CSRFMiddleware</code></td><td>Global (YAML)</td><td>CSRF token validation</td></tr>
+        <tr><td><code>RequestLogger</code></td><td>Global (YAML)</td><td>Request logging</td></tr>
+        <tr><td><code>RateLimiterMiddleware</code></td><td>Route/Manual</td><td>IP-based rate limiting via Cache</td></tr>
+        <tr><td><code>ThrottleMiddleware</code></td><td>Route-level</td><td>Token-bucket rate limiting</td></tr>
+        <tr><td><code>SecurityHeadersMiddleware</code></td><td>Route-level</td><td>Security response headers</td></tr>
+        <tr><td><code>CsrfMiddleware</code> (sppsecurity)</td><td>Route-level</td><td>Config-aware CSRF for POST/PUT/DELETE/PATCH</td></tr>
+    </tbody>
+</table>
+
+<hr>
+
+<h2>8. CLI Commands</h2>
+<pre><code># Scaffold a new middleware
+php spp/spp.php make:middleware MyMiddleware
+
+# List all registered middleware
+php spp/spp.php middleware:list</code></pre>
+
+<hr>
+
+<h2>9. Request Flow</h2>
+<pre><code>HTTP Request
+  → MiddlewareKernel::run()
+    → ApiAuthMiddleware → CSRFMiddleware → RequestLogger
+      → destination (app routing)
+        → ViewRouter / SPPAPI / AutoApiRouter
+          → route-level middleware (#[Middleware] / #[Route])
+            → Controller method
+          ← response
+        ← ...
+      ← post-processing layers
+    ← response
+  → Browser</code></pre>
+
+<hr>
+
+<h2>10. Performance</h2>
+<p>The pipeline uses a highly optimized <code>array_reduce</code> implementation, ensuring that even deep middleware stacks have negligible overhead on request performance.</p>
+
+<hr>
+<p><a href="index.html">Back to Index</a></p>
 
         </main>
 

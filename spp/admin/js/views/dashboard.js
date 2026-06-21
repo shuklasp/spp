@@ -214,7 +214,7 @@ export default class DashboardView extends BaseComponent {
                     font-family: 'Outfit', sans-serif;
                 }
                 .dash-hero-subtitle {
-                    color: var(--text-dim);
+                    color: rgba(255, 255, 255, 0.75);
                     font-size: 1.05rem;
                     margin: 0;
                 }
@@ -257,7 +257,7 @@ export default class DashboardView extends BaseComponent {
                 /* ── Refreshed Indicator ── */
                 .refresh-indicator {
                     font-size: 0.75rem;
-                    color: var(--text-dim);
+                    color: rgba(255, 255, 255, 0.6);
                     display: flex;
                     align-items: center;
                     gap: 6px;
@@ -265,7 +265,7 @@ export default class DashboardView extends BaseComponent {
                 .refresh-indicator button {
                     background: none;
                     border: none;
-                    color: var(--text-dim);
+                    color: rgba(255, 255, 255, 0.6);
                     cursor: pointer;
                     font-size: 0.9rem;
                     padding: 2px;
@@ -273,7 +273,7 @@ export default class DashboardView extends BaseComponent {
                 }
                 .refresh-indicator button:hover {
                     transform: rotate(180deg);
-                    color: var(--text);
+                    color: #fff;
                 }
 
                 /* ── Stats Cards ── */
@@ -381,6 +381,7 @@ export default class DashboardView extends BaseComponent {
                 .comp-name {
                     font-size: 0.8rem;
                     font-weight: 500;
+                    color: rgba(255, 255, 255, 0.9);
                 }
                 .comp-status {
                     font-size: 0.65rem;

@@ -886,7 +886,7 @@ const SPPUX = {
         url.searchParams.append('action', action);
         const res = await fetch(url.toString(), {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', 'X-SPP-Ajax': '1' },
             body: JSON.stringify(params)
         });
         return await res.json();
@@ -900,13 +900,13 @@ const SPPUX = {
         }
         let action = 'custom';
         let body = data;
-        let headers = {};
+        let headers = { 'X-SPP-Ajax': '1' };
         if (data instanceof FormData) {
             action = data.get('action') || 'custom';
         } else {
             action = data.action || 'custom';
             body = JSON.stringify(data);
-            headers = { 'Content-Type': 'application/json' };
+            headers = { 'Content-Type': 'application/json', 'X-SPP-Ajax': '1' };
         }
         const url = new URL(window.LEKHAK_CONFIG?.apiBase || window.spp_config?.apiBase || 'api.php', window.location.origin);
         url.searchParams.append('action', action);
@@ -1117,6 +1117,7 @@ const SPPUX = {
             headers: { 
                 'Content-Type': 'application/json', 
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-SPP-Ajax': '1',
                 ...(csrf ? { 'X-CSRF-TOKEN': csrf } : {})
             },
             body: JSON.stringify({ ...data, csrf_token: csrf })
@@ -1148,6 +1149,7 @@ const SPPUX = {
             method: 'POST',
             headers: { 
                 'X-Requested-With': 'XMLHttpRequest',
+                'X-SPP-Ajax': '1',
                 ...(window.SPP_CSRF_TOKEN ? { 'X-CSRF-TOKEN': window.SPP_CSRF_TOKEN } : {})
             },
             body: formData
@@ -1973,7 +1975,7 @@ function initHtmlDirectives() {
             try {
                 const urlObj = new URL(window.location.href);
                 urlObj.searchParams.set('__svc', 'spp:dev_modcheck');
-                const res = await fetch(urlObj.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const res = await fetch(urlObj.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest', 'X-SPP-Ajax': '1' } });
                 if (res.ok) {
                     const data = await res.json();
                     if (data && data.hash) {

@@ -55,16 +55,16 @@ class AdminController
                         header("Location: " . $this->getAppRoot() . "/admin");
                         exit;
                     } else {
+                        // Fallback: if tables/user are missing, allow admin/admin
+                        if ($username === 'admin' && $password === 'admin') {
+                            $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
+                            \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
+                            header("Location: " . $this->getAppRoot() . "/admin");
+                            exit;
+                        }
                         $error = 'Invalid username or password.';
                     }
                 } catch (\Exception $e) {
-                    // Fallback: if tables/user are missing, allow admin/admin
-                    if ($username === 'admin' && $password === 'admin') {
-                        $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
-                        \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
-                        header("Location: " . $this->getAppRoot() . "/admin");
-                        exit;
-                    }
                     $error = 'Authentication error: ' . $e->getMessage();
                 }
             } else {

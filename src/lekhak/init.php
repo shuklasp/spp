@@ -8,6 +8,37 @@
 
 // Register any app-specific hooks or event listeners here.
 // Lekhak is now a fully decoupled SPP application.
+
+// ── Legacy SPPMod Autoloader ─────────────────────────────────────────────
+// The Core framework no longer hardcodes Lekhak directory fallbacks.
+// This local autoloader intercepts legacy SPPMod namespaces used by Lekhak 
+// modules and routes them to the correct local directory.
+spl_autoload_register(function ($className) {
+    if (strpos($className, 'SPPMod\\') === 0) {
+        $parts = explode('\\', $className);
+        array_shift($parts); // Remove SPPMod
+        if (empty($parts)) return;
+        
+        $modCamel = array_shift($parts); 
+        $modDirNameSnake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $modCamel));
+        $modDirNameLower = strtolower($modCamel);
+
+        $candidates = [
+            __DIR__ . '/modules/' . $modDirNameSnake . '/src/' . implode('/', $parts) . '.php',
+            __DIR__ . '/modules/' . $modDirNameSnake . '/' . implode('/', $parts) . '.php',
+            __DIR__ . '/modules/' . $modDirNameLower . '/src/' . implode('/', $parts) . '.php',
+            __DIR__ . '/modules/' . $modDirNameLower . '/' . implode('/', $parts) . '.php',
+        ];
+
+        foreach ($candidates as $file) {
+            if (file_exists($file)) {
+                require_once $file;
+                return true;
+            }
+        }
+    }
+});
+
 require_once __DIR__ . '/modules/spptheme/events/ThemeEventHandler.php';
 \SPP\SPPEvent::listen('event_spp_view_render_theme', [new \SPPMod\SppTheme\Events\ThemeEventHandler('event_spp_view_render_theme'), 'onRenderTheme']);
 

@@ -17,22 +17,7 @@ class BladeDriver
             // If we have a file path, extract the view name for BladeOne
             // BladeOne expects a view name (e.g. 'node'), not a full filesystem path
             if (isset($context['path']) && file_exists($context['path'])) {
-                $app = \SPP\App::getApp();
-                $viewsDir = realpath($app->getAppSrcDir() . '/resources/views');
-                $templatePath = realpath($context['path']);
-                
-                if ($viewsDir && str_starts_with($templatePath, $viewsDir)) {
-                    $viewName = substr($templatePath, strlen($viewsDir));
-                    $viewName = ltrim($viewName, '/\\');
-                    $viewName = preg_replace('/\.blade\.php$|\.php$/', '', $viewName);
-                    // Replace DS with dot for Blade
-                    $viewName = str_replace(['/', '\\'], '.', $viewName);
-                    return $blade->render($viewName, $data);
-                }
-                
-                $basename = basename($context['path']);
-                $viewName = preg_replace('/\.blade\.php$|\.php$/', '', $basename);
-                return $blade->render($viewName, $data);
+                return $blade->renderInstance($context['path'], $data);
             }
             
             // Fallback to string rendering

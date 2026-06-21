@@ -22,9 +22,17 @@ class PolyglotBridge extends \SPP\SPPObject
         $log = [];
         $log[] = "Initializing Generic Polyglot Bridge Setup...";
 
-        // 1. Discovery
-        $runtimes = self::discoverRuntimes();
-        $log[] = "Discovery complete: Found " . count(array_filter($runtimes, fn ($v) => !empty($v['path']))) . " active runtimes.";
+        // 1. Discovery (Cached)
+        $cacheFile = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'polyglot_runtimes.json';
+        if (file_exists($cacheFile)) {
+            $runtimes = json_decode(file_get_contents($cacheFile), true);
+            $log[] = "Loaded runtimes from cache.";
+        } else {
+            $runtimes = self::discoverRuntimes();
+            @mkdir(dirname($cacheFile), 0777, true);
+            @file_put_contents($cacheFile, json_encode($runtimes));
+            $log[] = "Discovery complete: Found " . count(array_filter($runtimes, fn ($v) => !empty($v['path']))) . " active runtimes.";
+        }
 
         // 2. Directory Management
         $sharedDir = \SPP\Module::getConfig('shared_dir', 'bridge') ?: 'var/shared';

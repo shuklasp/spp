@@ -31,4 +31,86 @@ When logging user behavior, inserting unfiltered payloads like HTTP User Agents 
 WebSockets typically suffer from cross-site websocket hijacking (CSWSH) and unauthenticated broadcast spoofing.
 - **HMAC Signatures:** The `spplive` Engine utilizes HMAC SHA-256 digital signatures (`X-SPP-Live-Signature`) on all internal broadcast API requests. 
 
-By utilizing the standard framework primitives (`SPPDB`, `SPPLogger`, `SPPCache`, `SPPQueue`, `LiveComponent`), your application automatically inherits this impenetrable defense matrix.
+---
+
+## 6. Middleware-Based Security Layer
+
+SPP enforces critical security policies through its **Middleware Pipeline** — a layered onion architecture that intercepts every HTTP request before routing occurs. Security middleware runs automatically on every request via the `MiddlewareKernel`.
+
+### CSRF Protection
+
+SPP provides two complementary CSRF middleware implementations:
+
+**Global CSRF Middleware** (`SPP\Core\Middleware\CSRFMiddleware`) runs on every request via `middleware.yml`. It validates tokens on all `api.php` and `sppux_api` endpoints (except `login` and `check_auth`), checking both the `csrf_token` request parameter and the `X-CSRF-TOKEN` header:
+
+```php
+// Token is validated against the session
+$submittedToken = $_REQUEST['csrf_token'] ?? '';
+if (!$submittedToken) {
+    $submittedToken = $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+}
+```
+
+**Route-level CSRF Middleware** (`SPPMod\Sppsecurity\Middleware\CsrfMiddleware`) can be applied to specific controllers via the `#[Middleware]` attribute. It validates only state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:
+
+```php
+#[Middleware(\SPPMod\Sppsecurity\Middleware\CsrfMiddleware::class)]
+class AdminController {
+    // CSRF enforced on all POST/PUT/DELETE/PATCH requests
+}
+```
+
+### API Authentication
+
+`ApiAuthMiddleware` is **hardcoded** as the first middleware in the global pipeline. It intercepts all `api/v1/*` routes and enforces authentication via:
+- **Bearer tokens** (JWT) from the `Authorization` header
+- **API keys** from the `api_key` query parameter
+
+Token verification is delegated to the event system (`api.auth.verify_token`), allowing modules to plug in custom validation logic.
+
+### Rate Limiting & Throttling
+
+Two middleware implementations handle rate limiting:
+
+- **`RateLimiterMiddleware`** — IP-based rate limiting using `SPP\Cache`. Returns `429 Too Many Requests` with `Retry-After` and `X-RateLimit-*` response headers.
+- **`ThrottleMiddleware`** — Token-bucket algorithm via `SPPSecurityService`. Configurable max requests and decay window.
+
+```php
+// Apply throttling to specific routes
+#[Route('/api/heavy-endpoint')]
+#[Middleware(\SPPMod\Sppsecurity\Middleware\ThrottleMiddleware::class)]
+public function heavyEndpoint() { ... }
+```
+
+### Security Headers
+
+`SecurityHeadersMiddleware` adds defensive HTTP headers on the **response** path (post-processing):
+
+```
+X-Content-Type-Options: nosniff
+X-Frame-Options: SAMEORIGIN
+X-XSS-Protection: 1; mode=block
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+```
+
+### Configuration
+
+Global security middleware is declared in `spp/etc/middleware.yml`:
+
+```yaml
+global:
+  - SPP\Core\Middleware\CSRFMiddleware
+  - SPPMod\SPPLogger\RequestLogger
+```
+
+Apps can layer additional security middleware in their own `etc/middleware.yml`.
+
+> For a complete guide to the middleware architecture, see [Chapter 15: The Middleware Pipeline](15_middleware.md).
+
+---
+
+By utilizing the standard framework primitives (`SPPDB`, `SPPLogger`, `SPPCache`, `SPPQueue`, `LiveComponent`) and the middleware pipeline, your application automatically inherits this impenetrable defense matrix.
+
+---
+
+[**Previous: Live Components**](12_live_components.md) | [**Next: Blogging Platform**](14_blogging_platform.md)

@@ -68,7 +68,12 @@ class SPPAuth extends \SPP\SPPObject
                 $user = new SPPUser($uname);
                 
                 // Intercept for MFA
-                if ($user->get('mfa_enabled')) {
+                $mfaEnabled = false;
+                try {
+                    $mfaEnabled = $user->get('mfa_enabled');
+                } catch (\Exception $e) {}
+
+                if ($mfaEnabled) {
                     $token = bin2hex(random_bytes(16));
                     \SPP\SPPSession::setSessionVar('mfa_challenge_user', $user->id);
                     \SPP\SPPSession::setSessionVar('mfa_challenge_token', $token);

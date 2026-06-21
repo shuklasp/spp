@@ -11,11 +11,16 @@ echo "DB path: $dbPath\n";
 $pdo = new PDO('sqlite:' . $dbPath);
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-// Get prefix from config
-$prefix = \SPP\Module::getConfig('global_table_prefix', 'sppdb') ?: 'spp_';
+// Get table names from SPPDB resolver
+\SPP\Scheduler::setContext('lekhak');
+$usersTable = \SPPMod\SPPDB\SPPDB::sppTable('users');
+$rolesTable = \SPPMod\SPPDB\SPPDB::sppTable('roles');
+$rightsTable = \SPPMod\SPPDB\SPPDB::sppTable('rights');
+$userrolesTable = \SPPMod\SPPDB\SPPDB::sppTable('userroles');
+$rolerightTable = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
 
 $tables = [
-    "{$prefix}users" => "CREATE TABLE IF NOT EXISTS {$prefix}users (
+    $usersTable => "CREATE TABLE IF NOT EXISTS {$usersTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username VARCHAR(255) NOT NULL UNIQUE,
         email VARCHAR(255) NOT NULL,
@@ -24,20 +29,20 @@ $tables = [
         created_at DATETIME,
         updated_at DATETIME
     )",
-    "{$prefix}roles" => "CREATE TABLE IF NOT EXISTS {$prefix}roles (
+    $rolesTable => "CREATE TABLE IF NOT EXISTS {$rolesTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name VARCHAR(255) NOT NULL UNIQUE
     )",
-    "{$prefix}rights" => "CREATE TABLE IF NOT EXISTS {$prefix}rights (
+    $rightsTable => "CREATE TABLE IF NOT EXISTS {$rightsTable} (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name VARCHAR(255) NOT NULL UNIQUE
     )",
-    "{$prefix}userroles" => "CREATE TABLE IF NOT EXISTS {$prefix}userroles (
+    $userrolesTable => "CREATE TABLE IF NOT EXISTS {$userrolesTable} (
         userid INTEGER NOT NULL,
         roleid INTEGER NOT NULL,
         PRIMARY KEY (userid, roleid)
     )",
-    "{$prefix}roleright" => "CREATE TABLE IF NOT EXISTS {$prefix}roleright (
+    $rolerightTable => "CREATE TABLE IF NOT EXISTS {$rolerightTable} (
         roleid INTEGER NOT NULL,
         rightid INTEGER NOT NULL,
         PRIMARY KEY (roleid, rightid)
@@ -50,7 +55,6 @@ foreach ($tables as $name => $sql) {
 }
 
 // Seed admin user
-$usersTable = "{$prefix}users";
 $check = $pdo->prepare("SELECT COUNT(*) FROM {$usersTable} WHERE username = ?");
 $check->execute(['admin']);
 if ((int)$check->fetchColumn() === 0) {
@@ -63,7 +67,6 @@ if ((int)$check->fetchColumn() === 0) {
 }
 
 // Seed admin role
-$rolesTable = "{$prefix}roles";
 $check = $pdo->prepare("SELECT COUNT(*) FROM {$rolesTable} WHERE name = ?");
 $check->execute(['administrator']);
 if ((int)$check->fetchColumn() === 0) {
@@ -75,11 +78,10 @@ if ((int)$check->fetchColumn() === 0) {
 $adminId = $pdo->query("SELECT id FROM {$usersTable} WHERE username = 'admin'")->fetchColumn();
 $roleId = $pdo->query("SELECT id FROM {$rolesTable} WHERE name = 'administrator'")->fetchColumn();
 if ($adminId && $roleId) {
-    $urTable = "{$prefix}userroles";
-    $check = $pdo->prepare("SELECT COUNT(*) FROM {$urTable} WHERE userid = ? AND roleid = ?");
+    $check = $pdo->prepare("SELECT COUNT(*) FROM {$userrolesTable} WHERE userid = ? AND roleid = ?");
     $check->execute([$adminId, $roleId]);
     if ((int)$check->fetchColumn() === 0) {
-        $pdo->prepare("INSERT INTO {$urTable} (userid, roleid) VALUES (?, ?)")->execute([$adminId, $roleId]);
+        $pdo->prepare("INSERT INTO {$userrolesTable} (userid, roleid) VALUES (?, ?)")->execute([$adminId, $roleId]);
         echo "  Assigned administrator role to admin\n";
     }
 }

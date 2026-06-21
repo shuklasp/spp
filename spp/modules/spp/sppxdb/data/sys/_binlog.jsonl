@@ -1,2 +1,3 @@
 {"timestamp":1780158132.100524,"table":"security","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/sys\/security.xml"}}
 {"timestamp":1780158132.129068,"table":"security","action":"mutation","data":{"file":"C:\\projects\\apache\\school1\\spp\\modules\\spp\\sppxdb\/data\/sys\/security.xml"}}
+{"timestamp":1781960921.257424,"table":"admin_permissions","action":"mutation","data":{"file":"\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb\/data\/sys\/admin_permissions.xml"}}

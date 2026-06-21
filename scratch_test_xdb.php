@@ -1,9 +1,10 @@
 <?php
-require_once __DIR__ . '/spp/sppinit.php';
-\SPP\Scheduler::withContext('sppadmin', function() {
-    $db = new \SPPMod\SppDb\SPPDB();
-    $table = \SPPMod\SppDb\SPPDB::sppTable('spp_modules');
-    echo "Table: $table\n";
-    $res = $db->execute_query("SELECT * FROM $table WHERE name = ?", ['sppdb']);
-    print_r($res);
-});
+require 'spp/sppinit.php';
+$db = new \SPPMod\SPPDB\SPPDB();
+$query = "CREATE TABLE lek_config (propname VARCHAR(100), propval VARCHAR(500) NOT NULL, tabname VARCHAR(100), colname VARCHAR(100), pkname VARCHAR(100), pkval VARCHAR(100), PRIMARY KEY (propname))";
+try {
+    $db->execute_query($query);
+    echo "Success!\n";
+} catch (\Exception $e) {
+    echo "Exception: " . $e->getMessage() . "\n";
+}

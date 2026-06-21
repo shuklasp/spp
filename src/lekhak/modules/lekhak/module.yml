@@ -23,7 +23,9 @@ module:
             class: \SPPMod\Lekhak\Core\StorageOrchestrator
             shared: true
     events:
-        lekhak_render_pipeline: "Filter pipeline for template rendering"
+        lekhak_render_pipeline:
+            listeners:
+                - \SPPMod\Lekhak\Events\RenderPipelineHandler
         lekhak_node_presave: "Fired before a node is saved"
         lekhak_node_postsave: "Fired after a node is saved"
     settings:

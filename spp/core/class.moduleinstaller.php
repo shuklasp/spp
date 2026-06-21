@@ -5,6 +5,7 @@ use SPP\Module;
 use SPP\Core\ModuleCompiler;
 use Symfony\Component\Yaml\Yaml;
 
+
 class ModuleInstaller
 {
     private static $db = null;
@@ -28,7 +29,7 @@ class ModuleInstaller
         $db = self::getDb();
         if (!$db) return;
 
-        $table = SPPDB::sppTable('spp_modules');
+        $table = \SPP\DB::sppTable('spp_modules');
         if (!$db->tableExists($table)) {
             $db->execute_query("CREATE TABLE $table (
                 name VARCHAR(100) PRIMARY KEY,
@@ -84,7 +85,7 @@ class ModuleInstaller
 
         $db = self::getDb();
         if ($db) {
-            $table = SPPDB::sppTable('spp_modules');
+            $table = \SPP\DB::sppTable('spp_modules');
             $db->execute_query("INSERT INTO $table (name, version, installed_at, last_updated_at) VALUES (?, ?, ?, ?)", [
                 $moduleName,
                 $module->Version ?? '1.0',
@@ -107,22 +108,24 @@ class ModuleInstaller
         $data = Yaml::parseFile($dbFile);
         if (isset($data['tables'])) {
             foreach ($data['tables'] as $tableName => $cols) {
-                $actualTable = SPPDB::sppTable($tableName);
+                $actualTable = \SPP\DB::sppTable($tableName);
                 if (method_exists($db, 'createTableIncremental')) {
                     $db->createTableIncremental($actualTable, $cols);
                 } else {
                     $query = "CREATE TABLE IF NOT EXISTS $actualTable (";
                     $defs = [];
+                    $constraints = [];
                     foreach ($cols as $colName => $colDef) {
                         if (strtoupper($colName) === 'PRIMARY KEY') {
-                            $defs[] = "PRIMARY KEY $colDef";
+                            $constraints[] = "PRIMARY KEY $colDef";
                         } elseif (strtoupper($colName) === 'UNIQUE') {
-                            $defs[] = "UNIQUE $colDef";
+                            $constraints[] = "UNIQUE $colDef";
                         } else {
                             $defs[] = "$colName $colDef";
                         }
                     }
-                    $query .= implode(', ', $defs) . ")";
+                    $allDefs = array_merge($defs, $constraints);
+                    $query .= implode(', ', $allDefs) . ")";
                     $db->execute_query($query);
                 }
             }
@@ -141,7 +144,7 @@ class ModuleInstaller
 
                 if (!is_array($rows)) continue;
 
-                $actualTable = SPPDB::sppTable($tableName);
+                $actualTable = \SPP\DB::sppTable($tableName);
                 foreach ($rows as $row) {
                     // Check if exists
                     $where = [];
@@ -208,7 +211,7 @@ class ModuleInstaller
 
         $db = self::getDb();
         if ($db) {
-            $table = SPPDB::sppTable('spp_modules');
+            $table = \SPP\DB::sppTable('spp_modules');
             $db->execute_query("UPDATE $table SET version = ?, last_updated_at = ? WHERE name = ?", [
                 $newVersion, 
                 date('Y-m-d H:i:s'), 
@@ -242,7 +245,7 @@ class ModuleInstaller
 
         $db = self::getDb();
         if ($db) {
-            $table = SPPDB::sppTable('spp_modules');
+            $table = \SPP\DB::sppTable('spp_modules');
             $db->execute_query("DELETE FROM $table WHERE name = ?", [$moduleName]);
         }
 

@@ -8,6 +8,13 @@ specials:
   - { name: resources, method: serveResource }
 
 pages:
+  assets:
+    assets: resources/assets
+  theme-assets:
+    assets: resources/themes
+  comp-assets:
+    assets: comp
+
   admin-api: { url: resources/admin-api.php, special: 1 }
 
   api/v1/entity/{type}/{id}:

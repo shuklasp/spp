@@ -662,6 +662,10 @@ class SPPDB
     {
         // This is engine specific (DDL), so we pass to execute
         foreach ($cols as $col => $type) {
+            if (strtoupper($col) === 'PRIMARY KEY' || strtoupper($col) === 'UNIQUE') {
+                continue;
+            }
+
             if ($this->columnExists($table, $col)) {
                 continue;
             }
@@ -684,16 +688,18 @@ class SPPDB
     {
         if (!$this->tableExists($tableName)) {
             $defs = [];
+            $constraints = [];
             foreach ($columns as $colName => $colDef) {
                 if (strtoupper($colName) === 'PRIMARY KEY') {
-                    $defs[] = "PRIMARY KEY $colDef";
+                    $constraints[] = "PRIMARY KEY $colDef";
                 } elseif (strtoupper($colName) === 'UNIQUE') {
-                    $defs[] = "UNIQUE $colDef";
+                    $constraints[] = "UNIQUE $colDef";
                 } else {
                     $defs[] = "$colName $colDef";
                 }
             }
-            $query = "CREATE TABLE {$tableName} (" . implode(', ', $defs) . ")";
+            $allDefs = array_merge($defs, $constraints);
+            $query = "CREATE TABLE {$tableName} (" . implode(', ', $allDefs) . ")";
             $this->adapter->execute($query);
         } else {
             $this->add_columns($tableName, $columns);

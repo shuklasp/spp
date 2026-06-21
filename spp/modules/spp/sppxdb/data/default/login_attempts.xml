@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <database>
   <_meta>
-    <next_id>1</next_id>
+    <next_id>6</next_id>
   </_meta>
-</database>
+<row id="5"><ip_address>::1</ip_address><username>admin</username><attempts>2</attempts><last_attempt>2026-06-20 13:16:11</last_attempt><id>5</id><history timestamp="2026-06-20 13:16:11"><ip_address>::1</ip_address><username>admin</username><attempts>1</attempts><last_attempt>2026-06-20 13:05:23</last_attempt><id>5</id></history></row></database>

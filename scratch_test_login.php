@@ -1,9 +1,15 @@
 <?php
-$_SERVER['DOCUMENT_ROOT'] = __DIR__;
-$_SERVER['SCRIPT_NAME'] = '/spp/admin/api.php';
-$_SERVER['REQUEST_METHOD'] = 'POST';
-$_POST['action'] = 'login';
-$_POST['username'] = 'admin';
-$_POST['password'] = 'admin123';
-$_REQUEST = $_POST;
-require 'spp/admin/api.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+$_SERVER['REQUEST_URI'] = '/school1/lekhak/admin/login';
+require 'vendor/autoload.php';
+require 'spp/sppinit.php';
+\SPP\Core\MiddlewareKernel::boot();
+$app = new \App\Lekhak\LekhakApp('lekhak');
+\SPP\Scheduler::regProc($app);
+\SPP\Scheduler::setContext('lekhak');
+$ctrl = new \App\Lekhak\Serv\AdminController();
+echo "calling login...\n";
+$out = $ctrl->login();
+echo "login returned length: " . strlen($out) . "\n";
+var_dump(substr($out, 0, 100));

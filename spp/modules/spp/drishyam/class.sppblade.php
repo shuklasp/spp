@@ -331,4 +331,24 @@ class SPPBlade extends \SPP\SPPObject
     {
         return $this->engine;
     }
+
+    /**
+     * Add an additional view path for Blade to search.
+     */
+    public function addViewPath(string $path): void
+    {
+        // Use reflection to get and set the protected templatePath and compiledPath
+        $reflection = new \ReflectionClass($this->engine);
+        
+        $tpProp = $reflection->getProperty('templatePath');
+        $tpProp->setAccessible(true);
+        $paths = $tpProp->getValue($this->engine);
+        if (!is_array($paths)) {
+            $paths = [$paths];
+        }
+        if (!in_array($path, $paths)) {
+            array_unshift($paths, $path);
+        }
+        $tpProp->setValue($this->engine, $paths);
+    }
 }

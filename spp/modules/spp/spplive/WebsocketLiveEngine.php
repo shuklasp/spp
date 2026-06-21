@@ -14,11 +14,17 @@ class WebsocketLiveEngine implements LiveEngineInterface {
         return !empty(\SPP\Config\YamlLoader::get('spplive', 'websocket_url'));
     }
 
-    public function emit(string $componentId, string $event, array $params = []): void {
+    public function trackPresence(string $topic, string $userId): void {
+        // Broadcast presence update
+        $this->emit('presence', 'ping', ['user_id' => $userId], $topic);
+    }
+
+    public function emit(string $componentId, string $event, array $params = [], string $topic = 'global'): void {
         $payload = json_encode([
             'target' => $componentId,
             'name' => $event,
-            'params' => $params
+            'params' => $params,
+            'topic' => $topic
         ]);
 
         // Push to websocket broadcaster via simple HTTP POST
@@ -41,7 +47,7 @@ class WebsocketLiveEngine implements LiveEngineInterface {
         }
     }
 
-    public function flush(): array {
+    public function flush(array $topics = ['global']): array {
         // Websockets stream proactively; no manual flush needed.
         return [];
     }

@@ -56,6 +56,11 @@ Welcome to the official tutorial for the **Satya Portal Pack (SPP) Framework**. 
     - SPPView Paradigm Implementation
     - Drishyam Paradigm Implementation
     - SPPUX Paradigm Implementation
+15. [**The Middleware Pipeline**](15_middleware.md)
+    - MiddlewareInterface & Pipeline Engine
+    - MiddlewareKernel & Global Configuration
+    - Route-Level Middleware via PHP Attributes
+    - Built-In Middleware Inventory
 
 ---
 
