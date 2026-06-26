@@ -19,7 +19,7 @@ This command does not accept any specific optional flags or arguments. It relies
 .PP
 Upon execution, the command determines the active execution environment by calling \SPP\Scheduler::getContext(). It prints an initial status message indicating the context for which migrations are being executed.
 .PP
-It then instantiates the \SPPMod\Sppdb\Migration\SPPMigrationManager, passing the active context into its constructor. The core logic is delegated to the manager's $manager->runPending() method.
+It then instantiates the \SPPMod\SPPDB\Migration\SPPMigrationManager, passing the active context into its constructor. The core logic is delegated to the manager's $manager->runPending() method.
 .PP
 Under the hood, the SPPMigrationManager scans the target db/migrations directory for PHP class files. It cross-references the filenames found on disk against the internal database tracking table (e.g., spp_migrations). For any file not found in the database table, the manager instantiates the migration class, executes its up() method (which contains the raw SQL statements or schema builder logic), and then inserts a record into the tracking table to mark the migration as complete.
 .PP

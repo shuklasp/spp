@@ -16,11 +16,11 @@ class PolicyRegistry
         $db = new SPPDB();
         $sql = "SELECT condition_logic FROM " . SPPDB::sppTable('abac_policies') . " WHERE permission = ? AND status = 'active'";
         $policies = $db->execute_query($sql, [$permission]);
-        
+
         if (empty($policies)) {
             return true; // No ABAC policy restricts this permission, fallback to RBAC success
         }
-        
+
         // Load the context array. Context can be an array, object, or entity.
         $contextData = self::resolveContext($context);
         $userData = [
@@ -30,21 +30,22 @@ class PolicyRegistry
             'status' => $user->get('status'),
             'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'
         ];
-        
+
         // We only require ONE policy to pass (OR logic across multiple policies for same permission)
         // If we want AND logic, we would require all to pass. Usually, ABAC policies grant access if ONE matches.
         foreach ($policies as $policy) {
             $logic = json_decode($policy['condition_logic'], true);
-            if (!$logic) continue;
-            
+            if (!$logic)
+                continue;
+
             if (self::evaluateCondition($logic, $userData, $contextData)) {
                 return true;
             }
         }
-        
+
         return false;
     }
-    
+
     /**
      * Recursive condition evaluator.
      * Example logic: 
@@ -55,27 +56,29 @@ class PolicyRegistry
     {
         if (isset($logic['AND'])) {
             foreach ($logic['AND'] as $subLogic) {
-                if (!self::evaluateCondition($subLogic, $userData, $contextData)) return false;
+                if (!self::evaluateCondition($subLogic, $userData, $contextData))
+                    return false;
             }
             return true;
         }
-        
+
         if (isset($logic['OR'])) {
             foreach ($logic['OR'] as $subLogic) {
-                if (self::evaluateCondition($subLogic, $userData, $contextData)) return true;
+                if (self::evaluateCondition($subLogic, $userData, $contextData))
+                    return true;
             }
             return false;
         }
-        
+
         // Leaf node: field, operator, value
         $fieldVal = self::extractValue($logic['field'] ?? '', $userData, $contextData);
         $targetVal = self::extractValue($logic['value'] ?? '', $userData, $contextData);
-        
+
         // If the value doesn't start with user. or context., treat it as literal
         if (is_string($logic['value']) && !str_starts_with($logic['value'], 'user.') && !str_starts_with($logic['value'], 'context.')) {
             $targetVal = $logic['value'];
         }
-        
+
         switch ($logic['operator'] ?? 'equals') {
             case 'equals':
                 return $fieldVal == $targetVal;
@@ -93,7 +96,7 @@ class PolicyRegistry
                 return false;
         }
     }
-    
+
     private static function extractValue(string $path, array $user, array $context)
     {
         if (str_starts_with($path, 'user.')) {
@@ -106,12 +109,14 @@ class PolicyRegistry
         }
         return $path;
     }
-    
+
     private static function resolveContext($context): array
     {
-        if (is_array($context)) return $context;
+        if (is_array($context))
+            return $context;
         if (is_object($context)) {
-            if (method_exists($context, 'toArray')) return $context->toArray();
+            if (method_exists($context, 'toArray'))
+                return $context->toArray();
             return (array) $context;
         }
         return [];

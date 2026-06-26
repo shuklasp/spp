@@ -28,7 +28,7 @@ if (!function_exists('live_Core_ListApps')) {
 
         foreach ($allAppNames as $d) {
             $meta = $registry[$d] ?? [];
-            
+
             // Look for app.yml in the app's directory to find app-specific admin_menu definitions
             $appYmlPath = SPP_APP_DIR . '/' . $d . '/etc/app.yml';
             $adminMenu = [];
@@ -38,7 +38,8 @@ if (!function_exists('live_Core_ListApps')) {
                     if (!empty($appMeta['admin_menu']) && is_array($appMeta['admin_menu'])) {
                         $adminMenu = $appMeta['admin_menu'];
                     }
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
 
             $apps[] = [
@@ -187,7 +188,8 @@ if (!function_exists('live_Core_GetBridgeInfo')) {
 
             foreach ($searchNames as $name) {
                 $whereCmd = $isWin ? "where $name 2>&1" : "which $name 2>&1";
-                $out = []; $res = null;
+                $out = [];
+                $res = null;
                 exec($whereCmd, $out, $res);
                 if ($res === 0 && !empty($out)) {
                     $r['path'] = trim($out[0]);
@@ -210,7 +212,8 @@ if (!function_exists('live_Core_GetBridgeInfo')) {
             // Fallback 2: PowerShell (Windows)
             if (!$found && $isWin) {
                 foreach ($searchNames as $name) {
-                    $out = []; $res = null;
+                    $out = [];
+                    $res = null;
                     exec("powershell -Command \"(Get-Command $name -ErrorAction SilentlyContinue).Source\"", $out, $res);
                     if ($res === 0 && !empty($out) && !empty(trim($out[0]))) {
                         $r['path'] = trim($out[0]);
@@ -274,7 +277,7 @@ if (!function_exists('live_Core_TestBridge')) {
         if (!$lang) {
             return $la->error("Language not specified for test.");
         }
-        
+
         try {
             if (class_exists('\\SPP\\PolyglotBridge') && method_exists('\\SPP\\PolyglotBridge', 'testRuntime')) {
                 $status = \SPP\PolyglotBridge::testRuntime($lang);

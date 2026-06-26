@@ -18,7 +18,7 @@ class RevisionsController extends AdminController
 
         $db = new SPPDB();
         $table = SPPDB::sppTable('entity_revisions');
-        
+
         $revisions = [];
         if ($db->tableExists($table)) {
             $revisions = $db->exec_squery(
@@ -47,13 +47,13 @@ class RevisionsController extends AdminController
 
         $db = new SPPDB();
         $table = SPPDB::sppTable('entity_revisions');
-        
+
         if ($db->tableExists($table)) {
             $res = $db->exec_squery("SELECT * FROM %tab% WHERE id = ?", $table, [$revId]);
             if (!empty($res)) {
                 $rev = $res[0];
                 $delta = json_decode($rev['state_delta'], true);
-                
+
                 if (is_array($delta)) {
                     // Revert properties
                     foreach ($delta as $attr => $changes) {
@@ -66,7 +66,7 @@ class RevisionsController extends AdminController
                 }
             }
         }
-        
+
         header("Location: /school1/lekhak/admin/content/{$id}/revisions");
         exit;
     }

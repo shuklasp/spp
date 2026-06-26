@@ -31,13 +31,13 @@ class SPPAudit extends \SPP\SPPObject
 
             $data = [
                 'entity_type' => $entityType,
-                'entity_id'   => $entityId,
-                'action'      => $action,
-                'old_values'  => $oldValues ? json_encode($oldValues) : null,
-                'new_values'  => $newValues ? json_encode($newValues) : null,
-                'user_id'     => $userId,
-                'ip_address'  => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
-                'created_at'  => date('Y-m-d H:i:s')
+                'entity_id' => $entityId,
+                'action' => $action,
+                'old_values' => $oldValues ? json_encode($oldValues) : null,
+                'new_values' => $newValues ? json_encode($newValues) : null,
+                'user_id' => $userId,
+                'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+                'created_at' => date('Y-m-d H:i:s')
             ];
 
             $fields = implode(', ', array_keys($data));
@@ -48,8 +48,10 @@ class SPPAudit extends \SPP\SPPObject
                 $db->exec_squery($sql, $tableName, array_values($data));
             } catch (\Exception $insertEx) {
                 // Table might not exist yet — auto-create and retry once
-                if (stripos($insertEx->getMessage(), 'no such table') !== false 
-                    || stripos($insertEx->getMessage(), "doesn't exist") !== false) {
+                if (
+                    stripos($insertEx->getMessage(), 'no such table') !== false
+                    || stripos($insertEx->getMessage(), "doesn't exist") !== false
+                ) {
                     self::install();
                     $db->exec_squery($sql, $tableName, array_values($data));
                 } else {
@@ -79,7 +81,8 @@ class SPPAudit extends \SPP\SPPObject
             if ($pdo) {
                 $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         if ($driver === 'sqlite') {
             $sql = "CREATE TABLE IF NOT EXISTS {$tableName} (

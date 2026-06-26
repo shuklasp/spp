@@ -26,7 +26,8 @@ class I18nImportCommand extends Command
         $locale = 'en';
 
         foreach ($args as $arg) {
-            if ($arg === 'i18n:import' || $arg === 'spp.php') continue;
+            if ($arg === 'i18n:import' || $arg === 'spp.php')
+                continue;
             if (str_starts_with($arg, '--locale=')) {
                 $locale = substr($arg, 9);
             } elseif (!str_starts_with($arg, '--')) {
@@ -49,7 +50,7 @@ class I18nImportCommand extends Command
 
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-        
+
         // Ensure table exists
         $this->ensureSchema($db, $table);
 

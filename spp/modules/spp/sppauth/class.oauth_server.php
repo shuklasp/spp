@@ -49,7 +49,11 @@ class OAuthServer
                 $expiresAt = date('Y-m-d H:i:s', strtotime('+5 minutes'));
 
                 $db->execute_query("INSERT INTO " . SPPDB::sppTable('oauth_auth_codes') . " (id, client_id, user_id, redirect_uri, expires_at) VALUES (?, ?, ?, ?, ?)", [
-                    $authCode, $clientId, $userId, $redirectUri, $expiresAt
+                    $authCode,
+                    $clientId,
+                    $userId,
+                    $redirectUri,
+                    $expiresAt
                 ]);
 
                 header("Location: {$redirectUri}?code={$authCode}&state={$state}");
@@ -93,7 +97,7 @@ class OAuthServer
     public function issueToken(string $clientId, string $clientSecret, string $code)
     {
         $db = new SPPDB();
-        
+
         // 1. Verify client credentials
         $client = $db->execute_query("SELECT id FROM " . SPPDB::sppTable('oauth_clients') . " WHERE id = ? AND secret = ?", [$clientId, $clientSecret]);
         if (empty($client)) {
@@ -118,9 +122,12 @@ class OAuthServer
         // 3. Issue Access Token
         $accessToken = bin2hex(random_bytes(32));
         $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
-        
+
         $db->execute_query("INSERT INTO " . SPPDB::sppTable('oauth_tokens') . " (access_token, client_id, user_id, expires_at) VALUES (?, ?, ?, ?)", [
-            $accessToken, $clientId, $userId, $expiresAt
+            $accessToken,
+            $clientId,
+            $userId,
+            $expiresAt
         ]);
 
         header('Content-Type: application/json');

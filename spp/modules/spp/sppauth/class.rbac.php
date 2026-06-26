@@ -2,7 +2,7 @@
 
 namespace SPPMod\SPPAuth;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * class Role

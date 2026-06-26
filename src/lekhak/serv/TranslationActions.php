@@ -5,7 +5,8 @@ namespace App\Lekhak\Serv;
  * LiveAction functions for Interface Translation management.
  */
 
-function live_Translation_List($la, $params) {
+function live_Translation_List($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
 
@@ -14,14 +15,15 @@ function live_Translation_List($la, $params) {
     }
 
     $locale = $params['locale'] ?? 'en';
-    
+
     $sql = "SELECT id, key_code, translation, status FROM {$table} WHERE locale = ? ORDER BY key_code ASC";
     $rows = $db->execute_query($sql, [$locale]);
 
     $la->setData(['translations' => $rows]);
 }
 
-function live_Translation_Save($la, $params) {
+function live_Translation_Save($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
 
@@ -75,9 +77,11 @@ function live_Translation_Save($la, $params) {
     }
 }
 
-function live_Translation_Delete($la, $params) {
+function live_Translation_Delete($la, $params)
+{
     $id = $params['id'] ?? null;
-    if (!$id) return $la->setStatus('error')->notify("ID required.");
+    if (!$id)
+        return $la->setStatus('error')->notify("ID required.");
 
     $db = new \SPPMod\SPPDB\SPPDB();
     $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');

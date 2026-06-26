@@ -4,9 +4,11 @@ namespace Lekhak\Modules\Sankhyaki;
 use SPPMod\SPPDB\SPPDB;
 use SPP\App;
 
-class LekhakModuleSankhyaki {
+class LekhakModuleSankhyaki
+{
 
-    public function hook_init() {
+    public function hook_init()
+    {
         // Autoloading
         spl_autoload_register(function ($class) {
             if (strpos($class, 'Lekhak\\Modules\\Sankhyaki\\') === 0) {
@@ -20,14 +22,15 @@ class LekhakModuleSankhyaki {
         });
     }
 
-    public function hook_request_init() {
+    public function hook_request_init()
+    {
         // Install schema if not exists
         $db = new SPPDB();
         $this->ensureTable($db);
 
         // Standalone API Route
         $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
-        
+
         if (preg_match('#/api/sankhyaki/stats/?$#', $path)) {
             header('Content-Type: application/json');
             require_once __DIR__ . '/src/Controller/StatsController.php';
@@ -47,12 +50,13 @@ class LekhakModuleSankhyaki {
             $data = json_decode(file_get_contents('php://input'), true);
             $session = session_id() ?: ($data['session_id'] ?? '');
             $url = $data['url'] ?? '';
-            $time_on_page = (int)($data['time_on_page'] ?? 0);
+            $time_on_page = (int) ($data['time_on_page'] ?? 0);
             if ($session && $url && $time_on_page > 0) {
                 // Update the most recent log for this session and url
                 try {
                     $db->execute_query("UPDATE lek_sankhyaki_log SET time_on_page = ? WHERE session_id = ? AND url = ? ORDER BY id DESC LIMIT 1", [$time_on_page, $session, $url]);
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
             exit;
         }
@@ -68,7 +72,7 @@ class LekhakModuleSankhyaki {
         // Gather visitor info
         $session_id = session_id() ?: md5($_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
         $ip_address = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        
+
         $settings = ConfigManager::getSettings();
         if ($settings['ip_privacy'] === 'hash') {
             $ip_address = md5($ip_address . 'sankhyaki_salt');
@@ -78,7 +82,7 @@ class LekhakModuleSankhyaki {
         $url = $path ?: '/';
         $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
         $referrer = $_SERVER['HTTP_REFERER'] ?? '';
-        
+
         // Parse search engine and query
         $search_engine = '';
         $search_query = '';
@@ -118,9 +122,22 @@ class LekhakModuleSankhyaki {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
             $db->execute_query($sql, [
-                $session_id, $ip_address, $user_id, $url, $user_agent, $referrer, $search_engine, $search_query,
-                $deviceInfo['os'], $deviceInfo['browser'], $deviceInfo['device_type'],
-                $utm_source, $utm_medium, $utm_campaign, $country, $created_at
+                $session_id,
+                $ip_address,
+                $user_id,
+                $url,
+                $user_agent,
+                $referrer,
+                $search_engine,
+                $search_query,
+                $deviceInfo['os'],
+                $deviceInfo['browser'],
+                $deviceInfo['device_type'],
+                $utm_source,
+                $utm_medium,
+                $utm_campaign,
+                $country,
+                $created_at
             ]);
         } catch (\Exception $e) {
             // Ignore DB errors on logging to prevent breaking the site
@@ -128,17 +145,19 @@ class LekhakModuleSankhyaki {
 
         // Data Retention Cleanup (1% chance to run garbage collection on any request to save performance)
         if (mt_rand(1, 100) === 1) {
-            $days = (int)$settings['retention_days'];
+            $days = (int) $settings['retention_days'];
             if ($days > 0) {
                 $cutoff = date('Y-m-d H:i:s', strtotime("-{$days} days"));
                 try {
                     $db->execute_query("DELETE FROM lek_sankhyaki_log WHERE created_at < ?", [$cutoff]);
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
             }
         }
     }
 
-    private function ensureTable($db) {
+    private function ensureTable($db)
+    {
         $schema = "id INTEGER PRIMARY KEY AUTO_INCREMENT, 
                    session_id VARCHAR(100), 
                    ip_address VARCHAR(100), 
@@ -157,7 +176,7 @@ class LekhakModuleSankhyaki {
                    country VARCHAR(100),
                    time_on_page INTEGER DEFAULT 0,
                    created_at DATETIME";
-        
+
         try {
             $db->execute_query("SELECT 1 FROM lek_sankhyaki_log LIMIT 1");
         } catch (\Exception $e) {

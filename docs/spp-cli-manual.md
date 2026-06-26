@@ -1762,7 +1762,7 @@ Facilitates CLI-driven or interactive editing of Entity YAML configurations, inc
 - `--remove-relation=index`: Removes a specific relation structure by integer array index.
 
 ## UNDER THE HOOD ACTIVITY
-If no arguments are provided, it forces an interactive wizard by listing available entities from `SPPEntity::listAvailableEntities()` and taking user input via a `prompt()` wrapper. It locates the entity config via `SPPEntity::getEntityConfigFile()`. It parses the source YAML, allowing either flag-driven arrays manipulations or a deeply nested interactive CLI loop. Through CLI flags, it interprets the parameters (like auto-computing many-to-many pivot tables logic) and dynamically mutates the YAML array structure. It serializes and persists the updated state strictly via `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()`.
+If no arguments are provided, it forces an interactive wizard by listing available entities from `SPPEntity::listAvailableEntities()` and taking user input via a `prompt()` wrapper. It locates the entity config via `SPPEntity::getEntityConfigFile()`. It parses the source YAML, allowing either flag-driven arrays manipulations or a deeply nested interactive CLI loop. Through CLI flags, it interprets the parameters (like auto-computing many-to-many pivot tables logic) and dynamically mutates the YAML array structure. It serializes and persists the updated state strictly via `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()`.
 
 ## EXAMPLES
 ```bash
@@ -2742,7 +2742,7 @@ The `make:blade-scaffold` command is the ultimate Rapid Application Development 
 # UNDER THE HOOD ACTIVITY
 This command handles a complete MVC generation lifecycle interactively:
 1. **Interactive Prompting**: Prompts for `Entity Name`, `App Name (Context)` (defaults to current context), and `Table Name` (defaults to the plural, lowercase entity name).
-2. **Entity Definition**: Uses `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()` to physically write a new entity schema configuration for the requested context, defaulting to standard fields like `id`, `name` (varchar), and `description` (text).
+2. **Entity Definition**: Uses `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()` to physically write a new entity schema configuration for the requested context, defaulting to standard fields like `id`, `name` (varchar), and `description` (text).
 3. **YAML Form Generation**: Generates a standard Create/Update form configuration saved to `etc/apps/{app_name}/forms/{entity}.yml`. The form embeds `SPPText` and `SPPTextArea` inputs and sets up automatic form submissions linked to the newly generated entity.
 4. **Blade View Synthesis**: Writes both `index.blade.php` (a tabular list view rendering `$items`) and `form.blade.php` (incorporating `@@sppform` and `@@sppbind` directives). It also creates a generic `app.blade.php` layout if it doesn't already exist.
 5. **Entry Point Provisioning**: Constructs a standalone `{app_name}_{entity}.php` file at the root. This script initializes the SPP environment, determines the requested action (list, create, edit), uses the ORM (e.g., `\SPPMod\SPPEntity\Product::find($id)`) to fetch records, and defines a `{entity}_form_submitted` callback to intercept POST requests, magically populating the model via `$item->loadFromArray($_POST)` and calling `$item->save()`. Finally, it executes `processForms()` and renders the correct Blade view based on state.
@@ -2920,7 +2920,7 @@ The `make:entity` command is a powerful data-modeling tool. It dynamically gener
 # UNDER THE HOOD ACTIVITY
 The command checks if it needs to trigger the Interactive Wizard (if arguments like `--fields`, `--extends`, etc., are missing) or if it operates in Headless mode. 
 It compiles an extensive schema `$config` array mapping `table`, `id_field`, `sequence`, `extends`, `login_enabled`, `attributes`, and `relations`. For relations, it specifically identifies `ManyToMany` declarations to automatically guess pivot table names (e.g., `student_course`).
-It executes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()`, directly writing the YAML or serialized schema to disk.
+It executes `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()`, directly writing the YAML or serialized schema to disk.
 If the `--api` or `--resource` flags are detected, it hooks into standard file manipulation, constructing a `.php` file in the API controllers directory implementing the `\SPP\Core\ResourceController` interface, and wires it to `\SPPMod\SPPEntity\SPPEntity` methods.
 
 # EXAMPLES
@@ -3133,7 +3133,7 @@ Generates a boilerplate PHP migration class file within the current application 
 - `<migration_name>` : **Required.** A descriptive name for the migration. E.g., `create_users_table`.
 
 # UNDER THE HOOD ACTIVITY
-The script begins by asserting that the `<migration_name>` argument is provided. It then determines the active module or application context via `\SPP\Scheduler::getContext()`. It formats the provided migration name by aggressively converting it to snake_case, and subsequently transforming it into a PascalCase class name (e.g., `CreateUsersTable`). A timestamp format (`Y_m_d_His`) is generated and prepended to the filename to ensure chronological ordering. The CLI then ensures the directory `SPP_APP_DIR/src/<context>/migrations` exists, creating it with `0777` permissions if necessary. Finally, it generates a heredoc PHP template inheriting from `\SPPMod\Sppdb\Migration\SPPMigration` and saves it to the path, outputting the file location in green ANSI text.
+The script begins by asserting that the `<migration_name>` argument is provided. It then determines the active module or application context via `\SPP\Scheduler::getContext()`. It formats the provided migration name by aggressively converting it to snake_case, and subsequently transforming it into a PascalCase class name (e.g., `CreateUsersTable`). A timestamp format (`Y_m_d_His`) is generated and prepended to the filename to ensure chronological ordering. The CLI then ensures the directory `SPP_APP_DIR/src/<context>/migrations` exists, creating it with `0777` permissions if necessary. Finally, it generates a heredoc PHP template inheriting from `\SPPMod\SPPDB\Migration\SPPMigration` and saves it to the path, outputting the file location in green ANSI text.
 
 # EXAMPLES
 Create a migration to add an orders table:
@@ -3337,7 +3337,7 @@ The `make:scaffold` command is an interactive, legacy RAD tool orchestrating the
 
 # UNDER THE HOOD ACTIVITY
 1. **Interactive Loop**: The command utilizes `fgets(STDIN)` extensively. It polls for `Entity Name`, `Application/Context`, `Database Table`, and traps the user in an infinite attribute creation loop (`Attribute Name`, `Type`) until an empty string is supplied.
-2. **Entity Generation**: Utilizing the arrays built in memory, it invokes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()` writing the database map configuration to disk.
+2. **Entity Generation**: Utilizing the arrays built in memory, it invokes `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()` writing the database map configuration to disk.
 3. **Controller Scaffolding**: It targets `src/{app_name}/controllers/` and reads a hardcoded external stub file `stubs/scaffold_controller.stub`. It replaces `{appname}`, `{controllerName}`, and `{entityName}` tokens before explicitly saving the file.
 4. **View Scaffolding**: It creates `src/{app_name}/views/{entityName}/index.php` embedding a minimal HTML comment and H1 tag.
 5. **Hinting**: It reads `global-settings.yml`. Depending on `auto_evolution` status, it advises the user to run `db:sync`.
@@ -3624,7 +3624,7 @@ This command does not accept any specific optional flags or arguments. It relies
 
 Upon execution, the command determines the active execution environment by calling `\SPP\Scheduler::getContext()`. It prints an initial status message indicating the context for which migrations are being executed.
 
-It then instantiates the `\SPPMod\Sppdb\Migration\SPPMigrationManager`, passing the active context into its constructor. The core logic is delegated to the manager's `$manager->runPending()` method. 
+It then instantiates the `\SPPMod\SPPDB\Migration\SPPMigrationManager`, passing the active context into its constructor. The core logic is delegated to the manager's `$manager->runPending()` method. 
 
 Under the hood, the `SPPMigrationManager` scans the target `db/migrations` directory for PHP class files. It cross-references the filenames found on disk against the internal database tracking table (e.g., `spp_migrations`). For any file not found in the database table, the manager instantiates the migration class, executes its `up()` method (which contains the raw SQL statements or schema builder logic), and then inserts a record into the tracking table to mark the migration as complete.
 

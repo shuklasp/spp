@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb\Seeding;
+namespace SPPMod\SPPDB\Seeding;
 
 /**
  * Class SPPSeeder

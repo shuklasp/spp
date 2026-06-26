@@ -6,11 +6,13 @@ namespace Lekhak\Modules\LekhakTools;
  * @configure admin/config/lekhak_tools
  */
 
-class LekhakModuleCtools {
+class LekhakModuleCtools
+{
     private $name = 'lekhak_tools';
     private $title = 'Chaos Tool Suite';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_block_visibility (
@@ -18,7 +20,8 @@ class LekhakModuleCtools {
                 paths TEXT,
                 visibility_mode VARCHAR(10) DEFAULT 'show'
             )");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         return true;
     }
 
@@ -26,10 +29,11 @@ class LekhakModuleCtools {
      * Hook into the block rendering array to strip out blocks 
      * that shouldn't be visible on the current path.
      */
-    public function hook_block_view_alter(&$blocks) {
+    public function hook_block_view_alter(&$blocks)
+    {
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $uri = parse_url($uri, PHP_URL_PATH);
-        
+
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $rules = $db->execute_query("SELECT * FROM lekhak_block_visibility");
@@ -43,11 +47,12 @@ class LekhakModuleCtools {
                     $rule = $rulesMap[$blockId];
                     $paths = explode("\n", str_replace("\r", "", $rule['paths']));
                     $match = false;
-                    
+
                     // Basic wildcard matching
                     foreach ($paths as $path) {
                         $path = trim($path);
-                        if (empty($path)) continue;
+                        if (empty($path))
+                            continue;
                         $pattern = str_replace('*', '.*', preg_quote($path, '/'));
                         if (preg_match('/^' . $pattern . '$/i', $uri)) {
                             $match = true;
@@ -62,7 +67,8 @@ class LekhakModuleCtools {
                     }
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     /**
@@ -71,25 +77,25 @@ class LekhakModuleCtools {
     public static function hook_config_form(): array
     {
         return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
+            'enabled' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Enable advanced features',
+                    'default' => true,
+                ],
+            'log_level' =>
+                [
+                    'type' => 'select',
+                    'title' => 'Log Level',
+                    'options' =>
+                        [
+                            'info' => 'Info',
+                            'warning' => 'Warning',
+                            'error' => 'Error',
+                        ],
+                    'default' => 'warning',
+                ],
+        ];
     }
 }
 

@@ -60,7 +60,7 @@ try {
         [$_POST['webform_id'], json_encode($_POST['data']), date('Y-m-d H:i:s'), '127.0.0.1']
     );
     echo "SUCCESS: Simulated submission inserted into DB.\n";
-    
+
     // Check DB
     $subs = $db->execute_query("SELECT * FROM lekhak_webform_submissions ORDER BY id DESC LIMIT 1");
     echo "Latest submission: " . print_r($subs[0], true) . "\n";
@@ -72,7 +72,7 @@ echo "\n---------------------------------\n";
 echo "4. Testing Rules Module (ECA Engine)\n";
 echo "---------------------------------\n";
 // Trigger entity insert to test Rules evaluating the node status
-$node = (object)[
+$node = (object) [
     'title' => 'Test Publish Node',
     'status' => 'published',
     'id' => 101

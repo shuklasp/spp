@@ -3,9 +3,11 @@ namespace Lekhak\Modules\LekhakDrupalApi;
 
 use SPP\App;
 
-class LekhakModuleDrupalApi {
+class LekhakModuleDrupalApi
+{
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_lekhak_drupal_api_config (
@@ -13,10 +15,11 @@ class LekhakModuleDrupalApi {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_lekhak_drupal_api_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Autoloading for the Drupal API module
         spl_autoload_register(function ($class) {
             if (strpos($class, 'Lekhak\\Modules\\LekhakDrupalApi\\') === 0) {
@@ -30,12 +33,13 @@ class LekhakModuleDrupalApi {
         });
     }
 
-    public function hook_request_init() {
+    public function hook_request_init()
+    {
         // Handle Basic Authentication if present
         if (isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])) {
             $uname = $_SERVER['PHP_AUTH_USER'];
             $passwd = $_SERVER['PHP_AUTH_PW'];
-            
+
             // Validate credentials against SPP users table
             $db = new \SPPMod\SPPDB\SPPDB();
             $user = $db->execute_query("SELECT * FROM users WHERE username = ? AND password = ?", [$uname, $passwd]);
@@ -59,7 +63,8 @@ class LekhakModuleDrupalApi {
         }
     }
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by lekhak_drupal_api -->';

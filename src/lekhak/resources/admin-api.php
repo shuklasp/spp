@@ -14,7 +14,7 @@ try {
     try {
         \SPP\Scheduler::getProcObj($appname);
     } catch (\Exception $e) {
-        new \SPP\App($appname, false, 1); 
+        new \SPP\App($appname, false, 1);
     }
     \SPP\Scheduler::setContext($appname);
 } catch (\Exception $e) {
@@ -38,66 +38,77 @@ if (!$isAuthenticated) {
 }
 
 if (!function_exists('sendResponse')) {
-function sendResponse($success, $data = [], $message = '') {
-    if (ob_get_level()) ob_get_clean();
-    header('Content-Type: application/json');
-    $json = json_encode([
-        'success' => $success,
-        'message' => $message,
-        'data' => $data
-    ] + $data);
-    
-    if ($json === false) {
-        $err = json_last_error_msg();
-        echo json_encode(['success' => false, 'message' => "JSON Encode Error: $err"]);
-    } else {
-        echo $json;
+    function sendResponse($success, $data = [], $message = '')
+    {
+        if (ob_get_level())
+            ob_get_clean();
+        header('Content-Type: application/json');
+        $json = json_encode([
+            'success' => $success,
+            'message' => $message,
+            'data' => $data
+        ] + $data);
+
+        if ($json === false) {
+            $err = json_last_error_msg();
+            echo json_encode(['success' => false, 'message' => "JSON Encode Error: $err"]);
+        } else {
+            echo $json;
+        }
+        exit;
     }
-    exit;
-}
 }
 
 if (!function_exists('_lekhak_dir_size')) {
-function _lekhak_dir_size($dir) {
-    $size = 0;
-    foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)) as $file) {
-        $size += $file->getSize();
+    function _lekhak_dir_size($dir)
+    {
+        $size = 0;
+        foreach (new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS)) as $file) {
+            $size += $file->getSize();
+        }
+        return $size;
     }
-    return $size;
-}
 }
 
 if (!function_exists('_lekhak_format_bytes')) {
-function _lekhak_format_bytes($bytes) {
-    if ($bytes >= 1073741824) return round($bytes / 1073741824, 2) . ' GB';
-    if ($bytes >= 1048576) return round($bytes / 1048576, 2) . ' MB';
-    if ($bytes >= 1024) return round($bytes / 1024, 2) . ' KB';
-    return $bytes . ' B';
-}
+    function _lekhak_format_bytes($bytes)
+    {
+        if ($bytes >= 1073741824)
+            return round($bytes / 1073741824, 2) . ' GB';
+        if ($bytes >= 1048576)
+            return round($bytes / 1048576, 2) . ' MB';
+        if ($bytes >= 1024)
+            return round($bytes / 1024, 2) . ' KB';
+        return $bytes . ' B';
+    }
 }
 
 if (!function_exists('_lekhak_ensure_table')) {
-function _lekhak_ensure_table($db, $table, $schema) {
-    try {
-        $db->execute_query("SELECT 1 FROM {$table} LIMIT 1");
-    } catch (\Exception $e) {
-        $db->execute_query("CREATE TABLE IF NOT EXISTS {$table} ({$schema})");
+    function _lekhak_ensure_table($db, $table, $schema)
+    {
+        try {
+            $db->execute_query("SELECT 1 FROM {$table} LIMIT 1");
+        } catch (\Exception $e) {
+            $db->execute_query("CREATE TABLE IF NOT EXISTS {$table} ({$schema})");
+        }
     }
-}
 }
 
 if (!function_exists('_lekhak_slugify')) {
-function _lekhak_slugify($text) {
-    $text = trim((string)$text);
-    if ($text === '') return '';
-    $text = preg_replace('~[^\pL\d]+~u', '-', $text);
-    $converted = function_exists('iconv') ? @iconv('utf-8', 'us-ascii//TRANSLIT', $text) : false;
-    if ($converted !== false) $text = $converted;
-    $text = preg_replace('~[^-\w]+~', '', $text);
-    $text = trim($text, '-');
-    $text = preg_replace('~-+~', '-', $text);
-    return strtolower($text);
-}
+    function _lekhak_slugify($text)
+    {
+        $text = trim((string) $text);
+        if ($text === '')
+            return '';
+        $text = preg_replace('~[^\pL\d]+~u', '-', $text);
+        $converted = function_exists('iconv') ? @iconv('utf-8', 'us-ascii//TRANSLIT', $text) : false;
+        if ($converted !== false)
+            $text = $converted;
+        $text = preg_replace('~[^-\w]+~', '', $text);
+        $text = trim($text, '-');
+        $text = preg_replace('~-+~', '-', $text);
+        return strtolower($text);
+    }
 }
 
 try {
@@ -141,7 +152,7 @@ try {
                     'php_version' => PHP_VERSION,
                     'db_engine' => 'SQLite (SPPXDB)',
                     'active_theme' => $activeTheme,
-                    'total_content' => (int)$total,
+                    'total_content' => (int) $total,
                     'media_disk' => _lekhak_format_bytes($diskUsage),
                     'spp_version' => defined('SPP_VERSION') ? SPP_VERSION : '11.x',
                     'server' => php_uname('s') . ' ' . php_uname('r'),
@@ -159,10 +170,10 @@ try {
             $recent = $db->execute_query("SELECT id, title, status, bundle, changed FROM {$table} ORDER BY changed DESC LIMIT 10");
             sendResponse(true, [
                 'stats' => [
-                    'total' => (int)$total,
-                    'published' => (int)$published,
-                    'drafts' => (int)$drafts,
-                    'engagement' => min(100, (int)$published * 42)
+                    'total' => (int) $total,
+                    'published' => (int) $published,
+                    'drafts' => (int) $drafts,
+                    'engagement' => min(100, (int) $published * 42)
                 ],
                 'recent' => $recent
             ]);
@@ -181,22 +192,23 @@ try {
         case 'list_nodes':
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('nodes');
-            $page = max(1, (int)($_REQUEST['page'] ?? 1));
-            $limit = max(1, min(100, (int)($_REQUEST['limit'] ?? 20)));
-            $sort = in_array($_REQUEST['sort'] ?? '', ['title','status','changed','bundle']) ? $_REQUEST['sort'] : 'changed';
+            $page = max(1, (int) ($_REQUEST['page'] ?? 1));
+            $limit = max(1, min(100, (int) ($_REQUEST['limit'] ?? 20)));
+            $sort = in_array($_REQUEST['sort'] ?? '', ['title', 'status', 'changed', 'bundle']) ? $_REQUEST['sort'] : 'changed';
             $order = strtoupper($_REQUEST['order'] ?? 'DESC') === 'ASC' ? 'ASC' : 'DESC';
             $bundle = $_REQUEST['bundle'] ?? '';
             $offset = ($page - 1) * $limit;
 
             $where = '';
-            if ($bundle) $where = "WHERE bundle=" . $db->quote($bundle);
+            if ($bundle)
+                $where = "WHERE bundle=" . $db->quote($bundle);
             $totalRows = $db->execute_query("SELECT COUNT(*) as count FROM {$table} {$where}")[0]['count'];
             $nodes = $db->execute_query("SELECT id, title, status, bundle, changed FROM {$table} {$where} ORDER BY {$sort} {$order} LIMIT {$limit} OFFSET {$offset}");
             sendResponse(true, [
                 'nodes' => $nodes,
-                'total' => (int)$totalRows,
+                'total' => (int) $totalRows,
                 'page' => $page,
-                'pages' => max(1, ceil((int)$totalRows / $limit)),
+                'pages' => max(1, ceil((int) $totalRows / $limit)),
                 'limit' => $limit
             ]);
             break;
@@ -204,19 +216,28 @@ try {
         case 'bulk_action':
             $bulkOp = $_POST['operation'] ?? '';
             $ids = $_POST['ids'] ?? [];
-            if (empty($ids) || !is_array($ids)) sendResponse(false, [], "No items selected.");
+            if (empty($ids) || !is_array($ids))
+                sendResponse(false, [], "No items selected.");
             $count = 0;
             foreach ($ids as $nid) {
                 try {
                     $node = new \SPPMod\Lekhak\Core\LekhakNode($nid);
                     if ($bulkOp === 'delete') {
-                        $node->delete(); $count++;
+                        $node->delete();
+                        $count++;
                     } elseif ($bulkOp === 'publish') {
-                        $node->status = 'published'; $node->changed = date("Y-m-d H:i:s"); $node->save(); $count++;
+                        $node->status = 'published';
+                        $node->changed = date("Y-m-d H:i:s");
+                        $node->save();
+                        $count++;
                     } elseif ($bulkOp === 'unpublish') {
-                        $node->status = 'draft'; $node->changed = date("Y-m-d H:i:s"); $node->save(); $count++;
+                        $node->status = 'draft';
+                        $node->changed = date("Y-m-d H:i:s");
+                        $node->save();
+                        $count++;
                     }
-                } catch (\Exception $e) { /* skip failed items */ }
+                } catch (\Exception $e) { /* skip failed items */
+                }
             }
             sendResponse(true, ['affected' => $count], "Bulk operation completed: {$count} items affected.");
             break;
@@ -224,18 +245,23 @@ try {
         case 'get_node':
             $id = $_REQUEST['id'] ?? null;
             $lang = $_REQUEST['lang'] ?? null;
-            if (!$id) sendResponse(false, [], "ID required.");
+            if (!$id)
+                sendResponse(false, [], "ID required.");
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
-            
+
             if ($lang) {
                 $node->setLanguage($lang);
             }
-            
+
             $data = [
-                'id' => $node->id, 'title' => $node->title, 'body' => $node->body,
-                'status' => $node->status, 'alias' => $node->alias,
+                'id' => $node->id,
+                'title' => $node->title,
+                'body' => $node->body,
+                'status' => $node->status,
+                'alias' => $node->alias,
                 'bundle' => $node->bundle ?? 'Article',
-                'created' => $node->created ?? '', 'changed' => $node->changed
+                'created' => $node->created ?? '',
+                'changed' => $node->changed
             ];
             sendResponse(true, ['node' => $data]);
             break;
@@ -245,15 +271,18 @@ try {
         case 'save_node':
             $id = $_POST['id'] ?? null;
             $lang = $_POST['lang'] ?? null;
-            
+
             if ($lang && $id) {
                 $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
                 $node->setLanguage($lang);
-                
-                if (isset($_POST['title'])) $node->title = $_POST['title'];
-                if (isset($_POST['body'])) $node->body = $_POST['body'];
-                if (isset($_POST['alias'])) $node->alias = $_POST['alias'];
-                
+
+                if (isset($_POST['title']))
+                    $node->title = $_POST['title'];
+                if (isset($_POST['body']))
+                    $node->body = $_POST['body'];
+                if (isset($_POST['alias']))
+                    $node->alias = $_POST['alias'];
+
                 $node->save();
                 sendResponse(true, ['id' => $id, 'url' => ''], "Translation saved successfully.");
                 break;
@@ -263,7 +292,7 @@ try {
             $body = $_POST['body'] ?? '';
             $status = $_POST['status'] ?? 'draft';
             $bundle = $_POST['bundle'] ?? null;
-            $postedAlias = trim((string)($_POST['alias'] ?? ''));
+            $postedAlias = trim((string) ($_POST['alias'] ?? ''));
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             $node->title = $title;
             $node->body = $body;
@@ -288,8 +317,11 @@ try {
                 $node->save();
                 $baseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
                 $publicUrl = rtrim($baseUri, '/') . '/lekhak/node/' . $node->alias;
-                sendResponse(true, ['id' => $node->id, 'alias' => $node->alias, 'url' => $publicUrl],
-                    "Document " . ($status === 'published' ? 'published' : 'saved') . " successfully.");
+                sendResponse(
+                    true,
+                    ['id' => $node->id, 'alias' => $node->alias, 'url' => $publicUrl],
+                    "Document " . ($status === 'published' ? 'published' : 'saved') . " successfully."
+                );
             } catch (\Exception $e) {
                 sendResponse(false, [], "Save failed: " . $e->getMessage());
             }
@@ -297,7 +329,8 @@ try {
 
         case 'delete_node':
             $id = $_REQUEST['id'] ?? null;
-            if (!$id) sendResponse(false, [], "ID required.");
+            if (!$id)
+                sendResponse(false, [], "ID required.");
             try {
                 $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
                 $node->delete();
@@ -309,12 +342,15 @@ try {
 
         case 'upload_media':
             $mediaDir = dirname(__DIR__) . '/var/media/lekhni';
-            if (!is_dir($mediaDir)) @mkdir($mediaDir, 0755, true);
-            if (empty($_FILES['file'])) sendResponse(false, [], "No file uploaded.");
+            if (!is_dir($mediaDir))
+                @mkdir($mediaDir, 0755, true);
+            if (empty($_FILES['file']))
+                sendResponse(false, [], "No file uploaded.");
             $file = $_FILES['file'];
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg','jpeg','png','gif','webp','svg','mp4','pdf'];
-            if (!in_array($ext, $allowed)) sendResponse(false, [], "File type not allowed.");
+            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'pdf'];
+            if (!in_array($ext, $allowed))
+                sendResponse(false, [], "File type not allowed.");
             $filename = time() . '_' . preg_replace('/[^a-zA-Z0-9._-]/', '', $file['name']);
             $dest = $mediaDir . '/' . $filename;
             if (move_uploaded_file($file['tmp_name'], $dest)) {
@@ -332,7 +368,8 @@ try {
             if (is_dir($mediaDir)) {
                 $baseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
                 foreach (scandir($mediaDir) as $f) {
-                    if ($f === '.' || $f === '..') continue;
+                    if ($f === '.' || $f === '..')
+                        continue;
                     $fp = $mediaDir . '/' . $f;
                     $files[] = [
                         'name' => $f,
@@ -349,7 +386,8 @@ try {
 
         case 'delete_media':
             $filename = $_POST['filename'] ?? '';
-            if (!$filename) sendResponse(false, [], "Filename required.");
+            if (!$filename)
+                sendResponse(false, [], "Filename required.");
             $mediaDir = dirname(__DIR__) . '/var/media/lekhni';
             $fp = $mediaDir . '/' . basename($filename);
             if (file_exists($fp)) {
@@ -363,16 +401,17 @@ try {
         case 'rename_media':
             $oldName = $_POST['oldName'] ?? '';
             $newName = $_POST['newName'] ?? '';
-            if (!$oldName || !$newName) sendResponse(false, [], "Both old and new filenames are required.");
+            if (!$oldName || !$newName)
+                sendResponse(false, [], "Both old and new filenames are required.");
             $mediaDir = dirname(__DIR__) . '/var/media/lekhni';
-            
+
             // Clean up names for security
             $oldName = basename($oldName);
             $newName = basename($newName);
-            
+
             $oldFp = $mediaDir . '/' . $oldName;
             $newFp = $mediaDir . '/' . $newName;
-            
+
             if (!file_exists($oldFp)) {
                 sendResponse(false, [], "Original file not found.");
             } elseif (file_exists($newFp)) {
@@ -402,15 +441,19 @@ try {
             $pTitle = $_POST['title'] ?? 'New Product';
             $pSku = $_POST['sku'] ?? 'SKU-' . strtoupper(substr(md5(time()), 0, 6));
             $pPrice = $_POST['price'] ?? '$0.00';
-            $pStock = (int)($_POST['stock'] ?? 0);
-            $pActive = (int)($_POST['active'] ?? 1);
+            $pStock = (int) ($_POST['stock'] ?? 0);
+            $pActive = (int) ($_POST['active'] ?? 1);
             $now = date("Y-m-d H:i:s");
             if ($pid) {
-                $db->execute_query("UPDATE {$table} SET title=?, sku=?, price=?, stock=?, active=?, changed=? WHERE id=?",
-                    [$pTitle, $pSku, $pPrice, $pStock, $pActive, $now, $pid]);
+                $db->execute_query(
+                    "UPDATE {$table} SET title=?, sku=?, price=?, stock=?, active=?, changed=? WHERE id=?",
+                    [$pTitle, $pSku, $pPrice, $pStock, $pActive, $now, $pid]
+                );
             } else {
-                $db->execute_query("INSERT INTO {$table} (title, sku, price, stock, active, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [$pTitle, $pSku, $pPrice, $pStock, $pActive, $now, $now]);
+                $db->execute_query(
+                    "INSERT INTO {$table} (title, sku, price, stock, active, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [$pTitle, $pSku, $pPrice, $pStock, $pActive, $now, $now]
+                );
                 $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
                 if ($driver === 'sqlite') {
                     $pid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
@@ -423,7 +466,8 @@ try {
 
         case 'delete_product':
             $pid = $_REQUEST['id'] ?? null;
-            if (!$pid) sendResponse(false, [], "Product ID required.");
+            if (!$pid)
+                sendResponse(false, [], "Product ID required.");
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('products');
             $db->execute_query("DELETE FROM {$table} WHERE id=?", [$pid]);
@@ -452,10 +496,15 @@ try {
             unset($loc['action']);
             $found = false;
             foreach ($locales as &$l) {
-                if ($l['id'] === $loc['id']) { $l = array_merge($l, $loc); $found = true; break; }
+                if ($l['id'] === $loc['id']) {
+                    $l = array_merge($l, $loc);
+                    $found = true;
+                    break;
+                }
             }
             unset($l);
-            if (!$found) $locales[] = $loc;
+            if (!$found)
+                $locales[] = $loc;
             file_put_contents($localesPath, \Symfony\Component\Yaml\Yaml::dump($locales, 4, 2));
             sendResponse(true, [], "Locale saved.");
             break;
@@ -479,7 +528,8 @@ try {
 
         case 'get_revisions':
             $id = $_REQUEST['id'] ?? null;
-            if (!$id) sendResponse(false, [], "ID required.");
+            if (!$id)
+                sendResponse(false, [], "ID required.");
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             $revs = $node->getRevisions();
             sendResponse(true, ['revisions' => $revs]);
@@ -488,7 +538,8 @@ try {
         case 'restore_revision':
             $id = $_POST['id'] ?? null;
             $rev_id = $_POST['rev_id'] ?? null;
-            if (!$id || !$rev_id) sendResponse(false, [], "ID and Rev ID required.");
+            if (!$id || !$rev_id)
+                sendResponse(false, [], "ID and Rev ID required.");
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             if ($node->restoreRevision($rev_id)) {
                 sendResponse(true, [], "Revision restored.");
@@ -499,11 +550,13 @@ try {
 
         case 'get_landing_page':
             $id = $_REQUEST['id'] ?? null;
-            if (!$id) sendResponse(false, [], "ID required.");
+            if (!$id)
+                sendResponse(false, [], "ID required.");
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('landing_pages');
             $page = $db->execute_query("SELECT * FROM {$table} WHERE id=?", [$id])[0] ?? null;
-            if (!$page) sendResponse(false, [], "Landing page not found.");
+            if (!$page)
+                sendResponse(false, [], "Landing page not found.");
             sendResponse(true, ['page' => $page]);
             break;
 
@@ -517,11 +570,15 @@ try {
             $layout = $_POST['layout'] ?? '[]';
             $now = date("Y-m-d H:i:s");
             if ($id) {
-                $db->execute_query("UPDATE {$table} SET title=?, alias=?, layout=?, changed=? WHERE id=?",
-                    [$title, $alias, $layout, $now, $id]);
+                $db->execute_query(
+                    "UPDATE {$table} SET title=?, alias=?, layout=?, changed=? WHERE id=?",
+                    [$title, $alias, $layout, $now, $id]
+                );
             } else {
-                $db->execute_query("INSERT INTO {$table} (title, alias, layout, created, changed) VALUES (?, ?, ?, ?, ?)",
-                    [$title, $alias, $layout, $now, $now]);
+                $db->execute_query(
+                    "INSERT INTO {$table} (title, alias, layout, created, changed) VALUES (?, ?, ?, ?, ?)",
+                    [$title, $alias, $layout, $now, $now]
+                );
                 $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
                 if ($driver === 'sqlite') {
                     $id = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
@@ -534,7 +591,8 @@ try {
 
         case 'delete_landing_page':
             $id = $_REQUEST['id'] ?? null;
-            if (!$id) sendResponse(false, [], "ID required.");
+            if (!$id)
+                sendResponse(false, [], "ID required.");
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('landing_pages');
             $db->execute_query("DELETE FROM {$table} WHERE id=?", [$id]);
@@ -557,46 +615,51 @@ try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('landing_blocks');
             _lekhak_ensure_table($db, $table, "id INTEGER PRIMARY KEY AUTOINCREMENT, block_type VARCHAR(50), region VARCHAR(50), weight INTEGER DEFAULT 0, page_id INTEGER DEFAULT 0, data TEXT, created TEXT, changed TEXT");
-            
+
             $bid = $_POST['id'] ?? null;
             $blockType = $_POST['block_type'] ?? 'custom_html';
             $region = $_POST['region'] ?? 'sidebar_first';
-            $weight = (int)($_POST['weight'] ?? 0);
-            $pageId = (int)($_POST['page_id'] ?? 0);
-            
+            $weight = (int) ($_POST['weight'] ?? 0);
+            $pageId = (int) ($_POST['page_id'] ?? 0);
+
             $blockData = $_POST['data'] ?? [];
             if (is_string($blockData)) {
                 $blockData = json_decode($blockData, true) ?: [];
             }
-            
+
             $module = $_POST['module'] ?? '';
             $title = trim($blockData['title'] ?? 'Untitled Block');
-            
+
             if ($module && !str_starts_with($title, $module . ': ')) {
                 $title = $module . ': ' . $title;
                 $blockData['title'] = $title;
             }
-            
+
             // Check for duplicate title
             $allBlocks = $db->execute_query("SELECT id, data FROM {$table}");
             foreach ($allBlocks as $b) {
-                if ($bid && $b['id'] == $bid) continue;
+                if ($bid && $b['id'] == $bid)
+                    continue;
                 $bData = json_decode($b['data'] ?? '{}', true);
                 if (($bData['title'] ?? '') === $title) {
                     sendResponse(false, [], "A block with the title '{$title}' already exists.");
                     exit;
                 }
             }
-            
+
             $dataStr = json_encode($blockData);
             $now = date("Y-m-d H:i:s");
-            
+
             if ($bid) {
-                $db->execute_query("UPDATE {$table} SET block_type=?, region=?, weight=?, page_id=?, data=?, changed=? WHERE id=?",
-                    [$blockType, $region, $weight, $pageId, $dataStr, $now, $bid]);
+                $db->execute_query(
+                    "UPDATE {$table} SET block_type=?, region=?, weight=?, page_id=?, data=?, changed=? WHERE id=?",
+                    [$blockType, $region, $weight, $pageId, $dataStr, $now, $bid]
+                );
             } else {
-                $db->execute_query("INSERT INTO {$table} (block_type, region, weight, page_id, data, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                    [$blockType, $region, $weight, $pageId, $dataStr, $now, $now]);
+                $db->execute_query(
+                    "INSERT INTO {$table} (block_type, region, weight, page_id, data, created, changed) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    [$blockType, $region, $weight, $pageId, $dataStr, $now, $now]
+                );
                 $driver = method_exists($db, 'getDriver') ? $db->getDriver() : 'sqlite';
                 if ($driver === 'sqlite') {
                     $bid = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? null;
@@ -609,7 +672,8 @@ try {
 
         case 'delete_block':
             $bid = $_REQUEST['id'] ?? null;
-            if (!$bid) sendResponse(false, [], "Block ID required.");
+            if (!$bid)
+                sendResponse(false, [], "Block ID required.");
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('landing_blocks');
             $db->execute_query("DELETE FROM {$table} WHERE id=?", [$bid]);
@@ -622,7 +686,7 @@ try {
                 ['id' => 'dynamic_view', 'name' => 'Lekhak Views Dynamic Query', 'description' => 'Fetch Lekhak CMS Nodes dynamically with sorting, limit, and responsive layouts.'],
                 ['id' => 'text', 'name' => 'Simple Markdown/Text', 'description' => 'A basic textual element matching system aesthetic guidelines.']
             ];
-            
+
             // Allow modules to register their own placeable block types!
             $module_blocks = [];
             lekhak_invoke_alter('block_alter', $module_blocks);
@@ -633,7 +697,7 @@ try {
                     'description' => 'Provided by a Lekhak module. Renders dynamic content.'
                 ];
             }
-            
+
             sendResponse(true, ['types' => $types]);
             break;
 
@@ -645,17 +709,25 @@ try {
             }
             $defaults = [
                 'theme' => 'dark',
-                'enable_edge_consensus' => true, 'enable_merkle_trace' => false,
-                'speculative_offline' => true, 'strict_sri' => false,
-                'ambient_scale' => '1.05', 'primary_accent' => '#f97316',
-                'lekhni_default_mode' => 'document', 'lekhni_ai_copilot' => false,
-                'lekhni_code_language' => 'html', 'designer_grid_snap' => true,
-                'designer_autosave' => 300, 'structure_strict_schema' => false,
-                'content_default_status' => 'draft', 'content_revision_tracking' => true
+                'enable_edge_consensus' => true,
+                'enable_merkle_trace' => false,
+                'speculative_offline' => true,
+                'strict_sri' => false,
+                'ambient_scale' => '1.05',
+                'primary_accent' => '#f97316',
+                'lekhni_default_mode' => 'document',
+                'lekhni_ai_copilot' => false,
+                'lekhni_code_language' => 'html',
+                'designer_grid_snap' => true,
+                'designer_autosave' => 300,
+                'structure_strict_schema' => false,
+                'content_default_status' => 'draft',
+                'content_revision_tracking' => true
             ];
             $configs = array_merge($defaults, $settingsConfig);
             $configPath = \SPP\App::getApp()->getAppConfDir() . '/drishyam.yml';
-            $activeAdmin = 'glass_admin'; $activeSite = 'premium';
+            $activeAdmin = 'glass_admin';
+            $activeSite = 'premium';
             if (file_exists($configPath)) {
                 $drishConfig = \Symfony\Component\Yaml\Yaml::parseFile($configPath);
                 $activeAdmin = $drishConfig['contexts']['admin'] ?? 'glass_admin';
@@ -671,8 +743,10 @@ try {
             $configPath = \SPP\App::getApp()->getAppConfDir() . '/drishyam.yml';
             try {
                 $config = file_exists($configPath) ? (\Symfony\Component\Yaml\Yaml::parseFile($configPath) ?: []) : [];
-                if ($adminTheme) $config['contexts']['admin'] = $adminTheme;
-                if ($siteTheme) $config['contexts']['site'] = $siteTheme;
+                if ($adminTheme)
+                    $config['contexts']['admin'] = $adminTheme;
+                if ($siteTheme)
+                    $config['contexts']['site'] = $siteTheme;
                 file_put_contents($configPath, \Symfony\Component\Yaml\Yaml::dump($config, 4, 2));
                 if ($configs) {
                     $settingsPath = \SPP\App::getApp()->getAppConfDir() . '/settings.yml';
@@ -692,7 +766,7 @@ try {
             $installed = $db->execute_query("SELECT * FROM {$table}");
             $statusMap = [];
             foreach ($installed as $m) {
-                $statusMap[$m['machine_name']] = (int)$m['status'];
+                $statusMap[$m['machine_name']] = (int) $m['status'];
             }
             // Master Registry of 50 Modules
             $masterList = [
@@ -755,7 +829,7 @@ try {
                 ['machine_name' => 'varnish', 'title' => 'Varnish purger', 'category' => 'Performance', 'desc' => 'Invalidate Varnish cache.'],
                 ['machine_name' => 'fast_404', 'title' => 'Fast 404', 'category' => 'Performance', 'desc' => 'Delivers fast 404 error pages.'],
                 ['machine_name' => 'dblog', 'title' => 'Database Logging', 'category' => 'Performance', 'desc' => 'Logs and records system events to the database.'],
-                
+
                 // Analytics
                 ['machine_name' => 'sankhyaki', 'title' => 'Sankhyaki Analytics', 'category' => 'Analytics', 'desc' => 'Tracks visitors, referrers, and search engine stats natively.'],
             ];
@@ -772,11 +846,11 @@ try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('lekhak_modules');
             _lekhak_ensure_table($db, $table, "machine_name VARCHAR(100) PRIMARY KEY, status INTEGER DEFAULT 0, installed_at TEXT");
-            
+
             $machine_name = $_POST['machine_name'] ?? '';
-            $status = (int)($_POST['status'] ?? 0);
+            $status = (int) ($_POST['status'] ?? 0);
             $now = date("Y-m-d H:i:s");
-            
+
             if (!$machine_name) {
                 sendResponse(false, [], "Machine name required.");
                 exit;

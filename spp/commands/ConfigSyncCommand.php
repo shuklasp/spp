@@ -60,7 +60,7 @@ class ConfigSyncCommand extends \SPP\CLI\Command
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
-            
+
             if (!$db->tableExists($table)) {
                 echo "Table {$table} does not exist. Creating...\n";
                 // Determine engine specific syntax if needed, using standard generic SQL for now
@@ -75,7 +75,7 @@ class ConfigSyncCommand extends \SPP\CLI\Command
                     value_decimal DECIMAL(10,2),
                     PRIMARY KEY (entity_type, entity_id, field_name)
                 )";
-                
+
                 if ($db->getDriver() === 'sqlite') {
                     $sql = "CREATE TABLE {$table} (
                         entity_type TEXT NOT NULL,
@@ -100,7 +100,7 @@ class ConfigSyncCommand extends \SPP\CLI\Command
                 } else {
                     $db->exec($sql);
                 }
-                
+
                 echo "Table {$table} created successfully.\n";
             } else {
                 echo "Table {$table} already exists. Verifying schema...\n";

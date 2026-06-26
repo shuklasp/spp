@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPP XDB: Enterprise-Grade Native XML Database Engine | SPP Documentation</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --primary: #6366f1;
@@ -18,7 +21,11 @@
             --border: rgba(255, 255, 255, 0.1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -47,21 +54,71 @@
             justify-content: space-between;
         }
 
-        .logo-box { display: flex; align-items: center; gap: 1rem; }
-        .logo-box img { width: 40px; height: 40px; }
-        .logo-box span { font-weight: 800; font-size: 1.2rem; color: var(--accent); }
+        .logo-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-        h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 1.5rem; color: var(--accent); letter-spacing: -0.02em; }
-        h2 { font-size: 1.8rem; margin: 2.5rem 0 1.2rem; color: var(--primary); border-left: 4px solid var(--primary); padding-left: 1rem; }
-        h3 { font-size: 1.4rem; margin: 2rem 0 1rem; color: var(--text); }
+        .logo-box img {
+            width: 40px;
+            height: 40px;
+        }
 
-        p { margin-bottom: 1.2rem; color: var(--text-dim); }
+        .logo-box span {
+            font-weight: 800;
+            font-size: 1.2rem;
+            color: var(--accent);
+        }
 
-        ul, ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
-        li { margin-bottom: 0.5rem; color: var(--text-dim); }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+            letter-spacing: -0.02em;
+        }
 
-        a { color: var(--accent); text-decoration: none; transition: color 0.2s; }
-        a:hover { color: var(--primary); text-decoration: underline; }
+        h2 {
+            font-size: 1.8rem;
+            margin: 2.5rem 0 1.2rem;
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+            padding-left: 1rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            margin: 2rem 0 1rem;
+            color: var(--text);
+        }
+
+        p {
+            margin-bottom: 1.2rem;
+            color: var(--text-dim);
+        }
+
+        ul,
+        ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-dim);
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
 
         code {
             font-family: 'JetBrains Mono', monospace;
@@ -81,9 +138,17 @@
             border: 1px solid var(--border);
         }
 
-        pre code { color: #e2e8f0; background: transparent; padding: 0; }
+        pre code {
+            color: #e2e8f0;
+            background: transparent;
+            padding: 0;
+        }
 
-        hr { border: 0; border-top: 1px solid var(--border); margin: 3rem 0; }
+        hr {
+            border: 0;
+            border-top: 1px solid var(--border);
+            margin: 3rem 0;
+        }
 
         .back-link {
             display: inline-flex;
@@ -103,6 +168,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -112,66 +178,121 @@
             </div>
             <div class="meta">DOCS V2.0</div>
         </header>
-        
+
         <main>
             <h1>SPP XDB: Enterprise-Grade Native XML Database Engine</h1>
-<h2>📖 Overview</h2>
-<p><strong>SPP XDB</strong> is a Tier-1 Native XML Database (NXD) engine integrated into the SPP Framework. It provides a robust, schema-agnostic storage solution that combines the hierarchical flexibility of XML with the rigorous integrity and scalability of enterprise relational databases. </p>
-<h2>🏛️ Architecture</h2>
-<h3>1. Multi-Paradigm Query Layer</h3>
-<p>SPP XDB supports three distinct query languages, allowing developers to choose the best tool for the task: </p>
-<ul><li><strong>SQL-92</strong>: A standard SQL interface (SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY).</li><li><strong>GraphQL</strong>: A modern API bridge that translates GQL queries into optimized database operations.</li><li><strong>FLWOR-Lite</strong>: A native XQuery-inspired syntax for tree-based data navigation.</li></ul>
-<h3>2. Extreme Scaling &amp; Storage</h3>
-<ul><li><strong>Horizontal Partitioning</strong>: Automatically segments tables into multiple physical files (e.g., <code>data.0.xml</code>, <code>data.1.xml</code>) once row thresholds are reached.</li><li><strong>Transparent Compression</strong>: Supports searching and reading GZip-compressed segments (<code>.xml.gz</code>) on-the-fly.</li><li><strong>BLOB Offloading</strong>: Large binary data is stored in a dedicated <code>_blobs/</code> directory, keeping the primary XML metadata lean and fast.</li><li><strong>Materialized Views</strong>: Caches complex query results to disk in JSON format for sub-millisecond retrieval.</li></ul>
-<h3>3. Intelligence &amp; Maintenance</h3>
-<ul><li><strong>Cost-Based Optimizer (CBO)</strong>: Analyzes table statistics to generate the most efficient execution plan (e.g., Index Scan vs. Full Scan).</li><li><strong>Self-Healing Engine</strong>: Automatically detects and reports XML corruption, missing segments, or orphaned foreign key references.</li><li><strong>Autonomous Indexing</strong>: Tracks slow queries and suggests optimal indexing strategies via the admin dashboard.</li></ul>
-<h3>4. Security &amp; Governance</h3>
-<ul><li><strong>Blockchain Audit Chain</strong>: Every data mutation is cryptographically linked to the previous entry, creating an immutable audit trail.</li><li><strong>Table-Level ACL</strong>: Granular read/write permissions enforced at the engine core.</li><li><strong>Temporal Data (Time Travel)</strong>: Native versioning allows querying the database state &quot;As Of&quot; any historical timestamp.</li><li><strong>Global ACID Transactions</strong>: Journal-based atomic commits across multiple tables.</li></ul>
-<hr>
-<h2>🚀 Implementation &amp; Usage</h2>
-<h3>Basic Connection</h3>
-<pre><code>use SPPMod\SPPXDB\SPP_XDB;
-<p>$xdb = new SPP_XDB(&#039;my_database&#039;); $xdb-&gt;connect(&#039;users&#039;);</code></pre> </p>
-<h3>SQL Operations</h3>
-<pre><code>// Complex JOIN across partitioned segments
-<p>$sql = &quot;SELECT users.name, orders.total FROM users INNER JOIN orders ON users.id = orders.user_id WHERE orders.total &gt; 500&quot;; $results = $xdb-&gt;querySQL($sql);</code></pre> </p>
-<h3>GraphQL Bridge</h3>
-<pre><code>$gql = &#039;{ users(role: &quot;admin&quot;) { id name email } }&#039;;
-<p>$data = $xdb-&gt;queryGraphQL($gql);</code></pre> </p>
-<h3>SQL Introspection &amp; DDL</h3>
-<p>The SQL engine supports standard database discovery and management commands: </p>
-<pre><code>// List all databases
+            <h2>📖 Overview</h2>
+            <p><strong>SPP XDB</strong> is a Tier-1 Native XML Database (NXD) engine integrated into the SPP Framework.
+                It provides a robust, schema-agnostic storage solution that combines the hierarchical flexibility of XML
+                with the rigorous integrity and scalability of enterprise relational databases. </p>
+            <h2>🏛️ Architecture</h2>
+            <h3>1. Multi-Paradigm Query Layer</h3>
+            <p>SPP XDB supports three distinct query languages, allowing developers to choose the best tool for the
+                task: </p>
+            <ul>
+                <li><strong>SQL-92</strong>: A standard SQL interface (SELECT, INSERT, UPDATE, DELETE, JOIN, GROUP BY).
+                </li>
+                <li><strong>GraphQL</strong>: A modern API bridge that translates GQL queries into optimized database
+                    operations.</li>
+                <li><strong>FLWOR-Lite</strong>: A native XQuery-inspired syntax for tree-based data navigation.</li>
+            </ul>
+            <h3>2. Extreme Scaling &amp; Storage</h3>
+            <ul>
+                <li><strong>Horizontal Partitioning</strong>: Automatically segments tables into multiple physical files
+                    (e.g., <code>data.0.xml</code>, <code>data.1.xml</code>) once row thresholds are reached.</li>
+                <li><strong>Transparent Compression</strong>: Supports searching and reading GZip-compressed segments
+                    (<code>.xml.gz</code>) on-the-fly.</li>
+                <li><strong>BLOB Offloading</strong>: Large binary data is stored in a dedicated <code>_blobs/</code>
+                    directory, keeping the primary XML metadata lean and fast.</li>
+                <li><strong>Materialized Views</strong>: Caches complex query results to disk in JSON format for
+                    sub-millisecond retrieval.</li>
+            </ul>
+            <h3>3. Intelligence &amp; Maintenance</h3>
+            <ul>
+                <li><strong>Cost-Based Optimizer (CBO)</strong>: Analyzes table statistics to generate the most
+                    efficient execution plan (e.g., Index Scan vs. Full Scan).</li>
+                <li><strong>Self-Healing Engine</strong>: Automatically detects and reports XML corruption, missing
+                    segments, or orphaned foreign key references.</li>
+                <li><strong>Autonomous Indexing</strong>: Tracks slow queries and suggests optimal indexing strategies
+                    via the admin dashboard.</li>
+            </ul>
+            <h3>4. Security &amp; Governance</h3>
+            <ul>
+                <li><strong>Blockchain Audit Chain</strong>: Every data mutation is cryptographically linked to the
+                    previous entry, creating an immutable audit trail.</li>
+                <li><strong>Table-Level ACL</strong>: Granular read/write permissions enforced at the engine core.</li>
+                <li><strong>Temporal Data (Time Travel)</strong>: Native versioning allows querying the database state
+                    &quot;As Of&quot; any historical timestamp.</li>
+                <li><strong>Global ACID Transactions</strong>: Journal-based atomic commits across multiple tables.</li>
+            </ul>
+            <hr>
+            <h2>🚀 Implementation &amp; Usage</h2>
+            <h3>Basic Connection</h3>
+            <pre><code>use SPPMod\SPPXDB\SPP_XDB;
+<p>$xdb = new SPP_XDB(&#039;my_database&#039;); $xdb-&gt;connect(&#039;users&#039;);</code></pre>
+            </p>
+            <h3>SQL Operations</h3>
+            <pre><code>// Complex JOIN across partitioned segments
+<p>$sql = &quot;SELECT users.name, orders.total FROM users INNER JOIN orders ON users.id = orders.user_id WHERE orders.total &gt; 500&quot;; $results = $xdb-&gt;querySQL($sql);</code></pre>
+            </p>
+            <h3>GraphQL Bridge</h3>
+            <pre><code>$gql = &#039;{ users(role: &quot;admin&quot;) { id name email } }&#039;;
+<p>$data = $xdb-&gt;queryGraphQL($gql);</code></pre>
+            </p>
+            <h3>SQL Introspection &amp; DDL</h3>
+            <p>The SQL engine supports standard database discovery and management commands: </p>
+            <pre><code>// List all databases
 <p>$databases = $xdb-&gt;querySQL(&quot;SHOW DATABASES&quot;); </p>
 <p>// List tables in current database $tables = $xdb-&gt;querySQL(&quot;SHOW TABLES&quot;); </p>
-<p>// Describe table schema (Type, Null, Key, Default, Extra) $schema = $xdb-&gt;querySQL(&quot;DESCRIBE users&quot;);</code></pre> </p>
-<h3>Global Transactions (Tier-1 ACID)</h3>
-<pre><code>$xdb-&gt;beginGlobalTransaction();
-<p>try { $xdb-&gt;connect(&#039;accounts&#039;)-&gt;update([&#039;balance&#039; =&gt; 900], &#039;id = 1&#039;); $xdb-&gt;connect(&#039;ledger&#039;)-&gt;insert([&#039;type&#039; =&gt; &#039;DEBIT&#039;, &#039;amount&#039; =&gt; 100]); $xdb-&gt;commitGlobal(); } catch (Exception $e) { $xdb-&gt;rollbackGlobal(); }</code></pre> </p>
-<hr>
-<h2>🔗 Framework Integration (SPPDB Driver)</h2>
-<p>SPPXDB is now fully integrated into the <code>SPPDB</code> abstraction layer. You can use XDB transparently via the generic database methods. </p>
-<h3>Usage in SPPDB</h3>
-<pre><code>use SPPMod\SPPDB\SPPDB;
+<p>// Describe table schema (Type, Null, Key, Default, Extra) $schema = $xdb-&gt;querySQL(&quot;DESCRIBE users&quot;);</code></pre>
+            </p>
+            <h3>Global Transactions (Tier-1 ACID)</h3>
+            <pre><code>$xdb-&gt;beginGlobalTransaction();
+<p>try { $xdb-&gt;connect(&#039;accounts&#039;)-&gt;update([&#039;balance&#039; =&gt; 900], &#039;id = 1&#039;); $xdb-&gt;connect(&#039;ledger&#039;)-&gt;insert([&#039;type&#039; =&gt; &#039;DEBIT&#039;, &#039;amount&#039; =&gt; 100]); $xdb-&gt;commitGlobal(); } catch (Exception $e) { $xdb-&gt;rollbackGlobal(); }</code></pre>
+            </p>
+            <hr>
+            <h2>🔗 Framework Integration (SPPDB Driver)</h2>
+            <p>SPPXDB is now fully integrated into the <code>SPPDB</code> abstraction layer. You can use XDB
+                transparently via the generic database methods. </p>
+            <h3>Usage in SPPDB</h3>
+            <pre><code>use SPPMod\SPPDB\SPPDB;
 <p>// Automatically uses XDB if dbtype: xdb is configured $db = new SPPDB(); </p>
 <p>// Generic SELECT (engine-agnostic) $results = $db-&gt;execute_query(&quot;SELECT * FROM users WHERE status = ?&quot;, [&#039;active&#039;]); </p>
-<p>// Fluent Query Builder $user = $db-&gt;table(&#039;users&#039;)-&gt;where(&#039;id&#039;, 1)-&gt;first();</code></pre> </p>
-<hr>
-<h2>🐚 Interactive CLI Shell</h2>
-<p>The XDB Shell provides a high-performance REPL for direct database communication. </p>
-<h3>Launching the Shell</h3>
-<pre><code><h1>Standard launch via SPP CLI</h1>
-<p>php spp.php xdb:shell</code></pre> </p>
-<h3>Features</h3>
-<p>- <strong>Prompt</strong>: <code>xdb(context)&gt;</code> for visual feedback. - <strong>SQL Compatibility</strong>: Full support for <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>, and <code>SHOW</code>. - <strong>ASCII Tables</strong>: Automatic terminal formatting for query results. - <strong>Quiet Mode</strong>: Automatically suppresses framework discovery logs for a clean interface. </p>
-<hr>
-<h2>💼 Use Cases</h2>
-<p>1.  <strong>Compliance-Heavy Systems</strong>: High-security environments where an untamperable (Blockchain) audit trail is required. 2.  <strong>Rapid Schema Prototyping</strong>: Applications with evolving data structures where traditional SQL migrations are too rigid. 3.  <strong>Distributed Content Management</strong>: Large-scale CMS systems requiring horizontal partitioning and multi-node replication. 4.  <strong>Legacy Data Modernization</strong>: Using XSLT to transform complex XML data into modern JSON/HTML interfaces. 5.  <strong>Historical Auditing</strong>: Financial or legal systems needing &quot;Time Travel&quot; queries to view past database states. </p>
-<hr>
-<h2>🛠️ Internal Mechanics: The Raft Consensus</h2>
-<p>For high availability, SPP XDB implements a simplified <strong>Raft protocol</strong> for leader election and log replication. </p>
-<ul><li><strong>Follower</strong>: Listens for heartbeats from the leader.</li><li><strong>Candidate</strong>: Requests votes from other nodes to become a leader.</li><li><strong>Leader</strong>: Manages all write operations and replicates the binlog to followers.</li></ul>
-<hr>
-<p><a href="index.html">Framework Index</a> | <a href="modules/index.html">Core Modules</a> </p>
+<p>// Fluent Query Builder $user = $db-&gt;table(&#039;users&#039;)-&gt;where(&#039;id&#039;, 1)-&gt;first();</code></pre>
+            </p>
+            <hr>
+            <h2>🐚 Interactive CLI Shell</h2>
+            <p>The XDB Shell provides a high-performance REPL for direct database communication. </p>
+            <h3>Launching the Shell</h3>
+            <pre><code><h1>Standard launch via SPP CLI</h1>
+<p>php spp.php xdb:shell</code></pre>
+            </p>
+            <h3>Features</h3>
+            <p>- <strong>Prompt</strong>: <code>xdb(context)&gt;</code> for visual feedback. - <strong>SQL
+                    Compatibility</strong>: Full support for <code>SELECT</code>, <code>INSERT</code>,
+                <code>UPDATE</code>, <code>DELETE</code>, and <code>SHOW</code>. - <strong>ASCII Tables</strong>:
+                Automatic terminal formatting for query results. - <strong>Quiet Mode</strong>: Automatically suppresses
+                framework discovery logs for a clean interface. </p>
+            <hr>
+            <h2>💼 Use Cases</h2>
+            <p>1. <strong>Compliance-Heavy Systems</strong>: High-security environments where an untamperable
+                (Blockchain) audit trail is required. 2. <strong>Rapid Schema Prototyping</strong>: Applications with
+                evolving data structures where traditional SQL migrations are too rigid. 3. <strong>Distributed Content
+                    Management</strong>: Large-scale CMS systems requiring horizontal partitioning and multi-node
+                replication. 4. <strong>Legacy Data Modernization</strong>: Using XSLT to transform complex XML data
+                into modern JSON/HTML interfaces. 5. <strong>Historical Auditing</strong>: Financial or legal systems
+                needing &quot;Time Travel&quot; queries to view past database states. </p>
+            <hr>
+            <h2>🛠️ Internal Mechanics: The Raft Consensus</h2>
+            <p>For high availability, SPP XDB implements a simplified <strong>Raft protocol</strong> for leader election
+                and log replication. </p>
+            <ul>
+                <li><strong>Follower</strong>: Listens for heartbeats from the leader.</li>
+                <li><strong>Candidate</strong>: Requests votes from other nodes to become a leader.</li>
+                <li><strong>Leader</strong>: Manages all write operations and replicates the binlog to followers.</li>
+            </ul>
+            <hr>
+            <p><a href="index.html">Framework Index</a> | <a href="modules/index.html">Core Modules</a> </p>
 
         </main>
 
@@ -180,4 +301,5 @@
         </footer>
     </div>
 </body>
+
 </html>

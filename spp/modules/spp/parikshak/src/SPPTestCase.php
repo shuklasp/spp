@@ -45,8 +45,8 @@ abstract class SPPTestCase
     protected function assertEquals($expected, $actual, string $message = ''): void
     {
         if ($expected != $actual) {
-            $expectedStr = is_scalar($expected) ? (string)$expected : gettype($expected);
-            $actualStr = is_scalar($actual) ? (string)$actual : gettype($actual);
+            $expectedStr = is_scalar($expected) ? (string) $expected : gettype($expected);
+            $actualStr = is_scalar($actual) ? (string) $actual : gettype($actual);
             throw new \Exception($message ?: "Failed asserting that '{$actualStr}' matches expected '{$expectedStr}'.");
         }
     }

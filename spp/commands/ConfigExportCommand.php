@@ -31,8 +31,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
     public function execute(array $args): void
     {
         $options = $this->parseOptions($args);
-        $format  = $options['format']   ?? 'sql';
-        $tables  = $options['tables']   ?? null; // null = all
+        $format = $options['format'] ?? 'sql';
+        $tables = $options['tables'] ?? null; // null = all
         $xdbName = $options['xdb-name'] ?? null;
 
         $exportDir = (defined('SPP_APP_DIR') ? SPP_APP_DIR : '.') . '/var/exports';
@@ -119,7 +119,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
             foreach ($rows as $row) {
                 $cols = implode(', ', array_map(fn($c) => "`{$c}`", array_keys($row)));
                 $vals = implode(', ', array_map(function ($v) use ($db) {
-                    if ($v === null) return 'NULL';
+                    if ($v === null)
+                        return 'NULL';
                     return "'" . addslashes($v) . "'";
                 }, array_values($row)));
                 $sql .= "INSERT INTO {$table} ({$cols}) VALUES ({$vals});\n";
@@ -145,7 +146,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
 
             // Copy data
             $rows = $db->execute_query("SELECT * FROM {$table}");
-            if (empty($rows)) continue;
+            if (empty($rows))
+                continue;
 
             $cols = array_keys($rows[0]);
             $placeholders = implode(', ', array_fill(0, count($cols), '?'));
@@ -192,7 +194,7 @@ class ConfigExportCommand extends \SPP\CLI\Command
                 $tableNode->appendChild($rowNode);
             }
 
-            $tableNode->setAttribute('rows', (string)count($rows));
+            $tableNode->setAttribute('rows', (string) count($rows));
             $root->appendChild($tableNode);
             $this->line("  XDB: {$table} — " . count($rows) . " row(s)");
         }
@@ -206,7 +208,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
     {
         $settingsPath = (defined('SPP_ETC_DIR') ? SPP_ETC_DIR : dirname(__DIR__, 2) . '/etc')
             . '/global-settings.yml';
-        if (!file_exists($settingsPath)) return;
+        if (!file_exists($settingsPath))
+            return;
 
         $content = file_get_contents($settingsPath);
 
@@ -254,7 +257,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
     {
         if (class_exists('\\SPP\\SPPConfig')) {
             $name = \SPP\SPPConfig::get('database.name');
-            if ($name) return $name;
+            if ($name)
+                return $name;
         }
         return 'spp_export';
     }
@@ -268,9 +272,12 @@ class ConfigExportCommand extends \SPP\CLI\Command
                 $name = $col['Field'];
                 $type = strtoupper($col['Type']);
                 $sqliteType = 'TEXT';
-                if (str_contains($type, 'INT')) $sqliteType = 'INTEGER';
-                elseif (str_contains($type, 'REAL') || str_contains($type, 'FLOAT') || str_contains($type, 'DOUBLE') || str_contains($type, 'DECIMAL')) $sqliteType = 'REAL';
-                elseif (str_contains($type, 'BLOB')) $sqliteType = 'BLOB';
+                if (str_contains($type, 'INT'))
+                    $sqliteType = 'INTEGER';
+                elseif (str_contains($type, 'REAL') || str_contains($type, 'FLOAT') || str_contains($type, 'DOUBLE') || str_contains($type, 'DECIMAL'))
+                    $sqliteType = 'REAL';
+                elseif (str_contains($type, 'BLOB'))
+                    $sqliteType = 'BLOB';
 
                 $pk = ($col['Key'] === 'PRI') ? ' PRIMARY KEY' : '';
                 $auto = str_contains(strtolower($col['Extra'] ?? ''), 'auto_increment') ? ' AUTOINCREMENT' : '';

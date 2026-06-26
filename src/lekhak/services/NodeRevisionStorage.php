@@ -51,8 +51,8 @@ class NodeRevisionStorage implements RevisionStorageInterface
         $table = \SPPMod\SPPDB\SPPDB::sppTable('node_revision');
 
         // Extract raw data from entity
-        $data = method_exists($entity, 'toArray') ? $entity->toArray() : (array)$entity;
-        
+        $data = method_exists($entity, 'toArray') ? $entity->toArray() : (array) $entity;
+
         $entityType = 'node';
         $entityId = $entity->id ?? ($data['id'] ?? null);
 
@@ -71,11 +71,11 @@ class NodeRevisionStorage implements RevisionStorageInterface
         // Return the last inserted ID
         $driver = $db->getDriver();
         if ($driver === 'sqlite') {
-             $res = $db->execute_query("SELECT last_insert_rowid() as id");
-             return $res[0]['id'] ?? null;
+            $res = $db->execute_query("SELECT last_insert_rowid() as id");
+            return $res[0]['id'] ?? null;
         } else {
-             $res = $db->execute_query("SELECT LAST_INSERT_ID() as id");
-             return $res[0]['id'] ?? null;
+            $res = $db->execute_query("SELECT LAST_INSERT_ID() as id");
+            return $res[0]['id'] ?? null;
         }
     }
 
@@ -88,7 +88,8 @@ class NodeRevisionStorage implements RevisionStorageInterface
         $sql = "SELECT data_json FROM {$table} WHERE entity_type = ? AND entity_id = ? AND revision_id = ?";
         $res = $db->execute_query($sql, [$entityType, $entityId, $revisionId]);
 
-        if (empty($res)) return null;
+        if (empty($res))
+            return null;
 
         return json_decode($res[0]['data_json'], true);
     }

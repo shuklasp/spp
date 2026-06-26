@@ -65,7 +65,7 @@ class ViewFormBuilder extends \SPP\SPPObject
         }
 
         $form = self::fromArray($config, $config['form']['name']);
-        if ($this->entity instanceof \SPPMod\SppDb\SPPEntity) {
+        if ($this->entity instanceof \SPPMod\SPPDB\SPPEntity) {
             $form->setEntityInstance($this->entity);
             $form->setEntityClass(get_class($this->entity));
             $form->bind($this->entity);
@@ -247,10 +247,10 @@ class ViewFormBuilder extends \SPP\SPPObject
         // Populate semantic metadata for modern layout
         if ($elem instanceof SPPViewForm_Element) {
             if (isset($field['label'])) {
-                $elem->setLabel((string)$field['label']);
+                $elem->setLabel((string) $field['label']);
             }
             if (isset($field['help'])) {
-                $elem->setHelpText((string)$field['help']);
+                $elem->setHelpText((string) $field['help']);
             }
 
             foreach (['placeholder', 'value', 'readonly', 'disabled', 'rows', 'cols', 'min', 'max', 'step', 'col'] as $attr) {
@@ -836,7 +836,8 @@ class ViewFormBuilder extends \SPP\SPPObject
             case 'pattern':
                 $pattern = $vConfig['pattern'] ?? $vConfig['regex'] ?? '';
                 $validator = new SPP_Validator_RegexValidator($elem, $pattern, $errHolder, $msg);
-                if ($pattern) $elem->setAttribute('pattern', ltrim(rtrim($pattern, '/'), '/'));
+                if ($pattern)
+                    $elem->setAttribute('pattern', ltrim(rtrim($pattern, '/'), '/'));
                 break;
             case 'filesize':
                 $max = $vConfig['max'] ?? 2097152;

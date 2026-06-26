@@ -22,7 +22,7 @@ It uses a heuristic fallback logic that scans the lowercased prompt for keywords
 - If it detects `ecommerce` or `store`, it assumes the entities required are `Product`, `Order`, and `Customer`.
 - If it detects `blog`, it assumes `Post`, `Comment`, and `Tag`.
 - Otherwise, it falls back to a generic `FeatureModel`.
-For each identified entity, it constructs a configuration array defining table properties (`table`, `id_field`, `sequence`), login configuration, and basic attributes (`name` as varchar, `created_at` as timestamp). It then invokes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()` to write the formal entity definition schemas to the file system (within the 'default' app context).
+For each identified entity, it constructs a configuration array defining table properties (`table`, `id_field`, `sequence`), login configuration, and basic attributes (`name` as varchar, `created_at` as timestamp). It then invokes `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()` to write the formal entity definition schemas to the file system (within the 'default' app context).
 
 # EXAMPLES
 

@@ -1,11 +1,13 @@
 <?php
 namespace SPPMod\Sppauth\Migrations;
 
-use SPPMod\Sppdb\Migration\SPPMigration;
+use SPPMod\SPPDB\Migration\SPPMigration;
 
-class ConsolidateIdentityTables extends SPPMigration {
-    
-    public function up(): void {
+class ConsolidateIdentityTables extends SPPMigration
+{
+
+    public function up(): void
+    {
         // 1. Rename existing users table to spp_users if it isn't already
         $this->db->exec_squery("CREATE TABLE IF NOT EXISTS spp_users (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -51,7 +53,7 @@ class ConsolidateIdentityTables extends SPPMigration {
         } catch (\Exception $e) {
             // spp_profiles might not exist, ignore
         }
-        
+
         try {
             $oldGroups = $this->db->exec_squery("SELECT * FROM spp_groups");
             foreach ($oldGroups as $group) {
@@ -62,13 +64,15 @@ class ConsolidateIdentityTables extends SPPMigration {
             // spp_groups might not exist, ignore
         }
     }
-    
-    public function down(): void {
+
+    public function down(): void
+    {
         // Rollback is complex if we merged tables, but for testing we can drop the new ones
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_user_roles");
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_roles");
         try {
             $this->db->exec_squery("ALTER TABLE spp_users DROP COLUMN profile_data");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 }

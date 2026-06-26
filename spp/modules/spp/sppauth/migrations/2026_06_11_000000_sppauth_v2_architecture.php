@@ -1,11 +1,13 @@
 <?php
 namespace SPPMod\Sppauth\Migrations;
 
-use SPPMod\Sppdb\Migration\SPPMigration;
+use SPPMod\SPPDB\Migration\SPPMigration;
 
-class SppAuthV2Architecture extends SPPMigration {
-    
-    public function up(): void {
+class SppAuthV2Architecture extends SPPMigration
+{
+
+    public function up(): void
+    {
         // 1. login_attempts
         $this->db->exec_squery("CREATE TABLE IF NOT EXISTS spp_login_attempts (
             id INT AUTO_INCREMENT PRIMARY KEY,
@@ -92,7 +94,7 @@ class SppAuthV2Architecture extends SPPMigration {
         } catch (\Exception $e) {
             // Columns might exist
         }
-        
+
         try {
             // Fallback if the legacy users table without prefix is used directly
             $this->db->exec_squery("ALTER TABLE users 
@@ -106,13 +108,16 @@ class SppAuthV2Architecture extends SPPMigration {
         // 9. loginrec Table Alterations
         try {
             $this->db->exec_squery("ALTER TABLE spp_loginrec ADD COLUMN user_agent TEXT NULL");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         try {
             $this->db->exec_squery("ALTER TABLE loginrec ADD COLUMN user_agent TEXT NULL");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
-    
-    public function down(): void {
+
+    public function down(): void
+    {
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_login_attempts");
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_personal_access_tokens");
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_oauth_providers");
@@ -121,27 +126,31 @@ class SppAuthV2Architecture extends SPPMigration {
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_webauthn_credentials");
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_oauth_clients");
         $this->db->exec_squery("DROP TABLE IF EXISTS spp_oauth_tokens");
-        
+
         try {
             $this->db->exec_squery("ALTER TABLE spp_users 
                 DROP COLUMN two_factor_secret,
                 DROP COLUMN two_factor_enabled,
                 DROP COLUMN password_updated_at,
                 DROP COLUMN rights_updated_at");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         try {
             $this->db->exec_squery("ALTER TABLE users 
                 DROP COLUMN two_factor_secret,
                 DROP COLUMN two_factor_enabled,
                 DROP COLUMN password_updated_at,
                 DROP COLUMN rights_updated_at");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         try {
             $this->db->exec_squery("ALTER TABLE spp_loginrec DROP COLUMN user_agent");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         try {
             $this->db->exec_squery("ALTER TABLE loginrec DROP COLUMN user_agent");
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 }

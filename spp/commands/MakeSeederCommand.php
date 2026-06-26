@@ -13,9 +13,10 @@ class MakeSeederCommand extends BaseMakeCommand
     {
         $seederName = $args[2] ?? null;
         $appname = "default";
-        
+
         foreach ($args as $arg) {
-            if (str_starts_with($arg, '--app=')) $appname = substr($arg, 6);
+            if (str_starts_with($arg, '--app='))
+                $appname = substr($arg, 6);
         }
 
         if (!$seederName) {

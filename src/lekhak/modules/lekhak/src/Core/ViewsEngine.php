@@ -66,13 +66,13 @@ class ViewsEngine
         }
 
         // Apply limit
-        $limit = isset($viewData['pager']['limit']) ? (int)$viewData['pager']['limit'] : null;
+        $limit = isset($viewData['pager']['limit']) ? (int) $viewData['pager']['limit'] : null;
         if ($limit) {
             $sql .= " LIMIT " . $limit;
         }
 
         $rows = $db->exec_squery($sql, $table, $values);
-        
+
         // Hydrate node entities if listing nodes
         if ($baseTable === 'nodes') {
             $nodes = [];

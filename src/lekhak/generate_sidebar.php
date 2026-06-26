@@ -88,7 +88,7 @@ foreach ($categories as $cat => $items) {
     $sidebar_html .= "                    <span class=\"toggle-icon\" style=\"font-size: 0.6rem; transition: transform 0.2s;\">▼</span>\n";
     $sidebar_html .= "                </div>\n";
     $sidebar_html .= "                <div class=\"nav-group-content\">\n";
-    
+
     foreach ($items as $item) {
         $sidebar_html .= "                    <?php if (in_array('{$item['id']}', \$active_modules)): ?>\n";
         $sidebar_html .= "                    <div class=\"nav-item\">\n";
@@ -102,7 +102,7 @@ foreach ($categories as $cat => $items) {
         $sidebar_html .= "                    </div>\n";
         $sidebar_html .= "                    <?php endif; ?>\n";
     }
-    
+
     $sidebar_html .= "                </div>\n";
     $sidebar_html .= "            </div>\n";
 }

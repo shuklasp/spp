@@ -70,19 +70,19 @@ class Queue
             if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $now = time();
-                
+
                 // Fetch candidate without locking the whole table
                 $sql = "SELECT id, payload FROM " . self::$table . " WHERE reserved_at IS NULL AND available_at <= $now ORDER BY id ASC LIMIT 1";
                 $res = $db->query($sql);
-                
+
                 if (!empty($res) && isset($res[0])) {
                     $jobRow = $res[0];
                     // Optimistic lock attempt
                     $db->execute_query("UPDATE " . self::$table . " SET reserved_at = ?, attempts = attempts + 1 WHERE id = ? AND reserved_at IS NULL", [$now, $jobRow['id']]);
-                    
+
                     // Verify if we won the reservation
                     $check = $db->query("SELECT id FROM " . self::$table . " WHERE id = ? AND reserved_at = ?", [$jobRow['id'], $now]);
-                    
+
                     if (!empty($check)) {
                         $decoded = json_decode($jobRow['payload'], true);
                         if (is_array($decoded) && isset($decoded['class'])) {
@@ -113,7 +113,8 @@ class Queue
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $db->execute_query("DELETE FROM " . self::$table . " WHERE id = ?", [$id]);
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 namespace App\Lekhak\Entities;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class Field

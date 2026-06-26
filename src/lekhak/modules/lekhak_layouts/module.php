@@ -7,12 +7,14 @@ namespace Lekhak\Modules\LekhakModuleDisplaySuite;
  * @configure admin/config/lekhak_layouts
  */
 
-class LekhakModuleDisplaySuite {
+class LekhakModuleDisplaySuite
+{
 
     private $name = 'lekhak_layouts';
     private $title = 'Display Suite';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_display_suite_config (
@@ -20,10 +22,11 @@ class LekhakModuleDisplaySuite {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_display_suite_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Core module initialization logic.
         return true;
     }
@@ -31,12 +34,14 @@ class LekhakModuleDisplaySuite {
     /**
      * Extends native Lekhak Block and View capabilities.
      */
-    public function hook_block_alter(&$blocks) {
+    public function hook_block_alter(&$blocks)
+    {
         // Extends site building capabilities via the block API.
     }
 
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by display_suite -->';
@@ -51,25 +56,25 @@ class LekhakModuleDisplaySuite {
     public static function hook_config_form(): array
     {
         return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
+            'enabled' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Enable advanced features',
+                    'default' => true,
+                ],
+            'log_level' =>
+                [
+                    'type' => 'select',
+                    'title' => 'Log Level',
+                    'options' =>
+                        [
+                            'info' => 'Info',
+                            'warning' => 'Warning',
+                            'error' => 'Error',
+                        ],
+                    'default' => 'warning',
+                ],
+        ];
     }
 }
 

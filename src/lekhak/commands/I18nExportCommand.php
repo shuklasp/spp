@@ -25,7 +25,8 @@ class I18nExportCommand extends Command
         $locale = null;
 
         foreach ($args as $arg) {
-            if ($arg === 'i18n:export' || $arg === 'spp.php') continue;
+            if ($arg === 'i18n:export' || $arg === 'spp.php')
+                continue;
             if (str_starts_with($arg, '--locale=')) {
                 $locale = substr($arg, 9);
             } elseif (!str_starts_with($arg, '--') && !$locale) {
@@ -40,7 +41,7 @@ class I18nExportCommand extends Command
 
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
-        
+
         if (!$db->tableExists($table)) {
             $this->error("Table {$table} does not exist.");
             return;
@@ -60,7 +61,8 @@ class I18nExportCommand extends Command
         }
 
         $outDir = (defined('SPP_APP_DIR') ? SPP_APP_DIR : '.') . '/var/exports';
-        if (!is_dir($outDir)) mkdir($outDir, 0777, true);
+        if (!is_dir($outDir))
+            mkdir($outDir, 0777, true);
 
         $outFile = $outDir . "/translations_{$locale}.json";
         file_put_contents($outFile, json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

@@ -57,7 +57,7 @@ class AdminController
                     } else {
                         // Fallback: if tables/user are missing, allow admin/admin
                         if ($username === 'admin' && $password === 'admin') {
-                            $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
+                            $user = (object) ['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local'];
                             \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
                             header("Location: " . $this->getAppRoot() . "/admin");
                             exit;
@@ -112,23 +112,23 @@ class AdminController
     protected function render($view, $data = [])
     {
         $renderer = \SPPMod\Lekhak\Core\Renderer::getInstance();
-        
+
         $appRoot = $this->getAppRoot();
 
         $data['web_root'] = defined('APP_BASE_URI') ? APP_BASE_URI : '';
         $data['app_root'] = $appRoot;
         $data['admin_root'] = $appRoot . '/admin';
-        
+
         // Strip admin/ prefix if it exists to match theme structure
         if (strpos($view, 'admin/') === 0) {
             $view = substr($view, 6);
         }
-        
+
         $data['view_name'] = $view;
-        
+
         // Enforce premium admin theme for all forms
         \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
-        
+
 
 
         // Automatically flush stale Blade cache files in development/admin context to guarantee real-time style/theme compilation
@@ -141,7 +141,7 @@ class AdminController
 
         // Ensure common data is present
         $data['view_mode'] = $data['view_mode'] ?? 'full';
-        
+
         return $renderer->render($view, $data);
     }
 
@@ -157,9 +157,9 @@ class AdminController
             'landing' => \SPPMod\Lekhak\Core\LandingPage::count(),
             'users' => \SPPMod\SPPAuth\SPPUser::count()
         ];
-        
+
         $recent_nodes = LekhakNode::find_all([], 'created DESC', 10);
-        
+
         return $this->render("dashboard", [
             'title' => 'Admin Overview',
             'subtitle' => 'Live metrics from your Lekhak instance.',
@@ -178,7 +178,7 @@ class AdminController
             ContentType::install();
         }
         $types = ContentType::find_all();
-        
+
         return $this->render("content-types", [
             'title' => 'Content Structures',
             'subtitle' => 'Define the architecture of your data.',
@@ -200,11 +200,11 @@ class AdminController
                 $type = $existing;
             }
         }
-        
+
         $builder = new ViewFormBuilder($type);
         $form = $builder->build();
         $form->setAttribute('action', $this->getAppRoot() . "/admin/structure/types/" . ($name ?? 'add'));
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
             $form->save();
             header("Location: " . $this->getAppRoot() . "/admin/structure/types");
@@ -227,7 +227,7 @@ class AdminController
             Field::install();
         }
         $fields = $db->execute_query("SELECT * FROM {$table} WHERE bundle = ?", [$bundle]);
-        
+
         return $this->render("fields", [
             'title' => 'Manage Fields',
             'subtitle' => "Configuration for: {$bundle}",
@@ -240,17 +240,17 @@ class AdminController
     {
         $field = new Field();
         $field->bundle = $bundle;
-        
+
         $builder = new ViewFormBuilder($field);
         $form = $builder->build();
         $form->setAttribute('action', $this->getAppRoot() . "/admin/structure/types/{$bundle}/fields/add");
-        
+
         if ($form->isSubmitted() && $form->isValid()) {
             $form->save();
             // Trigger schema evolution
             $orchestrator = new \SPPMod\Lekhak\Core\StorageOrchestrator();
             $orchestrator->ensureSchema(LekhakNode::class);
-            
+
             header("Location: " . $this->getAppRoot() . "/admin/structure/types/{$bundle}/fields");
             exit;
         }
@@ -295,7 +295,7 @@ class AdminController
                 'lekhni_ai_copilot' => isset($_POST['lekhni_ai_copilot']) ? true : false,
                 'lekhni_code_language' => $_POST['lekhni_code_language'] ?? 'html',
                 'designer_grid_snap' => isset($_POST['designer_grid_snap']) ? true : false,
-                'designer_autosave' => (int)($_POST['designer_autosave'] ?? 300),
+                'designer_autosave' => (int) ($_POST['designer_autosave'] ?? 300),
                 'structure_strict_schema' => isset($_POST['structure_strict_schema']) ? true : false,
                 'content_default_status' => $_POST['content_default_status'] ?? 'draft',
                 'content_revision_tracking' => isset($_POST['content_revision_tracking']) ? true : false,
@@ -351,15 +351,15 @@ class AdminController
         // Handle POST requests for user actions (Create user, Update role/status, Delete user)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
-            
+
             if ($action === 'create' || $action === 'update') {
-                $uid = (int)($_POST['user_id'] ?? 0);
+                $uid = (int) ($_POST['user_id'] ?? 0);
                 $username = trim($_POST['username'] ?? '');
                 $email = trim($_POST['email'] ?? '');
                 $password = $_POST['password'] ?? '';
-                $role_id = (int)($_POST['role_id'] ?? 0);
+                $role_id = (int) ($_POST['role_id'] ?? 0);
                 $status = $_POST['status'] ?? 'active';
-                
+
                 if ($action === 'create' && !empty($username) && !empty($password)) {
                     \SPPMod\SPPAuth\SPPUser::saveUserInfo([
                         'username' => $username,
@@ -387,14 +387,14 @@ class AdminController
                     }
                 }
             } elseif ($action === 'delete') {
-                $uid = (int)($_POST['user_id'] ?? 0);
+                $uid = (int) ($_POST['user_id'] ?? 0);
                 if ($uid > 0) {
                     $db->execute_query("DELETE FROM {$usersTable} WHERE id = ?", [$uid]);
                     $db->execute_query("DELETE FROM {$userRolesTable} WHERE userid = ?", [$uid]);
                     $_SESSION['flash_success'] = "User deleted successfully.";
                 }
             }
-            
+
             header("Location: " . $this->getAppRoot() . "/admin/users");
             exit;
         }
@@ -412,7 +412,7 @@ class AdminController
             ]);
             $adminId = \SPPMod\SPPAuth\SPPUser::find_one(['username' => 'admin'])->id;
             $db->execute_query("INSERT INTO {$userRolesTable} (userid, roleid) VALUES (?, ?)", [$adminId, $adminRole]);
-            
+
             $users = $db->execute_query("SELECT u.*, r.role_name, r.id as role_id FROM {$usersTable} u LEFT JOIN {$userRolesTable} ur ON u.id = ur.userid LEFT JOIN {$rolesTable} r ON ur.roleid = r.id");
         }
 
@@ -460,25 +460,25 @@ class AdminController
                     $_SESSION['flash_success'] = "Role '{$role_name}' created successfully.";
                 }
             } elseif ($action === 'update_rights') {
-                $role_id = (int)($_POST['role_id'] ?? 0);
+                $role_id = (int) ($_POST['role_id'] ?? 0);
                 $assigned_rights = $_POST['rights'] ?? [];
-                
+
                 if ($role_id > 0) {
                     $db->execute_query("DELETE FROM {$roleRightTable} WHERE roleid = ?", [$role_id]);
                     foreach ($assigned_rights as $right_id) {
-                        $db->execute_query("INSERT INTO {$roleRightTable} (roleid, rightid) VALUES (?, ?)", [$role_id, (int)$right_id]);
+                        $db->execute_query("INSERT INTO {$roleRightTable} (roleid, rightid) VALUES (?, ?)", [$role_id, (int) $right_id]);
                     }
                     $_SESSION['flash_success'] = "Permissions updated successfully.";
                 }
             } elseif ($action === 'delete_role') {
-                $role_id = (int)($_POST['role_id'] ?? 0);
+                $role_id = (int) ($_POST['role_id'] ?? 0);
                 if ($role_id > 0 && $role_id !== 1) { // Prevent deleting default Administrator
                     $db->execute_query("DELETE FROM {$rolesTable} WHERE id = ?", [$role_id]);
                     $db->execute_query("DELETE FROM {$roleRightTable} WHERE roleid = ?", [$role_id]);
                     $_SESSION['flash_success'] = "Role deleted successfully.";
                 }
             }
-            
+
             header("Location: " . $this->getAppRoot() . "/admin/roles");
             exit;
         }
@@ -509,7 +509,7 @@ class AdminController
             Field::install();
         }
         $fields = $db->execute_query("SELECT * FROM {$table} ORDER BY bundle ASC");
-        
+
         return $this->render("fields", [
             'title' => 'Global Fields',
             'subtitle' => 'Viewing all fields across all content types.',

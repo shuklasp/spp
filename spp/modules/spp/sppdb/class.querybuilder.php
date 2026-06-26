@@ -76,13 +76,13 @@ class QueryBuilder
         }
 
         // Handle where('col', 'val') shortcut
-        if (func_num_args() === 2 || ($value === null && !in_array(strtoupper((string)$operator), ['IS', 'IS NOT', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']))) {
+        if (func_num_args() === 2 || ($value === null && !in_array(strtoupper((string) $operator), ['IS', 'IS NOT', 'IN', 'NOT IN', 'BETWEEN', 'NOT BETWEEN']))) {
             $value = $operator;
             $operator = '=';
         }
 
         $validOperators = ['=', '<', '>', '<=', '>=', '<>', '!=', 'LIKE', 'NOT LIKE', 'IN', 'NOT IN', 'IS', 'IS NOT', 'BETWEEN', 'NOT BETWEEN'];
-        $operator = strtoupper(trim((string)$operator));
+        $operator = strtoupper(trim((string) $operator));
         if (!in_array($operator, $validOperators)) {
             $operator = '=';
         }
@@ -150,13 +150,13 @@ class QueryBuilder
         $table = SPPDB::sppTable(preg_replace('/[^a-zA-Z0-9_\.]/', '', $table));
         $first = preg_replace('/[^a-zA-Z0-9_\.]/', '', $first);
         $second = preg_replace('/[^a-zA-Z0-9_\.]/', '', $second);
-        
+
         $validOperators = ['=', '<', '>', '<=', '>=', '<>', '!='];
         $operator = strtoupper(trim($operator));
         if (!in_array($operator, $validOperators)) {
             $operator = '=';
         }
-        
+
         $type = strtoupper(preg_replace('/[^a-zA-Z]/', '', $type));
 
         $this->joins[] = compact('table', 'first', 'operator', 'second', 'type');
@@ -208,13 +208,13 @@ class QueryBuilder
     {
         $sql = $this->toSql();
         $bindings = $this->getBindings();
-        
+
         if ($this->cacheTtl !== null && class_exists('\SPP\Cache')) {
             $cacheKey = 'query:' . md5($sql . serialize($bindings));
             if (\SPP\Cache::has($cacheKey)) {
                 return \SPP\Cache::get($cacheKey);
             }
-            
+
             $results = $this->db->execute_query($sql, $bindings);
             \SPP\Cache::setWithTags($cacheKey, $results, ['db_query', $this->table], $this->cacheTtl);
             return $results;
@@ -242,7 +242,7 @@ class QueryBuilder
         $result = $this->first();
         $this->columns = $originalColumns;
 
-        return (int)($result['aggregate'] ?? 0);
+        return (int) ($result['aggregate'] ?? 0);
     }
 
     /**

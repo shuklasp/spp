@@ -38,10 +38,10 @@ $sql3 = "CREATE TABLE IF NOT EXISTS `$table3` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
 try {
-    $db->execute_query($sql1);
-    $db->execute_query($sql2);
-    $db->execute_query($sql3);
-    echo "OAuth tables created successfully.\n";
+  $db->execute_query($sql1);
+  $db->execute_query($sql2);
+  $db->execute_query($sql3);
+  echo "OAuth tables created successfully.\n";
 } catch (\Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+  echo "Error: " . $e->getMessage() . "\n";
 }

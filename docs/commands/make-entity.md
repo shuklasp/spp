@@ -20,7 +20,7 @@ The `make:entity` command is a powerful data-modeling tool. It dynamically gener
 # UNDER THE HOOD ACTIVITY
 The command checks if it needs to trigger the Interactive Wizard (if arguments like `--fields`, `--extends`, etc., are missing) or if it operates in Headless mode. 
 It compiles an extensive schema `$config` array mapping `table`, `id_field`, `sequence`, `extends`, `login_enabled`, `attributes`, and `relations`. For relations, it specifically identifies `ManyToMany` declarations to automatically guess pivot table names (e.g., `student_course`).
-It executes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()`, directly writing the YAML or serialized schema to disk.
+It executes `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()`, directly writing the YAML or serialized schema to disk.
 If the `--api` or `--resource` flags are detected, it hooks into standard file manipulation, constructing a `.php` file in the API controllers directory implementing the `\SPP\Core\ResourceController` interface, and wires it to `\SPPMod\SPPEntity\SPPEntity` methods.
 
 # EXAMPLES

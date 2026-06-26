@@ -8,7 +8,8 @@ use SPPMod\SPPDB\SPPDB;
 // Dummy class to bypass real database connection in tests
 class DummySPPDB extends SPPDB
 {
-    public function __construct() {
+    public function __construct()
+    {
         // Do not call parent constructor to avoid connecting
     }
 }
@@ -26,7 +27,7 @@ class SPPDBTest extends SPPTestCase
     {
         $builder = new QueryBuilder($this->db, 'users');
         $sql = $builder->toSql();
-        
+
         $this->assertTrue(strpos($sql, 'SELECT * FROM') !== false, "SQL should contain SELECT * FROM");
     }
 
@@ -35,7 +36,7 @@ class SPPDBTest extends SPPTestCase
         $builder = new QueryBuilder($this->db, 'users');
         $builder->select(['id', 'name', 'email']);
         $sql = $builder->toSql();
-        
+
         $this->assertTrue(strpos($sql, 'SELECT id, name, email FROM') !== false, "SQL should contain specific columns");
     }
 
@@ -45,7 +46,7 @@ class SPPDBTest extends SPPTestCase
         $builder->where('status', 'active');
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
-        
+
         $this->assertTrue(strpos($sql, 'WHERE status = ?') !== false, "SQL should contain WHERE clause");
         $this->assertEquals(1, count($bindings));
         $this->assertEquals('active', $bindings[0]);
@@ -55,10 +56,10 @@ class SPPDBTest extends SPPTestCase
     {
         $builder = new QueryBuilder($this->db, 'users');
         $builder->where('status', 'active')
-                ->where('age', '>', 18);
+            ->where('age', '>', 18);
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
-        
+
         $this->assertTrue(strpos($sql, 'WHERE status = ? AND age > ?') !== false, "SQL should contain multiple WHERE clauses");
         $this->assertEquals(['active', 18], $bindings);
     }
@@ -67,10 +68,10 @@ class SPPDBTest extends SPPTestCase
     {
         $builder = new QueryBuilder($this->db, 'users');
         $builder->where('role', 'admin')
-                ->orWhere('role', 'moderator');
+            ->orWhere('role', 'moderator');
         $sql = $builder->toSql();
         $bindings = $builder->getBindings();
-        
+
         $this->assertTrue(strpos($sql, 'WHERE role = ? OR role = ?') !== false, "SQL should contain OR WHERE clause");
         $this->assertEquals(['admin', 'moderator'], $bindings);
     }
@@ -79,10 +80,10 @@ class SPPDBTest extends SPPTestCase
     {
         $builder = new QueryBuilder($this->db, 'posts');
         $builder->orderBy('created_at', 'DESC')
-                ->limit(10)
-                ->offset(5);
+            ->limit(10)
+            ->offset(5);
         $sql = $builder->toSql();
-        
+
         $this->assertTrue(strpos($sql, 'ORDER BY created_at DESC') !== false, "SQL should contain ORDER BY");
         $this->assertTrue(strpos($sql, 'LIMIT 10') !== false, "SQL should contain LIMIT");
         $this->assertTrue(strpos($sql, 'OFFSET 5') !== false, "SQL should contain OFFSET");

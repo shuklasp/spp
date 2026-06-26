@@ -13,13 +13,13 @@ try {
     foreach ($tables as $t) {
         echo "- " . array_values($t)[0] . "\n";
     }
-    
+
     $nodeTable = \SPPMod\SPPDB\SPPDB::sppTable('nodes');
     echo "\nResolved 'nodes' table: $nodeTable\n";
-    
+
     $check = $db->execute_query("SELECT COUNT(*) as count FROM $nodeTable");
     echo "Count from $nodeTable: " . $check[0]['count'] . "\n";
-    
+
 } catch (\Throwable $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }

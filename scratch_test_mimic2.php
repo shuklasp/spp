@@ -9,10 +9,10 @@ require __DIR__ . '/spp/core/class.sppdb.php';
 require __DIR__ . '/spp/core/class.moduleinstaller.php';
 // This is too complex.
 
-\SPP\Scheduler::withContext('sppadmin', function() {
+\SPP\Scheduler::withContext('sppadmin', function () {
     echo "Testing query with default.spp_modules...\n";
     $db = \SPP\Core\ModuleInstaller::getDb();
-    $table = \SPPMod\SppDb\SPPDB::sppTable('spp_modules');
+    $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_modules');
     $res = $db->execute_query("SELECT * FROM $table WHERE name = ?", ['sppdb']);
     echo "Query result: " . json_encode($res) . "\n";
 });

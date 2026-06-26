@@ -7,12 +7,14 @@ namespace Lekhak\Modules\LekhakModuleGoogleAnalytics;
  * @configure admin/config/google_analytics
  */
 
-class LekhakModuleGoogleAnalytics {
+class LekhakModuleGoogleAnalytics
+{
 
     private $name = 'google_analytics';
     private $title = 'Google Analytics';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_google_analytics_config (
@@ -20,10 +22,11 @@ class LekhakModuleGoogleAnalytics {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_google_analytics_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Core module initialization logic.
         return true;
     }
@@ -31,12 +34,14 @@ class LekhakModuleGoogleAnalytics {
     /**
      * Extends native routing and page rendering headers.
      */
-    public function hook_page_meta_alter(&$meta) {
+    public function hook_page_meta_alter(&$meta)
+    {
         // Enhances SEO meta parameters.
     }
 
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by google_analytics -->';
@@ -51,20 +56,20 @@ class LekhakModuleGoogleAnalytics {
     public static function hook_config_form(): array
     {
         return [
-  'tracking_id' => 
-  [
-    'type' => 'text',
-    'title' => 'Google Analytics Tracking ID',
-    'default' => '',
-    'description' => 'E.g. UA-XXXXX-Y or G-XXXXXXX',
-  ],
-  'anonymize_ip' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Anonymize IP',
-    'default' => true,
-  ],
-];
+            'tracking_id' =>
+                [
+                    'type' => 'text',
+                    'title' => 'Google Analytics Tracking ID',
+                    'default' => '',
+                    'description' => 'E.g. UA-XXXXX-Y or G-XXXXXXX',
+                ],
+            'anonymize_ip' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Anonymize IP',
+                    'default' => true,
+                ],
+        ];
     }
 }
 

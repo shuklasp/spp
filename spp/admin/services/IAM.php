@@ -3,70 +3,86 @@
  * IAM Management Service Group for SPP Admin
  */
 
-function live_IAM_ListUsers($la, $params) {
+function live_IAM_ListUsers($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $users = $db->execute_query('SELECT id, username, email, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users'));
     $la->setData([
-        'sources' => [[
-            'label' => $db->getConnectionSummary(),
-            'type' => 'database',
-            'items' => $users
-        ]]
+        'sources' => [
+            [
+                'label' => $db->getConnectionSummary(),
+                'type' => 'database',
+                'items' => $users
+            ]
+        ]
     ]);
 }
 
-function live_IAM_ListRoles($la, $params) {
+function live_IAM_ListRoles($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $roles = $db->execute_query('SELECT id, role_name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles'));
     $la->setData([
-        'sources' => [[
-            'label' => $db->getConnectionSummary(),
-            'type' => 'database',
-            'items' => $roles
-        ]]
+        'sources' => [
+            [
+                'label' => $db->getConnectionSummary(),
+                'type' => 'database',
+                'items' => $roles
+            ]
+        ]
     ]);
 }
 
-function live_IAM_ListRights($la, $params) {
+function live_IAM_ListRights($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $rights = $db->execute_query('SELECT id, name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights'));
     $la->setData([
-        'sources' => [[
-            'label' => $db->getConnectionSummary(),
-            'type' => 'database',
-            'items' => $rights
-        ]]
+        'sources' => [
+            [
+                'label' => $db->getConnectionSummary(),
+                'type' => 'database',
+                'items' => $rights
+            ]
+        ]
     ]);
 }
 
-function live_IAM_ListRBAC($la, $params) {
+function live_IAM_ListRBAC($la, $params)
+{
     $path = SPP_BASE_DIR . '/etc/rbac.yml';
     if (!file_exists($path)) {
         return $la->setData(['sources' => []]);
     }
     $config = \Symfony\Component\Yaml\Yaml::parseFile($path);
     $la->setData([
-        'sources' => [[
-            'label' => 'etc/rbac.yml',
-            'type' => 'yaml',
-            'items' => $config['roles'] ?? []
-        ]]
+        'sources' => [
+            [
+                'label' => 'etc/rbac.yml',
+                'type' => 'yaml',
+                'items' => $config['roles'] ?? []
+            ]
+        ]
     ]);
 }
 
-function live_IAM_ListABAC($la, $params) {
+function live_IAM_ListABAC($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $policies = $db->execute_query('SELECT id, permission, condition_logic, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('abac_policies') . ' ORDER BY id DESC');
     $la->setData([
-        'sources' => [[
-            'label' => $db->getConnectionSummary(),
-            'type' => 'database',
-            'items' => $policies
-        ]]
+        'sources' => [
+            [
+                'label' => $db->getConnectionSummary(),
+                'type' => 'database',
+                'items' => $policies
+            ]
+        ]
     ]);
 }
 
-function live_IAM_SaveABAC($la, $params) {
+function live_IAM_SaveABAC($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $id = $params['id'] ?? null;
     $permission = $params['permission'] ?? '';
@@ -88,29 +104,35 @@ function live_IAM_SaveABAC($la, $params) {
     }
 }
 
-function live_IAM_DeleteABAC($la, $params) {
+function live_IAM_DeleteABAC($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $id = $params['id'] ?? null;
-    if (!$id) return $la->setStatus('error')->notify("Policy ID required.");
+    if (!$id)
+        return $la->setStatus('error')->notify("Policy ID required.");
 
     $table = \SPPMod\SPPDB\SPPDB::sppTable('abac_policies');
     $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
     $la->setStatus('success')->notify('Policy deleted.');
 }
 
-function live_IAM_ListOAuthClients($la, $params) {
+function live_IAM_ListOAuthClients($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $clients = $db->execute_query('SELECT id, name, redirect_uri FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients') . ' ORDER BY name ASC');
     $la->setData([
-        'sources' => [[
-            'label' => 'OAuth Clients',
-            'type' => 'database',
-            'items' => $clients
-        ]]
+        'sources' => [
+            [
+                'label' => 'OAuth Clients',
+                'type' => 'database',
+                'items' => $clients
+            ]
+        ]
     ]);
 }
 
-function live_IAM_SaveOAuthClient($la, $params) {
+function live_IAM_SaveOAuthClient($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $id = $params['id'] ?? null;
     $name = $params['name'] ?? '';
@@ -137,23 +159,26 @@ function live_IAM_SaveOAuthClient($la, $params) {
     }
 }
 
-function live_IAM_DeleteOAuthClient($la, $params) {
+function live_IAM_DeleteOAuthClient($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $id = $params['id'] ?? null;
-    if (!$id) return $la->setStatus('error')->notify("Client ID required.");
+    if (!$id)
+        return $la->setStatus('error')->notify("Client ID required.");
 
     $table = \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients');
     $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
     $la->setStatus('success')->notify('Client deleted.');
 }
 
-function live_IAM_ListEntityAssignments($la, $params) {
+function live_IAM_ListEntityAssignments($la, $params)
+{
     $db = new \SPPMod\SPPDB\SPPDB();
     $sql = 'SELECT er.target_class, er.target_id, er.role_id, r.role_name 
             FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('entity_roles') . ' er
             JOIN ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' r ON er.role_id = r.id';
     $raw = $db->execute_query($sql);
-    
+
     // Group by target
     $grouped = [];
     foreach ($raw as $row) {
@@ -167,14 +192,16 @@ function live_IAM_ListEntityAssignments($la, $params) {
         }
         $grouped[$key]['roles'][] = ['id' => $row['role_id'], 'name' => $row['role_name']];
     }
-    
+
     $la->setData(array_values($grouped));
 }
 
-function live_IAM_GetDetails($la, $params) {
+function live_IAM_GetDetails($la, $params)
+{
     $type = $params['type'] ?? '';
     $id = $params['id'] ?? null;
-    if (!$id) return $la->setStatus('error')->notify("ID required.");
+    if (!$id)
+        return $la->setStatus('error')->notify("ID required.");
 
     $db = new \SPPMod\SPPDB\SPPDB();
     $data = ['assigned_ids' => [], 'available' => []];
@@ -192,10 +219,12 @@ function live_IAM_GetDetails($la, $params) {
     $la->setData($data);
 }
 
-function live_IAM_SearchEntities($la, $params) {
+function live_IAM_SearchEntities($la, $params)
+{
     $type = $params['type'] ?? '';
     $q = $params['q'] ?? '';
-    if (empty($q)) return $la->setData(['results' => []]);
+    if (empty($q))
+        return $la->setData(['results' => []]);
 
     $db = new \SPPMod\SPPDB\SPPDB();
     $results = [];
@@ -217,24 +246,26 @@ function live_IAM_SearchEntities($la, $params) {
 
     // 2. Natural search fallback
     if (empty($results)) {
-        $results = \SPPMod\SppDb\SPPEntity::searchNatural($q);
+        $results = \SPPMod\SPPDB\SPPEntity::searchNatural($q);
     }
-    
+
     // 3. Manual broad search fallback
     if (empty($results)) {
-        $entities = \SPPMod\SppDb\SPPEntity::listAvailableEntities();
+        $entities = \SPPMod\SPPDB\SPPEntity::listAvailableEntities();
         foreach ($entities as $name => $meta) {
             try {
                 $class = "App\\Default\\Entities\\" . ucfirst($name);
-                if (!class_exists($class)) $class = $name; 
-                if (!class_exists($class)) continue;
-                
+                if (!class_exists($class))
+                    $class = $name;
+                if (!class_exists($class))
+                    continue;
+
                 $inst = new $class();
                 $table = $inst->getTable();
-                
+
                 $sql = "SELECT * FROM $table WHERE name LIKE ? OR username LIKE ? LIMIT 5";
                 $dbRes = $db->execute_query($sql, ["%$q%", "%$q%"]);
-                
+
                 foreach ($dbRes as $row) {
                     $results[] = [
                         'id' => $row['id'] ?? $row['username'] ?? '?',
@@ -243,7 +274,9 @@ function live_IAM_SearchEntities($la, $params) {
                         'score' => 0.8
                     ];
                 }
-            } catch (\Exception $e) { continue; }
+            } catch (\Exception $e) {
+                continue;
+            }
         }
 
         // Also search SPPUser explicitly as it might not be in "AvailableEntities" (it's core)
@@ -258,16 +291,18 @@ function live_IAM_SearchEntities($la, $params) {
                     'score' => 0.9
                 ];
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
-    
+
     $la->setData(['results' => $results]);
 }
 
-function live_IAM_AssignRole($la, $params) {
+function live_IAM_AssignRole($la, $params)
+{
     $targetClass = $params['target_class'] ?? '';
     $targetId = $params['target_id'] ?? '';
-    $roleIds = (array)($params['role_id'] ?? []);
+    $roleIds = (array) ($params['role_id'] ?? []);
 
     if (!$targetClass || !$targetId || empty($roleIds)) {
         return $la->setStatus('error')->notify("Missing parameters.");
@@ -280,7 +315,8 @@ function live_IAM_AssignRole($la, $params) {
     $la->notify("Roles assigned.");
 }
 
-function live_IAM_RemoveRole($la, $params) {
+function live_IAM_RemoveRole($la, $params)
+{
     $targetClass = $params['target_class'] ?? '';
     $targetId = $params['target_id'] ?? '';
     $roleId = $params['role_id'] ?? '';
@@ -290,7 +326,8 @@ function live_IAM_RemoveRole($la, $params) {
     $la->notify("Assignment removed.");
 }
 
-function live_IAM_AssignRight($la, $params) {
+function live_IAM_AssignRight($la, $params)
+{
     $roleId = $params['role_id'] ?? '';
     $rightId = $params['right_id'] ?? '';
 
@@ -299,7 +336,8 @@ function live_IAM_AssignRight($la, $params) {
     $la->notify("Right granted.");
 }
 
-function live_IAM_RemoveRight($la, $params) {
+function live_IAM_RemoveRight($la, $params)
+{
     $roleId = $params['role_id'] ?? '';
     $rightId = $params['right_id'] ?? '';
 
@@ -308,7 +346,8 @@ function live_IAM_RemoveRight($la, $params) {
     $la->notify("Right revoked.");
 }
 
-function live_IAM_ToggleUserStatus($la, $params) {
+function live_IAM_ToggleUserStatus($la, $params)
+{
     $id = $params['id'] ?? '';
     $status = $params['status'] ?? 'active';
 
@@ -317,14 +356,17 @@ function live_IAM_ToggleUserStatus($la, $params) {
     $la->notify("User status updated to $status.");
 }
 
-function live_IAM_GetFormHTML($la, $params) {
+function live_IAM_GetFormHTML($la, $params)
+{
     $form = $params['form'] ?? '';
     $id = $params['id'] ?? null;
-    
+
     // Simple mock forms for now
     $html = '';
     if ($form === 'user_edit') {
-        $username = ''; $email = ''; $status = 'active';
+        $username = '';
+        $email = '';
+        $status = 'active';
         if ($id) {
             $db = new \SPPMod\SPPDB\SPPDB();
             $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' WHERE id=?', [$id]);
@@ -356,7 +398,8 @@ function live_IAM_GetFormHTML($la, $params) {
                 <input type='password' name='password' class='spp-element' required>
             </div>" : "");
     } else if ($form === 'role_edit') {
-        $name = ''; $desc = '';
+        $name = '';
+        $desc = '';
         if ($id) {
             $db = new \SPPMod\SPPDB\SPPDB();
             $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' WHERE id=?', [$id]);
@@ -375,7 +418,8 @@ function live_IAM_GetFormHTML($la, $params) {
                 <textarea name='description' class='spp-element'>$desc</textarea>
             </div>";
     } else if ($form === 'right_edit') {
-        $name = ''; $desc = '';
+        $name = '';
+        $desc = '';
         if ($id) {
             $db = new \SPPMod\SPPDB\SPPDB();
             $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights') . ' WHERE id=?', [$id]);
@@ -441,7 +485,8 @@ function live_IAM_GetFormHTML($la, $params) {
     $la->setData(['html' => $html]);
 }
 
-function live_IAM_SaveUser($la, $params) {
+function live_IAM_SaveUser($la, $params)
+{
     $id = $params['id'] ?? null;
     $username = $params['username'] ?? '';
     $email = $params['email'] ?? '';
@@ -459,7 +504,8 @@ function live_IAM_SaveUser($la, $params) {
     }
 }
 
-function live_IAM_SaveRole($la, $params) {
+function live_IAM_SaveRole($la, $params)
+{
     $id = $params['id'] ?? null;
     $name = $params['role_name'] ?? '';
     $desc = $params['description'] ?? '';
@@ -474,7 +520,8 @@ function live_IAM_SaveRole($la, $params) {
     }
 }
 
-function live_IAM_SaveRight($la, $params) {
+function live_IAM_SaveRight($la, $params)
+{
     $id = $params['id'] ?? null;
     $name = $params['name'] ?? '';
     $desc = $params['description'] ?? '';
@@ -489,32 +536,35 @@ function live_IAM_SaveRight($la, $params) {
     }
 }
 
-function live_IAM_SaveModernRole($la, $params) {
+function live_IAM_SaveModernRole($la, $params)
+{
     $slug = $params['slug'] ?? '';
     $permissions = $params['permissions'] ?? '';
-    if (empty($slug)) return $la->setStatus('error')->notify("Slug required.");
+    if (empty($slug))
+        return $la->setStatus('error')->notify("Slug required.");
 
     $permList = array_filter(array_map('trim', explode("\n", $permissions)));
-    
+
     $path = SPP_BASE_DIR . '/etc/rbac.yml';
     $config = file_exists($path) ? \Symfony\Component\Yaml\Yaml::parseFile($path) : ['roles' => []];
-    
+
     $config['roles'][$slug] = [
         'permissions' => $permList
     ];
-    
+
     file_put_contents($path, \Symfony\Component\Yaml\Yaml::dump($config, 4, 2));
     $la->notify("Modern role '$slug' saved.");
 }
 
 // --- Group Management ---
 
-function live_IAM_ListGroups($la, $params) {
+function live_IAM_ListGroups($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
     $rawGroups = \SPPMod\SPPAuth\SPPGroupLoader::listAllGroups($appname);
-    
+
     $sources = [];
-    
+
     foreach ($rawGroups as $g) {
         $group = new \SPPMod\SPPAuth\SPPGroup();
         $group->load($g['name']);
@@ -527,7 +577,7 @@ function live_IAM_ListGroups($la, $params) {
                     'items' => []
                 ];
             }
-            
+
             $sources[$sourceKey]['items'][] = [
                 'id' => $group->id,
                 'name' => $group->get('name'),
@@ -536,22 +586,25 @@ function live_IAM_ListGroups($la, $params) {
             ];
         }
     }
-    
+
     $la->setData(['sources' => array_values($sources)]);
 }
 
-function live_IAM_ListGroupMembers($la, $params) {
+function live_IAM_ListGroupMembers($la, $params)
+{
     $groupId = $params['group_id'] ?? null;
-    if (!$groupId) return $la->setStatus('error')->notify("Group ID required.");
+    if (!$groupId)
+        return $la->setStatus('error')->notify("Group ID required.");
 
     $group = new \SPPMod\SPPAuth\SPPGroup();
     $group->load($groupId);
-    if (!$group->id) return $la->setStatus('error')->notify("Group not found.");
+    if (!$group->id)
+        return $la->setStatus('error')->notify("Group not found.");
 
     $members = $group->getMembers(true); // Recursive
     $formatted = [];
     $db = new \SPPMod\SPPDB\SPPDB();
-    
+
     foreach ($members as $m) {
         $name = $m['entity']->id;
         try {
@@ -567,7 +620,8 @@ function live_IAM_ListGroupMembers($la, $params) {
                     $name = $res[0]['username'] ?? ($res[0]['name'] ?? $m['entity']->id);
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $formatted[] = [
             'id' => $m['entity']->id,
@@ -582,7 +636,8 @@ function live_IAM_ListGroupMembers($la, $params) {
     $la->setData(['members' => $formatted]);
 }
 
-function live_IAM_AddGroupMember($la, $params) {
+function live_IAM_AddGroupMember($la, $params)
+{
     $groupId = $params['group_id'] ?? '';
     $memberClass = $params['member_entity'] ?? '';
     $memberId = $params['member_id'] ?? '';
@@ -596,7 +651,8 @@ function live_IAM_AddGroupMember($la, $params) {
     }
 }
 
-function live_IAM_RemoveGroupMember($la, $params) {
+function live_IAM_RemoveGroupMember($la, $params)
+{
     $groupId = $params['group_id'] ?? '';
     $memberClass = $params['member_entity'] ?? '';
     $memberId = $params['member_id'] ?? '';
@@ -609,7 +665,8 @@ function live_IAM_RemoveGroupMember($la, $params) {
     }
 }
 
-function live_IAM_SaveGroup($la, $params) {
+function live_IAM_SaveGroup($la, $params)
+{
     try {
         \SPPMod\SPPAuth\SPPGroup::saveGroupInfo($params);
         $la->notify("Group saved successfully.", "success");
@@ -618,9 +675,11 @@ function live_IAM_SaveGroup($la, $params) {
     }
 }
 
-function live_IAM_DeleteGroup($la, $params) {
+function live_IAM_DeleteGroup($la, $params)
+{
     $id = $params['id'] ?? null;
-    if (!$id) return $la->setStatus('error')->notify("Group ID required.");
+    if (!$id)
+        return $la->setStatus('error')->notify("Group ID required.");
 
     $group = new \SPPMod\SPPAuth\SPPGroup();
     $group->load($id);
@@ -634,37 +693,41 @@ function live_IAM_DeleteGroup($la, $params) {
 
 // --- API Keys Management ---
 
-function live_IAM_ListApiKeys($la, $params) {
+function live_IAM_ListApiKeys($la, $params)
+{
     try {
         $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
-        
+        if (!$user || !$user->id)
+            return $la->setStatus('error')->notify("Unauthenticated.");
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $sql = "SELECT id, name, created_at, expires_at, 
                 CASE WHEN expires_at IS NULL OR expires_at > NOW() THEN 1 ELSE 0 END as status
                 FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . "
                 WHERE userid = ? ORDER BY created_at DESC";
         $tokens = $db->execute_query($sql, [$user->id]);
-        
+
         // Add pseudo token masks
         foreach ($tokens as &$t) {
             $t['token'] = 'spp_' . substr(md5($t['id'] . $t['created_at']), 0, 8) . '...';
         }
-        
+
         $la->setData($tokens);
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("Failed to list API keys: " . $e->getMessage());
     }
 }
 
-function live_IAM_GenerateApiKey($la, $params) {
+function live_IAM_GenerateApiKey($la, $params)
+{
     try {
         $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
-        
+        if (!$user || !$user->id)
+            return $la->setStatus('error')->notify("Unauthenticated.");
+
         $name = $params['name'] ?? 'API Key';
         $token = \SPPMod\SPPAuth\TokenGuard::createToken($user, $name);
-        
+
         $la->notify("API Key generated successfully! Please copy it now, it won't be shown again: $token", "success");
         // Instruct frontend to reload keys
         $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
@@ -673,17 +736,20 @@ function live_IAM_GenerateApiKey($la, $params) {
     }
 }
 
-function live_IAM_RevokeApiKey($la, $params) {
+function live_IAM_RevokeApiKey($la, $params)
+{
     try {
         $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
-        
+        if (!$user || !$user->id)
+            return $la->setStatus('error')->notify("Unauthenticated.");
+
         $id = $params['id'] ?? null;
-        if (!$id) return $la->setStatus('error')->notify("Token ID required.");
-        
+        if (!$id)
+            return $la->setStatus('error')->notify("Token ID required.");
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $db->execute_query("DELETE FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . " WHERE id = ? AND userid = ?", [$id, $user->id]);
-        
+
         $la->notify("API Key revoked.", "success");
         $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
     } catch (\Exception $e) {
@@ -693,64 +759,70 @@ function live_IAM_RevokeApiKey($la, $params) {
 
 // --- MFA Management ---
 
-function live_IAM_GenerateMFASecret($la, $params) {
+function live_IAM_GenerateMFASecret($la, $params)
+{
     try {
         $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
-        
+        if (!$user || !$user->id)
+            return $la->setStatus('error')->notify("Unauthenticated.");
+
         require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
-        
+
         // Generate new secret
         $secret = \SPPMod\SPPAuth\MFA::generateSecret();
-        
+
         // Temporarily store in session to prevent DB save until verified
         \SPP\SPPSession::setSessionVar('mfa_setup_secret', $secret);
-        
+
         // Create an otpauth URI
         $issuer = urlencode('SPP Enterprise');
         $accountName = urlencode($user->username);
         $otpauthUrl = "otpauth://totp/$issuer:$accountName?secret=$secret&issuer=$issuer";
-        
+
         // Use Google Charts API to generate a QR Code image URL
         $qrCodeUrl = "https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=" . urlencode($otpauthUrl);
-        
+
         $la->setData([
             'secret' => $secret,
             'qr_code_url' => $qrCodeUrl,
             'manual_code' => trim(chunk_split($secret, 4, ' '))
         ]);
-        
+
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("Failed to generate MFA secret: " . $e->getMessage());
     }
 }
 
-function live_IAM_EnableMFA($la, $params) {
+function live_IAM_EnableMFA($la, $params)
+{
     try {
         $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id) return $la->setStatus('error')->notify("Unauthenticated.");
-        
+        if (!$user || !$user->id)
+            return $la->setStatus('error')->notify("Unauthenticated.");
+
         $code = $params['code'] ?? '';
-        if (empty($code)) return $la->setStatus('error')->notify("Please provide the 6-digit verification code.");
-        
+        if (empty($code))
+            return $la->setStatus('error')->notify("Please provide the 6-digit verification code.");
+
         $secret = \SPP\SPPSession::getSessionVar('mfa_setup_secret');
-        if (empty($secret)) return $la->setStatus('error')->notify("MFA setup session expired. Please restart the process.");
-        
+        if (empty($secret))
+            return $la->setStatus('error')->notify("MFA setup session expired. Please restart the process.");
+
         require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
-        
+
         if (\SPPMod\SPPAuth\MFA::verifyCode($secret, $code)) {
             $db = new \SPPMod\SPPDB\SPPDB();
             $db->execute_query(
                 "UPDATE " . \SPPMod\SPPDB\SPPDB::sppTable('users') . " SET mfa_secret = ?, mfa_enabled = 1 WHERE id = ?",
                 [$secret, $user->id]
             );
-            
+
             \SPP\SPPSession::unsetSessionVar('mfa_setup_secret');
             $la->notify("Multi-Factor Authentication is now enabled!", "success");
         } else {
             $la->setStatus('error')->notify("Invalid Authenticator code. Try again.");
         }
-        
+
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("Failed to enable MFA: " . $e->getMessage());
     }

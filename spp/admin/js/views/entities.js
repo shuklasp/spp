@@ -19,7 +19,7 @@ export default class EntitiesView extends BaseComponent {
             currentEntityName: '',
             currentEntitySource: '',
             currentEntityConfig: { table: '', attributes: {}, relations: [] },
-            availableClasses: ['\\SPPMod\\SppDb\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'],
+            availableClasses: ['\\SPPMod\\SPPDB\\SPPEntity', '\\SPPMod\\SPPAuth\\SPPUser'],
             // --- Inlined SchemaBuilder state ---
             sbEntityName: 'NewEntity',
             sbTableName: '',
@@ -95,10 +95,10 @@ export default class EntitiesView extends BaseComponent {
             </div>
             
             <div class="tab-bar-secondary" style="margin-bottom: 20px; display: flex; align-items: center; gap: 5px;">
-                <button class="sub-tab-btn ${activeMainTab === 'list' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'list'})}>📋 Entity List</button>
-                <button class="sub-tab-btn ${activeMainTab === 'builder' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'builder'})}>🏗️ Visual Builder</button>
-                <button class="sub-tab-btn ${activeMainTab === 'magicdb' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'magicdb'})}>✨ Magic DB</button>
-                <button class="sub-tab-btn ${activeMainTab === 'erd' ? 'active' : ''}" @click=${() => this.setState({activeMainTab: 'erd'})}>🕸️ ERD Canvas</button>
+                <button class="sub-tab-btn ${activeMainTab === 'list' ? 'active' : ''}" @click=${() => this.setState({ activeMainTab: 'list' })}>📋 Entity List</button>
+                <button class="sub-tab-btn ${activeMainTab === 'builder' ? 'active' : ''}" @click=${() => this.setState({ activeMainTab: 'builder' })}>🏗️ Visual Builder</button>
+                <button class="sub-tab-btn ${activeMainTab === 'magicdb' ? 'active' : ''}" @click=${() => this.setState({ activeMainTab: 'magicdb' })}>✨ Magic DB</button>
+                <button class="sub-tab-btn ${activeMainTab === 'erd' ? 'active' : ''}" @click=${() => this.setState({ activeMainTab: 'erd' })}>🕸️ ERD Canvas</button>
                 
                 <div style="margin-left: auto; display: flex; gap: 5px;">
                     <button class="sub-tab-btn" style="color: var(--success);" @click=${() => this.generateSdk()}>📦 Export SDK</button>
@@ -151,12 +151,12 @@ export default class EntitiesView extends BaseComponent {
             ${tabsHtml}
             <div class="card-grid">
                 ${entities.map((ent, i) => {
-                    const metaInfo = [
-                        ent.table ? `Table: ${ent.table}` : null,
-                        ent.extends ? `Extends: ${ent.extends.split('\\').pop()}` : null,
-                        ent.login_enabled ? '🔑 Auth' : null
-                    ].filter(x => x).join(' · ');
-                    return html`
+            const metaInfo = [
+                ent.table ? `Table: ${ent.table}` : null,
+                ent.extends ? `Extends: ${ent.extends.split('\\').pop()}` : null,
+                ent.login_enabled ? '🔑 Auth' : null
+            ].filter(x => x).join(' · ');
+            return html`
                         <div class="item-card" style="animation-delay: ${i * 0.05}s">
                             <div class="card-header">
                                 <div>
@@ -179,7 +179,7 @@ export default class EntitiesView extends BaseComponent {
                             </div>
                         </div>
                     `;
-                })}
+        })}
             </div>
         `;
     }
@@ -213,17 +213,17 @@ export default class EntitiesView extends BaseComponent {
         const spacingY = 200;
         const savedPositions = JSON.parse(localStorage.getItem('spp_erd_positions') || '{}');
         let cols = 3;
-        
+
         let nodes = [];
         entities.forEach((ent, i) => {
             let x = (i % cols) * spacingX + 50;
             let y = Math.floor(i / cols) * spacingY + 50;
-            
+
             if (savedPositions[ent.name]) {
                 x = savedPositions[ent.name].x;
                 y = savedPositions[ent.name].y;
             }
-            
+
             let attrs = [];
             if (ent.yaml_content) {
                 try {
@@ -231,7 +231,7 @@ export default class EntitiesView extends BaseComponent {
                     if (parsed && parsed.attributes) {
                         attrs = Object.keys(parsed.attributes);
                     }
-                } catch(e){}
+                } catch (e) { }
             }
 
             nodes.push(html`
@@ -256,7 +256,7 @@ export default class EntitiesView extends BaseComponent {
             SPPUX.notify('No YAML config found to scaffold form.', 'error');
             return;
         }
-        
+
         try {
             const parseRes = await this.apiPost('parse_entity_yaml', { yaml: yamlContent });
             if (parseRes && parseRes.success) {
@@ -274,7 +274,7 @@ export default class EntitiesView extends BaseComponent {
                     SPPUX.notify(scaffoldRes?.message || 'Error scaffolding form.', 'error');
                 }
             }
-        } catch(e) {
+        } catch (e) {
             console.error(e);
             SPPUX.notify('Error generating form', 'error');
         }
@@ -359,7 +359,7 @@ export default class EntitiesView extends BaseComponent {
                 this.state.currentEntityConfig = this._normalizeConfig(res.data.config);
             }
         }
-        
+
         if (name) {
             const revRes = await this.apiPost('list_revisions', { name: name });
             if (revRes && revRes.success) {
@@ -442,12 +442,12 @@ export default class EntitiesView extends BaseComponent {
         const trigger = document.getElementById('wf-trigger')?.value;
         const action = document.getElementById('wf-action')?.value;
         if (!trigger || !action) return;
-        
+
         const fd = new FormData();
         fd.append('action', 'compile_workflow');
         fd.append('trigger', trigger);
         fd.append('task', action);
-        
+
         SPPUX.notify('Compiling workflow to PHP...', 'info');
         const res = await this.apiPost(fd);
         if (res && res.success) {
@@ -467,7 +467,7 @@ export default class EntitiesView extends BaseComponent {
     async restoreRevision(timestamp) {
         if (!timestamp) return;
         if (!confirm('Are you sure you want to restore this previous version? Your current changes will be overwritten (but backed up as a new revision).')) return;
-        
+
         const res = await this.apiPost('restore_revision', { name: this.state.currentEntityName, timestamp: timestamp });
         if (res && res.success) {
             SPPUX.notify(res.message, 'success');
@@ -498,11 +498,11 @@ export default class EntitiesView extends BaseComponent {
     async generateSchemaFromPrompt() {
         const prompt = document.getElementById('ai-schema-prompt')?.value;
         if (!prompt) return;
-        
+
         const fd = new FormData();
         fd.append('action', 'magic_generate_schema');
         fd.append('prompt', prompt);
-        
+
         SPPUX.notify('Analyzing prompt...', 'info');
         const res = await this.apiPost(fd);
         if (res && res.success) {
@@ -525,7 +525,7 @@ export default class EntitiesView extends BaseComponent {
     switchTab(tab) {
         if (this.state.activeFormTab === tab) return;
         const prevTab = this.state.activeFormTab;
-        
+
         // Grab current value before switching
         if (prevTab === 'yaml') {
             this.state.currentEntityYaml = document.getElementById('editor-yaml-content')?.value || '';
@@ -540,7 +540,7 @@ export default class EntitiesView extends BaseComponent {
             this.syncSourceToBuilderSync(this.state.currentEntityYaml);
             this.syncBuilderToPhpSync();
         }
-        
+
         // Propagate PHP changes
         if (prevTab === 'php') {
             this.syncPhpToBuilderSync(this.state.currentEntityPhp);
@@ -596,14 +596,14 @@ export default class EntitiesView extends BaseComponent {
                     <div class="input-group">
                         <label title="The parent PHP class this entity inherits from. Use 'Person' for users, or 'BaseEntity' for standard objects.">Extends (Parent) ℹ️</label>
                         <select @change=${(e) => {
-                            if (e.target.value === '__other__') {
-                                this.state._extendsOther = true;
-                            } else {
-                                this.state._extendsOther = false;
-                                config.extends = e.target.value;
-                            }
-                            this.refreshModal();
-                        }} style="margin-bottom: ${isExtendsOther ? '0.5rem' : '0'};">
+                if (e.target.value === '__other__') {
+                    this.state._extendsOther = true;
+                } else {
+                    this.state._extendsOther = false;
+                    config.extends = e.target.value;
+                }
+                this.refreshModal();
+            }} style="margin-bottom: ${isExtendsOther ? '0.5rem' : '0'};">
                             <option value="">(None)</option>
                             ${this.state.availableClasses.map(c => html`<option value="${c}" ?selected="${currentExtends === c && !this.state._extendsOther}">${c}</option>`)}
                             <option value="__other__" ?selected="${isExtendsOther}">Other...</option>
@@ -680,11 +680,11 @@ export default class EntitiesView extends BaseComponent {
     async generateLogicFromPrompt() {
         const prompt = document.getElementById('ai-logic-prompt')?.value;
         if (!prompt) return;
-        
+
         const fd = new FormData();
         fd.append('action', 'ai_generate_logic');
         fd.append('prompt', prompt);
-        
+
         SPPUX.notify('AI is writing code...', 'info');
         const res = await this.apiPost(fd);
         if (res && res.success) {
@@ -712,7 +712,7 @@ export default class EntitiesView extends BaseComponent {
         else if (type === 'after_save') snippet = `\n    public function after_save() {\n        // Your logic here\n        return parent::after_save();\n    }\n`;
         else if (type === 'rules') snippet = `\n    public function rules() {\n        return [\n            // 'email' => 'required|email'\n        ];\n    }\n`;
         else if (type === 'scope') snippet = `\n    public function scopeCustom($query) {\n        $query->where('status', '=', 'active');\n    }\n`;
-        
+
         let content = textarea.value;
         const lastBraceIdx = content.lastIndexOf('}');
         if (lastBraceIdx !== -1) {
@@ -722,7 +722,7 @@ export default class EntitiesView extends BaseComponent {
         }
         textarea.value = content;
         this.state.currentEntityPhp = content;
-        
+
         // Basic sync back to visual if possible (though snippets don't affect visual config)
     }
 
@@ -740,7 +740,7 @@ export default class EntitiesView extends BaseComponent {
     async importFromDB() {
         const tableName = prompt('Enter the name of the database table to import schema from:');
         if (!tableName) return;
-        
+
         const res = await this.apiPost('introspect_table', { table: tableName });
         if (res && res.success && res.data.config) {
             this.state.currentEntityConfig.table = res.data.config.table;
@@ -853,14 +853,14 @@ export default class EntitiesView extends BaseComponent {
         if (c.login_enabled) yaml.push(`login_enabled: true`);
         if (c.enable_api) yaml.push(`enable_api: true`);
         if (c.id_field) yaml.push(`id_field: ${c.id_field}`);
-        
+
         if (Object.keys(c.attributes || {}).length > 0) {
             yaml.push(`attributes:`);
             for (let k in c.attributes) {
                 yaml.push(`  ${k}: ${c.attributes[k]}`);
             }
         }
-        
+
         if ((c.relations || []).length > 0) {
             yaml.push(`relations:`);
             for (let r of c.relations) {
@@ -882,9 +882,9 @@ export default class EntitiesView extends BaseComponent {
         for (let line of lines) {
             const trimmed = line.trim();
             if (!trimmed || trimmed.startsWith('#')) continue;
-            
+
             const isIndent = line.startsWith('  ');
-            
+
             if (!isIndent) {
                 if (trimmed.startsWith('attributes:')) {
                     currentSection = 'attributes';
@@ -937,22 +937,22 @@ export default class EntitiesView extends BaseComponent {
 
     syncPhpToBuilderSync(phpSource) {
         const config = this.state.currentEntityConfig || { table: '', attributes: {}, relations: [] };
-        
+
         const extendsMatch = phpSource.match(/class\s+\w+\s+extends\s+([\w\\]+)/i);
         if (extendsMatch) {
             let cls = extendsMatch[1].trim();
-            if (cls !== 'SPPEntity' && cls !== '\\SPPMod\\SppDb\\SPPEntity') {
+            if (cls !== 'SPPEntity' && cls !== '\\SPPMod\\SPPDB\\SPPEntity') {
                 config.extends = cls.startsWith('\\') ? cls : '\\\\' + cls;
             } else {
                 delete config.extends;
             }
         }
-        
+
         const tableMatch = phpSource.match(/public\s+function\s+getTable\s*\(\)\s*\{\s*return\s*['"]([^'"]+)['"]/i);
         if (tableMatch) {
             config.table = tableMatch[1];
         }
-        
+
         const attrMatch = phpSource.match(/public\s+function\s+define_attributes\s*\(\)\s*\{[\s\S]*?return\s*\[([\s\S]*?)\];\s*\}/i);
         if (attrMatch) {
             const attrBody = attrMatch[1];
@@ -964,7 +964,7 @@ export default class EntitiesView extends BaseComponent {
             }
             config.attributes = attributes;
         }
-        
+
         this.state.currentEntityConfig = this._normalizeConfig(config);
         this.state.currentEntityPhp = phpSource;
     }
@@ -972,15 +972,15 @@ export default class EntitiesView extends BaseComponent {
     syncBuilderToPhpSync() {
         let php = this.state.currentEntityPhp;
         if (!php) return;
-        
+
         const config = this.state.currentEntityConfig || {};
-        
+
         if (config.extends) {
             php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends ${config.extends}`);
         } else {
-            php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends \\SPPMod\\SppDb\\SPPEntity`);
+            php = php.replace(/class\s+(\w+)\s+extends\s+[\w\\]+/i, `class $1 extends \\SPPMod\\SPPDB\\SPPEntity`);
         }
-        
+
         if (config.table) {
             const tableMethod = `public function getTable() { return '${config.table}'; }`;
             if (php.includes('function getTable()')) {
@@ -989,19 +989,19 @@ export default class EntitiesView extends BaseComponent {
                 php = php.replace(/class\s+\w+\s+extends\s+[\w\\]+\s*\{/i, `\$&\n    ${tableMethod}\n`);
             }
         }
-        
+
         const attrs = config.attributes || {};
         if (Object.keys(attrs).length > 0) {
             const attrStr = Object.entries(attrs).map(([k, v]) => `            '${k}' => '${v}'`).join(",\n");
             const newAttrMethod = `public function define_attributes()\n    {\n        return [\n${attrStr}\n        ];\n    }`;
-            
+
             if (php.includes('define_attributes')) {
                 php = php.replace(/public\s+function\s+define_attributes\s*\(\)\s*\{[\s\S]*?return\s*\[[\s\S]*?\];\s*\}/i, newAttrMethod);
             } else {
                 php = php.replace(/(\n\s*\}\s*)$/, `\n    ${newAttrMethod}\n$1`);
             }
         }
-        
+
         this.state.currentEntityPhp = php;
     }
 
@@ -1025,7 +1025,7 @@ export default class EntitiesView extends BaseComponent {
         fdConfig.append('action', 'save_entity_config');
         fdConfig.append('name', name);
         fdConfig.append('config', JSON.stringify(this.state.currentEntityConfig));
-        
+
         const resConfig = await this.apiPost(fdConfig);
         if (!resConfig.success) {
             return this.handleApiErrors(resConfig);
@@ -1101,7 +1101,7 @@ export default class EntitiesView extends BaseComponent {
             attributes: {},
             relations: this.state.sbRelations.filter(r => r.child_entity)
         };
-        
+
         for (const col of this.state.sbColumns) {
             if (col.name) config.attributes[col.name] = col.type;
         }
@@ -1149,11 +1149,11 @@ export default class EntitiesView extends BaseComponent {
                 <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div>
                         <label style="display: block; margin-bottom: 0.5rem; color: #38bdf8; font-weight: bold;">Entity Name</label>
-                        <input type="text" class="spp-element" value="${sbEntityName}" @input="${e => this.setState({sbEntityName: e.target.value})}" style="font-size: 1.2rem; padding: 0.5rem; width: 100%;" />
+                        <input type="text" class="spp-element" value="${sbEntityName}" @input="${e => this.setState({ sbEntityName: e.target.value })}" style="font-size: 1.2rem; padding: 0.5rem; width: 100%;" />
                     </div>
                     <div>
                         <label style="display: block; margin-bottom: 0.5rem; color: #38bdf8; font-weight: bold;">Table Name (Optional)</label>
-                        <input type="text" class="spp-element" value="${sbTableName}" @input="${e => this.setState({sbTableName: e.target.value})}" placeholder="Defaults to plural entity name" style="font-size: 1.2rem; padding: 0.5rem; width: 100%;" />
+                        <input type="text" class="spp-element" value="${sbTableName}" @input="${e => this.setState({ sbTableName: e.target.value })}" placeholder="Defaults to plural entity name" style="font-size: 1.2rem; padding: 0.5rem; width: 100%;" />
                     </div>
                 </div>
 
@@ -1161,21 +1161,21 @@ export default class EntitiesView extends BaseComponent {
                     <div>
                         <label style="display: block; margin-bottom: 0.5rem; color: #38bdf8; font-weight: bold;">Extends Class (Optional)</label>
                         <select class="spp-element" style="padding: 0.5rem; width: 100%;" @change="${e => {
-                            const val = e.target.value;
-                            this.setState({ sbExtendsSelection: val });
-                            if (val !== '__other__') this.setState({ sbExtendsClass: val });
-                        }}">
+                const val = e.target.value;
+                this.setState({ sbExtendsSelection: val });
+                if (val !== '__other__') this.setState({ sbExtendsClass: val });
+            }}">
                             <option value="">(None)</option>
                             ${availableClasses.map(c => html`<option value="${c}" ?selected="${sbExtendsSelection === c || (!sbExtendsSelection && sbExtendsClass === c)}">${c}</option>`)}
                             <option value="__other__" ?selected="${sbExtendsSelection === '__other__'}">Other...</option>
                         </select>
                         ${sbExtendsSelection === '__other__' ? html`
-                            <input type="text" class="spp-element" value="${sbExtendsClass === '__other__' ? '' : sbExtendsClass}" @input="${e => this.setState({sbExtendsClass: e.target.value})}" placeholder="e.g. \\MyApp\\BaseEntity" style="padding: 0.5rem; width: 100%; margin-top: 0.5rem;" />
+                            <input type="text" class="spp-element" value="${sbExtendsClass === '__other__' ? '' : sbExtendsClass}" @input="${e => this.setState({ sbExtendsClass: e.target.value })}" placeholder="e.g. \\MyApp\\BaseEntity" style="padding: 0.5rem; width: 100%; margin-top: 0.5rem;" />
                         ` : ''}
                     </div>
                     <div style="display: flex; align-items: center; padding-top: 1.5rem;">
                         <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: var(--text-normal);">
-                            <input type="checkbox" ?checked="${sbLoginEnabled}" @change="${e => this.setState({sbLoginEnabled: e.target.checked})}" style="width: 1.2rem; height: 1.2rem;" />
+                            <input type="checkbox" ?checked="${sbLoginEnabled}" @change="${e => this.setState({ sbLoginEnabled: e.target.checked })}" style="width: 1.2rem; height: 1.2rem;" />
                             <strong>Enable Login Support</strong>
                         </label>
                     </div>
@@ -1249,7 +1249,7 @@ export default class EntitiesView extends BaseComponent {
     async seedMockData(entityName) {
         const count = prompt('How many mock records to generate and insert?', '50');
         if (!count) return;
-        
+
         try {
             const fd = new FormData();
             fd.append('action', 'seed_entity');

@@ -16,7 +16,8 @@ require_once SPP_BASE_DIR . '/sppinit.php';
 \SPP\Scheduler::setContext('lekhak');
 
 // Helper to write to debug log
-function install_log($msg) {
+function install_log($msg)
+{
     @file_put_contents(__DIR__ . '/var/log/install.log', "[" . date('Y-m-d H:i:s') . "] " . $msg . "\n", FILE_APPEND);
 }
 
@@ -200,8 +201,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'test_db') {
 }
 
 // Current step
-$step = isset($_GET['step']) ? (int)$_GET['step'] : 1;
-if ($step < 1 || $step > 6) $step = 1;
+$step = isset($_GET['step']) ? (int) $_GET['step'] : 1;
+if ($step < 1 || $step > 6)
+    $step = 1;
 
 // Process steps POST
 $errors = [];
@@ -211,7 +213,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         header("Location: install.php?step=2" . ($freshRequested ? "&fresh=1" : ""));
         exit;
     }
-    
+
     if ($step === 2) {
         // Requirements step - check again
         $reqs = checkRequirements();
@@ -228,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = "Please fix requirements before continuing.";
         }
     }
-    
+
     if ($step === 3) {
         $dbtype = $_POST['dbtype'] ?? 'sqlite';
         $_SESSION['db_config'] = [
@@ -241,7 +243,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'mysql_pass' => $_POST['mysql_pass'] ?? '',
             'table_prefix' => $_POST['table_prefix'] ?? 'lek_'
         ];
-        
+
         // Test connection
         $testRes = testConnection($_SESSION['db_config']);
         if ($testRes['success']) {
@@ -251,19 +253,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = $testRes['message'];
         }
     }
-    
+
     if ($step === 4) {
         $site_name = trim($_POST['site_name'] ?? '');
         $site_email = trim($_POST['site_email'] ?? '');
         $admin_username = trim($_POST['admin_username'] ?? '');
         $admin_password = $_POST['admin_password'] ?? '';
         $admin_email = trim($_POST['admin_email'] ?? '');
-        
-        if (empty($site_name)) $errors[] = "Site Name is required.";
-        if (empty($admin_username)) $errors[] = "Administrator Username is required.";
-        if (strlen($admin_password) < 4) $errors[] = "Administrator Password must be at least 4 characters.";
-        if (empty($admin_email)) $errors[] = "Administrator Email is required.";
-        
+
+        if (empty($site_name))
+            $errors[] = "Site Name is required.";
+        if (empty($admin_username))
+            $errors[] = "Administrator Username is required.";
+        if (strlen($admin_password) < 4)
+            $errors[] = "Administrator Password must be at least 4 characters.";
+        if (empty($admin_email))
+            $errors[] = "Administrator Email is required.";
+
         if (empty($errors)) {
             $_SESSION['site_config'] = [
                 'site_name' => $site_name,
@@ -276,7 +282,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
     }
-    
+
     if ($step === 5) {
         // Execute installation
         $res = executeInstallation();
@@ -291,7 +297,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Requirements helper
-function checkRequirements() {
+function checkRequirements()
+{
     $writableDirs = [
         'src/lekhak/etc',
         'var',
@@ -303,7 +310,7 @@ function checkRequirements() {
         ['name' => 'SQLite Extension', 'ok' => in_array('sqlite', PDO::getAvailableDrivers()), 'required' => false, 'desc' => 'Recommended default storage driver.'],
         ['name' => 'MySQL Extension', 'ok' => in_array('mysql', PDO::getAvailableDrivers()), 'required' => false, 'desc' => 'Required if using external MySQL server.']
     ];
-    
+
     foreach ($writableDirs as $dir) {
         $full = __DIR__ . '/' . $dir;
         $isOk = is_writable($full);
@@ -322,7 +329,8 @@ function checkRequirements() {
 }
 
 // Connection test helper
-function testConnection($cfg) {
+function testConnection($cfg)
+{
     if ($cfg['dbtype'] === 'sqlite') {
         $fullPath = __DIR__ . '/' . $cfg['sqlite_path'];
         $dir = dirname($fullPath);
@@ -353,7 +361,8 @@ function testConnection($cfg) {
     }
 }
 
-function ensureInstallColumns($db, string $table, array $columns): void {
+function ensureInstallColumns($db, string $table, array $columns): void
+{
     foreach ($columns as $column => $type) {
         try {
             if (!$db->columnExists($table, $column)) {
@@ -367,21 +376,22 @@ function ensureInstallColumns($db, string $table, array $columns): void {
 }
 
 // Installation Executer
-function executeInstallation() {
+function executeInstallation()
+{
     $dbConfig = $_SESSION['db_config'] ?? null;
     $siteConfig = $_SESSION['site_config'] ?? null;
-    
+
     if (!$dbConfig || !$siteConfig) {
         return ['success' => false, 'message' => 'Session config missing. Reset install wizard.'];
     }
-    
+
     // 1. Write the Database Config file FIRST
     $configFile = __DIR__ . '/src/lekhak/etc/modsconf/sppdb/config.yml';
     $configDir = dirname($configFile);
     if (!is_dir($configDir)) {
         @mkdir($configDir, 0777, true);
     }
-    
+
     $yamlData = [
         'variables' => [
             'dbtype' => $dbConfig['dbtype'],
@@ -395,7 +405,7 @@ function executeInstallation() {
             'installed' => true
         ]
     ];
-    
+
     try {
         if (class_exists('\\Symfony\\Component\\Yaml\\Yaml')) {
             $yamlStr = \Symfony\Component\Yaml\Yaml::dump($yamlData, 4);
@@ -407,7 +417,7 @@ function executeInstallation() {
     } catch (\Exception $e) {
         return ['success' => false, 'message' => 'Failed to write config: ' . $e->getMessage()];
     }
-    
+
     // 2. Set App database prefix override dynamically in global-settings.yml
     $globalSettingsFile = __DIR__ . '/spp/etc/global-settings.yml';
     if (file_exists($globalSettingsFile)) {
@@ -423,7 +433,7 @@ function executeInstallation() {
             install_log("Warning: failed to update global settings table prefix: " . $e->getMessage());
         }
     }
-    
+
     // 3. Connect to Database using newly written configuration
     try {
         $db = new \SPPMod\SPPDB\SPPDB();
@@ -432,18 +442,33 @@ function executeInstallation() {
     } catch (\Exception $e) {
         return ['success' => false, 'message' => 'Failed to load DB config: ' . $e->getMessage()];
     }
-    
+
     // Helper to run Schema creations
     try {
         $isSqlite = ($driver === 'sqlite');
-        
+
         // Drop existing tables if fresh install requested
         if (isset($_GET['fresh']) && $_GET['fresh'] == '1') {
             $tablesToDrop = [
-                'users', 'roles', 'rights', 'userroles', 'roleright', 'entity_roles',
-                'vocabularies', 'terms', 'nodes', 'content_types', 'fields', 'blocks',
-                'landing_blocks', 'landing_pages', 'node_access', 'audit_logs',
-                'sppview_pages', 'sppview_defaults', 'sppview_specials'
+                'users',
+                'roles',
+                'rights',
+                'userroles',
+                'roleright',
+                'entity_roles',
+                'vocabularies',
+                'terms',
+                'nodes',
+                'content_types',
+                'fields',
+                'blocks',
+                'landing_blocks',
+                'landing_pages',
+                'node_access',
+                'audit_logs',
+                'sppview_pages',
+                'sppview_defaults',
+                'sppview_specials'
             ];
             foreach ($tablesToDrop as $t) {
                 try {
@@ -455,7 +480,7 @@ function executeInstallation() {
             }
             install_log("Existing tables dropped for fresh reinstall.");
         }
-        
+
         // Create Routing Tables
         if ($isSqlite) {
             $db->execute_query('CREATE TABLE IF NOT EXISTS ' . \SPPMod\SPPDB\SPPDB::sppTable('sppview_pages') . ' (
@@ -490,7 +515,7 @@ function executeInstallation() {
                 method VARCHAR(100) NOT NULL
             )');
         }
-        
+
         // Create SPP Auth tables (No prefix because of shared group core)
         $tUsers = \SPPMod\SPPDB\SPPDB::sppTable('users');
         $tRoles = \SPPMod\SPPDB\SPPDB::sppTable('roles');
@@ -498,7 +523,7 @@ function executeInstallation() {
         $tUserRoles = \SPPMod\SPPDB\SPPDB::sppTable('userroles');
         $tRoleRight = \SPPMod\SPPDB\SPPDB::sppTable('roleright');
         $tEntityRoles = \SPPMod\SPPDB\SPPDB::sppTable('entity_roles');
-        
+
         if ($isSqlite) {
             $db->execute_query("CREATE TABLE IF NOT EXISTS {$tUsers} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -542,7 +567,7 @@ function executeInstallation() {
                 description TEXT
             )");
         }
-        
+
         $db->execute_query("CREATE TABLE IF NOT EXISTS {$tUserRoles} (
             userid INT NOT NULL,
             roleid INT NOT NULL,
@@ -559,7 +584,7 @@ function executeInstallation() {
             role_id INT NOT NULL,
             PRIMARY KEY (target_class, target_id, role_id)
         )");
-        
+
         // Create Lekhak CMS Specific Tables (prefixed with lek_)
         $tVocab = \SPPMod\SPPDB\SPPDB::sppTable('vocabularies');
         $tTerms = \SPPMod\SPPDB\SPPDB::sppTable('terms');
@@ -571,7 +596,7 @@ function executeInstallation() {
         $tLandingPages = \SPPMod\SPPDB\SPPDB::sppTable('landing_pages');
         $tNodeAccess = \SPPMod\SPPDB\SPPDB::sppTable('node_access');
         $tAuditLogs = \SPPMod\SPPDB\SPPDB::sppTable('audit_logs');
-        
+
         if ($isSqlite) {
             $db->execute_query("CREATE TABLE IF NOT EXISTS {$tVocab} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -735,7 +760,7 @@ function executeInstallation() {
                 changed DATETIME
             )");
         }
-        
+
         $db->execute_query("CREATE TABLE IF NOT EXISTS {$tNodeAccess} (
             nid INT NOT NULL,
             gid INT NOT NULL,
@@ -819,19 +844,19 @@ function executeInstallation() {
                 'layout_id' => 'VARCHAR(50)'
             ]);
         }
-        
+
         install_log("Database schema successfully generated.");
-        
+
         // 4. Seed Security Roles & Rights (driver-specific ignore syntax)
         if ($isSqlite) {
             $db->execute_query("INSERT OR IGNORE INTO {$tRoles} (id, role_name, description) VALUES (1, 'SuperAdmin', 'Full administrative permissions.')");
             $db->execute_query("INSERT OR IGNORE INTO {$tRoles} (id, role_name, description) VALUES (2, 'Member', 'Default site members.')");
-            
+
             $db->execute_query("INSERT OR IGNORE INTO {$tRights} (id, name, description) VALUES (1, 'administer site configuration', 'Access system preferences')");
             $db->execute_query("INSERT OR IGNORE INTO {$tRights} (id, name, description) VALUES (2, 'administer nodes', 'CRUD access to all content types')");
             $db->execute_query("INSERT OR IGNORE INTO {$tRights} (id, name, description) VALUES (3, 'administer blocks', 'Manage regional blocks and layouts')");
             $db->execute_query("INSERT OR IGNORE INTO {$tRights} (id, name, description) VALUES (4, 'access administration pages', 'Access CMS backend')");
-            
+
             $db->execute_query("INSERT OR IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 1)");
             $db->execute_query("INSERT OR IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 2)");
             $db->execute_query("INSERT OR IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 3)");
@@ -839,34 +864,36 @@ function executeInstallation() {
         } else {
             $db->execute_query("INSERT IGNORE INTO {$tRoles} (id, role_name, description) VALUES (1, 'SuperAdmin', 'Full administrative permissions.')");
             $db->execute_query("INSERT IGNORE INTO {$tRoles} (id, role_name, description) VALUES (2, 'Member', 'Default site members.')");
-            
+
             $db->execute_query("INSERT IGNORE INTO {$tRights} (id, name, description) VALUES (1, 'administer site configuration', 'Access system preferences')");
             $db->execute_query("INSERT IGNORE INTO {$tRights} (id, name, description) VALUES (2, 'administer nodes', 'CRUD access to all content types')");
             $db->execute_query("INSERT IGNORE INTO {$tRights} (id, name, description) VALUES (3, 'administer blocks', 'Manage regional blocks and layouts')");
             $db->execute_query("INSERT IGNORE INTO {$tRights} (id, name, description) VALUES (4, 'access administration pages', 'Access CMS backend')");
-            
+
             $db->execute_query("INSERT IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 1)");
             $db->execute_query("INSERT IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 2)");
             $db->execute_query("INSERT IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 3)");
             $db->execute_query("INSERT IGNORE INTO {$tRoleRight} (roleid, rightid) VALUES (1, 4)");
         }
-        
+
         // 6. Create Administrator User Account
         $pwdHash = password_hash($siteConfig['admin_password'], PASSWORD_DEFAULT);
-        $db->execute_query("INSERT INTO {$tUsers} (username, email, password, role_id, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            [$siteConfig['admin_username'], $siteConfig['admin_email'], $pwdHash, 1, 'active', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')]);
-        
+        $db->execute_query(
+            "INSERT INTO {$tUsers} (username, email, password, role_id, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [$siteConfig['admin_username'], $siteConfig['admin_email'], $pwdHash, 1, 'active', date('Y-m-d H:i:s'), date('Y-m-d H:i:s')]
+        );
+
         if ($isSqlite) {
             $adminId = $db->execute_query("SELECT last_insert_rowid() as id")[0]['id'] ?? 1;
         } else {
             $adminId = $db->execute_query("SELECT LAST_INSERT_ID() as id")[0]['id'] ?? 1;
         }
         $db->execute_query("INSERT INTO {$tUserRoles} (userid, roleid) VALUES (?, ?)", [$adminId, 1]);
-        
+
         // 7. Seed Initial CMS Content Type
         $db->execute_query("INSERT INTO {$tContentTypes} (name, label, description) VALUES ('page', 'Basic Page', 'Static page layouts for text blocks.')");
         $db->execute_query("INSERT INTO {$tContentTypes} (name, label, description) VALUES ('article', 'Article', 'Blogging and press announcements.')");
-        
+
         // 8. Set global settings site_name
         if (file_exists($globalSettingsFile)) {
             try {
@@ -878,7 +905,7 @@ function executeInstallation() {
                 // Ignore settings failure
             }
         }
-        
+
         install_log("Administrative account seeded successfully.");
         return ['success' => true];
     } catch (\Exception $e) {
@@ -889,6 +916,7 @@ function executeInstallation() {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -909,15 +937,17 @@ function executeInstallation() {
             --success: #10b981;
             --error: #ef4444;
         }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
         }
+
         body {
             background-color: var(--bg);
             background-image: radial-gradient(circle at top right, rgba(249, 115, 22, 0.08), transparent 400px),
-                              radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.05), transparent 400px);
+                radial-gradient(circle at bottom left, rgba(99, 102, 241, 0.05), transparent 400px);
             color: var(--text);
             font-family: "Outfit", "Inter", system-ui, sans-serif;
             min-height: 100vh;
@@ -926,6 +956,7 @@ function executeInstallation() {
             align-items: center;
             padding: 20px;
         }
+
         .wizard-card {
             background: var(--card-bg);
             backdrop-filter: blur(12px);
@@ -936,17 +967,20 @@ function executeInstallation() {
             max-width: 600px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
         }
+
         .logo-img {
             max-height: 80px;
             display: block;
             margin: 0 auto 20px;
         }
+
         .steps {
             display: flex;
             justify-content: space-between;
             margin-bottom: 40px;
             position: relative;
         }
+
         .steps::before {
             content: '';
             position: absolute;
@@ -957,6 +991,7 @@ function executeInstallation() {
             background: rgba(255, 255, 255, 0.1);
             z-index: 1;
         }
+
         .step {
             width: 32px;
             height: 32px;
@@ -972,23 +1007,27 @@ function executeInstallation() {
             position: relative;
             z-index: 2;
         }
+
         .step.active {
             background: var(--primary);
             border-color: var(--primary);
             color: #fff;
             box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
         }
+
         .step.completed {
             background: var(--success);
             border-color: var(--success);
             color: #fff;
         }
+
         h2 {
             font-size: 1.5rem;
             font-weight: 800;
             margin-bottom: 20px;
             text-align: center;
         }
+
         .alert {
             padding: 12px 16px;
             border-radius: 8px;
@@ -996,19 +1035,23 @@ function executeInstallation() {
             font-size: 0.9rem;
             line-height: 1.5;
         }
+
         .alert-error {
             background: rgba(239, 68, 68, 0.15);
             border: 1px solid rgba(239, 68, 68, 0.25);
             color: #fca5a5;
         }
+
         .alert-success {
             background: rgba(16, 185, 129, 0.15);
             border: 1px solid rgba(16, 185, 129, 0.25);
             color: #a7f3d0;
         }
+
         .form-group {
             margin-bottom: 20px;
         }
+
         label {
             display: block;
             font-size: 0.85rem;
@@ -1018,6 +1061,7 @@ function executeInstallation() {
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
         .input-control {
             width: 100%;
             background: var(--input-bg);
@@ -1029,11 +1073,13 @@ function executeInstallation() {
             font-size: 0.95rem;
             transition: all 0.2s ease;
         }
+
         .input-control:focus {
             outline: none;
             border-color: var(--input-focus);
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
         }
+
         select.input-control {
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23f8fafc'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
@@ -1041,13 +1087,15 @@ function executeInstallation() {
             background-position: right 16px center;
             background-size: 16px;
         }
+
         .req-list {
             list-style: none;
             margin-bottom: 25px;
         }
+
         .req-item {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             padding: 12px 16px;
             border-radius: 8px;
             margin-bottom: 10px;
@@ -1055,35 +1103,42 @@ function executeInstallation() {
             justify-content: space-between;
             align-items: center;
         }
+
         .req-name {
             font-weight: 600;
             font-size: 0.95rem;
         }
+
         .req-desc {
             font-size: 0.75rem;
             color: var(--text-muted);
             margin-top: 4px;
         }
+
         .status-badge {
             padding: 4px 10px;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
         }
+
         .status-pass {
             background: rgba(16, 185, 129, 0.2);
             color: #34d399;
         }
+
         .status-fail {
             background: rgba(239, 68, 68, 0.2);
             color: #fca7a7;
         }
+
         .btn-group {
             display: flex;
             justify-content: space-between;
             margin-top: 30px;
             gap: 15px;
         }
+
         .btn {
             background: var(--primary);
             color: #fff;
@@ -1098,44 +1153,54 @@ function executeInstallation() {
             text-align: center;
             flex-grow: 1;
         }
+
         .btn:hover {
             background: var(--primary-hover);
         }
+
         .btn:disabled {
             background: #475569;
             cursor: not-allowed;
             opacity: 0.5;
         }
+
         .btn-secondary {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
         .btn-secondary:hover {
-            background: rgba(255,255,255,0.15);
+            background: rgba(255, 255, 255, 0.15);
         }
+
         .grid-2 {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 16px;
         }
+
         .spinner {
             width: 24px;
             height: 24px;
-            border: 3px solid rgba(255,255,255,0.2);
+            border: 3px solid rgba(255, 255, 255, 0.2);
             border-top-color: #fff;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin: 20px auto;
         }
+
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="wizard-card">
         <img src="img/lekhak_logo.png" class="logo-img" alt="Lekhak Logo">
-        
+
         <div class="steps">
             <div class="step <?php echo $step >= 1 ? ($step > 1 ? 'completed' : 'active') : ''; ?>">1</div>
             <div class="step <?php echo $step >= 2 ? ($step > 2 ? 'completed' : 'active') : ''; ?>">2</div>
@@ -1146,7 +1211,8 @@ function executeInstallation() {
 
         <?php if (!empty($errors)): ?>
             <div class="alert alert-error">
-                <?php foreach ($errors as $error) echo htmlspecialchars($error) . "<br>"; ?>
+                <?php foreach ($errors as $error)
+                    echo htmlspecialchars($error) . "<br>"; ?>
             </div>
         <?php endif; ?>
 
@@ -1157,8 +1223,10 @@ function executeInstallation() {
                 <div class="form-group">
                     <label for="lang">Language</label>
                     <select name="lang" id="lang" class="input-control">
-                        <option value="en" <?php echo ($_SESSION['install_lang'] ?? '') === 'en' ? 'selected' : ''; ?>>English</option>
-                        <option value="hi" <?php echo ($_SESSION['install_lang'] ?? '') === 'hi' ? 'selected' : ''; ?>>Hindi</option>
+                        <option value="en" <?php echo ($_SESSION['install_lang'] ?? '') === 'en' ? 'selected' : ''; ?>>English
+                        </option>
+                        <option value="hi" <?php echo ($_SESSION['install_lang'] ?? '') === 'hi' ? 'selected' : ''; ?>>Hindi
+                        </option>
                     </select>
                 </div>
                 <div class="btn-group">
@@ -1170,30 +1238,33 @@ function executeInstallation() {
             <?php if ($step === 2): ?>
                 <h2>Verify Requirements</h2>
                 <ul class="req-list">
-                    <?php 
+                    <?php
                     $reqs = checkRequirements();
                     $allOk = true;
-                    foreach ($reqs as $r): 
-                        if (!$r['ok'] && $r['required']) $allOk = false;
-                    ?>
+                    foreach ($reqs as $r):
+                        if (!$r['ok'] && $r['required'])
+                            $allOk = false;
+                        ?>
                         <li class="req-item">
                             <div>
                                 <span class="req-name"><?php echo htmlspecialchars($r['name']); ?></span>
                                 <div class="req-desc"><?php echo htmlspecialchars($r['desc']); ?></div>
                             </div>
-                            <span class="status-badge <?php echo $r['ok'] ? 'status-pass' : ($r['required'] ? 'status-fail' : 'status-fail'); ?>">
+                            <span
+                                class="status-badge <?php echo $r['ok'] ? 'status-pass' : ($r['required'] ? 'status-fail' : 'status-fail'); ?>">
                                 <?php echo $r['ok'] ? 'Pass' : ($r['required'] ? 'Fail' : 'Optional'); ?>
                             </span>
                         </li>
                     <?php endforeach; ?>
                 </ul>
                 <div class="btn-group">
-                    <a href="install.php?step=1<?php echo $freshRequested ? '&fresh=1' : ''; ?>" class="btn btn-secondary">&larr; Back</a>
+                    <a href="install.php?step=1<?php echo $freshRequested ? '&fresh=1' : ''; ?>"
+                        class="btn btn-secondary">&larr; Back</a>
                     <button type="submit" class="btn" <?php echo !$allOk ? 'disabled' : ''; ?>>Next &rarr;</button>
                 </div>
             <?php endif; ?>
 
-            <?php if ($step === 3): 
+            <?php if ($step === 3):
                 $db_cfg = $_SESSION['db_config'] ?? $existingConfig;
                 $dbtype = $db_cfg['dbtype'] ?? 'sqlite';
                 $sqlite_path = $db_cfg['sqlite_path'] ?? 'var/db/lekhak.sqlite';
@@ -1203,21 +1274,24 @@ function executeInstallation() {
                 $mysql_user = $db_cfg['dbuser'] ?? $db_cfg['mysql_user'] ?? '';
                 $mysql_pass = $db_cfg['dbpasswd'] ?? $db_cfg['mysql_pass'] ?? '';
                 $table_prefix = $db_cfg['global_table_prefix'] ?? $db_cfg['table_prefix'] ?? 'lek_';
-            ?>
+                ?>
                 <h2>Database Configuration</h2>
-                
+
                 <div class="form-group">
                     <label for="dbtype">Database Driver</label>
                     <select name="dbtype" id="dbtype" class="input-control" onchange="toggleDbFields()">
-                        <option value="sqlite" <?php echo $dbtype === 'sqlite' ? 'selected' : ''; ?>>SQLite (Local File)</option>
+                        <option value="sqlite" <?php echo $dbtype === 'sqlite' ? 'selected' : ''; ?>>SQLite (Local File)
+                        </option>
                         <option value="mysql" <?php echo $dbtype === 'mysql' ? 'selected' : ''; ?>>MySQL Server</option>
                     </select>
                 </div>
 
                 <!-- SQLite Settings -->
-                <div id="sqlite-group" class="form-group" style="display: <?php echo $dbtype === 'sqlite' ? 'block' : 'none'; ?>;">
+                <div id="sqlite-group" class="form-group"
+                    style="display: <?php echo $dbtype === 'sqlite' ? 'block' : 'none'; ?>;">
                     <label for="sqlite_path">SQLite Database File Path</label>
-                    <input type="text" name="sqlite_path" id="sqlite_path" class="input-control" value="<?php echo htmlspecialchars($sqlite_path); ?>">
+                    <input type="text" name="sqlite_path" id="sqlite_path" class="input-control"
+                        value="<?php echo htmlspecialchars($sqlite_path); ?>">
                 </div>
 
                 <!-- MySQL Settings -->
@@ -1225,36 +1299,43 @@ function executeInstallation() {
                     <div class="grid-2">
                         <div class="form-group">
                             <label for="mysql_host">Host</label>
-                            <input type="text" name="mysql_host" id="mysql_host" class="input-control" value="<?php echo htmlspecialchars($mysql_host); ?>">
+                            <input type="text" name="mysql_host" id="mysql_host" class="input-control"
+                                value="<?php echo htmlspecialchars($mysql_host); ?>">
                         </div>
                         <div class="form-group">
                             <label for="mysql_port">Port</label>
-                            <input type="text" name="mysql_port" id="mysql_port" class="input-control" value="<?php echo htmlspecialchars($mysql_port); ?>">
+                            <input type="text" name="mysql_port" id="mysql_port" class="input-control"
+                                value="<?php echo htmlspecialchars($mysql_port); ?>">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="mysql_name">Database Name</label>
-                        <input type="text" name="mysql_name" id="mysql_name" class="input-control" value="<?php echo htmlspecialchars($mysql_name); ?>">
+                        <input type="text" name="mysql_name" id="mysql_name" class="input-control"
+                            value="<?php echo htmlspecialchars($mysql_name); ?>">
                     </div>
                     <div class="grid-2">
                         <div class="form-group">
                             <label for="mysql_user">Username</label>
-                            <input type="text" name="mysql_user" id="mysql_user" class="input-control" value="<?php echo htmlspecialchars($mysql_user); ?>">
+                            <input type="text" name="mysql_user" id="mysql_user" class="input-control"
+                                value="<?php echo htmlspecialchars($mysql_user); ?>">
                         </div>
                         <div class="form-group">
                             <label for="mysql_pass">Password</label>
-                            <input type="password" name="mysql_pass" id="mysql_pass" class="input-control" value="<?php echo htmlspecialchars($mysql_pass); ?>">
+                            <input type="password" name="mysql_pass" id="mysql_pass" class="input-control"
+                                value="<?php echo htmlspecialchars($mysql_pass); ?>">
                         </div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="table_prefix">Table Prefix</label>
-                    <input type="text" name="table_prefix" id="table_prefix" class="input-control" value="<?php echo htmlspecialchars($table_prefix); ?>">
+                    <input type="text" name="table_prefix" id="table_prefix" class="input-control"
+                        value="<?php echo htmlspecialchars($table_prefix); ?>">
                 </div>
 
                 <div class="btn-group">
-                    <a href="install.php?step=2<?php echo $freshRequested ? '&fresh=1' : ''; ?>" class="btn btn-secondary">&larr; Back</a>
+                    <a href="install.php?step=2<?php echo $freshRequested ? '&fresh=1' : ''; ?>"
+                        class="btn btn-secondary">&larr; Back</a>
                     <button type="button" class="btn btn-secondary" onclick="testConnectionAjax()">Test Connection</button>
                     <button type="submit" class="btn">Next &rarr;</button>
                 </div>
@@ -1273,78 +1354,91 @@ function executeInstallation() {
                         alertDiv.style.display = 'block';
                         alertDiv.className = 'alert';
                         alertDiv.innerHTML = 'Testing connection...';
-                        
+
                         var fd = new FormData(document.getElementById('installForm'));
-                        
+
                         fetch('install.php?action=test_db', {
                             method: 'POST',
                             body: fd
                         })
-                        .then(r => r.json())
-                        .then(data => {
-                            if (data.success) {
-                                alertDiv.className = 'alert alert-success';
-                                alertDiv.innerHTML = data.message;
-                            } else {
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alertDiv.className = 'alert alert-success';
+                                    alertDiv.innerHTML = data.message;
+                                } else {
+                                    alertDiv.className = 'alert alert-error';
+                                    alertDiv.innerHTML = data.message;
+                                }
+                            })
+                            .catch(err => {
                                 alertDiv.className = 'alert alert-error';
-                                alertDiv.innerHTML = data.message;
-                            }
-                        })
-                        .catch(err => {
-                            alertDiv.className = 'alert alert-error';
-                            alertDiv.innerHTML = 'An unexpected connection error occurred.';
-                        });
+                                alertDiv.innerHTML = 'An unexpected connection error occurred.';
+                            });
                     }
                 </script>
             <?php endif; ?>
 
             <?php if ($step === 4): ?>
                 <h2>Site & Admin Configuration</h2>
-                
+
                 <div class="form-group">
                     <label for="site_name">Site Name</label>
-                    <input type="text" name="site_name" id="site_name" class="input-control" value="<?php echo htmlspecialchars($_SESSION['site_config']['site_name'] ?? 'Lekhak Portal'); ?>" required>
+                    <input type="text" name="site_name" id="site_name" class="input-control"
+                        value="<?php echo htmlspecialchars($_SESSION['site_config']['site_name'] ?? 'Lekhak Portal'); ?>"
+                        required>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="site_email">Site Email Address</label>
-                    <input type="email" name="site_email" id="site_email" class="input-control" value="<?php echo htmlspecialchars($_SESSION['site_config']['site_email'] ?? 'admin@lekhak.local'); ?>" required>
+                    <input type="email" name="site_email" id="site_email" class="input-control"
+                        value="<?php echo htmlspecialchars($_SESSION['site_config']['site_email'] ?? 'admin@lekhak.local'); ?>"
+                        required>
                 </div>
 
                 <div class="form-group">
                     <label for="admin_username">Admin Username</label>
-                    <input type="text" name="admin_username" id="admin_username" class="input-control" value="<?php echo htmlspecialchars($_SESSION['site_config']['admin_username'] ?? 'admin'); ?>" required>
+                    <input type="text" name="admin_username" id="admin_username" class="input-control"
+                        value="<?php echo htmlspecialchars($_SESSION['site_config']['admin_username'] ?? 'admin'); ?>"
+                        required>
                 </div>
 
                 <div class="grid-2">
                     <div class="form-group">
                         <label for="admin_password">Admin Password</label>
-                        <input type="password" name="admin_password" id="admin_password" class="input-control" required placeholder="Choose password">
+                        <input type="password" name="admin_password" id="admin_password" class="input-control" required
+                            placeholder="Choose password">
                     </div>
                     <div class="form-group">
                         <label for="admin_email">Admin Email</label>
-                        <input type="email" name="admin_email" id="admin_email" class="input-control" value="<?php echo htmlspecialchars($_SESSION['site_config']['admin_email'] ?? 'admin@lekhak.local'); ?>" required>
+                        <input type="email" name="admin_email" id="admin_email" class="input-control"
+                            value="<?php echo htmlspecialchars($_SESSION['site_config']['admin_email'] ?? 'admin@lekhak.local'); ?>"
+                            required>
                     </div>
                 </div>
 
                 <div class="btn-group">
-                    <a href="install.php?step=3<?php echo $freshRequested ? '&fresh=1' : ''; ?>" class="btn btn-secondary">&larr; Back</a>
+                    <a href="install.php?step=3<?php echo $freshRequested ? '&fresh=1' : ''; ?>"
+                        class="btn btn-secondary">&larr; Back</a>
                     <button type="submit" class="btn">Next &rarr;</button>
                 </div>
             <?php endif; ?>
 
             <?php if ($step === 5): ?>
                 <h2>Ready to Install</h2>
-                <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">We have all the information required. Click the button below to initialize database schemas and install Lekhak.</p>
-                
+                <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 20px;">We have all the information
+                    required. Click the button below to initialize database schemas and install Lekhak.</p>
+
                 <div class="btn-group">
-                    <a href="install.php?step=4<?php echo $freshRequested ? '&fresh=1' : ''; ?>" class="btn btn-secondary">&larr; Back</a>
+                    <a href="install.php?step=4<?php echo $freshRequested ? '&fresh=1' : ''; ?>"
+                        class="btn btn-secondary">&larr; Back</a>
                     <button type="submit" class="btn" onclick="showLoader()">Install Lekhak</button>
                 </div>
 
                 <div id="install-loader" style="display: none; text-align: center; margin-top: 20px;">
                     <div class="spinner"></div>
-                    <div style="font-size: 0.9rem; color: var(--text-muted);">Configuring entities, building schemas, and seeding roles...</div>
+                    <div style="font-size: 0.9rem; color: var(--text-muted);">Configuring entities, building schemas, and
+                        seeding roles...</div>
                 </div>
 
                 <script>
@@ -1359,9 +1453,11 @@ function executeInstallation() {
                 <div class="alert alert-success" style="text-align: center; margin-bottom: 30px;">
                     🎉 Congratulations! Lekhak CMS has been successfully installed.
                 </div>
-                
-                <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">The Lekhak core engine and reactive dashboard components are now active. You can log in using the administrator credentials configured in step 4.</p>
-                
+
+                <p style="color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;">The Lekhak core engine and
+                    reactive dashboard components are now active. You can log in using the administrator credentials
+                    configured in step 4.</p>
+
                 <div class="btn-group">
                     <a href="index.php" class="btn btn-secondary">Visit Homepage</a>
                     <a href="lekhak/admin" class="btn">Go to Admin Dashboard</a>
@@ -1371,4 +1467,5 @@ function executeInstallation() {
         </form>
     </div>
 </body>
+
 </html>

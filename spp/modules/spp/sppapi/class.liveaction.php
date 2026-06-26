@@ -296,7 +296,7 @@ class LiveAction
             throw new \Exception("SPPInterDB module is required for LiveAction::query()");
         }
 
-        $db = new \SPPMod\SppDb\SPPInterDB();
+        $db = new \SPPMod\SPPDB\SPPInterDB();
         $res = $db->graphql($query, $variables);
         return new self($res);
     }

@@ -34,7 +34,7 @@ class SPPDB
     /**
      * Returns the appropriate compiler for the current database dialect.
      */
-    public function getCompiler(): \SPPMod\SppDb\Compilers\CompilerInterface
+    public function getCompiler(): \SPPMod\SPPDB\Compilers\CompilerInterface
     {
         if (!interface_exists('\\SPPMod\\SPPInterDB\\Compilers\\CompilerInterface')) {
             require_once __DIR__ . '/Compilers/CompilerInterface.php';
@@ -46,18 +46,18 @@ class SPPDB
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\PostgresCompiler')) {
                     require_once __DIR__ . '/Compilers/PostgresCompiler.php';
                 }
-                return new \SPPMod\SppDb\Compilers\PostgresCompiler();
+                return new \SPPMod\SPPDB\Compilers\PostgresCompiler();
             case 'sqlite':
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\SQLiteCompiler')) {
                     require_once __DIR__ . '/Compilers/SQLiteCompiler.php';
                 }
-                return new \SPPMod\SppDb\Compilers\SQLiteCompiler();
+                return new \SPPMod\SPPDB\Compilers\SQLiteCompiler();
             case 'mysql':
             default:
                 if (!class_exists('\\SPPMod\\SPPInterDB\\Compilers\\MySQLCompiler')) {
                     require_once __DIR__ . '/Compilers/MySQLCompiler.php';
                 }
-                return new \SPPMod\SppDb\Compilers\MySQLCompiler();
+                return new \SPPMod\SPPDB\Compilers\MySQLCompiler();
         }
     }
 
@@ -156,8 +156,8 @@ class SPPDB
         return is_array($cached) ? $cached : ['apps' => [], 'shared_groups' => []];
     }
 
-    /** @var \SPPMod\SppDb\DBAdapter The active database adapter */
-    private \SPPMod\SppDb\DBAdapter $adapter;
+    /** @var \SPPMod\SPPDB\DBAdapter The active database adapter */
+    private \SPPMod\SPPDB\DBAdapter $adapter;
 
     private $numrows;
 
@@ -269,7 +269,7 @@ class SPPDB
                 }
 
                 $xdb = new \SPPMod\SPPXDB\SPP_XDB($this->dbname ?: 'default');
-                $this->adapter = new \SPPMod\SppDb\XDBAdapter($xdb);
+                $this->adapter = new \SPPMod\SPPDB\XDBAdapter($xdb);
                 return;
             }
 
@@ -306,7 +306,7 @@ class SPPDB
                 if (!is_array($options)) {
                     $options = [];
                 }
-                
+
                 // Add persistent connection if configured
                 $persist = $dbOverride['persist_connection'] ?? \SPP\Module::getConfig('persist_connection', 'sppdb');
                 if ($persist) {
@@ -345,7 +345,7 @@ class SPPDB
                 }
             }
 
-            $this->adapter = new \SPPMod\SppDb\PDOAdapter($pdo, $readPdo);
+            $this->adapter = new \SPPMod\SPPDB\PDOAdapter($pdo, $readPdo);
 
         } catch (\Exception $e) {
             // error_log("Database Connection Error: " . $e->getMessage());
@@ -355,7 +355,7 @@ class SPPDB
 
     public function isXDB(): bool
     {
-        return $this->adapter instanceof \SPPMod\SppDb\XDBAdapter;
+        return $this->adapter instanceof \SPPMod\SPPDB\XDBAdapter;
     }
 
     /**
@@ -400,7 +400,7 @@ class SPPDB
     /**
      * Returns the underlying database adapter instance.
      */
-    public function getAdapter(): \SPPMod\SppDb\DBAdapter
+    public function getAdapter(): \SPPMod\SPPDB\DBAdapter
     {
         return $this->adapter;
     }
@@ -437,42 +437,42 @@ class SPPDB
         }
     }
 
-    /** @var \SPPMod\SppDb\DBAdapter|null Lazy-loaded read replica adapter */
-    private ?\SPPMod\SppDb\DBAdapter $readAdapter = null;
+    /** @var \SPPMod\SPPDB\DBAdapter|null Lazy-loaded read replica adapter */
+    private ?\SPPMod\SPPDB\DBAdapter $readAdapter = null;
     private bool $forcePrimary = false;
 
     /**
      * Intelligently routes the query to the read replica or primary DB.
      */
-    private function getAdapterForQuery(string $sql): \SPPMod\SppDb\DBAdapter
+    private function getAdapterForQuery(string $sql): \SPPMod\SPPDB\DBAdapter
     {
         if ($this->forcePrimary || preg_match('/^\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|TRUNCATE)/i', $sql)) {
             $this->forcePrimary = true; // Stick to primary for rest of request to avoid replication lag
             return $this->adapter;
         }
-        
+
         if ($this->readAdapter) {
             return $this->readAdapter;
         }
-        
+
         // Attempt to connect to replica lazily if configured
         $context = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
         $settings = self::loadGlobalSettings();
         $replicas = $settings['apps'][$context]['db_replicas'] ?? \SPP\Module::getConfig('db_replicas', 'sppdb');
-        
+
         if (!empty($replicas) && is_array($replicas)) {
             $replica = $replicas[array_rand($replicas)];
             try {
                 $dbtype = $replica['dbtype'] ?? $this->dbtype;
                 $pdo = new \PDO("{$dbtype}:host={$replica['dbhost']};dbname={$this->dbname}", $replica['dbuser'] ?? null, $replica['dbpasswd'] ?? null);
                 $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-                $this->readAdapter = new \SPPMod\SppDb\PDOAdapter($pdo);
+                $this->readAdapter = new \SPPMod\SPPDB\PDOAdapter($pdo);
                 return $this->readAdapter;
             } catch (\Exception $e) {
                 error_log("SPPDB Replica connection failed, falling back to primary: " . $e->getMessage());
             }
         }
-        
+
         return $this->adapter;
     }
 
@@ -497,7 +497,7 @@ class SPPDB
 
     public function execute_query($sql, $values = [])
     {
-        $result = $this->getAdapterForQuery($sql)->query($sql, (array)$values);
+        $result = $this->getAdapterForQuery($sql)->query($sql, (array) $values);
         $this->numrows = count($result);
         return $result;
     }
@@ -513,11 +513,11 @@ class SPPDB
         $qry = $this->build_query($sql, $tabname);
         $adapter = $this->getAdapterForQuery($qry);
         if (method_exists($adapter, 'cursor')) {
-            return $adapter->cursor($qry, (array)$values);
+            return $adapter->cursor($qry, (array) $values);
         }
 
         // Fallback for adapters without cursor support
-        $result = $adapter->query($qry, (array)$values);
+        $result = $adapter->query($qry, (array) $values);
         foreach ($result as $row) {
             yield $row;
         }
@@ -576,19 +576,19 @@ class SPPDB
             $safeCols[] = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
         }
         $colsStr = implode(', ', $safeCols);
-        
+
         $placeholders = [];
         $values = [];
-        
+
         $rowPlaceholder = '(' . implode(', ', array_fill(0, count($columns), '?')) . ')';
-        
+
         foreach ($records as $record) {
             $placeholders[] = $rowPlaceholder;
             foreach ($columns as $col) {
                 $values[] = $record[$col] ?? null;
             }
         }
-        
+
         $sql = "INSERT INTO {$table} ({$colsStr}) VALUES " . implode(', ', $placeholders);
         $this->getAdapterForQuery($sql)->execute($sql, $values);
         return count($records);
@@ -601,7 +601,8 @@ class SPPDB
         }
 
         $columns = array_keys(reset($records));
-        $columns = array_filter($columns, function($col) use ($index) { return $col !== $index; });
+        $columns = array_filter($columns, function ($col) use ($index) {
+            return $col !== $index; });
 
         if (empty($columns)) {
             return 0;
@@ -627,13 +628,13 @@ class SPPDB
         }
 
         $whereIn = implode(',', array_fill(0, count($ids), '?'));
-        
+
         foreach ($columns as $col) {
             $cases[$col] .= " END";
         }
-        
+
         $sql = "UPDATE {$table} SET " . implode(', ', $cases) . " WHERE {$index} IN ({$whereIn})";
-        
+
         foreach ($ids as $id) {
             $values[] = $id;
         }
@@ -674,9 +675,11 @@ class SPPDB
                 $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
             } catch (\Exception $e) {
                 $message = $e->getMessage();
-                if (stripos($message, 'Duplicate column') !== false || 
+                if (
+                    stripos($message, 'Duplicate column') !== false ||
                     stripos($message, 'already exists') !== false ||
-                    stripos($message, 'Multiple primary key defined') !== false) {
+                    stripos($message, 'Multiple primary key defined') !== false
+                ) {
                     continue;
                 }
                 throw $e;
@@ -723,7 +726,7 @@ class SPPDB
         $checkSql = "SELECT count(*) as cnt FROM {$tableNameSafe} WHERE {$identityFieldSafe} = ?";
         $res = $this->execute_query($checkSql, [$data[$identityField]]);
 
-        if ((int)$res[0]['cnt'] === 0) {
+        if ((int) $res[0]['cnt'] === 0) {
             $this->insertValues($tableName, $data);
             return true;
         }

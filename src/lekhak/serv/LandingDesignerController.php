@@ -27,7 +27,7 @@ class LandingDesignerController extends AdminController
     protected function ensureSchema()
     {
         $db = new \SPPMod\SPPDB\SPPDB();
-        
+
         $tables = [
             'landing_pages' => [
                 'mysql' => 'id INT NOT NULL AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, alias VARCHAR(255) NOT NULL UNIQUE, bundle VARCHAR(50) NOT NULL, body LONGTEXT, author_id BIGINT, status VARCHAR(20), langcode VARCHAR(10), translation_id BIGINT, created DATETIME, changed DATETIME, is_default TINYINT(1) DEFAULT 0, layout_id VARCHAR(50)',
@@ -61,12 +61,12 @@ class LandingDesignerController extends AdminController
         $this->ensureSchema();
         $page = new LandingPage();
         $builder = new ViewFormBuilder($page);
-        
+
         // Use the premium Glass theme for better clarity and aesthetics
         \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
-        
+
         $form = $builder->build();
-        
+
         // Ensure the form posts back to this controller, not the root index.php
         $form->setAttribute('action', $this->getAppRoot() . "/admin/landing/create");
 
@@ -75,7 +75,8 @@ class LandingDesignerController extends AdminController
         if ($form->isSubmitted()) {
             try {
                 if ($form->save()) {
-                    if (session_status() === PHP_SESSION_NONE) session_start();
+                    if (session_status() === PHP_SESSION_NONE)
+                        session_start();
                     $_SESSION['flash_success'] = "Landing page '{$page->title}' has been created successfully.";
                     @file_put_contents(SPP_LOG_DIR . '/query_log.txt', date('[Y-m-d H:i:s] ') . "LandingDesignerController::create - Save SUCCESS. Redirecting to " . $this->getAppRoot() . "/admin/landing\n", FILE_APPEND);
                     header("Location: " . $this->getAppRoot() . "/admin/landing");
@@ -128,11 +129,11 @@ class LandingDesignerController extends AdminController
         $block = new LandingBlock();
         $block->page_id = $page_id;
         $block->block_type = $type;
-        $block->weight = (int)($_GET['weight'] ?? (LandingBlock::count(['page_id' => $page_id]) + 1));
+        $block->weight = (int) ($_GET['weight'] ?? (LandingBlock::count(['page_id' => $page_id]) + 1));
         $block->region = $_GET['region'] ?? 'main';
-        
+
         // Default data based on type
-        $defaultData = match($type) {
+        $defaultData = match ($type) {
             'hero' => ['title' => 'Welcome', 'subtitle' => 'This is a hero section', 'button_text' => 'Get Started'],
             'features' => ['title' => 'Our Features', 'items' => [['icon' => '🚀', 'text' => 'Fast'], ['icon' => '🛡️', 'text' => 'Secure']]],
             'cta' => ['text' => 'Ready to start?', 'button_text' => 'Join Now'],
@@ -176,7 +177,8 @@ class LandingDesignerController extends AdminController
             }
             exit;
         }
-        if (!$block->id) exit;
+        if (!$block->id)
+            exit;
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = $_POST['config'] ?? [];
@@ -192,7 +194,7 @@ class LandingDesignerController extends AdminController
                 }
                 $data['conditions'] = $conditions;
             }
-            
+
             $block->setContent($data);
             $block->save();
 
@@ -247,15 +249,16 @@ class LandingDesignerController extends AdminController
         } catch (\Exception $e) {
             exit;
         }
-        if (!$block->id) exit;
-        
+        if (!$block->id)
+            exit;
+
         $region = $_GET['region'] ?? 'main';
         $weight = $_GET['weight'] ?? $block->weight;
-        
+
         $block->region = $region;
-        $block->weight = (int)$weight;
+        $block->weight = (int) $weight;
         $block->save();
-        
+
         header("Location: " . $this->getAppRoot() . "/admin/landing/design/" . $block->page_id);
         exit;
     }
@@ -265,7 +268,8 @@ class LandingDesignerController extends AdminController
         try {
             $page = new LandingPage($id);
             $page->setAsDefault();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         header("Location: " . $this->getAppRoot() . "/admin/landing");
         exit;
@@ -275,7 +279,7 @@ class LandingDesignerController extends AdminController
     {
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
-        
+
         if (!$data || !isset($data['blocks'])) {
             \SPP\Response::json(['status' => 'error', 'message' => 'Invalid data'], 400);
         }
@@ -285,10 +289,11 @@ class LandingDesignerController extends AdminController
                 $block = new LandingBlock($b['id']);
                 if ($block->id) {
                     $block->region = $b['region'];
-                    $block->weight = (int)$b['weight'];
+                    $block->weight = (int) $b['weight'];
                     $block->save();
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
 
         \SPP\Response::json(['status' => 'success']);

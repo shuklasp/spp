@@ -43,7 +43,7 @@ class DBSettings extends \SPP\SPPObject
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('config');
 
-            $val = is_scalar($value) ? (string)$value : json_encode($value);
+            $val = is_scalar($value) ? (string) $value : json_encode($value);
 
             // Upsert logic
             $checkQuery = "SELECT id FROM {$table} WHERE appname = ? AND propname = ?";

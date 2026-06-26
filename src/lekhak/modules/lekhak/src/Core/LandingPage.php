@@ -8,7 +8,7 @@ namespace SPPMod\Lekhak\Core;
 class LandingPage extends LekhakNode
 {
     protected string $table = 'landing_pages';
-    
+
     public function after_creation()
     {
         parent::after_creation();
@@ -28,7 +28,8 @@ class LandingPage extends LekhakNode
      */
     public function getBlocks(): array
     {
-        if (!$this->id) return [];
+        if (!$this->id)
+            return [];
         return LandingBlock::find_all(['page_id' => $this->id], 'weight ASC');
     }
 

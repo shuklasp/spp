@@ -1,17 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>14. Blogging Platform | SPP Framework Tutorial</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         .step-container {
             margin: 4rem 0;
             position: relative;
         }
-        
+
         .step-header {
             display: flex;
             align-items: center;
@@ -19,7 +22,7 @@
             padding-bottom: 1rem;
             margin-bottom: 2rem;
         }
-        
+
         .step-title {
             margin: 0;
             font-size: 1.8rem;
@@ -54,8 +57,14 @@
             border: 1px solid rgba(16, 185, 129, 0.3);
             border-left: 4px solid #10b981;
         }
-        .phase-basic h3 { color: #10b981; }
-        .phase-basic::before { content: '🟢'; }
+
+        .phase-basic h3 {
+            color: #10b981;
+        }
+
+        .phase-basic::before {
+            content: '🟢';
+        }
 
         /* The Advanced Architecture */
         .phase-advanced {
@@ -63,8 +72,14 @@
             border: 1px solid rgba(239, 68, 68, 0.3);
             border-left: 4px solid #ef4444;
         }
-        .phase-advanced h3 { color: #ef4444; }
-        .phase-advanced::before { content: '🔴'; }
+
+        .phase-advanced h3 {
+            color: #ef4444;
+        }
+
+        .phase-advanced::before {
+            content: '🔴';
+        }
 
         /* The Implementation */
         .phase-impl {
@@ -72,10 +87,17 @@
             border: 1px solid #334155;
             border-left: 4px solid #6366f1;
         }
-        .phase-impl h3 { color: #818cf8; }
-        .phase-impl::before { content: '🛠️'; }
+
+        .phase-impl h3 {
+            color: #818cf8;
+        }
+
+        .phase-impl::before {
+            content: '🛠️';
+        }
     </style>
 </head>
+
 <body class="dark-mode">
     <aside class="sidebar">
         <h2>SPP Framework</h2>
@@ -105,12 +127,15 @@
         <article class="content-container">
 
             <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">14. Project: Building a Blogging Platform</h1>
-            
-            <p class="lead">This chapter is a masterclass in the SPP Framework. We are going to build a complete blogging platform from scratch.</p>
-            <p>However, we won't just tell you <em>what</em> to type. For every step of the development process, we will take you on a journey <strong>from basic to advanced</strong>:</p>
+
+            <p class="lead">This chapter is a masterclass in the SPP Framework. We are going to build a complete
+                blogging platform from scratch.</p>
+            <p>However, we won't just tell you <em>what</em> to type. For every step of the development process, we will
+                take you on a journey <strong>from basic to advanced</strong>:</p>
             <ul>
                 <li><strong>The Basic Concept</strong>: An easy-to-understand analogy of what we are doing.</li>
-                <li><strong>The Advanced Architecture</strong>: A deep dive into the underlying framework code, lifecycles, and pipelines.</li>
+                <li><strong>The Advanced Architecture</strong>: A deep dive into the underlying framework code,
+                    lifecycles, and pipelines.</li>
                 <li><strong>The Implementation</strong>: The actual code to build our blog.</li>
             </ul>
 
@@ -124,28 +149,41 @@
 
                 <div class="phase-box phase-basic">
                     <h3>The Basic Concept (The Construction Crew)</h3>
-                    <p>Imagine you want to build a restaurant. You don't build the bricks yourself; you hire a construction crew. In SPP, the <strong>CLI (Command Line Interface)</strong> is your construction crew. You tell it what you want, and it generates the boilerplate files for you, preventing human error. Even better, if you forget to tell the crew a detail, they will politely ask you for it!</p>
+                    <p>Imagine you want to build a restaurant. You don't build the bricks yourself; you hire a
+                        construction crew. In SPP, the <strong>CLI (Command Line Interface)</strong> is your
+                        construction crew. You tell it what you want, and it generates the boilerplate files for you,
+                        preventing human error. Even better, if you forget to tell the crew a detail, they will politely
+                        ask you for it!</p>
                 </div>
 
                 <div class="phase-box phase-advanced">
                     <h3>The Advanced Architecture (The CLI Kernel & Interactive Console)</h3>
-                    <p>When you run <code>php spp/spp.php make:app</code>, the SPP Console Kernel boots up. It maps your input string to a specific command class. If you omit required arguments (like the paradigm), the <code>InteractiveConsole</code> trait intercepts the execution. It renders beautiful interactive prompts (text inputs, multiple-choice menus, or hidden password fields) to collect the missing data before proceeding.</p>
-                    <p>Once it has all the data, the CLI registers the new app in the global namespace, scaffolds the standard directory tree, and wires up the configuration files needed for the framework to discover the app during the boot sequence.</p>
+                    <p>When you run <code>php spp/spp.php make:app</code>, the SPP Console Kernel boots up. It maps your
+                        input string to a specific command class. If you omit required arguments (like the paradigm),
+                        the <code>InteractiveConsole</code> trait intercepts the execution. It renders beautiful
+                        interactive prompts (text inputs, multiple-choice menus, or hidden password fields) to collect
+                        the missing data before proceeding.</p>
+                    <p>Once it has all the data, the CLI registers the new app in the global namespace, scaffolds the
+                        standard directory tree, and wires up the configuration files needed for the framework to
+                        discover the app during the boot sequence.</p>
                 </div>
 
                 <div class="phase-box phase-impl">
                     <h3>The Implementation</h3>
                     <p>Open your terminal and run:</p>
-<pre><code># Set up the core framework tables in the XDB
+                    <pre><code># Set up the core framework tables in the XDB
 php spp/spp.php admin:bootstrap</code></pre>
-                    <p>Now, scaffold the app. You can do this <strong>interactively</strong>. Just run the command without any flags:</p>
-<pre><code>php spp/spp.php make:app blog</code></pre>
+                    <p>Now, scaffold the app. You can do this <strong>interactively</strong>. Just run the command
+                        without any flags:</p>
+                    <pre><code>php spp/spp.php make:app blog</code></pre>
                     <p>The CLI will detect that missing information is needed and prompt you interactively:</p>
-<pre><code>> Which view paradigm would you like to use?
+                    <pre><code>> Which view paradigm would you like to use?
   [0] sppview (Native PHP)
   [1] blade (Drishyam)
 > 1</code></pre>
-                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Alternatively, you can bypass the interactive prompts by passing flags directly: <code>php spp/spp.php make:app blog --paradigm=blade</code>)</p>
+                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Alternatively, you can bypass the
+                        interactive prompts by passing flags directly:
+                        <code>php spp/spp.php make:app blog --paradigm=blade</code>)</p>
                 </div>
             </div>
 
@@ -159,22 +197,34 @@ php spp/spp.php admin:bootstrap</code></pre>
 
                 <div class="phase-box phase-basic">
                     <h3>The Basic Concept (The Kitchen &amp; Recipes)</h3>
-                    <p>In the old days, developers wrote raw database queries (SQL) everywhere. SPP uses an <strong>ORM</strong> (Object-Relational Mapping). Think of it as a translator between your PHP code and the database. You define a "Recipe" (an Entity), and you can just say <code>$post-&gt;title = "Hello"</code>. The framework handles all the complicated database translation behind the scenes.</p>
+                    <p>In the old days, developers wrote raw database queries (SQL) everywhere. SPP uses an
+                        <strong>ORM</strong> (Object-Relational Mapping). Think of it as a translator between your PHP
+                        code and the database. You define a "Recipe" (an Entity), and you can just say
+                        <code>$post-&gt;title = "Hello"</code>. The framework handles all the complicated database
+                        translation behind the scenes.</p>
                 </div>
 
                 <div class="phase-box phase-advanced">
                     <h3>The Advanced Architecture (SPPEntity &amp; SPPDB)</h3>
-                    <p><strong>Configuration Resolution:</strong> When you instantiate <code>new Post()</code>, SPP searches for <code>post.yml</code> in <code>APP_ETC_DIR/{app}/entities</code>. The parsed YAML is cached in a static registry <code>$_metadata</code> for ultra-fast subsequent lookups.</p>
-                    <p><strong>Magic Methods:</strong> Property access is intercepted by <code>__get()</code> and <code>__set()</code>. If you request a related entity, the magic <code>__get</code> delegates to <code>SPPEntityRelations::getRelated()</code>, executing a lazy-loaded SQL join.</p>
-                    <p><strong>Lifecycle Hooks:</strong> Entities fire hooks. For example, the <code>after_save()</code> hook automatically contacts <code>SPPCacheManager</code> to invalidate cache tags like <code>Post:{id}</code>, ensuring your app never serves stale data.</p>
+                    <p><strong>Configuration Resolution:</strong> When you instantiate <code>new Post()</code>, SPP
+                        searches for <code>post.yml</code> in <code>APP_ETC_DIR/{app}/entities</code>. The parsed YAML
+                        is cached in a static registry <code>$_metadata</code> for ultra-fast subsequent lookups.</p>
+                    <p><strong>Magic Methods:</strong> Property access is intercepted by <code>__get()</code> and
+                        <code>__set()</code>. If you request a related entity, the magic <code>__get</code> delegates to
+                        <code>SPPEntityRelations::getRelated()</code>, executing a lazy-loaded SQL join.</p>
+                    <p><strong>Lifecycle Hooks:</strong> Entities fire hooks. For example, the <code>after_save()</code>
+                        hook automatically contacts <code>SPPCacheManager</code> to invalidate cache tags like
+                        <code>Post:{id}</code>, ensuring your app never serves stale data.</p>
                 </div>
 
                 <div class="phase-box phase-impl">
                     <h3>The Implementation</h3>
-                    <p>Let's define the <code>Post</code> entity. Just like before, we will use the interactive CLI. Run:</p>
-<pre><code>php spp/spp.php make:entity Post</code></pre>
-                    <p>The interactive console will ask you a few questions. Notice how it loops to let you add multiple attributes and relationships without writing any code:</p>
-<pre><code>> Application/Context [default]: blog
+                    <p>Let's define the <code>Post</code> entity. Just like before, we will use the interactive CLI.
+                        Run:</p>
+                    <pre><code>php spp/spp.php make:entity Post</code></pre>
+                    <p>The interactive console will ask you a few questions. Notice how it loops to let you add multiple
+                        attributes and relationships without writing any code:</p>
+                    <pre><code>> Application/Context [default]: blog
 > Database Table [posts]: blog_posts
 > Extends (Parent Entity class, optional): 
 > Enable Login Support? (y/n) [n]: n
@@ -195,10 +245,14 @@ Entity Relationships (Press Enter on empty Target to finish):
   Target Entity: 
 
 Success: Entity Post saved and scaffolded in blog context.</code></pre>
-                    <p>This generates a complete YAML file at <code>src/blog/etc/entities/post.yml</code> and perfectly wires up the object-relational mapping without you having to write the file by hand!</p>
-                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Bonus: Need to change the database schema later? Don't edit the YAML manually! Run <code>php spp/spp.php ent:edit Post</code> to launch a powerful menu-driven wizard where you can safely (A)dd, (E)dit, or (R)emove fields and relationships on the fly.)</p>
+                    <p>This generates a complete YAML file at <code>src/blog/etc/entities/post.yml</code> and perfectly
+                        wires up the object-relational mapping without you having to write the file by hand!</p>
+                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Bonus: Need to change the database
+                        schema later? Don't edit the YAML manually! Run <code>php spp/spp.php ent:edit Post</code> to
+                        launch a powerful menu-driven wizard where you can safely (A)dd, (E)dit, or (R)emove fields and
+                        relationships on the fly.)</p>
                     <p>Now, tell SPPDB to actually create this table in MySQL:</p>
-<pre><code>php spp/spp.php migrate --app=blog</code></pre>
+                    <pre><code>php spp/spp.php migrate --app=blog</code></pre>
                 </div>
             </div>
 
@@ -212,21 +266,31 @@ Success: Entity Post saved and scaffolded in blog context.</code></pre>
 
                 <div class="phase-box phase-basic">
                     <h3>The Basic Concept (The Bouncer &amp; VIP Keys)</h3>
-                    <p>HTTP is "stateless"—it has the memory of a goldfish. Every time you click a link, the server forgets who you are. When you log in, SPP gives your browser a "VIP Wristband" (a Session). Then, we use <strong>RBAC</strong>. We create specific "Keys" (Permissions), group them into a keychain called a "Job Title" (Roles), and hand that keychain to an employee (a User).</p>
+                    <p>HTTP is "stateless"—it has the memory of a goldfish. Every time you click a link, the server
+                        forgets who you are. When you log in, SPP gives your browser a "VIP Wristband" (a Session).
+                        Then, we use <strong>RBAC</strong>. We create specific "Keys" (Permissions), group them into a
+                        keychain called a "Job Title" (Roles), and hand that keychain to an employee (a User).</p>
                 </div>
 
                 <div class="phase-box phase-advanced">
                     <h3>The Advanced Architecture (SPPAuth Pipeline)</h3>
-                    <p><strong>The Login Pipeline:</strong> A request hits a <code>RateLimiter</code> &rarr; verifies password &rarr; checks for <code>MFA_REQUIRED</code> &rarr; <code>WebGuard</code> establishes the session, storing a hashed fingerprint of the user's IP Address and User-Agent to prevent session hijacking.</p>
-                    <p><strong>The 5-Layer RBAC Cascade:</strong> When calling <code>SPPAuth::can('blog.post.publish')</code>, <code>WebGuard</code> checks: Anonymous Group &rarr; Authenticated Group &rarr; Legacy Rights &rarr; Registry Overrides &rarr; Polymorphic Groups. The result is cached in the session.</p>
-                    <p><strong>ABAC:</strong> <code>PolicyRegistry::evaluate()</code> parses a recursive JSON logic tree from the database, evaluating fields like <code>user.id == context.author_id</code>.</p>
+                    <p><strong>The Login Pipeline:</strong> A request hits a <code>RateLimiter</code> &rarr; verifies
+                        password &rarr; checks for <code>MFA_REQUIRED</code> &rarr; <code>WebGuard</code> establishes
+                        the session, storing a hashed fingerprint of the user's IP Address and User-Agent to prevent
+                        session hijacking.</p>
+                    <p><strong>The 5-Layer RBAC Cascade:</strong> When calling
+                        <code>SPPAuth::can('blog.post.publish')</code>, <code>WebGuard</code> checks: Anonymous Group
+                        &rarr; Authenticated Group &rarr; Legacy Rights &rarr; Registry Overrides &rarr; Polymorphic
+                        Groups. The result is cached in the session.</p>
+                    <p><strong>ABAC:</strong> <code>PolicyRegistry::evaluate()</code> parses a recursive JSON logic tree
+                        from the database, evaluating fields like <code>user.id == context.author_id</code>.</p>
                 </div>
 
                 <div class="phase-box phase-impl">
                     <h3>The Implementation</h3>
-<pre><code>php spp/spp.php make:seeder BlogPermissions --app=blog</code></pre>
-<p>Open <code>src/blog/Seeders/BlogPermissions.php</code>:</p>
-<pre><code>namespace App\Blog\Seeders;
+                    <pre><code>php spp/spp.php make:seeder BlogPermissions --app=blog</code></pre>
+                    <p>Open <code>src/blog/Seeders/BlogPermissions.php</code>:</p>
+                    <pre><code>namespace App\Blog\Seeders;
 use SPPMod\SPPDB\SPPDB;
 use SPPMod\SPPAuth\SPPRole;
 use SPPMod\SPPAuth\SPPRight;
@@ -248,8 +312,8 @@ class BlogPermissions {
         ]);
     }
 }</code></pre>
-<p>Run the seeder and create our ABAC rule:</p>
-<pre><code>php spp/spp.php seed BlogPermissions --app=blog
+                    <p>Run the seeder and create our ABAC rule:</p>
+                    <pre><code>php spp/spp.php seed BlogPermissions --app=blog
 php spp/spp.php iam:abac create "blog.post.edit_own" '{"field": "user.id", "operator": "equals", "value": "context.author_id"}'</code></pre>
                 </div>
             </div>
@@ -264,19 +328,24 @@ php spp/spp.php iam:abac create "blog.post.edit_own" '{"field": "user.id", "oper
 
                 <div class="phase-box phase-basic">
                     <h3>The Basic Concept (The Waiter)</h3>
-                    <p>When a customer orders food, the Host (The Router) looks at the order and assigns it to a Waiter (The Controller). The Waiter asks the Kitchen (Database) for the data, and then hands it to the Presentation team (The View).</p>
+                    <p>When a customer orders food, the Host (The Router) looks at the order and assigns it to a Waiter
+                        (The Controller). The Waiter asks the Kitchen (Database) for the data, and then hands it to the
+                        Presentation team (The View).</p>
                 </div>
 
                 <div class="phase-box phase-advanced">
                     <h3>The Advanced Architecture (Multi-Engine Routing)</h3>
-                    <p>During application boot, the <code>RouteScanner</code> uses PHP Reflection to parse all controller files. It extracts the <code>#[Route]</code> attributes and caches them in an optimized routing table. Requests then pass through an "Onion" Middleware pipeline via <code>array_reduce</code> before hitting the Controller.</p>
+                    <p>During application boot, the <code>RouteScanner</code> uses PHP Reflection to parse all
+                        controller files. It extracts the <code>#[Route]</code> attributes and caches them in an
+                        optimized routing table. Requests then pass through an "Onion" Middleware pipeline via
+                        <code>array_reduce</code> before hitting the Controller.</p>
                 </div>
 
                 <div class="phase-box phase-impl">
                     <h3>The Implementation</h3>
-<pre><code>php spp/spp.php make:controller BlogController --app=blog</code></pre>
-<p>Open <code>src/blog/Controllers/BlogController.php</code>:</p>
-<pre><code>namespace App\Blog\Controllers;
+                    <pre><code>php spp/spp.php make:controller BlogController --app=blog</code></pre>
+                    <p>Open <code>src/blog/Controllers/BlogController.php</code>:</p>
+                    <pre><code>namespace App\Blog\Controllers;
 
 use App\Blog\Entities\Post;
 use SPPMod\SPPAuth\SPPAuth;
@@ -320,21 +389,32 @@ class BlogController extends \SPP\SPPObject
 
                 <div class="phase-box phase-basic">
                     <h3>The Basic Concept (Plating &amp; Magic Islands)</h3>
-                    <p>Writing PHP logic inside HTML is messy, so we use a Templating Engine (Blade) to safely inject data. For the editor, SPP uses <strong>Islands Architecture</strong>. It sends the HTML instantly, and then "wakes up" just the tiny isolated island where the editor lives, so it doesn't slow down the page.</p>
+                    <p>Writing PHP logic inside HTML is messy, so we use a Templating Engine (Blade) to safely inject
+                        data. For the editor, SPP uses <strong>Islands Architecture</strong>. It sends the HTML
+                        instantly, and then "wakes up" just the tiny isolated island where the editor lives, so it
+                        doesn't slow down the page.</p>
                 </div>
 
                 <div class="phase-box phase-advanced">
                     <h3>The Advanced Architecture (SPPUX &amp; Lekhni)</h3>
-                    <p>SPPUX Components strictly follow a lifecycle: <code>onInit()</code> &rarr; <code>onMount()</code> &rarr; <code>update()</code> &rarr; <code>onDestroy()</code>. The WYSIWYG editor module (Lekhni) features a dual engine (contenteditable vs Monaco IDE). It uses the browser's <code>IndexedDB</code> (LekhniEnterpriseStore) to silently auto-save drafts offline, completely bypassing the network.</p>
+                    <p>SPPUX Components strictly follow a lifecycle: <code>onInit()</code> &rarr; <code>onMount()</code>
+                        &rarr; <code>update()</code> &rarr; <code>onDestroy()</code>. The WYSIWYG editor module (Lekhni)
+                        features a dual engine (contenteditable vs Monaco IDE). It uses the browser's
+                        <code>IndexedDB</code> (LekhniEnterpriseStore) to silently auto-save drafts offline, completely
+                        bypassing the network.</p>
                 </div>
 
                 <div class="phase-box phase-impl">
                     <h3>The Implementation</h3>
                     <p>First, enable the built-in editor module:</p>
-<pre><code>php spp/spp.php module:enable lekhni</code></pre>
-                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Note: While we are using the pre-built Lekhni component, you can easily scaffold your own custom SPPUX components interactively by running <code>php spp/spp.php make:component MyCustomButton</code>. The CLI will prompt you for the app name and whether to include a CSS file, before generating the boilerplate in <code>src/blog/ux/</code>.)</p>
+                    <pre><code>php spp/spp.php module:enable lekhni</code></pre>
+                    <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Note: While we are using the
+                        pre-built Lekhni component, you can easily scaffold your own custom SPPUX components
+                        interactively by running <code>php spp/spp.php make:component MyCustomButton</code>. The CLI
+                        will prompt you for the app name and whether to include a CSS file, before generating the
+                        boilerplate in <code>src/blog/ux/</code>.)</p>
                     <p>Create <code>src/blog/resources/views/blog/editor.blade.php</code>:</p>
-<pre><code>&lt;!DOCTYPE html&gt;
+                    <pre><code>&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;body&gt;
     &lt;h1&gt;Write Post&lt;/h1&gt;
@@ -372,4 +452,5 @@ class BlogController extends \SPP\SPPObject
         </article>
     </main>
 </body>
+
 </html>

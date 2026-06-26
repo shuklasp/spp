@@ -31,24 +31,24 @@ class MagicLink
     {
         $hashedToken = hash('sha256', $plainToken);
         $db = new SPPDB();
-        
+
         $sql = "SELECT id, user_id FROM " . SPPDB::sppTable('magic_links') . " 
                 WHERE token = ? AND (expires_at IS NULL OR expires_at > NOW())";
         $res = $db->execute_query($sql, [$hashedToken]);
 
         if (!empty($res)) {
             $record = $res[0];
-            
+
             // Delete token so it can't be reused
             $delSql = "DELETE FROM " . SPPDB::sppTable('magic_links') . " WHERE id = ?";
             $db->execute_query($delSql, [$record['id']]);
 
             try {
                 $user = new SPPUser($record['user_id']);
-                
+
                 // Audit log
                 AuditLogger::log('magic_link_login', $user->id, null, "IP: " . ($_SERVER['REMOTE_ADDR'] ?? '127.0.0.1'));
-                
+
                 return $user;
             } catch (\Exception $e) {
                 return null;

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace SPPMod\SPPAPI;
 
 if (class_exists('\\SPP\\SPPEvent')) {
-    \SPP\SPPEvent::listen('api.auth.token_request', function(\SPP\EventParams $params) {
+    \SPP\SPPEvent::listen('api.auth.token_request', function (\SPP\EventParams $params) {
         // Fire verify credentials to allow auth providers to validate
         \SPP\SPPEvent::fireEvent('auth.verify_credentials', $params);
 
@@ -15,7 +15,7 @@ if (class_exists('\\SPP\\SPPEvent')) {
                 throw new \RuntimeException('JWT secret is not configured.');
             }
             $expires = \SPP\Module::getConfig('jwt_expires_in', 'sppapi') ?: 3600;
-            
+
             $payload = [
                 'user_id' => $params->get('user_id'),
                 'username' => $params->get('username')
@@ -25,15 +25,16 @@ if (class_exists('\\SPP\\SPPEvent')) {
                 require_once __DIR__ . '/src/JWTAuth.php';
             }
 
-            $token = \SPPMod\SPPAPI\JWTAuth::encode($payload, $secret, (int)$expires);
-            
+            $token = \SPPMod\SPPAPI\JWTAuth::encode($payload, $secret, (int) $expires);
+
             $params->set('token', $token);
-            $params->set('expires_in', (int)$expires);
+            $params->set('expires_in', (int) $expires);
         }
     });
 
-    \SPP\SPPEvent::listen('api.auth.verify_token', function(\SPP\EventParams $params) {
-        if ($params->get('is_valid')) return; // Already validated
+    \SPP\SPPEvent::listen('api.auth.verify_token', function (\SPP\EventParams $params) {
+        if ($params->get('is_valid'))
+            return; // Already validated
 
         $configVal2 = \SPP\Module::getConfig('enable_jwt', 'sppapi');
         $enableJwt2 = $configVal2 === true || $configVal2 === 'true' || $configVal2 === '1' || $configVal2 === 1;

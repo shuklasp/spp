@@ -6,9 +6,10 @@
 
 require_once __DIR__ . '/class.sppreport.php';
 
-function spp_report_api_handler($action, $payload) {
+function spp_report_api_handler($action, $payload)
+{
     header('Content-Type: application/json');
-    
+
     // --- 1. AUTHENTICATION & SECURITY ---
     // Basic Authentication via cookies / session
     if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
@@ -45,7 +46,7 @@ function spp_report_api_handler($action, $payload) {
         echo json_encode(['status' => 'error', 'message' => 'This action requires Admin privileges.']);
         exit;
     }
-    
+
     $config = json_decode($payload, true);
 
     // --- 2. EXTERNAL DSN SECURITY ---
@@ -66,11 +67,11 @@ function spp_report_api_handler($action, $payload) {
             'pass' => $extPass
         ];
     }
-    
+
     $report = new SPPReport($externalConfig);
 
     // Helper closure for RBAC
-    $enforceRBAC = function($cfg) use ($isAdmin, $roleNames) {
+    $enforceRBAC = function ($cfg) use ($isAdmin, $roleNames) {
         $allowedRoles = $cfg['roles_allowed'] ?? '';
         if (!empty($allowedRoles) && !$isAdmin) {
             $allowed = array_map('trim', explode(',', strtolower($allowedRoles)));
@@ -92,7 +93,8 @@ function spp_report_api_handler($action, $payload) {
                 break;
 
             case 'preview':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $enforceRBAC($config);
                 $result = $report->runReport($config);
                 echo json_encode([
@@ -103,23 +105,24 @@ function spp_report_api_handler($action, $payload) {
                 break;
 
             case 'export_csv':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $enforceRBAC($config);
                 // Remove limit for export
-                $config['limit'] = 0; 
+                $config['limit'] = 0;
                 $result = $report->runReport($config);
-                
+
                 header('Content-Type: text/csv');
                 header('Content-Disposition: attachment; filename="report_export_' . date('Ymd_His') . '.csv"');
-                
+
                 $output = fopen('php://output', 'w');
                 if (!empty($result['data'])) {
                     // Headers
                     fputcsv($output, array_keys($result['data'][0]));
                     // Data
                     foreach ($result['data'] as $row) {
-                        $sanitizedRow = array_map(function($val) {
-                            return preg_match('/^[=\+\-@]/', (string)$val) ? "'" . $val : $val;
+                        $sanitizedRow = array_map(function ($val) {
+                            return preg_match('/^[=\+\-@]/', (string) $val) ? "'" . $val : $val;
                         }, $row);
                         fputcsv($output, $sanitizedRow);
                     }
@@ -129,14 +132,15 @@ function spp_report_api_handler($action, $payload) {
 
             case 'export_xls':
                 $config = json_decode($payload, true);
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $enforceRBAC($config);
                 $config['limit'] = 0;
                 $result = $report->runReport($config);
-                
+
                 header("Content-Type: application/vnd.ms-excel");
                 header("Content-Disposition: attachment; filename=\"report_export_" . date('Ymd_His') . ".xls\"");
-                
+
                 echo '<html xmlns:x="urn:schemas-microsoft-com:office:excel">';
                 echo '<head><meta http-equiv="content-type" content="text/plain; charset=UTF-8"/></head>';
                 echo '<body><table border="1">';
@@ -149,8 +153,8 @@ function spp_report_api_handler($action, $payload) {
                     foreach ($result['data'] as $row) {
                         echo '<tr>';
                         foreach ($row as $val) {
-                            $sanitizedVal = preg_match('/^[=\+\-@]/', (string)$val) ? "'" . $val : $val;
-                            echo '<td>' . htmlspecialchars((string)$sanitizedVal) . '</td>';
+                            $sanitizedVal = preg_match('/^[=\+\-@]/', (string) $val) ? "'" . $val : $val;
+                            echo '<td>' . htmlspecialchars((string) $sanitizedVal) . '</td>';
                         }
                         echo '</tr>';
                     }
@@ -159,7 +163,8 @@ function spp_report_api_handler($action, $payload) {
                 exit;
 
             case 'export_pdf':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $enforceRBAC($config);
                 // Remove limit
                 $config['limit'] = 0;
@@ -174,7 +179,7 @@ function spp_report_api_handler($action, $payload) {
                     $pdf->setPrintFooter(false);
                     $pdf->AddPage();
                     $pdf->SetFont('helvetica', '', 10);
-                    
+
                     $html = '<h1>Report Export</h1><table border="1" cellpadding="4"><thead><tr>';
                     if (!empty($result['data'])) {
                         foreach (array_keys($result['data'][0]) as $th) {
@@ -184,7 +189,7 @@ function spp_report_api_handler($action, $payload) {
                         foreach ($result['data'] as $row) {
                             $html .= '<tr>';
                             foreach ($row as $val) {
-                                $html .= '<td>' . htmlspecialchars((string)$val) . '</td>';
+                                $html .= '<td>' . htmlspecialchars((string) $val) . '</td>';
                             }
                             $html .= '</tr>';
                         }
@@ -205,23 +210,27 @@ function spp_report_api_handler($action, $payload) {
                     break;
                 }
                 $files = glob($dir . '/*.yml');
-                $reports = array_map(function($f) { return basename($f, '.yml'); }, $files);
+                $reports = array_map(function ($f) {
+                    return basename($f, '.yml'); }, $files);
                 echo json_encode(['status' => 'success', 'reports' => $reports]);
                 break;
 
             case 'load':
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['name'] ?? '');
-                if (!$name) throw new Exception("Invalid report name.");
+                if (!$name)
+                    throw new Exception("Invalid report name.");
                 $file = __DIR__ . '/../../../../etc/sppreports/' . $name . '.yml';
-                if (!file_exists($file)) throw new Exception("Report not found.");
-                
+                if (!file_exists($file))
+                    throw new Exception("Report not found.");
+
                 $data = spp_load_yaml_fallback($file);
                 $enforceRBAC($data);
                 echo json_encode(['status' => 'success', 'config' => $data]);
                 break;
 
             case 'ai_analyze':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $enforceRBAC($config);
                 if (!class_exists('\\SPPMod\\SPPAI\\SPPAI')) {
                     throw new Exception("SPPAI module is required for automated insights.");
@@ -230,7 +239,7 @@ function spp_report_api_handler($action, $payload) {
                 // $config contains the report definition. We run it to get the data.
                 $config['limit'] = 100; // Limit to 100 rows to avoid token overflow
                 $result = $report->runReport($config);
-                
+
                 if (empty($result['data'])) {
                     throw new Exception("No data to analyze.");
                 }
@@ -244,23 +253,27 @@ function spp_report_api_handler($action, $payload) {
                 break;
 
             case 'save':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $config['report_name'] ?? '');
-                if (!$name) throw new Exception("Report name is required.");
-                
+                if (!$name)
+                    throw new Exception("Report name is required.");
+
                 $dir = __DIR__ . '/../../../../etc/sppreports';
-                if (!is_dir($dir)) mkdir($dir, 0777, true);
-                
+                if (!is_dir($dir))
+                    mkdir($dir, 0777, true);
+
                 $file = "$dir/$name.yml";
-                
+
                 // --- VERSION CONTROL ---
                 if (file_exists($file)) {
                     $bakDir = "$dir/history";
-                    if (!is_dir($bakDir)) mkdir($bakDir, 0777, true);
+                    if (!is_dir($bakDir))
+                        mkdir($bakDir, 0777, true);
                     $timestamp = date('Ymd_His');
                     copy($file, "$bakDir/{$name}_{$timestamp}.yml.bak");
                 }
-                
+
                 if (function_exists('yaml_emit')) {
                     $yaml = yaml_emit($config);
                 } else {
@@ -271,14 +284,15 @@ function spp_report_api_handler($action, $payload) {
                     $yaml .= "webhook_condition: '" . ($config['webhook_condition'] ?? '') . "'\n";
                     $yaml .= "json_dump: '" . json_encode($config) . "'\n";
                 }
-                
+
                 file_put_contents($file, $yaml);
                 echo json_encode(['status' => 'success', 'message' => 'Report saved successfully.']);
                 break;
-                
+
             case 'list_versions':
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['name'] ?? '');
-                if (!$name) throw new Exception("Report name is required.");
+                if (!$name)
+                    throw new Exception("Report name is required.");
                 $dir = __DIR__ . '/../../../../etc/sppreports/history';
                 $versions = [];
                 if (is_dir($dir)) {
@@ -290,27 +304,31 @@ function spp_report_api_handler($action, $payload) {
                     }
                 }
                 // Sort descending by timestamp
-                usort($versions, function($a, $b) { return strcmp($b['timestamp'], $a['timestamp']); });
+                usort($versions, function ($a, $b) {
+                    return strcmp($b['timestamp'], $a['timestamp']); });
                 echo json_encode(['status' => 'success', 'versions' => $versions]);
                 break;
-                
+
             case 'restore_version':
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $config['report_name'] ?? '');
                 $versionFile = preg_replace('/[^a-zA-Z0-9_.-]/', '', $config['version_file'] ?? '');
-                if (!$name || !$versionFile) throw new Exception("Name and version_file required.");
-                
+                if (!$name || !$versionFile)
+                    throw new Exception("Name and version_file required.");
+
                 $dir = __DIR__ . '/../../../../etc/sppreports';
                 $source = "$dir/history/$versionFile";
                 $target = "$dir/$name.yml";
-                
-                if (!file_exists($source)) throw new Exception("Version not found.");
-                
+
+                if (!file_exists($source))
+                    throw new Exception("Version not found.");
+
                 // Backup current before restoring
                 if (file_exists($target)) {
                     copy($target, "$dir/history/{$name}_" . date('Ymd_His') . ".yml.bak");
                 }
-                
+
                 copy($source, $target);
                 echo json_encode(['status' => 'success', 'message' => 'Version restored.']);
                 break;
@@ -322,30 +340,36 @@ function spp_report_api_handler($action, $payload) {
                     break;
                 }
                 $files = glob($dir . '/*.html');
-                $templates = array_map(function($f) { return basename($f, '.html'); }, $files);
+                $templates = array_map(function ($f) {
+                    return basename($f, '.html'); }, $files);
                 echo json_encode(['status' => 'success', 'templates' => $templates]);
                 break;
 
             case 'load_template':
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['name'] ?? '');
-                if (!$name) throw new Exception("Invalid template name.");
+                if (!$name)
+                    throw new Exception("Invalid template name.");
                 $file = __DIR__ . '/../../../../etc/sppreport_templates/' . $name . '.html';
-                if (!file_exists($file)) throw new Exception("Template not found.");
-                
+                if (!file_exists($file))
+                    throw new Exception("Template not found.");
+
                 $html = file_get_contents($file);
                 echo json_encode(['status' => 'success', 'html' => $html]);
                 break;
 
             case 'save_template':
                 $config = json_decode($payload, true);
-                if (!$config) throw new Exception("Invalid JSON payload.");
+                if (!$config)
+                    throw new Exception("Invalid JSON payload.");
                 $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $config['template_name'] ?? '');
                 $html = $config['html'] ?? '';
-                if (!$name) throw new Exception("Template name is required.");
-                
+                if (!$name)
+                    throw new Exception("Template name is required.");
+
                 $dir = __DIR__ . '/../../../../etc/sppreport_templates';
-                if (!is_dir($dir)) mkdir($dir, 0755, true);
-                
+                if (!is_dir($dir))
+                    mkdir($dir, 0755, true);
+
                 $file = $dir . '/' . $name . '.html';
                 file_put_contents($file, $html);
                 echo json_encode(['status' => 'success', 'message' => "Template '$name' saved successfully."]);
@@ -370,22 +394,23 @@ function spp_report_api_handler($action, $payload) {
                 if (!class_exists('\\SPPMod\\SPPAI\\SPPAI')) {
                     throw new Exception("SPPAI module is not installed or enabled. Cannot generate AI reports.");
                 }
-                
+
                 $query = $_POST['query'] ?? '';
                 if (empty($query)) {
                     $post = json_decode($payload, true);
                     $query = $post['query'] ?? '';
                 }
-                if (empty($query)) throw new Exception("Natural language query is required.");
-                
+                if (empty($query))
+                    throw new Exception("Natural language query is required.");
+
                 $schema = $report->getSchema();
                 $schemaJson = json_encode($schema);
-                
+
                 $prompt = "You are an AI that converts natural language to a JSON report configuration for SPPReport BI.\n";
                 $prompt .= "Database Schema: $schemaJson\n";
                 $prompt .= "User Request: $query\n";
                 $prompt .= "You must generate a strictly valid JSON configuration with the following structure. Do NOT include markdown blocks.\n";
-                
+
                 $jsonSchema = [
                     'type' => 'object',
                     'properties' => [
@@ -415,12 +440,13 @@ function spp_report_api_handler($action, $payload) {
                     ],
                     'required' => ['table', 'columns']
                 ];
-                
+
                 $response = \SPPMod\SPPAI\SPPAI::structured($prompt, $jsonSchema);
                 // Depending on the AI driver, it might return a string or an array. 
                 $configObj = is_string($response) ? json_decode($response, true) : $response;
-                if (!$configObj) throw new Exception("AI failed to generate a valid report configuration.");
-                
+                if (!$configObj)
+                    throw new Exception("AI failed to generate a valid report configuration.");
+
                 echo json_encode(['status' => 'success', 'config' => $configObj]);
                 break;
 
@@ -438,7 +464,8 @@ function spp_report_api_handler($action, $payload) {
 }
 
 // Fallback YAML functions to guarantee zero-dependency
-function spp_save_yaml_fallback($file, $data) {
+function spp_save_yaml_fallback($file, $data)
+{
     if (function_exists('yaml_emit_file')) {
         return yaml_emit_file($file, $data);
     }
@@ -455,11 +482,12 @@ function spp_save_yaml_fallback($file, $data) {
     file_put_contents($file, $yaml);
 }
 
-function spp_array_to_yaml($arr, $indent) {
+function spp_array_to_yaml($arr, $indent)
+{
     $yaml = "";
     $spaces = str_repeat("  ", $indent);
     $isList = array_keys($arr) === range(0, count($arr) - 1);
-    
+
     foreach ($arr as $key => $val) {
         if (is_array($val)) {
             if ($isList) {
@@ -494,11 +522,16 @@ function spp_array_to_yaml($arr, $indent) {
     return $yaml;
 }
 
-function spp_yaml_escape($val) {
-    if ($val === null) return '~';
-    if (is_bool($val)) return $val ? 'true' : 'false';
-    if (is_numeric($val)) return $val;
-    if ($val === '') return '""';
+function spp_yaml_escape($val)
+{
+    if ($val === null)
+        return '~';
+    if (is_bool($val))
+        return $val ? 'true' : 'false';
+    if (is_numeric($val))
+        return $val;
+    if ($val === '')
+        return '""';
     // Escape strings with special chars
     if (preg_match('/[:\[\]\{\}\'"\n\r]/', $val) || trim($val) !== $val) {
         return '"' . str_replace('"', '\"', $val) . '"';
@@ -506,7 +539,8 @@ function spp_yaml_escape($val) {
     return $val;
 }
 
-function spp_load_yaml_fallback($file) {
+function spp_load_yaml_fallback($file)
+{
     if (function_exists('yaml_parse_file')) {
         return yaml_parse_file($file);
     }
@@ -525,10 +559,12 @@ function spp_load_yaml_fallback($file) {
     return spp_basic_yaml_parse(file_get_contents($file));
 }
 
-function spp_basic_yaml_parse($content) {
+function spp_basic_yaml_parse($content)
+{
     if (preg_match("/json_dump:\s*'(.*)'$/m", $content, $m)) {
         $json = json_decode($m[1], true);
-        if ($json) return $json;
+        if ($json)
+            return $json;
     }
     throw new Exception("Loading YAML requires the PECL 'yaml' extension or Symfony Yaml component.");
 }

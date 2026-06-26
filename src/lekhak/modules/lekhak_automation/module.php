@@ -6,11 +6,13 @@ namespace Lekhak\Modules\LekhakAutomation;
  * @configure admin/config/lekhak_automation
  */
 
-class LekhakModuleRules {
+class LekhakModuleRules
+{
     private $name = 'lekhak_automation';
     private $title = 'lekhak_automation';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_rules (
@@ -21,7 +23,7 @@ class LekhakModuleRules {
                 actions TEXT,
                 status INTEGER DEFAULT 1
             )");
-            
+
             // Seed a test rule
             $res = $db->execute_query("SELECT id FROM lekhak_rules LIMIT 1");
             if (empty($res)) {
@@ -31,19 +33,24 @@ class LekhakModuleRules {
                 $actions = json_encode([
                     ['type' => 'system_message', 'message' => 'Node successfully published via Rules!']
                 ]);
-                $db->execute_query("INSERT INTO lekhak_rules (machine_name, event_name, conditions, actions) VALUES (?, ?, ?, ?)", 
-                    ['notify_publish', 'entity_insert', $conditions, $actions]);
+                $db->execute_query(
+                    "INSERT INTO lekhak_rules (machine_name, event_name, conditions, actions) VALUES (?, ?, ?, ?)",
+                    ['notify_publish', 'entity_insert', $conditions, $actions]
+                );
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         return true;
     }
 
     /**
      * Engine evaluator that checks if all conditions pass.
      */
-    private function evaluateConditions($conditionsJson, $context) {
+    private function evaluateConditions($conditionsJson, $context)
+    {
         $conditions = json_decode($conditionsJson, true);
-        if (empty($conditions)) return true;
+        if (empty($conditions))
+            return true;
 
         $tokenMod = null;
         if (class_exists('\\Lekhak\\Modules\\Token\\LekhakModuleToken')) {
@@ -53,7 +60,8 @@ class LekhakModuleRules {
         foreach ($conditions as $cond) {
             if ($cond['type'] === 'data_is') {
                 $val1 = $tokenMod ? $tokenMod->replaceTokens($cond['data'], $context) : $cond['data'];
-                if ($val1 !== $cond['value']) return false;
+                if ($val1 !== $cond['value'])
+                    return false;
             }
         }
         return true;
@@ -62,9 +70,11 @@ class LekhakModuleRules {
     /**
      * Executes actions when conditions are met.
      */
-    private function executeActions($actionsJson, $context) {
+    private function executeActions($actionsJson, $context)
+    {
         $actions = json_decode($actionsJson, true);
-        if (empty($actions)) return;
+        if (empty($actions))
+            return;
 
         $tokenMod = null;
         if (class_exists('\\Lekhak\\Modules\\Token\\LekhakModuleToken')) {
@@ -88,7 +98,8 @@ class LekhakModuleRules {
     /**
      * Generic Event Dispatcher. We hook into common CMS events.
      */
-    private function dispatchEvent($event_name, $context) {
+    private function dispatchEvent($event_name, $context)
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $rules = $db->execute_query("SELECT * FROM lekhak_rules WHERE event_name = ? AND status = 1", [$event_name]);
@@ -97,22 +108,25 @@ class LekhakModuleRules {
                     $this->executeActions($rule['actions'], $context);
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     /**
      * Intercept entity insertion
      */
-    public function hook_entity_insert($entity) {
+    public function hook_entity_insert($entity)
+    {
         // Expose entity as node context
-        $this->dispatchEvent('entity_insert', ['node' => (array)$entity]);
+        $this->dispatchEvent('entity_insert', ['node' => (array) $entity]);
     }
 
     /**
      * Intercept entity update/presave
      */
-    public function hook_entity_presave(&$entity) {
-        $this->dispatchEvent('entity_presave', ['node' => (array)$entity]);
+    public function hook_entity_presave(&$entity)
+    {
+        $this->dispatchEvent('entity_presave', ['node' => (array) $entity]);
     }
 
     /**
@@ -121,25 +135,25 @@ class LekhakModuleRules {
     public static function hook_config_form(): array
     {
         return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
+            'enabled' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Enable advanced features',
+                    'default' => true,
+                ],
+            'log_level' =>
+                [
+                    'type' => 'select',
+                    'title' => 'Log Level',
+                    'options' =>
+                        [
+                            'info' => 'Info',
+                            'warning' => 'Warning',
+                            'error' => 'Error',
+                        ],
+                    'default' => 'warning',
+                ],
+        ];
     }
 }
 

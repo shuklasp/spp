@@ -2,7 +2,7 @@
 namespace SPPMod\Lekhak\Serv;
 
 use SPPMod\SPPAuth\SPPAuth;
-use SPPMod\SppDb\SppEntity;
+use SPPMod\SPPDB\SppEntity;
 
 /**
  * Class ApiController
@@ -43,11 +43,11 @@ class ApiController
     protected function serializeEntity(SppEntity $entity): array
     {
         $data = $entity->toArray();
-        
+
         // Remove internal properties that shouldn't be exposed
         unset($data['_table']);
         unset($data['storage_strategy']);
-        
+
         // Ensure complex metadata is decoded if it's JSON
         if (isset($data['metadata']) && is_string($data['metadata'])) {
             $decoded = json_decode($data['metadata'], true);
@@ -55,7 +55,7 @@ class ApiController
                 $data['metadata'] = $decoded;
             }
         }
-        
+
         return $data;
     }
 
@@ -75,17 +75,17 @@ class ApiController
     {
         $uri = $_SERVER['REQUEST_URI'];
         $path = parse_url($uri, PHP_URL_PATH);
-        
+
         // Extract type and id from path: e.g. /school1/lekhak/api/v1/entity/node/5
         preg_match('#/api/v1/entity/([^/]+)(?:/(\d+))?#', $path, $matches);
-        
+
         if (count($matches) < 2) {
             $this->jsonResponse(['error' => 'Invalid endpoint format.'], 400);
         }
 
         $type = $matches[1];
         $id = $matches[2] ?? null;
-        
+
         $class = $this->resolveEntityClass($type);
         if (!$class || !class_exists($class)) {
             $this->jsonResponse(['error' => "Entity type '{$type}' not found."], 404);
@@ -132,7 +132,7 @@ class ApiController
         if (!$entity) {
             $this->jsonResponse(['error' => 'Entity not found.'], 404);
         }
-        
+
         // Check access
         if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('view')) {
             $this->jsonResponse(['error' => 'Access denied.'], 403);
@@ -144,18 +144,18 @@ class ApiController
     protected function listEntities(string $class)
     {
         // Simple list endpoint. In a real system, we'd add pagination and filtering query parameters here.
-        $limit = (int)($_GET['limit'] ?? 50);
-        $offset = (int)($_GET['offset'] ?? 0);
-        
+        $limit = (int) ($_GET['limit'] ?? 50);
+        $offset = (int) ($_GET['offset'] ?? 0);
+
         // Assuming there's a simple query method or we can use raw DB.
         // For SppEntity, we might need SppEntityQuery, but let's use a basic find approach if possible,
         // or just use DB query and instantiate.
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = $class::getMetadata('table');
         $idField = $class::getMetadata('id_field', 'id');
-        
+
         $rows = $db->execute_query("SELECT $idField FROM $table LIMIT $limit OFFSET $offset");
-        
+
         $entities = [];
         foreach ($rows as $row) {
             $entity = $class::find($row[$idField]);
@@ -163,7 +163,7 @@ class ApiController
                 $entities[] = $this->serializeEntity($entity);
             }
         }
-        
+
         $this->jsonResponse(['data' => $entities, 'meta' => ['limit' => $limit, 'offset' => $offset]]);
     }
 
@@ -179,10 +179,10 @@ class ApiController
         }
 
         $entity = new $class();
-        
+
         // Check access if generic create access is implemented, or just check role
         if (!\SPPMod\SPPAuth\SPPAuth::hasRight('create content')) { // Simple fallback
-             $this->jsonResponse(['error' => 'Access denied.'], 403);
+            $this->jsonResponse(['error' => 'Access denied.'], 403);
         }
 
         foreach ($input as $key => $value) {

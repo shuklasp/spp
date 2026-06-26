@@ -22,14 +22,14 @@ class StorageOrchestrator
     public function ensureSchema(string $entityClass): void
     {
         $strategy = $entityClass::getMetadata('storage_strategy', 'flat');
-        
+
         if ($strategy === 'dynamic') {
             $this->ensureDynamicSchema($entityClass);
         } else {
             // Standard SPP install handles flat schema
             $entityClass::install();
         }
-        
+
         $this->ensureRevisionSchema();
         $this->ensureTranslationSchema();
     }

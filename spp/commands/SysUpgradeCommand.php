@@ -35,7 +35,7 @@ class SysUpgradeCommand extends Command
 
             \SPP\Module::loadAllModules();
             $modules = \SPP\Registry::get('__mods') ?? [];
-            
+
             $count = 0;
             foreach ($modules as $modName => $modPath) {
                 if (empty($modPath)) {

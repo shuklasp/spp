@@ -3,18 +3,21 @@ namespace Lekhak\Modules\LekhakDrupalApi\Controller;
 
 use SPPMod\SPPDB\SPPDB;
 
-class GenericEntityController {
-    
+class GenericEntityController
+{
+
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new SPPDB();
     }
 
-    public function getEntity($entityType, $bundle, $uuid) {
+    public function getEntity($entityType, $bundle, $uuid)
+    {
         $sql = "SELECT * FROM lek_entities WHERE entity_type = ? AND bundle = ? AND uuid = ? LIMIT 1";
         $results = $this->db->execute_query($sql, [$entityType, $bundle, $uuid]);
-        
+
         if (empty($results)) {
             http_response_code(404);
             return json_encode(["errors" => [["title" => "Not Found", "status" => "404"]]]);
@@ -24,10 +27,11 @@ class GenericEntityController {
         return json_encode($this->formatResponse(json_decode($row['data'], true), $row['uuid'], $entityType, $bundle), JSON_UNESCAPED_SLASHES);
     }
 
-    public function getEntities($entityType, $bundle) {
+    public function getEntities($entityType, $bundle)
+    {
         $sql = "SELECT * FROM lek_entities WHERE entity_type = ? AND bundle = ? LIMIT 50";
         $results = $this->db->execute_query($sql, [$entityType, $bundle]);
-        
+
         $data = [];
         foreach ($results as $row) {
             $data[] = $this->formatData(json_decode($row['data'], true), $row['uuid'], $entityType, $bundle);
@@ -36,7 +40,8 @@ class GenericEntityController {
         return json_encode($this->wrapDocument($data, true), JSON_UNESCAPED_SLASHES);
     }
 
-    public function createEntity($entityType, $bundle) {
+    public function createEntity($entityType, $bundle)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -59,7 +64,8 @@ class GenericEntityController {
         return $this->getEntity($entityType, $bundle, $uuid);
     }
 
-    public function updateEntity($entityType, $bundle, $uuid) {
+    public function updateEntity($entityType, $bundle, $uuid)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -97,7 +103,8 @@ class GenericEntityController {
         return $this->getEntity($entityType, $bundle, $uuid);
     }
 
-    public function deleteEntity($entityType, $bundle, $uuid) {
+    public function deleteEntity($entityType, $bundle, $uuid)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -110,17 +117,23 @@ class GenericEntityController {
         return '';
     }
 
-    private function generateUuid() {
-        return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff),
+    private function generateUuid()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
             mt_rand(0, 0xffff),
             mt_rand(0, 0x0fff) | 0x4000,
             mt_rand(0, 0x3fff) | 0x8000,
-            mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
         );
     }
 
-    private function formatData($data, $uuid, $entityType, $bundle) {
+    private function formatData($data, $uuid, $entityType, $bundle)
+    {
         $baseUrl = rtrim(\SPP\App::getBaseUrl(), '/');
         return [
             'type' => "{$entityType}--{$bundle}",
@@ -135,11 +148,13 @@ class GenericEntityController {
         ];
     }
 
-    private function formatResponse($data, $uuid, $entityType, $bundle) {
+    private function formatResponse($data, $uuid, $entityType, $bundle)
+    {
         return $this->wrapDocument($this->formatData($data, $uuid, $entityType, $bundle), false);
     }
 
-    private function wrapDocument($data, $isCollection = false) {
+    private function wrapDocument($data, $isCollection = false)
+    {
         return [
             'jsonapi' => [
                 'version' => '1.0',

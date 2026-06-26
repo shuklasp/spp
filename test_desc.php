@@ -11,7 +11,8 @@ echo "Driver: " . $driver . "\n";
 $tables = $db->execute_query("SHOW TABLES");
 foreach ($tables as $t) {
     $tableName = array_values($t)[0];
-    if ($tableName !== 'users') continue;
+    if ($tableName !== 'users')
+        continue;
     echo "Table: " . $tableName . "\n";
     $columns = $db->execute_query("DESCRIBE " . $tableName);
     print_r($columns);

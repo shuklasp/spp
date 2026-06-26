@@ -196,7 +196,7 @@ class SPP_Validator_RegexValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match($this->pattern, (string)$value)) {
+        if (!preg_match($this->pattern, (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -323,7 +323,8 @@ class SPP_Validator_MatchValidator extends SPP_Single_validator
     public function getClientScript(): ?string
     {
         $id = $this->element ? $this->element->getAttribute('id') : '';
-        if (!$id || !$this->targetField) return null;
+        if (!$id || !$this->targetField)
+            return null;
 
         return <<<JS
         const source = document.getElementById('{$id}');
@@ -546,7 +547,7 @@ class SPP_Validator_CreditCardValidator extends SPP_Single_validator
         $number = preg_replace('/\D/', '', $value);
         $sum = 0;
         for ($i = 0; $i < strlen($number); $i++) {
-            $digit = (int)$number[strlen($number) - $i - 1];
+            $digit = (int) $number[strlen($number) - $i - 1];
             if ($i % 2 === 1) {
                 $digit *= 2;
                 if ($digit > 9) {
@@ -591,12 +592,26 @@ class SPP_Validator_AadhaarValidator extends SPP_Single_validator
         }
 
         $d = [
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 2, 3, 4, 0, 6, 7, 8, 9, 5], [2, 3, 4, 0, 1, 7, 8, 9, 5, 6], [3, 4, 0, 1, 2, 8, 9, 5, 6, 7], [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
-            [5, 9, 8, 7, 6, 0, 4, 3, 2, 1], [6, 5, 9, 8, 7, 1, 0, 4, 3, 2], [7, 6, 5, 9, 8, 2, 1, 0, 4, 3], [8, 7, 6, 5, 9, 3, 2, 1, 0, 4], [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+            [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+            [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+            [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+            [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+            [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+            [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+            [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+            [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]
         ];
         $p = [
-            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [1, 5, 7, 6, 2, 8, 3, 0, 9, 4], [5, 8, 0, 3, 7, 9, 6, 1, 4, 2], [8, 9, 1, 6, 0, 4, 3, 5, 2, 7], [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
-            [4, 2, 8, 6, 5, 7, 3, 9, 0, 1], [2, 7, 9, 3, 8, 0, 6, 4, 1, 5], [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+            [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+            [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+            [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
+            [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+            [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
+            [7, 0, 4, 6, 9, 1, 3, 2, 5, 8]
         ];
 
         $c = 0;
@@ -631,7 +646,7 @@ class SPP_Validator_PanValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i', (string)$value)) {
+        if (!preg_match('/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/i', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -657,7 +672,7 @@ class SPP_Validator_GstinValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i', (string)$value)) {
+        if (!preg_match('/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/i', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -683,7 +698,7 @@ class SPP_Validator_IfscValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/i', (string)$value)) {
+        if (!preg_match('/^[A-Z]{4}0[A-Z0-9]{6}$/i', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -709,7 +724,7 @@ class SPP_Validator_PincodeValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^[1-9][0-9]{5}$/', (string)$value)) {
+        if (!preg_match('/^[1-9][0-9]{5}$/', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -735,7 +750,7 @@ class SPP_Validator_IndiaMobileValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^[6-9]\d{9}$/', (string)$value)) {
+        if (!preg_match('/^[6-9]\d{9}$/', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -888,7 +903,8 @@ class SPP_Validator_RequiredIfValidator extends SPP_Single_validator
     public function getClientScript(): ?string
     {
         $id = $this->element ? $this->element->getAttribute('id') : '';
-        if (!$id || !$this->targetField) return null;
+        if (!$id || !$this->targetField)
+            return null;
 
         return <<<JS
         const source = document.getElementById('{$id}');
@@ -979,7 +995,7 @@ class SPP_Validator_MacAddressValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        if (!preg_match('/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', (string)$value)) {
+        if (!preg_match('/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/', (string) $value)) {
             if (!$this->silent) {
                 ViewPage::addClass($this->element->getAttribute('id'), 'errorclass');
                 \SPP\SPPError::triggerUserError($this->msg);
@@ -1005,22 +1021,22 @@ class SPP_Validator_IsbnValidator extends SPP_Single_validator
         if ($value === null || $value === '') {
             return true;
         }
-        $isbn = preg_replace('/[- ]/', '', (string)$value);
+        $isbn = preg_replace('/[- ]/', '', (string) $value);
         if (strlen($isbn) === 10) {
             $sum = 0;
             for ($i = 0; $i < 9; $i++) {
-                $sum += (10 - $i) * (int)$isbn[$i];
+                $sum += (10 - $i) * (int) $isbn[$i];
             }
-            $last = strtoupper($isbn[9]) === 'X' ? 10 : (int)$isbn[9];
+            $last = strtoupper($isbn[9]) === 'X' ? 10 : (int) $isbn[9];
             if (($sum + $last) % 11 !== 0) {
                 return false;
             }
         } elseif (strlen($isbn) === 13) {
             $sum = 0;
             for ($i = 0; $i < 12; $i++) {
-                $sum += ($i % 2 === 0 ? 1 : 3) * (int)$isbn[$i];
+                $sum += ($i % 2 === 0 ? 1 : 3) * (int) $isbn[$i];
             }
-            if ((10 - ($sum % 10)) % 10 !== (int)$isbn[12]) {
+            if ((10 - ($sum % 10)) % 10 !== (int) $isbn[12]) {
                 return false;
             }
         } else {

@@ -12,7 +12,7 @@ The `make:scaffold` command is an interactive, legacy RAD tool orchestrating the
 
 # UNDER THE HOOD ACTIVITY
 1. **Interactive Loop**: The command utilizes `fgets(STDIN)` extensively. It polls for `Entity Name`, `Application/Context`, `Database Table`, and traps the user in an infinite attribute creation loop (`Attribute Name`, `Type`) until an empty string is supplied.
-2. **Entity Generation**: Utilizing the arrays built in memory, it invokes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()` writing the database map configuration to disk.
+2. **Entity Generation**: Utilizing the arrays built in memory, it invokes `\SPPMod\SPPDB\SPPEntity::saveEntityDefinition()` writing the database map configuration to disk.
 3. **Controller Scaffolding**: It targets `src/{app_name}/controllers/` and reads a hardcoded external stub file `stubs/scaffold_controller.stub`. It replaces `{appname}`, `{controllerName}`, and `{entityName}` tokens before explicitly saving the file.
 4. **View Scaffolding**: It creates `src/{app_name}/views/{entityName}/index.php` embedding a minimal HTML comment and H1 tag.
 5. **Hinting**: It reads `global-settings.yml`. Depending on `auto_evolution` status, it advises the user to run `db:sync`.

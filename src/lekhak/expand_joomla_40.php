@@ -4,16 +4,45 @@
 $base_dir = __DIR__ . '/modules';
 
 $modules = [
-    'lekhak_forum', 'lekhak_community', 'lekhak_qa', 'lekhak_newsletter', 'lekhak_popups',
-    'lekhak_academy', 'lekhak_helpdesk', 'lekhak_events', 'lekhak_classifieds', 'lekhak_realestate',
-    'lekhak_healthcare', 'lekhak_donations', 'lekhak_gallery', 'lekhak_portfolio', 'lekhak_documents',
-    'lekhak_widgets', 'lekhak_lightbox', 'lekhak_subscriptions', 'lekhak_memberships', 'lekhak_backend_shield',
-    'lekhak_journal', 'lekhak_reviews', 'lekhak_glossary', 'lekhak_reading_time', 'lekhak_authors',
-    'lekhak_migrations', 'lekhak_webhooks', 'lekhak_ab_testing', 'lekhak_audit_trail', 'lekhak_pwa',
-    'lekhak_pdf', 'lekhak_watermark', 'lekhak_affiliates', 'lekhak_gdpr', 'lekhak_search_pro'
+    'lekhak_forum',
+    'lekhak_community',
+    'lekhak_qa',
+    'lekhak_newsletter',
+    'lekhak_popups',
+    'lekhak_academy',
+    'lekhak_helpdesk',
+    'lekhak_events',
+    'lekhak_classifieds',
+    'lekhak_realestate',
+    'lekhak_healthcare',
+    'lekhak_donations',
+    'lekhak_gallery',
+    'lekhak_portfolio',
+    'lekhak_documents',
+    'lekhak_widgets',
+    'lekhak_lightbox',
+    'lekhak_subscriptions',
+    'lekhak_memberships',
+    'lekhak_backend_shield',
+    'lekhak_journal',
+    'lekhak_reviews',
+    'lekhak_glossary',
+    'lekhak_reading_time',
+    'lekhak_authors',
+    'lekhak_migrations',
+    'lekhak_webhooks',
+    'lekhak_ab_testing',
+    'lekhak_audit_trail',
+    'lekhak_pwa',
+    'lekhak_pdf',
+    'lekhak_watermark',
+    'lekhak_affiliates',
+    'lekhak_gdpr',
+    'lekhak_search_pro'
 ];
 
-function camel_case($str) {
+function camel_case($str)
+{
     return str_replace(' ', '', ucwords(str_replace('_', ' ', $str)));
 }
 
@@ -22,9 +51,9 @@ foreach ($modules as $module) {
     if (!is_dir($dir)) {
         mkdir($dir, 0777, true);
     }
-    
+
     $class_name = camel_case($module);
-    
+
     // Generate boilerplate module structure
     $content = "<?php\n";
     $content .= "namespace Lekhak\\Modules\\$class_name;\n\n";
@@ -32,7 +61,7 @@ foreach ($modules as $module) {
     $content .= "    public static function init() {\n";
     $content .= "        \\Lekhak\\ModuleRegistry::register('$module', '\\Lekhak\\Modules\\$class_name\\Module');\n";
     $content .= "    }\n";
-    
+
     // Inject dynamic hooks based on module name
     if (strpos($module, 'forum') !== false || strpos($module, 'community') !== false) {
         $content .= "    public static function hook_menu() {\n";
@@ -57,9 +86,9 @@ foreach ($modules as $module) {
         $content .= "        \$db->execute_query('CREATE TABLE IF NOT EXISTS {$module}_config (key TEXT, value TEXT)');\n";
         $content .= "    }\n";
     }
-    
+
     $content .= "}\n";
-    
+
     file_put_contents($dir . '/module.php', $content);
     echo "Generated module: $module\n";
 }

@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class ContentType

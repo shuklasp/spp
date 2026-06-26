@@ -14,8 +14,8 @@ $sql = "CREATE TABLE IF NOT EXISTS `$table` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
 
 try {
-    $db->execute_query($sql);
-    echo "ABAC Policies table created successfully.\n";
+  $db->execute_query($sql);
+  echo "ABAC Policies table created successfully.\n";
 } catch (\Exception $e) {
-    echo "Error: " . $e->getMessage() . "\n";
+  echo "Error: " . $e->getMessage() . "\n";
 }

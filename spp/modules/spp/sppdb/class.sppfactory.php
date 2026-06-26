@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SppDb\Seeding;
+namespace SPPMod\SPPDB\Seeding;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class SPPFactory

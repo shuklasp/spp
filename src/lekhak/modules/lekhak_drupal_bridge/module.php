@@ -1,8 +1,10 @@
 <?php
 namespace Lekhak\Modules\LekhakDrupalBridge;
 
-class LekhakModuleDrupalBridge {
-    public function hook_init() {
+class LekhakModuleDrupalBridge
+{
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_lekhak_drupal_bridge_config (
@@ -10,16 +12,17 @@ class LekhakModuleDrupalBridge {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_lekhak_drupal_bridge_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Load the Drupal global class
         require_once __DIR__ . '/src/Drupal.php';
-        
+
         // Load the procedural Drupal functions (t, watchdog, etc)
         require_once __DIR__ . '/src/functions.php';
-        
+
         // Load Form API and Routing Classes
         require_once __DIR__ . '/src/Core/Routing/DrupalRouter.php';
         require_once __DIR__ . '/src/Core/Form/FormState.php';
@@ -30,7 +33,7 @@ class LekhakModuleDrupalBridge {
         // Initialize the basic container
         require_once __DIR__ . '/src/Core/DependencyInjection/Container.php';
         \Drupal::setContainer(new \Lekhak\Modules\LekhakDrupalBridge\Core\DependencyInjection\Container());
-        
+
         // Scan for and load all .module files for enabled modules
         if (class_exists('\SPPMod\Lekhak\Core\ModuleRegistry')) {
             $allMods = \SPPMod\Lekhak\Core\ModuleRegistry::getModules();
@@ -48,7 +51,7 @@ class LekhakModuleDrupalBridge {
                     }
                 }
             }
-            
+
             // Register an autoloader for Drupal namespaces
             spl_autoload_register(function ($class) use ($installed, $allMods) {
                 if (strpos($class, 'Drupal\\') === 0) {
@@ -65,11 +68,12 @@ class LekhakModuleDrupalBridge {
                 }
             });
         }
-        
+
         return true;
     }
 
-    public function hook_request_init() {
+    public function hook_request_init()
+    {
         \Lekhak\Modules\LekhakDrupalBridge\Core\Routing\DrupalRouter::handleRequest();
     }
 }

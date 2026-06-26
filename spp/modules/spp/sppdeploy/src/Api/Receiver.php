@@ -80,7 +80,8 @@ class Receiver
                 $db->query("SELECT 1")->execute();
                 $isDbOk = true;
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         echo json_encode([
             'status' => 'ok',
@@ -110,8 +111,9 @@ class Receiver
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
         $backupDir = SPP_BASE_DIR . '/var/backups';
-        if (!is_dir($backupDir)) mkdir($backupDir, 0777, true);
-        
+        if (!is_dir($backupDir))
+            mkdir($backupDir, 0777, true);
+
         $backupPath = $backupDir . '/sppdeploy_export_' . time() . '.zip';
         $zip = new \ZipArchive();
         if ($zip->open($backupPath, \ZipArchive::CREATE) !== true) {
@@ -134,7 +136,7 @@ class Receiver
             if ($pdo) {
                 $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
                 $sqlBuffer = "";
-                
+
                 $anonymize = [];
                 $confFile = dirname(SPP_BASE_DIR) . '/.sppdeploy.yml';
                 if (file_exists($confFile)) {
@@ -192,7 +194,7 @@ class Receiver
             }
         }
         $zip->close();
-        
+
         $data = file_get_contents($backupPath);
         unlink($backupPath);
 
@@ -265,10 +267,10 @@ class Receiver
     private static function handleChunk(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $input = file_get_contents('php://input');
         $data = json_decode($input, true);
-        
+
         if (!$data || !isset($data['session_id'], $data['chunk_data'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid chunk payload.']);
             exit;
@@ -277,12 +279,12 @@ class Receiver
         $sessionId = $data['session_id'];
         $chunkData = base64_decode($data['chunk_data']);
         $isLast = $data['is_last'] ?? false;
-        
+
         $tempArchive = SPP_BASE_DIR . '/var/cache/' . $sessionId . '.zip';
         if (!is_dir(dirname($tempArchive))) {
             mkdir(dirname($tempArchive), 0777, true);
         }
-        
+
         file_put_contents($tempArchive, $chunkData, FILE_APPEND);
 
         if ($isLast) {
@@ -297,10 +299,10 @@ class Receiver
     private static function handleDeploy(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $input = file_get_contents('php://input');
         $payloadData = json_decode($input, true);
-        
+
         if (!$payloadData || !isset($payloadData['archive'])) {
             echo json_encode(['status' => 'error', 'message' => 'Invalid payload format.']);
             exit;
@@ -311,7 +313,7 @@ class Receiver
             mkdir(dirname($tempArchive), 0777, true);
         }
         file_put_contents($tempArchive, base64_decode($payloadData['archive']));
-        
+
         self::processDeploymentPayload($tempArchive, $payloadData);
     }
 
@@ -344,13 +346,14 @@ class Receiver
             ]);
             self::sendWebhooks($webhooks, 'dry_run', $filesCount, $dbCount, 'success');
             echo json_encode(['status' => 'ok', 'message' => 'Dry run successful. No files were modified.']);
-            if (is_file($tempArchive)) unlink($tempArchive);
+            if (is_file($tempArchive))
+                unlink($tempArchive);
             exit;
         }
 
         $lockFile = dirname(SPP_BASE_DIR) . '/.maintenance';
         file_put_contents($lockFile, 'Deployment in progress...');
-        
+
         $backupResult = self::doAutoBackup();
 
         try {
@@ -362,7 +365,7 @@ class Receiver
             }
 
             $targetDir = dirname(SPP_BASE_DIR);
-            
+
             // 1. Try native unzip (Fastest, lowest memory)
             $unzipSuccess = false;
             $unzipCmd = "unzip -o " . escapeshellarg($tempArchive) . " -d " . escapeshellarg($targetDir) . " 2>&1";
@@ -423,16 +426,16 @@ class Receiver
                         }
                     }
                 }
-                
+
                 // Automated backup cleanup
                 if (isset($conf['keep_backups']) && is_numeric($conf['keep_backups']) && $conf['keep_backups'] > 0) {
-                    $keep = (int)$conf['keep_backups'];
+                    $keep = (int) $conf['keep_backups'];
                     $deleted = self::executeCleanup($keep);
                     if ($deleted > 0) {
                         self::logDeployment("CLEANUP: Removed {$deleted} old backups, keeping latest {$keep}.");
                     }
                 }
-                
+
                 // Remote Builder: Composer
                 if (isset($conf['run_composer']) && $conf['run_composer'] === true) {
                     $composerCmd = "cd " . escapeshellarg(dirname(SPP_BASE_DIR)) . " && composer install --no-dev --optimize-autoloader 2>&1";
@@ -454,7 +457,7 @@ class Receiver
                     }
                     if (isset($http_response_header[0])) {
                         preg_match('#HTTP/\d+\.\d+ (\d+)#', $http_response_header[0], $match);
-                        $code = (int)($match[1] ?? 0);
+                        $code = (int) ($match[1] ?? 0);
                         if ($code >= 500) {
                             throw new \Exception("Health check failed: Endpoint returned HTTP {$code}");
                         }
@@ -471,7 +474,7 @@ class Receiver
             self::sendWebhooks($webhooks, 'production', $filesCount, $dbCount, 'success');
 
             echo json_encode([
-                'status' => 'ok', 
+                'status' => 'ok',
                 'message' => 'Deployment executed successfully.',
                 'webhooks' => $webhooks
             ]);
@@ -494,8 +497,10 @@ class Receiver
             self::sendWebhooks($webhooks, 'production', $filesCount, $dbCount, 'failed', $e->getMessage() . $rollbackMessage);
             echo json_encode(['status' => 'error', 'message' => 'Deployment failed: ' . $e->getMessage() . $rollbackMessage]);
         } finally {
-            if (is_file($tempArchive)) unlink($tempArchive);
-            if (is_file(dirname(SPP_BASE_DIR) . '/.maintenance')) unlink(dirname(SPP_BASE_DIR) . '/.maintenance');
+            if (is_file($tempArchive))
+                unlink($tempArchive);
+            if (is_file(dirname(SPP_BASE_DIR) . '/.maintenance'))
+                unlink(dirname(SPP_BASE_DIR) . '/.maintenance');
         }
         exit;
     }
@@ -503,8 +508,9 @@ class Receiver
     private static function doAutoBackup(): string
     {
         $backupDir = SPP_BASE_DIR . '/var/backups';
-        if (!is_dir($backupDir)) mkdir($backupDir, 0777, true);
-        
+        if (!is_dir($backupDir))
+            mkdir($backupDir, 0777, true);
+
         $backupName = 'sppdeploy_backup_' . date('Ymd_His') . '.zip';
         $backupPath = $backupDir . '/' . $backupName;
 
@@ -535,7 +541,7 @@ class Receiver
                         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
                             $sqlBuffer .= "DROP TABLE IF EXISTS `{$row['name']}`;\n";
                             $sqlBuffer .= $row['sql'] . ";\n";
-                            
+
                             $res = $pdo->query("SELECT * FROM `{$row['name']}`");
                             while ($data = $res->fetch(\PDO::FETCH_ASSOC)) {
                                 $cols = array_keys($data);
@@ -575,8 +581,9 @@ class Receiver
     private static function logDeployment(string $message, array $metadata = []): void
     {
         $logDir = SPP_BASE_DIR . '/spp/var/logs';
-        if (!is_dir($logDir)) mkdir($logDir, 0777, true);
-        
+        if (!is_dir($logDir))
+            mkdir($logDir, 0777, true);
+
         $file = $logDir . '/deploy.log';
         $time = date('Y-m-d H:i:s');
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI/Unknown';
@@ -593,30 +600,34 @@ class Receiver
 
     private static function sendWebhooks(array $webhooks, string $mode, int $filesCount, int $dbCount, string $status, string $error = null): void
     {
-        if (empty($webhooks)) return;
+        if (empty($webhooks))
+            return;
 
         $title = $status === 'success' ? "✅ Deployment Successful" : "❌ Deployment Failed";
         $color = $status === 'success' ? 3066993 : 15158332; // Green : Red
 
         foreach ($webhooks as $url) {
-            if (!filter_var($url, FILTER_VALIDATE_URL)) continue;
+            if (!filter_var($url, FILTER_VALIDATE_URL))
+                continue;
 
             $payload = '';
-            
+
             if (str_contains($url, 'discord.com/api/webhooks')) {
                 // Discord Rich Embed
                 $payload = json_encode([
-                    'embeds' => [[
-                        'title' => $title,
-                        'color' => $color,
-                        'fields' => [
-                            ['name' => 'Environment', 'value' => $mode, 'inline' => true],
-                            ['name' => 'Files Changed', 'value' => (string)$filesCount, 'inline' => true],
-                            ['name' => 'Tables Updated', 'value' => (string)$dbCount, 'inline' => true],
-                            ['name' => 'Error Message', 'value' => $error ?: 'None', 'inline' => false]
-                        ],
-                        'timestamp' => date('c')
-                    ]]
+                    'embeds' => [
+                        [
+                            'title' => $title,
+                            'color' => $color,
+                            'fields' => [
+                                ['name' => 'Environment', 'value' => $mode, 'inline' => true],
+                                ['name' => 'Files Changed', 'value' => (string) $filesCount, 'inline' => true],
+                                ['name' => 'Tables Updated', 'value' => (string) $dbCount, 'inline' => true],
+                                ['name' => 'Error Message', 'value' => $error ?: 'None', 'inline' => false]
+                            ],
+                            'timestamp' => date('c')
+                        ]
+                    ]
                 ]);
             } elseif (str_contains($url, 'hooks.slack.com')) {
                 // Slack Block Kit
@@ -653,8 +664,8 @@ class Receiver
 
             $options = [
                 'http' => [
-                    'header'  => "Content-type: application/json\r\n",
-                    'method'  => 'POST',
+                    'header' => "Content-type: application/json\r\n",
+                    'method' => 'POST',
                     'content' => $payload,
                     'timeout' => 5
                 ]
@@ -718,7 +729,7 @@ class Receiver
         try {
             $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
             $files = $scanner->scan(SPP_BASE_DIR);
-            
+
             foreach (array_keys($files) as $path) {
                 $fullPath = SPP_BASE_DIR . '/' . $path;
                 if (is_file($fullPath)) {
@@ -761,16 +772,16 @@ class Receiver
     private static function handleLogs(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
-        $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : -1;
+
+        $offset = isset($_GET['offset']) ? (int) $_GET['offset'] : -1;
         $linesToFetch = $_GET['lines'] ?? 100;
-        $linesToFetch = max(10, min((int)$linesToFetch, 1000));
-        
+        $linesToFetch = max(10, min((int) $linesToFetch, 1000));
+
         // Find the most recently modified log file in SPP_BASE_DIR/var/logs/
         $logDir = SPP_BASE_DIR . '/var/logs';
         $latestLog = null;
         $latestTime = 0;
-        
+
         if (is_dir($logDir)) {
             $files = glob($logDir . '/*.log');
             if ($files) {
@@ -783,7 +794,7 @@ class Receiver
                 }
             }
         }
-        
+
         if (!$latestLog) {
             echo json_encode(['status' => 'error', 'message' => 'No log files found']);
             exit;
@@ -812,9 +823,9 @@ class Receiver
             }
             $newOffset = filesize($latestLog);
         }
-        
+
         echo json_encode([
-            'status' => 'ok', 
+            'status' => 'ok',
             'file' => basename($latestLog),
             'content' => $content,
             'offset' => $newOffset
@@ -825,10 +836,10 @@ class Receiver
     private static function handleRun(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $input = json_decode(file_get_contents('php://input'), true);
         $command = $input['command'] ?? null;
-        
+
         if (!$command) {
             echo json_encode(['status' => 'error', 'message' => 'Command not provided']);
             exit;
@@ -836,10 +847,10 @@ class Receiver
 
         $baseDir = dirname(SPP_BASE_DIR);
         $fullCmd = "cd " . escapeshellarg($baseDir) . " && " . $command . " 2>&1";
-        
+
         exec($fullCmd, $output, $returnVar);
         $outStr = implode("\n", $output);
-        
+
         echo json_encode([
             'status' => 'ok',
             'command' => $command,
@@ -852,10 +863,10 @@ class Receiver
     private static function handleHistory(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $jsonl = SPP_BASE_DIR . '/spp/var/logs/deploy_history.jsonl';
         $history = [];
-        
+
         if (is_file($jsonl)) {
             $lines = file($jsonl, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             if ($lines !== false) {
@@ -877,7 +888,7 @@ class Receiver
     private static function handleMaintenance(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $state = $_POST['state'] ?? $_GET['state'] ?? 'off';
         $lockFile = dirname(SPP_BASE_DIR) . '/.maintenance';
 
@@ -886,7 +897,8 @@ class Receiver
             self::logDeployment("MAINTENANCE: Mode explicitly enabled.");
             echo json_encode(['status' => 'ok', 'message' => 'Maintenance mode enabled.']);
         } else {
-            if (is_file($lockFile)) unlink($lockFile);
+            if (is_file($lockFile))
+                unlink($lockFile);
             self::logDeployment("MAINTENANCE: Mode explicitly disabled.");
             echo json_encode(['status' => 'ok', 'message' => 'Maintenance mode disabled.']);
         }
@@ -907,10 +919,10 @@ class Receiver
 
         $envFile = dirname(SPP_BASE_DIR) . '/.env';
         $envData = file_exists($envFile) ? file_get_contents($envFile) : "";
-        
+
         $lines = explode("\n", $envData);
         $found = false;
-        
+
         foreach ($lines as &$line) {
             $lineTrimmed = trim($line);
             if (str_starts_with($lineTrimmed, $key . '=')) {
@@ -921,7 +933,7 @@ class Receiver
         }
 
         if (!$found) {
-            if (!empty($lines[count($lines)-1])) {
+            if (!empty($lines[count($lines) - 1])) {
                 $lines[] = ''; // ensure newline
             }
             $lines[] = $key . '=' . $value;
@@ -929,7 +941,7 @@ class Receiver
 
         file_put_contents($envFile, implode("\n", $lines));
         self::logDeployment("ENV: Pushed environment variable `{$key}`.");
-        
+
         echo json_encode(['status' => 'ok', 'message' => "Environment variable `{$key}` securely saved."]);
         exit;
     }
@@ -937,40 +949,42 @@ class Receiver
     private static function executeCleanup(int $keep): int
     {
         $backupDir = SPP_BASE_DIR . '/var/backups';
-        if (!is_dir($backupDir)) return 0;
-        
+        if (!is_dir($backupDir))
+            return 0;
+
         $backups = [];
         foreach (scandir($backupDir) as $file) {
             if (str_ends_with($file, '.zip')) {
                 $backups[$file] = filemtime($backupDir . '/' . $file);
             }
         }
-        
-        if (count($backups) <= $keep) return 0;
-        
+
+        if (count($backups) <= $keep)
+            return 0;
+
         arsort($backups); // Sort descending by time
         $toDelete = array_slice(array_keys($backups), $keep);
-        
+
         $deleted = 0;
         foreach ($toDelete as $file) {
             if (unlink($backupDir . '/' . $file)) {
                 $deleted++;
             }
         }
-        
+
         return $deleted;
     }
 
     private static function handleCleanup(): void
     {
         \SPPMod\SPPDeploy\SPPDeploy::requireAuth();
-        
+
         $input = json_decode(file_get_contents('php://input'), true);
-        $keep = isset($input['keep']) ? (int)$input['keep'] : 5;
-        
+        $keep = isset($input['keep']) ? (int) $input['keep'] : 5;
+
         $deleted = self::executeCleanup($keep);
         self::logDeployment("CLEANUP: Removed {$deleted} old backups, keeping latest {$keep}.");
-        
+
         echo json_encode(['status' => 'ok', 'message' => "Cleanup complete. Deleted {$deleted} old backups.", 'deleted' => $deleted]);
         exit;
     }

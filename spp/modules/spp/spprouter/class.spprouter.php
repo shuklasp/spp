@@ -58,18 +58,18 @@ class SPPRouter extends \SPP\SPPObject
 
         $dbAvailable = \SPP\Module::isEnabled('sppdb');
 
-        $primary  = \SPP\Module::getConfig('page_source_primary', 'spprouter', $appname) ?: 'yaml';
+        $primary = \SPP\Module::getConfig('page_source_primary', 'spprouter', $appname) ?: 'yaml';
         $fallback = \SPP\Module::getConfig('page_source_fallback', 'spprouter', $appname) ?: 'none';
 
         // Normalize aliases
         $map = ['dbfirst' => 'db', 'filefirst' => 'yaml', 'file' => 'yaml'];
-        $primary  = $map[$primary] ?? $primary;
+        $primary = $map[$primary] ?? $primary;
         $fallback = $map[$fallback] ?? $fallback;
 
         // Silently demote DB to 'none' when sppdb is not loaded
         if (!$dbAvailable) {
-            if ($primary  === 'db') {
-                $primary  = 'yaml';
+            if ($primary === 'db') {
+                $primary = 'yaml';
             }
             if ($fallback === 'db') {
                 $fallback = 'none';
@@ -153,7 +153,7 @@ class SPPRouter extends \SPP\SPPObject
                 $pagesMap = [];
                 foreach ($data['pages'] as $k => $pageObj) {
                     if (is_array($pageObj) && isset($pageObj['name'])) {
-                        $name = (string)$pageObj['name'];
+                        $name = (string) $pageObj['name'];
                         $pagesMap[$name] = $pageObj;
                     } else {
                         $pagesMap[$k] = $pageObj;
@@ -195,7 +195,7 @@ class SPPRouter extends \SPP\SPPObject
         $db = new \SPPMod\SPPDB\SPPDB();
 
         try {
-            $pages    = $db->execute_query('SELECT name, url FROM '    . \SPPMod\SPPDB\SPPDB::sppTable('spprouter_pages'));
+            $pages = $db->execute_query('SELECT name, url FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('spprouter_pages'));
             $defaults = $db->execute_query('SELECT defkey, defval FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('spprouter_defaults'));
             $specials = $db->execute_query('SELECT name, method FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('spprouter_specials'));
         } catch (\Exception $e) {
@@ -209,7 +209,7 @@ class SPPRouter extends \SPP\SPPObject
         if (is_array($pages)) {
             foreach ($pages as $row) {
                 if (isset($row['name'])) {
-                    $pagesMap[(string)$row['name']] = $row;
+                    $pagesMap[(string) $row['name']] = $row;
                 }
             }
         }
@@ -220,7 +220,7 @@ class SPPRouter extends \SPP\SPPObject
         }
 
         self::$dbAppCache[$appname] = [
-            'pages'    => $pagesMap,
+            'pages' => $pagesMap,
             'defaults' => $defaultsMap,
             'specials' => $specials,
         ];
@@ -241,7 +241,7 @@ class SPPRouter extends \SPP\SPPObject
 
         // Handle empty routes by falling back to the 'home' setting
         if ($q === '' && isset($yaml['home'])) {
-            $q = (string)$yaml['home'];
+            $q = (string) $yaml['home'];
         }
 
         if (!isset($yaml['pages']) || !is_array($yaml['pages'])) {
@@ -255,7 +255,7 @@ class SPPRouter extends \SPP\SPPObject
 
         // 1.5. Pattern match for routes with placeholders (e.g., {id})
         foreach ($yaml['pages'] as $name => $routeConfig) {
-            $name = (string)$name;
+            $name = (string) $name;
             if (str_contains($name, '{')) {
                 $pattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $name);
                 if (preg_match('#^' . $pattern . '$#', $q, $m)) {
@@ -272,7 +272,7 @@ class SPPRouter extends \SPP\SPPObject
         // 2. Find all prefix matches
         $matches = [];
         foreach ($yaml['pages'] as $name => $routeConfig) {
-            $name = (string)$name;
+            $name = (string) $name;
             // A match is valid if q is exactly name OR starts with name followed by a slash
             if ($name !== '' && (strpos($q, $name . '/') === 0 || $q === $name)) {
                 $matches[$name] = $routeConfig;
@@ -289,7 +289,7 @@ class SPPRouter extends \SPP\SPPObject
             $bestName = key($matches);
             $bestConfig = current($matches);
 
-            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] DEBUG: Longest match routing: Picked '{$bestName}' for request '{$q}'\n", FILE_APPEND);
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] DEBUG: Longest match routing: Picked '{$bestName}' for request '{$q}'\n", FILE_APPEND);
             return self::processRoute($bestName, $bestConfig, $q, $appname, $ymlFile);
         }
 
@@ -325,7 +325,7 @@ class SPPRouter extends \SPP\SPPObject
                 $pg['controller'] = $route['controller'];
             }
             if (isset($route['special'])) {
-                $pg['special'] = (int)$route['special'];
+                $pg['special'] = (int) $route['special'];
                 if (isset($route['method'])) {
                     $pg['method'] = $route['method'];
                 }
@@ -373,7 +373,7 @@ class SPPRouter extends \SPP\SPPObject
         if ($modulePath) {
             // Convert absolute module path to relative path from SPP_APP_DIR
             $root = realpath(SPP_APP_DIR);
-            $mod  = realpath($modulePath);
+            $mod = realpath($modulePath);
 
             if ($root && $mod && stripos($mod, $root) === 0) {
                 $rel = ltrim(substr($mod, strlen($root)), '/\\');
@@ -390,7 +390,7 @@ class SPPRouter extends \SPP\SPPObject
 
         // Convert absolute src directory to relative path from SPP_APP_DIR
         $root = realpath(SPP_APP_DIR);
-        $src  = realpath($srcDir);
+        $src = realpath($srcDir);
 
         if ($root && $src && stripos($src, $root) === 0) {
             $rel = ltrim(substr($src, strlen($root)), '/\\');
@@ -431,7 +431,7 @@ class SPPRouter extends \SPP\SPPObject
 
         foreach ($entities as $table => $e) {
             $field = $e['field'] ?? 'alias';
-            $url   = $e['url'] ?? '';
+            $url = $e['url'] ?? '';
 
             if (empty($url)) {
                 continue;
@@ -458,12 +458,12 @@ class SPPRouter extends \SPP\SPPObject
     private static function buildPage(string $name, string $url, string $q): array
     {
         $url = ltrim($url, '/');
-        $pg  = ['url' => $url, 'name' => $name, 'special' => 0];
+        $pg = ['url' => $url, 'name' => $name, 'special' => 0];
 
         if ($name !== $q) {
             $pos = strpos($q, $name);
-            $pr  = ($pos !== false) ? substr_replace($q, '', $pos, strlen($name)) : '';
-            $pr  = ltrim($pr, '/');
+            $pr = ($pos !== false) ? substr_replace($q, '', $pos, strlen($name)) : '';
+            $pr = ltrim($pr, '/');
             $pg['params'] = explode('/', $pr);
         } else {
             $pg['params'] = [];
@@ -601,14 +601,14 @@ class SPPRouter extends \SPP\SPPObject
 
         // --- Specials ---
         $result = self::trySourceSpecial($primary, $spl, $q, $appname)
-               ?? self::trySourceSpecial($fallback, $spl, $q, $appname);
+            ?? self::trySourceSpecial($fallback, $spl, $q, $appname);
         if ($result !== null) {
             return $result;
         }
 
         // --- Regular pages ---
         $result = self::trySourcePage($primary, $q, $appname, $ymlFile)
-               ?? self::trySourcePage($fallback, $q, $appname, $ymlFile);
+            ?? self::trySourcePage($fallback, $q, $appname, $ymlFile);
         if ($result !== null) {
             return $result;
         }
@@ -644,10 +644,11 @@ class SPPRouter extends \SPP\SPPObject
         }
 
         $parts = explode('/', $q);
-        if (count($parts) < 2) return null;
-        
+        if (count($parts) < 2)
+            return null;
+
         $modname = $parts[1];
-        
+
         $mod = \SPP\Registry::get('__modobj=>' . $modname);
         if ($mod && !empty($mod->Assets)) {
             $assetDirs = is_array($mod->Assets['directories'] ?? null) ? $mod->Assets['directories'] : (array) $mod->Assets;
@@ -683,12 +684,12 @@ class SPPRouter extends \SPP\SPPObject
 
         foreach ($mods as $mod) {
             $routes = [];
-            
+
             // 1. Routes from module.yml
             if (isset($mod->Routes) && is_array($mod->Routes)) {
                 $routes = array_merge($routes, $mod->Routes);
             }
-            
+
             // 2. Routes from etc/routes.yml
             $routesYml = $mod->ModPath . SPP_DS . 'etc' . SPP_DS . 'routes.yml';
             if (file_exists($routesYml)) {
@@ -711,7 +712,7 @@ class SPPRouter extends \SPP\SPPObject
                     // Silently ignore or log parsing error
                 }
             }
-            
+
             foreach ($routes as $name => $cfg) {
                 if ($q === $name || strpos($q, $name . '/') === 0) {
                     return self::processRoute($name, $cfg, $q, $appname, null, $mod->ModPath);
@@ -835,18 +836,18 @@ class SPPRouter extends \SPP\SPPObject
     public static function serveDirectory(string $q, array $context): string
     {
         $base = $context['base_dir'] ?? '';
-        $rel  = $context['relative_path'] ?? '';
-        
+        $rel = $context['relative_path'] ?? '';
+
         $basePath = (str_starts_with($base, '/') || str_contains($base, ':')) ? $base : SPP_APP_DIR . '/' . ltrim($base, '/\\');
         $realBase = realpath($basePath);
-        
+
         if ($realBase === false) {
             return self::serveFile('', $q);
         }
-        
+
         $file = $realBase . '/' . ltrim($rel, '/\\');
         $realFile = realpath($file);
-        
+
         if ($realFile === false || strpos($realFile, $realBase) !== 0) {
             return self::serveFile('', $q);
         }
@@ -865,7 +866,7 @@ class SPPRouter extends \SPP\SPPObject
 
             $fullPath = realpath($proposedPath);
             $basePath = realpath($allowedBase);
-            
+
             // SECURITY: Prevent LFI / Path Traversal
             // Ensure the resolved path actually exists and is inside the allowed base directory.
             if ($fullPath === false || $basePath === false || strpos($fullPath, $basePath) !== 0) {
@@ -876,20 +877,20 @@ class SPPRouter extends \SPP\SPPObject
         if ($fullPath !== '' && file_exists($fullPath) && is_file($fullPath)) {
             $ext = strtolower(pathinfo($fullPath, PATHINFO_EXTENSION));
             $mimes = [
-                'js'   => 'application/javascript',
-                'css'  => 'text/css',
-                'png'  => 'image/png',
-                'jpg'  => 'image/jpeg',
+                'js' => 'application/javascript',
+                'css' => 'text/css',
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
                 'jpeg' => 'image/jpeg',
-                'gif'  => 'image/gif',
-                'svg'  => 'image/svg+xml',
-                'ico'  => 'image/x-icon',
+                'gif' => 'image/gif',
+                'svg' => 'image/svg+xml',
+                'ico' => 'image/x-icon',
                 'json' => 'application/json',
-                'txt'  => 'text/plain',
-                'pdf'  => 'application/pdf',
+                'txt' => 'text/plain',
+                'pdf' => 'application/pdf',
                 'woff' => 'font/woff',
                 'woff2' => 'font/woff2',
-                'ttf'  => 'font/ttf'
+                'ttf' => 'font/ttf'
             ];
 
             $mime = $mimes[$ext] ?? 'application/octet-stream';
@@ -931,7 +932,7 @@ class SPPRouter extends \SPP\SPPObject
      */
     public static function importYamlToDb(): array
     {
-        $db   = new \SPPMod\SPPDB\SPPDB();
+        $db = new \SPPMod\SPPDB\SPPDB();
         $yaml = self::getYaml();
         $counts = ['pages' => 0, 'defaults' => 0, 'specials' => 0];
 
@@ -1007,7 +1008,7 @@ class SPPRouter extends \SPP\SPPObject
     public static function clearCache(): void
     {
         self::$yamlFileCache = [];
-        self::$dbAppCache   = [];
+        self::$dbAppCache = [];
         self::$sourceAppCache = [];
     }
 
@@ -1098,7 +1099,7 @@ class SPPRouter extends \SPP\SPPObject
             }
 
             $oldCount = count($yaml['pages']);
-            $yaml['pages'] = array_values(array_filter($yaml['pages'], fn ($p) => ($p['name'] ?? '') !== $name));
+            $yaml['pages'] = array_values(array_filter($yaml['pages'], fn($p) => ($p['name'] ?? '') !== $name));
 
             if (count($yaml['pages']) === $oldCount) {
                 return false;
@@ -1122,10 +1123,10 @@ class SPPRouter extends \SPP\SPPObject
     private static function findPageInAttributes(string $q, string $appname): ?array
     {
         $cacheFile = SPP_BASE_DIR . '/var/cache/routes_' . $appname . '.php';
-        
+
         // Cache busting during development or if cache is missing
         $isDev = getenv('APP_ENV') === 'local' || (defined('SPP_DEBUG') && SPP_DEBUG);
-        
+
         if (!file_exists($cacheFile) || $isDev) {
             $routes = [];
             // Assuming standard location is SPP_APP_DIR/controllers or SPP_APP_DIR/src/Controllers
@@ -1134,18 +1135,18 @@ class SPPRouter extends \SPP\SPPObject
                 SPP_APP_DIR . '/src/Controllers',
                 SPP_APP_DIR . '/src/controllers'
             ];
-            
+
             foreach ($dirsToScan as $dir) {
                 if (is_dir($dir)) {
                     $scanned = RouteScanner::scan($dir);
                     $routes = array_merge($routes, $scanned);
                 }
             }
-            
+
             if (!is_dir(dirname($cacheFile))) {
                 mkdir(dirname($cacheFile), 0777, true);
             }
-            
+
             file_put_contents($cacheFile, '<?php return ' . var_export($routes, true) . ';');
         } else {
             $routes = include $cacheFile;
@@ -1162,7 +1163,7 @@ class SPPRouter extends \SPP\SPPObject
             if (strpos($routePath, '{') !== false) {
                 $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<\1>[^/]+)', $routePath);
                 $pattern = '#^' . $pattern . '$#';
-                
+
                 if (preg_match($pattern, $q, $matches)) {
                     $params = [];
                     foreach ($matches as $k => $v) {
@@ -1170,7 +1171,7 @@ class SPPRouter extends \SPP\SPPObject
                             $params[$k] = $v;
                         }
                     }
-                    
+
                     $pageDef = self::buildPage($q, '', $q, ['controller' => $route['controller'], 'middleware' => $route['middleware']]);
                     $pageDef['params'] = array_values($params);
                     $pageDef['named_params'] = $params;

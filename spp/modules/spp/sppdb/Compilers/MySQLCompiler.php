@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SppDb\Compilers;
+namespace SPPMod\SPPDB\Compilers;
 
-use SPPMod\SppDb\SppEntityQuery;
+use SPPMod\SPPDB\SppEntityQuery;
 
 /**
  * Class MySQLCompiler
@@ -87,9 +87,9 @@ class MySQLCompiler implements CompilerInterface
         }
 
         if ($query->getLimit()) {
-            $sql .= " LIMIT " . (int)$query->getLimit();
+            $sql .= " LIMIT " . (int) $query->getLimit();
             if ($query->getOffset()) {
-                $sql .= " OFFSET " . (int)$query->getOffset();
+                $sql .= " OFFSET " . (int) $query->getOffset();
             }
         }
 

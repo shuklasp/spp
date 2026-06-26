@@ -16,7 +16,7 @@ class DeployPullCommand extends Command
 
         $apiKey = getenv('SPP_DEPLOY_TOKEN') ?: 'default_cli_key';
         $force = false;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -25,7 +25,7 @@ class DeployPullCommand extends Command
                 $force = true;
             }
         }
-        
+
         $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         if (!$force) {
@@ -40,13 +40,14 @@ class DeployPullCommand extends Command
                 return;
             }
         }
-        
+
         echo "📡 Fetching remote snapshot...\n";
         $resp = $conn->getExport();
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok' || empty($resp['archive'])) {
             echo "❌ Pull failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            if (isset($resp['debug'])) echo "DEBUG: " . $resp['debug'] . "\n";
+            if (isset($resp['debug']))
+                echo "DEBUG: " . $resp['debug'] . "\n";
             return;
         }
 
@@ -92,7 +93,8 @@ class DeployPullCommand extends Command
         } catch (\Exception $e) {
             echo "❌ Pull failed during extraction: " . $e->getMessage() . "\n";
         } finally {
-            if (is_file($tempArchive)) unlink($tempArchive);
+            if (is_file($tempArchive))
+                unlink($tempArchive);
         }
     }
 

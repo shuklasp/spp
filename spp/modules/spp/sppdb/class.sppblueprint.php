@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SPPMigration;
+namespace SPPMod\SPPDB;
 
 class SPPBlueprint
 {

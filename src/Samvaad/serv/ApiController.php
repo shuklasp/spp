@@ -77,7 +77,7 @@ class ApiController
         echo json_encode([
             'status' => 'ok',
             'data' => [
-                'id' => (int)$id,
+                'id' => (int) $id,
                 'name' => 'Item #' . $id,
                 'status' => 'active',
                 'created_at' => date('Y-m-d H:i:s'),

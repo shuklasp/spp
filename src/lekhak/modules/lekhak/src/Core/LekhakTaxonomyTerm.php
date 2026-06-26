@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class LekhakTaxonomyTerm
@@ -19,7 +19,7 @@ class LekhakTaxonomyTerm extends SPPEntity
         if (!$this->weight) {
             $this->weight = 0;
         }
-        
+
         if (function_exists('lekhak_invoke_alter')) {
             lekhak_invoke_alter('entity_presave', $this);
         }
@@ -41,7 +41,7 @@ class LekhakTaxonomyTerm extends SPPEntity
         if ($user === null && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
         }
-        
+
         // Admin user has all access
         if ($user && isset($user->roles) && in_array('administrator', $user->roles)) {
             return true;
@@ -71,7 +71,7 @@ class LekhakTaxonomyTerm extends SPPEntity
             'parent_id' => 'bigint'
         ];
     }
-    
+
     public function field_metadata()
     {
         return [

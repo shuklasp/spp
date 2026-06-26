@@ -9,7 +9,7 @@ class RateLimiter
     public static function hit(string $username, string $ip)
     {
         $db = new SPPDB();
-        
+
         // Find existing record
         $sql = "SELECT id, attempts, last_attempt FROM " . SPPDB::sppTable('login_attempts') . " 
                 WHERE ip_address = ? AND username = ?";

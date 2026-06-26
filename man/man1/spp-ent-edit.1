@@ -27,7 +27,7 @@ Facilitates CLI-driven or interactive editing of Entity YAML configurations, inc
 .br
 .PP
 .SH UNDER THE HOOD ACTIVITY
-If no arguments are provided, it forces an interactive wizard by listing available entities from SPPEntity::listAvailableEntities() and taking user input via a prompt() wrapper. It locates the entity config via SPPEntity::getEntityConfigFile(). It parses the source YAML, allowing either flag-driven arrays manipulations or a deeply nested interactive CLI loop. Through CLI flags, it interprets the parameters (like auto-computing many-to-many pivot tables logic) and dynamically mutates the YAML array structure. It serializes and persists the updated state strictly via \SPPMod\SppDb\SPPEntity::saveEntityDefinition().
+If no arguments are provided, it forces an interactive wizard by listing available entities from SPPEntity::listAvailableEntities() and taking user input via a prompt() wrapper. It locates the entity config via SPPEntity::getEntityConfigFile(). It parses the source YAML, allowing either flag-driven arrays manipulations or a deeply nested interactive CLI loop. Through CLI flags, it interprets the parameters (like auto-computing many-to-many pivot tables logic) and dynamically mutates the YAML array structure. It serializes and persists the updated state strictly via \SPPMod\SPPDB\SPPEntity::saveEntityDefinition().
 .PP
 .SH EXAMPLES
 php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int"

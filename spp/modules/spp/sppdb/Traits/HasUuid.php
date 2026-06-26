@@ -1,9 +1,9 @@
 <?php
 
-namespace SPPMod\SppDb\Traits;
+namespace SPPMod\SPPDB\Traits;
 
 use SPP\Core\EventManager;
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Trait HasUuid

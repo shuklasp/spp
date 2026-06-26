@@ -30,7 +30,7 @@ namespace App\Samvaad\Entities;
  *   Set 'enable_api' => true in getMetadata() to expose via SPPAPI.
  * ============================================================================
  */
-class Item extends \SPPMod\SppDb\SPPEntity
+class Item extends \SPPMod\SPPDB\SPPEntity
 {
     public static function getTableName(): string
     {

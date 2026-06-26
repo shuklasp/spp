@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 /**
  * class SPPEntityRelations

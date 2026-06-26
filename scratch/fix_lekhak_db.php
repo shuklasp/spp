@@ -8,11 +8,11 @@ new \SPP\App($app, false, 1);
 
 try {
     $db = new \SPPMod\SPPDB\SPPDB();
-    
+
     $tableName = 'lek_nodes';
-    
+
     echo "Creating table $tableName...\n";
-    
+
     $sql = "CREATE TABLE IF NOT EXISTS `$tableName` (
         `id` BIGINT NOT NULL AUTO_INCREMENT,
         `title` VARCHAR(255),
@@ -27,10 +27,10 @@ try {
         PRIMARY KEY (`id`),
         UNIQUE KEY `alias_idx` (`alias`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-    
+
     $db->exec($sql);
     echo "Table created successfully.\n";
-    
+
 } catch (\Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }

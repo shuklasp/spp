@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 /**
  * Class PDOAdapter
@@ -46,7 +46,7 @@ class PDOAdapter implements DBAdapter
             $stmt->execute($params);
             return $stmt->fetchAll(\PDO::FETCH_ASSOC);
         } catch (\PDOException $e) {
-            throw new \PDOException($e->getMessage() . " (SQL: " . $sql . ")", (int)$e->getCode(), $e);
+            throw new \PDOException($e->getMessage() . " (SQL: " . $sql . ")", (int) $e->getCode(), $e);
         }
     }
 

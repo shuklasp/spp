@@ -17,9 +17,10 @@ spl_autoload_register(function ($className) {
     if (strpos($className, 'SPPMod\\') === 0) {
         $parts = explode('\\', $className);
         array_shift($parts); // Remove SPPMod
-        if (empty($parts)) return;
-        
-        $modCamel = array_shift($parts); 
+        if (empty($parts))
+            return;
+
+        $modCamel = array_shift($parts);
         $modDirNameSnake = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $modCamel));
         $modDirNameLower = strtolower($modCamel);
 

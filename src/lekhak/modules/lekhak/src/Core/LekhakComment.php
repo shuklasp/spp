@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class LekhakComment
@@ -31,7 +31,7 @@ class LekhakComment extends SPPEntity
                 $this->status = 'published';
             }
         }
-        
+
         if (function_exists('lekhak_invoke_alter')) {
             lekhak_invoke_alter('entity_presave', $this);
         }
@@ -53,7 +53,7 @@ class LekhakComment extends SPPEntity
         if ($user === null && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
         }
-        
+
         // Admin user has all access
         if ($user && isset($user->roles) && in_array('administrator', $user->roles)) {
             return true;
@@ -86,7 +86,7 @@ class LekhakComment extends SPPEntity
             'changed' => 'datetime'
         ];
     }
-    
+
     public function field_metadata()
     {
         return [

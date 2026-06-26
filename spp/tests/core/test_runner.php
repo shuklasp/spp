@@ -9,13 +9,16 @@ define('SPP_APP_DIR', dirname(SPP_DIR));
 spl_autoload_register(function ($class) {
     if (str_starts_with($class, 'SPP\\')) {
         $path = SPP_DIR . '/core/class.' . strtolower(substr($class, 4)) . '.php';
-        if (file_exists($path)) require_once $path;
+        if (file_exists($path))
+            require_once $path;
     } elseif (str_starts_with($class, 'SPPMod\\SPPEntity\\')) {
         $path = SPP_DIR . '/modules/spp/sppentity/class.' . strtolower(substr($class, 17)) . '.php';
-        if (file_exists($path)) require_once $path;
+        if (file_exists($path))
+            require_once $path;
     } elseif (str_starts_with($class, 'SPPMod\\SPPDB\\')) {
         $path = SPP_DIR . '/modules/spp/sppdb/class.' . strtolower(substr($class, 14)) . '.php';
-        if (file_exists($path)) require_once $path;
+        if (file_exists($path))
+            require_once $path;
     }
 });
 

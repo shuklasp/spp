@@ -1,18 +1,21 @@
 <?php
-namespace SPPMod\Sppdb\Migration;
+namespace SPPMod\SPPDB\Migration;
 
-class SPPMigrationManager {
+class SPPMigrationManager
+{
     private $db;
     private $migrationsTable = 'spp_migrations';
     private $appname;
 
-    public function __construct(string $appname) {
+    public function __construct(string $appname)
+    {
         $this->db = new \SPPMod\SPPDB\SPPDB();
         $this->appname = $appname;
         $this->ensureMigrationsTable();
     }
 
-    private function ensureMigrationsTable(): void {
+    private function ensureMigrationsTable(): void
+    {
         $autoInc = $this->db->getDriver() === 'sqlite' ? 'AUTOINCREMENT' : 'AUTO_INCREMENT';
         $sql = "CREATE TABLE IF NOT EXISTS {$this->migrationsTable} (
             id INTEGER PRIMARY KEY {$autoInc},
@@ -23,11 +26,12 @@ class SPPMigrationManager {
         $this->db->exec($sql);
     }
 
-    public function runPending(): array {
+    public function runPending(): array
+    {
         $executed = [];
         $files = $this->getMigrationFiles();
         $ran = $this->getRanMigrations();
-        
+
         $pending = array_diff($files, $ran);
         if (empty($pending)) {
             return [];
@@ -44,7 +48,8 @@ class SPPMigrationManager {
         return $executed;
     }
 
-    public function rollback(): array {
+    public function rollback(): array
+    {
         $rolledBack = [];
         $lastBatch = $this->getLastBatchNumber();
         if ($lastBatch === 0) {
@@ -64,7 +69,8 @@ class SPPMigrationManager {
         return $rolledBack;
     }
 
-    private function getMigrationFiles(): array {
+    private function getMigrationFiles(): array
+    {
         $path = SPP_APP_DIR . '/src/' . $this->appname . '/migrations';
         if (!is_dir($path)) {
             return [];
@@ -79,42 +85,49 @@ class SPPMigrationManager {
         return $migrations;
     }
 
-    private function getRanMigrations(): array {
+    private function getRanMigrations(): array
+    {
         $res = $this->db->execute_query("SELECT migration FROM {$this->migrationsTable}");
         return array_column($res, 'migration');
     }
 
-    private function getNextBatchNumber(): int {
+    private function getNextBatchNumber(): int
+    {
         $res = $this->db->execute_query("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
-        return (int)($res[0]['max_batch'] ?? 0) + 1;
+        return (int) ($res[0]['max_batch'] ?? 0) + 1;
     }
 
-    private function getLastBatchNumber(): int {
+    private function getLastBatchNumber(): int
+    {
         $res = $this->db->execute_query("SELECT MAX(batch) as max_batch FROM {$this->migrationsTable}");
-        return (int)($res[0]['max_batch'] ?? 0);
+        return (int) ($res[0]['max_batch'] ?? 0);
     }
 
-    private function getMigrationsByBatch(int $batch): array {
+    private function getMigrationsByBatch(int $batch): array
+    {
         $res = $this->db->execute_query("SELECT migration FROM {$this->migrationsTable} WHERE batch = ?", [$batch]);
         return array_column($res, 'migration');
     }
 
-    private function logMigration(string $migration, int $batch): void {
+    private function logMigration(string $migration, int $batch): void
+    {
         $this->db->execute_query("INSERT INTO {$this->migrationsTable} (migration, batch) VALUES (?, ?)", [$migration, $batch]);
     }
 
-    private function deleteMigrationLog(string $migration): void {
+    private function deleteMigrationLog(string $migration): void
+    {
         $this->db->execute_query("DELETE FROM {$this->migrationsTable} WHERE migration = ?", [$migration]);
     }
 
-    private function runMigration(string $name, string $direction): void {
+    private function runMigration(string $name, string $direction): void
+    {
         $path = SPP_APP_DIR . '/src/' . $this->appname . '/migrations/' . $name . '.php';
         require_once $path;
 
         // Convert 2026_06_01_000000_create_users_table to CreateUsersTable
         $className = preg_replace('/^[0-9_]+_/', '', $name);
         $className = str_replace(' ', '', ucwords(str_replace('_', ' ', $className)));
-        
+
         $instance = new $className();
         $instance->$direction();
     }

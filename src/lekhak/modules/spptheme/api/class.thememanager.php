@@ -9,7 +9,8 @@ use Symfony\Component\Yaml\Yaml;
  * Handles theme discovery, region management, and layout rendering.
  * Locally contained within the application architecture.
  */
-class ThemeManager {
+class ThemeManager
+{
     private static $activeTheme = null;
     private static $regions = [];
     private static $themeData = [];
@@ -17,10 +18,11 @@ class ThemeManager {
     /**
      * Set the active theme for the current request.
      */
-    public static function setTheme($themeName) {
+    public static function setTheme($themeName)
+    {
         $app = \SPP\App::getApp();
         $baseDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 4);
-        
+
         // Resolve Theme Directory across universal context locations, including categorized subdirectories
         $baseDirs = [
             $app->getAppSrcDir() . DIRECTORY_SEPARATOR . 'resources' . DIRECTORY_SEPARATOR . 'themes',
@@ -51,7 +53,7 @@ class ThemeManager {
                 break;
             }
         }
-        
+
         if ($resolvedDir) {
             self::$activeTheme = $resolvedDir;
             $manifest = $resolvedDir . DIRECTORY_SEPARATOR . 'theme.yml';
@@ -66,21 +68,24 @@ class ThemeManager {
     /**
      * Add content to a theme region.
      */
-    public static function setRegion($region, $content) {
+    public static function setRegion($region, $content)
+    {
         self::$regions[$region] = (self::$regions[$region] ?? '') . $content;
     }
 
     /**
      * Get content of a theme region.
      */
-    public static function getRegion($region) {
+    public static function getRegion($region)
+    {
         return self::$regions[$region] ?? '';
     }
 
     /**
      * Render the page using the active theme's layout.
      */
-    public static function renderWithTheme($pageContent, $pageData = []) {
+    public static function renderWithTheme($pageContent, $pageData = [])
+    {
         if (!self::$activeTheme) {
             echo $pageContent;
             return;
@@ -495,9 +500,9 @@ HTML;
 
 
         // Check if active theme is an imported decoupled Drupal adapter
-        $isDrupalTheme = file_exists(self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . 'page.html.twig') || 
-                         file_exists(self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html.twig');
-                         
+        $isDrupalTheme = file_exists(self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . 'page.html.twig') ||
+            file_exists(self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'page.html.twig');
+
         if ($isDrupalTheme) {
             // If the view's inner body contained large hero headers, move them to the main content buffer to preserve native layout isolation
             if (!empty($drupalRegions['header']) && (str_contains($drupalRegions['header'], '<h1') || str_contains($drupalRegions['header'], 'cta-btn'))) {
@@ -620,45 +625,45 @@ DRUPAL_FOOTER;
         } elseif (isset($pageData['id'])) {
             $currentPageId = $pageData['id'];
         }
-        
+
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $blocksTable = \SPPMod\SPPDB\SPPDB::sppTable('landing_blocks');
             if ($db->tableExists($blocksTable)) {
                 $rows = $db->execute_query("SELECT * FROM {$blocksTable} WHERE page_id = 0 OR page_id = ? ORDER BY weight ASC", [$currentPageId]);
-                
+
                 foreach ($rows as $row) {
                     $region = $row['region'];
                     if (array_key_exists($region, $drupalRegions)) {
                         $blockContent = '';
                         $blockData = json_decode($row['data'] ?? '{}', true);
                         $blockTitle = $blockData['title'] ?? '';
-                        
+
                         if ($row['block_type'] === 'custom_html' || $row['block_type'] === 'text') {
                             $blockContent = $blockData['content'] ?? $blockData['text'] ?? '';
                         } elseif ($row['block_type'] === 'dynamic_list' || $row['block_type'] === 'dynamic_view') {
                             // Run entity query
                             $entityType = $blockData['entity_type'] ?? 'node';
-                            $limit = (int)($blockData['limit'] ?? 5);
+                            $limit = (int) ($blockData['limit'] ?? 5);
                             $sort = $blockData['sort'] ?? 'created DESC';
-                            
+
                             $conditions = [];
                             if (!empty($blockData['conditions'])) {
                                 $conditions = $blockData['conditions'];
                             }
-                            
+
                             $items = [];
                             if ($entityType === 'node' && class_exists('\SPPMod\Lekhak\Core\LekhakNode')) {
                                 $items = \SPPMod\Lekhak\Core\LekhakNode::find_all($conditions, $sort, $limit);
                             }
-                            
+
                             $displayStyle = $blockData['display_style'] ?? 'list';
-                            
+
                             $blockContent .= '<div class="dynamic-view-block" style="margin-bottom: 2rem;">';
                             if (!empty($blockTitle)) {
                                 $blockContent .= '<h3 class="block-title" style="font-family:\'Outfit\',sans-serif;font-weight:700;color:#f8fafc;margin-bottom:1rem;font-size:1.4rem;">' . htmlspecialchars($blockTitle) . '</h3>';
                             }
-                            
+
                             if (empty($items)) {
                                 $blockContent .= '<p style="color:#64748b;font-size:0.85rem;">No content items found.</p>';
                             } else {
@@ -704,12 +709,12 @@ DRUPAL_FOOTER;
                             $blockContent .= '<p style="color:#cbd5e1;line-height:1.6;font-size:0.95rem;">' . htmlspecialchars($blockData['text'] ?? '') . '</p>';
                             $blockContent .= '</div>';
                         }
-                        
+
                         $drupalRegions[$region] .= "\n" . $blockContent;
                     }
                 }
             }
-            
+
             // Module C & B: Fetch blocks from the new "blocks" table and apply dynamic path visibility & Views queries
             $blocksNewTable = \SPPMod\SPPDB\SPPDB::sppTable('blocks');
             if ($db->tableExists($blocksNewTable)) {
@@ -724,7 +729,8 @@ DRUPAL_FOOTER;
                             $patterns = explode("\n", str_replace("\r", "", $row['visibility_paths']));
                             foreach ($patterns as $pattern) {
                                 $pattern = trim($pattern);
-                                if (empty($pattern)) continue;
+                                if (empty($pattern))
+                                    continue;
                                 if ($pattern === '<front>' && ($currentContextPath === 'home' || $currentContextPath === 'lekhak')) {
                                     $visible = true;
                                     break;
@@ -736,7 +742,7 @@ DRUPAL_FOOTER;
                                 }
                             }
                         }
-                        
+
                         if ($visible) {
                             $blockContent = '';
                             if ($row['type'] === 'html') {
@@ -774,20 +780,20 @@ DRUPAL_FOOTER;
         }
 
         self::setRegion('content', $drupalRegions['content']);
-        
+
         // Prepare template variables
         $vars = array_merge($pageData, self::$regions, $drupalRegions);
         $vars['page'] = $drupalRegions; // Natively expose regions to {{ page.region }} calls
 
         // Diagnostics
-        @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[".date('Y-m-d H:i:s')."] REGION CONTENT LENGTH: " . strlen($drupalRegions['content'] ?? '') . "\n", FILE_APPEND);
-        @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[".date('Y-m-d H:i:s')."] VARS PAGE CONTENT LENGTH: " . strlen($vars['page']['content'] ?? '') . "\n", FILE_APPEND);
+        @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[" . date('Y-m-d H:i:s') . "] REGION CONTENT LENGTH: " . strlen($drupalRegions['content'] ?? '') . "\n", FILE_APPEND);
+        @file_put_contents(SPP_LOG_DIR . '/debug_theme.log', "[" . date('Y-m-d H:i:s') . "] VARS PAGE CONTENT LENGTH: " . strlen($vars['page']['content'] ?? '') . "\n", FILE_APPEND);
         $vars['theme_path'] = self::getThemePublicPath();
         $vars['assets_root'] = str_replace('\\', '/', dirname(self::getThemePublicPath()));
         $vars['original_head'] = $originalHead;
         $vars['logged_in'] = \SPPMod\SPPAuth\SPPAuth::authSessionExists() ?? false;
         $vars['root_path'] = \SPP\Scheduler::getContext() ?: 'home';
-        
+
         $layoutFile = self::$activeTheme . DIRECTORY_SEPARATOR . 'layout.blade.php';
         if (!file_exists($layoutFile)) {
             $layoutFile = self::$activeTheme . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR . 'layout.blade.php';
@@ -825,15 +831,16 @@ DRUPAL_FOOTER;
             }
         } elseif (file_exists($twigFile)) {
             // Native zero-dependency modular Twig Template Bridge
-            $renderTwig = function($filePath) use (&$renderTwig, &$vars) {
-                if (!file_exists($filePath)) return '';
+            $renderTwig = function ($filePath) use (&$renderTwig, &$vars) {
+                if (!file_exists($filePath))
+                    return '';
                 $content = file_get_contents($filePath);
 
                 $driver = new \SPPMod\Lekhak\Drivers\TwigShimDriver();
-                return $driver->parse($content, $vars, function($incPath, $vars) use (&$renderTwig) {
+                return $driver->parse($content, $vars, function ($incPath, $vars) use (&$renderTwig) {
                     $themeBase = self::$activeTheme;
                     $themeName = basename($themeBase);
-                    
+
                     $incPath = str_replace('\\', '/', $incPath);
                     if (str_contains($incPath, '/')) {
                         $parts = explode('/', $incPath);
@@ -847,7 +854,7 @@ DRUPAL_FOOTER;
                             $incPath = '';
                         }
                     }
-                    
+
                     $fullIncPath = $themeBase . DIRECTORY_SEPARATOR . $incPath;
                     if (!file_exists($fullIncPath)) {
                         $fullIncPath = $themeBase . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . $incPath;
@@ -860,7 +867,7 @@ DRUPAL_FOOTER;
             };
 
             $renderedPage = $renderTwig($twigFile);
-            
+
             $htmlTwigFile = self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'layout' . DIRECTORY_SEPARATOR . 'html.html.twig';
             if (!file_exists($htmlTwigFile)) {
                 $htmlTwigFile = self::$activeTheme . DIRECTORY_SEPARATOR . 'templates' . DIRECTORY_SEPARATOR . 'html.html.twig';
@@ -869,24 +876,24 @@ DRUPAL_FOOTER;
             if (file_exists($htmlTwigFile)) {
                 $vars['page'] = $renderedPage; // Pass full page buffer to html.html.twig
                 $finalHtml = $renderTwig($htmlTwigFile);
-                
+
                 $themeCss = '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/bootstrap-icons.css">' . "\n" .
-                            '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/style.css">' . "\n" .
-                            '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/responsive.css">' . "\n" .
-                            $vars['original_head'];
-                
+                    '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/style.css">' . "\n" .
+                    '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/responsive.css">' . "\n" .
+                    $vars['original_head'];
+
                 $finalHtml = preg_replace('/<css-placeholder[^>]*>/i', $themeCss, $finalHtml);
                 $finalHtml = preg_replace('/<head-placeholder[^>]*>/i', '', $finalHtml);
                 $finalHtml = preg_replace('/<js-placeholder[^>]*>/i', '', $finalHtml);
-                
+
                 $themeJs = '<script src="' . $vars['theme_path'] . '/js/tiny-slider.js"></script>' . "\n" .
-                           '<script src="' . $vars['theme_path'] . '/js/eduxpro.js"></script>' . "\n";
+                    '<script src="' . $vars['theme_path'] . '/js/eduxpro.js"></script>' . "\n";
                 $finalHtml = preg_replace('/<js-bottom-placeholder[^>]*>/i', $themeJs, $finalHtml);
                 echo $finalHtml;
             } else {
                 $themeCss = '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/bootstrap-icons.css">' . "\n" .
-                            '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/style.css">' . "\n" .
-                            '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/responsive.css">' . "\n";
+                    '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/style.css">' . "\n" .
+                    '<link rel="stylesheet" href="' . $vars['theme_path'] . '/css/responsive.css">' . "\n";
                 echo $themeCss . $renderedPage;
             }
         } else {
@@ -894,7 +901,8 @@ DRUPAL_FOOTER;
         }
     }
 
-    private static function getThemePublicPath() {
+    private static function getThemePublicPath()
+    {
         $baseUrl = defined('APP_BASE_URI') ? APP_BASE_URI : '';
         $relPath = substr(self::$activeTheme, strlen(SPP_APP_DIR));
         return rtrim($baseUrl, '/') . '/' . ltrim(str_replace('\\', '/', $relPath), '/');

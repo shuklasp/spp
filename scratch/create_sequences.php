@@ -17,7 +17,7 @@ try {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
     $db->exec($sql);
     echo "Sequences table created.\n";
-    
+
 } catch (\Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
 }

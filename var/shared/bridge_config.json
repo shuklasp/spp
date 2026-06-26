@@ -1,13 +1,13 @@
 {
-    "timestamp": 1782403284,
+    "timestamp": 1782451664,
     "spp_version": "0.7",
     "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
         "dbtype": "sqlite",
-        "dbhost": false,
-        "dbname": false,
-        "dbuser": false,
-        "dbpasswd": false
+        "dbhost": "localhost",
+        "dbname": "lekhak1",
+        "dbuser": "root",
+        "dbpasswd": "hello123"
     },
     "modules": {
         "sppdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdb",
@@ -23,7 +23,13 @@
         "sppxdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb",
         "sppdeploy": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdeploy",
         "sppsecurity": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppsecurity",
-        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter"
+        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter",
+        "lekhak": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
+        "lekhak_commerce": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
+        "lekhak_drupal_bridge": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
+        "lekhak_peeche": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
+        "sankhyaki": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
+        "sppadmin": false
     },
     "runtimes": {
         "python": {

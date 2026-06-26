@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 /**
  * Class SppDynamicFieldHandler
@@ -144,10 +144,10 @@ class SppDynamicFieldHandler
     private static function getActualValue($row)
     {
         if ($row['value_int'] !== null) {
-            return (int)$row['value_int'];
+            return (int) $row['value_int'];
         }
         if ($row['value_decimal'] !== null) {
-            return (float)$row['value_decimal'];
+            return (float) $row['value_decimal'];
         }
         if ($row['value_string'] !== null) {
             return $row['value_string'];

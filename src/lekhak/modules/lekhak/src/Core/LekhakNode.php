@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class LekhakNode
@@ -51,7 +51,7 @@ class LekhakNode extends SPPEntity
                         $diff[$attr] = ['old' => $oldNode->$attr, 'new' => $this->$attr];
                     }
                 }
-                
+
                 if (!empty($diff)) {
                     $db = new \SPPMod\SPPDB\SPPDB();
                     $table = \SPPMod\SPPDB\SPPDB::sppTable('entity_revisions');
@@ -64,7 +64,7 @@ class LekhakNode extends SPPEntity
                         $db->exec_squery(
                             "INSERT INTO %tab% (entity_type, entity_id, revision_timestamp, author_id, state_delta) VALUES (?, ?, ?, ?, ?)",
                             $table,
-                            [static::class, $this->id, date('Y-m-d H:i:s'), (int)$author, json_encode($diff)]
+                            [static::class, $this->id, date('Y-m-d H:i:s'), (int) $author, json_encode($diff)]
                         );
                     }
                 }
@@ -84,8 +84,11 @@ class LekhakNode extends SPPEntity
         $table = \SPPMod\SPPDB\SPPDB::sppTable('node_access');
         if ($db->tableExists($table)) {
             $db->exec_squery("DELETE FROM %tab% WHERE nid = ? AND gid = ? AND realm = ?", $table, [$this->id, 0, 'all']);
-            $db->exec_squery("INSERT INTO %tab% (nid, gid, realm, grant_view, grant_update, grant_delete) VALUES (?, ?, ?, ?, ?, ?)",
-                $table, [$this->id, 0, 'all', 1, 0, 0]);
+            $db->exec_squery(
+                "INSERT INTO %tab% (nid, gid, realm, grant_view, grant_update, grant_delete) VALUES (?, ?, ?, ?, ?, ?)",
+                $table,
+                [$this->id, 0, 'all', 1, 0, 0]
+            );
         }
 
         if (function_exists('lekhak_invoke_all')) {
@@ -135,11 +138,13 @@ class LekhakNode extends SPPEntity
      */
     public function getTerms(): array
     {
-        if (!$this->id) return [];
+        if (!$this->id)
+            return [];
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('node_terms');
-        if (!$db->tableExists($table)) return [];
-        
+        if (!$db->tableExists($table))
+            return [];
+
         $res = $db->exec_squery("SELECT tid FROM %tab% WHERE nid = ?", $table, [$this->id]);
         $terms = [];
         foreach ($res as $row) {
@@ -159,7 +164,7 @@ class LekhakNode extends SPPEntity
         if ($user === null && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
         }
-        
+
         // Admin user has all access
         if ($user && isset($user->roles) && in_array('administrator', $user->roles)) {
             return true;
@@ -173,25 +178,27 @@ class LekhakNode extends SPPEntity
 
         $gids = [0]; // "all" anonymous/authenticated group
         if ($user) {
-            $gids[] = (int)$user->id;
+            $gids[] = (int) $user->id;
             if (isset($user->groups) && is_array($user->groups)) {
                 foreach ($user->groups as $grp) {
-                    $gids[] = (int)$grp;
+                    $gids[] = (int) $grp;
                 }
             }
         }
 
         $opCol = 'grant_view';
-        if ($op === 'update') $opCol = 'grant_update';
-        if ($op === 'delete') $opCol = 'grant_delete';
+        if ($op === 'update')
+            $opCol = 'grant_update';
+        if ($op === 'delete')
+            $opCol = 'grant_delete';
 
         $placeholders = implode(',', array_fill(0, count($gids), '?'));
         $sql = "SELECT COUNT(*) as cnt FROM %tab% WHERE nid = ? AND {$opCol} = 1 AND gid IN ({$placeholders})";
-        
+
         $params = array_merge([$this->id], $gids);
         $res = $db->exec_squery($sql, $table, $params);
-        
-        return (int)($res[0]['cnt'] ?? 0) > 0;
+
+        return (int) ($res[0]['cnt'] ?? 0) > 0;
     }
 
     /**
@@ -251,9 +258,9 @@ class LekhakNode extends SPPEntity
             'fields_data' => 'longtext'
         ];
     }
-    
 
-    
+
+
     /**
      * Define metadata for form building and UI hints.
      */

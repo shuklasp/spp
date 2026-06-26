@@ -25,7 +25,7 @@ class ApiKeyCommand extends Command
         }
 
         $id = uniqid();
-        
+
         $db->execute_query(
             "INSERT INTO api_keys (id, name, token, status, created_at) VALUES (?, ?, ?, 1, NOW())",
             [$id, $name, $token]

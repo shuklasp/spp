@@ -49,7 +49,7 @@ class SPPAPI extends \SPP\SPPObject
             ApiDocController::render();
             exit;
         }
-        
+
         if (!$entityName) {
             SPPApiResponse::error('API parameter required.', 400);
         }
@@ -62,9 +62,9 @@ class SPPAPI extends \SPP\SPPObject
         if (method_exists($classMap, 'getMetadata')) {
             $isApiEnabled = $classMap::getMetadata('enable_api');
         } elseif ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
-            $isApiEnabled = \SPPMod\SppDb\SPPEntity::getMetadata('enable_api');
+            $isApiEnabled = \SPPMod\SPPDB\SPPEntity::getMetadata('enable_api');
         }
-        
+
         if (!$isApiEnabled) {
             SPPApiResponse::error('API access is not enabled for this entity.', 403);
         }
@@ -74,28 +74,28 @@ class SPPAPI extends \SPP\SPPObject
         try {
             $pipeline = new \SPPMod\SPPAPI\Middleware\Pipeline();
             $pipeline->send(null)
-                     ->through([
-                         \SPPMod\SPPAPI\Middleware\ApiAuthMiddleware::class
-                     ])
-                     ->then(function ($request) use ($method, $entityName, $classMap, $id) {
-                         switch ($method) {
-                             case 'GET':
-                                 Controllers\EntityGetController::handle($entityName, $classMap, $id);
-                                 break;
-                             case 'POST':
-                                 Controllers\EntityPostController::handle($entityName, $classMap);
-                                 break;
-                             case 'PUT':
-                             case 'PATCH':
-                                 Controllers\EntityPutPatchController::handle($entityName, $classMap, $id);
-                                 break;
-                             case 'DELETE':
-                                 Controllers\EntityDeleteController::handle($entityName, $classMap, $id);
-                                 break;
-                             default:
-                                 SPPApiResponse::error('Method not allowed.', 405);
-                         }
-                     });
+                ->through([
+                    \SPPMod\SPPAPI\Middleware\ApiAuthMiddleware::class
+                ])
+                ->then(function ($request) use ($method, $entityName, $classMap, $id) {
+                    switch ($method) {
+                        case 'GET':
+                            Controllers\EntityGetController::handle($entityName, $classMap, $id);
+                            break;
+                        case 'POST':
+                            Controllers\EntityPostController::handle($entityName, $classMap);
+                            break;
+                        case 'PUT':
+                        case 'PATCH':
+                            Controllers\EntityPutPatchController::handle($entityName, $classMap, $id);
+                            break;
+                        case 'DELETE':
+                            Controllers\EntityDeleteController::handle($entityName, $classMap, $id);
+                            break;
+                        default:
+                            SPPApiResponse::error('Method not allowed.', 405);
+                    }
+                });
         } catch (\SPP\Core\SPPException $e) {
             SPPApiResponse::error($e->getMessage(), $e->getCode());
         } catch (\Exception $e) {
@@ -112,7 +112,7 @@ class SPPAPI extends \SPP\SPPObject
             $fallback = "\\App\\" . ucfirst($appContext) . "\\Entities\\" . ucfirst($entityName);
             if (class_exists($fallback)) {
                 $classMap = $fallback;
-            } elseif (!\SPPMod\SppDb\SPPEntity::entityExists($entityName)) {
+            } elseif (!\SPPMod\SPPDB\SPPEntity::entityExists($entityName)) {
                 SPPApiResponse::error("Entity '{$entityName}' not found.", 404);
             } else {
                 $classMap = "\\SPPMod\\SPPEntity\\SPPEntity";
@@ -125,9 +125,9 @@ class SPPAPI extends \SPP\SPPObject
                 }
             }
         }
-        
-        if (!is_subclass_of($classMap, '\SPPMod\SppDb\SPPEntity') && $classMap !== '\SPPMod\SPPEntity\SPPEntity' && !is_subclass_of($classMap, '\SPPMod\SPPEntity\SPPEntity')) {
-            if (!class_exists($classMap) || !is_subclass_of($classMap, '\SPPMod\SppDb\SPPEntity')) {
+
+        if (!is_subclass_of($classMap, '\SPPMod\SPPDB\SPPEntity') && $classMap !== '\SPPMod\SPPEntity\SPPEntity' && !is_subclass_of($classMap, '\SPPMod\SPPEntity\SPPEntity')) {
+            if (!class_exists($classMap) || !is_subclass_of($classMap, '\SPPMod\SPPDB\SPPEntity')) {
                 if (!is_subclass_of($classMap, 'SPPDB_Entity') && $classMap !== "\\SPPMod\\SPPEntity\\SPPEntity") {
                     SPPApiResponse::error('Invalid Entity Class.', 400);
                 }

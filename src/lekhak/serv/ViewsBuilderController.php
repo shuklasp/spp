@@ -20,11 +20,11 @@ class ViewsBuilderController
         }
 
         $views = $this->loadViewsConfig();
-        
+
         $appRoot = \SPP\App::getBaseUrl('lekhak');
         $adminRoot = $appRoot . '/admin';
         $webRoot = defined('APP_BASE_URI') ? APP_BASE_URI : '';
-        
+
         $data = [
             'views' => $views,
             'title' => 'Views Builder',
@@ -39,7 +39,7 @@ class ViewsBuilderController
         if (class_exists('\SPPMod\SPPView\SPPViewForm_Element')) {
             \SPPMod\SPPView\SPPViewForm_Element::setTheme('glass_admin');
         }
-        
+
         return $this->rawAdminHtml($views);
     }
 
@@ -86,7 +86,7 @@ class ViewsBuilderController
         }
 
         $config = $views[$viewId];
-        
+
         // Find the display if requested
         $display = null;
         if (!empty($config['displays'])) {
@@ -103,15 +103,18 @@ class ViewsBuilderController
                 $display = $config['displays'][0];
             }
         }
-        
+
         $limit = $config['limit'] ?? 10;
         $paginationType = 'none';
-        
+
         // Merge display overrides into main config
         if ($display) {
-            if (isset($display['limit'])) $limit = $display['limit'];
-            if (!empty($display['template'])) $config['template'] = $display['template'];
-            if (!empty($display['pagination'])) $paginationType = $display['pagination'];
+            if (isset($display['limit']))
+                $limit = $display['limit'];
+            if (!empty($display['template']))
+                $config['template'] = $display['template'];
+            if (!empty($display['pagination']))
+                $paginationType = $display['pagination'];
         }
 
         $entityClass = $config['entity_class'] ?? '\\SPPMod\\Lekhak\\Core\\LekhakNode';
@@ -121,14 +124,15 @@ class ViewsBuilderController
         }
 
         try {
-            $query = new \SPPMod\SppDb\SppEntityQuery($entityClass);
+            $query = new \SPPMod\SPPDB\SppEntityQuery($entityClass);
 
             if (!empty($config['conditions'])) {
                 foreach ($config['conditions'] as $cond) {
-                    if (empty($cond['field'])) continue;
+                    if (empty($cond['field']))
+                        continue;
                     $val = $cond['value'] ?? '';
                     $op = $cond['operator'] ?? '=';
-                    
+
                     if (!empty($cond['dynamic'])) {
                         $query->dynamicCondition($cond['field'], $val, $op);
                     } else {
@@ -140,34 +144,34 @@ class ViewsBuilderController
             if (!empty($config['sort'])) {
                 $query->sort($config['sort']['field'], $config['sort']['direction'] ?? 'ASC');
             }
-            
+
             // Handle Pagination Limits and Offsets
-            $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
+            $page = isset($_GET['page']) ? max(1, (int) $_GET['page']) : 1;
             $offset = null;
             if ($paginationType !== 'none') {
                 $offset = ($page - 1) * $limit;
-                
+
                 // For Infinite Scroll API mode
                 if (isset($_GET['infinite_api']) && $_GET['infinite_api'] === '1') {
                     // Send pure data or bare HTML back for AJAX
                 }
             }
-            
-            $query->limit((int)$limit, $offset);
+
+            $query->limit((int) $limit, $offset);
             $results = $query->execute();
-            
+
             $html = '';
             $template = $config['template'] ?? null;
             $html = $this->renderGenericTable($results, $config);
-            
+
             // For AJAX infinite requests, return just the rows/items
             if ($paginationType === 'infinite' && isset($_GET['infinite_api'])) {
                 echo $html;
                 exit;
             }
-            
+
             // Append Pagination Controls
-            $hasMore = count($results) === (int)$limit; // Basic guess without a count query
+            $hasMore = count($results) === (int) $limit; // Basic guess without a count query
             if ($paginationType === 'traditional') {
                 $html .= "<div class='spp-pagination' style='margin-top: 20px; display: flex; justify-content: space-between;'>";
                 if ($page > 1) {
@@ -266,7 +270,7 @@ class ViewsBuilderController
             foreach ($fields as $field) {
                 // Determine if it's a dynamic field or base field by using generic accessor
                 $value = method_exists($entity, 'get') ? $entity->get($field) : ($entity->{$field} ?? '');
-                $html .= "<td style='padding: 8px; border-bottom: 1px solid #ddd;'>" . htmlspecialchars((string)$value) . "</td>";
+                $html .= "<td style='padding: 8px; border-bottom: 1px solid #ddd;'>" . htmlspecialchars((string) $value) . "</td>";
             }
             $html .= "</tr>";
         }
@@ -278,7 +282,7 @@ class ViewsBuilderController
     protected function rawAdminHtml($views)
     {
         $viewsJson = htmlspecialchars(json_encode(array_values($views)), ENT_QUOTES, 'UTF-8');
-        
+
         return <<<HTML
 <!DOCTYPE html>
 <html lang="en">

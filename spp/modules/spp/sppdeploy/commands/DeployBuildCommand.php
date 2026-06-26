@@ -17,7 +17,7 @@ class DeployBuildCommand extends Command
         $apiKey = 'default_cli_key';
         $noDb = false;
         $noFiles = false;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -29,14 +29,14 @@ class DeployBuildCommand extends Command
                 $noFiles = true;
             }
         }
-        
+
         $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
         $localHashes = [];
         if (!$noFiles) {
             $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
             $localHashes = $scanner->scan(SPP_BASE_DIR);
         }
-        
+
         $localDbHashes = [];
         if (!$noDb) {
             $dbScanner = new \SPPMod\SPPDeploy\Scanner\DbScanner();
@@ -46,31 +46,32 @@ class DeployBuildCommand extends Command
         try {
             echo "📡 Fetching remote diff from {$target}...\n";
             $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
-            
+
             if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
                 echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
                 return;
             }
 
             $diff = $diffResp['diff'];
-            
+
             $fileCount = count($diff['files']['create']) + count($diff['files']['update']) + count($diff['files']['delete']);
             $dbCount = count($diff['db']['create']) + count($diff['db']['update']) + count($diff['db']['delete']);
-            
+
             if ($fileCount === 0 && $dbCount === 0) {
                 echo "✅ Everything is up to date. Nothing to build.\n";
                 return;
             }
 
             echo "\n📦 Preparing deployment artifact...\n";
-            
+
             $buildId = 'build_' . date('Ymd_His');
             $buildDir = SPP_BASE_DIR . '/var/builds';
-            if (!is_dir($buildDir)) mkdir($buildDir, 0777, true);
-            
+            if (!is_dir($buildDir))
+                mkdir($buildDir, 0777, true);
+
             $tempZip = $buildDir . '/' . $buildId . '.zip';
             $manifestPath = $buildDir . '/' . $buildId . '.json';
-            
+
             $zip = new \ZipArchive();
             if ($zip->open($tempZip, \ZipArchive::CREATE) !== true) {
                 throw new \Exception("Cannot create temporary zip archive.");
@@ -81,7 +82,7 @@ class DeployBuildCommand extends Command
                     $zip->addFile(SPP_BASE_DIR . '/' . $file, $file);
                 }
             }
-            
+
             $sqlBuffer = "";
             if ($dbCount > 0) {
                 if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
@@ -109,13 +110,13 @@ class DeployBuildCommand extends Command
                     }
                 }
             }
-            
+
             if ($sqlBuffer !== "") {
                 $zip->addFromString('db_snapshot.sql', $sqlBuffer);
             }
-            
+
             $zip->close();
-            
+
             $payloadMeta = [
                 'filesCount' => $fileCount,
                 'dbCount' => $dbCount,

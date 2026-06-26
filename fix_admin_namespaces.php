@@ -7,7 +7,7 @@ foreach ($iterator as $file) {
     if ($file->isFile() && in_array($file->getExtension(), ['php', 'js'])) {
         $path = $file->getPathname();
         $content = file_get_contents($path);
-        
+
         $newContent = str_replace(
             [
                 'SPPMod\\\\SPPEntity\\\\SPPEntity',
@@ -19,7 +19,7 @@ foreach ($iterator as $file) {
             ],
             [
                 'SPPMod\\\\SppDb\\\\SPPEntity',
-                'SPPMod\SppDb\SPPEntity',
+                'SPPMod\SPPDB\SPPEntity',
                 'SPPMod\\\\SPPAuth\\\\SPPGroup',
                 'SPPMod\SPPAuth\SPPGroup',
                 'SPPMod\\\\SPPAuth',
@@ -27,7 +27,7 @@ foreach ($iterator as $file) {
             ],
             $content
         );
-        
+
         if ($content !== $newContent) {
             file_put_contents($path, $newContent);
             echo "Updated: $path\n";

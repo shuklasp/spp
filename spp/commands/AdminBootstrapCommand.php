@@ -18,10 +18,10 @@ class AdminBootstrapCommand extends Command
     {
         try {
             echo "--- SPP Admin Bootstrap (XDB Mode) ---\n";
-            
+
             // Force XDB for administrative identity
             $db = new SPPDB("xdb:dbname=default");
-            
+
             // Ensure tables exist in XDB
             if (!$db->tableExists('users')) {
                 echo "Step: Provisioning 'users' table in XDB...\n";
@@ -42,7 +42,7 @@ class AdminBootstrapCommand extends Command
                 echo "Check: Administrator 'admin' already exists in XDB.\n";
             } else {
                 echo "Step: Creating default administrator 'admin' in XDB...\n";
-                
+
                 // Ensure standard 'Admin' role exists
                 $roleCheck = $db->execute_query("SELECT id FROM roles WHERE role_name='Admin'");
                 if (empty($roleCheck)) {
@@ -52,7 +52,7 @@ class AdminBootstrapCommand extends Command
                 } else {
                     $roleId = $roleCheck[0]['id'];
                 }
-                
+
                 // Create user (plaintext for now, will be hashed if SPPUser::save is used, 
                 // but here we do raw insert for simplicity in bootstrap)
                 $hashed = password_hash('admin123', PASSWORD_DEFAULT);
@@ -61,11 +61,11 @@ class AdminBootstrapCommand extends Command
 
                 // Assign role
                 $db->execute_query("INSERT INTO userroles (userid, roleid) VALUES ({$adminId}, {$roleId})");
-                
+
                 echo "Success: Created 'admin' with password 'admin123' and assigned 'Admin' role in XDB.\n";
                 echo "IMPORTANT: Please change this password immediately after login.\n";
             }
-            
+
             echo "--- Bootstrap Complete ---\n";
         } catch (\Exception $e) {
             echo "Fatal Error during bootstrap: " . $e->getMessage() . "\n";

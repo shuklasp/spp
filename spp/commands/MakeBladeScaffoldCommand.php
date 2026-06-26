@@ -21,7 +21,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
             echo "Entity Name (e.g. Student): ";
             $entityName = trim(fgets(STDIN));
         }
-        if (!$entityName) return;
+        if (!$entityName)
+            return;
 
         $appName = \SPP\Scheduler::getContext() ?: 'default';
         if ($appName === 'default') {
@@ -32,7 +33,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
         $tableName = strtolower($entityName) . "s";
         echo "Table Name [{$tableName}]: ";
         $tableNameInput = trim(fgets(STDIN));
-        if ($tableNameInput) $tableName = $tableNameInput;
+        if ($tableNameInput)
+            $tableName = $tableNameInput;
 
         // 1. Define Entity
         echo "Defining Entity {$entityName}... ";
@@ -45,14 +47,15 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
                 'description' => 'text'
             ]
         ];
-        \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appName, $config);
+        \SPPMod\SPPDB\SPPEntity::saveEntityDefinition($entityName, $appName, $config);
         echo "DONE\n";
 
         // 2. Create YAML Form
         echo "Creating YAML Form... ";
         $formPath = SPP_APP_DIR . "/etc/apps/{$appName}/forms/" . strtolower($entityName) . ".yml";
         $formDir = dirname($formPath);
-        if (!is_dir($formDir)) mkdir($formDir, 0777, true);
+        if (!is_dir($formDir))
+            mkdir($formDir, 0777, true);
 
         $formYaml = [
             'form' => [
@@ -79,7 +82,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
         // 3. Create Blade Views
         echo "Creating Blade Views... ";
         $viewsDir = SPP_APP_DIR . "/resources/{$appName}/views/" . strtolower($entityName);
-        if (!is_dir($viewsDir)) mkdir($viewsDir, 0777, true);
+        if (!is_dir($viewsDir))
+            mkdir($viewsDir, 0777, true);
 
         // List View
         $listView = "
@@ -139,7 +143,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
 
         // 4. Create Layout
         $layoutDir = SPP_APP_DIR . "/resources/{$appName}/views/layouts";
-        if (!is_dir($layoutDir)) mkdir($layoutDir, 0777, true);
+        if (!is_dir($layoutDir))
+            mkdir($layoutDir, 0777, true);
         $layout = "
 <!DOCTYPE html>
 <html>

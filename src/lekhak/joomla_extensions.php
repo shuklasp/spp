@@ -4,8 +4,10 @@
 $base_dir = __DIR__ . '/modules';
 
 // Helper to append code before the closing `}` of the class
-function append_to_class($file, $code) {
-    if (!file_exists($file)) return false;
+function append_to_class($file, $code)
+{
+    if (!file_exists($file))
+        return false;
     $content = file_get_contents($file);
     // Find the last closing brace (assuming it closes the class)
     $pos = strrpos($content, '}');
@@ -18,10 +20,12 @@ function append_to_class($file, $code) {
 }
 
 // Helper to create a new module
-function create_module($name, $class, $code) {
+function create_module($name, $class, $code)
+{
     global $base_dir;
     $dir = $base_dir . '/' . $name;
-    if (!is_dir($dir)) mkdir($dir, 0777, true);
+    if (!is_dir($dir))
+        mkdir($dir, 0777, true);
     $content = "<?php\nnamespace Lekhak\\Modules\\$class;\n\nclass Module {\n    public static function init() {\n        \\Lekhak\\ModuleRegistry::register('$name', '\\Lekhak\\Modules\\$class\\Module');\n    }\n$code\n}\n";
     file_put_contents($dir . '/module.php', $content);
 }

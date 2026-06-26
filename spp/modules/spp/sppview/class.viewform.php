@@ -31,7 +31,7 @@ class ViewForm extends ViewTag
     {
         parent::__construct('form', $ename);
         $this->isemptyflag = false;
-        $this->attrlist = ['action','accept','accept-charset','enctype','method','name','target', 'data-onsuccess', 'data-onerror', 'data-onbeforesubmit'];
+        $this->attrlist = ['action', 'accept', 'accept-charset', 'enctype', 'method', 'name', 'target', 'data-onsuccess', 'data-onerror', 'data-onbeforesubmit'];
         $this->eventattrlist[] = 'onsubmit';
         $this->eventattrlist[] = 'onreset';
 
@@ -42,13 +42,13 @@ class ViewForm extends ViewTag
         }
 
         $this->attributes['name'] = $ename;
-        $this->attributes['id'] = $id ?? 'spp_'.$ename;
+        $this->attributes['id'] = $id ?? 'spp_' . $ename;
 
         $method = strtolower($method);
         if (in_array($method, ['post', 'get', 'put', 'delete'])) {
             $this->attributes['method'] = $method;
         } else {
-            throw new \SPP\SPPException('Invalid method '.$method.' declared for form '.$this->getAttribute('name'));
+            throw new \SPP\SPPException('Invalid method ' . $method . ' declared for form ' . $this->getAttribute('name'));
         }
         $this->globalset = [];
 
@@ -94,7 +94,7 @@ class ViewForm extends ViewTag
     {
         foreach ($this->validators as $val) {
             $valRes = $val->validateAll();
-            $isValid = is_object($valRes) && method_exists($valRes, 'isValid') ? $valRes->isValid() : (bool)$valRes;
+            $isValid = is_object($valRes) && method_exists($valRes, 'isValid') ? $valRes->isValid() : (bool) $valRes;
             if (self::$valstatus === true) {
                 self::$valstatus = $isValid;
             }
@@ -126,7 +126,7 @@ class ViewForm extends ViewTag
     public function isValid(): bool
     {
         $this->doValidation();
-        return (bool)self::$valstatus;
+        return (bool) self::$valstatus;
     }
 
     public function save(): bool
@@ -187,7 +187,7 @@ class ViewForm extends ViewTag
         echo '<input type="hidden" name="_csrf_token" value="' . $token . '" />';
 
         // The hidden field is only for legacy multi-form-per-page detection in processForms()
-        echo '<input type="hidden" name="__spp_form" id="__spp_form_' . $this->getAttribute('id') . '" value="'.$this->getAttribute('name').'" />';
+        echo '<input type="hidden" name="__spp_form" id="__spp_form_' . $this->getAttribute('id') . '" value="' . $this->getAttribute('name') . '" />';
     }
 
     public function endForm()
@@ -251,7 +251,7 @@ class ViewForm extends ViewTag
         if (array_key_exists($gvar, $this->globalset)) {
             return $this->globalset[$gvar];
         } else {
-            throw new VarNotFoundException('Variable '.$gvar.' not found in form '.$this->getAttribute('name'));
+            throw new VarNotFoundException('Variable ' . $gvar . ' not found in form ' . $this->getAttribute('name'));
         }
     }
 
@@ -276,7 +276,7 @@ class ViewForm extends ViewTag
             case 'validators':
                 return $this->validators;
             default:
-                throw new UnknownPropertyException('Unknown property '.$propname.' in form');
+                throw new UnknownPropertyException('Unknown property ' . $propname . ' in form');
         }
     }
 
@@ -298,7 +298,7 @@ class ViewForm extends ViewTag
             case 'onsubmit':
                 return $this->attributes[$propname] = $propval;
             default:
-                throw new UnknownPropertyException('Unknown property '.$propname.' in form');
+                throw new UnknownPropertyException('Unknown property ' . $propname . ' in form');
         }
     }
 
@@ -343,7 +343,7 @@ class ViewForm extends ViewTag
     /**
      * Binds an entity to the form by setting values of its elements.
      */
-    public function bind(\SPPMod\SppDb\SPPEntity $entity)
+    public function bind(\SPPMod\SPPDB\SPPEntity $entity)
     {
         foreach ($this->elements as $id => $elem) {
             $name = $elem->getAttribute('name') ?: $id;

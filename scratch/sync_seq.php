@@ -9,7 +9,7 @@ try {
     // Get max ID from lek_nodes
     $res = $db->query('SELECT MAX(id) as maxid FROM lek_nodes');
     $row = $res->fetch();
-    $maxId = (int)($row['maxid'] ?? 0);
+    $maxId = (int) ($row['maxid'] ?? 0);
     echo "Max ID in lek_nodes: $maxId\n";
 
     $seqName = 'lekhaknode_seq';
@@ -24,7 +24,7 @@ try {
         echo "Inserting sequence $seqName with $nextVal...\n";
         $db->exec("INSERT INTO sequences (seqname, initval, seqval, incval, lastaccess) VALUES ('$seqName', 1, $nextVal, 1, " . time() . ")");
     }
-    
+
     echo "Sequence synchronized successfully.\n";
 
 } catch (\Exception $e) {

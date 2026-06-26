@@ -120,7 +120,7 @@ class SPPViewForm_Option extends SPPViewForm_Element
         parent::__construct($ename);
         $this->isemptyflag = false;
         $this->tagname = 'option';
-        $this->attrlist = ['disabled','label','selected','value'];
+        $this->attrlist = ['disabled', 'label', 'selected', 'value'];
         $this->opttext = $disptext;
         $this->setMatterText($disptext);
         $this->setAttribute('value', $optvalue);
@@ -146,7 +146,7 @@ class SPPViewForm_Select extends SPPViewForm_Element
         parent::__construct($ename);
         $this->isemptyflag = false;
         $this->tagname = 'select';
-        $this->attrlist = ['disabled','multiple','name','size'];
+        $this->attrlist = ['disabled', 'multiple', 'name', 'size'];
         $this->addOption('Select', '', true);
     }
 
@@ -208,7 +208,7 @@ class SPPViewForm_Select extends SPPViewForm_Element
                     $htm .= '</optgroup>';
                 }
                 if ($opt[1] != '') {
-                    $htm .= '<optgroup label="'.$opt[1].'">';
+                    $htm .= '<optgroup label="' . $opt[1] . '">';
                 }
             }
             $prevoptgroup = $opt[1];

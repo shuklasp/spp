@@ -22,30 +22,32 @@ class ViewRenderer
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('view_definitions');
 
-        if (!$db->tableExists($table)) return "View definitions table missing.";
+        if (!$db->tableExists($table))
+            return "View definitions table missing.";
 
         $rows = $db->execute_query("SELECT * FROM {$table} WHERE name = ?", [$viewName]);
-        if (empty($rows)) return "View '{$viewName}' not found.";
+        if (empty($rows))
+            return "View '{$viewName}' not found.";
 
         $view = $rows[0];
         $baseTable = $view['base_table'];
         $fields = json_decode($view['fields'], true) ?? ['*'];
         $filters = json_decode($view['filters'], true) ?? [];
         $sorts = json_decode($view['sorts'], true) ?? [];
-        $limit = (int)$view['pagination'];
+        $limit = (int) $view['pagination'];
         $format = $view['display_format'] ?? 'list';
 
         // Very basic SQL builder
         $select = implode(', ', array_map(fn($f) => "`{$f}`", $fields));
         $sql = "SELECT {$select} FROM " . \SPPMod\SPPDB\SPPDB::sppTable($baseTable);
-        
+
         $where = [];
         $params = [];
         foreach ($filters as $filter) {
             $col = $filter['field'];
             $op = $filter['op'] ?? '=';
             $val = $filter['value'] ?? null;
-            
+
             // Exposed filter override
             if (!empty($filter['exposed']) && isset($runtimeParams[$col])) {
                 $val = $runtimeParams[$col];
@@ -53,7 +55,8 @@ class ViewRenderer
 
             if ($val !== null && $val !== '') {
                 $where[] = "`{$col}` {$op} ?";
-                if ($op === 'LIKE') $val = "%{$val}%";
+                if ($op === 'LIKE')
+                    $val = "%{$val}%";
                 $params[] = $val;
             }
         }
@@ -71,7 +74,7 @@ class ViewRenderer
         }
 
         if ($limit > 0) {
-            $page = max(1, (int)($runtimeParams['page'] ?? 1));
+            $page = max(1, (int) ($runtimeParams['page'] ?? 1));
             $offset = ($page - 1) * $limit;
             $sql .= " LIMIT {$limit} OFFSET {$offset}";
         }
@@ -86,7 +89,8 @@ class ViewRenderer
 
     private static function formatResults(array $results, string $format): string
     {
-        if (empty($results)) return "<div class='spp-view-empty'>No results found.</div>";
+        if (empty($results))
+            return "<div class='spp-view-empty'>No results found.</div>";
 
         $html = "<div class='spp-view spp-view-{$format}'>";
 
@@ -99,7 +103,7 @@ class ViewRenderer
             foreach ($results as $row) {
                 $html .= "<tr>";
                 foreach ($row as $val) {
-                    $html .= "<td>" . htmlspecialchars((string)$val) . "</td>";
+                    $html .= "<td>" . htmlspecialchars((string) $val) . "</td>";
                 }
                 $html .= "</tr>";
             }
@@ -110,7 +114,7 @@ class ViewRenderer
             foreach ($results as $row) {
                 $html .= "<li>";
                 foreach ($row as $col => $val) {
-                    $html .= "<div class='view-field-{$col}'><strong>{$col}:</strong> " . htmlspecialchars((string)$val) . "</div>";
+                    $html .= "<div class='view-field-{$col}'><strong>{$col}:</strong> " . htmlspecialchars((string) $val) . "</div>";
                 }
                 $html .= "</li>";
             }

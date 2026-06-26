@@ -1,17 +1,20 @@
 <?php
 namespace SPPMod\SPPLang;
 
-class SqlTranslationRepository implements TranslationRepositoryInterface {
+class SqlTranslationRepository implements TranslationRepositoryInterface
+{
     private ?\SPPMod\SPPDB\SPPDB $dbInstance = null;
 
-    private function getDB(): \SPPMod\SPPDB\SPPDB {
+    private function getDB(): \SPPMod\SPPDB\SPPDB
+    {
         if ($this->dbInstance === null) {
             $this->dbInstance = new \SPPMod\SPPDB\SPPDB();
         }
         return $this->dbInstance;
     }
 
-    public function ensureSchema(): void {
+    public function ensureSchema(): void
+    {
         $db = $this->getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
         if (!$db->tableExists($table)) {
@@ -31,7 +34,8 @@ class SqlTranslationRepository implements TranslationRepositoryInterface {
         }
     }
 
-    public function save(string $key, string $locale, string $translation, string $status = 'active'): void {
+    public function save(string $key, string $locale, string $translation, string $status = 'active'): void
+    {
         $this->ensureSchema();
         $db = $this->getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
@@ -52,7 +56,8 @@ class SqlTranslationRepository implements TranslationRepositoryInterface {
         }
     }
 
-    public function getMany(array $filters = []): array {
+    public function getMany(array $filters = []): array
+    {
         $this->ensureSchema();
         $db = $this->getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
@@ -84,14 +89,15 @@ class SqlTranslationRepository implements TranslationRepositoryInterface {
         return $db->exec_squery($sql, $table, $values);
     }
 
-    public function getOne(string $key, string $locale = 'en'): string {
+    public function getOne(string $key, string $locale = 'en'): string
+    {
         $this->ensureSchema();
         $db = $this->getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
 
         $res = $db->exec_squery("SELECT translation FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
         if (!empty($res)) {
-            return (string)$res[0]['translation'];
+            return (string) $res[0]['translation'];
         }
 
         // Fallback to key itself if not found

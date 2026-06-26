@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 use SPPMod\SPPXDB\SPP_XDB;
 
@@ -35,7 +35,7 @@ class XDBAdapter implements DBAdapter
         $cols = implode(', ', array_keys($data));
         $placeholders = implode(', ', array_fill(0, count($data), '?'));
         $sql = "INSERT INTO {$table} ({$cols}) VALUES ({$placeholders})";
-        return (bool)$this->xdb->querySQL($sql, array_values($data));
+        return (bool) $this->xdb->querySQL($sql, array_values($data));
     }
 
     public function update(string $table, array $data, string $where, array $params = []): bool
@@ -46,13 +46,13 @@ class XDBAdapter implements DBAdapter
         }
         $setStr = implode(', ', $set);
         $sql = "UPDATE {$table} SET {$setStr} WHERE {$where}";
-        return (bool)$this->xdb->querySQL($sql, array_merge(array_values($data), $params));
+        return (bool) $this->xdb->querySQL($sql, array_merge(array_values($data), $params));
     }
 
     public function delete(string $table, string $where, array $params = []): bool
     {
         $sql = "DELETE FROM {$table} WHERE {$where}";
-        return (bool)$this->xdb->querySQL($sql, $params);
+        return (bool) $this->xdb->querySQL($sql, $params);
     }
 
     public function tableExists(string $table): bool
@@ -84,7 +84,7 @@ class XDBAdapter implements DBAdapter
 
     public function getLastInsertId(): ?string
     {
-        return (string)$this->xdb->getLastInsertId();
+        return (string) $this->xdb->getLastInsertId();
     }
     public function beginTransaction(): bool
     {

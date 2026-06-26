@@ -7,7 +7,7 @@ try {
     try {
         \SPP\Scheduler::getProcObj($appname);
     } catch (\Exception $e) {
-        new \SPP\App($appname, false, 1); 
+        new \SPP\App($appname, false, 1);
     }
     \SPP\Scheduler::setContext($appname);
 } catch (\Exception $e) {

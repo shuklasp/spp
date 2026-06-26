@@ -23,7 +23,7 @@ class WebGuard implements GuardInterface
         if (!$user || $user instanceof AnonymousUser) {
             return false;
         }
-        
+
         if (\SPP\SPPSession::sessionVarExists($this->mfaSessionKey)) {
             $mfaTime = \SPP\SPPSession::sessionVarExists('__sppauth_2fa_time__') ? \SPP\SPPSession::getSessionVar('__sppauth_2fa_time__') : 0;
             if (time() - $mfaTime > 300) { // 5 minutes timeout
@@ -37,7 +37,7 @@ class WebGuard implements GuardInterface
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
         $currentFingerprint = hash('sha256', $ip . $ua);
         $sessionFingerprint = \SPP\SPPSession::sessionVarExists('__sppauth_fingerprint__') ? \SPP\SPPSession::getSessionVar('__sppauth_fingerprint__') : null;
-        
+
         if ($sessionFingerprint !== $currentFingerprint) {
             $this->logout();
             return false;
@@ -46,20 +46,20 @@ class WebGuard implements GuardInterface
         // 2. Session Revocation Check (Device Management)
         $sessid = session_id();
         if ($sessid) {
-            $lastHeartbeat = \SPP\SPPSession::sessionVarExists('__sppauth_last_heartbeat__') 
+            $lastHeartbeat = \SPP\SPPSession::sessionVarExists('__sppauth_last_heartbeat__')
                 ? \SPP\SPPSession::getSessionVar('__sppauth_last_heartbeat__') : 0;
-            
+
             // Only query the database every 60 seconds to avoid Ping of Death
             if (time() - $lastHeartbeat >= 60) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $result = $db->execute_query('SELECT 1 FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
-                
+
                 if (empty($result)) {
                     // Session was revoked from the database
                     $this->logout();
                     return false;
                 }
-                
+
                 \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
                 // Update lastaccess for accurate active devices dashboard
                 $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=? WHERE sessid=?', [date('Y-m-d H:i:s'), $sessid]);
@@ -78,13 +78,13 @@ class WebGuard implements GuardInterface
             $sessionCacheKey = '__sppauth_perms_' . ($this->id() ?? 'anon') . '__';
             $db = new \SPPMod\SPPDB\SPPDB();
             $cacheValid = false;
-            
+
             if (\SPP\SPPSession::sessionVarExists($sessionCacheKey)) {
                 $cacheData = \SPP\SPPSession::getSessionVar($sessionCacheKey);
                 if (isset($cacheData['perms']) && isset($cacheData['time'])) {
                     if ($this->id() && $this->id() !== 'anon') {
                         try {
-                            $res = $db->execute_query("SELECT rights_updated_at FROM ".\SPPMod\SPPDB\SPPDB::sppTable('users')." WHERE id=?", [$this->id()]);
+                            $res = $db->execute_query("SELECT rights_updated_at FROM " . \SPPMod\SPPDB\SPPDB::sppTable('users') . " WHERE id=?", [$this->id()]);
                             if (!empty($res) && $res[0]['rights_updated_at']) {
                                 $updatedAt = strtotime($res[0]['rights_updated_at']);
                                 if ($cacheData['time'] >= $updatedAt) {
@@ -116,7 +116,7 @@ class WebGuard implements GuardInterface
         }
 
         $hasPerm = in_array($permission, $this->permissionCache) || in_array('*', $this->permissionCache);
-        
+
         // ABAC Policy evaluation
         if ($hasPerm && $context !== null) {
             require_once SPP_MODULES_DIR . '/spp/sppauth/class.policyregistry.php';
@@ -169,7 +169,7 @@ class WebGuard implements GuardInterface
         // 4. Get direct permissions from Registry (Override)
         $registryRights = \SPP\Registry::get("user=>{$user->id}=>rights");
         if ($registryRights) {
-            $this->permissionCache = array_merge($this->permissionCache, (array)$registryRights);
+            $this->permissionCache = array_merge($this->permissionCache, (array) $registryRights);
         }
 
         // 5. Get permissions from assigned Groups (Polymorphic RBAC)
@@ -222,14 +222,14 @@ class WebGuard implements GuardInterface
             // Attempt Remember Me Auto-Login
             $token = $_COOKIE['spp_remember_me'];
             $tokenHash = hash('sha256', $token);
-            
+
             try {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $result = $db->execute_query(
                     'SELECT user_id FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens') . ' WHERE token_hash = ? AND expires_at > ?',
                     [$tokenHash, date('Y-m-d H:i:s')]
                 );
-                
+
                 if (!empty($result)) {
                     $userId = $result[0]['user_id'];
                     $user = new SPPUser($userId);
@@ -258,7 +258,7 @@ class WebGuard implements GuardInterface
     public function login($user, bool $remember = false)
     {
         $id = is_object($user) ? $user->id : $user;
-        
+
         if (!defined('SPP_NO_SESSION_REGENERATE')) {
             //try {
             //    @session_regenerate_id(true);
@@ -266,7 +266,7 @@ class WebGuard implements GuardInterface
             //    // Ignore session destruction errors
             //}
         }
-        
+
         \SPP\SPPSession::setSessionVar($this->sessionKey, $id);
         $this->user = is_object($user) ? $user : null;
 
@@ -276,8 +276,9 @@ class WebGuard implements GuardInterface
             if ($this->user instanceof SPPUser) {
                 $mfaEnabled = $this->user->get('two_factor_enabled') ?: false;
             }
-        } catch (\Exception $e) { }
-        
+        } catch (\Exception $e) {
+        }
+
         if ($mfaEnabled) {
             \SPP\SPPSession::setSessionVar($this->mfaSessionKey, true);
             \SPP\SPPSession::setSessionVar('__sppauth_2fa_time__', time());
@@ -296,7 +297,7 @@ class WebGuard implements GuardInterface
             $table = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
             $res = $db->execute_query("SELECT count(*) as cnt FROM $table WHERE sessid = ?", [$sessid]);
             $now = date('Y-m-d H:i:s');
-            if (!empty($res) && (int)$res[0]['cnt'] > 0) {
+            if (!empty($res) && (int) $res[0]['cnt'] > 0) {
                 $db->execute_query("UPDATE $table SET lastaccess = ? WHERE sessid = ?", [$now, $sessid]);
             } else {
                 $db->execute_query("INSERT INTO $table (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, ?, ?, ?)", [$sessid, $id, $now, $ip, $now]);
@@ -308,11 +309,11 @@ class WebGuard implements GuardInterface
             $token = bin2hex(random_bytes(32));
             $tokenHash = hash('sha256', $token);
             $expiresAt = time() + (30 * 24 * 60 * 60); // 30 days
-            
+
             $db = new \SPPMod\SPPDB\SPPDB();
-            $sql = 'INSERT INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens') . 
-                   ' (user_id, token_hash, expires_at) VALUES (?, ?, FROM_UNIXTIME(?))';
-            
+            $sql = 'INSERT INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens') .
+                ' (user_id, token_hash, expires_at) VALUES (?, ?, FROM_UNIXTIME(?))';
+
             try {
                 $db->execute_query($sql, [$id, $tokenHash, $expiresAt]);
                 setcookie('spp_remember_me', $token, [
@@ -378,10 +379,10 @@ class WebGuard implements GuardInterface
         if (!$currentUser) {
             throw new \Exception("Must be logged in to impersonate.");
         }
-        
+
         \SPP\SPPSession::setSessionVar($this->impersonateSessionKey, $currentUser);
         \SPP\SPPSession::setSessionVar($this->sessionKey, $userId);
-        $this->user = null; 
+        $this->user = null;
         AuditLogger::log('impersonate_start', $currentUser, $userId, "IP: " . ($_SERVER['REMOTE_ADDR'] ?? ''));
     }
 

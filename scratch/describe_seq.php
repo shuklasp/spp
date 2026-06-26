@@ -5,6 +5,6 @@ new \SPP\App('lekhak', false, 1);
 \SPP\Scheduler::setContext('lekhak');
 $db = new \SPPMod\SPPDB\SPPDB();
 $res = $db->query('DESCRIBE sequences');
-while($row = $res->fetch()) {
+while ($row = $res->fetch()) {
     print_r($row);
 }

@@ -26,36 +26,51 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
     \SPPMod\Drishyam\SPPUX::boot();
 }
 ?>
-<div style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
-    <div style="background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
+<div
+    style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem; font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;">
+    <div
+        style="background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
 
-        <span style="display:inline-block; background:#e0e7ff; color:#4f46e5; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-bottom:1rem; letter-spacing:0.05em;">COMPREHENSIVE DEVELOPER GUIDE</span>
+        <span
+            style="display:inline-block; background:#e0e7ff; color:#4f46e5; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-bottom:1rem; letter-spacing:0.05em;">COMPREHENSIVE
+            DEVELOPER GUIDE</span>
         <h1 style="margin: 0 0 0.5rem; font-size: 2rem; color: #1e293b;">SPP Framework — Complete Guide</h1>
-        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 2.5rem;">Application: <code style="background:#f1f5f9;padding:2px 8px;border-radius:6px;">Samvaad</code> &mdash; Everything a complete novice needs to build any workflow</p>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 2.5rem;">Application: <code
+                style="background:#f1f5f9;padding:2px 8px;border-radius:6px;">Samvaad</code> &mdash; Everything a
+            complete novice needs to build any workflow</p>
 
         <!-- ================================================================ -->
         <!-- SECTION 1: What is SPP? -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">1. What is SPP?</h2>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">1. What
+            is SPP?</h2>
         <p style="color:#475569; line-height:1.8;">
-            <b>SPP (Scalable PHP Platform)</b> is a full-stack PHP framework designed for building everything from simple websites to enterprise applications.
-            It provides routing, templating (Blade), reactive components (SPP-UX), database ORM, authentication, testing, i18n, and much more &mdash; all in one cohesive package.
+            <b>SPP (Scalable PHP Platform)</b> is a full-stack PHP framework designed for building everything from
+            simple websites to enterprise applications.
+            It provides routing, templating (Blade), reactive components (SPP-UX), database ORM, authentication,
+            testing, i18n, and much more &mdash; all in one cohesive package.
         </p>
         <p style="color:#475569; line-height:1.8;">
-            <b>Key Philosophy:</b> Convention over configuration. SPP uses YAML files for forms, routes, events, and services &mdash; minimizing boilerplate PHP code.
+            <b>Key Philosophy:</b> Convention over configuration. SPP uses YAML files for forms, routes, events, and
+            services &mdash; minimizing boilerplate PHP code.
             You write a YAML definition, and the framework auto-processes it.
         </p>
         <p style="color:#475569; line-height:1.8;">
-            <b>Six App Modes:</b> <code>mixed</code> (flagship, all paradigms), <code>sppux</code> (reactive SPA), <code>blade</code> (server-rendered templates),
-            <code>native</code> (raw PHP), <code>api</code> (headless REST), <code>dropin</code> (low-code HTML/PHP). Your app is: <code>Samvaad</code>.
+            <b>Six App Modes:</b> <code>mixed</code> (flagship, all paradigms), <code>sppux</code> (reactive SPA),
+            <code>blade</code> (server-rendered templates),
+            <code>native</code> (raw PHP), <code>api</code> (headless REST), <code>dropin</code> (low-code HTML/PHP).
+            Your app is: <code>Samvaad</code>.
         </p>
 
         <!-- ================================================================ -->
         <!-- SECTION 2: App Structure -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">2. App Structure</h2>
-        <p style="color:#475569; line-height:1.8;">Every SPP app has two main directories: <code>etc/apps/Samvaad/</code> for configuration, and <code>src/Samvaad/</code> for source code.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">2. App
+            Structure</h2>
+        <p style="color:#475569; line-height:1.8;">Every SPP app has two main directories:
+            <code>etc/apps/Samvaad/</code> for configuration, and <code>src/Samvaad/</code> for source code.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 your-project/
 ├── etc/apps/Samvaad/         # ── CONFIGURATION ──
 │   ├── pages.yml                  # Route definitions (URL → controller/page)
@@ -102,11 +117,14 @@ your-project/
         <!-- ================================================================ -->
         <!-- SECTION 3: Routing -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">3. Routing</h2>
-        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>etc/apps/Samvaad/pages.yml</code>. SPP supports five route types:</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">3.
+            Routing</h2>
+        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>etc/apps/Samvaad/pages.yml</code>. SPP
+            supports five route types:</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">3a. pages.yml Route Types</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── etc/apps/Samvaad/pages.yml ──
 
 defaults:
@@ -136,19 +154,49 @@ pages:
     controller: \App\Samvaad\Serv\ApiController@show</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">3b. PHP 8 Attribute Routing</h3>
-        <p style="color:#475569; line-height:1.8;">Instead of YAML, you can use PHP 8 Attributes directly on controller methods. The <code>RouteScanner</code> discovers them automatically.</p>
+        <p style="color:#475569; line-height:1.8;">Instead of YAML, you can use PHP 8 Attributes directly on controller
+            methods. The <code>RouteScanner</code> discovers them automatically.</p>
 
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
-            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.7rem;">Attribute</th><th style="text-align:left; padding:0.7rem;">Target</th><th style="text-align:left; padding:0.7rem;">Description</th></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>#[Route('/path', method, name, middleware)]</code></td><td style="padding:0.7rem;">Class / Method</td><td style="padding:0.7rem;">Define URL. Class-level = prefix for all methods.</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>#[Middleware(Class::class)]</code></td><td style="padding:0.7rem;">Class / Method</td><td style="padding:0.7rem;">Attach middleware. Repeatable. Stacks with parent.</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>#[Title('Page Title')]</code></td><td style="padding:0.7rem;">Class</td><td style="padding:0.7rem;">Sets &lt;title&gt; tag for the page.</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>#[Lazy(action: 'load')]</code></td><td style="padding:0.7rem;">Class</td><td style="padding:0.7rem;">Deferred initialization — load only when needed.</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>#[Isolate]</code></td><td style="padding:0.7rem;">Class</td><td style="padding:0.7rem;">Isolated context (no shared state with other controllers).</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>#[DataProvider('method')]</code></td><td style="padding:0.7rem;">Method</td><td style="padding:0.7rem;">Data-driven Parikshak tests.</td></tr>
+            <tr style="background:#6366f1; color:#fff;">
+                <th style="text-align:left; padding:0.7rem;">Attribute</th>
+                <th style="text-align:left; padding:0.7rem;">Target</th>
+                <th style="text-align:left; padding:0.7rem;">Description</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>#[Route('/path', method, name, middleware)]</code></td>
+                <td style="padding:0.7rem;">Class / Method</td>
+                <td style="padding:0.7rem;">Define URL. Class-level = prefix for all methods.</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>#[Middleware(Class::class)]</code></td>
+                <td style="padding:0.7rem;">Class / Method</td>
+                <td style="padding:0.7rem;">Attach middleware. Repeatable. Stacks with parent.</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>#[Title('Page Title')]</code></td>
+                <td style="padding:0.7rem;">Class</td>
+                <td style="padding:0.7rem;">Sets &lt;title&gt; tag for the page.</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>#[Lazy(action: 'load')]</code></td>
+                <td style="padding:0.7rem;">Class</td>
+                <td style="padding:0.7rem;">Deferred initialization — load only when needed.</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>#[Isolate]</code></td>
+                <td style="padding:0.7rem;">Class</td>
+                <td style="padding:0.7rem;">Isolated context (no shared state with other controllers).</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>#[DataProvider('method')]</code></td>
+                <td style="padding:0.7rem;">Method</td>
+                <td style="padding:0.7rem;">Data-driven Parikshak tests.</td>
+            </tr>
         </table>
 
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPPMod\SPPView\Attributes\Route;
 use SPPMod\SPPView\Attributes\Middleware;
 
@@ -173,9 +221,12 @@ class AdminController
         <!-- ================================================================ -->
         <!-- SECTION 4: Controllers -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">4. Controllers</h2>
-        <p style="color:#475569; line-height:1.8;">Controllers live in <code>src/Samvaad/serv/</code>. They handle requests and return either rendered Blade HTML or JSON data.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">4.
+            Controllers</h2>
+        <p style="color:#475569; line-height:1.8;">Controllers live in <code>src/Samvaad/serv/</code>. They handle
+            requests and return either rendered Blade HTML or JSON data.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── src/Samvaad/serv/HomeController.php ──
 
 namespace App\Samvaad\Serv;
@@ -216,11 +267,14 @@ class HomeController
         <!-- ================================================================ -->
         <!-- SECTION 5: Blade Templates -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">5. Blade Templates</h2>
-        <p style="color:#475569; line-height:1.8;">Blade is the template engine (from Laravel, extended by SPP). Templates live in <code>resources/Samvaad/views/</code>.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">5. Blade
+            Templates</h2>
+        <p style="color:#475569; line-height:1.8;">Blade is the template engine (from Laravel, extended by SPP).
+            Templates live in <code>resources/Samvaad/views/</code>.</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">5a. Layout System</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 {{-- ── resources/Samvaad/views/layout.blade.php ── --}}
 &lt;!DOCTYPE html&gt;
 &lt;html&gt;
@@ -243,24 +297,75 @@ class HomeController
 @endsection</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">5b. SPP Custom Blade Directives</h3>
-        <p style="color:#475569; line-height:1.8;">SPP extends Blade with powerful custom directives. Here is the <b>complete list</b>:</p>
+        <p style="color:#475569; line-height:1.8;">SPP extends Blade with powerful custom directives. Here is the
+            <b>complete list</b>:</p>
 
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
-            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.7rem;">Directive</th><th style="text-align:left; padding:0.7rem;">Purpose</th><th style="text-align:left; padding:0.7rem;">Example</th></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppux('component', [...])</code></td><td style="padding:0.7rem;">Mount an SPP-UX reactive component</td><td style="padding:0.7rem;"><code>@sppux('task-manager', ['user' =&gt; $id])</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppform('form_name')</code></td><td style="padding:0.7rem;">Render a complete YAML-defined form</td><td style="padding:0.7rem;"><code>@sppform('contact')</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppform_start('form')</code> / <code>@sppform_end</code></td><td style="padding:0.7rem;">Manual form rendering (custom layout)</td><td style="padding:0.7rem;"><code>@sppform_start('contact') ... @sppform_end</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppelement('element')</code></td><td style="padding:0.7rem;">Render a reusable UI element</td><td style="padding:0.7rem;"><code>@sppelement('navbar')</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppauth</code> / <code>@endsppauth</code></td><td style="padding:0.7rem;">Show content only to logged-in users</td><td style="padding:0.7rem;"><code>@sppauth &lt;p&gt;Welcome back!&lt;/p&gt; @endsppauth</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppguest</code> / <code>@endsppguest</code></td><td style="padding:0.7rem;">Show content only to guests (not logged in)</td><td style="padding:0.7rem;"><code>@sppguest &lt;a href="/login"&gt;Login&lt;/a&gt; @endsppguest</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppbind('var')</code></td><td style="padding:0.7rem;">Two-way reactive data binding</td><td style="padding:0.7rem;"><code>&lt;input @sppbind('username')&gt;</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@react('Component')</code></td><td style="padding:0.7rem;">Mount a React component</td><td style="padding:0.7rem;"><code>@react('MyReactApp')</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@vue('Component')</code></td><td style="padding:0.7rem;">Mount a Vue component</td><td style="padding:0.7rem;"><code>@vue('MyVueWidget')</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppoffline</code> / <code>@endsppoffline</code></td><td style="padding:0.7rem;">Offline-capable content (service worker)</td><td style="padding:0.7rem;"><code>@sppoffline Cached content @endsppoffline</code></td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@module_component('mod', 'comp')</code></td><td style="padding:0.7rem;">Render a component from a module</td><td style="padding:0.7rem;"><code>@module_component('sppauth', 'login-form')</code></td></tr>
+            <tr style="background:#6366f1; color:#fff;">
+                <th style="text-align:left; padding:0.7rem;">Directive</th>
+                <th style="text-align:left; padding:0.7rem;">Purpose</th>
+                <th style="text-align:left; padding:0.7rem;">Example</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@sppux('component', [...])</code></td>
+                <td style="padding:0.7rem;">Mount an SPP-UX reactive component</td>
+                <td style="padding:0.7rem;"><code>@sppux('task-manager', ['user' =&gt; $id])</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>@sppform('form_name')</code></td>
+                <td style="padding:0.7rem;">Render a complete YAML-defined form</td>
+                <td style="padding:0.7rem;"><code>@sppform('contact')</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@sppform_start('form')</code> / <code>@sppform_end</code></td>
+                <td style="padding:0.7rem;">Manual form rendering (custom layout)</td>
+                <td style="padding:0.7rem;"><code>@sppform_start('contact') ... @sppform_end</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>@sppelement('element')</code></td>
+                <td style="padding:0.7rem;">Render a reusable UI element</td>
+                <td style="padding:0.7rem;"><code>@sppelement('navbar')</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@sppauth</code> / <code>@endsppauth</code></td>
+                <td style="padding:0.7rem;">Show content only to logged-in users</td>
+                <td style="padding:0.7rem;"><code>@sppauth &lt;p&gt;Welcome back!&lt;/p&gt; @endsppauth</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>@sppguest</code> / <code>@endsppguest</code></td>
+                <td style="padding:0.7rem;">Show content only to guests (not logged in)</td>
+                <td style="padding:0.7rem;"><code>@sppguest &lt;a href="/login"&gt;Login&lt;/a&gt; @endsppguest</code>
+                </td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@sppbind('var')</code></td>
+                <td style="padding:0.7rem;">Two-way reactive data binding</td>
+                <td style="padding:0.7rem;"><code>&lt;input @sppbind('username')&gt;</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>@react('Component')</code></td>
+                <td style="padding:0.7rem;">Mount a React component</td>
+                <td style="padding:0.7rem;"><code>@react('MyReactApp')</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@vue('Component')</code></td>
+                <td style="padding:0.7rem;">Mount a Vue component</td>
+                <td style="padding:0.7rem;"><code>@vue('MyVueWidget')</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.7rem;"><code>@sppoffline</code> / <code>@endsppoffline</code></td>
+                <td style="padding:0.7rem;">Offline-capable content (service worker)</td>
+                <td style="padding:0.7rem;"><code>@sppoffline Cached content @endsppoffline</code></td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.7rem;"><code>@module_component('mod', 'comp')</code></td>
+                <td style="padding:0.7rem;">Render a component from a module</td>
+                <td style="padding:0.7rem;"><code>@module_component('sppauth', 'login-form')</code></td>
+            </tr>
         </table>
 
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 {{-- EXAMPLE: Using multiple directives in one view --}}
 @extends('layout')
 
@@ -284,9 +389,12 @@ class HomeController
         <!-- ================================================================ -->
         <!-- SECTION 6: SPP-UX Components -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">6. SPP-UX Components</h2>
-        <p style="color:#475569; line-height:1.8;">SPP-UX is the reactive component system. Components are JavaScript classes in <code>src/Samvaad/comp/</code>.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">6.
+            SPP-UX Components</h2>
+        <p style="color:#475569; line-height:1.8;">SPP-UX is the reactive component system. Components are JavaScript
+            classes in <code>src/Samvaad/comp/</code>.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── comp/my-counter.js ──
 export default class MyCounter extends BaseComponent {
     // LIFECYCLE: Called once when component initializes
@@ -325,7 +433,8 @@ export default class MyCounter extends BaseComponent {
 // 3. In HTML:  &lt;div data-spp-component="my-counter"&gt;&lt;/div&gt;</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">Stores (Shared State)</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // Stores allow multiple components to share state
 const store = this.getStore('appStore');
 store.set('user', { name: 'John' });
@@ -337,7 +446,8 @@ store.subscribe('user', (newVal) =&gt; {
 });</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">Theme Picker Component</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // Built-in theme picker component for switching themes
 // Mount via: @sppux('theme-picker') or SPPUX::render('theme-picker')
 // Themes defined in resources/Samvaad/themes/ with theme.yml</pre>
@@ -345,11 +455,14 @@ store.subscribe('user', (newVal) =&gt; {
         <!-- ================================================================ -->
         <!-- SECTION 7: Events System -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">7. Events System</h2>
-        <p style="color:#475569; line-height:1.8;">Events decouple your code. Register listeners in <code>init.php</code> or <code>etc/events.yml</code>, then fire them anywhere.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">7.
+            Events System</h2>
+        <p style="color:#475569; line-height:1.8;">Events decouple your code. Register listeners in
+            <code>init.php</code> or <code>etc/events.yml</code>, then fire them anywhere.</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">7a. Registering &amp; Firing Events</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── In init.php (imperative) ──
 // Listen to an existing event:
 \SPP\SPPEvent::listen('PageNotFound', [new \App\Samvaad\Events\ErrorHandler(), 'onNotFound']);
@@ -374,24 +487,57 @@ events:
 
         <h3 style="color:#475569; margin-top:1.5rem;">7b. All Framework Events</h3>
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
-            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.6rem;">Event Name</th><th style="text-align:left; padding:0.6rem;">When It Fires</th></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><code>AppBoot</code></td><td style="padding:0.6rem;">Application starts up</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><code>BeforeRender / AfterRender</code></td><td style="padding:0.6rem;">Page render lifecycle</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><code>PageNotFound</code></td><td style="padding:0.6rem;">404 — no matching route found</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><code>core.error.exception</code></td><td style="padding:0.6rem;">Uncaught exception occurs</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><code>AuthLogin / AuthLogout</code></td><td style="padding:0.6rem;">User login / logout</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><code>EntityCreated / Updated / Deleted</code></td><td style="padding:0.6rem;">Database entity changes</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><code>event_spp_view_render_theme</code></td><td style="padding:0.6rem;">Before theme rendering (inject HTML)</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><code>event_spp_page_render</code></td><td style="padding:0.6rem;">During page rendering</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><code>parikshak.suite_started / completed</code></td><td style="padding:0.6rem;">Test suite lifecycle</td></tr>
+            <tr style="background:#6366f1; color:#fff;">
+                <th style="text-align:left; padding:0.6rem;">Event Name</th>
+                <th style="text-align:left; padding:0.6rem;">When It Fires</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><code>AppBoot</code></td>
+                <td style="padding:0.6rem;">Application starts up</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><code>BeforeRender / AfterRender</code></td>
+                <td style="padding:0.6rem;">Page render lifecycle</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><code>PageNotFound</code></td>
+                <td style="padding:0.6rem;">404 — no matching route found</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><code>core.error.exception</code></td>
+                <td style="padding:0.6rem;">Uncaught exception occurs</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><code>AuthLogin / AuthLogout</code></td>
+                <td style="padding:0.6rem;">User login / logout</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><code>EntityCreated / Updated / Deleted</code></td>
+                <td style="padding:0.6rem;">Database entity changes</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><code>event_spp_view_render_theme</code></td>
+                <td style="padding:0.6rem;">Before theme rendering (inject HTML)</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><code>event_spp_page_render</code></td>
+                <td style="padding:0.6rem;">During page rendering</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><code>parikshak.suite_started / completed</code></td>
+                <td style="padding:0.6rem;">Test suite lifecycle</td>
+            </tr>
         </table>
 
         <!-- ================================================================ -->
         <!-- SECTION 8: Services (PHP↔JS Bridge) -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">8. Services (PHP&harr;JS Bridge)</h2>
-        <p style="color:#475569; line-height:1.8;">Services let JavaScript call PHP functions without writing API endpoints. Define in <code>etc/services.yml</code>.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">8.
+            Services (PHP&harr;JS Bridge)</h2>
+        <p style="color:#475569; line-height:1.8;">Services let JavaScript call PHP functions without writing API
+            endpoints. Define in <code>etc/services.yml</code>.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── etc/apps/Samvaad/services.yml ──
 services:
   - name: "task.create"
@@ -415,11 +561,14 @@ echo json_encode(['status' =&gt; 'created', 'id' =&gt; 1]);</pre>
         <!-- ================================================================ -->
         <!-- SECTION 9: Error Handling -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">9. Error Handling</h2>
-        <p style="color:#475569; line-height:1.8;">SPP has a layered error handling system that works differently in debug vs production mode.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">9. Error
+            Handling</h2>
+        <p style="color:#475569; line-height:1.8;">SPP has a layered error handling system that works differently in
+            debug vs production mode.</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">9a. How It Works</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // SPP Error Handling Architecture:
 //
 // 1. SPPErrorHandler::register() — Called in bootstrap, sets up error/exception handlers
@@ -451,7 +600,8 @@ SPPError::triggerDevError('Debug info here');          // Developer-facing
 SPPError::triggerAdminError('Admin notification');     // Admin-facing</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">9b. Custom 404 &amp; 500 Pages</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // In init.php, redirect to your custom error pages:
 \SPP\SPPEvent::listen('PageNotFound', function($params) {
     include __DIR__ . '/pages/errors/404.php';
@@ -476,9 +626,12 @@ try {
         <!-- ================================================================ -->
         <!-- SECTION 10: Middleware -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">10. Middleware</h2>
-        <p style="color:#475569; line-height:1.8;">Middleware runs before/after a request reaches your controller. Use for auth checks, logging, CORS, etc.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">10.
+            Middleware</h2>
+        <p style="color:#475569; line-height:1.8;">Middleware runs before/after a request reaches your controller. Use
+            for auth checks, logging, CORS, etc.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── src/Samvaad/middleware/AuthGuard.php ──
 namespace App\Samvaad\Middleware;
 
@@ -521,9 +674,12 @@ middleware:
         <!-- ================================================================ -->
         <!-- SECTION 11: Database & Entities -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">11. Database &amp; Entities</h2>
-        <p style="color:#475569; line-height:1.8;">SPP uses the <code>SPPDB</code> module for database operations and entities for ORM-style data modeling.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">11.
+            Database &amp; Entities</h2>
+        <p style="color:#475569; line-height:1.8;">SPP uses the <code>SPPDB</code> module for database operations and
+            entities for ORM-style data modeling.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── Creating an Entity ──
 // Run: php spp.php make:entity --app=Samvaad Task
 // This creates src/Samvaad/entities/Task.php
@@ -568,9 +724,12 @@ $db-&gt;table('tasks')-&gt;where('id', 42)-&gt;update(['status' =&gt; 'done']);
         <!-- ================================================================ -->
         <!-- SECTION 12: YAML Forms -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">12. YAML Forms</h2>
-        <p style="color:#475569; line-height:1.8;">Define forms in YAML, and SPP handles rendering, validation, and processing automatically.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">12. YAML
+            Forms</h2>
+        <p style="color:#475569; line-height:1.8;">Define forms in YAML, and SPP handles rendering, validation, and
+            processing automatically.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── etc/apps/Samvaad/forms/contact.yml ──
 id: contact
 public_name: "Contact Form"
@@ -608,9 +767,12 @@ fields:
         <!-- ================================================================ -->
         <!-- SECTION 13: Authentication -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">13. Authentication</h2>
-        <p style="color:#475569; line-height:1.8;">The <code>sppauth</code> module provides login, logout, role-based access, and session management.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">13.
+            Authentication</h2>
+        <p style="color:#475569; line-height:1.8;">The <code>sppauth</code> module provides login, logout, role-based
+            access, and session management.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPPMod\SPPAuth\SPPAuth;
 
 // ── Login ──
@@ -648,9 +810,12 @@ SPPAuth::logout();
         <!-- ================================================================ -->
         <!-- SECTION 14: Sessions -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">14. Sessions</h2>
-        <p style="color:#475569; line-height:1.8;">SPP provides a session wrapper for storing per-user data across requests.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">14.
+            Sessions</h2>
+        <p style="color:#475569; line-height:1.8;">SPP provides a session wrapper for storing per-user data across
+            requests.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPP\SPPSession;
 
 // Set a session variable:
@@ -675,9 +840,12 @@ $msg = SPPSession::getFlash('success'); // Available once, then auto-deleted
         <!-- ================================================================ -->
         <!-- SECTION 15: Translations (i18n) -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">15. Translations (i18n)</h2>
-        <p style="color:#475569; line-height:1.8;">Multi-language support via JSON language files and the <code>spplang</code> module.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">15.
+            Translations (i18n)</h2>
+        <p style="color:#475569; line-height:1.8;">Multi-language support via JSON language files and the
+            <code>spplang</code> module.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── Language files: resources/Samvaad/lang/en.json ──
 {
     "welcome": "Welcome to our app!",
@@ -708,9 +876,12 @@ echo Translation::get('welcome');                // "&iexcl;Bienvenido..."
         <!-- ================================================================ -->
         <!-- SECTION 16: Dependency Injection -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">16. Dependency Injection</h2>
-        <p style="color:#475569; line-height:1.8;">SPP includes a DI container for managing class dependencies and singletons.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">16.
+            Dependency Injection</h2>
+        <p style="color:#475569; line-height:1.8;">SPP includes a DI container for managing class dependencies and
+            singletons.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPP\Container;
 use SPP\Registry;
 
@@ -735,9 +906,12 @@ $version = Registry::get('app.version');  // '1.0.0'</pre>
         <!-- ================================================================ -->
         <!-- SECTION 17: Polyglot Bridge -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">17. Polyglot Bridge</h2>
-        <p style="color:#475569; line-height:1.8;">Execute Python, Perl, or C++ code from PHP. Great for ML models, data processing, or legacy integration.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">17.
+            Polyglot Bridge</h2>
+        <p style="color:#475569; line-height:1.8;">Execute Python, Perl, or C++ code from PHP. Great for ML models, data
+            processing, or legacy integration.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPP\Polyglot;
 
 // ── Run a Python script ──
@@ -757,11 +931,14 @@ $result = Polyglot::exec('bin/fast-compute', ['--threads=4']);
         <!-- ================================================================ -->
         <!-- SECTION 18: Parikshak Testing -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">18. Parikshak Testing &#129514;</h2>
-        <p style="color:#475569; line-height:1.8;">SPP's testing framework supports class-based, DSL, and evolutionary testing approaches.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">18.
+            Parikshak Testing &#129514;</h2>
+        <p style="color:#475569; line-height:1.8;">SPP's testing framework supports class-based, DSL, and evolutionary
+            testing approaches.</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">18a. Class-based (SPPTestCase)</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPPMod\Parikshak\SPPTestCase;
 use SPPMod\Parikshak\Attributes\DataProvider;
 
@@ -789,7 +966,8 @@ class TaskTest extends SPPTestCase {
 // File naming: test.TaskTest.php in src/Samvaad/tests/</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">18b. DSL Tests (BDD-style)</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 test('task can be created', function () {
     $task = new Task(['title' =&gt; 'Test']);
     expect($task-&gt;title)-&gt;toBe('Test');
@@ -802,7 +980,8 @@ it('validates required fields', function () {
 // Also: -&gt;toBeTrue(), -&gt;toBeFalse(), -&gt;toBeNull(), -&gt;toContain()</pre>
 
         <h3 style="color:#475569; margin-top:1.5rem;">18c. Running Tests</h3>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 php spp.php test:run --app=Samvaad               # Run full test suite
 php spp.php test:run --app=Samvaad --coverage    # With code coverage report
 php spp.php test:run --app=Samvaad TaskTest      # Run single test class
@@ -813,9 +992,12 @@ php spp.php test:evolve --app=Samvaad             # Evolutionary testing</pre>
         <!-- ================================================================ -->
         <!-- SECTION 19: Themes -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">19. Themes</h2>
-        <p style="color:#475569; line-height:1.8;">Themes are defined in <code>resources/Samvaad/themes/</code> with a <code>theme.yml</code> config.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">19.
+            Themes</h2>
+        <p style="color:#475569; line-height:1.8;">Themes are defined in <code>resources/Samvaad/themes/</code> with a
+            <code>theme.yml</code> config.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── resources/Samvaad/themes/default/theme.yml ──
 name: "Default Theme"
 version: "1.0"
@@ -839,39 +1021,172 @@ variables:                     # CSS custom properties
         <!-- ================================================================ -->
         <!-- SECTION 20: Core Modules Inventory -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">20. Core Modules Inventory</h2>
-        <p style="color:#475569; line-height:1.8;">Load modules with <code>\SPP\Module::loadModule('name')</code> or list them in <code>modules.yml</code>.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">20. Core
+            Modules Inventory</h2>
+        <p style="color:#475569; line-height:1.8;">Load modules with <code>\SPP\Module::loadModule('name')</code> or
+            list them in <code>modules.yml</code>.</p>
 
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.78rem;">
-            <tr style="background:#6366f1; color:#fff;"><th style="padding:0.5rem;">#</th><th style="padding:0.5rem;">Module</th><th style="padding:0.5rem;">Purpose</th><th style="padding:0.5rem;">Key API</th></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">1</td><td style="padding:0.5rem;"><b>sppview</b></td><td style="padding:0.5rem;">View layer, page rendering, theme injection</td><td style="padding:0.5rem;">SPPGlobal, ViewPage, RouteScanner</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">2</td><td style="padding:0.5rem;"><b>spprouter</b></td><td style="padding:0.5rem;">URL routing, dynamic params, named routes</td><td style="padding:0.5rem;">SPPRouter::resolve(), pages.yml</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">3</td><td style="padding:0.5rem;"><b>drishyam</b></td><td style="padding:0.5rem;">Blade templates + SPP-UX components</td><td style="padding:0.5rem;">SPPBlade, SPPUX::render(), @sppux</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">4</td><td style="padding:0.5rem;"><b>sppdb</b></td><td style="padding:0.5rem;">Database (MySQL/PostgreSQL/SQLite)</td><td style="padding:0.5rem;">SPPDB, execute_query(), migrations</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">5</td><td style="padding:0.5rem;"><b>sppauth</b></td><td style="padding:0.5rem;">Authentication, sessions, RBAC</td><td style="padding:0.5rem;">SPPAuth::login(), isLoggedIn()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">6</td><td style="padding:0.5rem;"><b>sppapi</b></td><td style="padding:0.5rem;">REST API auto-generation from entities</td><td style="padding:0.5rem;">Entity $apiExpose = true</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">7</td><td style="padding:0.5rem;"><b>parikshak</b></td><td style="padding:0.5rem;">Testing: unit, fuzzing, evolutionary, DSL</td><td style="padding:0.5rem;">SPPTestCase, test(), expect()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">8</td><td style="padding:0.5rem;"><b>spplogger</b></td><td style="padding:0.5rem;">Structured logging, log rotation</td><td style="padding:0.5rem;">\SPP\Log::info(), error()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">9</td><td style="padding:0.5rem;"><b>sppcache</b></td><td style="padding:0.5rem;">File &amp; memory caching</td><td style="padding:0.5rem;">\SPP\Cache::get(), put()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">10</td><td style="padding:0.5rem;"><b>sppqueue</b></td><td style="padding:0.5rem;">Background jobs, scheduled tasks</td><td style="padding:0.5rem;">\SPP\Queue::dispatch()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">11</td><td style="padding:0.5rem;"><b>sppstorage</b></td><td style="padding:0.5rem;">File storage, uploads</td><td style="padding:0.5rem;">\SPP\Storage::put(), get()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">12</td><td style="padding:0.5rem;"><b>sppaudit</b></td><td style="padding:0.5rem;">Audit trail, change tracking</td><td style="padding:0.5rem;">Auto per entity</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">13</td><td style="padding:0.5rem;"><b>sppsecurity</b></td><td style="padding:0.5rem;">CSRF, XSS, input sanitization</td><td style="padding:0.5rem;">Auto middleware</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">14</td><td style="padding:0.5rem;"><b>sppmaker</b></td><td style="padding:0.5rem;">Code generators (entity, controller, etc)</td><td style="padding:0.5rem;">php spp.php make:entity</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">15</td><td style="padding:0.5rem;"><b>spplang</b></td><td style="padding:0.5rem;">i18n, translations, locale</td><td style="padding:0.5rem;">\SPP\Lang::get(), @lang()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">16</td><td style="padding:0.5rem;"><b>sppai</b></td><td style="padding:0.5rem;">AI/LLM integration, embeddings</td><td style="padding:0.5rem;">\SPP\AI::prompt()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">17</td><td style="padding:0.5rem;"><b>sppworkflow</b></td><td style="padding:0.5rem;">State machines, approval flows</td><td style="padding:0.5rem;">YAML state definitions</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">18</td><td style="padding:0.5rem;"><b>spplive</b></td><td style="padding:0.5rem;">Real-time updates, SSE, WebSocket</td><td style="padding:0.5rem;">\SPP\Live::broadcast()</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">19</td><td style="padding:0.5rem;"><b>sppreport</b></td><td style="padding:0.5rem;">PDF/Excel/CSV report generation</td><td style="padding:0.5rem;">Admin Reports panel</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">20</td><td style="padding:0.5rem;"><b>sppxdb</b></td><td style="padding:0.5rem;">Cross-database, federated queries</td><td style="padding:0.5rem;">Admin XDB panel</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">21</td><td style="padding:0.5rem;"><b>sppdeploy</b></td><td style="padding:0.5rem;">Deployment, migrations, env</td><td style="padding:0.5rem;">php spp.php deploy</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">22</td><td style="padding:0.5rem;"><b>sppdoc/sppdocs</b></td><td style="padding:0.5rem;">Auto API documentation</td><td style="padding:0.5rem;">Admin Docs panel</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">23</td><td style="padding:0.5rem;"><b>sppenv</b></td><td style="padding:0.5rem;">.env file support</td><td style="padding:0.5rem;">\SPP\Env::get('KEY')</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.5rem;">24</td><td style="padding:0.5rem;"><b>sppext</b></td><td style="padding:0.5rem;">Extension/plugin system</td><td style="padding:0.5rem;">Extension marketplace</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.5rem;">25</td><td style="padding:0.5rem;"><b>dbconfig</b></td><td style="padding:0.5rem;">DB-backed config storage</td><td style="padding:0.5rem;">\SPP\SPPConfig::get()</td></tr>
+            <tr style="background:#6366f1; color:#fff;">
+                <th style="padding:0.5rem;">#</th>
+                <th style="padding:0.5rem;">Module</th>
+                <th style="padding:0.5rem;">Purpose</th>
+                <th style="padding:0.5rem;">Key API</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">1</td>
+                <td style="padding:0.5rem;"><b>sppview</b></td>
+                <td style="padding:0.5rem;">View layer, page rendering, theme injection</td>
+                <td style="padding:0.5rem;">SPPGlobal, ViewPage, RouteScanner</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">2</td>
+                <td style="padding:0.5rem;"><b>spprouter</b></td>
+                <td style="padding:0.5rem;">URL routing, dynamic params, named routes</td>
+                <td style="padding:0.5rem;">SPPRouter::resolve(), pages.yml</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">3</td>
+                <td style="padding:0.5rem;"><b>drishyam</b></td>
+                <td style="padding:0.5rem;">Blade templates + SPP-UX components</td>
+                <td style="padding:0.5rem;">SPPBlade, SPPUX::render(), @sppux</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">4</td>
+                <td style="padding:0.5rem;"><b>sppdb</b></td>
+                <td style="padding:0.5rem;">Database (MySQL/PostgreSQL/SQLite)</td>
+                <td style="padding:0.5rem;">SPPDB, execute_query(), migrations</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">5</td>
+                <td style="padding:0.5rem;"><b>sppauth</b></td>
+                <td style="padding:0.5rem;">Authentication, sessions, RBAC</td>
+                <td style="padding:0.5rem;">SPPAuth::login(), isLoggedIn()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">6</td>
+                <td style="padding:0.5rem;"><b>sppapi</b></td>
+                <td style="padding:0.5rem;">REST API auto-generation from entities</td>
+                <td style="padding:0.5rem;">Entity $apiExpose = true</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">7</td>
+                <td style="padding:0.5rem;"><b>parikshak</b></td>
+                <td style="padding:0.5rem;">Testing: unit, fuzzing, evolutionary, DSL</td>
+                <td style="padding:0.5rem;">SPPTestCase, test(), expect()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">8</td>
+                <td style="padding:0.5rem;"><b>spplogger</b></td>
+                <td style="padding:0.5rem;">Structured logging, log rotation</td>
+                <td style="padding:0.5rem;">\SPP\Log::info(), error()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">9</td>
+                <td style="padding:0.5rem;"><b>sppcache</b></td>
+                <td style="padding:0.5rem;">File &amp; memory caching</td>
+                <td style="padding:0.5rem;">\SPP\Cache::get(), put()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">10</td>
+                <td style="padding:0.5rem;"><b>sppqueue</b></td>
+                <td style="padding:0.5rem;">Background jobs, scheduled tasks</td>
+                <td style="padding:0.5rem;">\SPP\Queue::dispatch()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">11</td>
+                <td style="padding:0.5rem;"><b>sppstorage</b></td>
+                <td style="padding:0.5rem;">File storage, uploads</td>
+                <td style="padding:0.5rem;">\SPP\Storage::put(), get()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">12</td>
+                <td style="padding:0.5rem;"><b>sppaudit</b></td>
+                <td style="padding:0.5rem;">Audit trail, change tracking</td>
+                <td style="padding:0.5rem;">Auto per entity</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">13</td>
+                <td style="padding:0.5rem;"><b>sppsecurity</b></td>
+                <td style="padding:0.5rem;">CSRF, XSS, input sanitization</td>
+                <td style="padding:0.5rem;">Auto middleware</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">14</td>
+                <td style="padding:0.5rem;"><b>sppmaker</b></td>
+                <td style="padding:0.5rem;">Code generators (entity, controller, etc)</td>
+                <td style="padding:0.5rem;">php spp.php make:entity</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">15</td>
+                <td style="padding:0.5rem;"><b>spplang</b></td>
+                <td style="padding:0.5rem;">i18n, translations, locale</td>
+                <td style="padding:0.5rem;">\SPP\Lang::get(), @lang()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">16</td>
+                <td style="padding:0.5rem;"><b>sppai</b></td>
+                <td style="padding:0.5rem;">AI/LLM integration, embeddings</td>
+                <td style="padding:0.5rem;">\SPP\AI::prompt()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">17</td>
+                <td style="padding:0.5rem;"><b>sppworkflow</b></td>
+                <td style="padding:0.5rem;">State machines, approval flows</td>
+                <td style="padding:0.5rem;">YAML state definitions</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">18</td>
+                <td style="padding:0.5rem;"><b>spplive</b></td>
+                <td style="padding:0.5rem;">Real-time updates, SSE, WebSocket</td>
+                <td style="padding:0.5rem;">\SPP\Live::broadcast()</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">19</td>
+                <td style="padding:0.5rem;"><b>sppreport</b></td>
+                <td style="padding:0.5rem;">PDF/Excel/CSV report generation</td>
+                <td style="padding:0.5rem;">Admin Reports panel</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">20</td>
+                <td style="padding:0.5rem;"><b>sppxdb</b></td>
+                <td style="padding:0.5rem;">Cross-database, federated queries</td>
+                <td style="padding:0.5rem;">Admin XDB panel</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">21</td>
+                <td style="padding:0.5rem;"><b>sppdeploy</b></td>
+                <td style="padding:0.5rem;">Deployment, migrations, env</td>
+                <td style="padding:0.5rem;">php spp.php deploy</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">22</td>
+                <td style="padding:0.5rem;"><b>sppdoc/sppdocs</b></td>
+                <td style="padding:0.5rem;">Auto API documentation</td>
+                <td style="padding:0.5rem;">Admin Docs panel</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">23</td>
+                <td style="padding:0.5rem;"><b>sppenv</b></td>
+                <td style="padding:0.5rem;">.env file support</td>
+                <td style="padding:0.5rem;">\SPP\Env::get('KEY')</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.5rem;">24</td>
+                <td style="padding:0.5rem;"><b>sppext</b></td>
+                <td style="padding:0.5rem;">Extension/plugin system</td>
+                <td style="padding:0.5rem;">Extension marketplace</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.5rem;">25</td>
+                <td style="padding:0.5rem;"><b>dbconfig</b></td>
+                <td style="padding:0.5rem;">DB-backed config storage</td>
+                <td style="padding:0.5rem;">\SPP\SPPConfig::get()</td>
+            </tr>
         </table>
 
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // Load modules in init.php:
 \SPP\Module::loadModule('parikshak');
 \SPP\Module::loadModule('sppqueue');
@@ -881,33 +1196,97 @@ if (\SPP\Module::isLoaded('sppai')) { /* use AI */ }
         <!-- ================================================================ -->
         <!-- SECTION 21: CLI Commands -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">21. CLI Commands</h2>
-        <p style="color:#475569; line-height:1.8;">All commands are run with <code>php spp.php &lt;command&gt;</code> from the project root.</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">21. CLI
+            Commands</h2>
+        <p style="color:#475569; line-height:1.8;">All commands are run with <code>php spp.php &lt;command&gt;</code>
+            from the project root.</p>
 
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
-            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.6rem;">Category</th><th style="text-align:left; padding:0.6rem;">Command</th><th style="text-align:left; padding:0.6rem;">What It Does</th></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><b>Generators</b></td><td style="padding:0.6rem;"><code>make:app</code></td><td style="padding:0.6rem;">Create new application</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>make:entity</code></td><td style="padding:0.6rem;">Generate entity class</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>make:controller</code></td><td style="padding:0.6rem;">Generate controller class</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>make:middleware</code></td><td style="padding:0.6rem;">Generate middleware class</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><b>Database</b></td><td style="padding:0.6rem;"><code>migrate</code></td><td style="padding:0.6rem;">Run migrations</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>migrate:rollback</code></td><td style="padding:0.6rem;">Rollback last migration</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>db:seed</code></td><td style="padding:0.6rem;">Seed database</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><b>Testing</b></td><td style="padding:0.6rem;"><code>test:run</code></td><td style="padding:0.6rem;">Run test suite</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>test:blueprint</code></td><td style="padding:0.6rem;">Auto-generate test stubs</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>test:monkey</code></td><td style="padding:0.6rem;">Fuzz testing</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"><b>Cache</b></td><td style="padding:0.6rem;"><code>cache:clear</code></td><td style="padding:0.6rem;">Clear all caches</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>cache:warmup</code></td><td style="padding:0.6rem;">Pre-build caches</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.6rem;"></td><td style="padding:0.6rem;"><code>view:clear</code></td><td style="padding:0.6rem;">Clear compiled Blade views</td></tr>
-            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.6rem;"><b>Deploy</b></td><td style="padding:0.6rem;"><code>deploy</code></td><td style="padding:0.6rem;">Deploy application</td></tr>
+            <tr style="background:#6366f1; color:#fff;">
+                <th style="text-align:left; padding:0.6rem;">Category</th>
+                <th style="text-align:left; padding:0.6rem;">Command</th>
+                <th style="text-align:left; padding:0.6rem;">What It Does</th>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><b>Generators</b></td>
+                <td style="padding:0.6rem;"><code>make:app</code></td>
+                <td style="padding:0.6rem;">Create new application</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>make:entity</code></td>
+                <td style="padding:0.6rem;">Generate entity class</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>make:controller</code></td>
+                <td style="padding:0.6rem;">Generate controller class</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>make:middleware</code></td>
+                <td style="padding:0.6rem;">Generate middleware class</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><b>Database</b></td>
+                <td style="padding:0.6rem;"><code>migrate</code></td>
+                <td style="padding:0.6rem;">Run migrations</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>migrate:rollback</code></td>
+                <td style="padding:0.6rem;">Rollback last migration</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>db:seed</code></td>
+                <td style="padding:0.6rem;">Seed database</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><b>Testing</b></td>
+                <td style="padding:0.6rem;"><code>test:run</code></td>
+                <td style="padding:0.6rem;">Run test suite</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>test:blueprint</code></td>
+                <td style="padding:0.6rem;">Auto-generate test stubs</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>test:monkey</code></td>
+                <td style="padding:0.6rem;">Fuzz testing</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"><b>Cache</b></td>
+                <td style="padding:0.6rem;"><code>cache:clear</code></td>
+                <td style="padding:0.6rem;">Clear all caches</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>cache:warmup</code></td>
+                <td style="padding:0.6rem;">Pre-build caches</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0;">
+                <td style="padding:0.6rem;"></td>
+                <td style="padding:0.6rem;"><code>view:clear</code></td>
+                <td style="padding:0.6rem;">Clear compiled Blade views</td>
+            </tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;">
+                <td style="padding:0.6rem;"><b>Deploy</b></td>
+                <td style="padding:0.6rem;"><code>deploy</code></td>
+                <td style="padding:0.6rem;">Deploy application</td>
+            </tr>
         </table>
 
         <!-- ================================================================ -->
         <!-- SECTION 22: Configuration -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">22. Configuration</h2>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">22.
+            Configuration</h2>
         <p style="color:#475569; line-height:1.8;">SPP uses YAML files for configuration. Key files:</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── spp/etc/global-settings.yml ── (framework-wide)
 apps:
   Samvaad:
@@ -932,9 +1311,12 @@ $debug = \SPP\SPPConfig::get('app.debug');       // true
         <!-- ================================================================ -->
         <!-- SECTION 23: Caching -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">23. Caching</h2>
-        <p style="color:#475569; line-height:1.8;">SPP caches routes, views, and config for performance. Use CLI to manage.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">23.
+            Caching</h2>
+        <p style="color:#475569; line-height:1.8;">SPP caches routes, views, and config for performance. Use CLI to
+            manage.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── Using the cache API ──
 \SPP\Cache::put('key', $data, 3600);      // Cache for 1 hour
 $data = \SPP\Cache::get('key');            // Retrieve
@@ -954,9 +1336,12 @@ $data = \SPP\Cache::get('key');            // Retrieve
         <!-- ================================================================ -->
         <!-- SECTION 24: Logging -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">24. Logging</h2>
-        <p style="color:#475569; line-height:1.8;">The <code>spplogger</code> module provides structured logging with automatic log rotation.</p>
-        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">24.
+            Logging</h2>
+        <p style="color:#475569; line-height:1.8;">The <code>spplogger</code> module provides structured logging with
+            automatic log rotation.</p>
+        <pre
+            style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 use SPP\Log;
 
 Log::debug('Debug information', ['context' =&gt; $data]);
@@ -972,10 +1357,13 @@ Log::critical('Database connection lost');
         <!-- ================================================================ -->
         <!-- SECTION 25: Getting Started Checklist -->
         <!-- ================================================================ -->
-        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">25. Getting Started Checklist</h2>
-        <p style="color:#475569; line-height:1.8;">Follow these steps to build your first feature in <code>Samvaad</code>:</p>
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">25.
+            Getting Started Checklist</h2>
+        <p style="color:#475569; line-height:1.8;">Follow these steps to build your first feature in
+            <code>Samvaad</code>:</p>
 
-        <div style="background:#f0fdf4; border-left:4px solid #22c55e; padding:1.2rem 1.5rem; border-radius:0 10px 10px 0; margin:1rem 0;">
+        <div
+            style="background:#f0fdf4; border-left:4px solid #22c55e; padding:1.2rem 1.5rem; border-radius:0 10px 10px 0; margin:1rem 0;">
             <ol style="color:#475569; line-height:2.2; margin:0; padding-left:1.2rem;">
                 <li><b>Explore your app</b> &mdash; Visit <code>/Samvaad/home</code> in your browser</li>
                 <li><b>Edit a controller</b> &mdash; Modify <code>src/Samvaad/serv/HomeController.php</code></li>
@@ -993,8 +1381,10 @@ Log::critical('Database connection lost');
         </div>
 
         <div style="margin-top:2rem; padding:1.5rem; background:#eff6ff; border-radius:10px; text-align:center;">
-            <p style="color:#3b82f6; font-weight:600; margin:0;">Tip: Delete this guide page once you are comfortable with the framework!</p>
-            <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from <code>etc/apps/Samvaad/pages.yml</code> and delete this file.</p>
+            <p style="color:#3b82f6; font-weight:600; margin:0;">Tip: Delete this guide page once you are comfortable
+                with the framework!</p>
+            <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from
+                <code>etc/apps/Samvaad/pages.yml</code> and delete this file.</p>
         </div>
 
     </div>

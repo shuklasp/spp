@@ -20,7 +20,7 @@ class DeployPushCommand extends Command
         $noFiles = false;
         $force = false;
         $artifactPath = null;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -41,7 +41,7 @@ class DeployPushCommand extends Command
                 $artifactPath = substr($arg, 11);
             }
         }
-        
+
         // Execute local pre-deploy hooks if configured
         $confFile = SPP_BASE_DIR . '/.sppdeploy.yml';
         if (file_exists($confFile)) {
@@ -90,7 +90,7 @@ class DeployPushCommand extends Command
             $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
             $localHashes = $scanner->scan(SPP_BASE_DIR);
         }
-        
+
         $localDbHashes = [];
         if (!$noDb) {
             $dbScanner = new \SPPMod\SPPDeploy\Scanner\DbScanner();
@@ -102,7 +102,8 @@ class DeployPushCommand extends Command
             $healthResp = $conn->getHealth();
             if (!isset($healthResp['status']) || $healthResp['status'] !== 'ok') {
                 echo "❌ Target server health check failed.\n";
-                if (isset($healthResp['message'])) echo "Reason: " . $healthResp['message'] . "\n";
+                if (isset($healthResp['message']))
+                    echo "Reason: " . $healthResp['message'] . "\n";
                 return;
             }
             if (empty($healthResp['health']['zip_extension'])) {
@@ -120,9 +121,9 @@ class DeployPushCommand extends Command
                 $remoteKeys = $envResp['keys'];
                 $localKeys = array_keys($_ENV);
                 $missingKeys = array_diff($localKeys, $remoteKeys);
-                
+
                 // Filter out common system vars
-                $missingKeys = array_filter($missingKeys, function($k) {
+                $missingKeys = array_filter($missingKeys, function ($k) {
                     return !str_starts_with($k, 'HTTP_') && !str_starts_with($k, 'SERVER_') && !in_array($k, ['PATH', 'USER', 'HOME']);
                 });
 
@@ -135,18 +136,19 @@ class DeployPushCommand extends Command
 
             echo "📡 Fetching remote diff...\n";
             $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
-            
+
             if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
                 echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
-                if (isset($diffResp['debug'])) echo "DEBUG: " . $diffResp['debug'] . "\n";
+                if (isset($diffResp['debug']))
+                    echo "DEBUG: " . $diffResp['debug'] . "\n";
                 return;
             }
 
             $diff = $diffResp['diff'];
-            
+
             $fileCount = count($diff['files']['create']) + count($diff['files']['update']) + count($diff['files']['delete']);
             $dbCount = count($diff['db']['create']) + count($diff['db']['update']) + count($diff['db']['delete']);
-            
+
             if ($fileCount === 0 && $dbCount === 0) {
                 echo "✅ Everything is up to date.\n";
                 return;
@@ -155,7 +157,7 @@ class DeployPushCommand extends Command
             echo "\n🚀 Proposed Deployment Summary:\n";
             echo "   Files: " . count($diff['files']['create']) . " to create, " . count($diff['files']['update']) . " to update, " . count($diff['files']['delete']) . " to delete.\n";
             echo "   DB Tables: " . count($diff['db']['create']) . " to create, " . count($diff['db']['update']) . " to update, " . count($diff['db']['delete']) . " to delete.\n";
-            
+
             if (!$force && !$dryRun) {
                 echo "\n❓ Proceed with deployment? [Y/n] ";
                 $handle = fopen("php://stdin", "r");
@@ -168,11 +170,13 @@ class DeployPushCommand extends Command
             }
 
             echo "\n📦 Preparing payload...\n";
-            
+
             $tempZip = SPP_BASE_DIR . '/var/cache/deploy_payload.zip';
-            if (is_file($tempZip)) unlink($tempZip);
-            if (!is_dir(dirname($tempZip))) mkdir(dirname($tempZip), 0777, true);
-            
+            if (is_file($tempZip))
+                unlink($tempZip);
+            if (!is_dir(dirname($tempZip)))
+                mkdir(dirname($tempZip), 0777, true);
+
             $zip = new \ZipArchive();
             if ($zip->open($tempZip, \ZipArchive::CREATE) !== true) {
                 throw new \Exception("Cannot create temporary zip archive.");
@@ -183,7 +187,7 @@ class DeployPushCommand extends Command
                     $zip->addFile(SPP_BASE_DIR . '/' . $file, $file);
                 }
             }
-            
+
             $sqlBuffer = "";
             if ($dbCount > 0) {
                 if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
@@ -211,13 +215,13 @@ class DeployPushCommand extends Command
                     }
                 }
             }
-            
+
             if ($sqlBuffer !== "") {
                 $zip->addFromString('db_snapshot.sql', $sqlBuffer);
             }
-            
+
             $zip->close();
-            
+
             $payloadMeta = [
                 'filesCount' => $fileCount,
                 'dbCount' => $dbCount,
@@ -239,18 +243,19 @@ class DeployPushCommand extends Command
         $numChunks = ceil($totalSize / $chunkSize);
 
         echo "🚀 Transmitting payload (" . round($totalSize / 1024 / 1024, 2) . " MB in {$numChunks} chunks) to {$target}...\n";
-        
+
         $deployResp = null;
         for ($i = 0; $i < $numChunks; $i++) {
             $chunk = substr($archiveData, $i * $chunkSize, $chunkSize);
             $isLast = ($i === $numChunks - 1);
-            
+
             echo "   Sending chunk " . ($i + 1) . "/{$numChunks}...\n";
             $resp = $conn->uploadChunk($sessionId, base64_encode($chunk), $i, $isLast, $isLast ? $payloadMeta : []);
-            
+
             if (!isset($resp['status']) || $resp['status'] !== 'ok') {
                 echo "❌ Chunk transfer failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
-                if (isset($resp['debug'])) echo "DEBUG: " . $resp['debug'] . "\n";
+                if (isset($resp['debug']))
+                    echo "DEBUG: " . $resp['debug'] . "\n";
                 return;
             }
             if ($isLast) {

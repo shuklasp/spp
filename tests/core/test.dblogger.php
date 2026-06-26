@@ -28,7 +28,7 @@ class DBLoggerTest extends SPPTestCase
     public function testDBLoggerProviderWritesSuccessfully()
     {
         $provider = new DBLoggerProvider();
-        
+
         $metadata = [
             'uid' => 'test-uid',
             'uname' => 'test-uname',
@@ -41,13 +41,13 @@ class DBLoggerTest extends SPPTestCase
         ];
 
         $result = $provider->write('Test DB Log Message', 'info', $metadata, ['key' => 'value']);
-        
+
         $this->assertTrue($result, 'DBLoggerProvider should return true on success');
         $this->assertTrue($this->db->tableExists($this->table), 'DBLoggerProvider should create the logger table');
 
         $rows = $this->db->execute_query('SELECT * FROM ' . $this->table . ' WHERE descr = ?', ['Test DB Log Message']);
         $this->assertEquals(1, count($rows), 'Should have inserted one log entry');
-        
+
         $row = $rows[0];
         $this->assertEquals('info', $row['level']);
         $this->assertEquals('test-uid', $row['uid']);
@@ -62,8 +62,14 @@ class DBLoggerTest extends SPPTestCase
         // In a real app, module config defines log_precedence and log_targets
         // We will just directly call SPP_Logger::write_to_db for isolation
         $metadata = [
-            'uid' => '', 'uname' => '', 'ip' => '127.0.0.1', 'timestamp' => date('Y-m-d H:i:s'),
-            'sessid' => '', 'uri' => '', 'method' => '', 'agent' => ''
+            'uid' => '',
+            'uname' => '',
+            'ip' => '127.0.0.1',
+            'timestamp' => date('Y-m-d H:i:s'),
+            'sessid' => '',
+            'uri' => '',
+            'method' => '',
+            'agent' => ''
         ];
         SPP_Logger::write_to_db('Event Bus DB Log', 'warning', $metadata, []);
 

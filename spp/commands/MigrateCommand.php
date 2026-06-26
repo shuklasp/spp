@@ -29,13 +29,13 @@ class MigrateCommand extends Command
         }
 
         $db = new SPPDB();
-        
+
         // 1. Ensure migrations tracking table exists
         $this->ensureMigrationTable($db);
 
         // 2. Gather migration directories
         $dirsToScan = [];
-        
+
         // App migrations
         $app = $this->getContext($args);
         $appDir = SPP_APP_DIR . "/src/{$app}/migrations";
@@ -78,7 +78,7 @@ class MigrateCommand extends Command
         foreach ($pending as $name => $file) {
             echo "Migrating: {$name}...\n";
             require_once $file;
-            
+
             $className = $name;
             if (class_exists($className)) {
                 $migration = new $className();

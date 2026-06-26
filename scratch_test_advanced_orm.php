@@ -2,8 +2,10 @@
 
 require_once 'c:/projects/apache/school1/spp/sppinit.php';
 
-class AdvancedUser extends \SPPMod\SPPEntity\SPPEntity {
-    public static function boot() {
+class AdvancedUser extends \SPPMod\SPPEntity\SPPEntity
+{
+    public static function boot()
+    {
         self::setMetadata('table', 'adv_users');
         self::setMetadata('id_field', 'uuid');
         self::setMetadata('key_type', 'uuid'); // Generate UUIDs

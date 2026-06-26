@@ -7,12 +7,14 @@ namespace Lekhak\Modules\LekhakModuleAutomatedLogout;
  * @configure admin/config/automated_logout
  */
 
-class LekhakModuleAutomatedLogout {
+class LekhakModuleAutomatedLogout
+{
 
     private $name = 'automated_logout';
     private $title = 'Automated Logout';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_automated_logout_config (
@@ -20,10 +22,11 @@ class LekhakModuleAutomatedLogout {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_automated_logout_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Core module initialization logic.
         return true;
     }
@@ -31,12 +34,14 @@ class LekhakModuleAutomatedLogout {
     /**
      * Hardens security and extends admin workflows.
      */
-    public function hook_form_alter(&$form, $form_id) {
+    public function hook_form_alter(&$form, $form_id)
+    {
         // Enhances form security.
     }
 
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by automated_logout -->';
@@ -51,21 +56,21 @@ class LekhakModuleAutomatedLogout {
     public static function hook_config_form(): array
     {
         return [
-  'timeout' => 
-  [
-    'type' => 'number',
-    'title' => 'Timeout (in seconds]',
-    'default' => 900,
-    'description' => 'Time of inactivity before automatic logout.',
-  ],
-  'redirect_url' => 
-  [
-    'type' => 'text',
-    'title' => 'Redirect URL',
-    'default' => '/admin/login',
-    'description' => 'URL to redirect to after logout.',
-  ],
-];
+            'timeout' =>
+                [
+                    'type' => 'number',
+                    'title' => 'Timeout (in seconds]',
+                    'default' => 900,
+                    'description' => 'Time of inactivity before automatic logout.',
+                ],
+            'redirect_url' =>
+                [
+                    'type' => 'text',
+                    'title' => 'Redirect URL',
+                    'default' => '/admin/login',
+                    'description' => 'URL to redirect to after logout.',
+                ],
+        ];
     }
 }
 

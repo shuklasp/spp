@@ -4,17 +4,20 @@ namespace Lekhak\Modules\LekhakDrupalApi\Controller;
 use Lekhak\Modules\LekhakDrupalApi\Serializer\JsonApiSerializer;
 use SPPMod\SPPDB\SPPDB;
 
-class NodeController {
-    
+class NodeController
+{
+
     private $db;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->db = new SPPDB();
     }
 
-    public function getNodeByUuid($type, $uuidOrId) {
+    public function getNodeByUuid($type, $uuidOrId)
+    {
         $id = $this->resolveIdFromUuid($uuidOrId);
-        
+
         $results = $this->db->execute_query("SELECT * FROM lek_nodes WHERE id = ? LIMIT 1", [$id]);
         if (empty($results)) {
             return null;
@@ -22,16 +25,17 @@ class NodeController {
 
         $node = $results[0];
         if ($type && isset($node['bundle']) && $node['bundle'] !== $type) {
-            return null; 
+            return null;
         }
 
         $serialized = JsonApiSerializer::serializeNode($node, $type);
         return json_encode(JsonApiSerializer::wrapDocument($serialized, false), JSON_UNESCAPED_SLASHES);
     }
 
-    public function getNodes($type) {
+    public function getNodes($type)
+    {
         $results = $this->db->execute_query("SELECT * FROM lek_nodes WHERE bundle = ? LIMIT 50", [$type]);
-        
+
         $data = [];
         foreach ($results as $node) {
             $data[] = JsonApiSerializer::serializeNode($node, $type);
@@ -40,8 +44,9 @@ class NodeController {
         return json_encode(JsonApiSerializer::wrapDocument($data, true), JSON_UNESCAPED_SLASHES);
     }
 
-    public function getRestNode($id) {
-        $results = $this->db->execute_query("SELECT * FROM lek_nodes WHERE id = ? LIMIT 1", [(int)$id]);
+    public function getRestNode($id)
+    {
+        $results = $this->db->execute_query("SELECT * FROM lek_nodes WHERE id = ? LIMIT 1", [(int) $id]);
         if (empty($results)) {
             return null;
         }
@@ -49,7 +54,8 @@ class NodeController {
         return json_encode(JsonApiSerializer::serializeRestNode($results[0]), JSON_UNESCAPED_SLASHES);
     }
 
-    public function createNode($bundle) {
+    public function createNode($bundle)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -76,7 +82,8 @@ class NodeController {
         return $this->getNodeByUuid($bundle, $newId);
     }
 
-    public function updateNode($bundle, $uuid) {
+    public function updateNode($bundle, $uuid)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -114,7 +121,7 @@ class NodeController {
         if (!empty($updates)) {
             $updates[] = "changed = ?";
             $params[] = date('Y-m-d H:i:s');
-            
+
             $params[] = $id; // For WHERE clause
             $sql = "UPDATE lek_nodes SET " . implode(", ", $updates) . " WHERE id = ?";
             $this->db->execute_query($sql, $params);
@@ -123,7 +130,8 @@ class NodeController {
         return $this->getNodeByUuid($bundle, $id);
     }
 
-    public function deleteNode($bundle, $uuid) {
+    public function deleteNode($bundle, $uuid)
+    {
         if (empty($_SESSION['uid'])) {
             http_response_code(401);
             return json_encode(["errors" => [["title" => "Unauthorized", "status" => "401"]]]);
@@ -142,24 +150,25 @@ class NodeController {
         return '';
     }
 
-    private function resolveIdFromUuid($uuidOrId) {
+    private function resolveIdFromUuid($uuidOrId)
+    {
         if (is_numeric($uuidOrId)) {
-            return (int)$uuidOrId;
+            return (int) $uuidOrId;
         }
-        
+
         $results = $this->db->execute_query("SELECT id FROM lek_nodes ORDER BY id DESC LIMIT 1000");
         foreach ($results as $row) {
             $hash = md5('lekhak_entity_node_' . $row['id']);
             $fakeUuid = substr($hash, 0, 8) . '-' .
-                        substr($hash, 8, 4) . '-4' .
-                        substr($hash, 13, 3) . '-8' .
-                        substr($hash, 17, 3) . '-' .
-                        substr($hash, 20, 12);
+                substr($hash, 8, 4) . '-4' .
+                substr($hash, 13, 3) . '-8' .
+                substr($hash, 17, 3) . '-' .
+                substr($hash, 20, 12);
             if ($fakeUuid === $uuidOrId) {
-                return (int)$row['id'];
+                return (int) $row['id'];
             }
         }
-        
-        return 0; 
+
+        return 0;
     }
 }

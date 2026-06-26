@@ -30,24 +30,24 @@ class EntityGetController
 
             SPPApiResponse::success($data);
         } else {
-            $page = (int)($_GET['page'] ?? 1);
-            $perPage = (int)($_GET['per_page'] ?? 50);
-            
+            $page = (int) ($_GET['page'] ?? 1);
+            $perPage = (int) ($_GET['per_page'] ?? 50);
+
             // Fallback for older limit/offset queries
             if (isset($_GET['limit']) && !isset($_GET['per_page'])) {
-                $perPage = (int)$_GET['limit'];
+                $perPage = (int) $_GET['limit'];
                 if (isset($_GET['offset'])) {
-                    $page = (int)ceil(((int)$_GET['offset'] / max(1, $perPage)) + 1);
+                    $page = (int) ceil(((int) $_GET['offset'] / max(1, $perPage)) + 1);
                 }
             }
 
             $instance = new $classMap();
             if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
-                $instance->setTable(\SPPMod\SppDb\SPPEntity::getMetadata('table'));
+                $instance->setTable(\SPPMod\SPPDB\SPPEntity::getMetadata('table'));
             }
 
             $table = $instance->getTable();
-            $idField = \SPPMod\SppDb\SPPEntity::getMetadata('id_field');
+            $idField = \SPPMod\SPPDB\SPPEntity::getMetadata('id_field');
             if (!$idField) {
                 $idField = 'id';
             }

@@ -4,7 +4,11 @@
 // Actually, I can just write a test_api.php that does exactly what api.php does.
 $authContext = 'sppadmin';
 require 'spp/sppinit.php';
-try { \SPP\Scheduler::getProcObj($authContext); } catch (\Exception $e) { new \SPP\App($authContext); }
+try {
+    \SPP\Scheduler::getProcObj($authContext);
+} catch (\Exception $e) {
+    new \SPP\App($authContext);
+}
 \SPP\Scheduler::setContext($authContext);
 
 $db = new \SPPMod\SPPDB\SPPDB();

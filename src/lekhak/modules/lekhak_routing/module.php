@@ -6,11 +6,13 @@ namespace Lekhak\Modules\LekhakRouting;
  * @configure admin/config/lekhak_routing
  */
 
-class LekhakModulePathauto {
+class LekhakModulePathauto
+{
     private $name = 'lekhak_routing';
     private $title = 'lekhak_routing';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_url_aliases (
@@ -27,22 +29,25 @@ class LekhakModulePathauto {
                 pattern VARCHAR(255) NOT NULL,
                 weight INTEGER DEFAULT 0
             )");
-            
+
             // Seed a default pattern if table is empty
             $res = $db->execute_query("SELECT id FROM lekhak_pathauto_patterns LIMIT 1");
             if (empty($res)) {
                 $db->execute_query("INSERT INTO lekhak_pathauto_patterns (entity_type, bundle, pattern) VALUES (?, ?, ?)", ['node', 'article', '/article/[node:title]']);
             }
-        } catch (\Exception $e) {}
-        
+        } catch (\Exception $e) {
+        }
+
         return true;
     }
 
     /**
      * Intercepts entity save to auto-generate SEO URL patterns.
      */
-    public function hook_entity_presave(&$entity) {
-        if (!isset($entity->bundle) || !isset($entity->title)) return;
+    public function hook_entity_presave(&$entity)
+    {
+        if (!isset($entity->bundle) || !isset($entity->title))
+            return;
 
         // Determine if we need an alias generated
         $needs_alias = empty($entity->alias);
@@ -51,15 +56,15 @@ class LekhakModulePathauto {
             $db = new \SPPMod\SPPDB\SPPDB();
             // Get pattern for this entity type
             $patterns = $db->execute_query("SELECT pattern FROM lekhak_pathauto_patterns WHERE entity_type=? ORDER BY weight DESC LIMIT 1", ['node']);
-            
+
             if (!empty($patterns)) {
                 $pattern = $patterns[0]['pattern'];
-                
+
                 // Use Token module if available
                 $alias = $pattern;
                 if (class_exists('\\Lekhak\\Modules\\Token\\LekhakModuleToken')) {
                     $tokenMod = new \Lekhak\Modules\Token\LekhakModuleToken();
-                    $alias = $tokenMod->replaceTokens($pattern, ['node' => (array)$entity]);
+                    $alias = $tokenMod->replaceTokens($pattern, ['node' => (array) $entity]);
                 } else {
                     // Fallback dumb replacement
                     $alias = str_replace('[node:title]', $entity->title, $pattern);
@@ -67,7 +72,7 @@ class LekhakModulePathauto {
 
                 // Slugify the alias (except slashes)
                 $parts = explode('/', $alias);
-                $slugifiedParts = array_map(function($p) {
+                $slugifiedParts = array_map(function ($p) {
                     return strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $p), '-'));
                 }, $parts);
                 $finalAlias = '/' . ltrim(implode('/', $slugifiedParts), '/');
@@ -76,11 +81,12 @@ class LekhakModulePathauto {
             }
         }
     }
-    
+
     /**
      * Intercepts post-save to record the alias in the registry.
      */
-    public function hook_entity_insert($entity) {
+    public function hook_entity_insert($entity)
+    {
         if (!empty($entity->alias) && !empty($entity->id)) {
             $db = new \SPPMod\SPPDB\SPPDB();
             $source = 'lekhak/node/' . ltrim($entity->alias, '/');
@@ -92,10 +98,11 @@ class LekhakModulePathauto {
     /**
      * Intercepts request to map URL aliases back to source paths
      */
-    public function hook_request_init() {
+    public function hook_request_init()
+    {
         $uri = $_SERVER['REQUEST_URI'] ?? '/';
         $uri = parse_url($uri, PHP_URL_PATH);
-        
+
         // Very basic alias resolution check
         if ($uri !== '/' && strpos($uri, '/admin') !== 0) {
             $db = new \SPPMod\SPPDB\SPPDB();
@@ -106,13 +113,15 @@ class LekhakModulePathauto {
                     $_SERVER['REQUEST_URI'] = $aliasRecord[0]['source_path'];
                     $_GET['q'] = $aliasRecord[0]['source_path'];
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
         }
     }
 
 
     // sh404SEF Extension
-    public static function hook_page_not_found($path) {
+    public static function hook_page_not_found($path)
+    {
         error_log("[Pathauto sh404SEF] Logging 404 for path: " . $path);
         // Implement automatic redirection suggestion
         $db = new \SPPMod\SPPDB\SPPDB();
@@ -127,25 +136,25 @@ class LekhakModulePathauto {
     public static function hook_config_form(): array
     {
         return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
+            'enabled' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Enable advanced features',
+                    'default' => true,
+                ],
+            'log_level' =>
+                [
+                    'type' => 'select',
+                    'title' => 'Log Level',
+                    'options' =>
+                        [
+                            'info' => 'Info',
+                            'warning' => 'Warning',
+                            'error' => 'Error',
+                        ],
+                    'default' => 'warning',
+                ],
+        ];
     }
 }
 

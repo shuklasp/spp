@@ -57,7 +57,7 @@ foreach ($tables as $name => $sql) {
 // Seed admin user
 $check = $pdo->prepare("SELECT COUNT(*) FROM {$usersTable} WHERE username = ?");
 $check->execute(['admin']);
-if ((int)$check->fetchColumn() === 0) {
+if ((int) $check->fetchColumn() === 0) {
     $stmt = $pdo->prepare("INSERT INTO {$usersTable} (username, email, password, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)");
     $now = date('Y-m-d H:i:s');
     $stmt->execute(['admin', 'admin@lekhak.local', password_hash('admin', PASSWORD_DEFAULT), 'active', $now, $now]);
@@ -69,7 +69,7 @@ if ((int)$check->fetchColumn() === 0) {
 // Seed admin role
 $check = $pdo->prepare("SELECT COUNT(*) FROM {$rolesTable} WHERE name = ?");
 $check->execute(['administrator']);
-if ((int)$check->fetchColumn() === 0) {
+if ((int) $check->fetchColumn() === 0) {
     $pdo->exec("INSERT INTO {$rolesTable} (name) VALUES ('administrator')");
     echo "  Seeded administrator role\n";
 }
@@ -80,7 +80,7 @@ $roleId = $pdo->query("SELECT id FROM {$rolesTable} WHERE name = 'administrator'
 if ($adminId && $roleId) {
     $check = $pdo->prepare("SELECT COUNT(*) FROM {$userrolesTable} WHERE userid = ? AND roleid = ?");
     $check->execute([$adminId, $roleId]);
-    if ((int)$check->fetchColumn() === 0) {
+    if ((int) $check->fetchColumn() === 0) {
         $pdo->prepare("INSERT INTO {$userrolesTable} (userid, roleid) VALUES (?, ?)")->execute([$adminId, $roleId]);
         echo "  Assigned administrator role to admin\n";
     }

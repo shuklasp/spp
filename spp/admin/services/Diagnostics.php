@@ -5,7 +5,8 @@
  */
 
 if (!function_exists('live_diagnostics_health')) {
-    function live_diagnostics_health($la, $params) {
+    function live_diagnostics_health($la, $params)
+    {
         $health = [
             'status' => 'UP',
             'timestamp' => date('c'),
@@ -43,7 +44,8 @@ if (!function_exists('live_diagnostics_health')) {
         // 3. Filesystem Health
         $writeableDirs = [SPP_BASE_DIR . '/var', SPP_BASE_DIR . '/var/logs'];
         foreach ($writeableDirs as $dir) {
-            if (!is_dir($dir)) @mkdir($dir, 0777, true);
+            if (!is_dir($dir))
+                @mkdir($dir, 0777, true);
             $health['components']['fs_' . basename($dir)] = is_writable($dir) ? ['status' => 'UP'] : ['status' => 'DOWN'];
         }
 
@@ -58,7 +60,8 @@ if (!function_exists('live_diagnostics_health')) {
 }
 
 if (!function_exists('live_list_queue')) {
-    function live_list_queue($la, $params) {
+    function live_list_queue($la, $params)
+    {
         $jobs = [];
         if (class_exists('\\SPP\\Core\\Queue')) {
             // Mocking for now as SPP Queue API might vary
@@ -69,7 +72,8 @@ if (!function_exists('live_list_queue')) {
 }
 
 if (!function_exists('live_get_event_trace')) {
-    function live_get_event_trace($la, $params) {
+    function live_get_event_trace($la, $params)
+    {
         // Read from spp_event_trace.log if it exists
         $traces = [];
         $logFile = defined('SPP_LOG_DIR') ? SPP_LOG_DIR . '/spp_event_trace.log' : SPP_BASE_DIR . '/var/logs/spp_event_trace.log';
@@ -85,7 +89,8 @@ if (!function_exists('live_get_event_trace')) {
 }
 
 if (!function_exists('live_get_parikshak_trace')) {
-    function live_get_parikshak_trace($la, $params) {
+    function live_get_parikshak_trace($la, $params)
+    {
         $traces = [];
         $logFile = defined('SPP_LOG_DIR') ? SPP_LOG_DIR . '/parikshak.log' : SPP_BASE_DIR . '/var/logs/parikshak.log';
         if (file_exists($logFile)) {

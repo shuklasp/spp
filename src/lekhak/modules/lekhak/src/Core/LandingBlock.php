@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class LandingBlock
@@ -45,14 +45,15 @@ class LandingBlock extends SPPEntity
     public function resolveEntities(): array
     {
         $content = $this->getContent();
-        if ($this->block_type !== 'dynamic_list') return [];
+        if ($this->block_type !== 'dynamic_list')
+            return [];
 
         $entityType = $content['entity_type'] ?? 'node';
         $conditions = $content['conditions'] ?? [];
         $limit = $content['limit'] ?? 5;
         $sort = $content['sort'] ?? 'created DESC';
 
-        $class = match($entityType) {
+        $class = match ($entityType) {
             'node' => LekhakNode::class,
             'user' => \SPPMod\SPPAuth\User::class,
             'type' => ContentType::class,

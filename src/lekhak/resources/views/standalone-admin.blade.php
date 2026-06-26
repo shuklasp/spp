@@ -1,17 +1,20 @@
 <?php
-    $base_url = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '/school1', '/');
-    $admin_url = $base_url . '/spp/admin/';
+$base_url = rtrim(defined('APP_BASE_URI') ? APP_BASE_URI : '/school1', '/');
+$admin_url = $base_url . '/spp/admin/';
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lekhak Admin | Professional Workspace</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+
     <!-- Core Framework Styles -->
     <link rel="preload" href="<?php echo $base_url; ?>/spp/res/css/spp.css" as="style">
     <link rel="stylesheet" href="<?php echo $base_url; ?>/spp/res/css/spp.css">
@@ -20,7 +23,7 @@
         var savedMode = localStorage.getItem('lekhak-admin-theme') || 'saffron';
         document.documentElement.setAttribute('data-theme', savedMode);
     </script>
-    
+
     <style>
         :root {
             --primary: #6366f1;
@@ -58,10 +61,15 @@
             --bg-gradient: linear-gradient(135deg, #fffaf5 0%, #fff7ed 50%, #ffedd5 100%), radial-gradient(circle at 10% 20%, rgba(249, 115, 22, 0.12) 0%, transparent 50%);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background: var(--bg); 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
             background-image: var(--bg-gradient);
             color: var(--text);
             height: 100vh;
@@ -69,7 +77,13 @@
             overflow: hidden;
         }
 
-        h1, h2, h3, h4, .logo-text { font-family: 'Outfit', sans-serif; }
+        h1,
+        h2,
+        h3,
+        h4,
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+        }
 
         /* Sidebar */
         .sidebar {
@@ -182,13 +196,17 @@
         /* Loading */
         #view-loader {
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             background: var(--bg);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 100;
         }
+
         .spinner {
             width: 30px;
             height: 30px;
@@ -197,7 +215,12 @@
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
-        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
 
         /* Toasts */
         #toast-container {
@@ -209,12 +232,13 @@
             flex-direction: column;
             gap: 0.5rem;
         }
+
         .toast {
             padding: 1rem 1.25rem;
             background: var(--sidebar-bg);
             border: 1px solid var(--border);
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             display: flex;
             align-items: center;
             gap: 0.75rem;
@@ -223,46 +247,55 @@
 
         #modal-container {
             position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             z-index: 200;
             background: var(--bg);
             display: none;
         }
     </style>
 </head>
+
 <body>
     <aside class="sidebar">
         <div class="sidebar-header" style="justify-content: center; padding: 0; margin-bottom: 30px;">
-            <img src="<?php echo $base_url; ?>/img/lekhak_logo_full.jpg" alt="Lekhak CMS Logo" style="width: 100%; max-width: 180px; height: auto; object-fit: contain; border-radius: 12px;" />
+            <img src="<?php echo $base_url; ?>/img/lekhak_logo_full.jpg" alt="Lekhak CMS Logo"
+                style="width: 100%; max-width: 180px; height: auto; object-fit: contain; border-radius: 12px;" />
         </div>
-        
-                <nav class="nav-list" id="sidebar-nav">
+
+        <nav class="nav-list" id="sidebar-nav">
             <?php
-                $active_modules = [];
-                try {
-                    $db = new \SPPMod\SPPDB\SPPDB();
-                    // We also consider core non-module views as "active"
-                    $core_views = ['dashboard', 'content', 'media', 'structure', 'canvas', 'settings', 'users'];
-                    $res = $db->execute_query("SELECT machine_name FROM lekhak_modules WHERE status = 1");
-                    if ($res && is_array($res)) {
-                        $active_modules = array_merge($core_views, array_column($res, 'machine_name'));
-                    } else {
-                        // Fallback: If table doesnt exist yet, enable all for demonstration
-                        $active_modules = $core_views;
-                        $all_dirs = scandir(__DIR__ . '/../../modules/');
-                        foreach ($all_dirs as $d) {
-                            if ($d !== '.' && $d !== '..') $active_modules[] = $d;
-                        }
-                    }
-                } catch (\Exception $e) {
-                    // Fallback on error
-                }
+$active_modules = [];
+try {
+    $db = new \SPPMod\SPPDB\SPPDB();
+    // We also consider core non-module views as "active"
+    $core_views = ['dashboard', 'content', 'media', 'structure', 'canvas', 'settings', 'users'];
+    $res = $db->execute_query("SELECT machine_name FROM lekhak_modules WHERE status = 1");
+    if ($res && is_array($res)) {
+        $active_modules = array_merge($core_views, array_column($res, 'machine_name'));
+    } else {
+        // Fallback: If table doesnt exist yet, enable all for demonstration
+        $active_modules = $core_views;
+        $all_dirs = scandir(__DIR__ . '/../../modules/');
+        foreach ($all_dirs as $d) {
+            if ($d !== '.' && $d !== '..')
+                $active_modules[] = $d;
+        }
+    }
+} catch (\Exception $e) {
+    // Fallback on error
+}
             ?>
             <div style="padding: 0 1rem 1rem;">
-                <input type="text" id="nav-search" placeholder="Search menus..." style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.1); color: var(--text); outline: none;">
+                <input type="text" id="nav-search" placeholder="Search menus..."
+                    style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: rgba(0,0,0,0.1); color: var(--text); outline: none;">
             </div>
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>Overview & Core</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -292,7 +325,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>Structure & Design</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -329,7 +364,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>Community & Audience</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -373,7 +410,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>E-Commerce & Subscriptions</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -410,7 +449,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>Education & Services</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -447,7 +488,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>Directories & Media</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -491,7 +534,9 @@
             </div>
 
             <div class="nav-group">
-                <div class="nav-section-header" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;" onclick="toggleNavGroup(this)">
+                <div class="nav-section-header"
+                    style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.75rem 1rem; font-weight: 600; cursor: pointer; display: flex; justify-content: space-between; align-items: center;"
+                    onclick="toggleNavGroup(this)">
                     <span>System & Utilities</span>
                     <span class="toggle-icon" style="font-size: 0.6rem; transition: transform 0.2s;">▼</span>
                 </div>
@@ -505,7 +550,7 @@
                     <?php endif; ?>
                     <?php if (in_array('users', $active_modules)): ?>
                     <div class="nav-item">
-                        <a class="nav-link" data-php-route="true" href="<?php echo $base_url; ?>/lekhak/admin/users">
+                        <a class="nav-link" data-php-route="true" href="<?php    echo $base_url; ?>/lekhak/admin/users">
                             <span class="nav-icon">👤</span> <span class="nav-text">Users & Roles</span>
                         </a>
                     </div>
@@ -549,17 +594,26 @@
         <header class="content-header">
             <h2 class="view-title" id="view-title">Dashboard</h2>
             <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="theme-switcher" style="display: flex; gap: 6px; background: rgba(128,128,128,0.1); padding: 4px; border-radius: 20px; border: 1px solid var(--border);">
-                    <button onclick="setThemeMode('dark')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #64748b;" title="Night Mode">•</button>
-                    <button onclick="setThemeMode('day')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #cbd5e1;" title="Day Mode">•</button>
-                    <button onclick="setThemeMode('saffron')" style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #f97316; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #ffedd5;" title="Saffron Mode">•</button>
+                <div class="theme-switcher"
+                    style="display: flex; gap: 6px; background: rgba(128,128,128,0.1); padding: 4px; border-radius: 20px; border: 1px solid var(--border);">
+                    <button onclick="setThemeMode('dark')"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #64748b;"
+                        title="Night Mode">•</button>
+                    <button onclick="setThemeMode('day')"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #fff; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #cbd5e1;"
+                        title="Day Mode">•</button>
+                    <button onclick="setThemeMode('saffron')"
+                        style="width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; background: #f97316; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; color: #ffedd5;"
+                        title="Saffron Mode">•</button>
                 </div>
                 <div id="header-actions"></div>
             </div>
         </header>
 
         <div class="viewport" id="viewport">
-            <div id="view-loader"><div class="spinner"></div></div>
+            <div id="view-loader">
+                <div class="spinner"></div>
+            </div>
             <div id="view-container"></div>
         </div>
     </main>
@@ -569,34 +623,35 @@
 
     <!-- Pre-warm decoupled UI Component templates natively -->
     <?php
-        $candidates = [
-            $_SERVER['DOCUMENT_ROOT'] . $base_url . '/src/lekhak/comp/templates',
-            realpath(__DIR__ . '/../../comp/templates'),
-            'c:/projects/apache/school1/src/lekhak/comp/templates'
-        ];
-        $tplDir = false;
-        foreach ($candidates as $c) {
-            if ($c && is_dir($c)) {
-                $tplDir = $c;
-                break;
+$candidates = [
+    $_SERVER['DOCUMENT_ROOT'] . $base_url . '/src/lekhak/comp/templates',
+    realpath(__DIR__ . '/../../comp/templates'),
+    'c:/projects/apache/school1/src/lekhak/comp/templates'
+];
+$tplDir = false;
+foreach ($candidates as $c) {
+    if ($c && is_dir($c)) {
+        $tplDir = $c;
+        break;
+    }
+}
+if ($tplDir && is_dir($tplDir)) {
+    foreach (scandir($tplDir) as $f) {
+        if (str_ends_with($f, '.html')) {
+            $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
+            $tplContent = @file_get_contents($tplDir . '/' . $f);
+            if ($tplContent) {
+                echo "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
             }
         }
-        if ($tplDir && is_dir($tplDir)) {
-            foreach (scandir($tplDir) as $f) {
-                if (str_ends_with($f, '.html')) {
-                    $tplName = strtolower(pathinfo($f, PATHINFO_FILENAME));
-                    $tplContent = @file_get_contents($tplDir . '/' . $f);
-                    if ($tplContent) {
-                        echo "<template id=\"spp-tpl-{$tplName}\">\n" . $tplContent . "\n</template>\n";
-                    }
-                }
-            }
-        }
+    }
+}
     ?>
 
     <!-- SPP Infrastructure -->
     <script src="<?php echo $base_url; ?>/spp/res/js/spp.js?v=<?php echo time(); ?>"></script>
-    <script type="module" src="<?php echo $base_url; ?>/src/lekhak/resources/admin/standalone-shell.js?v=<?php echo time(); ?>"></script>
+    <script type="module"
+        src="<?php echo $base_url; ?>/src/lekhak/resources/admin/standalone-shell.js?v=<?php echo time(); ?>"></script>
 
     <script>
         window.LEKHAK_CONFIG = {
@@ -626,7 +681,7 @@
             }
         }
 
-        document.getElementById('nav-search').addEventListener('input', function(e) {
+        document.getElementById('nav-search').addEventListener('input', function (e) {
             const term = e.target.value.toLowerCase();
             const groups = document.querySelectorAll('.nav-group');
 
@@ -646,7 +701,7 @@
 
                 const content = group.querySelector('.nav-group-content');
                 const icon = group.querySelector('.toggle-icon');
-                
+
                 if (term.length > 0) {
                     if (hasVisible) {
                         group.style.display = 'block';
@@ -681,7 +736,7 @@
             }
         }
 
-        document.getElementById('nav-search').addEventListener('input', function(e) {
+        document.getElementById('nav-search').addEventListener('input', function (e) {
             const term = e.target.value.toLowerCase();
             const groups = document.querySelectorAll('.nav-group');
 
@@ -701,7 +756,7 @@
 
                 const content = group.querySelector('.nav-group-content');
                 const icon = group.querySelector('.toggle-icon');
-                
+
                 if (term.length > 0) {
                     if (hasVisible) {
                         group.style.display = 'block';
@@ -736,7 +791,7 @@
             }
         }
 
-        document.getElementById('nav-search').addEventListener('input', function(e) {
+        document.getElementById('nav-search').addEventListener('input', function (e) {
             const term = e.target.value.toLowerCase();
             const groups = document.querySelectorAll('.nav-group');
 
@@ -756,7 +811,7 @@
 
                 const content = group.querySelector('.nav-group-content');
                 const icon = group.querySelector('.toggle-icon');
-                
+
                 if (term.length > 0) {
                     if (hasVisible) {
                         group.style.display = 'block';
@@ -791,7 +846,7 @@
             }
         }
 
-        document.getElementById('nav-search').addEventListener('input', function(e) {
+        document.getElementById('nav-search').addEventListener('input', function (e) {
             const term = e.target.value.toLowerCase();
             const groups = document.querySelectorAll('.nav-group');
 
@@ -811,7 +866,7 @@
 
                 const content = group.querySelector('.nav-group-content');
                 const icon = group.querySelector('.toggle-icon');
-                
+
                 if (term.length > 0) {
                     if (hasVisible) {
                         group.style.display = 'block';
@@ -834,8 +889,13 @@
         });
     </script>
 </body>
+
 </html>
+
 </html>
+
 </html>
+
 </html>
+
 </html>

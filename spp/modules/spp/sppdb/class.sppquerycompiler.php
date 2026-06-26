@@ -1,8 +1,8 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
-use SPPMod\SppDb\SppEntityQuery;
+use SPPMod\SPPDB\SppEntityQuery;
 
 /**
  * Class SPPQueryCompiler
@@ -88,9 +88,9 @@ class SPPQueryCompiler
         }
 
         if ($query->getLimit()) {
-            $sql .= " LIMIT " . (int)$query->getLimit();
+            $sql .= " LIMIT " . (int) $query->getLimit();
             if ($query->getOffset()) {
-                $sql .= " OFFSET " . (int)$query->getOffset();
+                $sql .= " OFFSET " . (int) $query->getOffset();
             }
         }
 

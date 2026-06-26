@@ -3,13 +3,16 @@ namespace Lekhak\Modules\Sankhyaki;
 
 use SPPMod\SPPDB\SPPDB;
 
-class GeoLocator {
-    
-    public static function getCountry($ip) {
-        if ($ip === '127.0.0.1' || $ip === '::1') return 'Localhost';
+class GeoLocator
+{
+
+    public static function getCountry($ip)
+    {
+        if ($ip === '127.0.0.1' || $ip === '::1')
+            return 'Localhost';
 
         $db = new SPPDB();
-        
+
         // Ensure cache table exists
         try {
             $db->execute_query("SELECT 1 FROM lek_sankhyaki_geoip LIMIT 1");
@@ -35,12 +38,14 @@ class GeoLocator {
                     $country = $data['country'];
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         // Save to local cache
         try {
             $db->execute_query("INSERT INTO lek_sankhyaki_geoip (ip_address, country) VALUES (?, ?)", [$ip, $country]);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return $country;
     }

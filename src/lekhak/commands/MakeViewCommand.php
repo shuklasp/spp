@@ -26,7 +26,8 @@ class MakeViewCommand extends Command
         $baseTable = 'nodes';
 
         foreach ($args as $arg) {
-            if ($arg === 'make:view' || $arg === 'spp.php') continue;
+            if ($arg === 'make:view' || $arg === 'spp.php')
+                continue;
             if (str_starts_with($arg, '--table=')) {
                 $baseTable = substr($arg, 8);
             } elseif (!str_starts_with($arg, '--')) {

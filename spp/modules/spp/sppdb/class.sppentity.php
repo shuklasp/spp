@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 use SPP\Exceptions\AttributeNotFoundException;
 use SPP\Exceptions\EntityNotFoundException;
@@ -261,7 +261,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             // Register relations (only for the current entity level to avoid duplicate registrations if parent also registered them)
             if (isset($ymlData['relations']) && is_array($ymlData['relations'])) {
                 foreach ($ymlData['relations'] as $rel) {
-                    \SPPMod\SppDb\SPPEntityRelations::registerEntityRelation(
+                    \SPPMod\SPPDB\SPPEntityRelations::registerEntityRelation(
                         $rel['name'] ?? null,
                         $rel['parent_entity'] ?? $class,
                         $rel['parent_entity_field'] ?? 'id',
@@ -274,8 +274,8 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
             // Sugar support for modern keys
             $sugar = [
-                'hasMany'   => 'OneToMany',
-                'hasOne'    => 'OneToOne',
+                'hasMany' => 'OneToMany',
+                'hasOne' => 'OneToOne',
                 'belongsTo' => 'ManyToOne'
             ];
 
@@ -313,7 +313,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                             }
                         }
 
-                        \SPPMod\SppDb\SPPEntityRelations::registerEntityRelation(
+                        \SPPMod\SPPDB\SPPEntityRelations::registerEntityRelation(
                             $relName,
                             $type === 'ManyToOne' ? $childClass : $class,
                             $pField,
@@ -478,7 +478,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 return $this->_relatedCaches[$attribute];
             }
 
-            $related = \SPPMod\SppDb\SPPEntityRelations::getRelated($this, $attribute);
+            $related = \SPPMod\SPPDB\SPPEntityRelations::getRelated($this, $attribute);
             if ($related !== null) {
                 $this->_relatedCaches[$attribute] = $related;
                 return $related;
@@ -587,7 +587,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public static function entityExists(mixed $entity_name)
     {
         if (class_exists($entity_name)) {
-            if (is_a($entity_name, '\SPPMod\SppDb\SPPEntity', true)) {
+            if (is_a($entity_name, '\SPPMod\SPPDB\SPPEntity', true)) {
                 return true;
             } else {
                 return false;
@@ -663,7 +663,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $yaml = \Symfony\Component\Yaml\Yaml::dump($config, 4, 2);
         } else {
             // Fallback basic serialization
-            $yaml = "table: " . ($config['table'] ?? strtolower($name).'s') . "\n";
+            $yaml = "table: " . ($config['table'] ?? strtolower($name) . 's') . "\n";
             $yaml .= "id_field: " . ($config['id_field'] ?? 'id') . "\n";
             if (!empty($config['extends'])) {
                 $yaml .= "extends: " . $config['extends'] . "\n";
@@ -690,7 +690,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                     self::$_metadata[$tempClass] = $config;
                     // Handle install
                     $db = new \SPPMod\SPPDB\SPPDB();
-                    $table = $config['table'] ?? strtolower($name).'s';
+                    $table = $config['table'] ?? strtolower($name) . 's';
                     $attributes = $config['attributes'] ?? [];
                     if (!$db->tableExists($table)) {
                         $sql = 'create table %tab% (' . ($config['id_field'] ?? 'id') . ' varchar(20))';
@@ -726,11 +726,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
     /**
      * Initializes a modern Query Builder for this entity.
-     * @return \SPPMod\SppDb\SppEntityQuery
+     * @return \SPPMod\SPPDB\SppEntityQuery
      */
-    public static function query(): \SPPMod\SppDb\SppEntityQuery
+    public static function query(): \SPPMod\SPPDB\SppEntityQuery
     {
-        return \SPPMod\SppDb\SppEntityQuery::forEntity(static::class);
+        return \SPPMod\SPPDB\SppEntityQuery::forEntity(static::class);
     }
 
     /**
@@ -768,12 +768,12 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         }
 
         if ($limit) {
-            $sql .= ' limit ' . (int)$limit;
+            $sql .= ' limit ' . (int) $limit;
         }
 
         $cacheCid = 'spp_entity_' . md5($this->getTable() . $sql . serialize($values));
         $cacheEnabled = class_exists('\\SPPMod\\SPPCache\\SPPCacheManager') && \SPP\SPPConfig::get('system.auto_cache', true);
-        
+
         if ($cacheEnabled) {
             $cachedEntities = \SPPMod\SPPCache\SPPCacheManager::get($cacheCid);
             if ($cachedEntities !== false) {
@@ -794,7 +794,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $entities[] = $entity;
         }
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::loadFields($entities);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields($entities);
         }
         foreach ($entities as $entity) {
             $entity->after_load();
@@ -827,7 +827,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $instance = new static();
         $sql = 'SELECT COUNT(*) as cnt FROM ' . $instance->getTable();
         $res = $db->execute_query($sql);
-        return (int)($res[0]['cnt'] ?? 0);
+        return (int) ($res[0]['cnt'] ?? 0);
     }
 
     /**
@@ -1216,12 +1216,13 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public static function insertMany(array $entities)
     {
-        if (empty($entities)) return 0;
-        
+        if (empty($entities))
+            return 0;
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = static::getMetadata('table');
         $records = [];
-        
+
         foreach ($entities as $e) {
             $e->defensiveCleanup();
             $e->before_save();
@@ -1235,7 +1236,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
             $records[] = $record;
         }
-        
+
         return $db->insertMany($table, $records);
     }
 
@@ -1246,15 +1247,17 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public static function updateMany(array $entities)
     {
-        if (empty($entities)) return 0;
-        
+        if (empty($entities))
+            return 0;
+
         $db = new \SPPMod\SPPDB\SPPDB();
         $table = static::getMetadata('table');
         $idField = static::getMetadata('id_field');
         $records = [];
-        
+
         foreach ($entities as $e) {
-            if (!$e->id) continue;
+            if (!$e->id)
+                continue;
             $record = array_merge([$idField => $e->id], $e->_values);
             // Process casts
             foreach ($record as $k => $v) {
@@ -1262,9 +1265,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
             $records[] = $record;
         }
-        
-        if (empty($records)) return 0;
-        
+
+        if (empty($records))
+            return 0;
+
         return $db->updateMany($table, $records, $idField);
     }
 
@@ -1371,7 +1375,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         }
 
         if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
         }
         $this->_saveTranslations();
         return $new_id;
@@ -1387,7 +1391,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         if ($env !== 'local') {
             throw $e; // Only auto-migrate in local dev
         }
-        
+
         $errorCode = $e->getCode();
         $table = $this->getTable();
         $attributes = $this->getAttributes();
@@ -1524,16 +1528,16 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 $values[] = $this->uncastAttributeValue($k, $v);
             }
             $values[] = $this->id;
-            
+
             try {
                 $db->updateValues($this->getTable(), $keys, self::getMetadata('id_field') . '=?', $values);
             } catch (\PDOException $e) {
                 $this->handleMagicDatabase($e, $db);
                 $db->updateValues($this->getTable(), $keys, self::getMetadata('id_field') . '=?', $values);
             }
-            
+
             if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-                \SPPMod\SppDb\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
+                \SPPMod\SPPDB\SppDynamicFieldHandler::saveFields($this, $this->_dynamic_values);
             }
             $this->_saveTranslations();
             return true;
@@ -1551,7 +1555,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $this->fireEvent('deleting');
         \SPPMod\SPPAudit\SPPAudit::log(static::class, $this->id, 'delete', $this->_values, null);
         if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::deleteFields($this);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::deleteFields($this);
         }
         $db = new \SPPMod\SPPDB\SPPDB();
         if (!$db->isXDB() && self::getMetadata('soft_delete', false)) {
@@ -1601,7 +1605,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 }
             }
             if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-                \SPPMod\SppDb\SppDynamicFieldHandler::loadFields([$this]);
+                \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields([$this]);
             }
             $this->after_load();
             \SPP\SPPEvent::triggerHook('entity:after_load', $this);
@@ -1632,7 +1636,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 }
             }
             if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-                \SPPMod\SppDb\SppDynamicFieldHandler::loadFields([$this]);
+                \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields([$this]);
             }
             $this->after_load();
             $this->_snapshot = $this->_values;
@@ -1664,7 +1668,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $entities[] = $entity;
         }
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::loadFields($entities);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields($entities);
         }
         foreach ($entities as $entity) {
             $entity->after_load();
@@ -1701,7 +1705,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $entities[] = $entity;
         }
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::loadFields($entities);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields($entities);
         }
         foreach ($entities as $entity) {
             $entity->after_load();
@@ -1735,10 +1739,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             if (strpos($type, 'varchar') !== false || strpos($type, 'string') !== false) {
                 $len = 255; // Default safe length
                 if (preg_match('/\((\d+)\)/', $type, $matches)) {
-                    $len = (int)$matches[1];
+                    $len = (int) $matches[1];
                 }
-                if (strlen((string)$value) > $len) {
-                    $value = substr((string)$value, 0, $len);
+                if (strlen((string) $value) > $len) {
+                    $value = substr((string) $value, 0, $len);
                 }
             }
         }

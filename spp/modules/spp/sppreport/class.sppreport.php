@@ -4,22 +4,29 @@
  * Handles schema introspection and dynamic SQL query building for custom reports.
  */
 
-class SPPReport {
+class SPPReport
+{
     private $db;
 
-    public function __construct($externalConfig = null) {
+    public function __construct($externalConfig = null)
+    {
         if ($externalConfig && !empty($externalConfig['dsn'])) {
             $user = $externalConfig['user'] ?? null;
             $pass = $externalConfig['pass'] ?? null;
             $pdo = new \PDO($externalConfig['dsn'], $user, $pass);
             $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            
+
             // Create a mock SPPDB object using an anonymous class
-            $this->db = new class($pdo) {
+            $this->db = new class ($pdo) {
                 private $pdo;
-                public function __construct($pdo) { $this->pdo = $pdo; }
-                public function getDriver() { return $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME); }
-                public function query($sql, $params = []) {
+                public function __construct($pdo)
+                {
+                    $this->pdo = $pdo; }
+                public function getDriver()
+                {
+                    return $this->pdo->getAttribute(\PDO::ATTR_DRIVER_NAME); }
+                public function query($sql, $params = [])
+                {
                     $stmt = $this->pdo->prepare($sql);
                     $stmt->execute($params);
                     return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -33,25 +40,29 @@ class SPPReport {
         }
     }
 
-    public function getDriver() {
+    public function getDriver()
+    {
         return $this->db->getDriver();
     }
 
     /**
      * Introspect the database schema to get available tables and columns
      */
-    public function getSchema() {
+    public function getSchema()
+    {
         $schema = [];
         // Support SQLite, MySQL, PgSQL schema queries
         $driver = $this->db->getDriver();
-        
+
         try {
             if ($driver === 'sqlite') {
                 $tables = $this->db->execute_query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
                 foreach ($tables as $t) {
                     $tableName = $t['name'];
                     $columns = $this->db->execute_query("PRAGMA table_info(" . $tableName . ")");
-                    $cols = array_map(function($c) { return $c['name']; }, $columns);
+                    $cols = array_map(function ($c) {
+                        return $c['name'];
+                    }, $columns);
                     $schema[$tableName] = $cols;
                 }
             } else if ($driver === 'mysql') {
@@ -59,7 +70,9 @@ class SPPReport {
                 foreach ($tables as $t) {
                     $tableName = array_values($t)[0];
                     $columns = $this->db->execute_query("SHOW COLUMNS FROM " . $tableName);
-                    $cols = array_map(function($c) { return $c['Field']; }, $columns);
+                    $cols = array_map(function ($c) {
+                        return $c['Field'];
+                    }, $columns);
                     $schema[$tableName] = $cols;
                 }
             } else if ($driver === 'pgsql') {
@@ -67,7 +80,9 @@ class SPPReport {
                 foreach ($tables as $t) {
                     $tableName = $t['tablename'];
                     $columns = $this->db->execute_query("SELECT column_name FROM information_schema.columns WHERE table_name = ?", [$tableName]);
-                    $cols = array_map(function($c) { return $c['column_name']; }, $columns);
+                    $cols = array_map(function ($c) {
+                        return $c['column_name'];
+                    }, $columns);
                     $schema[$tableName] = $cols;
                 }
             } else if ($driver === 'xdb') {
@@ -75,7 +90,9 @@ class SPPReport {
                 foreach ($tables as $t) {
                     $tableName = array_values($t)[0];
                     $columns = $this->db->execute_query("DESCRIBE " . $tableName);
-                    $cols = array_map(function($c) { return $c['Field']; }, $columns);
+                    $cols = array_map(function ($c) {
+                        return $c['Field'];
+                    }, $columns);
                     $schema[$tableName] = $cols;
                 }
             }
@@ -113,7 +130,8 @@ class SPPReport {
      *   "limit": 100
      * }
      */
-    public function runReport($config) {
+    public function runReport($config)
+    {
         $table = $config['table'] ?? '';
         if (empty($table) || !preg_match('/^[a-zA-Z0-9_]+$/', $table)) {
             throw new Exception("Invalid base table.");
@@ -132,12 +150,14 @@ class SPPReport {
 
             if ($aggregate === 'CUSTOM') {
                 // Formula field. Ensure it only contains safe math/sql chars (removed space and quotes)
-                if (!preg_match('/^[a-zA-Z0-9_\.\(\)\+\-\*\/\,]+$/', $field)) continue;
+                if (!preg_match('/^[a-zA-Z0-9_\.\(\)\+\-\*\/\,]+$/', $field))
+                    continue;
                 $selects[] = $field . $aliasSql;
                 continue;
             }
 
-            if (!preg_match('/^[a-zA-Z0-9_\.\*]+$/', $field)) continue;
+            if (!preg_match('/^[a-zA-Z0-9_\.\*]+$/', $field))
+                continue;
 
             if ($aggregate && in_array(strtoupper($aggregate), ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'])) {
                 $selects[] = strtoupper($aggregate) . "(" . $field . ")" . $aliasSql;
@@ -145,7 +165,7 @@ class SPPReport {
                 $selects[] = $field . $aliasSql;
             }
         }
-        
+
         $selectSql = empty($selects) ? "*" : implode(', ', $selects);
 
         // 1.5 Build JOINS
@@ -154,7 +174,8 @@ class SPPReport {
             $joinParts = [];
             foreach ($config['joins'] as $j) {
                 $type = strtoupper($j['type'] ?? 'LEFT JOIN');
-                if (!in_array($type, ['JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN'])) $type = 'LEFT JOIN';
+                if (!in_array($type, ['JOIN', 'INNER JOIN', 'LEFT JOIN', 'RIGHT JOIN']))
+                    $type = 'LEFT JOIN';
                 $jt = $j['table'] ?? '';
                 $on = $j['on'] ?? '';
                 // Basic sanitation to prevent injection in table/on names
@@ -181,7 +202,8 @@ class SPPReport {
         if (!empty($config['group_by'])) {
             $safeGroups = [];
             foreach ($config['group_by'] as $g) {
-                if (preg_match('/^[a-zA-Z0-9_\.]+$/', $g)) $safeGroups[] = $g;
+                if (preg_match('/^[a-zA-Z0-9_\.]+$/', $g))
+                    $safeGroups[] = $g;
             }
             if (!empty($safeGroups)) {
                 $groupBySql = " GROUP BY " . implode(', ', $safeGroups);
@@ -215,8 +237,10 @@ class SPPReport {
     /**
      * Recursively parses filters into SQL condition strings and binds params.
      */
-    private function parseFilters($filterGroup, &$params) {
-        if (empty($filterGroup['conditions'])) return "";
+    private function parseFilters($filterGroup, &$params)
+    {
+        if (empty($filterGroup['conditions']))
+            return "";
 
         $logic = strtoupper($filterGroup['logic'] ?? 'AND') === 'OR' ? ' OR ' : ' AND ';
         $parts = [];
@@ -225,15 +249,18 @@ class SPPReport {
             if (isset($cond['logic'])) {
                 // Nested group
                 $nested = $this->parseFilters($cond, $params);
-                if ($nested) $parts[] = "(" . $nested . ")";
+                if ($nested)
+                    $parts[] = "(" . $nested . ")";
             } else {
                 // Single condition
                 $field = $cond['field'] ?? '';
-                if (!preg_match('/^[a-zA-Z0-9_\.]+$/', $field)) continue;
+                if (!preg_match('/^[a-zA-Z0-9_\.]+$/', $field))
+                    continue;
 
                 $op = strtoupper($cond['operator'] ?? '=');
                 $allowedOps = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL'];
-                if (!in_array($op, $allowedOps)) $op = '=';
+                if (!in_array($op, $allowedOps))
+                    $op = '=';
 
                 $val = $cond['value'] ?? null;
 

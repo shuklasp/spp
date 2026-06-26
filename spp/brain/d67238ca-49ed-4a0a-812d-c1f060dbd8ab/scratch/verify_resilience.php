@@ -1,7 +1,7 @@
 <?php
 require 'c:/projects/apache/school1/spp/sppinit.php';
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 use SPPMod\SPPGroup\SPPGroup;
 
 // Mock DB row with extra column
@@ -12,11 +12,16 @@ $row = [
     'unknown_col' => 'value'
 ];
 
-class MockEntity extends SPPEntity {
-    public function define_attributes() {
+class MockEntity extends SPPEntity
+{
+    public function define_attributes()
+    {
         return ['name' => 'varchar(255)'];
     }
-    public function getTable() { return 'mock_table'; }
+    public function getTable()
+    {
+        return 'mock_table';
+    }
 }
 
 $entity = new MockEntity();
@@ -30,12 +35,12 @@ try {
     }
     echo "Success: Set 'name' but skipped 'ai_vector' and 'unknown_col'.\n";
     echo "Entity Name: " . $entity->get('name') . "\n";
-    
+
     // Testing set directly (should log warning but not throw)
     echo "Testing direct set on unknown attribute...\n";
     $entity->set('ai_vector', 'test');
     echo "Success: set() did not throw.\n";
-    
+
 } catch (\Exception $e) {
     echo "FAILED: " . $e->getMessage() . "\n";
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppDb;
+namespace SPPMod\SPPDB;
 
 /**
  * Class SppEntityQuery
@@ -149,11 +149,26 @@ class SppEntityQuery
     }
 
     // --- AST Getters ---
-    public function getConditions(): array { return $this->conditions; }
-    public function getDynamicConditions(): array { return $this->dynamicConditions; }
-    public function getSort(): ?string { return $this->sort; }
-    public function getLimit(): ?int { return $this->limit; }
-    public function getOffset(): ?int { return $this->offset; }
+    public function getConditions(): array
+    {
+        return $this->conditions;
+    }
+    public function getDynamicConditions(): array
+    {
+        return $this->dynamicConditions;
+    }
+    public function getSort(): ?string
+    {
+        return $this->sort;
+    }
+    public function getLimit(): ?int
+    {
+        return $this->limit;
+    }
+    public function getOffset(): ?int
+    {
+        return $this->offset;
+    }
 
     /**
      * Magic method to handle Local Scopes on the entity class.
@@ -214,18 +229,18 @@ class SppEntityQuery
         $countQuery = clone $this;
         $countQuery->limit = null;
         $countQuery->offset = null;
-        
+
         $sqlData = $countQuery->buildQuery();
         // Replace SELECT base.* FROM with SELECT COUNT(*) as total FROM
         $sql = preg_replace('/^SELECT base\.\* FROM/i', 'SELECT COUNT(*) as total FROM', $sqlData['sql']);
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
+        /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
         $countResult = $db->exec_squery($sql, $baseTable, $values);
-        $total = empty($countResult) ? 0 : (int)$countResult[0]['total'];
+        $total = empty($countResult) ? 0 : (int) $countResult[0]['total'];
 
         // 2. Fetch the data for the current page
         $this->limit($perPage, ($page - 1) * $perPage);
@@ -253,7 +268,7 @@ class SppEntityQuery
         $sql = $sqlData['sql'];
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
+        /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
@@ -312,12 +327,12 @@ class SppEntityQuery
         $sql = $sqlData['sql'];
         $values = $sqlData['values'];
 
-        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
+        /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
         $generator = $db->exec_squery_cursor($sql, $baseTable, $values);
-        
+
         foreach ($generator as $row) {
             $entity = new $this->entityClass();
             $entity->setId($row[$entityInstance::getMetadata('id_field')]);
@@ -339,11 +354,11 @@ class SppEntityQuery
      */
     protected function hydrateFromRaw(array $result): array
     {
-        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
+        /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $entities = [];
         foreach ($result as $row) {
-            /** @var \SPPMod\SppDb\SPPEntity $entity */
+            /** @var \SPPMod\SPPDB\SPPEntity $entity */
             $entity = new $this->entityClass();
             $entity->setId($row[$entityInstance::getMetadata('id_field')]);
             foreach ($row as $attribute => $value) {
@@ -355,7 +370,7 @@ class SppEntityQuery
         }
 
         if (!empty($entities) && class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
-            \SPPMod\SppDb\SppDynamicFieldHandler::loadFields($entities);
+            \SPPMod\SPPDB\SppDynamicFieldHandler::loadFields($entities);
         }
 
         if (!empty($entities) && !empty($this->withRelations)) {
@@ -383,7 +398,8 @@ class SppEntityQuery
             return;
         }
 
-        $ids = array_map(function($e) { return $e->getId(); }, $entities);
+        $ids = array_map(function ($e) {
+            return $e->getId(); }, $entities);
         $entitiesById = [];
         foreach ($entities as $e) {
             $entitiesById[$e->getId()] = $e;
@@ -392,12 +408,12 @@ class SppEntityQuery
         foreach ($this->withRelations as $relName) {
             foreach ($rels as $rel) {
                 if ($rel['name'] === $relName && ($rel['parent_entity'] === $this->entityClass || $rel['child_entity'] === $this->entityClass)) {
-                    
+
                     if ($rel['relation_type'] === 'OneToMany' && $rel['parent_entity'] === $this->entityClass) {
                         $childClass = $rel['child_entity'];
                         $childField = $rel['child_entity_field'];
                         $children = $childClass::query()->condition($childField, $ids, 'IN')->execute();
-                        
+
                         // Group children by parent id
                         $grouped = [];
                         foreach ($children as $child) {
@@ -414,21 +430,22 @@ class SppEntityQuery
                         $parentClass = $rel['parent_entity'];
                         $parentField = $rel['parent_entity_field'];
                         $childField = $rel['child_entity_field']; // the FK on this entity
-                        
+
                         $parentIdsToFetch = [];
                         foreach ($entities as $e) {
                             $pid = $e->get($childField);
-                            if ($pid) $parentIdsToFetch[] = $pid;
+                            if ($pid)
+                                $parentIdsToFetch[] = $pid;
                         }
                         $parentIdsToFetch = array_unique($parentIdsToFetch);
-                        
+
                         if (!empty($parentIdsToFetch)) {
                             $parents = $parentClass::query()->condition($parentField, $parentIdsToFetch, 'IN')->execute();
                             $parentsById = [];
                             foreach ($parents as $p) {
                                 $parentsById[$p->get($parentField)] = $p;
                             }
-                            
+
                             foreach ($entities as $e) {
                                 $pid = $e->get($childField);
                                 $e->setRelatedCache($relName, $pid && isset($parentsById[$pid]) ? $parentsById[$pid] : null);
@@ -441,7 +458,7 @@ class SppEntityQuery
                             $childClass = $rel['child_entity'];
                             $childField = $rel['child_entity_field'];
                             $children = $childClass::query()->condition($childField, $ids, 'IN')->execute();
-                            
+
                             $mapped = [];
                             foreach ($children as $child) {
                                 $parentId = $child->get($childField);
@@ -454,21 +471,22 @@ class SppEntityQuery
                             $parentClass = $rel['parent_entity'];
                             $parentField = $rel['parent_entity_field'];
                             $childField = $rel['child_entity_field'];
-                            
+
                             $parentIdsToFetch = [];
                             foreach ($entities as $e) {
                                 $pid = $e->get($childField);
-                                if ($pid) $parentIdsToFetch[] = $pid;
+                                if ($pid)
+                                    $parentIdsToFetch[] = $pid;
                             }
                             $parentIdsToFetch = array_unique($parentIdsToFetch);
-                            
+
                             if (!empty($parentIdsToFetch)) {
                                 $parents = $parentClass::query()->condition($parentField, $parentIdsToFetch, 'IN')->execute();
                                 $parentsById = [];
                                 foreach ($parents as $p) {
                                     $parentsById[$p->get($parentField)] = $p;
                                 }
-                                
+
                                 foreach ($entities as $e) {
                                     $pid = $e->get($childField);
                                     $e->setRelatedCache($relName, $pid && isset($parentsById[$pid]) ? $parentsById[$pid] : null);
@@ -484,7 +502,7 @@ class SppEntityQuery
                             ->condition($morphPrefix . '_id', $ids, 'IN')
                             ->condition($morphPrefix . '_type', $this->entityClass)
                             ->execute();
-                        
+
                         $grouped = [];
                         foreach ($children as $child) {
                             $parentId = $child->get($morphPrefix . '_id');
@@ -559,7 +577,7 @@ class SppEntityQuery
             }
         }
 
-        /** @var \SPPMod\SppDb\SPPEntity $entityInstance */
+        /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 

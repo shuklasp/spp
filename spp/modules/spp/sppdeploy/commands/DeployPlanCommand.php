@@ -16,7 +16,7 @@ class DeployPlanCommand extends Command
 
         $apiKey = 'default_cli_key';
         $noDb = false;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -25,13 +25,13 @@ class DeployPlanCommand extends Command
                 $noDb = true;
             }
         }
-        
+
         $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
         echo "🔍 Scanning local application state...\n";
         $fileScanner = new \SPPMod\Sppdeploy\Scanner\FileScanner(SPP_BASE_DIR);
         $localHashes = $fileScanner->scan();
-        
+
         $localDbHashes = [];
         if (!$noDb) {
             $dbScanner = new \SPPMod\Sppdeploy\Scanner\DbScanner();
@@ -40,7 +40,7 @@ class DeployPlanCommand extends Command
 
         echo "📡 Fetching remote diff from {$target}...\n";
         $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
-        
+
         if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
             echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
             return;
@@ -49,7 +49,7 @@ class DeployPlanCommand extends Command
         $diff = $diffResp['diff'];
         $fileCount = count($diff['files']['create']) + count($diff['files']['update']) + count($diff['files']['delete']);
         $dbCount = count($diff['db']['create']) + count($diff['db']['update']) + count($diff['db']['delete']);
-        
+
         if ($fileCount === 0 && $dbCount === 0) {
             echo "✅ Everything is up to date. No deployment necessary.\n";
             return;
@@ -68,11 +68,11 @@ class DeployPlanCommand extends Command
         echo "  Created : " . count($diff['db']['create']) . "\n";
         echo "  Updated : " . count($diff['db']['update']) . "\n";
         echo "  Deleted : " . count($diff['db']['delete']) . "\n";
-        
+
         if ($dbCount > 0) {
             echo "\n⚠️  PROPOSED SQL STATEMENTS (To be executed on target):\n";
             echo str_repeat("-", 50) . "\n";
-            
+
             if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $pdo = $db->getPDO();
@@ -102,7 +102,7 @@ class DeployPlanCommand extends Command
             }
             echo str_repeat("-", 50) . "\n";
         }
-        
+
         echo "\n💡 This is a dry run. Nothing has been deployed.\n";
     }
 

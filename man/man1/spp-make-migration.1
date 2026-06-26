@@ -13,7 +13,7 @@ Generates a boilerplate PHP migration class file within the current application 
 .br
 .PP
 # UNDER THE HOOD ACTIVITY
-The script begins by asserting that the <migration_name> argument is provided. It then determines the active module or application context via \SPP\Scheduler::getContext(). It formats the provided migration name by aggressively converting it to snake_case, and subsequently transforming it into a PascalCase class name (e.g., CreateUsersTable). A timestamp format (Y_m_d_His) is generated and prepended to the filename to ensure chronological ordering. The CLI then ensures the directory SPP_APP_DIR/src/<context>/migrations exists, creating it with 0777 permissions if necessary. Finally, it generates a heredoc PHP template inheriting from \SPPMod\Sppdb\Migration\SPPMigration and saves it to the path, outputting the file location in green ANSI text.
+The script begins by asserting that the <migration_name> argument is provided. It then determines the active module or application context via \SPP\Scheduler::getContext(). It formats the provided migration name by aggressively converting it to snake_case, and subsequently transforming it into a PascalCase class name (e.g., CreateUsersTable). A timestamp format (Y_m_d_His) is generated and prepended to the filename to ensure chronological ordering. The CLI then ensures the directory SPP_APP_DIR/src/<context>/migrations exists, creating it with 0777 permissions if necessary. Finally, it generates a heredoc PHP template inheriting from \SPPMod\SPPDB\Migration\SPPMigration and saves it to the path, outputting the file location in green ANSI text.
 .PP
 # EXAMPLES
 Create a migration to add an orders table:

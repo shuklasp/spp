@@ -2,7 +2,7 @@
 
 namespace SPPMod\SPPAuth;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 use SPP\Exceptions\UserNotFoundException;
 use SPPMod\SPPDB\SPPDB;
 
@@ -212,7 +212,7 @@ class SPPUser extends SPPEntity
         } catch (\Exception $e) {
             $hash = '';
         }
-        
+
         try {
             $hash2 = $this->password_hash ?? '';
         } catch (\Exception $e) {
@@ -250,7 +250,7 @@ class SPPUser extends SPPEntity
             $this->save();
             return true;
         }
-        
+
         return false;
     }
 

@@ -2,7 +2,7 @@
 
 namespace SPPMod\SPPAuth;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 use SPPMod\SPPDB\SPPDB;
 
 /**
@@ -32,7 +32,7 @@ class SPPRole extends SPPEntity
         $db = new SPPDB();
         $sql = 'SELECT count(*) as cnt FROM ' . SPPDB::sppTable('roleright') . ' WHERE roleid=? AND rightid=?';
         $res = $db->execute_query($sql, [$this->id, $rtid]);
-        return (int)$res[0]['cnt'] > 0;
+        return (int) $res[0]['cnt'] > 0;
     }
 
     /**
@@ -58,7 +58,7 @@ class SPPRole extends SPPEntity
 
         // 2. Re-insert new assignments
         foreach ($rightIds as $rid) {
-            $db->insertValues('roleright', ['roleid' => $this->id, 'rightid' => (int)$rid]);
+            $db->insertValues('roleright', ['roleid' => $this->id, 'rightid' => (int) $rid]);
         }
     }
 

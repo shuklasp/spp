@@ -32,9 +32,9 @@ class ConfigImportCommand extends \SPP\CLI\Command
 
     public function execute(array $args): void
     {
-        $options    = $this->parseOptions($args);
+        $options = $this->parseOptions($args);
         $positional = $this->parsePositional($args);
-        $file       = $positional[0] ?? null;
+        $file = $positional[0] ?? null;
         $onConflict = $options['on-conflict'] ?? 'prompt';
 
         if (!$file) {
@@ -112,7 +112,8 @@ class ConfigImportCommand extends \SPP\CLI\Command
         $count = 0;
         foreach ($statements as $stmt) {
             $trimmed = trim($stmt);
-            if (empty($trimmed) || str_starts_with($trimmed, '--')) continue;
+            if (empty($trimmed) || str_starts_with($trimmed, '--'))
+                continue;
             try {
                 $db->exec($trimmed);
                 $count++;
@@ -154,10 +155,14 @@ class ConfigImportCommand extends \SPP\CLI\Command
 
         foreach ($tables as $table) {
             $rows = $sqlite->query("SELECT * FROM {$table}")->fetchAll(\PDO::FETCH_ASSOC);
-            if (empty($rows)) continue;
+            if (empty($rows))
+                continue;
 
             if ($onConflict === 'drop') {
-                try { $db->exec("DROP TABLE IF EXISTS {$table}"); } catch (\Exception $e) {}
+                try {
+                    $db->exec("DROP TABLE IF EXISTS {$table}");
+                } catch (\Exception $e) {
+                }
             }
 
             // Ensure table exists on the target
@@ -169,7 +174,10 @@ class ConfigImportCommand extends \SPP\CLI\Command
                     if ($db->getDriver() !== 'sqlite') {
                         $schemaSql = $this->convertSqliteToMysql($schemaSql);
                     }
-                    try { $db->exec($schemaSql); } catch (\Exception $e) {}
+                    try {
+                        $db->exec($schemaSql);
+                    } catch (\Exception $e) {
+                    }
                 }
             }
 
@@ -223,7 +231,10 @@ class ConfigImportCommand extends \SPP\CLI\Command
             $tableName = $tableNode->getAttribute('name');
 
             if ($onConflict === 'drop') {
-                try { $db->exec("DROP TABLE IF EXISTS {$tableName}"); } catch (\Exception $e) {}
+                try {
+                    $db->exec("DROP TABLE IF EXISTS {$tableName}");
+                } catch (\Exception $e) {
+                }
             }
 
             $rowNodes = $tableNode->getElementsByTagName('row');
@@ -241,7 +252,8 @@ class ConfigImportCommand extends \SPP\CLI\Command
                     $data[$colName] = $isNull ? null : $colNode->textContent;
                 }
 
-                if (empty($data)) continue;
+                if (empty($data))
+                    continue;
 
                 $cols = implode(', ', array_map(fn($c) => "`{$c}`", array_keys($data)));
                 $placeholders = implode(', ', array_fill(0, count($data), '?'));
@@ -280,14 +292,15 @@ class ConfigImportCommand extends \SPP\CLI\Command
 
     private function handleConflict(\SPPMod\SPPDB\SPPDB $db, array $tables, string $onConflict): bool
     {
-        if ($onConflict === 'drop') return true; // will drop tables anyway
+        if ($onConflict === 'drop')
+            return true; // will drop tables anyway
 
         $conflicting = [];
         foreach ($tables as $table) {
             try {
                 if ($db->tableExists($table)) {
                     $count = $db->execute_query("SELECT COUNT(*) as cnt FROM {$table}");
-                    if (!empty($count) && (int)($count[0]['cnt'] ?? 0) > 0) {
+                    if (!empty($count) && (int) ($count[0]['cnt'] ?? 0) > 0) {
                         $conflicting[] = $table . " (" . $count[0]['cnt'] . " rows)";
                     }
                 }
@@ -296,17 +309,20 @@ class ConfigImportCommand extends \SPP\CLI\Command
             }
         }
 
-        if (empty($conflicting)) return true;
+        if (empty($conflicting))
+            return true;
 
         if ($onConflict === 'abort') {
             $this->error("Aborting — the following tables already contain data:");
-            foreach ($conflicting as $t) $this->line("  - {$t}");
+            foreach ($conflicting as $t)
+                $this->line("  - {$t}");
             return false;
         }
 
         if ($onConflict === 'prompt') {
             $this->warn("The following tables already contain data:");
-            foreach ($conflicting as $t) $this->line("  - {$t}");
+            foreach ($conflicting as $t)
+                $this->line("  - {$t}");
             $this->line("Options: [d]rop existing data, [m]erge, [a]bort");
             $this->line("Proceeding with merge by default (non-interactive mode).");
             return true; // Default to merge in non-interactive
@@ -321,9 +337,12 @@ class ConfigImportCommand extends \SPP\CLI\Command
     private function detectFormat(string $file): string
     {
         $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-        if (in_array($ext, ['sql'])) return 'sql';
-        if (in_array($ext, ['sqlite', 'db', 'sqlite3'])) return 'sqlite';
-        if (in_array($ext, ['xdb', 'xml'])) return 'xdb';
+        if (in_array($ext, ['sql']))
+            return 'sql';
+        if (in_array($ext, ['sqlite', 'db', 'sqlite3']))
+            return 'sqlite';
+        if (in_array($ext, ['xdb', 'xml']))
+            return 'xdb';
         return $ext;
     }
 
@@ -366,9 +385,14 @@ class ConfigImportCommand extends \SPP\CLI\Command
         $positional = [];
         $skipNext = false;
         foreach ($args as $i => $arg) {
-            if ($skipNext) { $skipNext = false; continue; }
-            if ($arg === 'config:import' || $arg === 'spp.php') continue;
-            if (str_starts_with($arg, '--')) continue;
+            if ($skipNext) {
+                $skipNext = false;
+                continue;
+            }
+            if ($arg === 'config:import' || $arg === 'spp.php')
+                continue;
+            if (str_starts_with($arg, '--'))
+                continue;
             $positional[] = $arg;
         }
         return $positional;

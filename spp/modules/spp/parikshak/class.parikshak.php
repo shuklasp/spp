@@ -28,7 +28,7 @@ class Parikshak
         $this->fuzzer = new ParikshakFuzzer();
         $this->oracle = new ParikshakOracle();
         $this->generator = new ParikshakCodeGenerator($this->fuzzer);
-        
+
         // Enforce SQLite Memory DB to isolate tests and avoid shadow tables
         \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb');
         \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb');
@@ -543,7 +543,8 @@ class Parikshak
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $auditTable = \SPPMod\SPPDB\SPPDB::sppTable('audit_logs');
                 $audit = $db->exec_squery("SELECT * FROM %tab% WHERE entity_type = ? AND entity_id = ? AND action = 'create' ORDER BY id DESC LIMIT 1", $auditTable, [
-                    $entityClass, (string)$id
+                    $entityClass,
+                    (string) $id
                 ]);
 
                 if (empty($audit)) {
@@ -594,7 +595,7 @@ class Parikshak
                     if ($val === null) {
                         continue;
                     }
-                    if (!mb_check_encoding((string)$val, 'UTF-8')) {
+                    if (!mb_check_encoding((string) $val, 'UTF-8')) {
                         throw new \Exception("UTF-8 Corrupted on field '$name'. Invalid encoding detected.");
                     }
                 }

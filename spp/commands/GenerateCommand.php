@@ -12,7 +12,7 @@ class GenerateCommand extends BaseMakeCommand
     public function execute(array $args): void
     {
         $prompt = implode(' ', array_slice($args, 2));
-        
+
         if (empty(trim($prompt))) {
             echo "Error: Please provide a description of what you want to build.\n";
             echo "Example: php spp.php generate \"A complete ecommerce store with products and orders\"\n";
@@ -26,10 +26,10 @@ class GenerateCommand extends BaseMakeCommand
         sleep(1);
         echo "[-] Identifying required entities...\n";
         sleep(1);
-        
+
         $entities = [];
         $lowerPrompt = strtolower($prompt);
-        
+
         if (str_contains($lowerPrompt, 'ecommerce') || str_contains($lowerPrompt, 'store')) {
             $entities = ['Product', 'Order', 'Customer'];
         } elseif (str_contains($lowerPrompt, 'blog')) {
@@ -53,10 +53,10 @@ class GenerateCommand extends BaseMakeCommand
                 ]
             ];
 
-            if (!class_exists('\SPPMod\SppDb\SPPEntity')) {
+            if (!class_exists('\SPPMod\SPPDB\SPPEntity')) {
                 require_once dirname(__DIR__) . '/sppinit.php';
             }
-            \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entity, 'default', $config);
+            \SPPMod\SPPDB\SPPEntity::saveEntityDefinition($entity, 'default', $config);
         }
 
         sleep(1);

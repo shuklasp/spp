@@ -88,14 +88,14 @@ class SPPAjax extends \SPP\SPPObject
             $input = json_decode(file_get_contents('php://input'), true);
             $topics = $input['topics'] ?? ['global'];
             $userId = class_exists('\\SPPMod\\SPPAuth\\SPPAuth') ? \SPPMod\SPPAuth\SPPAuth::getUserId() : 'anonymous_' . session_id();
-            
+
             $engine = \SPPMod\SPPLive\SPPLive::getEngine();
             foreach ($topics as $topic) {
                 if (\SPPMod\SPPLive\SPPLive::authorizeTopic($topic)) {
                     $engine->trackPresence($topic, $userId);
                 }
             }
-            
+
             header('Content-Type: application/json');
             echo json_encode(['success' => true]);
             return;
@@ -378,7 +378,7 @@ class SPPAjax extends \SPP\SPPObject
             }
             $parsed = Yaml::parseFile($file) ?? [];
             $services = $parsed['services'] ?? [];
-            $filtered = array_values(array_filter($services, fn ($s) => $s['name'] !== $name));
+            $filtered = array_values(array_filter($services, fn($s) => $s['name'] !== $name));
             if (count($filtered) === count($services)) {
                 return false;
             }
@@ -515,7 +515,7 @@ class SPPAjax extends \SPP\SPPObject
             return false;
         }
         $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : 'spp-enterprise-integrity-secret-key-v1';
-        
+
         $rawPayload = file_get_contents('php://input');
         if (!empty($rawPayload)) {
             $dataToSign = $rawPayload;
@@ -524,7 +524,7 @@ class SPPAjax extends \SPP\SPPObject
             unset($getParams['__sig']); // Ensure signature doesn't invalidate itself
             $dataToSign = json_encode($_POST ?: $getParams);
         }
-        
+
         $computed = hash_hmac('sha256', $dataToSign, $secret);
         return hash_equals($computed, $clientSig);
     }

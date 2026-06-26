@@ -3,7 +3,11 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
 require 'spp/sppinit.php';
-try { \SPP\Scheduler::getProcObj('sppadmin'); } catch (\Exception $e) { new \SPP\App('sppadmin'); }
+try {
+    \SPP\Scheduler::getProcObj('sppadmin');
+} catch (\Exception $e) {
+    new \SPP\App('sppadmin');
+}
 \SPP\Scheduler::setContext('sppadmin');
 
 try {
@@ -12,7 +16,7 @@ try {
     echo "Adapter class: " . get_class($adapter) . "<br>";
     $dbtype = \SPP\Module::getConfig('dbtype', 'sppdb');
     echo "dbtype (sppdb): " . $dbtype . "<br>";
-    
+
     // Now trigger RateLimiter
     $rl = new \SPPMod\SppAuth\RateLimiter();
     echo "RateLimiter instantiated successfully.<br>";

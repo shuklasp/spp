@@ -21,12 +21,12 @@ class EnvStatusCommand extends Command
         echo "SPP Environment Status\n";
         echo str_repeat("=", 80) . "\n\n";
 
-        \SPP\Scheduler::withContext($appname, function() use ($appname) {
+        \SPP\Scheduler::withContext($appname, function () use ($appname) {
             echo "Context:        {$appname}\n";
             echo "PHP Version:    " . PHP_VERSION . "\n";
             echo "OS:             " . PHP_OS . "\n";
             echo "Memory Limit:   " . ini_get('memory_limit') . "\n";
-            
+
             $dbStatus = 'Disconnected';
             ob_start();
             try {
@@ -38,7 +38,7 @@ class EnvStatusCommand extends Command
                 $dbStatus = 'Disconnected (' . $e->getMessage() . ')';
             }
             ob_end_clean();
-            
+
             echo "Database:       {$dbStatus}\n";
 
             $fsStatus = is_writable(SPP_BASE_DIR) ? 'Write Access Confirmed' : 'Restricted Permissions';
@@ -46,7 +46,7 @@ class EnvStatusCommand extends Command
 
             $middleware = \SPP\Registry::get('__middleware=>global') ?: [];
             echo "Middleware:     " . count($middleware) . " global layers\n";
-            
+
             $queueSize = method_exists('\SPP\Core\Queue', 'size') ? \SPP\Core\Queue::size() : 0;
             echo "Queue Size:     {$queueSize}\n";
 
@@ -60,7 +60,7 @@ class EnvStatusCommand extends Command
 
             echo "\nHealth Checks:\n";
             echo str_repeat("-", 80) . "\n";
-            
+
             $checks = [];
             $checks[] = ['name' => 'Database', 'status' => $dbStatus === 'Connected' ? 'OK' : 'FAIL'];
             $checks[] = ['name' => 'Filesystem', 'status' => is_writable(SPP_BASE_DIR) ? 'OK' : 'WARN'];
@@ -68,11 +68,13 @@ class EnvStatusCommand extends Command
 
             $score = 0;
             foreach ($checks as $c) {
-                if ($c['status'] === 'OK') $score += 33;
+                if ($c['status'] === 'OK')
+                    $score += 33;
                 echo str_pad($c['name'], 30) . "[{$c['status']}]\n";
             }
-            if ($score > 100) $score = 100;
-            
+            if ($score > 100)
+                $score = 100;
+
             echo "\nOverall Health Score: {$score}%\n";
         });
     }

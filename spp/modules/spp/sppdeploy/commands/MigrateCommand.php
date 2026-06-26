@@ -2,13 +2,15 @@
 namespace SPPMod\Sppdeploy\Commands;
 
 use SPP\CLI\Command;
-use SPPMod\Sppdb\Migration\SPPMigrationManager;
+use SPPMod\SPPDB\Migration\SPPMigrationManager;
 
-class MigrateCommand extends Command {
+class MigrateCommand extends Command
+{
     protected string $name = 'migrate';
     protected string $description = 'Run pending database migrations';
 
-    public function execute(array $args): void {
+    public function execute(array $args): void
+    {
         $context = \SPP\Scheduler::getContext();
         echo "Running migrations for [{$context}]...\n";
 

@@ -138,7 +138,9 @@ class MakeAppCommand extends BaseMakeCommand
         }
 
         // 3. Generate events.yml
-        $this->writeFile("src/{$appName}/etc/events.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/etc/events.yml",
+            <<<YAML
 ################################################################################
 # Event Listeners for {$appName}
 #
@@ -458,7 +460,9 @@ YAML
         ]);
 
         // Drop-in entry point with its own mini-router
-        $this->writeFile("src/{$appName}/index.php", <<<'PHP'
+        $this->writeFile(
+            "src/{$appName}/index.php",
+            <<<'PHP'
 <?php
 /**
  * ============================================================================
@@ -503,13 +507,18 @@ if (file_exists($viewsDir . $page . '.php')) {
     echo "<p>Create <code>resources/{{APP_NAME}}/views/{$page}.php</code> to add this page.</p>";
 }
 PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // Drop-in sample view
         $viewsDir = SPP_APP_DIR . "/resources/{$appName}/views";
-        if (!is_dir($viewsDir)) mkdir($viewsDir, 0777, true);
+        if (!is_dir($viewsDir))
+            mkdir($viewsDir, 0777, true);
 
-        $this->writeFile("resources/{$appName}/views/index.html", <<<'HTML'
+        $this->writeFile(
+            "resources/{$appName}/views/index.html",
+            <<<'HTML'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -574,7 +583,9 @@ PHP
 </body>
 </html>
 HTML
-        , $appName);
+            ,
+            $appName
+        );
 
         $this->writeDropinGuidePage($appName);
         $this->writeContactForm($appName);
@@ -588,7 +599,9 @@ HTML
 
     private function writeSppuxEntryPoint(string $appName): void
     {
-        $this->writeFile("src/{$appName}/index.php", <<<'PHP'
+        $this->writeFile(
+            "src/{$appName}/index.php",
+            <<<'PHP'
 <?php
 /**
  * ============================================================================
@@ -710,7 +723,9 @@ HTML
 </body>
 </html>
 PHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // ── SPP-UX Components ──
@@ -718,10 +733,13 @@ PHP
     private function writeSppuxComponents(string $appName): void
     {
         $compDir = SPP_APP_DIR . "/src/{$appName}/comp";
-        if (!is_dir($compDir)) mkdir($compDir, 0777, true);
+        if (!is_dir($compDir))
+            mkdir($compDir, 0777, true);
 
         // ── main.js: Full dashboard component ──
-        $this->writeFile("src/{$appName}/comp/main.js", <<<'JS'
+        $this->writeFile(
+            "src/{$appName}/comp/main.js",
+            <<<'JS'
 /**
  * ============================================================================
  * Main Dashboard Component — {{APP_NAME}}
@@ -1045,10 +1063,14 @@ export default class Main extends BaseComponent {
     }
 }
 JS
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── counter.js: Sub-component with props ──
-        $this->writeFile("src/{$appName}/comp/counter.js", <<<'JS'
+        $this->writeFile(
+            "src/{$appName}/comp/counter.js",
+            <<<'JS'
 /**
  * ============================================================================
  * Counter Sub-Component — {{APP_NAME}}
@@ -1148,10 +1170,14 @@ export default class Counter extends BaseComponent {
     }
 }
 JS
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── app-store.js: Shared state store ──
-        $this->writeFile("src/{$appName}/comp/app-store.js", <<<'JS'
+        $this->writeFile(
+            "src/{$appName}/comp/app-store.js",
+            <<<'JS'
 /**
  * ============================================================================
  * App Store — Shared State Across Components
@@ -1202,14 +1228,18 @@ const AppStore = new SPPStore({
 
 export default AppStore;
 JS
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // ── SPP-UX extra components for sppux mode ──
 
     private function writeSppuxThemePicker(string $appName): void
     {
-        $this->writeFile("src/{$appName}/comp/theme-picker.js", <<<'JS'
+        $this->writeFile(
+            "src/{$appName}/comp/theme-picker.js",
+            <<<'JS'
 /**
  * Theme Picker Component
  * Demonstrates: SPPUX.Theme API, dynamic styling, CSS variable overrides
@@ -1250,12 +1280,16 @@ export default class ThemePicker extends BaseComponent {
     }
 }
 JS
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeSppuxFormDemo(string $appName): void
     {
-        $this->writeFile("src/{$appName}/comp/form-demo.js", <<<'JS'
+        $this->writeFile(
+            "src/{$appName}/comp/form-demo.js",
+            <<<'JS'
 /**
  * Form Demo Component
  * Demonstrates: client-side form handling, validation, API submission, SPPUX.Busy
@@ -1349,7 +1383,9 @@ export default class FormDemo extends BaseComponent {
     }
 }
 JS
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // ── Controllers ──
@@ -1357,7 +1393,9 @@ JS
     private function writeHomeController(string $appName): void
     {
         $ns = $appName;
-        $this->writeFile("src/{$appName}/serv/HomeController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/HomeController.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Serv;
 
@@ -1449,7 +1487,9 @@ PHP
     private function writeDashboardController(string $appName): void
     {
         $ns = $appName;
-        $this->writeFile("src/{$appName}/serv/DashboardController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/DashboardController.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Serv;
 
@@ -1506,7 +1546,9 @@ PHP
     private function writeApiController(string $appName): void
     {
         $ns = $appName;
-        $this->writeFile("src/{$appName}/serv/ApiController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/ApiController.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Serv;
 
@@ -1620,9 +1662,12 @@ PHP
     private function writeBladeLayout(string $appName): void
     {
         $viewsDir = SPP_APP_DIR . "/src/{$appName}/resources/views/layouts";
-        if (!is_dir($viewsDir)) mkdir($viewsDir, 0777, true);
+        if (!is_dir($viewsDir))
+            mkdir($viewsDir, 0777, true);
 
-        $this->writeFile("src/{$appName}/resources/views/layouts/app.blade.php", <<<'BLADE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/layouts/app.blade.php",
+            <<<'BLADE'
 {{--
 ================================================================================
 Base Layout — {{APP_NAME}}
@@ -1741,12 +1786,16 @@ SPP DIRECTIVES AVAILABLE:
 </body>
 </html>
 BLADE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeBladeHome(string $appName): void
     {
-        $this->writeFile("src/{$appName}/resources/views/home.blade.php", <<<'BLADE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/home.blade.php",
+            <<<'BLADE'
 {{--
   Home Page — Demonstrates Blade + SPP-UX + YAML Forms + Auth Directives
   Edit this file: src/{{APP_NAME}}/resources/views/home.blade.php
@@ -1807,12 +1856,16 @@ BLADE
     </div>
 @endsection
 BLADE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeBladeAbout(string $appName): void
     {
-        $this->writeFile("src/{$appName}/resources/views/about.blade.php", <<<'BLADE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/about.blade.php",
+            <<<'BLADE'
 @extends('layouts.app')
 @section('title', $title ?? 'About')
 @section('content')
@@ -1866,12 +1919,16 @@ BLADE
     </div>
 @endsection
 BLADE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeBladeDashboard(string $appName): void
     {
-        $this->writeFile("src/{$appName}/resources/views/dashboard.blade.php", <<<'BLADE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/dashboard.blade.php",
+            <<<'BLADE'
 @extends('layouts.app')
 @section('title', 'Dashboard')
 @section('content')
@@ -1926,14 +1983,18 @@ BLADE
     </div>
 @endsection
 BLADE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // ── Native PHP Pages ──
 
     private function writeNativeIndexPage(string $appName): void
     {
-        $this->writeFile("src/{$appName}/pages/index.php", <<<'PHP'
+        $this->writeFile(
+            "src/{$appName}/pages/index.php",
+            <<<'PHP'
 <?php
 /**
  * ============================================================================
@@ -1990,12 +2051,16 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
     </div>
 </div>
 PHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeNativeContactPage(string $appName): void
     {
-        $this->writeFile("src/{$appName}/pages/contact.php", <<<'PHP'
+        $this->writeFile(
+            "src/{$appName}/pages/contact.php",
+            <<<'PHP'
 <?php
 /**
  * Contact Page — Demonstrates YAML-driven forms in native PHP
@@ -2030,12 +2095,16 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
     </div>
 </div>
 PHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     private function writeNativeGuidePage(string $appName): void
     {
-        $this->writeFile("src/{$appName}/pages/guide.php", <<<'GUIDEPHP'
+        $this->writeFile(
+            "src/{$appName}/pages/guide.php",
+            <<<'GUIDEPHP'
 <?php
 /**
  * ============================================================================
@@ -3038,7 +3107,9 @@ Log::critical('Database connection lost');
     </div>
 </div>
 GUIDEPHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // =========================================================================
@@ -3047,7 +3118,9 @@ GUIDEPHP
 
     private function writeSppuxGuidePage(string $appName): void
     {
-        $this->writeFile("src/{$appName}/pages/guide.html", <<<'SPPUXGUIDE'
+        $this->writeFile(
+            "src/{$appName}/pages/guide.html",
+            <<<'SPPUXGUIDE'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -3799,7 +3872,9 @@ The counter should appear and respond to button clicks!</code></pre>
 </body>
 </html>
 SPPUXGUIDE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // =========================================================================
@@ -3809,9 +3884,12 @@ SPPUXGUIDE
     private function writeBladeGuidePage(string $appName): void
     {
         $viewsDir = SPP_APP_DIR . "/src/{$appName}/resources/views";
-        if (!is_dir($viewsDir)) mkdir($viewsDir, 0777, true);
+        if (!is_dir($viewsDir))
+            mkdir($viewsDir, 0777, true);
 
-        $this->writeFile("src/{$appName}/resources/views/guide.blade.php", <<<'BLADEGUIDE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/guide.blade.php",
+            <<<'BLADEGUIDE'
 {{-- ============================================================================
      {{APP_NAME}} — COMPREHENSIVE Blade Mode Developer Guide
      ============================================================================
@@ -4142,7 +4220,9 @@ class HomeControllerTest extends Parikshak
 </div>
 @endsection
 BLADEGUIDE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // =========================================================================
@@ -4153,7 +4233,9 @@ BLADEGUIDE
     {
         // ── JSON documentation controller ──
         $ns = $appName;
-        $this->writeFile("src/{$appName}/serv/ApiDocsController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/ApiDocsController.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Serv;
 
@@ -4247,7 +4329,9 @@ PHP
         );
 
         // ── Styled HTML API docs page ──
-        $this->writeFile("src/{$appName}/pages/api-docs.php", <<<'APIDOCSHTML'
+        $this->writeFile(
+            "src/{$appName}/pages/api-docs.php",
+            <<<'APIDOCSHTML'
 <?php
 /**
  * ============================================================================
@@ -4528,7 +4612,9 @@ class ApiTest extends Parikshak
 </body>
 </html>
 APIDOCSHTML
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // =========================================================================
@@ -4538,9 +4624,12 @@ APIDOCSHTML
     private function writeDropinGuidePage(string $appName): void
     {
         $viewsDir = SPP_APP_DIR . "/resources/{$appName}/views";
-        if (!is_dir($viewsDir)) mkdir($viewsDir, 0777, true);
+        if (!is_dir($viewsDir))
+            mkdir($viewsDir, 0777, true);
 
-        $this->writeFile("resources/{$appName}/views/guide.html", <<<'DROPINGUIDE'
+        $this->writeFile(
+            "resources/{$appName}/views/guide.html",
+            <<<'DROPINGUIDE'
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -4744,14 +4833,18 @@ pages:
 </body>
 </html>
 DROPINGUIDE
-        , $appName);
+            ,
+            $appName
+        );
     }
 
-        // ── YAML Forms ──
+    // ── YAML Forms ──
 
     private function writeContactForm(string $appName): void
     {
-        $this->writeFile("etc/apps/{$appName}/forms/contact.yml", <<<YAML
+        $this->writeFile(
+            "etc/apps/{$appName}/forms/contact.yml",
+            <<<YAML
 ################################################################################
 # Contact Form Definition — {$appName}
 #
@@ -4834,7 +4927,9 @@ YAML
         }
 
         // ── init.php (app boot) ──
-        $this->writeFile("src/{$appName}/init.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/init.php",
+            <<<PHP
 <?php
 /**
  * ============================================================================
@@ -4903,7 +4998,9 @@ PHP
         );
 
         // ── etc/config.yml ──
-        $this->writeFile("src/{$appName}/etc/config.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/etc/config.yml",
+            <<<YAML
 ################################################################################
 # Application Runtime Configuration — {$appName}
 #
@@ -4928,7 +5025,9 @@ YAML
         );
 
         // ── etc/routes.yml ──
-        $this->writeFile("src/{$appName}/etc/routes.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/etc/routes.yml",
+            <<<YAML
 ################################################################################
 # Application Isolated Routes
 # These routes are discovered by SPPRouter when scanning modules.
@@ -4947,7 +5046,9 @@ YAML
         );
 
         // ── etc/services.yml ──
-        $this->writeFile("src/{$appName}/etc/services.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/etc/services.yml",
+            <<<YAML
 ################################################################################
 # App Services — Callable from JavaScript via spp_admin.callAppService()
 #
@@ -4969,7 +5070,9 @@ YAML
 
         // ── etc/app.yml ──
         $appNameLower = strtolower($appName);
-        $this->writeFile("src/{$appName}/etc/app.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/etc/app.yml",
+            <<<YAML
 # Self-contained application descriptor
 # Discovered automatically by SPP framework
 base_url: "/{$appNameLower}"
@@ -4980,7 +5083,9 @@ YAML
         );
 
         // ── Theme manifest ──
-        $this->writeFile("src/{$appName}/resources/themes/default/theme.yml", <<<YAML
+        $this->writeFile(
+            "src/{$appName}/resources/themes/default/theme.yml",
+            <<<YAML
 name: "default"
 version: "1.0.0"
 description: "Default theme for {$appName}"
@@ -4988,7 +5093,9 @@ YAML
         );
 
         // ── Theme CSS ──
-        $this->writeFile("src/{$appName}/resources/themes/default/custom.css", <<<CSS
+        $this->writeFile(
+            "src/{$appName}/resources/themes/default/custom.css",
+            <<<CSS
 /*
  * Custom Theme CSS — {$appName}
  *
@@ -5014,7 +5121,9 @@ CSS
         );
 
         // ── Login view ──
-        $this->writeFile("src/{$appName}/resources/views/login.blade.php", <<<'BLADE'
+        $this->writeFile(
+            "src/{$appName}/resources/views/login.blade.php",
+            <<<'BLADE'
 {{--
   Login Page — Uses @sppguest to show only to non-authenticated users
 --}}
@@ -5052,10 +5161,14 @@ CSS
     @endsppauth
 @endsection
 BLADE
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── AuthController ──
-        $this->writeFile("src/{$appName}/serv/AuthController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/AuthController.php",
+            <<<PHP
 <?php
 namespace App\\{$appName}\\Serv;
 
@@ -5164,7 +5277,9 @@ PHP
         );
 
         // ── Sample service: task_create.php ──
-        $this->writeFile("src/{$appName}/serv/task_create.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/task_create.php",
+            <<<PHP
 <?php
 /**
  * ============================================================================
@@ -5206,10 +5321,14 @@ PHP
     ]
 ];
 PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── Event handler ──
-        $this->writeFile("src/{$appName}/events/AppBootHandler.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/events/AppBootHandler.php",
+            <<<PHP
 <?php
 namespace App\\{$appName}\\Events;
 
@@ -5254,10 +5373,14 @@ class AppBootHandler extends \\SPP\\EventHandler
     }
 }
 PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── Middleware ──
-        $this->writeFile("src/{$appName}/middleware/AuthGuard.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/middleware/AuthGuard.php",
+            <<<PHP
 <?php
 namespace App\\{$appName}\\Middleware;
 
@@ -5296,10 +5419,14 @@ class AuthGuard
     }
 }
 PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── Entity ──
-        $this->writeFile("src/{$appName}/entities/Item.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/entities/Item.php",
+            <<<PHP
 <?php
 namespace App\\{$appName}\\Entities;
 
@@ -5351,10 +5478,14 @@ class Item
     }
 }
 PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── About page (fallback for modes that don't create one) ──
-        $this->writeFile("src/{$appName}/pages/about.php", <<<'PHP'
+        $this->writeFile(
+            "src/{$appName}/pages/about.php",
+            <<<'PHP'
 <?php
 /**
  * About Page — Shows framework architecture information
@@ -5380,7 +5511,9 @@ PHP
     </div>
 </div>
 PHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 
     // =========================================================================
@@ -5397,7 +5530,9 @@ PHP
         $ns = $appName;
 
         // ── Class-based test (SPPTestCase) ──
-        $this->writeFile("src/{$appName}/tests/test.HomeControllerTest.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/tests/test.HomeControllerTest.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Tests;
 
@@ -5576,7 +5711,9 @@ PHP
         );
 
         // ── DSL-based test (functional style) ──
-        $this->writeFile("src/{$appName}/tests/test.functional.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/tests/test.functional.php",
+            <<<PHP
 <?php
 /**
  * ============================================================================
@@ -5678,7 +5815,9 @@ PHP
     private function writeAttributeController(string $appName): void
     {
         $ns = $appName;
-        $this->writeFile("src/{$appName}/serv/AttributeController.php", <<<PHP
+        $this->writeFile(
+            "src/{$appName}/serv/AttributeController.php",
+            <<<PHP
 <?php
 namespace App\\{$ns}\\Serv;
 
@@ -5830,7 +5969,9 @@ PHP
     private function writeCustomErrorPages(string $appName): void
     {
         // ── 404 Page Not Found ──
-        $this->writeFile("src/{$appName}/pages/errors/404.php", <<<'ERROR404PHP'
+        $this->writeFile(
+            "src/{$appName}/pages/errors/404.php",
+            <<<'ERROR404PHP'
 <?php
 /**
  * ============================================================================
@@ -5979,10 +6120,14 @@ http_response_code(404);
 </body>
 </html>
 ERROR404PHP
-        , $appName);
+            ,
+            $appName
+        );
 
         // ── 500 Internal Server Error ──
-        $this->writeFile("src/{$appName}/pages/errors/500.php", <<<'ERROR500PHP'
+        $this->writeFile(
+            "src/{$appName}/pages/errors/500.php",
+            <<<'ERROR500PHP'
 <?php
 /**
  * ============================================================================
@@ -6114,7 +6259,9 @@ http_response_code(500);
 </body>
 </html>
 ERROR500PHP
-        , $appName);
+            ,
+            $appName
+        );
     }
 }
 

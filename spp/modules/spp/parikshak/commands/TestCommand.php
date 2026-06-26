@@ -7,11 +7,13 @@ use SPPMod\Parikshak\SPPTestRunner;
 require_once dirname(__DIR__) . '/src/SPPTestRunner.php';
 require_once dirname(__DIR__) . '/src/SPPTestCase.php';
 
-class TestCommand extends Command {
+class TestCommand extends Command
+{
     protected string $name = 'test';
     protected string $description = 'Run Parikshak Unit and Feature Tests';
 
-    public function execute(array $args): void {
+    public function execute(array $args): void
+    {
         $context = \SPP\Scheduler::getContext();
         echo "Running tests for [{$context}]...\n";
 

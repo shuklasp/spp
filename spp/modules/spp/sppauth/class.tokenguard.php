@@ -101,11 +101,12 @@ class TokenGuard implements GuardInterface
         $hashedToken = hash('sha256', $plainToken);
 
         $db = new SPPDB();
-        
+
         // Ensure name column exists gracefully
         try {
             $db->execute_query('ALTER TABLE ' . SPPDB::sppTable('personal_access_tokens') . ' ADD COLUMN name VARCHAR(255) DEFAULT "API Key"');
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         $db->insertValues(SPPDB::sppTable('personal_access_tokens'), [
             'name' => $name,

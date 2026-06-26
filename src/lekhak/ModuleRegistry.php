@@ -1,12 +1,15 @@
 <?php
 namespace Lekhak;
 
-class ModuleRegistry {
+class ModuleRegistry
+{
     private static $modules = [];
     private static $initialized = false;
 
-    public static function loadModules() {
-        if (self::$initialized) return;
+    public static function loadModules()
+    {
+        if (self::$initialized)
+            return;
         self::$initialized = true;
 
         $db = new \SPPMod\SPPDB\SPPDB();
@@ -25,10 +28,12 @@ class ModuleRegistry {
                     }
                 }
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
-    public static function invokeAll($hook, $args = []) {
+    public static function invokeAll($hook, $args = [])
+    {
         self::loadModules();
         $results = [];
         $method = 'hook_' . $hook;
@@ -40,7 +45,8 @@ class ModuleRegistry {
         return $results;
     }
 
-    public static function invokeAlter($hook, &$data, $context = null) {
+    public static function invokeAlter($hook, &$data, $context = null)
+    {
         self::loadModules();
         $method = 'hook_' . $hook . '_alter';
         foreach (self::$modules as $name => $instance) {
@@ -53,12 +59,14 @@ class ModuleRegistry {
 
 // Global helper function for other parts of the CMS to use
 if (!function_exists('lekhak_invoke_all')) {
-    function lekhak_invoke_all($hook, $args = []) {
+    function lekhak_invoke_all($hook, $args = [])
+    {
         return \Lekhak\ModuleRegistry::invokeAll($hook, $args);
     }
 }
 if (!function_exists('lekhak_invoke_alter')) {
-    function lekhak_invoke_alter($hook, &$data, $context = null) {
+    function lekhak_invoke_alter($hook, &$data, $context = null)
+    {
         \Lekhak\ModuleRegistry::invokeAlter($hook, $data, $context);
     }
 }

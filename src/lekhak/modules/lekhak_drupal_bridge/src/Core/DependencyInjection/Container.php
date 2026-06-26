@@ -7,11 +7,13 @@ use SPP\SPPConfig;
 /**
  * A basic Dependency Injection container mock for Drupal 8+ compatibility.
  */
-class Container {
-    
+class Container
+{
+
     protected $services = [];
 
-    public function __construct() {
+    public function __construct()
+    {
         // Register default mocked services
         $this->services['database'] = new \Lekhak\Modules\LekhakDrupalBridge\Core\Database\DatabaseWrapper();
         $this->services['config.factory'] = new ConfigFactoryWrapper();
@@ -25,7 +27,8 @@ class Container {
         $this->services['renderer'] = new \Lekhak\Modules\LekhakDrupalBridge\Core\Render\Renderer();
     }
 
-    public function get($id) {
+    public function get($id)
+    {
         if (!isset($this->services[$id])) {
             // For unrecognized services, we return a generic mock object
             // to prevent fatal errors when modules query obscure services.
@@ -37,68 +40,96 @@ class Container {
 
 require_once __DIR__ . '/../Database/QueryBuilders.php';
 
-class ConfigFactoryWrapper {
-    public function get($name) {
+class ConfigFactoryWrapper
+{
+    public function get($name)
+    {
         return new ConfigObjectWrapper($name);
     }
-    public function getEditable($name) {
+    public function getEditable($name)
+    {
         return new ConfigObjectWrapper($name);
     }
 }
 
-class ConfigObjectWrapper {
+class ConfigObjectWrapper
+{
     protected $name;
-    public function __construct($name) {
+    public function __construct($name)
+    {
         $this->name = $name;
     }
-    public function get($key) {
+    public function get($key)
+    {
         return SPPConfig::get("drupal:{$this->name}:{$key}");
     }
-    public function set($key, $value) {
+    public function set($key, $value)
+    {
         SPPConfig::set("drupal:{$this->name}:{$key}", $value);
         return $this;
     }
-    public function save() {
+    public function save()
+    {
         return $this;
     }
 }
 
-class LoggerFactoryWrapper {
-    public function get($channel) {
+class LoggerFactoryWrapper
+{
+    public function get($channel)
+    {
         return new LoggerChannelWrapper($channel);
     }
 }
 
-class LoggerChannelWrapper {
+class LoggerChannelWrapper
+{
     protected $channel;
-    public function __construct($channel) {
+    public function __construct($channel)
+    {
         $this->channel = $channel;
     }
-    public function notice($message, array $context = []) { $this->log('notice', $message, $context); }
-    public function warning($message, array $context = []) { $this->log('warning', $message, $context); }
-    public function error($message, array $context = []) { $this->log('error', $message, $context); }
-    protected function log($level, $message, $context) {
+    public function notice($message, array $context = [])
+    {
+        $this->log('notice', $message, $context);
+    }
+    public function warning($message, array $context = [])
+    {
+        $this->log('warning', $message, $context);
+    }
+    public function error($message, array $context = [])
+    {
+        $this->log('error', $message, $context);
+    }
+    protected function log($level, $message, $context)
+    {
         error_log("[Drupal Bridge] [$level] [{$this->channel}] " . strtr($message, $context));
     }
 }
 
-class StateWrapper {
-    public function get($key, $default = null) {
+class StateWrapper
+{
+    public function get($key, $default = null)
+    {
         return SPPConfig::get("drupal_state:{$key}", $default);
     }
-    public function set($key, $value) {
+    public function set($key, $value)
+    {
         SPPConfig::set("drupal_state:{$key}", $value);
     }
 }
 
-class ModuleHandlerWrapper {
-    public function invokeAll($hook, $args = []) {
+class ModuleHandlerWrapper
+{
+    public function invokeAll($hook, $args = [])
+    {
         // Tie into Lekhak's event kernel
         if (class_exists('\SPP\EventKernel')) {
             \SPP\EventKernel::trigger("drupal_hook_{$hook}", $args);
         }
     }
-    public function moduleExists($module) {
+    public function moduleExists($module)
+    {
         if (class_exists('\SPPMod\Lekhak\Core\ModuleRegistry')) {
             return \SPPMod\Lekhak\Core\ModuleRegistry::isModuleEnabled($module);
         }
@@ -106,29 +137,38 @@ class ModuleHandlerWrapper {
     }
 }
 
-class CurrentUserWrapper {
-    public function id() {
+class CurrentUserWrapper
+{
+    public function id()
+    {
         return isset($_SESSION['user_id']) ? $_SESSION['user_id'] : 0;
     }
-    public function isAuthenticated() {
+    public function isAuthenticated()
+    {
         return $this->id() > 0;
     }
-    public function hasPermission($permission) {
+    public function hasPermission($permission)
+    {
         return true; // Simplified for bridge
     }
 }
 
-class TimeWrapper {
-    public function getRequestTime() {
+class TimeWrapper
+{
+    public function getRequestTime()
+    {
         return $_SERVER['REQUEST_TIME'];
     }
-    public function getCurrentTime() {
+    public function getCurrentTime()
+    {
         return time();
     }
 }
 
-class EntityTypeManagerWrapper {
-    public function getStorage($entity_type) {
+class EntityTypeManagerWrapper
+{
+    public function getStorage($entity_type)
+    {
         if (in_array($entity_type, ['node', 'user', 'taxonomy_term'])) {
             return new MockEntityStorage($entity_type);
         }
@@ -136,22 +176,28 @@ class EntityTypeManagerWrapper {
     }
 }
 
-class MockEntityStorage {
+class MockEntityStorage
+{
     protected $type;
-    public function __construct($type) {
+    public function __construct($type)
+    {
         $this->type = $type;
     }
-    public function load($id) {
+    public function load($id)
+    {
         return new MockEntity($this->type, $id);
     }
-    public function loadMultiple(array $ids = null) {
+    public function loadMultiple(array $ids = null)
+    {
         $res = [];
         if ($ids) {
-            foreach ($ids as $id) $res[$id] = $this->load($id);
+            foreach ($ids as $id)
+                $res[$id] = $this->load($id);
         }
         return $res;
     }
-    public function create(array $values = []) {
+    public function create(array $values = [])
+    {
         $entity = new MockEntity($this->type, null);
         foreach ($values as $k => $v) {
             $entity->{$k} = $v;
@@ -160,33 +206,42 @@ class MockEntityStorage {
     }
 }
 
-class MockEntity {
+class MockEntity
+{
     protected $type;
     protected $id;
-    public function __construct($type, $id) {
+    public function __construct($type, $id)
+    {
         $this->type = $type;
         $this->id = $id;
     }
-    public function id() {
+    public function id()
+    {
         return $this->id;
     }
-    public function __call($name, $arguments) {
+    public function __call($name, $arguments)
+    {
         return null;
     }
-    public function __get($name) {
+    public function __get($name)
+    {
         return null;
     }
-    public function save() {
+    public function save()
+    {
         return true;
     }
 }
 
-class GenericServiceMock {
+class GenericServiceMock
+{
     protected $id;
-    public function __construct($id) {
+    public function __construct($id)
+    {
         $this->id = $id;
     }
-    public function __call($name, $arguments) {
+    public function __call($name, $arguments)
+    {
         // Silently swallow calls to unknown services
         return null;
     }

@@ -13,9 +13,9 @@ class SeedCommand extends Command
     public function execute(array $args): void
     {
         $appname = $args[2] ?? 'default';
-        
+
         $seederPath = SPP_APP_DIR . "/src/{$appname}/seeders";
-        
+
         if (!is_dir($seederPath)) {
             echo "No seeders found for app '{$appname}'.\n";
             return;
@@ -23,7 +23,7 @@ class SeedCommand extends Command
 
         echo "Starting Database Seeding for app '{$appname}'...\n";
         $db = new SPPDB();
-        
+
         $files = glob($seederPath . '/*Seeder.php');
         if (empty($files)) {
             echo "No seeder files found.\n";
@@ -34,7 +34,7 @@ class SeedCommand extends Command
             require_once $file;
             $className = basename($file, '.php');
             $fullClass = "\\App\\Seeders\\{$className}";
-            
+
             if (class_exists($fullClass)) {
                 echo "Running seeder: {$className}\n";
                 $seeder = new $fullClass();

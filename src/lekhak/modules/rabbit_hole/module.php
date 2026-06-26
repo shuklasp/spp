@@ -7,12 +7,14 @@ namespace Lekhak\Modules\LekhakModuleRabbitHole;
  * @configure admin/config/rabbit_hole
  */
 
-class LekhakModuleRabbitHole {
+class LekhakModuleRabbitHole
+{
 
     private $name = 'rabbit_hole';
     private $title = 'Rabbit Hole';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_rabbit_hole_config (
@@ -20,10 +22,11 @@ class LekhakModuleRabbitHole {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_rabbit_hole_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Core module initialization logic.
         return true;
     }
@@ -31,12 +34,14 @@ class LekhakModuleRabbitHole {
     /**
      * Extends native routing and page rendering headers.
      */
-    public function hook_page_meta_alter(&$meta) {
+    public function hook_page_meta_alter(&$meta)
+    {
         // Enhances SEO meta parameters.
     }
 
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by rabbit_hole -->';
@@ -51,25 +56,25 @@ class LekhakModuleRabbitHole {
     public static function hook_config_form(): array
     {
         return [
-  'enabled' => 
-  [
-    'type' => 'checkbox',
-    'title' => 'Enable advanced features',
-    'default' => true,
-  ],
-  'log_level' => 
-  [
-    'type' => 'select',
-    'title' => 'Log Level',
-    'options' => 
-    [
-      'info' => 'Info',
-      'warning' => 'Warning',
-      'error' => 'Error',
-    ],
-    'default' => 'warning',
-  ],
-];
+            'enabled' =>
+                [
+                    'type' => 'checkbox',
+                    'title' => 'Enable advanced features',
+                    'default' => true,
+                ],
+            'log_level' =>
+                [
+                    'type' => 'select',
+                    'title' => 'Log Level',
+                    'options' =>
+                        [
+                            'info' => 'Info',
+                            'warning' => 'Warning',
+                            'error' => 'Error',
+                        ],
+                    'default' => 'warning',
+                ],
+        ];
     }
 }
 

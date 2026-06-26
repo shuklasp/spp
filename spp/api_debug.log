@@ -469,7 +469,7 @@ Stack trace:
 [2026-06-11 12:01:45] Context set to sppadmin
 [2026-06-11 12:01:57] Context set to sppadmin
 [2026-06-11 12:01:58] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
-#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SPPDB\SPPEntity->load()
 #1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
@@ -478,7 +478,7 @@ Stack trace:
 #6 {main}
 [2026-06-11 12:02:10] Context set to sppadmin
 [2026-06-11 12:02:11] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
-#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SPPDB\SPPEntity->load()
 #1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
@@ -487,7 +487,7 @@ Stack trace:
 #6 {main}
 [2026-06-11 12:03:31] Context set to sppadmin
 [2026-06-11 12:03:32] API FATAL ERROR: Class "SPP\Core\EventHandler" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
-#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SppDb\SPPEntity->load()
+#0 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(182): SPPMod\SPPDB\SPPEntity->load()
 #1 /mnt/c/projects/apache/school1/spp/modules/spp/sppauth/class.sppuser.php(39): SPPMod\SPPAuth\SPPUser->loadByUsername()
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
@@ -542,7 +542,7 @@ Stack trace:
 #0 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
 #1 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(86): call_user_func_array()
 #2 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(28): SPPMod\SPPXDB\SPP_XDB->__call()
-#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SppDb\XDBAdapter->execute()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SPPDB\XDBAdapter->execute()
 #4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(668): SPPMod\SPPDB\SPPDB->exec()
 #5 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(687): SPPMod\SPPDB\SPPDB->add_columns()
 #6 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(110): SPPMod\SPPDB\SPPDB->createTableIncremental()
@@ -557,7 +557,7 @@ Stack trace:
 #0 [internal function]: SPPMod\SPPXDB\Engines\XMLEngine->querySQL()
 #1 /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/class.sppxdb.php(86): call_user_func_array()
 #2 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.xdbadapter.php(28): SPPMod\SPPXDB\SPP_XDB->__call()
-#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SppDb\XDBAdapter->execute()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(493): SPPMod\SPPDB\XDBAdapter->execute()
 #4 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(668): SPPMod\SPPDB\SPPDB->exec()
 #5 /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppdb.php(687): SPPMod\SPPDB\SPPDB->add_columns()
 #6 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(110): SPPMod\SPPDB\SPPDB->createTableIncremental()
@@ -2847,6 +2847,215 @@ gateAdminAction: hasAdminScope returned true
             ))
 [2026-06-25 14:34:36] API Request: action=check_auth session_keys=__default_sppsession,__Samvaad_sppsession,__lekhak_sppsession,__sppadmin_sppsession
 [2026-06-25 14:34:38] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:16:31] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-26 05:16:34] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:16:51] API Request: action=login session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-26 05:16:53] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:04] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:17:07] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:15] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:17:17] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:30] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:17:31] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:38] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:17:40] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:49] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:17:51] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:17:58] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:18:00] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:18:08] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:18:10] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:18:19] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:18:21] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:24:14] API Request: action=check_auth session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:24:16] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:24:23] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:24:24] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:24:31] API Request: action=get_profile session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:24:34] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:24:41] API Request: action=get_admin_permissions session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:24:42] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:24:52] API Request: action=list_modules session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:24:53] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:25:03] API Request: action=list_apps session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:25:05] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:25:13] API Request: action=diagnostics_health session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:25:15] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:25:20] API Request: action=list_audit_logs session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:25:21] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:25:27] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:25:29] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:26:06] API Request: action=list_entities session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:26:08] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:26:18] API Request: action=get_builder_context session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:26:19] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:27:05] API Request: action=scaffold_dashboard session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:27:06] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:27:08] API FATAL ERROR: file_put_contents(/mnt/c/projects/apache/school1/spp/admin/services/js/views/dash_block.js): Failed to open stream: No such file or directory in /mnt/c/projects/apache/school1/spp/admin/services/Legacy.php on line 704
+#0 [internal function]: SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/spp/admin/services/Legacy.php(704): file_put_contents()
+#2 [internal function]: live_scaffold_dashboard()
+#3 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(136): call_user_func()
+#4 /mnt/c/projects/apache/school1/spp/core/class.scheduler.php(199): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::SPPMod\SPPAPI\Dispatchers\{closure}()
+#5 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php(135): SPP\Scheduler::withContext()
+#6 /mnt/c/projects/apache/school1/spp/admin/api.php(451): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
+#7 {main}
+[2026-06-26 05:27:24] API Request: action=parse_entity_yaml session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:27:25] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:27:35] API Request: action=scaffold_form session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:27:36] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[2026-06-26 05:27:45] API Request: action=save_form_config session_keys=__default_sppsession,__lekhak_sppsession,__sppadmin_sppsession,spp_admin_user
+[2026-06-26 05:27:46] Context set to sppadmin
 [SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
                 id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
                 name    VARCHAR(255) NOT NULL UNIQUE,

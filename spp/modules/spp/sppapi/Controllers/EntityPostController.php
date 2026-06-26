@@ -12,7 +12,7 @@ class EntityPostController
         if (empty($_SERVER['HTTP_X_SPP_API']) || $_SERVER['HTTP_X_SPP_API'] !== '1') {
             SPPApiResponse::error('CSRF Protection: Missing X-SPP-API header.', 403);
         }
-        
+
         $input = json_decode(file_get_contents('php://input'), true);
         if (!$input) {
             SPPApiResponse::error('Invalid JSON payload.', 400);
@@ -20,7 +20,7 @@ class EntityPostController
 
         $entity = new $classMap();
         if ($classMap === "\\SPPMod\\SPPEntity\\SPPEntity") {
-            $entity->setTable(\SPPMod\SppDb\SPPEntity::getMetadata('table'));
+            $entity->setTable(\SPPMod\SPPDB\SPPEntity::getMetadata('table'));
         }
         if (method_exists($entity, 'checkAccess') && !$entity->checkAccess('create')) {
             SPPApiResponse::error('Access denied.', 403);

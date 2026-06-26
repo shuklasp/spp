@@ -29,7 +29,8 @@ if (!is_dir($migrationsDir)) {
 }
 
 $files = scandir($migrationsDir);
-$files = array_filter($files, function($f) { return preg_match('/\.php$/', $f); });
+$files = array_filter($files, function ($f) {
+    return preg_match('/\.php$/', $f); });
 sort($files);
 
 // 3. Get already executed migrations
@@ -41,19 +42,19 @@ $ran = 0;
 foreach ($files as $file) {
     if (!in_array($file, $executedMigrations)) {
         echo "Migrating: {$file}\n";
-        
+
         require_once $migrationsDir . '/' . $file;
-        
+
         // Assume class name is studly cased filename without extension
         // e.g. 2026_06_10_create_users_table.php -> CreateUsersTable
         $className = preg_replace('/^[0-9_]+/', '', $file);
         $className = str_replace('.php', '', $className);
         $className = str_replace(' ', '', ucwords(str_replace('_', ' ', $className)));
-        
+
         if (class_exists($className)) {
             $migration = new $className();
             $migration->up();
-            
+
             $db->insert('spp_migrations', ['migration' => $file]);
             echo "Migrated:  {$file}\n";
             $ran++;

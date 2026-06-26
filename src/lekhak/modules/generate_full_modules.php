@@ -65,10 +65,11 @@ $baseDir = __DIR__;
 
 foreach ($masterList as $m) {
     $dir = $baseDir . '/' . $m['machine_name'];
-    if (!is_dir($dir)) mkdir($dir, 0777, true);
-    
+    if (!is_dir($dir))
+        mkdir($dir, 0777, true);
+
     $className = 'LekhakModule' . str_replace(' ', '', ucwords(str_replace('_', ' ', $m['machine_name'])));
-    
+
     $code = "<?php\n\n";
     $code .= "namespace Lekhak\\Modules\\{$className};\n\n";
     $code .= "/**\n * Full implementation of the {$m['title']} module.\n * Category: {$m['category']}\n */\n";
@@ -114,8 +115,7 @@ foreach ($masterList as $m) {
             $code .= "        }\n";
             $code .= "    }\n";
         }
-    } 
-    elseif ($m['category'] === 'SEO & Routing') {
+    } elseif ($m['category'] === 'SEO & Routing') {
         $code .= "    /**\n     * Extends native routing and page rendering headers.\n     */\n";
         $code .= "    public function hook_page_meta_alter(&\$meta) {\n";
         if ($m['machine_name'] === 'metatag' || $m['machine_name'] === 'schema_metatag') {
@@ -128,7 +128,7 @@ foreach ($masterList as $m) {
             $code .= "        // Enhances SEO meta parameters.\n";
         }
         $code .= "    }\n\n";
-        
+
         if ($m['machine_name'] === 'redirect') {
             $code .= "    public function hook_request_init() {\n";
             $code .= "        \$uri = \$_SERVER['REQUEST_URI'] ?? '';\n";
@@ -136,8 +136,7 @@ foreach ($masterList as $m) {
             $code .= "        /*\n        \$db = new \SPPMod\SPPDB\SPPDB();\n        \$redirect = \$db->execute_query(\"SELECT redirect_url FROM redirects WHERE source_url=?\", [\$uri]);\n        if (\$redirect) { header(\"Location: \".\$redirect[0]['redirect_url']); exit; }\n        */\n";
             $code .= "    }\n";
         }
-    }
-    elseif ($m['category'] === 'Security & Administration') {
+    } elseif ($m['category'] === 'Security & Administration') {
         $code .= "    /**\n     * Hardens security and extends admin workflows.\n     */\n";
         $code .= "    public function hook_form_alter(&\$form, \$form_id) {\n";
         if ($m['machine_name'] === 'captcha') {
@@ -150,7 +149,7 @@ foreach ($masterList as $m) {
             $code .= "        // Enhances form security.\n";
         }
         $code .= "    }\n\n";
-        
+
         if ($m['machine_name'] === 'shield') {
             $code .= "    public function hook_boot() {\n";
             $code .= "        // HTTP Basic Auth protection\n";
@@ -162,8 +161,7 @@ foreach ($masterList as $m) {
             $code .= "        }\n";
             $code .= "    }\n";
         }
-    }
-    elseif ($m['category'] === 'Media & Content') {
+    } elseif ($m['category'] === 'Media & Content') {
         $code .= "    /**\n     * Extends Lekhni core engine and content entities.\n     */\n";
         $code .= "    public function hook_entity_view_alter(&\$build, \$entity) {\n";
         if ($m['machine_name'] === 'paragraphs') {
@@ -176,8 +174,7 @@ foreach ($masterList as $m) {
             $code .= "        // Modifies content presentation.\n";
         }
         $code .= "    }\n\n";
-    }
-    elseif ($m['category'] === 'Performance') {
+    } elseif ($m['category'] === 'Performance') {
         $code .= "    /**\n     * Extends native caching capabilities.\n     */\n";
         $code .= "    public function hook_cache_backend_override() {\n";
         if ($m['machine_name'] === 'redis') {
@@ -200,7 +197,7 @@ foreach ($masterList as $m) {
     }
 
     $code .= "}\n\n";
-    
+
     // Module configuration return
     $code .= "return [\n";
     $code .= "    'status' => 'enabled',\n";

@@ -2,7 +2,8 @@
 require 'spp/sppinit.php';
 $db = new SPPMod\SPPDB\SPPDB();
 
-function getTableName($name) {
+function getTableName($name)
+{
     return SPPMod\SPPDB\SPPDB::sppTable($name);
 }
 

@@ -1,13 +1,15 @@
 <?php
-namespace SPPMod\Sppdb\Commands;
+namespace SPPMod\SPPDB\Commands;
 
 use SPP\CLI\Command;
 
-class MakeMigrationCommand extends Command {
+class MakeMigrationCommand extends Command
+{
     protected string $name = 'make:migration';
     protected string $description = 'Create a new database migration file';
 
-    public function execute(array $args): void {
+    public function execute(array $args): void
+    {
         if (empty($args[0])) {
             echo "\033[31mError:\033[0m Migration name required (e.g. create_users_table)\n";
             exit(1);
@@ -16,21 +18,21 @@ class MakeMigrationCommand extends Command {
         $context = \SPP\Scheduler::getContext();
         $name = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $args[0])); // snake_case
         $className = str_replace(' ', '', ucwords(str_replace('_', ' ', $name)));
-        
+
         $timestamp = date('Y_m_d_His');
         $fileName = "{$timestamp}_{$name}.php";
-        
+
         $path = SPP_APP_DIR . '/src/' . $context . '/migrations';
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
-        
+
         $filePath = $path . '/' . $fileName;
 
         $template = <<<PHP
 <?php
 
-use SPPMod\Sppdb\Migration\SPPMigration;
+use SPPMod\SPPDB\Migration\SPPMigration;
 
 class {$className} extends SPPMigration {
     

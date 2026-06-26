@@ -18,20 +18,20 @@ class SPPAuthTest extends SPPTestCase
         $t_users = \SPPMod\SPPDB\SPPDB::sppTable('users');
         $t_loginrec = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
         $t_remember = \SPPMod\SPPDB\SPPDB::sppTable('remember_tokens');
-        
+
         $db->exec("CREATE TABLE IF NOT EXISTS $t_users (id VARCHAR(255) PRIMARY KEY, username VARCHAR(255), email VARCHAR(255))");
         $db->exec("CREATE TABLE IF NOT EXISTS $t_loginrec (sessid VARCHAR(255), uid VARCHAR(255), logintime TIMESTAMP, ipaddr VARCHAR(255), lastaccess TIMESTAMP)");
         $db->exec("CREATE TABLE IF NOT EXISTS $t_remember (user_id VARCHAR(255), token_hash VARCHAR(255), expires_at TIMESTAMP)");
-        
+
         $db->execute_query("DELETE FROM $t_users");
         $db->execute_query("INSERT INTO $t_users (id, username, email) VALUES ('testuser', 'testuser', 'test@test.com')");
         $db->execute_query("INSERT INTO $t_users (id, username, email) VALUES ('user1', 'user1', 'user1@test.com')");
         $db->execute_query("INSERT INTO $t_users (id, username, email) VALUES ('adminuser', 'adminuser', 'admin@test.com')");
-        
+
         // Logout first just in case tests run sequentially and state leaks
         SPPAuth::logout();
     }
-    
+
     public function tearDown(): void
     {
         SPPAuth::logout();
@@ -46,12 +46,12 @@ class SPPAuthTest extends SPPTestCase
     public function testLoginAndCheck()
     {
         $this->assertFalse(SPPAuth::check(), 'Auth check should be false initially');
-        
+
         $loginResult = SPPAuth::guard()->login('testuser');
-        
+
         // Due to simple legacy proxy returning the object or boolean true
         // The mock might return void or something truthy depending on implementation
-        
+
         $this->assertTrue(SPPAuth::check(), 'Auth check should be true after login');
         $this->assertTrue(SPPAuth::authSessionExists(), 'Legacy authSessionExists should be true after login');
     }
@@ -60,19 +60,19 @@ class SPPAuthTest extends SPPTestCase
     {
         SPPAuth::guard()->login('user1');
         $this->assertTrue(SPPAuth::check());
-        
+
         SPPAuth::logout();
-        
+
         $this->assertFalse(SPPAuth::check(), 'Auth check should be false after logout');
     }
-    
+
     public function testGetCurrentUser()
     {
         SPPAuth::guard()->login('adminuser');
-        
+
         $user = SPPAuth::user();
         $this->assertTrue($user !== null, 'User object should not be null after login');
-        
+
         $userData = SPPAuth::getCurrentUser();
         $this->assertTrue(is_array($userData), 'getCurrentUser should return an array');
         $this->assertEquals('adminuser', $userData['id'], 'User ID should match the logged in user');

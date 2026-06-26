@@ -6,11 +6,13 @@ use SPPMod\SPPAuth\TokenGuard;
 use SPPMod\SPPAuth\SPPUser;
 use SPPMod\SPPDB\SPPDB;
 
-class AuthTokensCommand extends Command {
+class AuthTokensCommand extends Command
+{
     protected string $name = 'auth:tokens';
     protected string $description = 'Manage Personal Access Tokens for API Authentication';
 
-    public function execute(array $args): void {
+    public function execute(array $args): void
+    {
         $action = $args[2] ?? 'list';
 
         switch ($action) {
@@ -27,7 +29,8 @@ class AuthTokensCommand extends Command {
         }
     }
 
-    private function generateToken(array $args): void {
+    private function generateToken(array $args): void
+    {
         $userId = $args[3] ?? null;
         if (!$userId) {
             echo "[ERROR] User ID is required.\n";
@@ -57,7 +60,8 @@ class AuthTokensCommand extends Command {
         }
     }
 
-    private function revokeToken(array $args): void {
+    private function revokeToken(array $args): void
+    {
         $tokenId = $args[3] ?? null;
         if (!$tokenId) {
             echo "[ERROR] Token ID is required.\n";
@@ -74,7 +78,8 @@ class AuthTokensCommand extends Command {
         }
     }
 
-    private function listTokens(array $args): void {
+    private function listTokens(array $args): void
+    {
         $userIdInput = $args[3] ?? null;
         $userId = null;
 
@@ -86,14 +91,14 @@ class AuthTokensCommand extends Command {
             }
             $userId = $user->id;
         }
-        
+
         try {
             $db = new SPPDB();
-            
+
             $sql = "SELECT id, userid, name, created_at, expires_at 
                     FROM " . SPPDB::sppTable('personal_access_tokens');
             $params = [];
-            
+
             if ($userId) {
                 $sql .= " WHERE userid = ?";
                 $params[] = $userId;
@@ -102,7 +107,7 @@ class AuthTokensCommand extends Command {
                 echo "Listing All API Keys\n";
                 echo "Tip: Run `php spp.php auth:tokens list <userid>` to filter by user.\n\n";
             }
-            
+
             $sql .= " ORDER BY created_at DESC";
             $tokens = $db->execute_query($sql, $params);
 
@@ -113,7 +118,7 @@ class AuthTokensCommand extends Command {
 
             $headers = ['ID', 'User ID', 'Name', 'Created At', 'Status'];
             $rows = [];
-            
+
             foreach ($tokens as $t) {
                 $status = (!$t['expires_at'] || strtotime($t['expires_at']) > time()) ? "\033[32mActive\033[0m" : "\033[31mExpired\033[0m";
                 $rows[] = [
@@ -124,7 +129,7 @@ class AuthTokensCommand extends Command {
                     $status
                 ];
             }
-            
+
             // Re-using the printTable function defined in spp.php
             if (function_exists('printTable')) {
                 printTable($headers, $rows);

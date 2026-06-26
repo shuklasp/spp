@@ -38,8 +38,8 @@ class DbSyncCommand extends Command
         // 1. Initialize Source
         // Note: For real use, we'd need a way to pass custom connection strings to SPPDB.
         // For this demo, we assume the environment is pre-configured.
-        $source = new SPPDB(); 
-        
+        $source = new SPPDB();
+
         // 2. Initialize Target
         // We simulate a different engine by passing a custom DBURL
         $target = new SPPDB("{$toEngine}:dbname=default");

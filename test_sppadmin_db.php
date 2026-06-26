@@ -1,7 +1,11 @@
 <?php
 $authContext = 'sppadmin';
 require 'spp/sppinit.php';
-try { \SPP\Scheduler::getProcObj($authContext); } catch (\Exception $e) { new \SPP\App($authContext); }
+try {
+    \SPP\Scheduler::getProcObj($authContext);
+} catch (\Exception $e) {
+    new \SPP\App($authContext);
+}
 \SPP\Scheduler::setContext($authContext);
 
 $db = new \SPPMod\SPPDB\SPPDB();

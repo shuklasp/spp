@@ -13,7 +13,8 @@ spl_autoload_register(function ($class) {
             $parts = explode('\\', $relative_class);
             $modName = strtolower($parts[0]);
             $file = $baseModDir . $modName . '/class.' . strtolower($parts[1]) . '.php';
-            if (file_exists($file)) require $file;
+            if (file_exists($file))
+                require $file;
             return;
         }
         return;
@@ -32,7 +33,7 @@ try {
     $db = new \SPPMod\SPPDB\SPPDB();
     $db->execute_query("DROP TABLE IF EXISTS test_1075");
     $db->execute_query("CREATE TABLE test_1075 (placeholder INT)");
-    
+
     // Now try to add the column
     echo "Adding column...\n";
     $db->execute_query("ALTER TABLE test_1075 ADD uid INTEGER PRIMARY KEY AUTO_INCREMENT");

@@ -2,8 +2,10 @@
 
 require_once 'c:/projects/apache/school1/spp/sppinit.php';
 
-class TestUser extends \SPPMod\SPPEntity\SPPEntity {
-    public static function boot() {
+class TestUser extends \SPPMod\SPPEntity\SPPEntity
+{
+    public static function boot()
+    {
         self::setMetadata('table', 'test_users_advanced');
         self::setMetadata('id_field', 'id');
         self::setMetadata('soft_delete', true);
@@ -15,18 +17,21 @@ class TestUser extends \SPPMod\SPPEntity\SPPEntity {
 }
 TestUser::boot();
 
-class TestObserver {
-    public function creating($model) {
+class TestObserver
+{
+    public function creating($model)
+    {
         echo "Creating {$model->get('name')}\n";
     }
-    public function deleting($model) {
+    public function deleting($model)
+    {
         echo "Deleting {$model->get('name')}\n";
     }
 }
 
 TestUser::observe(TestObserver::class);
 
-TestUser::addGlobalScope('activeOnly', function($query) {
+TestUser::addGlobalScope('activeOnly', function ($query) {
     $query->condition('role', 'banned', '!=');
 });
 
@@ -67,7 +72,7 @@ echo "Count with trashed: " . count($trashed) . "\n"; // 1
 
 echo "Testing Transactions: \n";
 try {
-    $db->transaction(function($db) {
+    $db->transaction(function ($db) {
         $u3 = new TestUser();
         $u3->set('name', 'Charlie');
         $u3->set('role', 'admin');

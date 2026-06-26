@@ -2,7 +2,8 @@
 require_once __DIR__ . '/../sppinit.php';
 try {
     \SPP\Scheduler::regProc(new \SPP\App('lekhak'));
-} catch (\Exception $e) {}
+} catch (\Exception $e) {
+}
 \SPP\Scheduler::setContext('lekhak');
 
 echo "Testing SppEntityQuery and Dynamic Fields...\n";
@@ -15,7 +16,8 @@ $sync->execute(['fields']);
 if (class_exists('\\SPPMod\\Lekhak\\Core\\LekhakNode')) {
     try {
         \SPPMod\Lekhak\Core\LekhakNode::install();
-    } catch (\Exception $e) {}
+    } catch (\Exception $e) {
+    }
     \SPPMod\Lekhak\Core\LekhakNode::setMetadata('dynamic_attributes', [
         'seo_score' => 'int',
         'tags' => 'string'
@@ -37,7 +39,7 @@ $node->save();
 echo "Saved dynamic fields.\n";
 
 // Test SppEntityQuery
-$query = new \SPPMod\SppDb\SppEntityQuery('\\SPPMod\\Lekhak\\Core\\LekhakNode');
+$query = new \SPPMod\SPPDB\SppEntityQuery('\\SPPMod\\Lekhak\\Core\\LekhakNode');
 $query->condition('bundle', 'page');
 $query->dynamicCondition('seo_score', 80, '>');
 $query->sort('id', 'DESC');

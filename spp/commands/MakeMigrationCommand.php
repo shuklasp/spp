@@ -21,10 +21,10 @@ class MakeMigrationCommand extends BaseMakeCommand
 
         $app = $this->getContext($args);
         $module = $this->getOption('module', $args);
-        
+
         $timestamp = date('Ymd_His');
         $className = 'm' . $timestamp . '_' . str_replace('-', '_', strtolower($migrationName));
-        
+
         if ($module) {
             // Module level migration
             $targetDir = SPP_MODULES_DIR . "/spp/{$module}/migrations"; // Attempt spp/ first

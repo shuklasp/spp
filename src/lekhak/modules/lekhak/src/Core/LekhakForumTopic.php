@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\Lekhak\Core;
 
-use SPPMod\SppDb\SPPEntity;
+use SPPMod\SPPDB\SPPEntity;
 
 /**
  * Class LekhakForumTopic
@@ -31,7 +31,7 @@ class LekhakForumTopic extends SPPEntity
                 $this->status = 'open';
             }
         }
-        
+
         if (function_exists('lekhak_invoke_alter')) {
             lekhak_invoke_alter('entity_presave', $this);
         }
@@ -53,7 +53,7 @@ class LekhakForumTopic extends SPPEntity
         if ($user === null && class_exists('\SPPMod\SPPAuth\SPPAuth')) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
         }
-        
+
         // Admin user has all access
         if ($user && isset($user->roles) && in_array('administrator', $user->roles)) {
             return true;
@@ -69,7 +69,7 @@ class LekhakForumTopic extends SPPEntity
             if (isset($user->roles) && in_array('moderator', $user->roles)) {
                 return true;
             }
-            
+
             // Authors can edit/delete their own forum topics
             if (is_numeric($userId) && $this->author_id == $userId) {
                 return true;
@@ -91,7 +91,7 @@ class LekhakForumTopic extends SPPEntity
             'changed' => 'datetime'
         ];
     }
-    
+
     public function field_metadata()
     {
         return [

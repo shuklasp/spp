@@ -4,7 +4,7 @@ namespace SPP\Tests\Core;
 use SPPMod\Parikshak\SPPTestCase;
 use SPPMod\SPPMigrate\Commands\MakeCommand;
 use SPPMod\SPPMigrate\Commands\MigrateCommand;
-use SPPMod\Sppdb\Migration\SPPMigrationManager;
+use SPPMod\SPPDB\Migration\SPPMigrationManager;
 use SPP\DB;
 
 class SPPMigrateTest extends SPPTestCase
@@ -30,7 +30,7 @@ class SPPMigrateTest extends SPPTestCase
     {
         $cmd = new MigrateCommand();
         $this->assertEquals('migrate', $cmd->getName());
-        
+
         // Test migrations table creation logic directly on SPPMigrationManager via reflection
         $manager = new SPPMigrationManager(\SPP\Scheduler::getContext() ?: 'default');
         $reflection = new \ReflectionClass($manager);

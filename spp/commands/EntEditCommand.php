@@ -11,28 +11,34 @@ class EntEditCommand extends Command
         $entityName = $args[2] ?? null;
         if (!$entityName) {
             require_once SPP_APP_DIR . '/spp/sppinit.php';
-            $entities = \SPPMod\SppDb\SPPEntity::listAvailableEntities();
+            $entities = \SPPMod\SPPDB\SPPEntity::listAvailableEntities();
             echo "Available Entities:\n";
-            foreach (array_keys($entities) as $name) echo "  - $name\n";
+            foreach (array_keys($entities) as $name)
+                echo "  - $name\n";
             $entityName = prompt("\nEntity Name to Edit");
         }
-        
+
         require_once SPP_APP_DIR . '/spp/sppinit.php';
-        $cfgFile = \SPPMod\SppDb\SPPEntity::getEntityConfigFile($entityName);
-        if (!$cfgFile) die("Error: Entity '{$entityName}' not found.\n");
-        
+        $cfgFile = \SPPMod\SPPDB\SPPEntity::getEntityConfigFile($entityName);
+        if (!$cfgFile)
+            die("Error: Entity '{$entityName}' not found.\n");
+
         try {
             $config = \Symfony\Component\Yaml\Yaml::parseFile($cfgFile);
             $appname = strpos($cfgFile, 'apps/') !== false ? explode('/', explode('apps/', $cfgFile)[1])[0] : 'default';
 
             $isInteractive = true;
             foreach ($args as $arg) {
-                if (str_starts_with($arg, '--')) $isInteractive = false;
-                
-                if (str_starts_with($arg, '--table=')) $config['table'] = substr($arg, 8);
-                if (str_starts_with($arg, '--extends=')) $config['extends'] = substr($arg, 10);
-                if (str_starts_with($arg, '--login=')) $config['login_enabled'] = strtolower(substr($arg, 8)) === 'true' || substr($arg, 8) === '1';
-                
+                if (str_starts_with($arg, '--'))
+                    $isInteractive = false;
+
+                if (str_starts_with($arg, '--table='))
+                    $config['table'] = substr($arg, 8);
+                if (str_starts_with($arg, '--extends='))
+                    $config['extends'] = substr($arg, 10);
+                if (str_starts_with($arg, '--login='))
+                    $config['login_enabled'] = strtolower(substr($arg, 8)) === 'true' || substr($arg, 8) === '1';
+
                 if (str_starts_with($arg, '--add-field=')) {
                     $fields = explode(',', substr($arg, 12));
                     foreach ($fields as $field) {
@@ -44,14 +50,14 @@ class EntEditCommand extends Command
                         }
                     }
                 }
-                
+
                 if (str_starts_with($arg, '--remove-field=')) {
                     $fields = explode(',', substr($arg, 15));
                     foreach ($fields as $field) {
                         unset($config['attributes'][trim($field)]);
                     }
                 }
-                
+
                 if (str_starts_with($arg, '--add-relation=')) {
                     $relations = explode(',', substr($arg, 15));
                     foreach ($relations as $relation) {
@@ -72,65 +78,72 @@ class EntEditCommand extends Command
                         }
                     }
                 }
-                
+
                 if (str_starts_with($arg, '--remove-relation=')) {
                     $idxToRemove = (int) substr($arg, 18);
-                    if (isset($config['relations'][$idxToRemove])) array_splice($config['relations'], $idxToRemove, 1);
+                    if (isset($config['relations'][$idxToRemove]))
+                        array_splice($config['relations'], $idxToRemove, 1);
                 }
             }
 
             if (!$isInteractive) {
-                \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+                \SPPMod\SPPDB\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
                 echo "Success: Entity definition updated via CLI flags.\n";
                 return;
             }
 
-            while(true) {
+            while (true) {
                 echo "\n--- Editing Entity: {$entityName} ---\n";
                 echo "1) Edit Metadata (Table: {$config['table']}, Parent: " . ($config['extends'] ?? 'None') . ", Login: " . ($config['login_enabled'] ? 'Yes' : 'No') . ")\n";
                 echo "2) Manage Attributes (" . count($config['attributes'] ?? []) . " defined)\n";
                 echo "3) Manage Relationships (" . count($config['relations'] ?? []) . " defined)\n";
                 echo "4) Save & Quit\n";
                 echo "5) Quit without Saving\n";
-                
+
                 $choice = prompt("Choice", "4");
-                
+
                 if ($choice == '1') {
                     $config['table'] = prompt("  Database Table", $config['table']);
                     $config['extends'] = prompt("  Extends (Parent)", $config['extends'] ?? '');
                     $config['login_enabled'] = strtolower(prompt("  Enable Login Support? (y/n)", ($config['login_enabled'] ?? false) ? 'y' : 'n')) === 'y';
                 } elseif ($choice == '2') {
-                    while(true) {
+                    while (true) {
                         echo "\nAttributes:\n";
-                        foreach (($config['attributes'] ?? []) as $k => $v) echo "  - $k: $v\n";
+                        foreach (($config['attributes'] ?? []) as $k => $v)
+                            echo "  - $k: $v\n";
                         $act = strtolower(prompt("  (A)dd, (E)dit, (R)emove, (B)ack", "b"));
-                        if ($act === 'b') break;
+                        if ($act === 'b')
+                            break;
                         if ($act === 'a') {
                             $name = prompt("    Name");
-                            if ($name) $config['attributes'][$name] = prompt("    Type", "varchar(255)");
+                            if ($name)
+                                $config['attributes'][$name] = prompt("    Type", "varchar(255)");
                         } elseif ($act === 'e') {
                             $name = prompt("    Attribute Name to Edit");
                             if (isset($config['attributes'][$name])) {
                                 $newName = prompt("      New Name", $name);
                                 $type = prompt("      Type", $config['attributes'][$name]);
-                                if ($newName !== $name) unset($config['attributes'][$name]);
+                                if ($newName !== $name)
+                                    unset($config['attributes'][$name]);
                                 $config['attributes'][$newName] = $type;
                             } else {
                                 echo "    Error: Attribute '{$name}' not found.\n";
                             }
                         } elseif ($act === 'r') {
                             $name = prompt("    Name to Remove");
-                            if (isset($config['attributes'][$name])) unset($config['attributes'][$name]);
+                            if (isset($config['attributes'][$name]))
+                                unset($config['attributes'][$name]);
                         }
                     }
                 } elseif ($choice == '3') {
-                    while(true) {
+                    while (true) {
                         echo "\nRelationships:\n";
                         foreach (($config['relations'] ?? []) as $idx => $rel) {
                             echo "  $idx) {$rel['relation_type']} -> {$rel['child_entity']} ({$rel['child_entity_field']})\n";
                         }
                         $act = strtolower(prompt("  (A)dd, (E)dit, (R)emove, (B)ack", "b"));
-                        if ($act === 'b') break;
+                        if ($act === 'b')
+                            break;
                         if ($act === 'a') {
                             $target = prompt("    Target Entity");
                             if ($target) {
@@ -161,11 +174,12 @@ class EntEditCommand extends Command
                             }
                         } elseif ($act === 'r') {
                             $idx = prompt("    Index to Remove");
-                            if (isset($config['relations'][$idx])) array_splice($config['relations'], $idx, 1);
+                            if (isset($config['relations'][$idx]))
+                                array_splice($config['relations'], $idx, 1);
                         }
                     }
                 } elseif ($choice == '4') {
-                    \SPPMod\SppDb\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
+                    \SPPMod\SPPDB\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
                     echo "Success: Entity definition updated.\n";
                     break;
                 } elseif ($choice == '5') {

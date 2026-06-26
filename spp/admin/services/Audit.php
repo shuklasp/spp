@@ -8,7 +8,8 @@
  */
 
 if (!function_exists('live_list_audit_logs')) {
-    function live_list_audit_logs($la, $params) {
+    function live_list_audit_logs($la, $params)
+    {
         $limit = intval($params['limit'] ?? 50);
         $offset = intval($params['offset'] ?? 0);
         $limit = min($limit, 200); // Cap at 200
@@ -21,8 +22,10 @@ if (!function_exists('live_list_audit_logs')) {
             $driver = 'sqlite';
             try {
                 $pdo = $db->getPDO();
-                if ($pdo) $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            } catch (\Exception $e) {}
+                if ($pdo)
+                    $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+            } catch (\Exception $e) {
+            }
 
             if ($driver === 'sqlite') {
                 $checkSql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
@@ -47,7 +50,8 @@ if (!function_exists('live_list_audit_logs')) {
 }
 
 if (!function_exists('live_clear_audit_logs')) {
-    function live_clear_audit_logs($la, $params) {
+    function live_clear_audit_logs($la, $params)
+    {
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $tableName = $db->sppTable('audit_logs');
@@ -64,12 +68,18 @@ if (!function_exists('live_clear_audit_logs')) {
  * Called from api.php on every dispatched action.
  */
 if (!function_exists('spp_admin_audit_log')) {
-    function spp_admin_audit_log(string $action, array $params = []) {
+    function spp_admin_audit_log(string $action, array $params = [])
+    {
         try {
             // Skip logging for read-only/frequent actions to avoid noise
             $skipActions = [
-                'check_auth', 'get_profile', 'list_audit_logs', 'diagnostics_health',
-                'get_system_info', 'load_view', 'get_global_settings'
+                'check_auth',
+                'get_profile',
+                'list_audit_logs',
+                'diagnostics_health',
+                'get_system_info',
+                'load_view',
+                'get_global_settings'
             ];
             if (in_array($action, $skipActions)) {
                 return;
@@ -82,7 +92,8 @@ if (!function_exists('spp_admin_audit_log')) {
                     $userId = \SPP\SPPSession::getSessionVar('__user_id__');
                     $username = \SPP\SPPSession::getSessionVar('__username__') ?: 'unknown';
                 }
-            } catch (\Exception $e) {}
+            } catch (\Exception $e) {
+            }
 
             // Sanitize params — remove passwords and large blobs
             $safeParams = [];

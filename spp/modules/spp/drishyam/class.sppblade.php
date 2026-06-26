@@ -33,7 +33,7 @@ class SPPBlade extends \SPP\SPPObject
 
         $mode = 5; // Force MODE_DEBUG compilation to guarantee live CSS/layout loading
 
-        $this->engine = new BladeOne($this->viewsPath, $this->cachePath, (int)$mode);
+        $this->engine = new BladeOne($this->viewsPath, $this->cachePath, (int) $mode);
 
         $this->registerDirectives();
     }
@@ -52,13 +52,15 @@ class SPPBlade extends \SPP\SPPObject
         // @sppform('login')
         // Loads form from XML/YAML in the app's forms directory
         $this->engine->directive('sppform', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform($expression); ?>";
         });
 
         // @sppform_start('login')
         $this->engine->directive('sppform_start', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppform_start($expression); ?>";
         });
 
@@ -69,7 +71,8 @@ class SPPBlade extends \SPP\SPPObject
 
         // @sppelement('username', ['class' => 'form-control'])
         $this->engine->directive('sppelement', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppelement($expression); ?>";
         });
         // @sppauth
@@ -93,24 +96,28 @@ class SPPBlade extends \SPP\SPPObject
         });
         // @sppbind($entity)
         $this->engine->directive('sppbind', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppbind($expression); ?>";
         });
         // @react('MyComponent', ['prop' => 'value'])
         $this->engine->directive('react', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::react($expression); ?>";
         });
 
         // @vue('MyComponent', ['prop' => 'value'])
         $this->engine->directive('vue', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::vue($expression); ?>";
         });
 
         // @sppux('ComponentName', ['prop' => 'value'])
         $this->engine->directive('sppux', function ($expression) {
-            if (empty($expression)) return "";
+            if (empty($expression))
+                return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppux($expression); ?>";
         });
 
@@ -232,12 +239,12 @@ class SPPBlade extends \SPP\SPPObject
 
     public function renderInstance(string $view, array $data = []): string
     {
-        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Starting render for '$view'\n", FILE_APPEND);
+        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Starting render for '$view'\n", FILE_APPEND);
         error_log("SPPBlade: Starting render for '$view'");
 
         // Support absolute paths
         if (file_exists($view) && str_ends_with($view, '.blade.php')) {
-            
+
             // --- View Template Overriding ---
             // If the absolute path belongs to a module, check if the app overrides it
             $normalizedView = str_replace('\\', '/', $view);
@@ -247,10 +254,10 @@ class SPPBlade extends \SPP\SPPObject
                 $overridePath = rtrim($this->viewsPath, '/\\') . '/modules/' . $modName . '/' . $viewPath;
                 if (file_exists($overridePath)) {
                     $view = $overridePath;
-                    @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Intercepted module view. Using override: '$overridePath'\n", FILE_APPEND);
+                    @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Intercepted module view. Using override: '$overridePath'\n", FILE_APPEND);
                 }
             }
-            
+
             $dir = dirname($view);
             $viewName = basename($view, '.blade.php');
 
@@ -277,22 +284,22 @@ class SPPBlade extends \SPP\SPPObject
             // Set paths: prioritize the theme directory, then the default views
             $this->engine->setPath($paths, $this->cachePath);
 
-            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Rendering absolute file. ViewName: $viewName, Paths: " . json_encode($paths) . "\n", FILE_APPEND);
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Rendering absolute file. ViewName: $viewName, Paths: " . json_encode($paths) . "\n", FILE_APPEND);
 
             try {
                 $output = $this->engine->run($viewName, $data);
-                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Render successful for $viewName\n", FILE_APPEND);
+                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Render successful for $viewName\n", FILE_APPEND);
                 return $output;
             } catch (\Exception $e) {
                 $msg = "SPPBlade ERROR (Absolute): " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine();
-                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] $msg\n", FILE_APPEND);
+                @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
                 return "Blade Error: " . $e->getMessage();
             }
         }
 
         // Ensure default paths for relative views
         $this->engine->setPath($this->viewsPath, $this->cachePath);
-        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] SPPBlade: Rendering relative view '$view' with paths: " . json_encode($this->viewsPath) . "\n", FILE_APPEND);
+        @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Rendering relative view '$view' with paths: " . json_encode($this->viewsPath) . "\n", FILE_APPEND);
 
         // Support full paths by stripping base view path if present (Legacy/Fallback)
         if (strpos($view, $this->viewsPath) === 0) {
@@ -306,7 +313,7 @@ class SPPBlade extends \SPP\SPPObject
             return $this->engine->run($view, $data);
         } catch (\Exception $e) {
             $msg = "SPPBlade ERROR (Relative): " . $e->getMessage();
-            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[".date('Y-m-d H:i:s')."] $msg\n", FILE_APPEND);
+            @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
             return "Blade Error: " . $e->getMessage();
         }
     }
@@ -339,7 +346,7 @@ class SPPBlade extends \SPP\SPPObject
     {
         // Use reflection to get and set the protected templatePath and compiledPath
         $reflection = new \ReflectionClass($this->engine);
-        
+
         $tpProp = $reflection->getProperty('templatePath');
         $tpProp->setAccessible(true);
         $paths = $tpProp->getValue($this->engine);

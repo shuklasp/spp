@@ -13,7 +13,8 @@ spl_autoload_register(function ($class) {
             $parts = explode('\\', $relative_class);
             $modName = strtolower($parts[0]);
             $file = $baseModDir . $modName . '/class.' . strtolower($parts[1]) . '.php';
-            if (file_exists($file)) require $file;
+            if (file_exists($file))
+                require $file;
             return;
         }
         return;

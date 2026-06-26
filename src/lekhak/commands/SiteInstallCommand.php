@@ -25,7 +25,8 @@ class SiteInstallCommand extends Command
         $profile = null;
 
         foreach ($args as $arg) {
-            if ($arg === 'site:install' || $arg === 'spp.php') continue;
+            if ($arg === 'site:install' || $arg === 'spp.php')
+                continue;
             if (str_starts_with($arg, '--profile=')) {
                 $profile = substr($arg, 10);
             } elseif (!str_starts_with($arg, '--') && !$profile) {
@@ -60,7 +61,7 @@ class SiteInstallCommand extends Command
                 $ctTable = \SPPMod\SPPDB\SPPDB::sppTable('content_types');
                 // Ensure CT table exists (simplified for demo)
                 $this->ensureTable($db, $ctTable, "name VARCHAR(50) PRIMARY KEY, label VARCHAR(255), description TEXT");
-                
+
                 foreach ($config['content_types'] as $ct => $def) {
                     $db->execute_query(
                         "INSERT IGNORE INTO {$ctTable} (name, label, description) VALUES (?, ?, ?)",

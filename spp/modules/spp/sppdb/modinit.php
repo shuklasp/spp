@@ -12,7 +12,7 @@ if (class_exists('\\SPP\\DB\\Sequence')) {
 }
 
 if (class_exists('\\SPP\\SPPEvent')) {
-    \SPP\SPPEvent::listen('api.resolve_base_entity', function(\SPP\EventParams $params) {
+    \SPP\SPPEvent::listen('api.resolve_base_entity', function (\SPP\EventParams $params) {
         if (class_exists('\\SPPMod\\SPPEntity\\SPPEntity')) {
             $params->set('base_class', '\\SPPMod\\SPPEntity\\SPPEntity');
         }

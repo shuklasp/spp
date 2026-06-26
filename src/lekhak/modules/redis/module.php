@@ -7,12 +7,14 @@ namespace Lekhak\Modules\LekhakModuleRedis;
  * @configure admin/config/redis
  */
 
-class LekhakModuleRedis {
+class LekhakModuleRedis
+{
 
     private $name = 'redis';
     private $title = 'Redis';
 
-    public function hook_init() {
+    public function hook_init()
+    {
         $db = new \SPPMod\SPPDB\SPPDB();
         try {
             $db->execute_query("CREATE TABLE IF NOT EXISTS lekhak_redis_config (
@@ -20,10 +22,11 @@ class LekhakModuleRedis {
                 setting_key VARCHAR(100) UNIQUE,
                 setting_value TEXT
             )");
-            
+
             // Insert default config
             $db->execute_query("INSERT OR IGNORE INTO lekhak_redis_config (setting_key, setting_value) VALUES (?, ?)", ['enabled', '1']);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         // Core module initialization logic.
         return true;
     }
@@ -31,7 +34,8 @@ class LekhakModuleRedis {
     /**
      * Extends native caching capabilities.
      */
-    public function hook_cache_backend_override() {
+    public function hook_cache_backend_override()
+    {
         // Replaces native file/DB cache with Redis daemon connection.
         try {
             if (class_exists('Redis')) {
@@ -39,12 +43,14 @@ class LekhakModuleRedis {
                 $redis->connect('127.0.0.1', 6379);
                 return $redis;
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
         return null;
     }
 
 
-    public function hook_entity_view_alter(&$build, $context = []) {
+    public function hook_entity_view_alter(&$build, $context = [])
+    {
         // Generic entity display modifier
         if (isset($build['#suffix'])) {
             $build['#suffix'] .= '<!-- Processed by redis -->';
@@ -59,25 +65,25 @@ class LekhakModuleRedis {
     public static function hook_config_form(): array
     {
         return [
-  'host' => 
-  [
-    'type' => 'text',
-    'title' => 'Redis Host',
-    'default' => '127.0.0.1',
-  ],
-  'port' => 
-  [
-    'type' => 'number',
-    'title' => 'Redis Port',
-    'default' => 6379,
-  ],
-  'password' => 
-  [
-    'type' => 'text',
-    'title' => 'Redis Password',
-    'default' => '',
-  ],
-];
+            'host' =>
+                [
+                    'type' => 'text',
+                    'title' => 'Redis Host',
+                    'default' => '127.0.0.1',
+                ],
+            'port' =>
+                [
+                    'type' => 'number',
+                    'title' => 'Redis Port',
+                    'default' => 6379,
+                ],
+            'password' =>
+                [
+                    'type' => 'text',
+                    'title' => 'Redis Password',
+                    'default' => '',
+                ],
+        ];
     }
 }
 

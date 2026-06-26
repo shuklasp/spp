@@ -14,24 +14,27 @@ $excluded = ['token', 'pathauto', 'metatag', 'views', 'panelizer', 'ctools', 'pa
 
 foreach ($dirs as $dir) {
     $machineName = basename($dir);
-    if (in_array($machineName, $excluded)) continue;
-    
+    if (in_array($machineName, $excluded))
+        continue;
+
     $file = $dir . '/module.php';
-    if (!file_exists($file)) continue;
-    
+    if (!file_exists($file))
+        continue;
+
     $content = file_get_contents($file);
-    
+
     // Only process if it looks like the basic boilerplate from generate_full_modules.php
     if (strpos($content, 'CREATE TABLE IF NOT EXISTS') !== false) {
         continue; // Already expanded
     }
-    
+
     // Find the hook_init function and inject database schema creation
     $classNameMatch = preg_match('/class (LekhakModule[a-zA-Z0-9_]+)/', $content, $m);
-    if (!$classNameMatch) continue;
-    
+    if (!$classNameMatch)
+        continue;
+
     $tablePrefix = 'lekhak_' . $machineName;
-    
+
     $dbLogic = <<<PHP
         \$db = new \SPPMod\SPPDB\SPPDB();
         try {
@@ -47,15 +50,15 @@ foreach ($dirs as $dir) {
 PHP;
 
     $content = preg_replace(
-        '/public function hook_init\(\) \{/', 
-        "public function hook_init() {\n" . $dbLogic, 
+        '/public function hook_init\(\) \{/',
+        "public function hook_init() {\n" . $dbLogic,
         $content
     );
 
     // Now inject some generic hook implementations based on module context
     // E.g., hook_entity_view_alter, hook_page_meta_alter
     $extraHooks = "";
-    
+
     if (strpos($machineName, 'seo') !== false || strpos($machineName, 'xml') !== false || strpos($machineName, 'redirect') !== false) {
         $extraHooks = <<<PHP
 
@@ -93,8 +96,8 @@ PHP;
     }
 
     $content = preg_replace(
-        '/(}[ \t\n\r]*return \[)/s', 
-        $extraHooks . "\n$1", 
+        '/(}[ \t\n\r]*return \[)/s',
+        $extraHooks . "\n$1",
         $content
     );
 

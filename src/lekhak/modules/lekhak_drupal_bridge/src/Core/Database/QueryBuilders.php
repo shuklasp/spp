@@ -3,8 +3,10 @@ namespace Lekhak\Modules\LekhakDrupalBridge\Core\Database;
 
 use SPPMod\SPPDB\SPPDB;
 
-class DatabaseWrapper {
-    public function query($query, array $args = [], $options = []) {
+class DatabaseWrapper
+{
+    public function query($query, array $args = [], $options = [])
+    {
         if (class_exists('\SPPMod\SPPDB\SPPDB')) {
             $db = new SPPDB();
             return $db->execute_query($query, $args);
@@ -12,40 +14,50 @@ class DatabaseWrapper {
         return null;
     }
 
-    public function select($table, $alias = null, array $options = []) {
+    public function select($table, $alias = null, array $options = [])
+    {
         return new SelectQueryBuilder($table, $alias, $options);
     }
 
-    public function insert($table, array $options = []) {
+    public function insert($table, array $options = [])
+    {
         return new InsertQueryBuilder($table, $options);
     }
 
-    public function update($table, array $options = []) {
+    public function update($table, array $options = [])
+    {
         return new UpdateQueryBuilder($table, $options);
     }
 
-    public function delete($table, array $options = []) {
+    public function delete($table, array $options = [])
+    {
         return new DeleteQueryBuilder($table, $options);
     }
 }
 
-abstract class BaseQueryBuilder {
-    public function __clone() {}
+abstract class BaseQueryBuilder
+{
+    public function __clone()
+    {
+    }
 }
 
-class SelectQueryBuilder {
+class SelectQueryBuilder
+{
     protected $table;
     protected $alias;
     protected $fields = [];
     protected $conditions = [];
     protected $args = [];
 
-    public function __construct($table, $alias, $options) {
+    public function __construct($table, $alias, $options)
+    {
         $this->table = $table;
         $this->alias = $alias;
     }
 
-    public function fields($table_alias, array $fields = []) {
+    public function fields($table_alias, array $fields = [])
+    {
         if (empty($fields)) {
             $this->fields[] = $table_alias . '.*';
         } else {
@@ -56,13 +68,15 @@ class SelectQueryBuilder {
         return $this;
     }
 
-    public function condition($field, $value = null, $operator = '=') {
+    public function condition($field, $value = null, $operator = '=')
+    {
         $this->conditions[] = "$field $operator ?";
         $this->args[] = $value;
         return $this;
     }
 
-    public function execute() {
+    public function execute()
+    {
         if (class_exists('\SPPMod\SPPDB\SPPDB')) {
             $db = new SPPDB();
             $fieldsSql = empty($this->fields) ? '*' : implode(', ', $this->fields);
@@ -78,20 +92,24 @@ class SelectQueryBuilder {
     }
 }
 
-class InsertQueryBuilder {
+class InsertQueryBuilder
+{
     protected $table;
     protected $fields = [];
 
-    public function __construct($table, $options) {
+    public function __construct($table, $options)
+    {
         $this->table = $table;
     }
 
-    public function fields(array $fields) {
+    public function fields(array $fields)
+    {
         $this->fields = $fields;
         return $this;
     }
 
-    public function execute() {
+    public function execute()
+    {
         if (class_exists('\SPPMod\SPPDB\SPPDB')) {
             $db = new SPPDB();
             $db->insertValues($this->table, $this->fields);
@@ -101,28 +119,33 @@ class InsertQueryBuilder {
     }
 }
 
-class UpdateQueryBuilder {
+class UpdateQueryBuilder
+{
     protected $table;
     protected $fields = [];
     protected $conditions = [];
     protected $args = [];
 
-    public function __construct($table, $options) {
+    public function __construct($table, $options)
+    {
         $this->table = $table;
     }
 
-    public function fields(array $fields) {
+    public function fields(array $fields)
+    {
         $this->fields = $fields;
         return $this;
     }
 
-    public function condition($field, $value = null, $operator = '=') {
+    public function condition($field, $value = null, $operator = '=')
+    {
         $this->conditions[] = "$field $operator ?";
         $this->args[] = $value;
         return $this;
     }
 
-    public function execute() {
+    public function execute()
+    {
         if (class_exists('\SPPMod\SPPDB\SPPDB')) {
             $db = new SPPDB();
             $where = empty($this->conditions) ? "1=1" : implode(' AND ', $this->conditions);
@@ -135,22 +158,26 @@ class UpdateQueryBuilder {
     }
 }
 
-class DeleteQueryBuilder {
+class DeleteQueryBuilder
+{
     protected $table;
     protected $conditions = [];
     protected $args = [];
 
-    public function __construct($table, $options) {
+    public function __construct($table, $options)
+    {
         $this->table = $table;
     }
 
-    public function condition($field, $value = null, $operator = '=') {
+    public function condition($field, $value = null, $operator = '=')
+    {
         $this->conditions[] = "$field $operator ?";
         $this->args[] = $value;
         return $this;
     }
 
-    public function execute() {
+    public function execute()
+    {
         if (class_exists('\SPPMod\SPPDB\SPPDB')) {
             $db = new SPPDB();
             $where = empty($this->conditions) ? "1=1" : implode(' AND ', $this->conditions);
@@ -162,33 +189,42 @@ class DeleteQueryBuilder {
     }
 }
 
-class StatementMock implements \IteratorAggregate {
+class StatementMock implements \IteratorAggregate
+{
     protected $data;
-    public function __construct($data) {
+    public function __construct($data)
+    {
         $this->data = $data;
     }
-    public function fetchAll() {
+    public function fetchAll()
+    {
         return json_decode(json_encode($this->data), false); // return objects
     }
-    public function fetchAllAssoc($key) {
+    public function fetchAllAssoc($key)
+    {
         $res = [];
         foreach ($this->fetchAll() as $row) {
             $res[$row->{$key}] = $row;
         }
         return $res;
     }
-    public function fetchAssoc() {
-        return empty($this->data) ? false : (array)$this->data[0];
+    public function fetchAssoc()
+    {
+        return empty($this->data) ? false : (array) $this->data[0];
     }
-    public function fetchObject() {
-        return empty($this->data) ? false : (object)$this->data[0];
+    public function fetchObject()
+    {
+        return empty($this->data) ? false : (object) $this->data[0];
     }
-    public function fetchField() {
-        if (empty($this->data)) return false;
-        $row = (array)$this->data[0];
+    public function fetchField()
+    {
+        if (empty($this->data))
+            return false;
+        $row = (array) $this->data[0];
         return reset($row);
     }
-    public function getIterator(): \Traversable {
+    public function getIterator(): \Traversable
+    {
         return new \ArrayIterator($this->fetchAll());
     }
 }
