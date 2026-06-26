@@ -1,14 +1,16 @@
 <?php
-namespace SPPMod\Sppsecurity;
+namespace SPPMod\SPPSecurity;
 
-class SPPSanitizer {
+class SPPSanitizer
+{
     /**
      * Sanitize input based on output context to prevent XSS.
      * 
      * @param string $input 
      * @param string $context 'html', 'attribute', 'javascript', 'url'
      */
-    public function sanitize(string $input, string $context = 'html'): string {
+    public function sanitize(string $input, string $context = 'html'): string
+    {
         switch ($context) {
             case 'html':
                 return htmlspecialchars($input, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');

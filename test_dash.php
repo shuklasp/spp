@@ -7,6 +7,6 @@ $_GET['q'] = 'lekhak/admin';
 
 require 'c:/projects/apache/school1/spp/sppinit.php';
 
-\SPPMod\SPPAuth\SPPAuth::guard('web')->login((object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local']);
+\SPPMod\SPPAuth\SPPAuth::guard('web')->login((object) ['id' => 'admin', 'username' => 'admin', 'email' => 'admin@lekhak.local']);
 
 require 'c:/projects/apache/school1/index.php';

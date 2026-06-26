@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppauth\Migrations;
+namespace SPPMod\SPPAuth\Migrations;
 
 use SPPMod\SPPDB\Migration\SPPMigration;
 

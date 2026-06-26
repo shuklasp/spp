@@ -14,7 +14,7 @@ class CacheController
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = $_POST['action'] ?? '';
-            
+
             if ($action === 'clear_all') {
                 CacheManager::clearAll();
                 $message = "All caches have been cleared.";

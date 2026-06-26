@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace SPPMod\SPPAPI\Dispatchers;
 
-use SPPMod\SppApi\SPPAjax;
+use SPPMod\SPPAPI\SPPAjax;
 
 class PageDispatcher
 {

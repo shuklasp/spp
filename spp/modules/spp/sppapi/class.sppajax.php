@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\SppApi;
+namespace SPPMod\SPPAPI;
 
 use Symfony\Component\Yaml\Yaml;
 

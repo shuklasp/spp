@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -16,10 +16,12 @@ class DeployMaintenanceCommand extends Command
 
         $state = null;
         $apiKey = 'default_cli_key';
-        
+
         foreach ($args as $arg) {
-            if ($arg === '--on') $state = 'on';
-            if ($arg === '--off') $state = 'off';
+            if ($arg === '--on')
+                $state = 'on';
+            if ($arg === '--off')
+                $state = 'off';
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
             }
@@ -36,17 +38,18 @@ class DeployMaintenanceCommand extends Command
                 file_put_contents($lockFile, 'Site is undergoing manual maintenance. Please check back later.');
                 echo "✅ Local maintenance mode enabled.\n";
             } else {
-                if (is_file($lockFile)) unlink($lockFile);
+                if (is_file($lockFile))
+                    unlink($lockFile);
                 echo "✅ Local maintenance mode disabled.\n";
             }
             return;
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         echo "📡 Setting maintenance mode ({$state}) on {$target}...\n";
         $resp = $conn->setMaintenanceMode($state);
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Failed to update maintenance mode: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;

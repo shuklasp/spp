@@ -985,7 +985,7 @@ Queries a remote deployment node to list all available rollback snapshots, allow
 - `--key=<api_key>` : **Optional.** The API authentication key to authorize the request on the remote node. Defaults to `default_cli_key`.
 
 # UNDER THE HOOD ACTIVITY
-The command extracts the target URI and the optional `--key` flag from the runtime arguments. It calls `\SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey)` to instantiate a client for the remote node. Using this connection, it invokes the `getBackups()` method, which performs an HTTP request to the target server. The target responds with a JSON array of backup metadata. The command checks the `status` flag of the response. If successful, it parses the `backups` array and formats a tabular view containing the backup date, filename (snapshot ID), and physical file size rounded to MB.
+The command extracts the target URI and the optional `--key` flag from the runtime arguments. It calls `\SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey)` to instantiate a client for the remote node. Using this connection, it invokes the `getBackups()` method, which performs an HTTP request to the target server. The target responds with a JSON array of backup metadata. The command checks the `status` flag of the response. If successful, it parses the `backups` array and formats a tabular view containing the backup date, filename (snapshot ID), and physical file size rounded to MB.
 
 # EXAMPLES
 Check backups on the staging server:
@@ -1035,7 +1035,7 @@ Requests the remote server to delete old deployment backup snapshots to free up 
 - `--key=<api_key>` : **Optional.** API key for remote authentication.
 
 # UNDER THE HOOD ACTIVITY
-The command extracts the target URI, the optional API key, and parses the `--keep` argument into an integer. It establishes a remote client instance using `\SPPMod\Sppdeploy\Deployer\TargetConnection::resolve()`. It then invokes the `cleanupBackups($keep)` method, passing the retention integer. This method transmits an HTTP request instructing the remote environment to sort its backup directory and permanently unlink (delete) any archives older than the defined retention threshold. The remote node returns a JSON status payload, which the CLI interprets and displays as a success or failure notification.
+The command extracts the target URI, the optional API key, and parses the `--keep` argument into an integer. It establishes a remote client instance using `\SPPMod\SPPDeploy\Deployer\TargetConnection::resolve()`. It then invokes the `cleanupBackups($keep)` method, passing the retention integer. This method transmits an HTTP request instructing the remote environment to sort its backup directory and permanently unlink (delete) any archives older than the defined retention threshold. The remote node returns a JSON status payload, which the CLI interprets and displays as a success or failure notification.
 
 # EXAMPLES
 Keep only the latest 3 backups on staging:
@@ -1098,7 +1098,7 @@ The `deploy:env` command is used to securely push and update environment variabl
 
 When `deploy:env` is executed, the command first validates the presence of the required arguments (`target_uri` and the `push` action). It then iterates over the provided arguments to extract the values for `--key`, `--value`, and optionally `--key_api`. If the required key or value is missing, the command immediately halts execution and displays an error message.
 
-Once the parameters are parsed, the command initializes a connection to the remote server using the `SPPMod\Sppdeploy\Deployer\TargetConnection::resolve()` method, passing the target URI and the API key. This abstract connection layer then sends a remote procedure call or HTTP API request via the `$conn->pushEnvKey($envKey, $envValue)` method. The remote server, assuming it runs the SPP deployment receiver, processes this payload and typically modifies its active `.env` file or environment configuration safely, returning a structured JSON response indicating success or failure. The CLI command parses this response and outputs a localized success or failure message to the standard output.
+Once the parameters are parsed, the command initializes a connection to the remote server using the `SPPMod\SPPDeploy\Deployer\TargetConnection::resolve()` method, passing the target URI and the API key. This abstract connection layer then sends a remote procedure call or HTTP API request via the `$conn->pushEnvKey($envKey, $envValue)` method. The remote server, assuming it runs the SPP deployment receiver, processes this payload and typically modifies its active `.env` file or environment configuration safely, returning a structured JSON response indicating success or failure. The CLI command parses this response and outputs a localized success or failure message to the standard output.
 
 # EXAMPLES
 
@@ -1135,7 +1135,7 @@ The `deploy:history` command retrieves the historical log of all deployment even
 
 # UNDER THE HOOD ACTIVITY
 
-Upon execution, the command verifies that a target URI has been supplied. It then parses the arguments for an optional `--key` flag to override the default API key. Next, it establishes a communication channel with the remote target using the `SPPMod\Sppdeploy\Deployer\TargetConnection::resolve()` factory method.
+Upon execution, the command verifies that a target URI has been supplied. It then parses the arguments for an optional `--key` flag to override the default API key. Next, it establishes a communication channel with the remote target using the `SPPMod\SPPDeploy\Deployer\TargetConnection::resolve()` factory method.
 
 The command triggers the `$conn->getHistory()` method, which performs a secure request to the remote server's deployment API to fetch its internal logs or database records of past deployments. The remote server responds with a structured payload containing a status indicator and a `history` array. 
 

@@ -20,7 +20,7 @@ Provides a robust mechanism to perform simulated end-to-end testing of AJAX endp
 
 The script parses arguments, specifically attempting to `json_decode()` the `--payload` string. If invalid JSON is passed, it issues a warning and defaults to an empty array.
 
-To accurately simulate an HTTP request, the command populates the superglobals `$_POST` and `$_REQUEST` with the decoded payload array, and forcefully sets `$_SERVER['REQUEST_METHOD']` to `POST`. Because SPP AJAX services often terminate execution using `exit()` after flushing their response, this command wraps the core execution (`\SPPMod\SppApi\SPPAjax::resolveAndExecute`) in an output buffer (`ob_start()`). 
+To accurately simulate an HTTP request, the command populates the superglobals `$_POST` and `$_REQUEST` with the decoded payload array, and forcefully sets `$_SERVER['REQUEST_METHOD']` to `POST`. Because SPP AJAX services often terminate execution using `exit()` after flushing their response, this command wraps the core execution (`\SPPMod\SPPAPI\SPPAjax::resolveAndExecute`) in an output buffer (`ob_start()`). 
 
 It suppresses headers-already-sent warnings via the `@` operator since CLI environments handle headers differently than standard SAPI. Once execution completes (or is halted by the service), the output buffer is captured (`ob_get_clean()`). The command then attempts to locate a JSON object boundary within the raw output. If it identifies valid JSON, it actively decodes and re-encodes it using `JSON_PRETTY_PRINT` to render beautifully formatted API responses directly inside the terminal. Any internal exceptions caught during execution are also converted to clean, formatted JSON error objects.
 

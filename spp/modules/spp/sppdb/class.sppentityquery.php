@@ -399,7 +399,8 @@ class SppEntityQuery
         }
 
         $ids = array_map(function ($e) {
-            return $e->getId(); }, $entities);
+            return $e->getId();
+        }, $entities);
         $entitiesById = [];
         foreach ($entities as $e) {
             $entitiesById[$e->getId()] = $e;

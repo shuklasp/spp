@@ -23,17 +23,17 @@ class ApiErrorSubscriber
 
         $payload = $event->getPayload();
         $exception = $payload['exception'] ?? null;
-        
+
         $message = $exception ? $exception->getMessage() : 'An unexpected error occurred.';
         $code = $exception ? $exception->getCode() : 500;
-        
+
         if ($code < 400 || $code > 599) {
             $code = 500;
         }
 
         // Output JSON representation of the error
-        \SPPMod\SppApi\SPPAjax::respond('error', ['message' => $message], $code);
-        
+        \SPPMod\SPPAPI\SPPAjax::respond('error', ['message' => $message], $code);
+
         // Stop event propagation since we've handled the error and sent the response
         $event->stopPropagation();
     }
@@ -55,7 +55,7 @@ class ApiErrorSubscriber
         if (strpos($uri, '/api.php') !== false || strpos($uri, '/api/') !== false) {
             return true;
         }
-        
+
         return false;
     }
 }

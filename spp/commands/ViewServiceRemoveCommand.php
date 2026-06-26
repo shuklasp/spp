@@ -16,9 +16,12 @@ class ViewServiceRemoveCommand extends Command
         $source = 'yaml';
 
         foreach ($args as $arg) {
-            if (str_starts_with($arg, '--app=')) $appname = substr($arg, 6);
-            elseif (str_starts_with($arg, '--name=')) $name = substr($arg, 7);
-            elseif (str_starts_with($arg, '--source=')) $source = substr($arg, 9);
+            if (str_starts_with($arg, '--app='))
+                $appname = substr($arg, 6);
+            elseif (str_starts_with($arg, '--name='))
+                $name = substr($arg, 7);
+            elseif (str_starts_with($arg, '--source='))
+                $source = substr($arg, 9);
         }
 
         if (!$name) {
@@ -26,8 +29,8 @@ class ViewServiceRemoveCommand extends Command
             return;
         }
 
-        \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
-            \SPPMod\SppApi\SPPAjax::unregisterService($name, $source);
+        \SPP\Scheduler::withContext($appname, function () use ($name, $source) {
+            \SPPMod\SPPAPI\SPPAjax::unregisterService($name, $source);
         });
 
         echo "Success: AJAX Service '{$name}' removed for app '{$appname}' (Source: {$source}).\n";

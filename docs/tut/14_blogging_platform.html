@@ -183,7 +183,8 @@ php spp/spp.php admin:bootstrap</code></pre>
 > 1</code></pre>
                     <p style="font-size: 0.85rem; opacity: 0.8; font-style: italic;">(Alternatively, you can bypass the
                         interactive prompts by passing flags directly:
-                        <code>php spp/spp.php make:app blog --paradigm=blade</code>)</p>
+                        <code>php spp/spp.php make:app blog --paradigm=blade</code>)
+                    </p>
                 </div>
             </div>
 
@@ -201,7 +202,8 @@ php spp/spp.php admin:bootstrap</code></pre>
                         <strong>ORM</strong> (Object-Relational Mapping). Think of it as a translator between your PHP
                         code and the database. You define a "Recipe" (an Entity), and you can just say
                         <code>$post-&gt;title = "Hello"</code>. The framework handles all the complicated database
-                        translation behind the scenes.</p>
+                        translation behind the scenes.
+                    </p>
                 </div>
 
                 <div class="phase-box phase-advanced">
@@ -211,10 +213,12 @@ php spp/spp.php admin:bootstrap</code></pre>
                         is cached in a static registry <code>$_metadata</code> for ultra-fast subsequent lookups.</p>
                     <p><strong>Magic Methods:</strong> Property access is intercepted by <code>__get()</code> and
                         <code>__set()</code>. If you request a related entity, the magic <code>__get</code> delegates to
-                        <code>SPPEntityRelations::getRelated()</code>, executing a lazy-loaded SQL join.</p>
+                        <code>SPPEntityRelations::getRelated()</code>, executing a lazy-loaded SQL join.
+                    </p>
                     <p><strong>Lifecycle Hooks:</strong> Entities fire hooks. For example, the <code>after_save()</code>
                         hook automatically contacts <code>SPPCacheManager</code> to invalidate cache tags like
-                        <code>Post:{id}</code>, ensuring your app never serves stale data.</p>
+                        <code>Post:{id}</code>, ensuring your app never serves stale data.
+                    </p>
                 </div>
 
                 <div class="phase-box phase-impl">
@@ -281,7 +285,8 @@ Success: Entity Post saved and scaffolded in blog context.</code></pre>
                     <p><strong>The 5-Layer RBAC Cascade:</strong> When calling
                         <code>SPPAuth::can('blog.post.publish')</code>, <code>WebGuard</code> checks: Anonymous Group
                         &rarr; Authenticated Group &rarr; Legacy Rights &rarr; Registry Overrides &rarr; Polymorphic
-                        Groups. The result is cached in the session.</p>
+                        Groups. The result is cached in the session.
+                    </p>
                     <p><strong>ABAC:</strong> <code>PolicyRegistry::evaluate()</code> parses a recursive JSON logic tree
                         from the database, evaluating fields like <code>user.id == context.author_id</code>.</p>
                 </div>
@@ -338,7 +343,8 @@ php spp/spp.php iam:abac create "blog.post.edit_own" '{"field": "user.id", "oper
                     <p>During application boot, the <code>RouteScanner</code> uses PHP Reflection to parse all
                         controller files. It extracts the <code>#[Route]</code> attributes and caches them in an
                         optimized routing table. Requests then pass through an "Onion" Middleware pipeline via
-                        <code>array_reduce</code> before hitting the Controller.</p>
+                        <code>array_reduce</code> before hitting the Controller.
+                    </p>
                 </div>
 
                 <div class="phase-box phase-impl">
@@ -401,7 +407,8 @@ class BlogController extends \SPP\SPPObject
                         &rarr; <code>update()</code> &rarr; <code>onDestroy()</code>. The WYSIWYG editor module (Lekhni)
                         features a dual engine (contenteditable vs Monaco IDE). It uses the browser's
                         <code>IndexedDB</code> (LekhniEnterpriseStore) to silently auto-save drafts offline, completely
-                        bypassing the network.</p>
+                        bypassing the network.
+                    </p>
                 </div>
 
                 <div class="phase-box phase-impl">

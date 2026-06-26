@@ -23,7 +23,7 @@ class AuthForm
         $success = $this->getProp('success', '');
 
         $isPost = $_SERVER['REQUEST_METHOD'] === 'POST';
-        
+
         if ($isPost) {
             $username = $_POST['username'] ?? '';
             $password = $_POST['password'] ?? '';

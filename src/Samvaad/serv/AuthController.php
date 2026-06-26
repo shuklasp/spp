@@ -44,7 +44,7 @@ class AuthController
                 try {
                     // Demo credential check — replace with real auth
                     if ($username === 'admin' && ($password === 'admin' || $password === 'password')) {
-                        $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
+                        $user = (object) ['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
                         \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
                         header('Location: ' . \SPP\App::getBaseUrl('Samvaad') . '?q=dashboard');
                         exit;

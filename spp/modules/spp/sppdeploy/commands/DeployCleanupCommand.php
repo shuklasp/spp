@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -16,21 +16,21 @@ class DeployCleanupCommand extends Command
 
         $apiKey = 'default_cli_key';
         $keep = 5;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
             }
             if (str_starts_with($arg, '--keep=')) {
-                $keep = (int)substr($arg, 7);
+                $keep = (int) substr($arg, 7);
             }
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         echo "📡 Sending cleanup request to {$target} (Keeping latest {$keep} backups)...\n";
         $resp = $conn->cleanupBackups($keep);
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Cleanup failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;

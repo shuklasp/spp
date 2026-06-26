@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace SPPMod\SppApi;
+namespace SPPMod\SPPAPI;
 
 /**
  * class LiveAction
@@ -281,7 +281,7 @@ class LiveAction
     public function send(): never
     {
         // Use fully qualified name to avoid ambiguity with the namespace name
-        \SPPMod\SppApi\SPPAjax::respond($this->status, [
+        \SPPMod\SPPAPI\SPPAjax::respond($this->status, [
             'data' => $this->data,
             'instructions' => $this->instructions
         ]);

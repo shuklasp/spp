@@ -18,7 +18,7 @@ try {
     echo "dbtype (sppdb): " . $dbtype . "<br>";
 
     // Now trigger RateLimiter
-    $rl = new \SPPMod\SppAuth\RateLimiter();
+    $rl = new \SPPMod\SPPAuth\RateLimiter();
     echo "RateLimiter instantiated successfully.<br>";
     $isLimited = $rl::tooManyAttempts('testuser', '127.0.0.1');
     echo "RateLimiter tooManyAttempts: " . ($isLimited ? 'true' : 'false') . "<br>";

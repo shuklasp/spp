@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>09. Project: Building SPP-Twitter | SPP Framework Tutorial</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>SPP Framework</h2>
@@ -29,12 +33,15 @@
     <main class="main-content">
         <article class="content-container">
             <h1>09. Project: Building SPP-Twitter</h1>
-            <p>In this final project, we will apply everything we've learned to build a functional **Twitter-style clone**. This application will support posting tweets, following users, and a real-time global timeline.</p>
-            
+            <p>In this final project, we will apply everything we've learned to build a functional **Twitter-style
+                clone**. This application will support posting tweets, following users, and a real-time global timeline.
+            </p>
+
             <hr>
 
             <h2>Step 1: Data Modeling (YAML)</h2>
-            <p>We need two primary entities: <span class="accent">Tweet</span> and <span class="accent">Follower</span>.</p>
+            <p>We need two primary entities: <span class="accent">Tweet</span> and <span class="accent">Follower</span>.
+            </p>
 
             <h3>Tweet Entity (etc/entities/tweet.yml)</h3>
             <pre><code>table: tweets
@@ -83,7 +90,8 @@ class Social extends \SPP\SPPObject {
             <hr>
 
             <h2>Step 3: Security & Profiles</h2>
-            <p>We'll use <span class="accent">SPPAuth</span> to handle logins. Each student in our "V-Shiksha" portal from earlier can now have a social profile.</p>
+            <p>We'll use <span class="accent">SPPAuth</span> to handle logins. Each student in our "V-Shiksha" portal
+                from earlier can now have a social profile.</p>
             <pre><code>if (!\SPPMod\SPPAuth\SPPAuth::isLoggedIn()) {
     \SPPMod\SPPView\ViewPage::redirect('login');
 }</code></pre>
@@ -116,7 +124,8 @@ class Social extends \SPP\SPPObject {
             <hr>
 
             <h2>Step 5: SPA Magic (FormAugmentor)</h2>
-            <p>By defining our form in XML, <span class="accent">FormAugmentor</span> will instantly make the timeline dynamic.</p>
+            <p>By defining our form in XML, <span class="accent">FormAugmentor</span> will instantly make the timeline
+                dynamic.</p>
             <pre><code>&lt;form name="tweet_form" action="/post_tweet.php"&gt;
     &lt;controls&gt;
         &lt;control name="content" type="ViewInputTextarea" /&gt;
@@ -127,7 +136,8 @@ class Social extends \SPP\SPPObject {
             <hr>
 
             <h2>Step 6: Going Live (SPPLive)</h2>
-            <p>To alert other users of new tweets in real-time, hook into the <span class="accent">onTweetPosted</span> event:</p>
+            <p>To alert other users of new tweets in real-time, hook into the <span class="accent">onTweetPosted</span>
+                event:</p>
             <pre><code>\SPP\SPPEvent::registerHandler('onTweetPosted', function($payload) {
     \SPPMod\SPPLive\SPPLive::broadcast('timeline_update', $payload['tweet']->toArray());
 });</code></pre>
@@ -136,7 +146,8 @@ class Social extends \SPP\SPPObject {
 
             <div class="alert alert-important">
                 <strong>Bonus: AI Sentiment Analysis</strong>
-                <p>Use <span class="accent">SPPAI</span> to automatically label toxic or positive tweets during the <span class="accent">postTweet</span> logic:</p>
+                <p>Use <span class="accent">SPPAI</span> to automatically label toxic or positive tweets during the
+                    <span class="accent">postTweet</span> logic:</p>
                 <pre><code>$sentiment = \SPPMod\SPPAI\SPPAI::analyzeSentiment($content);
 $tweet->set('sentiment', $sentiment);</code></pre>
             </div>
@@ -154,4 +165,5 @@ $tweet->set('sentiment', $sentiment);</code></pre>
         </article>
     </main>
 </body>
+
 </html>

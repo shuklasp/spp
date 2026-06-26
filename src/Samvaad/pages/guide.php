@@ -68,7 +68,8 @@ if (class_exists('\SPPMod\Drishyam\SPPUX')) {
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">2. App
             Structure</h2>
         <p style="color:#475569; line-height:1.8;">Every SPP app has two main directories:
-            <code>etc/apps/Samvaad/</code> for configuration, and <code>src/Samvaad/</code> for source code.</p>
+            <code>etc/apps/Samvaad/</code> for configuration, and <code>src/Samvaad/</code> for source code.
+        </p>
         <pre
             style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 your-project/
@@ -298,7 +299,8 @@ class HomeController
 
         <h3 style="color:#475569; margin-top:1.5rem;">5b. SPP Custom Blade Directives</h3>
         <p style="color:#475569; line-height:1.8;">SPP extends Blade with powerful custom directives. Here is the
-            <b>complete list</b>:</p>
+            <b>complete list</b>:
+        </p>
 
         <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
             <tr style="background:#6366f1; color:#fff;">
@@ -458,7 +460,8 @@ store.subscribe('user', (newVal) =&gt; {
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">7.
             Events System</h2>
         <p style="color:#475569; line-height:1.8;">Events decouple your code. Register listeners in
-            <code>init.php</code> or <code>etc/events.yml</code>, then fire them anywhere.</p>
+            <code>init.php</code> or <code>etc/events.yml</code>, then fire them anywhere.
+        </p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">7a. Registering &amp; Firing Events</h3>
         <pre
@@ -843,7 +846,8 @@ $msg = SPPSession::getFlash('success'); // Available once, then auto-deleted
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">15.
             Translations (i18n)</h2>
         <p style="color:#475569; line-height:1.8;">Multi-language support via JSON language files and the
-            <code>spplang</code> module.</p>
+            <code>spplang</code> module.
+        </p>
         <pre
             style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 // ── Language files: resources/Samvaad/lang/en.json ──
@@ -995,7 +999,8 @@ php spp.php test:evolve --app=Samvaad             # Evolutionary testing</pre>
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">19.
             Themes</h2>
         <p style="color:#475569; line-height:1.8;">Themes are defined in <code>resources/Samvaad/themes/</code> with a
-            <code>theme.yml</code> config.</p>
+            <code>theme.yml</code> config.
+        </p>
         <pre
             style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
 # ── resources/Samvaad/themes/default/theme.yml ──
@@ -1360,7 +1365,8 @@ Log::critical('Database connection lost');
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">25.
             Getting Started Checklist</h2>
         <p style="color:#475569; line-height:1.8;">Follow these steps to build your first feature in
-            <code>Samvaad</code>:</p>
+            <code>Samvaad</code>:
+        </p>
 
         <div
             style="background:#f0fdf4; border-left:4px solid #22c55e; padding:1.2rem 1.5rem; border-radius:0 10px 10px 0; margin:1rem 0;">
@@ -1384,7 +1390,8 @@ Log::critical('Database connection lost');
             <p style="color:#3b82f6; font-weight:600; margin:0;">Tip: Delete this guide page once you are comfortable
                 with the framework!</p>
             <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from
-                <code>etc/apps/Samvaad/pages.yml</code> and delete this file.</p>
+                <code>etc/apps/Samvaad/pages.yml</code> and delete this file.
+            </p>
         </div>
 
     </div>

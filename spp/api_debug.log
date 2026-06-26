@@ -474,7 +474,7 @@ Stack trace:
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
 #4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
-#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAPI\SPPAjax::resolveAndExecute()
 #6 {main}
 [2026-06-11 12:02:10] Context set to sppadmin
 [2026-06-11 12:02:11] API FATAL ERROR: Class "SPP\Core\EventManager" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
@@ -483,7 +483,7 @@ Stack trace:
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
 #4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
-#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAPI\SPPAjax::resolveAndExecute()
 #6 {main}
 [2026-06-11 12:03:31] Context set to sppadmin
 [2026-06-11 12:03:32] API FATAL ERROR: Class "SPP\Core\EventHandler" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppdb/class.sppentity.php on line 1604
@@ -492,7 +492,7 @@ Stack trace:
 #2 /mnt/c/projects/apache/school1/spp/admin/services/Auth.php(17): SPPMod\SPPAuth\SPPUser->__construct()
 #3 /mnt/c/projects/apache/school1/spp/admin/services/General.php(25): live_Auth_Login()
 #4 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(492): live_login()
-#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#5 /mnt/c/projects/apache/school1/spp/admin/api.php(395): SPPMod\SPPAPI\SPPAjax::resolveAndExecute()
 #6 {main}
 [2026-06-11 12:08:04] Context set to sppadmin
 [2026-06-11 12:08:08] Context set to sppadmin
@@ -550,7 +550,7 @@ Stack trace:
 #8 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(307): SPP\Core\ModuleInstaller::install()
 #9 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(43): SPP\Core\ModuleInstaller::installAllActive()
 #10 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(510): live_install_all_active()
-#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute()
 #12 {main}
 [2026-06-12 14:57:36] Context set to sppadmin
 [2026-06-12 14:57:38] API FATAL ERROR: Class "SPPMod\SPPXDB\DOMXPath" not found in /mnt/c/projects/apache/school1/spp/modules/spp/sppxdb/traits/trait.sqlparser.php on line 1274
@@ -565,7 +565,7 @@ Stack trace:
 #8 /mnt/c/projects/apache/school1/spp/core/class.moduleinstaller.php(307): SPP\Core\ModuleInstaller::install()
 #9 /mnt/c/projects/apache/school1/spp/admin/services/Modules.php(43): SPP\Core\ModuleInstaller::installAllActive()
 #10 /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/class.sppajax.php(510): live_install_all_active()
-#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute()
+#11 /mnt/c/projects/apache/school1/spp/admin/api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute()
 #12 {main}
 [2026-06-12 14:59:16] Context set to sppadmin
 [2026-06-12 15:06:55] Context set to sppadmin
@@ -755,72 +755,72 @@ Stack trace:
 [2026-06-13 02:01:06] Context set to sppadmin
 [2026-06-13 07:46:32] Context set to sppadmin
 [2026-06-13 07:46:33] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:46:34] Context set to sppadmin
 [2026-06-13 07:46:34] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:46:36] Context set to sppadmin
 [2026-06-13 07:46:36] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:46:38] Context set to sppadmin
 [2026-06-13 07:46:38] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:46:40] Context set to sppadmin
 [2026-06-13 07:46:40] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:11] Context set to sppadmin
 [2026-06-13 07:47:11] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:12] Context set to sppadmin
 [2026-06-13 07:47:12] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:14] Context set to sppadmin
 [2026-06-13 07:47:14] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:16] Context set to sppadmin
 [2026-06-13 07:47:16] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:18] Context set to sppadmin
 [2026-06-13 07:47:18] API FATAL ERROR: syntax error, unexpected token "public" in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 204
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SppApi\\S...')
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPP\Core\Autoloader::loadClass('SPPMod\\SPPAPI\\S...')
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:47:43] Context set to sppadmin
-[2026-06-13 07:47:43] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+[2026-06-13 07:47:43] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:47:45] Context set to sppadmin
-[2026-06-13 07:47:45] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+[2026-06-13 07:47:45] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:47:47] Context set to sppadmin
-[2026-06-13 07:47:47] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+[2026-06-13 07:47:47] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:47:48] Context set to sppadmin
-[2026-06-13 07:47:48] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+[2026-06-13 07:47:48] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:47:50] Context set to sppadmin
-[2026-06-13 07:47:50] API FATAL ERROR: Class "SPPMod\SppApi\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
+[2026-06-13 07:47:50] API FATAL ERROR: Class "SPPMod\SPPAPI\SPPAjax" not found in C:\projects\apache\school1\spp\admin\api.php on line 372
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:48:09] Context set to sppadmin
@@ -844,53 +844,53 @@ Stack trace:
 #0 Command line code(1): require()
 #1 {main}
 [2026-06-13 07:48:54] Context set to sppadmin
-[2026-06-13 07:48:54] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:48:54] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:48:56] Context set to sppadmin
-[2026-06-13 07:48:56] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:48:56] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:48:58] Context set to sppadmin
-[2026-06-13 07:48:58] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:48:58] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:48:59] Context set to sppadmin
-[2026-06-13 07:48:59] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:48:59] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:01] Context set to sppadmin
-[2026-06-13 07:49:01] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:01] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:19] Context set to sppadmin
-[2026-06-13 07:49:19] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:19] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:21] Context set to sppadmin
-[2026-06-13 07:49:21] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:21] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:23] Context set to sppadmin
-[2026-06-13 07:49:23] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:23] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:24] Context set to sppadmin
-[2026-06-13 07:49:24] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:24] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:49:26] Context set to sppadmin
-[2026-06-13 07:49:26] API FATAL ERROR: SPPMod\SppApi\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
-#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SppApi\SPPAjax::resolveAndExecute(NULL, Array)
+[2026-06-13 07:49:26] API FATAL ERROR: SPPMod\SPPAPI\SPPAjax::resolveAndExecute(): Argument #1 ($action) must be of type string, null given, called in C:\projects\apache\school1\spp\admin\api.php on line 372 in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 394
+#0 C:\projects\apache\school1\spp\admin\api.php(372): SPPMod\SPPAPI\SPPAjax::resolveAndExecute(NULL, Array)
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 07:52:33] Context set to sppadmin
@@ -978,19 +978,19 @@ Stack trace:
 [2026-06-13 11:02:53] Context set to sppadmin
 [2026-06-13 11:02:53] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:02:55] Context set to sppadmin
 [2026-06-13 11:02:55] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:02:57] Context set to sppadmin
 [2026-06-13 11:02:57] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:25] Context set to sppadmin
@@ -1008,19 +1008,19 @@ Stack trace:
 [2026-06-13 11:03:29] Context set to sppadmin
 [2026-06-13 11:03:29] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:31] Context set to sppadmin
 [2026-06-13 11:03:31] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:33] Context set to sppadmin
 [2026-06-13 11:03:33] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:47] Context set to sppadmin
@@ -1038,96 +1038,96 @@ Stack trace:
 [2026-06-13 11:03:51] Context set to sppadmin
 [2026-06-13 11:03:51] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:53] Context set to sppadmin
 [2026-06-13 11:03:53] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:03:55] Context set to sppadmin
 [2026-06-13 11:03:55] API FATAL ERROR: Too few arguments to function SPP\SPPEvent::fireEvent(), 1 passed in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 42 and at least 2 expected in C:\projects\apache\school1\spp\core\class.sppevent.php on line 196
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(42): SPP\SPPEvent::fireEvent('api.request.sta...')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:04:15] Context set to sppadmin
 [2026-06-13 11:04:17] Context set to sppadmin
 [2026-06-13 11:04:19] Context set to sppadmin
-[2026-06-13 11:04:19] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:19] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:04:21] Context set to sppadmin
-[2026-06-13 11:04:21] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:21] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:04:23] Context set to sppadmin
-[2026-06-13 11:04:23] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:23] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:04:39] Context set to sppadmin
 [2026-06-13 11:04:40] Context set to sppadmin
 [2026-06-13 11:04:42] Context set to sppadmin
-[2026-06-13 11:04:42] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:42] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:04:44] Context set to sppadmin
-[2026-06-13 11:04:44] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:44] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:04:46] Context set to sppadmin
-[2026-06-13 11:04:46] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:04:46] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:05:13] Context set to sppadmin
 [2026-06-13 11:05:15] Context set to sppadmin
 [2026-06-13 11:05:17] Context set to sppadmin
-[2026-06-13 11:05:17] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:05:17] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:05:20] Context set to sppadmin
-[2026-06-13 11:05:20] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:05:20] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:05:22] Context set to sppadmin
-[2026-06-13 11:05:22] API FATAL ERROR: Class "SPPMod\SppApi\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+[2026-06-13 11:05:22] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:05:53] Context set to sppadmin
 [2026-06-13 11:05:55] Context set to sppadmin
 [2026-06-13 11:05:58] Context set to sppadmin
 [2026-06-13 11:05:58] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:06:00] Context set to sppadmin
 [2026-06-13 11:06:00] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ServiceDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 75
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:06:02] Context set to sppadmin
 [2026-06-13 11:06:02] API FATAL ERROR: Class "SPPMod\SPPAPI\Dispatchers\ComponentDispatcher" not found in C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php on line 57
-#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#0 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #1 Command line code(1): require('C:\\projects\\apa...')
 #2 {main}
 [2026-06-13 11:08:28] Context set to sppadmin
 [2026-06-13 11:08:30] Context set to sppadmin
 [2026-06-13 11:08:32] Context set to sppadmin
 [2026-06-13 11:08:34] Context set to sppadmin
-[2026-06-13 11:08:34] API FATAL ERROR: Call to private method SPPMod\SppApi\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in C:\projects\apache\school1\spp\modules\spp\sppapi\Dispatchers\ServiceDispatcher.php on line 16
+[2026-06-13 11:08:34] API FATAL ERROR: Call to private method SPPMod\SPPAPI\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in C:\projects\apache\school1\spp\modules\spp\sppapi\Dispatchers\ServiceDispatcher.php on line 16
 #0 C:\projects\apache\school1\spp\modules\spp\sppapi\class.sppajax.php(75): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::dispatch('test_service')
-#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SppApi\SPPAjax::handle()
+#1 C:\projects\apache\school1\spp\admin\api.php(363): SPPMod\SPPAPI\SPPAjax::handle()
 #2 Command line code(1): require('C:\\projects\\apa...')
 #3 {main}
 [2026-06-13 11:08:37] Context set to sppadmin
@@ -1186,13 +1186,13 @@ Stack trace:
 [2026-06-13 12:02:18] Context set to sppadmin
 [2026-06-13 12:02:20] Context set to sppadmin
 [2026-06-13 12:21:30] Context set to sppadmin
-[2026-06-13 12:21:30] API FATAL ERROR: Call to undefined method SPPMod\SppApi\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
+[2026-06-13 12:21:30] API FATAL ERROR: Call to undefined method SPPMod\SPPAPI\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
 #0 {main}
 [2026-06-13 12:22:01] Context set to sppadmin
-[2026-06-13 12:22:01] API FATAL ERROR: Call to undefined method SPPMod\SppApi\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
+[2026-06-13 12:22:01] API FATAL ERROR: Call to undefined method SPPMod\SPPAPI\SPPAjax::resolveAndExecute() in /mnt/c/projects/apache/school1/spp/admin/api.php on line 382
 #0 {main}
 [2026-06-13 12:23:54] Context set to sppadmin
-[2026-06-13 12:23:54] API FATAL ERROR: Call to private method SPPMod\SppApi\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php on line 80
+[2026-06-13 12:23:54] API FATAL ERROR: Call to private method SPPMod\SPPAPI\SPPAjax::findService() from scope SPPMod\SPPAPI\Dispatchers\ServiceDispatcher in /mnt/c/projects/apache/school1/spp/modules/spp/sppapi/Dispatchers/servicedispatcher.php on line 80
 #0 /mnt/c/projects/apache/school1/spp/admin/api.php(382): SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute()
 #1 {main}
 [2026-06-13 12:24:34] Context set to sppadmin

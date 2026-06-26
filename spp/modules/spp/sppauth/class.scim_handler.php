@@ -61,7 +61,7 @@ class SCIMHandler
         $user->set('first_name', $firstName);
         $user->set('last_name', $lastName);
         $user->set('status', $active ? 'active' : 'inactive');
-        
+
         // Random secure password for SCIM provisioned users
         $user->set('password', password_hash(bin2hex(random_bytes(16)), PASSWORD_DEFAULT));
 
@@ -77,7 +77,7 @@ class SCIMHandler
         header('Content-Type: application/scim+json');
         echo json_encode([
             'schemas' => ['urn:ietf:params:scim:schemas:core:2.0:User'],
-            'id' => (string)$user->id,
+            'id' => (string) $user->id,
             'userName' => $userName,
             'active' => $active
         ]);
@@ -97,11 +97,16 @@ class SCIMHandler
                 return;
             }
 
-            if (isset($payload['userName'])) $user->set('username', $payload['userName']);
-            if (isset($payload['emails'][0]['value'])) $user->set('email', $payload['emails'][0]['value']);
-            if (isset($payload['name']['givenName'])) $user->set('first_name', $payload['name']['givenName']);
-            if (isset($payload['name']['familyName'])) $user->set('last_name', $payload['name']['familyName']);
-            if (isset($payload['active'])) $user->set('status', $payload['active'] ? 'active' : 'inactive');
+            if (isset($payload['userName']))
+                $user->set('username', $payload['userName']);
+            if (isset($payload['emails'][0]['value']))
+                $user->set('email', $payload['emails'][0]['value']);
+            if (isset($payload['name']['givenName']))
+                $user->set('first_name', $payload['name']['givenName']);
+            if (isset($payload['name']['familyName']))
+                $user->set('last_name', $payload['name']['familyName']);
+            if (isset($payload['active']))
+                $user->set('status', $payload['active'] ? 'active' : 'inactive');
 
             $user->save();
 
@@ -109,7 +114,7 @@ class SCIMHandler
             header('Content-Type: application/scim+json');
             echo json_encode([
                 'schemas' => ['urn:ietf:params:scim:schemas:core:2.0:User'],
-                'id' => (string)$user->id,
+                'id' => (string) $user->id,
                 'userName' => $user->username,
                 'active' => $user->get('status') === 'active'
             ]);

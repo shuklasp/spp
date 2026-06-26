@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -44,7 +44,7 @@ class DeployClusterCommand extends Command
         for ($i = 3; $i < count($args); $i++) {
             $flags[] = $args[$i];
         }
-        
+
         if (!in_array('--force', $flags) && !in_array('-y', $flags)) {
             echo "⚠️  WARNING: You are about to deploy to a cluster of " . count($nodes) . " servers.\n";
             echo "❓ Proceed with cluster deployment? [Y/n] ";
@@ -63,9 +63,9 @@ class DeployClusterCommand extends Command
             echo "\n--------------------------------------------------\n";
             echo "📍 [Node " . ($index + 1) . "/" . count($nodes) . "] Deploying to: {$node}\n";
             echo "--------------------------------------------------\n";
-            
+
             $nodeArgs = array_merge($baseArgs, [$node], $flags);
-            
+
             try {
                 // Execute the push command for this specific target
                 $pushCmd->execute($nodeArgs);

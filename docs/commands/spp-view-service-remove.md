@@ -20,7 +20,7 @@ Destroys the routing link mapping an AJAX service endpoint name to its correspon
 
 After basic CLI argument parsing, the command verifies that the `--name` parameter was provided. It leverages `\SPP\Scheduler::withContext()` to establish the correct operational scope.
 
-Within the context, it delegates the deletion to `\SPPMod\SppApi\SPPAjax::unregisterService($name, $source)`. This function is responsible for locating the exact service registry entry within the specified configuration domain (YAML or SQL) and executing a clean, cascading deletion to free up the endpoint namespace.
+Within the context, it delegates the deletion to `\SPPMod\SPPAPI\SPPAjax::unregisterService($name, $source)`. This function is responsible for locating the exact service registry entry within the specified configuration domain (YAML or SQL) and executing a clean, cascading deletion to free up the endpoint namespace.
 
 # EXAMPLES
 

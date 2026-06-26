@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -19,7 +19,7 @@ class DeployEnvCommand extends Command
         $apiKey = 'default_cli_key';
         $envKey = null;
         $envValue = null;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key_api=')) {
                 $apiKey = substr($arg, 10);
@@ -36,12 +36,12 @@ class DeployEnvCommand extends Command
             echo "Error: Must specify --key and --value.\n";
             return;
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         echo "📡 Pushing environment variable '{$envKey}' to {$target}...\n";
         $resp = $conn->pushEnvKey($envKey, $envValue);
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Failed to update environment variable: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;

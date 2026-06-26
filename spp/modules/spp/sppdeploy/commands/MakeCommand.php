@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 use SPP\App;
@@ -55,7 +55,7 @@ class MakeCommand extends Command
         $className = 'Migration_' . $timestamp . '_' . $name;
         $filename = $className . '.php';
         $filepath = $migrationsDir . DIRECTORY_SEPARATOR . $filename;
-        
+
         $ns = "App\\" . ucfirst($appname) . "\\Migrations";
 
         $stub = "<?php\n\nnamespace {$ns};\n\nuse SPP\\Core\\Migration;\n\nclass {$className} extends Migration\n{\n    public function getVersion(): string\n    {\n        return '1.0.0';\n    }\n\n    public function up(): void\n    {\n        // \$this->executeSql(\"CREATE TABLE ...\");\n    }\n\n    public function down(): void\n    {\n        // \$this->executeSql(\"DROP TABLE ...\");\n    }\n}\n";

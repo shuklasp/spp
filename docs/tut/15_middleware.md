@@ -246,7 +246,7 @@ use SPPMod\SPPView\Attributes\Middleware;
 class AdminController
 {
     #[Route('/admin/settings', method: 'GET')]
-    #[Middleware(\SPPMod\Sppsecurity\Middleware\CsrfMiddleware::class)]
+    #[Middleware(\SPPMod\SPPSecurity\Middleware\CsrfMiddleware::class)]
     public function settings()
     {
         // AuthMiddleware runs first (class-level)
@@ -313,9 +313,9 @@ php spp/spp.php middleware:list
 | `SPP\Core\Middleware\CSRFMiddleware` | Global (YAML) | CSRF token validation on admin and API endpoints |
 | `SPPMod\SPPLogger\RequestLogger` | Global (YAML) | Logs every incoming request |
 | `SPP\Core\Middleware\RateLimiterMiddleware` | Route / Manual | IP-based rate limiting using `SPP\Cache` |
-| `SPPMod\Sppsecurity\Middleware\ThrottleMiddleware` | Route-level | Token-bucket rate limiting via `SPPSecurityService` |
-| `SPPMod\Sppsecurity\Middleware\SecurityHeadersMiddleware` | Route-level | Adds X-Frame-Options, HSTS, XSS-Protection headers |
-| `SPPMod\Sppsecurity\Middleware\CsrfMiddleware` | Route-level | Config-aware CSRF validation for POST/PUT/DELETE/PATCH |
+| `SPPMod\SPPSecurity\Middleware\ThrottleMiddleware` | Route-level | Token-bucket rate limiting via `SPPSecurityService` |
+| `SPPMod\SPPSecurity\Middleware\SecurityHeadersMiddleware` | Route-level | Adds X-Frame-Options, HSTS, XSS-Protection headers |
+| `SPPMod\SPPSecurity\Middleware\CsrfMiddleware` | Route-level | Config-aware CSRF validation for POST/PUT/DELETE/PATCH |
 
 ---
 

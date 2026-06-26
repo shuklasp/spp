@@ -51,10 +51,10 @@ if (!$submittedToken) {
 }
 ```
 
-**Route-level CSRF Middleware** (`SPPMod\Sppsecurity\Middleware\CsrfMiddleware`) can be applied to specific controllers via the `#[Middleware]` attribute. It validates only state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:
+**Route-level CSRF Middleware** (`SPPMod\SPPSecurity\Middleware\CsrfMiddleware`) can be applied to specific controllers via the `#[Middleware]` attribute. It validates only state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:
 
 ```php
-#[Middleware(\SPPMod\Sppsecurity\Middleware\CsrfMiddleware::class)]
+#[Middleware(\SPPMod\SPPSecurity\Middleware\CsrfMiddleware::class)]
 class AdminController {
     // CSRF enforced on all POST/PUT/DELETE/PATCH requests
 }
@@ -78,7 +78,7 @@ Two middleware implementations handle rate limiting:
 ```php
 // Apply throttling to specific routes
 #[Route('/api/heavy-endpoint')]
-#[Middleware(\SPPMod\Sppsecurity\Middleware\ThrottleMiddleware::class)]
+#[Middleware(\SPPMod\SPPSecurity\Middleware\ThrottleMiddleware::class)]
 public function heavyEndpoint() { ... }
 ```
 

@@ -19,7 +19,7 @@ The `deploy:history` command retrieves the historical log of all deployment even
 
 # UNDER THE HOOD ACTIVITY
 
-Upon execution, the command verifies that a target URI has been supplied. It then parses the arguments for an optional `--key` flag to override the default API key. Next, it establishes a communication channel with the remote target using the `SPPMod\Sppdeploy\Deployer\TargetConnection::resolve()` factory method.
+Upon execution, the command verifies that a target URI has been supplied. It then parses the arguments for an optional `--key` flag to override the default API key. Next, it establishes a communication channel with the remote target using the `SPPMod\SPPDeploy\Deployer\TargetConnection::resolve()` factory method.
 
 The command triggers the `$conn->getHistory()` method, which performs a secure request to the remote server's deployment API to fetch its internal logs or database records of past deployments. The remote server responds with a structured payload containing a status indicator and a `history` array. 
 

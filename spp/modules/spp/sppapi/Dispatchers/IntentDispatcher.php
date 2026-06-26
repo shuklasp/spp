@@ -3,15 +3,15 @@ declare(strict_types=1);
 
 namespace SPPMod\SPPAPI\Dispatchers;
 
-use SPPMod\SppApi\SPPAjax;
+use SPPMod\SPPAPI\SPPAjax;
 
 class IntentDispatcher
 {
     public static function dispatch(): void
     {
         // CSRF Protection
-        $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') || 
-                           (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
+        $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') ||
+            (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
         if (!$hasCustomHeader) {
             SPPAjax::respond('error', ['message' => 'CSRF Protection: Missing X-SPP-Ajax header.'], 403);
         }

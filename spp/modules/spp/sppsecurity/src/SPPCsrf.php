@@ -1,8 +1,10 @@
 <?php
-namespace SPPMod\Sppsecurity;
+namespace SPPMod\SPPSecurity;
 
-class SPPCsrf {
-    public function generate(): string {
+class SPPCsrf
+{
+    public function generate(): string
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
@@ -12,7 +14,8 @@ class SPPCsrf {
         return $_SESSION['spp_csrf_token'];
     }
 
-    public function validate(string $token): bool {
+    public function validate(string $token): bool
+    {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }

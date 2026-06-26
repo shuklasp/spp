@@ -37,10 +37,17 @@ if ($canView && !$canPublish) {
 echo "\n--- Mocking Authenticated User ---\n";
 
 if (!class_exists('MockUser')) {
-    class MockUser {
+    class MockUser
+    {
         public $id;
-        public function __construct($id) { $this->id = $id; }
-        public function getId() { return $this->id; }
+        public function __construct($id)
+        {
+            $this->id = $id;
+        }
+        public function getId()
+        {
+            return $this->id;
+        }
     }
 }
 
@@ -82,21 +89,21 @@ try {
     $adminGroup->load('administrator');
     $adminGroup->addMember($user);
     echo "Added user to Administrator group.\n";
-    
+
     $propertyP->setValue($guard, []); // Clear cached permissions again
-    
+
     $canEverything = SPPAuth::can('something_random');
     $canPublish = SPPAuth::can('publish_document');
-    
+
     echo "Can something_random (Admin): " . ($canEverything ? "YES" : "NO") . "\n";
     echo "Can publish_document (Admin): " . ($canPublish ? "YES" : "NO") . "\n";
-    
+
     if ($canEverything && $canPublish) {
         echo "PASS: Administrator rights (wildcard) resolved correctly.\n";
     } else {
         echo "FAIL: Administrator rights resolution error.\n";
     }
-    
+
     // Cleanup
     $adminGroup->removeMember($user);
 } catch (\Exception $e) {

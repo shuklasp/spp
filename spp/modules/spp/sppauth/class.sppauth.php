@@ -66,12 +66,13 @@ class SPPAuth extends \SPP\SPPObject
             if (SPPUser::verifyUserPassword($uname, $passwd)) {
                 RateLimiter::clear($uname, $ip);
                 $user = new SPPUser($uname);
-                
+
                 // Intercept for MFA
                 $mfaEnabled = false;
                 try {
                     $mfaEnabled = $user->get('mfa_enabled');
-                } catch (\Exception $e) {}
+                } catch (\Exception $e) {
+                }
 
                 if ($mfaEnabled) {
                     $token = bin2hex(random_bytes(16));
@@ -79,7 +80,7 @@ class SPPAuth extends \SPP\SPPObject
                     \SPP\SPPSession::setSessionVar('mfa_challenge_token', $token);
                     throw new \Exception("MFA_REQUIRED:$token");
                 }
-                
+
                 self::guard('web')->login($user);
                 AuditLogger::log('login_success', $user->id, null, "IP: $ip via SPPAuth::login");
                 return true;
@@ -89,7 +90,7 @@ class SPPAuth extends \SPP\SPPObject
                 throw $e; // Bubble up MFA challenges
             }
         }
-        
+
         RateLimiter::hit($uname, $ip);
         AuditLogger::log('login_failed', null, $uname, "IP: $ip");
         return false;

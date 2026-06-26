@@ -12,7 +12,8 @@ if (isset($_GET['logout'])) {
 }
 
 // 2. Define Form Submission Handler
-function login_form_submitted() {
+function login_form_submitted()
+{
     $username = $_POST['username'];
     $password = $_POST['password'];
 

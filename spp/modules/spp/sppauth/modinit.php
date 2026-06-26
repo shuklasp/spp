@@ -9,10 +9,10 @@ if (class_exists('\\SPPMod\\SPPAPI\\SPPAPI')) {
 }
 
 if (class_exists('\\SPP\\SPPEvent')) {
-    \SPP\SPPEvent::listen('auth.verify_credentials', function(\SPP\EventParams $params) {
+    \SPP\SPPEvent::listen('auth.verify_credentials', function (\SPP\EventParams $params) {
         $username = $params->get('username');
         $password = $params->get('password');
-        
+
         if ($username && $password) {
             $user = \SPPMod\SPPAuth\SPPUser::find_one(['username' => $username]);
             if ($user && password_verify($password, $user->password)) {

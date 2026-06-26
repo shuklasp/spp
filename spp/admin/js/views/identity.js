@@ -83,10 +83,10 @@ export default class IdentityView extends BaseComponent {
 
     async switchIamTab(tab, force = false) {
         if (!force && this.state.iamActiveTab === tab) return;
-        
-        this.setState({ 
-            iamActiveTab: tab, 
-            loading: true, 
+
+        this.setState({
+            iamActiveTab: tab,
+            loading: true,
             items: [],
             page: 1,
             filters: {}
@@ -104,7 +104,7 @@ export default class IdentityView extends BaseComponent {
             const res = await this.api(action);
             if (res.success) {
                 let sources = res.data.sources || [];
-                
+
                 if (tab === 'assignments') {
                     sources = [{
                         label: 'Database (IAM Relations)',
@@ -126,9 +126,9 @@ export default class IdentityView extends BaseComponent {
                     });
                 }
 
-                this.setState({ 
-                    iamSources: sources, 
-                    loading: false 
+                this.setState({
+                    iamSources: sources,
+                    loading: false
                 });
             } else {
                 throw new Error(res.message);
@@ -156,13 +156,13 @@ export default class IdentityView extends BaseComponent {
                 ${activeMainTab === 'groups' ? html`<button type="button" class="btn primary-btn btn-sm" @click=${() => this.openCreateModal()}>+ Create Group</button>` : ''}
             `;
             headerActions.innerHTML = headerHtml.toString();
-            
+
             // Re-attach listeners for the tabs since we bypassed lit-html events
             const tabs = headerActions.querySelectorAll('.tab');
             if (tabs[0]) tabs[0].onclick = () => this.switchMainTab('groups');
             if (tabs[1]) tabs[1].onclick = () => this.switchMainTab('access');
             const btn = headerActions.querySelector('.primary-btn');
-            if(btn) btn.onclick = () => this.openCreateModal();
+            if (btn) btn.onclick = () => this.openCreateModal();
         }
 
         if (activeMainTab === 'access') {
@@ -236,7 +236,7 @@ export default class IdentityView extends BaseComponent {
         this.state.searchResults = [];
         this.state.searchQuery = '';
         this.state.currentMembers = [];
-        
+
         this.openModal(`Manage Members: ${groupName}`, this.getManagementHtml(), [
             { label: 'Close', type: 'secondary', fn: () => this.closeModal() }
         ]);
@@ -310,14 +310,14 @@ export default class IdentityView extends BaseComponent {
             if (group) break;
         }
         const title = group ? `Manage Members: ${group.name}` : 'Manage Members';
-        
+
         this.updateModal(title, this.getManagementHtml());
     }
 
     async handleMemberSearch(e, groupId) {
         const q = e.target.value.trim();
         this.state.searchQuery = q;
-        
+
         if (q.length < 1) {
             this.state.searchResults = [];
             this.refreshMemberModal();
@@ -329,7 +329,7 @@ export default class IdentityView extends BaseComponent {
             fd.append('action', 'search_entities');
             fd.append('q', q);
             const res = await this.apiPost(fd);
-            
+
             this.state.searchResults = res.data?.results || res.results || [];
             this.refreshMemberModal();
         } catch (err) {
@@ -340,7 +340,7 @@ export default class IdentityView extends BaseComponent {
     async promptAddMember(groupId, entityClass, entityId, name) {
         try {
             console.log(`IdentityView: Fast-Add requested for ${name} into Group ${groupId}`);
-            
+
             // Post-input UI clearing immediately
             const dropdown = document.getElementById('member-suggestions');
             if (dropdown) dropdown.classList.remove('active');
@@ -385,7 +385,7 @@ export default class IdentityView extends BaseComponent {
     async removeMember(groupId, entityClass, entityId, name) {
         try {
             console.log(`IdentityView: Removal requested for ${name} (${entityClass}:${entityId}) from Group ${groupId}`);
-            
+
             if (!confirm(`Remove '${name}' from this group?`)) return;
 
             const fd = new FormData();
@@ -532,7 +532,7 @@ export default class IdentityView extends BaseComponent {
 
     renderIamTabContent() {
         const { iamActiveTab, iamSources, filters, page, pageSize } = this.state;
-        
+
         if (iamSources.length === 0) {
             return html`
                 <div class="empty-state">
@@ -546,41 +546,41 @@ export default class IdentityView extends BaseComponent {
         return html`
             <div class="sources-wrap">
                 ${iamSources.map(source => {
-                    // 1. Apply Filtering to source items
-                    const filteredItems = source.items.filter(item => {
-                        return Object.entries(filters).every(([field, val]) => {
-                            if (!val) return true;
-                            const itemVal = String(item[field] || '').toLowerCase();
-                            return itemVal.includes(val.toLowerCase());
-                        });
-                    });
+            // 1. Apply Filtering to source items
+            const filteredItems = source.items.filter(item => {
+                return Object.entries(filters).every(([field, val]) => {
+                    if (!val) return true;
+                    const itemVal = String(item[field] || '').toLowerCase();
+                    return itemVal.includes(val.toLowerCase());
+                });
+            });
 
-                    // 2. Apply Paging
-                    const totalItems = filteredItems.length;
-                    const totalPages = Math.ceil(totalItems / pageSize);
-                    const startIndex = (page - 1) * pageSize;
-                    const pagedItems = filteredItems.slice(startIndex, startIndex + pageSize);
+            // 2. Apply Paging
+            const totalItems = filteredItems.length;
+            const totalPages = Math.ceil(totalItems / pageSize);
+            const startIndex = (page - 1) * pageSize;
+            const pagedItems = filteredItems.slice(startIndex, startIndex + pageSize);
 
-                    return html`
+            return html`
                         <div class="source-group-container">
                             ${this.renderSourceHeader(source)}
                             
-                            ${iamActiveTab === 'assignments' 
-                                ? this.renderAssignmentsTable(pagedItems, totalItems, totalPages)
-                                : (iamActiveTab === 'modern_rbac' 
-                                    ? this.renderModernRbacTable(pagedItems, totalItems, totalPages)
-                                    : (iamActiveTab === 'abac'
-                                        ? this.renderAbacTable(pagedItems, totalItems, totalPages)
-                                        : (iamActiveTab === 'oauth'
-                                            ? this.renderOAuthTable(pagedItems, totalItems, totalPages)
-                                            : this.renderStandardTable(pagedItems, totalItems, totalPages)
-                                        )
-                                    )
-                                )
-                            }
+                            ${iamActiveTab === 'assignments'
+                    ? this.renderAssignmentsTable(pagedItems, totalItems, totalPages)
+                    : (iamActiveTab === 'modern_rbac'
+                        ? this.renderModernRbacTable(pagedItems, totalItems, totalPages)
+                        : (iamActiveTab === 'abac'
+                            ? this.renderAbacTable(pagedItems, totalItems, totalPages)
+                            : (iamActiveTab === 'oauth'
+                                ? this.renderOAuthTable(pagedItems, totalItems, totalPages)
+                                : this.renderStandardTable(pagedItems, totalItems, totalPages)
+                            )
+                        )
+                    )
+                }
                         </div>
                     `;
-                })}
+        })}
             </div>
         `;
     }
@@ -651,26 +651,26 @@ export default class IdentityView extends BaseComponent {
                     </thead>
                     <tbody>
                         ${items.map(item => {
-                            const title = item.username || item.role_name || item.name;
-                            return html`
+            const title = item.username || item.role_name || item.name;
+            return html`
                                 <tr>
                                     ${columns.map((col, i) => {
-                                        const val = item[col.key];
-                                        if (i === 0) return html`<td><code>${val}</code></td>`;
-                                        if (col.key === 'status') {
-                                            if (iamActiveTab === 'users') {
-                                                return html`
+                const val = item[col.key];
+                if (i === 0) return html`<td><code>${val}</code></td>`;
+                if (col.key === 'status') {
+                    if (iamActiveTab === 'users') {
+                        return html`
                                                     <td>
                                                         <button class="status-toggle-pill ${val}" 
                                                             onclick="${() => this.toggleUserStatus(item.id, item.status)}">
                                                             ${val.toUpperCase()}
                                                         </button>
                                                     </td>`;
-                                            }
-                                            return html`<td><span class="status-badge ${val}">${val}</span></td>`;
-                                        }
-                                        return html`<td>${val}</td>`;
-                                    })}
+                    }
+                    return html`<td><span class="status-badge ${val}">${val}</span></td>`;
+                }
+                return html`<td>${val}</td>`;
+            })}
                                     <td class="text-right">
                                         <div class="action-links">
                                             ${iamActiveTab === 'users' ? html`
@@ -685,7 +685,7 @@ export default class IdentityView extends BaseComponent {
                                     </td>
                                 </tr>
                             `;
-                        })}
+        })}
                     </tbody>
                 </table>
             </div>
@@ -714,8 +714,8 @@ export default class IdentityView extends BaseComponent {
                     </thead>
                     <tbody>
                         ${items.map(asgn => {
-                            const shortClass = asgn.target_class.split('\\').pop();
-                            return html`
+            const shortClass = asgn.target_class.split('\\').pop();
+            return html`
                                 <tr>
                                     <td><span class="badge ${shortClass === 'SPPUser' ? 'info' : 'warning'}">${shortClass}</span></td>
                                     <td><code>${asgn.target_id}</code></td>
@@ -735,7 +735,7 @@ export default class IdentityView extends BaseComponent {
                                     </td>
                                 </tr>
                             `;
-                        })}
+        })}
                     </tbody>
                 </table>
             </div>
@@ -763,7 +763,7 @@ export default class IdentityView extends BaseComponent {
                     </thead>
                     <tbody>
                         ${items.map(p => {
-                            return html`
+            return html`
                                 <tr>
                                     <td><code>${p.permission}</code></td>
                                     <td><span class="badge ${p.status === 'active' ? 'success' : 'warning'}">${p.status}</span></td>
@@ -774,13 +774,13 @@ export default class IdentityView extends BaseComponent {
                                     </td>
                                 </tr>
                             `;
-                        })}
+        })}
                     </tbody>
                 </table>
     renderOAuthTable(items, totalItems, totalPages) {
         const { filters } = this.state;
         return html`
-            <div class="glass-panel">
+            < div class="glass-panel" >
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -812,8 +812,8 @@ export default class IdentityView extends BaseComponent {
                         })}
                     </tbody>
                 </table>
-            </div>
-            ${this.renderPagination(totalItems, totalPages)}
+            </div >
+            ${ this.renderPagination(totalItems, totalPages) }
         `;
     }
 
@@ -851,19 +851,21 @@ export default class IdentityView extends BaseComponent {
         }
 
         return html`
-            <div class="pagination-bar">
+            < div class="pagination-bar" >
                 <div class="pagination-info">
                     Showing <strong>${(page - 1) * pageSize + 1}</strong> to <strong>${Math.min(page * pageSize, total)}</strong> of <strong>${total}</strong> records
                 </div>
                 <div class="pagination-controls">
                     <button class="page-btn" ?disabled="${page === 1}" onclick="${() => this.setState({ page: page - 1 })}">«</button>
-                    ${pages.map(p => html`
+                    ${
+            pages.map(p => html`
                         <button class="page-btn ${page === p ? 'active' : ''}" onclick="${() => this.setState({ page: p })}">${p}</button>
-                    `)}
-                    <button class="page-btn" ?disabled="${page === totalPages}" onclick="${() => this.setState({ page: page + 1 })}">»</button>
-                </div>
-            </div>
-        `;
+                    `)
+        }
+        <button class="page-btn" ?disabled="${page === totalPages}" onclick="${() => this.setState({ page: page + 1 })}">»</button>
+                </div >
+            </div >
+            `;
     }
 
     updateFilter(key, val) {
@@ -879,8 +881,8 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openEditor(type, id = null, name = '') {
-        const title = id ? `Edit ${type.slice(0, -1)}: ${name}` : `Create New ${type.slice(0, -1)}`;
-        this.openModal(title, html`<div class="loader">Fetching framework form for ${type}...</div>`.toString());
+        const title = id ? `Edit ${ type.slice(0, -1) }: ${ name } ` : `Create New ${ type.slice(0, -1) } `;
+        this.openModal(title, html`< div class="loader" > Fetching framework form for ${ type }...</div > `.toString());
 
         const saveBtn = document.getElementById('modal-save');
         saveBtn.textContent = 'Save Changes';
@@ -900,10 +902,10 @@ export default class IdentityView extends BaseComponent {
             const res = await this.apiPost(fd);
             if (res.success) {
                 document.getElementById('modal-body').innerHTML = `
-                    <div class="spp-form-wrapper">
-                        ${res.data.html}
-                    </div>
-                `;
+            < div class="spp-form-wrapper" >
+                ${ res.data.html }
+                    </div >
+            `;
             } else {
                 throw new Error(res.message);
             }
@@ -939,7 +941,7 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openAssignmentEditor(targetClass = null, targetId = null) {
-        this.openModal(targetId ? 'Edit Role Assignment' : 'New Role Assignment', html`<div class="loader">Preparing assignment form...</div>`.toString());
+        this.openModal(targetId ? 'Edit Role Assignment' : 'New Role Assignment', html`< div class="loader" > Preparing assignment form...</div > `.toString());
         
         try {
             const rolesRes = await this.api.listRoles();
@@ -959,7 +961,7 @@ export default class IdentityView extends BaseComponent {
             }
 
             document.getElementById('modal-body').innerHTML = html`
-                <form id="assignment-form" class="assignment-form">
+            < form id = "assignment-form" class="assignment-form" >
                     <div class="form-group">
                         <label>1. Select Entity Type</label>
                         <select name="target_class" id="asgn-class" class="spp-element" ${targetId ? 'disabled' : ''}>
@@ -985,7 +987,7 @@ export default class IdentityView extends BaseComponent {
                         <small style="opacity: 0.6; display: block; margin-top: 4px;">Hold Ctrl/Cmd to select multiple</small>
                     </div>
                 </form>
-            `.toString();
+        `.toString();
 
             const searchInput = document.getElementById('asgn-search');
             const classSelect = document.getElementById('asgn-class');
@@ -1010,10 +1012,10 @@ export default class IdentityView extends BaseComponent {
 
                 if (res.success && results.length > 0) {
                     suggestionsList.innerHTML = results.map(item => `
-                        <div class="suggestion-item" onclick="document.getElementById('asgn-search').value='${item.label || item.name}'; document.getElementById('asgn-id').value='${item.id}'; document.getElementById('asgn-suggestions').innerHTML=''; document.getElementById('asgn-suggestions').classList.remove('active');">
-                            ${item.label || item.name} <small style="opacity:0.5">(ID: ${item.id})</small>
-                        </div>
-                    `).join('');
+            < div class="suggestion-item" onclick = "document.getElementById('asgn-search').value='${item.label || item.name}'; document.getElementById('asgn-id').value='${item.id}'; document.getElementById('asgn-suggestions').innerHTML=''; document.getElementById('asgn-suggestions').classList.remove('active');" >
+                ${ item.label || item.name } <small style="opacity:0.5">(ID: ${item.id})</small>
+                        </div >
+            `).join('');
                     suggestionsList.classList.add('active');
                 } else {
                     suggestionsList.innerHTML = '<div class="empty-suggestion">No entities found</div>';
@@ -1026,7 +1028,7 @@ export default class IdentityView extends BaseComponent {
             saveBtn.onclick = () => this.saveAssignment();
 
         } catch (err) {
-            document.getElementById('modal-body').innerHTML = html`<div class="alert error">${err.message}</div>`.toString();
+            document.getElementById('modal-body').innerHTML = html`< div class="alert error" > ${ err.message }</div > `.toString();
         }
     }
 
@@ -1073,7 +1075,7 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openUserRolesEditor(userId, userName) {
-        this.openModal(`Manage Roles: ${userName}`, html`<div class="loader">Fetching role manifest...</div>`.toString());
+        this.openModal(`Manage Roles: ${ userName } `, html` < div class="loader" > Fetching role manifest...</div > `.toString());
         
         try {
             const fd = new FormData();
@@ -1086,7 +1088,7 @@ export default class IdentityView extends BaseComponent {
 
             const { assigned_ids, available } = res.data;
             document.getElementById('modal-body').innerHTML = html`
-                <div class="iam-management-grid">
+            < div class="iam-management-grid" >
                     <p class="mb-4 text-dim">Toggle roles assigned to this user. Changes are persisted immediately.</p>
                     <div class="glass-panel" style="padding: 1.5rem;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem;">
@@ -1099,7 +1101,7 @@ export default class IdentityView extends BaseComponent {
                             `)}
                         </div>
                     </div>
-                </div>
+                </div >
             `.toString();
             
             document.getElementById('modal-save').style.display = 'none';
@@ -1115,7 +1117,7 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openRoleRightsEditor(roleId, roleName) {
-        this.openModal(`Manage Rights: ${roleName}`, html`<div class="loader">Fetching permission table...</div>`.toString());
+        this.openModal(`Manage Rights: ${ roleName } `, html` < div class="loader" > Fetching permission table...</div > `.toString());
         
         try {
             const fd = new FormData();
@@ -1128,7 +1130,7 @@ export default class IdentityView extends BaseComponent {
 
             const { assigned_ids, available } = res.data;
             document.getElementById('modal-body').innerHTML = html`
-                <div class="iam-management-grid">
+            < div class="iam-management-grid" >
                     <p class="mb-4 text-dim">Grant or revoke permissions for this role.</p>
                     <div class="glass-panel" style="padding: 1.5rem;">
                         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
@@ -1144,7 +1146,7 @@ export default class IdentityView extends BaseComponent {
                             `)}
                         </div>
                     </div>
-                </div>
+                </div >
             `.toString();
             
             document.getElementById('modal-save').style.display = 'none';
@@ -1183,8 +1185,8 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openMassUserAssignor(roleId, roleName) {
-        this.openModal(`Assign Users to Role: ${roleName}`, html`
-            <div class="mass-assignor">
+        this.openModal(`Assign Users to Role: ${ roleName } `, html`
+            < div class="mass-assignor" >
                 <p class="mb-4 text-dim">Search for users and add them to the selection list to assign this role in bulk.</p>
                 <div class="form-group">
                     <label>Search Users</label>
@@ -1199,8 +1201,8 @@ export default class IdentityView extends BaseComponent {
                         <span class="text-dim" style="font-size: 0.85rem;">No users selected yet.</span>
                     </div>
                 </div>
-            </div>
-        `.toString());
+            </div >
+            `.toString());
 
         const searchInput = document.getElementById('mass-search');
         const suggestionsList = document.getElementById('mass-suggestions');
@@ -1225,10 +1227,10 @@ export default class IdentityView extends BaseComponent {
 
             if (res.success && results.length > 0) {
                 suggestionsList.innerHTML = results.map(item => `
-                    <div class="suggestion-item" data-id="${item.id}" data-name="${item.label || item.name}">
-                        ${item.label || item.name} <small style="opacity:0.5">ID: ${item.id}</small>
-                    </div>
-                `).join('');
+            < div class="suggestion-item" data - id="${item.id}" data - name="${item.label || item.name}" >
+                ${ item.label || item.name } <small style="opacity:0.5">ID: ${item.id}</small>
+                    </div >
+            `).join('');
                 suggestionsList.classList.add('active');
 
                 // Attach click handlers to suggestions
@@ -1267,7 +1269,7 @@ export default class IdentityView extends BaseComponent {
             });
 
             await Promise.all(promises);
-            this.notify(`Role ${roleName} assigned to ${selectedIds.size} users.`, 'success');
+            this.notify(`Role ${ roleName } assigned to ${ selectedIds.size } users.`, 'success');
             this.closeModal();
             this.switchIamTab(this.state.iamActiveTab, true);
         };
@@ -1281,7 +1283,7 @@ export default class IdentityView extends BaseComponent {
         const tag = document.createElement('div');
         tag.className = 'role-tag';
         tag.style.cssText = 'background: var(--primary-subtle); padding: 4px 10px; border-radius: 4px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px;';
-        tag.innerHTML = `<span>${name}</span> <span style="cursor:pointer; opacity:0.6;">✕</span>`;
+        tag.innerHTML = `< span > ${ name }</span > <span style="cursor:pointer; opacity:0.6;">✕</span>`;
         tag.querySelector('span:last-child').onclick = () => {
             idSet.delete(id);
             tag.remove();
@@ -1315,13 +1317,13 @@ export default class IdentityView extends BaseComponent {
 
             const res = await SPPUX.apiPost(fd);
             if (res.success) {
-                this.notify(`User status updated to ${newStatus}.`, 'success');
+                this.notify(`User status updated to ${ newStatus }.`, 'success');
             } else {
                 throw new Error(res.message || 'Update failed');
             }
         } catch (err) {
             // 2. Rollback on failure
-            this.notify(`Failed to update status: ${err.message}`, 'error');
+            this.notify(`Failed to update status: ${ err.message } `, 'error');
             const rolledBackItems = this.state.items.map(user => {
                 if (user.id === userId) return { ...user, status: currentStatus };
                 return user;
@@ -1335,9 +1337,9 @@ export default class IdentityView extends BaseComponent {
     // =========================================================================
 
     async openModernRoleEditor(slug = '', permissions = []) {
-        const title = slug ? `Edit Modern Role: ${slug}` : 'Create Modern Role';
+        const title = slug ? `Edit Modern Role: ${ slug } ` : 'Create Modern Role';
         this.openModal(title, html`
-            <form id="modern-role-form">
+            < form id = "modern-role-form" >
                 <div class="form-group">
                     <label>Role Slug (Registry Key)</label>
                     <input type="text" name="slug" class="spp-element" value="${slug}" ${slug ? 'readonly' : ''} placeholder="e.g. editor, manager">
@@ -1347,8 +1349,8 @@ export default class IdentityView extends BaseComponent {
                     <textarea name="permissions" class="spp-element" style="height: 150px;" placeholder="One permission per line, e.g.\nposts.create\nposts.edit\n*">${permissions.join('\n')}</textarea>
                     <small class="text-dim">Use '*' for super-admin access.</small>
                 </div>
-            </form>
-        `.toString());
+            </form >
+            `.toString());
 
         const saveBtn = document.getElementById('modal-save');
         saveBtn.textContent = 'Save Role';
@@ -1384,7 +1386,7 @@ export default class IdentityView extends BaseComponent {
 
     async openAbacEditor(id = null) {
         const title = id ? 'Edit ABAC Policy' : 'Create ABAC Policy';
-        this.openModal(title, html`<div class="loader">Fetching...</div>`.toString());
+        this.openModal(title, html`< div class="loader" > Fetching...</div > `.toString());
 
         let policy = { permission: '', condition_logic: '{\n  "field": "user.id",\n  "operator": "equals",\n  "value": "context.owner_id"\n}', status: 'active' };
 
@@ -1394,24 +1396,24 @@ export default class IdentityView extends BaseComponent {
         }
 
         document.getElementById('modal-body').innerHTML = html`
-            <form id="abac-policy-form">
+            < form id = "abac-policy-form" >
                 <input type="hidden" name="id" value="${id || ''}">
-                <div class="form-group">
-                    <label>Permission</label>
-                    <input type="text" name="permission" class="spp-element" value="${policy.permission}" placeholder="e.g. content.edit">
-                </div>
-                <div class="form-group mt-4">
-                    <label>Condition Logic (JSON)</label>
-                    <textarea name="condition_logic" class="spp-element" style="height: 150px; font-family: monospace;">${policy.condition_logic}</textarea>
-                </div>
-                <div class="form-group mt-4">
-                    <label>Status</label>
-                    <select name="status" class="spp-element">
-                        <option value="active" ${policy.status === 'active' ? 'selected' : ''}>Active</option>
-                        <option value="inactive" ${policy.status === 'inactive' ? 'selected' : ''}>Inactive</option>
-                    </select>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label>Permission</label>
+                        <input type="text" name="permission" class="spp-element" value="${policy.permission}" placeholder="e.g. content.edit">
+                    </div>
+                    <div class="form-group mt-4">
+                        <label>Condition Logic (JSON)</label>
+                        <textarea name="condition_logic" class="spp-element" style="height: 150px; font-family: monospace;">${policy.condition_logic}</textarea>
+                    </div>
+                    <div class="form-group mt-4">
+                        <label>Status</label>
+                        <select name="status" class="spp-element">
+                            <option value="active" ${policy.status === 'active' ? 'selected' : ''}>Active</option>
+                            <option value="inactive" ${policy.status === 'inactive' ? 'selected' : ''}>Inactive</option>
+                        </select>
+                    </div>
+                </form>
         `.toString();
 
         const saveBtn = document.getElementById('modal-save');
@@ -1464,7 +1466,7 @@ export default class IdentityView extends BaseComponent {
 
     async openOAuthEditor(id = null) {
         const title = id ? 'Edit OAuth Client' : 'Create OAuth Client';
-        this.openModal(title, html`<div class="loader">Fetching...</div>`.toString());
+        this.openModal(title, html`< div class="loader" > Fetching...</div > `.toString());
 
         let client = { id: '', name: '', redirect_uri: '' };
 
@@ -1477,7 +1479,7 @@ export default class IdentityView extends BaseComponent {
         }
 
         document.getElementById('modal-body').innerHTML = html`
-            <form id="oauth-client-form">
+            < form id = "oauth-client-form" >
                 <div class="form-group">
                     <label>Client ID</label>
                     <input type="text" name="id" class="spp-element" value="${client.id}" ${id ? 'readonly' : ''}>
@@ -1490,13 +1492,15 @@ export default class IdentityView extends BaseComponent {
                     <label>Redirect URI</label>
                     <input type="text" name="redirect_uri" class="spp-element" value="${client.redirect_uri}" placeholder="e.g. https://app.example.com/callback">
                 </div>
-                ${!id ? html`
+                ${
+            !id ? html`
                 <div class="alert info mt-4">
                     <p>A secure <code>client_secret</code> will be generated automatically and displayed after creation.</p>
                 </div>
-                ` : ''}
-            </form>
-        `.toString();
+                ` : ''
+        }
+            </form >
+            `.toString();
 
         const saveBtn = document.getElementById('modal-save');
         saveBtn.textContent = 'Save Client';

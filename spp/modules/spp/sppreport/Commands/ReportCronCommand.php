@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\Sppreport\Commands;
+namespace SPPMod\SPPReport\Commands;
 
 use SPP\CLI\Command;
 
@@ -16,7 +16,7 @@ class ReportCronCommand extends Command
     public function execute(array $args): void
     {
         echo "Starting SPP Report Cron Engine...\n";
-        
+
         $cronScript = dirname(__DIR__) . '/sppreport_cron.php';
         if (file_exists($cronScript)) {
             require $cronScript;

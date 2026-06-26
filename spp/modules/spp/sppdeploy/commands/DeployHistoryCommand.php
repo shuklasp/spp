@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -15,18 +15,18 @@ class DeployHistoryCommand extends Command
         }
 
         $apiKey = 'default_cli_key';
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
             }
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         echo "📡 Fetching deployment history from {$target}...\n";
         $resp = $conn->getHistory();
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Failed to retrieve history: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;
@@ -47,7 +47,7 @@ class DeployHistoryCommand extends Command
             $status = $h['status'] ?? 'unknown';
             $files = $h['filesCount'] ?? 0;
             $db = $h['dbCount'] ?? 0;
-            
+
             // Just take the first line or a short substring of the message to keep table clean
             $msg = $h['message'] ?? '';
             $msg = str_replace("\n", " ", $msg);
@@ -56,11 +56,11 @@ class DeployHistoryCommand extends Command
             }
 
             echo str_pad($date, 22) . " | " .
-                 str_pad($ip, 15) . " | " .
-                 str_pad($status, 10) . " | " .
-                 str_pad($files, 5) . " | " .
-                 str_pad($db, 5) . " | " .
-                 $msg . "\n";
+                str_pad($ip, 15) . " | " .
+                str_pad($status, 10) . " | " .
+                str_pad($files, 5) . " | " .
+                str_pad($db, 5) . " | " .
+                $msg . "\n";
         }
     }
 

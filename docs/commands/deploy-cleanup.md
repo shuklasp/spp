@@ -13,7 +13,7 @@ Requests the remote server to delete old deployment backup snapshots to free up 
 - `--key=<api_key>` : **Optional.** API key for remote authentication.
 
 # UNDER THE HOOD ACTIVITY
-The command extracts the target URI, the optional API key, and parses the `--keep` argument into an integer. It establishes a remote client instance using `\SPPMod\Sppdeploy\Deployer\TargetConnection::resolve()`. It then invokes the `cleanupBackups($keep)` method, passing the retention integer. This method transmits an HTTP request instructing the remote environment to sort its backup directory and permanently unlink (delete) any archives older than the defined retention threshold. The remote node returns a JSON status payload, which the CLI interprets and displays as a success or failure notification.
+The command extracts the target URI, the optional API key, and parses the `--keep` argument into an integer. It establishes a remote client instance using `\SPPMod\SPPDeploy\Deployer\TargetConnection::resolve()`. It then invokes the `cleanupBackups($keep)` method, passing the retention integer. This method transmits an HTTP request instructing the remote environment to sort its backup directory and permanently unlink (delete) any archives older than the defined retention threshold. The remote node returns a JSON status payload, which the CLI interprets and displays as a success or failure notification.
 
 # EXAMPLES
 Keep only the latest 3 backups on staging:

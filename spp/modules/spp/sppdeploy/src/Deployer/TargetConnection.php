@@ -23,15 +23,18 @@ class TargetConnection
                 $conf = @yaml_parse_file($confFile);
                 if (isset($conf['environments'][$url])) {
                     $env = $conf['environments'][$url];
-                    if (isset($env['url'])) $url = $env['url'];
-                    if (isset($env['token'])) $resolvedToken = $env['token'];
+                    if (isset($env['url']))
+                        $url = $env['url'];
+                    if (isset($env['token']))
+                        $resolvedToken = $env['token'];
                 }
             }
         }
 
         if ($resolvedToken === 'default_cli_key') {
             $configured = \SPPMod\SPPDeploy\SPPDeploy::configuredToken();
-            if ($configured !== '') $resolvedToken = $configured;
+            if ($configured !== '')
+                $resolvedToken = $configured;
         }
 
         return new self($url, $resolvedToken);
@@ -119,9 +122,11 @@ class TargetConnection
     public function getLogs(int $offset = -1, int $lines = 100): array
     {
         $params = [];
-        if ($offset >= 0) $params['offset'] = $offset;
-        if ($lines > 0 && $offset < 0) $params['lines'] = $lines;
-        
+        if ($offset >= 0)
+            $params['offset'] = $offset;
+        if ($lines > 0 && $offset < 0)
+            $params['lines'] = $lines;
+
         $qs = http_build_query($params);
         $endpoint = '/_sppdeploy/logs' . ($qs ? '?' . $qs : '');
         return $this->request($endpoint, 'GET');
@@ -140,7 +145,7 @@ class TargetConnection
         $url .= $separator . '_sppdeploy=1&path=' . urlencode($endpoint);
 
         $ch = curl_init($url);
-        
+
         $jsonPayload = empty($data) ? '' : json_encode($data);
         $signature = hash_hmac('sha256', $jsonPayload, $this->token);
 

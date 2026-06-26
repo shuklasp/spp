@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace SPPMod\SPPAPI\Dispatchers;
 
-use SPPMod\SppApi\SPPAjax;
+use SPPMod\SPPAPI\SPPAjax;
 
 class ComponentDispatcher
 {
@@ -19,8 +19,8 @@ class ComponentDispatcher
         }
 
         // CSRF Protection
-        $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') || 
-                           (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
+        $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') ||
+            (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
         if (!$hasCustomHeader) {
             SPPAjax::respond('error', ['message' => 'CSRF Protection: Missing X-SPP-Ajax header.'], 403);
         }
@@ -66,10 +66,10 @@ class ComponentDispatcher
     public static function dispatchJS(string $name): void
     {
         header('Content-Type: application/javascript; charset=utf-8');
-        
+
         // Prevent namespace traversal
         $name = preg_replace('/[^a-zA-Z0-9_]/', '', $name);
-        
+
         try {
             $app = \SPP\Scheduler::getContext();
             $className = "App\\" . ucfirst($app) . "\\Components\\" . $name;

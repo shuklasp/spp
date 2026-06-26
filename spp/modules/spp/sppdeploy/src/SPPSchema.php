@@ -1,14 +1,16 @@
 <?php
-namespace SPPMod\Sppdeploy;
+namespace SPPMod\SPPDeploy;
 
 use SPP\Core\DB;
 
-class SPPSchema {
-    
-    public static function create(string $table, callable $callback) {
+class SPPSchema
+{
+
+    public static function create(string $table, callable $callback)
+    {
         $blueprint = new SPPBlueprint($table);
         $callback($blueprint);
-        
+
         $sql = $blueprint->buildSql();
         $db = DB::getInstance();
         if ($db) {
@@ -18,7 +20,8 @@ class SPPSchema {
         }
     }
 
-    public static function dropIfExists(string $table) {
+    public static function dropIfExists(string $table)
+    {
         $sql = "DROP TABLE IF EXISTS $table;";
         $db = DB::getInstance();
         if ($db) {

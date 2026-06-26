@@ -40,7 +40,7 @@ if (!defined('SPP_VER')) {
   if (!defined('SPP_BASE_DIR')) {
     define('SPP_BASE_DIR', dirname(__FILE__));
   }
-  
+
   if (!defined('SPP_DOC_ROOT')) {
     define('SPP_DOC_ROOT', $_SERVER['DOCUMENT_ROOT'] ?? '');
   }
@@ -57,15 +57,16 @@ if (!defined('SPP_VER')) {
   if (!defined('APP_BASE_URI')) {
     $appBaseUri = '';
     if (isset($_SERVER['SCRIPT_NAME'])) {
-        $appBaseUri = dirname($_SERVER['SCRIPT_NAME']);
-        if (str_contains($appBaseUri, '/spp/admin')) {
-            $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/admin'));
-        } elseif (str_contains($appBaseUri, '/sppadmin')) {
-            $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/sppadmin'));
-        } elseif (str_contains($appBaseUri, '/spp')) {
-            $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp'));
-        }
-        if ($appBaseUri === DIRECTORY_SEPARATOR || $appBaseUri === '.') $appBaseUri = '';
+      $appBaseUri = dirname($_SERVER['SCRIPT_NAME']);
+      if (str_contains($appBaseUri, '/spp/admin')) {
+        $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/admin'));
+      } elseif (str_contains($appBaseUri, '/sppadmin')) {
+        $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/sppadmin'));
+      } elseif (str_contains($appBaseUri, '/spp')) {
+        $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp'));
+      }
+      if ($appBaseUri === DIRECTORY_SEPARATOR || $appBaseUri === '.')
+        $appBaseUri = '';
     }
     define('APP_BASE_URI', rtrim(str_replace('\\', '/', $appBaseUri), '/'));
   }
@@ -79,7 +80,7 @@ if (!defined('SPP_VER')) {
   define('SPP_DEV_DIR', SPP_BASE_DIR . SPP_DS . 'dev');
   define('SPP_MODULES_DIR', SPP_BASE_DIR . SPP_DS . 'modules');
   define('SPP_ETC_DIR', SPP_BASE_DIR . SPP_DS . 'etc');
-  
+
   define('APP_ETC_DIR', SPP_APP_DIR . SPP_DS . 'etc' . SPP_DS . 'apps');
   define('SPP_LOG_DIR', SPP_APP_DIR . SPP_DS . 'var' . SPP_DS . 'logs');
 
@@ -102,9 +103,9 @@ if (!defined('SPP_VER')) {
 
 // Universally expose global translation shorthand helper
 if (!function_exists('__')) {
-    function __($key, $paramsOrLocale = [], ?string $locale = null)
-    {
-        return \SPP\Core\Translation::translate($key, $paramsOrLocale, $locale);
-    }
+  function __($key, $paramsOrLocale = [], ?string $locale = null)
+  {
+    return \SPP\Core\Translation::translate($key, $paramsOrLocale, $locale);
+  }
 }
 ?>

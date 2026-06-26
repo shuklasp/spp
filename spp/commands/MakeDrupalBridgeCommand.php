@@ -20,12 +20,14 @@ class MakeDrupalBridgeCommand extends BaseMakeCommand
             echo "Drupal Root Path (e.g. ../drupal): ";
             $drupalRootInput = trim(fgets(STDIN));
         }
-        if (!$drupalRootInput) return;
+        if (!$drupalRootInput)
+            return;
 
         $drupalRoot = SPP_APP_DIR . '/' . $drupalRootInput;
         $moduleDir = $drupalRoot . '/modules/custom/spp_bridge';
 
-        if (!is_dir($moduleDir)) mkdir($moduleDir, 0777, true);
+        if (!is_dir($moduleDir))
+            mkdir($moduleDir, 0777, true);
 
         // 1. spp_bridge.info.yml
         $info = "name: SPP Bridge
@@ -74,7 +76,8 @@ PHP;
         file_put_contents($moduleDir . '/spp_bridge.services.yml', $services);
 
         $extDir = $moduleDir . '/src/Twig';
-        if (!is_dir($extDir)) mkdir($extDir, 0777, true);
+        if (!is_dir($extDir))
+            mkdir($extDir, 0777, true);
 
         $extension = <<<'PHP'
 <?php

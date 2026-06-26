@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod;
+namespace SPPMod\SPPView\HtmlElements;
 
 //require_once 'class.spphtmlelement.php';
 
@@ -19,7 +19,7 @@ class SPP_HTML_Anchor extends SPP_HTML_Element
         parent::__construct($ename);
         $this->isemptyflag = false;
         $this->tagname = 'a';
-        $this->attrlist = ['charset','coords','href','hreflang','rel','rev','shape','target','type'];
+        $this->attrlist = ['charset', 'coords', 'href', 'hreflang', 'rel', 'rev', 'shape', 'target', 'type'];
     }
 }
 
@@ -60,7 +60,7 @@ class SPP_HTML_Ul extends SPP_HTML_Element
 
     public function addItem($item)
     {
-        $this->list[] = new SPP_HTML_Li($this->attributes['name'].'li'.sizeof($this->list), $item);
+        $this->list[] = new SPP_HTML_Li($this->attributes['name'] . 'li' . sizeof($this->list), $item);
     }
 
     public function getHTML(): string
@@ -88,7 +88,7 @@ class SPP_HTML_Ol extends SPP_HTML_Element
 
     public function addItem($item)
     {
-        $this->list[] = new SPP_HTML_Li($this->attributes['name'].'li'.sizeof($this->list), $item);
+        $this->list[] = new SPP_HTML_Li($this->attributes['name'] . 'li' . sizeof($this->list), $item);
     }
 
     public function getHTML(): string

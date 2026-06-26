@@ -59,7 +59,7 @@ class SPPLive extends \SPP\SPPObject
         if (str_starts_with($topic, 'user_')) {
             $userId = substr($topic, 5);
             if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
-                return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && (string)\SPPMod\SPPAuth\SPPAuth::getUserId() === $userId;
+                return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && (string) \SPPMod\SPPAuth\SPPAuth::getUserId() === $userId;
             }
         }
 

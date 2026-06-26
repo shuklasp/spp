@@ -22,8 +22,8 @@ class ViewRouter
         }
 
         $isSppUx = (\SPP\App::getApp()->type === 'sppux');
-        $doAugment = $options['augment'] ?? ($isSppUx ?: (bool)(\SPP\Module::getConfig('auto_page_augmentation', 'spphtml') ?? \SPP\Module::getConfig('auto_page_augmentation', 'sppview') ?? true));
-        $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool)(\SPP\Module::getConfig('auto_js_injection', 'spphtml') ?? \SPP\Module::getConfig('auto_js_injection', 'sppview') ?? true));
+        $doAugment = $options['augment'] ?? ($isSppUx ?: (bool) (\SPP\Module::getConfig('auto_page_augmentation', 'spphtml') ?? \SPP\Module::getConfig('auto_page_augmentation', 'sppview') ?? true));
+        $doInjectJs = $options['inject_js'] ?? ($isSppUx ?: (bool) (\SPP\Module::getConfig('auto_js_injection', 'spphtml') ?? \SPP\Module::getConfig('auto_js_injection', 'sppview') ?? true));
 
         if ($pageData['special'] == 1) {
             if (isset($pageData['method'])) {
@@ -77,6 +77,8 @@ class ViewRouter
                 $controller = new $class();
                 if (method_exists($controller, $method)) {
                     $params = $pageData['params'] ?? [];
+
+                    var_dump($controller, $method, $params);
                     $result = call_user_func_array([$controller, $method], $params);
                     if (is_string($result)) {
                         echo $result;
@@ -89,7 +91,7 @@ class ViewRouter
         // --- Multi-Engine Paradigm Router ---
         if ($filename && \SPP\Module::isEnabled('drishyam')) {
             $viewName = str_replace(['/', '\\'], '.', preg_replace('/\.html$/', '', ltrim($pageData['url'], '/\\')));
-            
+
             $app = \SPP\App::getApp();
             $pageData['base_url'] = rtrim((defined('APP_BASE_URI') ? APP_BASE_URI : ''), '/') . '/' . ltrim($app->base_url ?? '', '/');
             $pageData['base_url'] = rtrim($pageData['base_url'], '/');
@@ -186,9 +188,9 @@ class ViewRouter
                 }
 
                 $renderParams = [
-                    'html'     => $finalHtml,
+                    'html' => $finalHtml,
                     'pageData' => $pageData,
-                    'theme'    => $app->getAppConf('theme')
+                    'theme' => $app->getAppConf('theme')
                 ];
                 $evtRenderParams = new \SPP\EventParams($renderParams);
                 \SPP\SPPEvent::fireEvent('event_spp_view_render_theme', $evtRenderParams);

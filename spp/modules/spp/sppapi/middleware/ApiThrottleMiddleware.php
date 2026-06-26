@@ -5,12 +5,14 @@ use SPP\Core\MiddlewareInterface;
 use SPP\Core\Request;
 use SPP\Core\SPPException;
 
-class ApiThrottleMiddleware implements MiddlewareInterface {
-    
-    public function handle($request, $next) {
+class ApiThrottleMiddleware implements MiddlewareInterface
+{
+
+    public function handle($request, $next)
+    {
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $key = 'api_throttle_' . $ip;
-        
+
         $cache = \SPP\Module::getModule('sppcache');
         if ($cache && $cache->isActive()) {
             $requests = \SPPCache::get($key) ?: 0;

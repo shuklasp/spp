@@ -18,11 +18,16 @@ class ViewServiceAddCommand extends Command
         $source = 'yaml';
 
         foreach ($args as $arg) {
-            if (str_starts_with($arg, '--app=')) $appname = substr($arg, 6);
-            elseif (str_starts_with($arg, '--name=')) $name = substr($arg, 7);
-            elseif (str_starts_with($arg, '--script=')) $script = substr($arg, 9);
-            elseif (str_starts_with($arg, '--method=')) $method = substr($arg, 9);
-            elseif (str_starts_with($arg, '--source=')) $source = substr($arg, 9);
+            if (str_starts_with($arg, '--app='))
+                $appname = substr($arg, 6);
+            elseif (str_starts_with($arg, '--name='))
+                $name = substr($arg, 7);
+            elseif (str_starts_with($arg, '--script='))
+                $script = substr($arg, 9);
+            elseif (str_starts_with($arg, '--method='))
+                $method = substr($arg, 9);
+            elseif (str_starts_with($arg, '--source='))
+                $source = substr($arg, 9);
         }
 
         if (!$name || !$script) {
@@ -30,8 +35,8 @@ class ViewServiceAddCommand extends Command
             return;
         }
 
-        \SPP\Scheduler::withContext($appname, function() use ($name, $script, $method, $source) {
-            \SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source);
+        \SPP\Scheduler::withContext($appname, function () use ($name, $script, $method, $source) {
+            \SPPMod\SPPAPI\SPPAjax::registerService($name, $script, $method, $source);
         });
 
         echo "Success: AJAX Service '{$name}' -> '{$script}' [{$method}] registered for app '{$appname}' (Source: {$source}).\n";

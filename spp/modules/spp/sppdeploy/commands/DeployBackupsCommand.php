@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -15,18 +15,18 @@ class DeployBackupsCommand extends Command
         }
 
         $apiKey = 'default_cli_key';
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
             }
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         echo "📡 Fetching backups from {$target}...\n";
         $resp = $conn->getBackups();
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Failed to retrieve backups: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;
@@ -47,8 +47,8 @@ class DeployBackupsCommand extends Command
             $size = round(($b['size'] ?? 0) / 1024 / 1024, 2) . ' MB';
 
             echo str_pad($date, 22) . " | " .
-                 str_pad($file, 35) . " | " .
-                 $size . "\n";
+                str_pad($file, 35) . " | " .
+                $size . "\n";
         }
     }
 

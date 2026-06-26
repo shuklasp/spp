@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -30,7 +30,7 @@ class DeployBuildCommand extends Command
             }
         }
 
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
         $localHashes = [];
         if (!$noFiles) {
             $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();

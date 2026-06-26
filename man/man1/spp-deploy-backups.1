@@ -15,7 +15,7 @@ Queries a remote deployment node to list all available rollback snapshots, allow
 .br
 .PP
 # UNDER THE HOOD ACTIVITY
-The command extracts the target URI and the optional --key flag from the runtime arguments. It calls \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey) to instantiate a client for the remote node. Using this connection, it invokes the getBackups() method, which performs an HTTP request to the target server. The target responds with a JSON array of backup metadata. The command checks the status flag of the response. If successful, it parses the backups array and formats a tabular view containing the backup date, filename (snapshot ID), and physical file size rounded to MB.
+The command extracts the target URI and the optional --key flag from the runtime arguments. It calls \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey) to instantiate a client for the remote node. Using this connection, it invokes the getBackups() method, which performs an HTTP request to the target server. The target responds with a JSON array of backup metadata. The command checks the status flag of the response. If successful, it parses the backups array and formats a tabular view containing the backup date, filename (snapshot ID), and physical file size rounded to MB.
 .PP
 # EXAMPLES
 Check backups on the staging server:

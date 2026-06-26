@@ -96,7 +96,7 @@ function sendResponse($success, $data = [], $message = '')
     // Error extraction via LiveAction (SPPError deprecated)
 
     // Handle LiveAction object if passed as data
-    if ($data instanceof \SPPMod\SppApi\LiveAction) {
+    if ($data instanceof \SPPMod\SPPAPI\LiveAction) {
         $la = $data;
         $refl = new \ReflectionClass($la);
         $instrProp = $refl->getProperty('instructions');
@@ -354,18 +354,23 @@ if (!checkDevMode()) {
 
 // --- Global Helpers ---
 if (!function_exists('createEntityRevision')) {
-    function createEntityRevision($appContext, $name) {
+    function createEntityRevision($appContext, $name)
+    {
         $srcDir = SPP_APP_DIR . "/src/{$appContext}/entities";
         $revDir = $srcDir . '/.revisions';
-        if (!is_dir($revDir)) @mkdir($revDir, 0777, true);
-        
+        if (!is_dir($revDir))
+            @mkdir($revDir, 0777, true);
+
         $ts = time();
         $ymlPath = $srcDir . '/' . strtolower($name) . '.yml';
         $phpPath = $srcDir . '/entity.' . strtolower($name) . '.php';
-        if (!file_exists($phpPath)) $phpPath = $srcDir . '/' . $name . '.php';
-        
-        if (file_exists($ymlPath)) @copy($ymlPath, $revDir . '/' . strtolower($name) . '_' . $ts . '.yml');
-        if (file_exists($phpPath)) @copy($phpPath, $revDir . '/entity.' . strtolower($name) . '_' . $ts . '.php');
+        if (!file_exists($phpPath))
+            $phpPath = $srcDir . '/' . $name . '.php';
+
+        if (file_exists($ymlPath))
+            @copy($ymlPath, $revDir . '/' . strtolower($name) . '_' . $ts . '.yml');
+        if (file_exists($phpPath))
+            @copy($phpPath, $revDir . '/entity.' . strtolower($name) . '_' . $ts . '.php');
     }
 }
 
@@ -397,7 +402,7 @@ try {
     }
 
     if (isset($_REQUEST['__svc'])) {
-        \SPPMod\SppApi\SPPAjax::handle();
+        \SPPMod\SPPAPI\SPPAjax::handle();
         exit;
     }
 

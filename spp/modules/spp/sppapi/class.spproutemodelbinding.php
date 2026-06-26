@@ -1,16 +1,18 @@
 <?php
 namespace SPPMod\SPPAPI;
 
-class SPPRouteModelBinding {
-    
+class SPPRouteModelBinding
+{
+
     /**
      * Resolves an {entity} ID from the route path to a loaded SPPEntity object.
      */
-    public static function resolve(string $entityClass, string $id) {
+    public static function resolve(string $entityClass, string $id)
+    {
         if (!class_exists($entityClass)) {
             throw new \SPP\Core\SPPException("Entity class not found for binding.");
         }
-        
+
         try {
             $entity = new $entityClass($id);
             if (!$entity->get($entityClass::getMetadata('id_field', 'id'))) {

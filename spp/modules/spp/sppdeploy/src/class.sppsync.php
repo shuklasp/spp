@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\Sppdeploy;
+namespace SPPMod\SPPDeploy;
 
 /**
  * SPPSync Module - Incremental Mirroring & Differential Sync Engine

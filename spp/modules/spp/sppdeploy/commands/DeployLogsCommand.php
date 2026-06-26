@@ -1,8 +1,8 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
-use SPPMod\Sppdeploy\Deployer\TargetConnection;
+use SPPMod\SPPDeploy\Deployer\TargetConnection;
 
 class DeployLogsCommand extends Command
 {
@@ -18,7 +18,7 @@ class DeployLogsCommand extends Command
         $apiKey = 'default_cli_key';
         $tail = false;
         $lines = 100;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -27,17 +27,17 @@ class DeployLogsCommand extends Command
                 $tail = true;
             }
             if (str_starts_with($arg, '--lines=')) {
-                $lines = (int)substr($arg, 8);
+                $lines = (int) substr($arg, 8);
             }
         }
-        
+
         $conn = TargetConnection::resolve($target, $apiKey);
-        
+
         echo "📡 Fetching remote logs from {$target}...\n";
-        
+
         // Initial fetch
         $resp = $conn->getLogs(-1, $lines);
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Error fetching logs: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;
@@ -45,7 +45,7 @@ class DeployLogsCommand extends Command
 
         echo "📄 File: " . $resp['file'] . "\n";
         echo str_repeat("-", 50) . "\n";
-        
+
         if (!empty($resp['content'])) {
             echo $resp['content'];
         }
@@ -54,20 +54,20 @@ class DeployLogsCommand extends Command
             return;
         }
 
-        $offset = (int)$resp['offset'];
+        $offset = (int) $resp['offset'];
         echo "\n👀 Tailing log file (Press Ctrl+C to stop)...\n";
         echo str_repeat("-", 50) . "\n";
 
         while (true) {
             sleep(2); // Poll every 2 seconds
-            
+
             $resp = $conn->getLogs($offset, 0);
-            
+
             if (isset($resp['status']) && $resp['status'] === 'ok') {
                 if (!empty($resp['content'])) {
                     echo $resp['content'];
                 }
-                $offset = (int)$resp['offset'];
+                $offset = (int) $resp['offset'];
             }
         }
     }

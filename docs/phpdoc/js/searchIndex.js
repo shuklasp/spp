@@ -8776,242 +8776,242 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/SPPMod-SPPAPI-ApiDocController.html#method_render"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction",
             "name": "LiveAction",
             "summary": "class\u0020LiveAction",
             "url": "classes/SPPMod-SppApi-LiveAction.html"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method___construct"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AsetStatus\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AsetStatus\u0028\u0029",
             "name": "setStatus",
             "summary": "Set\u0020the\u0020response\u0020status\u0020\u0028e.g.\u0020\u0027ok\u0027,\u0020\u0027error\u0027,\u0020\u0027redirect\u0027\u0029.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_setStatus"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AsetData\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AsetData\u0028\u0029",
             "name": "setData",
             "summary": "Set\u0020the\u0020general\u0020data\u0020payload\u0020\u0028e.g.\u0020results\u0020from\u0020a\u0020GraphQL\u0020query\u0029.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_setData"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AgetData\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AgetData\u0028\u0029",
             "name": "getData",
             "summary": "Get\u0020current\u0020data\u0020payload.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_getData"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AgetInstructions\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AgetInstructions\u0028\u0029",
             "name": "getInstructions",
             "summary": "Get\u0020current\u0020instructions\u0020list.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_getInstructions"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Areplace\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Areplace\u0028\u0029",
             "name": "replace",
             "summary": "Replace\u0020the\u0020inner\u0020HTML\u0020of\u0020an\u0020element\u0020matching\u0020the\u0020selector.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_replace"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Amorph\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Amorph\u0028\u0029",
             "name": "morph",
             "summary": "Morph\u0020the\u0020element\u0020matching\u0020the\u0020selector\u0020with\u0020new\u0020HTML.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_morph"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aattr\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aattr\u0028\u0029",
             "name": "attr",
             "summary": "Update\u0020an\u0020element\u0027s\u0020attribute.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_attr"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aappend\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aappend\u0028\u0029",
             "name": "append",
             "summary": "Append\u0020HTML\u0020to\u0020an\u0020element.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_append"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aprepend\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aprepend\u0028\u0029",
             "name": "prepend",
             "summary": "Prepend\u0020HTML\u0020to\u0020an\u0020element.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_prepend"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aremove\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aremove\u0028\u0029",
             "name": "remove",
             "summary": "Remove\u0020an\u0020element\u0020from\u0020the\u0020DOM.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_remove"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aredirect\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aredirect\u0028\u0029",
             "name": "redirect",
             "summary": "Instruct\u0020the\u0020frontend\u0020to\u0020redirect\u0020to\u0020a\u0020new\u0020URL.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_redirect"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Anotify\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Anotify\u0028\u0029",
             "name": "notify",
             "summary": "Show\u0020a\u0020notification\u0020\u0028toast\u0029.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_notify"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AsyncStore\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AsyncStore\u0028\u0029",
             "name": "syncStore",
             "summary": "Update\u0020the\u0020client\u002Dside\u0020global\u0020SPPStore\u0020\u0028spp_root_store\u0029.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_syncStore"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Arender\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Arender\u0028\u0029",
             "name": "render",
             "summary": "Render\u0020a\u0020template\/partial\u0020and\u0020use\u0020it\u0020in\u0020a\u0020replace\/morph\u0020instruction.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_render"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Amodal\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Amodal\u0028\u0029",
             "name": "modal",
             "summary": "Instruct\u0020the\u0020frontend\u0020to\u0020open\u0020a\u0020modal.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_modal"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003AcloseModal\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003AcloseModal\u0028\u0029",
             "name": "closeModal",
             "summary": "Instruct\u0020the\u0020frontend\u0020to\u0020close\u0020the\u0020active\u0020modal.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_closeModal"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Arefresh\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Arefresh\u0028\u0029",
             "name": "refresh",
             "summary": "Instruct\u0020the\u0020frontend\u0020to\u0020refresh\u0020the\u0020current\u0020view.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_refresh"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Adispatch\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Adispatch\u0028\u0029",
             "name": "dispatch",
             "summary": "Trigger\u0020a\u0020custom\u0020JS\u0020event\u0020on\u0020the\u0020window\u0020or\u0020a\u0020specific\u0020element.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_dispatch"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Ascript\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Ascript\u0028\u0029",
             "name": "script",
             "summary": "Execute\u0020arbitrary\u0020JavaScript\u0020on\u0020the\u0020client.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_script"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aalert\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aalert\u0028\u0029",
             "name": "alert",
             "summary": "Show\u0020a\u0020native\u0020browser\u0020alert.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_alert"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aassign\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aassign\u0028\u0029",
             "name": "assign",
             "summary": "Assign\u0020a\u0020value\u0020to\u0020an\u0020element\u0027s\u0020property\u0020\u0028e.g.\u0020innerHTML,\u0020value,\u0020checked\u0029.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_assign"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Acall\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Acall\u0028\u0029",
             "name": "call",
             "summary": "Call\u0020a\u0020global\u0020JavaScript\u0020function\u0020with\u0020arguments.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_call"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aclear\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aclear\u0028\u0029",
             "name": "clear",
             "summary": "Clear\u0020the\u0020content\u0020or\u0020a\u0020specific\u0020attribute\u0020of\u0020an\u0020element.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_clear"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Asend\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Asend\u0028\u0029",
             "name": "send",
             "summary": "Execute\u0020the\u0020response\u0020via\u0020SPPAjax.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_send"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Aquery\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Aquery\u0028\u0029",
             "name": "query",
             "summary": "Static\u0020helper\u0020for\u0020GraphQL\u0020integration.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_query"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\LiveAction\u003A\u003Asql\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\LiveAction\u003A\u003Asql\u0028\u0029",
             "name": "sql",
             "summary": "Static\u0020helper\u0020for\u0020SQL\u0020integration.",
             "url": "classes/SPPMod-SppApi-LiveAction.html#method_sql"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax",
             "name": "SPPAjax",
             "summary": "class\u0020SPPAjax",
             "url": "classes/SPPMod-SppApi-SPPAjax.html"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003Ahandle\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003Ahandle\u0028\u0029",
             "name": "handle",
             "summary": "Main\u0020entry\u0020point.\u0020Called\u0020from\u0020index.php\u0020when\u0020isAjaxRequest\u0028\u0029\u0020is\u0020true.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_handle"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchStream\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchStream\u0028\u0029",
             "name": "dispatchStream",
             "summary": "Executes\u0020a\u0020backend\u0020service\u0020script\u0020in\u0020real\u002Dtime\u0020streaming\u0020mode\u0020via\u0020standard\u0020Server\u002DSent\u0020Events.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchStream"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchComponentAction\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchComponentAction\u0028\u0029",
             "name": "dispatchComponentAction",
             "summary": "Handles\u0020an\u0020AJAX\u0020action\u0020from\u0020a\u0020generated\u0020JS\u0020component\u0020by\u0020routing\u0020it\nback\u0020to\u0020the\u0020corresponding\u0020PHPComponent\u0020class\u0020and\u0020method.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchComponentAction"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchComponentJS\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchComponentJS\u0028\u0029",
             "name": "dispatchComponentJS",
             "summary": "Dynamically\u0020generates\u0020and\u0020serves\u0020the\u0020JS\u0020for\u0020a\u0020PHP\u0020component.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchComponentJS"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AisAjaxRequest\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AisAjaxRequest\u0028\u0029",
             "name": "isAjaxRequest",
             "summary": "Returns\u0020true\u0020if\u0020this\u0020is\u0020an\u0020SPA\u0020request.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_isAjaxRequest"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AisSpaEnabled\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AisSpaEnabled\u0028\u0029",
             "name": "isSpaEnabled",
             "summary": "Returns\u0020true\u0020when\u0020spa_enabled\u0020is\u0020set\u0020to\u0020true\u0020in\u0020module\u0020config.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_isSpaEnabled"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchPage\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchPage\u0028\u0029",
             "name": "dispatchPage",
             "summary": "Resolves\u0020the\u0020requested\u0020page\u0020via\u0020Pages\u003A\u003AgetPage\u0028\u0029,\u0020captures\u0020its\u0020output,\nand\u0020returns\u0020JSON\u0020\u007B\u0020status,\u0020html,\u0020title\u0020\u007D.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchPage"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchService\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchService\u0028\u0029",
             "name": "dispatchService",
             "summary": "Dispatches\u0020to\u0020a\u0020registered\u0020service\u0020script\u0020and\u0020returns\u0020its\u0020\u0024response\u0020as\u0020JSON.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchService"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AresolveAndExecute\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AresolveAndExecute\u0028\u0029",
             "name": "resolveAndExecute",
             "summary": "Advanced\u0020Dispatcher\u003A\u0020Resolves\u0020and\u0020executes\u0020a\u0020service\u0020using\u0020Dynamic\u0020Discovery.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_resolveAndExecute"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AlistServices\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AlistServices\u0028\u0029",
             "name": "listServices",
             "summary": "Returns\u0020a\u0020flattened\u0020list\u0020of\u0020all\u0020registered\u0020services\u0020from\u0020both\u0020YAML\u0020and\u0020DB.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_listServices"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003Arespond\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003Arespond\u0028\u0029",
             "name": "respond",
             "summary": "Sends\u0020a\u0020JSON\u0020response\u0020and\u0020terminates\u0020execution.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_respond"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AregisterService\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AregisterService\u0028\u0029",
             "name": "registerService",
             "summary": "Registers\u0020a\u0020new\u0020service\u0020programmatically\u0020into\u0020either\u0020services.yml\u0020or\u0020the\u0020database.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_registerService"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AunregisterService\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AunregisterService\u0028\u0029",
             "name": "unregisterService",
             "summary": "Removes\u0020a\u0020service\u0020from\u0020either\u0020services.yml\u0020or\u0020the\u0020database.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_unregisterService"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AensureDbSchema\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AensureDbSchema\u0028\u0029",
             "name": "ensureDbSchema",
             "summary": "Ensures\u0020the\u0020database\u0020schema\u0020for\u0020AJAX\u0020services\u0020exists.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_ensureDbSchema"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AgetOptimalReadReplica\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AgetOptimalReadReplica\u0028\u0029",
             "name": "getOptimalReadReplica",
             "summary": "Edge\u002DFirst\u0020Distributed\u0020Read\u0020Replicas\u0020resolution\u0020router.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_getOptimalReadReplica"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchIntentMorph\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchIntentMorph\u0028\u0029",
             "name": "dispatchIntentMorph",
             "summary": "Synthesizes\u0020and\u0020executes\u0020intent\u002Dbased\u0020dynamic\u0020endpoints\u0020at\u0020runtime\u0020via\u0020SPPAI\u0020generation.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchIntentMorph"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AdispatchCdcStream\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AdispatchCdcStream\u0028\u0029",
             "name": "dispatchCdcStream",
             "summary": "Native\u0020SQL\u002Dto\u002DUI\u0020Change\u0020Data\u0020Capture\u0020\u0028CDC\u0029\u0020streaming\u0020socket\u0020simulator.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_dispatchCdcStream"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AappendMerkleLineage\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AappendMerkleLineage\u0028\u0029",
             "name": "appendMerkleLineage",
             "summary": "Appends\u0020cryptographically\u0020validated\u0020tamper\u002Devident\u0020Merkle\u0020DAG\u0020links\u0020into\u0020log\u0020tracking\u0020storage.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_appendMerkleLineage"
         }, {
-            "fqsen": "\\SPPMod\\SppApi\\SPPAjax\u003A\u003AverifyTransportIntegrity\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPAjax\u003A\u003AverifyTransportIntegrity\u0028\u0029",
             "name": "verifyTransportIntegrity",
             "summary": "Enforces\u0020strict\u0020payload\u0020verification\u0020using\u0020cryptographic\u0020HMAC\u0020envelopes\u0020to\u0020prevent\u0020transport\u0020layer\u0020manipulation.",
             "url": "classes/SPPMod-SppApi-SPPAjax.html#method_verifyTransportIntegrity"
@@ -9036,12 +9036,12 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/SPPMod-SPPAPI-SPPAPI.html#method_respond"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\Middleware\\ApiAuthMiddleware",
+            "fqsen": "\\SPPMod\\SPPAPI\\Middleware\\ApiAuthMiddleware",
             "name": "ApiAuthMiddleware",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-Middleware-ApiAuthMiddleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\Middleware\\ApiAuthMiddleware\u003A\u003Ahandle\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\Middleware\\ApiAuthMiddleware\u003A\u003Ahandle\u0028\u0029",
             "name": "handle",
             "summary": "Handle\u0020an\u0020incoming\u0020request.",
             "url": "classes/SPPMod-Sppapi-Middleware-ApiAuthMiddleware.html#method_handle"
@@ -9061,57 +9061,57 @@ Search.appendIndex(
             "summary": "Decode\u0020and\u0020verify\u0020a\u0020signed\u0020JWT",
             "url": "classes/SPPMod-SPPAPI-JWTAuth.html#method_decode"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResource",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResource",
             "name": "SPPApiResource",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResource.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResource\u003A\u003AtoArray\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResource\u003A\u003AtoArray\u0028\u0029",
             "name": "toArray",
             "summary": "Transform\u0020an\u0020entity\u0020or\u0020array\u0020of\u0020data\u0020into\u0020the\u0020desired\u0020API\u0020structure.",
             "url": "classes/SPPMod-Sppapi-SPPApiResource.html#method_toArray"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResource\u003A\u003Acollection\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResource\u003A\u003Acollection\u0028\u0029",
             "name": "collection",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResource.html#method_collection"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResponse",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResponse",
             "name": "SPPApiResponse",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResponse.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResponse\u003A\u003Asuccess\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResponse\u003A\u003Asuccess\u0028\u0029",
             "name": "success",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResponse.html#method_success"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResponse\u003A\u003Aerror\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResponse\u003A\u003Aerror\u0028\u0029",
             "name": "error",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResponse.html#method_error"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPApiResponse\u003A\u003Apaginate\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPApiResponse\u003A\u003Apaginate\u0028\u0029",
             "name": "paginate",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPApiResponse.html#method_paginate"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPPaginator",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPPaginator",
             "name": "SPPPaginator",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPPaginator.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPPaginator\u003A\u003ApaginateQuery\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPPaginator\u003A\u003ApaginateQuery\u0028\u0029",
             "name": "paginateQuery",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPPaginator.html#method_paginateQuery"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPRouteModelBinding",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPRouteModelBinding",
             "name": "SPPRouteModelBinding",
             "summary": "",
             "url": "classes/SPPMod-Sppapi-SPPRouteModelBinding.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\SPPRouteModelBinding\u003A\u003Aresolve\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAPI\\SPPRouteModelBinding\u003A\u003Aresolve\u0028\u0029",
             "name": "resolve",
             "summary": "Resolves\u0020an\u0020\u007Bentity\u007D\u0020ID\u0020from\u0020the\u0020route\u0020path\u0020to\u0020a\u0020loaded\u0020SPPEntity\u0020object.",
             "url": "classes/SPPMod-Sppapi-SPPRouteModelBinding.html#method_resolve"
@@ -10026,32 +10026,32 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/SPPMod-SPPAuth-Commands-UserProfileSchemaUpdateCommand.html#property_description"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\ConsolidateIdentityTables",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\ConsolidateIdentityTables",
             "name": "ConsolidateIdentityTables",
             "summary": "",
             "url": "classes/SPPMod-Sppauth-Migrations-ConsolidateIdentityTables.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\ConsolidateIdentityTables\u003A\u003Aup\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\ConsolidateIdentityTables\u003A\u003Aup\u0028\u0029",
             "name": "up",
             "summary": "Run\u0020the\u0020migrations.",
             "url": "classes/SPPMod-Sppauth-Migrations-ConsolidateIdentityTables.html#method_up"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\ConsolidateIdentityTables\u003A\u003Adown\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\ConsolidateIdentityTables\u003A\u003Adown\u0028\u0029",
             "name": "down",
             "summary": "Reverse\u0020the\u0020migrations.",
             "url": "classes/SPPMod-Sppauth-Migrations-ConsolidateIdentityTables.html#method_down"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\SppAuthV2Architecture",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\SppAuthV2Architecture",
             "name": "SppAuthV2Architecture",
             "summary": "",
             "url": "classes/SPPMod-Sppauth-Migrations-SppAuthV2Architecture.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\SppAuthV2Architecture\u003A\u003Aup\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\SppAuthV2Architecture\u003A\u003Aup\u0028\u0029",
             "name": "up",
             "summary": "Run\u0020the\u0020migrations.",
             "url": "classes/SPPMod-Sppauth-Migrations-SppAuthV2Architecture.html#method_up"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations\\SppAuthV2Architecture\u003A\u003Adown\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations\\SppAuthV2Architecture\u003A\u003Adown\u0028\u0029",
             "name": "down",
             "summary": "Reverse\u0020the\u0020migrations.",
             "url": "classes/SPPMod-Sppauth-Migrations-SppAuthV2Architecture.html#method_down"
@@ -10111,22 +10111,22 @@ Search.appendIndex(
             "summary": "",
             "url": "classes/SPPMod-SPPCache-SPPCacheManager.html#property_initialized"
         }, {
-            "fqsen": "\\SPPMod\\SppCache\\Commands\\CacheClearCommand",
+            "fqsen": "\\SPPMod\\SPPCache\\Commands\\CacheClearCommand",
             "name": "CacheClearCommand",
             "summary": "Abstract\u0020Class\u0020Command\nBase\u0020class\u0020for\u0020all\u0020CLI\u0020commands\u0020in\u0020the\u0020SPP\u0020framework.",
             "url": "classes/SPPMod-SppCache-Commands-CacheClearCommand.html"
         }, {
-            "fqsen": "\\SPPMod\\SppCache\\Commands\\CacheClearCommand\u003A\u003Aexecute\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPCache\\Commands\\CacheClearCommand\u003A\u003Aexecute\u0028\u0029",
             "name": "execute",
             "summary": "Executes\u0020the\u0020command.",
             "url": "classes/SPPMod-SppCache-Commands-CacheClearCommand.html#method_execute"
         }, {
-            "fqsen": "\\SPPMod\\SppCache\\Commands\\CacheClearCommand\u003A\u003A\u0024signature",
+            "fqsen": "\\SPPMod\\SPPCache\\Commands\\CacheClearCommand\u003A\u003A\u0024signature",
             "name": "signature",
             "summary": "",
             "url": "classes/SPPMod-SppCache-Commands-CacheClearCommand.html#property_signature"
         }, {
-            "fqsen": "\\SPPMod\\SppCache\\Commands\\CacheClearCommand\u003A\u003A\u0024description",
+            "fqsen": "\\SPPMod\\SPPCache\\Commands\\CacheClearCommand\u003A\u003A\u0024description",
             "name": "description",
             "summary": "",
             "url": "classes/SPPMod-SppCache-Commands-CacheClearCommand.html#property_description"
@@ -12816,22 +12816,22 @@ Search.appendIndex(
             "summary": "Builds\u0020and\u0020executes\u0020a\u0020dynamic\u0020SQL\u0020query\u0020from\u0020a\u0020JSON\u0020configuration\u0020payload.",
             "url": "classes/SPPReport.html#method_runReport"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport\\Commands\\ReportCronCommand",
+            "fqsen": "\\SPPMod\\SPPReport\\Commands\\ReportCronCommand",
             "name": "ReportCronCommand",
             "summary": "Class\u0020ReportCronCommand\nCLI\u0020Command\u0020to\u0020trigger\u0020the\u0020SPP\u0020Report\u0020scheduled\u0020alerts\u0020manually.",
             "url": "classes/SPPMod-Sppreport-Commands-ReportCronCommand.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport\\Commands\\ReportCronCommand\u003A\u003Aexecute\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPReport\\Commands\\ReportCronCommand\u003A\u003Aexecute\u0028\u0029",
             "name": "execute",
             "summary": "Executes\u0020the\u0020command.",
             "url": "classes/SPPMod-Sppreport-Commands-ReportCronCommand.html#method_execute"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport\\Commands\\ReportCronCommand\u003A\u003A\u0024name",
+            "fqsen": "\\SPPMod\\SPPReport\\Commands\\ReportCronCommand\u003A\u003A\u0024name",
             "name": "name",
             "summary": "",
             "url": "classes/SPPMod-Sppreport-Commands-ReportCronCommand.html#property_name"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport\\Commands\\ReportCronCommand\u003A\u003A\u0024description",
+            "fqsen": "\\SPPMod\\SPPReport\\Commands\\ReportCronCommand\u003A\u003A\u0024description",
             "name": "description",
             "summary": "",
             "url": "classes/SPPMod-Sppreport-Commands-ReportCronCommand.html#property_description"
@@ -12841,102 +12841,102 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/default.html#function_spp_cron_match"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\CsrfMiddleware",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\CsrfMiddleware",
             "name": "CsrfMiddleware",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-Middleware-CsrfMiddleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\CsrfMiddleware\u003A\u003Ahandle\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\CsrfMiddleware\u003A\u003Ahandle\u0028\u0029",
             "name": "handle",
             "summary": "Handle\u0020an\u0020incoming\u0020request.",
             "url": "classes/SPPMod-Sppsecurity-Middleware-CsrfMiddleware.html#method_handle"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\SecurityHeadersMiddleware",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\SecurityHeadersMiddleware",
             "name": "SecurityHeadersMiddleware",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-Middleware-SecurityHeadersMiddleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\SecurityHeadersMiddleware\u003A\u003Ahandle\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\SecurityHeadersMiddleware\u003A\u003Ahandle\u0028\u0029",
             "name": "handle",
             "summary": "Handle\u0020an\u0020incoming\u0020request.",
             "url": "classes/SPPMod-Sppsecurity-Middleware-SecurityHeadersMiddleware.html#method_handle"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\ThrottleMiddleware",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\ThrottleMiddleware",
             "name": "ThrottleMiddleware",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-Middleware-ThrottleMiddleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\ThrottleMiddleware\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\ThrottleMiddleware\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-Middleware-ThrottleMiddleware.html#method___construct"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware\\ThrottleMiddleware\u003A\u003Ahandle\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware\\ThrottleMiddleware\u003A\u003Ahandle\u0028\u0029",
             "name": "handle",
             "summary": "Handle\u0020an\u0020incoming\u0020request.",
             "url": "classes/SPPMod-Sppsecurity-Middleware-ThrottleMiddleware.html#method_handle"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPCsrf",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPCsrf",
             "name": "SPPCsrf",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPCsrf.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPCsrf\u003A\u003Agenerate\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPCsrf\u003A\u003Agenerate\u0028\u0029",
             "name": "generate",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPCsrf.html#method_generate"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPCsrf\u003A\u003Avalidate\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPCsrf\u003A\u003Avalidate\u0028\u0029",
             "name": "validate",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPCsrf.html#method_validate"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPRateLimiter",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPRateLimiter",
             "name": "SPPRateLimiter",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPRateLimiter.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPRateLimiter\u003A\u003Acheck\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPRateLimiter\u003A\u003Acheck\u0028\u0029",
             "name": "check",
             "summary": "Token\u0020bucket\u0020style\u0020rate\u0020limiter\u0020\u0028simplified\u0020using\u0020SPP\u0020Cache\u0020if\u0020available\u0029.",
             "url": "classes/SPPMod-Sppsecurity-SPPRateLimiter.html#method_check"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSanitizer",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSanitizer",
             "name": "SPPSanitizer",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPSanitizer.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSanitizer\u003A\u003Asanitize\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSanitizer\u003A\u003Asanitize\u0028\u0029",
             "name": "sanitize",
             "summary": "Sanitize\u0020input\u0020based\u0020on\u0020output\u0020context\u0020to\u0020prevent\u0020XSS.",
             "url": "classes/SPPMod-Sppsecurity-SPPSanitizer.html#method_sanitize"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService",
             "name": "SPPSecurityService",
             "summary": "Class\u0020SPPSecurityService",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService\u003A\u003A__construct\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService\u003A\u003A__construct\u0028\u0029",
             "name": "__construct",
             "summary": "",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html#method___construct"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService\u003A\u003AgenerateCsrfToken\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService\u003A\u003AgenerateCsrfToken\u0028\u0029",
             "name": "generateCsrfToken",
             "summary": "Generate\u0020a\u0020cryptographically\u0020secure\u0020CSRF\u0020token.",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html#method_generateCsrfToken"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService\u003A\u003AvalidateCsrfToken\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService\u003A\u003AvalidateCsrfToken\u0028\u0029",
             "name": "validateCsrfToken",
             "summary": "Validate\u0020a\u0020given\u0020CSRF\u0020token\u0020against\u0020the\u0020current\u0020session.",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html#method_validateCsrfToken"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService\u003A\u003Asanitize\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService\u003A\u003Asanitize\u0028\u0029",
             "name": "sanitize",
             "summary": "Sanitize\u0020input\u0020against\u0020XSS\u0020attacks\u0020based\u0020on\u0020the\u0020context.",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html#method_sanitize"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\SPPSecurityService\u003A\u003ArateLimit\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPSecurity\\SPPSecurityService\u003A\u003ArateLimit\u0028\u0029",
             "name": "rateLimit",
             "summary": "Check\u0020if\u0020an\u0020action\u0020has\u0020exceeded\u0020its\u0020rate\u0020limit.",
             "url": "classes/SPPMod-Sppsecurity-SPPSecurityService.html#method_rateLimit"
@@ -22491,42 +22491,42 @@ Search.appendIndex(
             "summary": "Defines\u0020the\u0020configuration\u0020form\u0020schema\u0020for\u0020this\u0020module.",
             "url": "classes/Lekhak-Modules-SocialConnect-Module.html#method_hook_config_form"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api\\ThemeManager",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api\\ThemeManager",
             "name": "ThemeManager",
             "summary": "ThemeManager",
             "url": "classes/SPPMod-SppTheme-Api-ThemeManager.html"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api\\ThemeManager\u003A\u003AsetTheme\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api\\ThemeManager\u003A\u003AsetTheme\u0028\u0029",
             "name": "setTheme",
             "summary": "Set\u0020the\u0020active\u0020theme\u0020for\u0020the\u0020current\u0020request.",
             "url": "classes/SPPMod-SppTheme-Api-ThemeManager.html#method_setTheme"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api\\ThemeManager\u003A\u003AsetRegion\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api\\ThemeManager\u003A\u003AsetRegion\u0028\u0029",
             "name": "setRegion",
             "summary": "Add\u0020content\u0020to\u0020a\u0020theme\u0020region.",
             "url": "classes/SPPMod-SppTheme-Api-ThemeManager.html#method_setRegion"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api\\ThemeManager\u003A\u003AgetRegion\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api\\ThemeManager\u003A\u003AgetRegion\u0028\u0029",
             "name": "getRegion",
             "summary": "Get\u0020content\u0020of\u0020a\u0020theme\u0020region.",
             "url": "classes/SPPMod-SppTheme-Api-ThemeManager.html#method_getRegion"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api\\ThemeManager\u003A\u003ArenderWithTheme\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api\\ThemeManager\u003A\u003ArenderWithTheme\u0028\u0029",
             "name": "renderWithTheme",
             "summary": "Render\u0020the\u0020page\u0020using\u0020the\u0020active\u0020theme\u0027s\u0020layout.",
             "url": "classes/SPPMod-SppTheme-Api-ThemeManager.html#method_renderWithTheme"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Events\\ThemeEventHandler",
+            "fqsen": "\\SPPMod\\SPPTheme\\Events\\ThemeEventHandler",
             "name": "ThemeEventHandler",
             "summary": "ThemeEventHandler",
             "url": "classes/SPPMod-SppTheme-Events-ThemeEventHandler.html"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Events\\ThemeEventHandler\u003A\u003AgetSubscribedEvents\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Events\\ThemeEventHandler\u003A\u003AgetSubscribedEvents\u0028\u0029",
             "name": "getSubscribedEvents",
             "summary": "",
             "url": "classes/SPPMod-SppTheme-Events-ThemeEventHandler.html#method_getSubscribedEvents"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Events\\ThemeEventHandler\u003A\u003AonRenderTheme\u0028\u0029",
+            "fqsen": "\\SPPMod\\SPPTheme\\Events\\ThemeEventHandler\u003A\u003AonRenderTheme\u0028\u0029",
             "name": "onRenderTheme",
             "summary": "",
             "url": "classes/SPPMod-SppTheme-Events-ThemeEventHandler.html#method_onRenderTheme"
@@ -23696,17 +23696,17 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/sppmod-sppapi.html"
         }, {
-            "fqsen": "\\SPPMod\\SppApi",
+            "fqsen": "\\SPPMod\\SPPAPI",
             "name": "SppApi",
             "summary": "",
             "url": "namespaces/sppmod-sppapi.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi\\Middleware",
+            "fqsen": "\\SPPMod\\SPPAPI\\Middleware",
             "name": "Middleware",
             "summary": "",
             "url": "namespaces/sppmod-sppapi-middleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppapi",
+            "fqsen": "\\SPPMod\\SPPAPI",
             "name": "Sppapi",
             "summary": "",
             "url": "namespaces/sppmod-sppapi.html"
@@ -23736,12 +23736,12 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/sppmod-sppauth-commands.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth\\Migrations",
+            "fqsen": "\\SPPMod\\SPPAuth\\Migrations",
             "name": "Migrations",
             "summary": "",
             "url": "namespaces/sppmod-sppauth-migrations.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppauth",
+            "fqsen": "\\SPPMod\\SPPAuth",
             "name": "Sppauth",
             "summary": "",
             "url": "namespaces/sppmod-sppauth.html"
@@ -23751,12 +23751,12 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/sppmod-sppcache.html"
         }, {
-            "fqsen": "\\SPPMod\\SppCache\\Commands",
+            "fqsen": "\\SPPMod\\SPPCache\\Commands",
             "name": "Commands",
             "summary": "",
             "url": "namespaces/sppmod-sppcache-commands.html"
         }, {
-            "fqsen": "\\SPPMod\\SppCache",
+            "fqsen": "\\SPPMod\\SPPCache",
             "name": "SppCache",
             "summary": "",
             "url": "namespaces/sppmod-sppcache.html"
@@ -23926,22 +23926,22 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/sppmod-sppqueue.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport\\Commands",
+            "fqsen": "\\SPPMod\\SPPReport\\Commands",
             "name": "Commands",
             "summary": "",
             "url": "namespaces/sppmod-sppreport-commands.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppreport",
+            "fqsen": "\\SPPMod\\SPPReport",
             "name": "Sppreport",
             "summary": "",
             "url": "namespaces/sppmod-sppreport.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity\\Middleware",
+            "fqsen": "\\SPPMod\\SPPSecurity\\Middleware",
             "name": "Middleware",
             "summary": "",
             "url": "namespaces/sppmod-sppsecurity-middleware.html"
         }, {
-            "fqsen": "\\SPPMod\\Sppsecurity",
+            "fqsen": "\\SPPMod\\SPPSecurity",
             "name": "Sppsecurity",
             "summary": "",
             "url": "namespaces/sppmod-sppsecurity.html"
@@ -24646,17 +24646,17 @@ Search.appendIndex(
             "summary": "",
             "url": "namespaces/lekhak-modules-socialconnect.html"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Api",
+            "fqsen": "\\SPPMod\\SPPTheme\\Api",
             "name": "Api",
             "summary": "",
             "url": "namespaces/sppmod-spptheme-api.html"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme",
+            "fqsen": "\\SPPMod\\SPPTheme",
             "name": "SppTheme",
             "summary": "",
             "url": "namespaces/sppmod-spptheme.html"
         }, {
-            "fqsen": "\\SPPMod\\SppTheme\\Events",
+            "fqsen": "\\SPPMod\\SPPTheme\\Events",
             "name": "Events",
             "summary": "",
             "url": "namespaces/sppmod-spptheme-events.html"

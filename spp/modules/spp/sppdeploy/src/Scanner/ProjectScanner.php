@@ -17,13 +17,14 @@ class ProjectScanner
     {
         $hashes = [];
         $base = rtrim(realpath($dir), '/');
-        
+
         $ignoreFile = $base . '/.sppignore';
         if (file_exists($ignoreFile)) {
             $lines = file($ignoreFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
             foreach ($lines as $line) {
                 $line = trim($line);
-                if ($line === '' || str_starts_with($line, '#')) continue;
+                if ($line === '' || str_starts_with($line, '#'))
+                    continue;
                 $pattern = '#^/' . str_replace('\*', '.*', preg_quote($line, '#')) . '#';
                 $this->excludePatterns[] = $pattern;
             }
@@ -45,12 +46,14 @@ class ProjectScanner
         );
 
         foreach ($iterator as $file) {
-            if (!$file->isFile()) continue;
-            
+            if (!$file->isFile())
+                continue;
+
             $path = str_replace('\\', '/', $file->getPathname());
             $relPath = substr($path, strlen($base));
-            if ($relPath === false) continue;
-            
+            if ($relPath === false)
+                continue;
+
             $skip = false;
             foreach ($this->excludePatterns as $pattern) {
                 if (preg_match($pattern, $relPath)) {
@@ -58,7 +61,8 @@ class ProjectScanner
                     break;
                 }
             }
-            if ($skip) continue;
+            if ($skip)
+                continue;
 
             $hashes[ltrim($relPath, '/')] = hash_file('md5', $path);
         }

@@ -4,7 +4,7 @@ Welcome to the modernized version of the SPP Framework! This guide covers the ke
 
 ## 1. Security First
 The new `sppsecurity` module is now part of the core ecosystem.
-- **CSRF Protection:** Use `SPPMod\Sppsecurity\Middleware\CsrfMiddleware` to protect all state-changing routes. Generate tokens using the `SPPSecurityProvider`.
+- **CSRF Protection:** Use `SPPMod\SPPSecurity\Middleware\CsrfMiddleware` to protect all state-changing routes. Generate tokens using the `SPPSecurityProvider`.
 - **XSS Prevention:** `SPPSanitizer` provides context-aware escaping (html, js, attribute).
 - **Rate Limiting:** `ThrottleMiddleware` handles IP-based rate limiting using the new Token Bucket implementation via the SPP Cache.
 

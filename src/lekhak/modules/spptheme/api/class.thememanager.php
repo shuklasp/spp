@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\SppTheme\Api;
+namespace SPPMod\SPPTheme\Api;
 
 use Symfony\Component\Yaml\Yaml;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace SPPMod\Sppdeploy\Ui;
+namespace SPPMod\SPPDeploy\Ui;
 
 class Dashboard
 {

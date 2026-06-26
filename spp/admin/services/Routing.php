@@ -3,12 +3,13 @@
  * Routing Management Service Group for SPP Admin
  */
 
-function live_Routing_ListPages($la, $params) {
+function live_Routing_ListPages($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
-    $pages = \SPP\Scheduler::withContext($appname, function() {
+    $pages = \SPP\Scheduler::withContext($appname, function () {
         return \SPPMod\SPPView\Pages::listPages();
     });
-    
+
     $sources = [];
     foreach ($pages as $p) {
         $sourceKey = $p['source'] === 'db' ? ($p['db_summary'] ?? 'Database') : ($p['source_path'] ?? 'pages.yml');
@@ -25,7 +26,8 @@ function live_Routing_ListPages($la, $params) {
     $la->setData(['sources' => array_values($sources)]);
 }
 
-function live_Routing_SavePage($la, $params) {
+function live_Routing_SavePage($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
     $name = $params['name'] ?? '';
     $url = $params['url'] ?? '';
@@ -35,29 +37,32 @@ function live_Routing_SavePage($la, $params) {
         return $la->setStatus('error')->notify("Name and URL are required.");
     }
 
-    \SPP\Scheduler::withContext($appname, function() use ($name, $url, $source) {
+    \SPP\Scheduler::withContext($appname, function () use ($name, $url, $source) {
         \SPPMod\SPPView\Pages::savePage($name, $url, $source);
     });
     $la->notify("Page route '$name' saved successfully.", "success");
 }
 
-function live_Routing_RemovePage($la, $params) {
+function live_Routing_RemovePage($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
     $name = $params['name'] ?? '';
     $source = $params['source'] ?? 'yaml';
 
-    if (empty($name)) return $la->setStatus('error')->notify("Name required.");
+    if (empty($name))
+        return $la->setStatus('error')->notify("Name required.");
 
-    \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
+    \SPP\Scheduler::withContext($appname, function () use ($name, $source) {
         \SPPMod\SPPView\Pages::removePage($name, $source);
     });
     $la->notify("Page route '$name' removed.");
 }
 
-function live_Routing_ListServices($la, $params) {
+function live_Routing_ListServices($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
-    $services = \SPP\Scheduler::withContext($appname, function() {
-        return \SPPMod\SppApi\SPPAjax::listServices();
+    $services = \SPP\Scheduler::withContext($appname, function () {
+        return \SPPMod\SPPAPI\SPPAjax::listServices();
     });
 
     $sources = [];
@@ -76,7 +81,8 @@ function live_Routing_ListServices($la, $params) {
     $la->setData(['sources' => array_values($sources)]);
 }
 
-function live_Routing_SaveService($la, $params) {
+function live_Routing_SaveService($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
     $name = $params['name'] ?? '';
     $script = $params['script'] ?? '';
@@ -87,21 +93,23 @@ function live_Routing_SaveService($la, $params) {
         return $la->setStatus('error')->notify("Name and script are required.");
     }
 
-    \SPP\Scheduler::withContext($appname, function() use ($name, $script, $method, $source) {
-        \SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source);
+    \SPP\Scheduler::withContext($appname, function () use ($name, $script, $method, $source) {
+        \SPPMod\SPPAPI\SPPAjax::registerService($name, $script, $method, $source);
     });
     $la->notify("Service '$name' registered successfully.", "success");
 }
 
-function live_Routing_RemoveService($la, $params) {
+function live_Routing_RemoveService($la, $params)
+{
     $appname = $params['appname'] ?? 'default';
     $name = $params['name'] ?? '';
     $source = $params['source'] ?? 'yaml';
 
-    if (empty($name)) return $la->setStatus('error')->notify("Name required.");
+    if (empty($name))
+        return $la->setStatus('error')->notify("Name required.");
 
-    \SPP\Scheduler::withContext($appname, function() use ($name, $source) {
-        \SPPMod\SppApi\SPPAjax::unregisterService($name, $source);
+    \SPP\Scheduler::withContext($appname, function () use ($name, $source) {
+        \SPPMod\SPPAPI\SPPAjax::unregisterService($name, $source);
     });
     $la->notify("Service '$name' removed.");
 }

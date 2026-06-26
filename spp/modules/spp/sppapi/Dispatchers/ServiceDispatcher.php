@@ -3,14 +3,14 @@ declare(strict_types=1);
 
 namespace SPPMod\SPPAPI\Dispatchers;
 
-use SPPMod\SppApi\SPPAjax;
+use SPPMod\SPPAPI\SPPAjax;
 
 class ServiceDispatcher
 {
     public static function enforceRequestGuards(): void
     {
         $hasCustomHeader = (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1') ||
-                           (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
+            (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
         if (!$hasCustomHeader) {
             SPPAjax::respond('error', ['message' => 'CSRF Protection: Missing X-SPP-Ajax header.'], 403);
         }
@@ -39,7 +39,7 @@ class ServiceDispatcher
         $srcPath = \SPP\App::getAppConf('src_path', $context) ?: ('src/' . $context);
         $servicesPath = \SPP\App::getAppConf('services_path', $context) ?: (rtrim($srcPath, '/') . '/services');
         $servicesDir = SPP_APP_DIR . '/' . ltrim($servicesPath, '/');
-        
+
         $standaloneFile = $servicesDir . '/' . preg_replace('/[^a-zA-Z0-9_\-]/', '', $action) . '.php';
 
         if (file_exists($standaloneFile)) {
@@ -87,7 +87,7 @@ class ServiceDispatcher
                 $args = array_merge($params, json_decode(file_get_contents('php://input'), true) ?: []);
                 $res = \SPP\PolyglotBridge::call($svc['runtime'], $svc['target'], $svc['method'] ?? 'main', $args);
                 if ($res['success']) {
-                    $la = new \SPPMod\SppApi\LiveAction();
+                    $la = new \SPPMod\SPPAPI\LiveAction();
                     $data = $res['data'] ?? [];
                     if (isset($data['status'])) {
                         $la->setStatus($data['status']);
@@ -129,14 +129,14 @@ class ServiceDispatcher
         if ($funcName && function_exists($funcName)) {
             $input = json_decode(file_get_contents('php://input'), true) ?: [];
             $args = array_merge($params, $input);
-            $la = new \SPPMod\SppApi\LiveAction();
-            
+            $la = new \SPPMod\SPPAPI\LiveAction();
+
             $appContext = $args['appname'] ?? $args['context'] ?? \SPP\Scheduler::getContext();
-            $result = \SPP\Scheduler::withContext($appContext, function() use ($funcName, $la, $args) {
+            $result = \SPP\Scheduler::withContext($appContext, function () use ($funcName, $la, $args) {
                 return call_user_func($funcName, $la, $args);
             });
-            
-            if ($result instanceof \SPPMod\SppApi\LiveAction) {
+
+            if ($result instanceof \SPPMod\SPPAPI\LiveAction) {
                 $result->send();
             }
             if (!empty($la->getInstructions()) || !empty($la->getData()) || $la->getStatus() !== 'ok') {
@@ -148,15 +148,15 @@ class ServiceDispatcher
             // Ensure no stray output
             ob_start();
             $appContext = $params['appname'] ?? $params['context'] ?? \SPP\Scheduler::getContext();
-            $result = \SPP\Scheduler::withContext($appContext, function() use ($serviceFile) {
+            $result = \SPP\Scheduler::withContext($appContext, function () use ($serviceFile) {
                 return include $serviceFile;
             });
             $output = ob_get_clean();
 
-            if ($result instanceof \SPPMod\SppApi\LiveAction) {
+            if ($result instanceof \SPPMod\SPPAPI\LiveAction) {
                 $result->send();
             }
-            
+
             SPPAjax::respond('ok', ['result' => $result, 'output' => $output]);
         }
     }

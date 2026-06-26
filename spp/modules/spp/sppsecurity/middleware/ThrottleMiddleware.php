@@ -1,23 +1,26 @@
 <?php
-namespace SPPMod\Sppsecurity\Middleware;
+namespace SPPMod\SPPSecurity\Middleware;
 
 use SPP\Core\MiddlewareInterface;
 use SPP\Core\Request;
 use SPP\Core\Response;
-use SPPMod\Sppsecurity\SPPSecurityService;
+use SPPMod\SPPSecurity\SPPSecurityService;
 use SPP\Core\SPPException;
 
-class ThrottleMiddleware implements MiddlewareInterface {
-    
+class ThrottleMiddleware implements MiddlewareInterface
+{
+
     private $max;
     private $decay;
 
-    public function __construct(int $max = 60, int $decay = 60) {
+    public function __construct(int $max = 60, int $decay = 60)
+    {
         $this->max = $max;
         $this->decay = $decay;
     }
 
-    public function handle($request, $next) {
+    public function handle($request, $next)
+    {
         // Use IP address as the default throttle key
         $ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown_ip';
         $key = 'throttle:' . $ip;
@@ -28,7 +31,7 @@ class ThrottleMiddleware implements MiddlewareInterface {
             header('Retry-After: ' . $this->decay);
             throw new SPPException("Too Many Requests. Please slow down.", 429);
         }
-        
+
         return $next($request);
     }
 }

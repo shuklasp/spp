@@ -141,7 +141,7 @@ This structure ensures that "all other directories are under the selected src di
 ## ⚙️ 8. Behind the Scenes: The Core Engine
 For the truly curious, the magic isn't in `api.php`. All discovery logic is housed in the **SPPAjax Core Module**.
 
-*   **Entry Point**: `\SPPMod\SppApi\SPPAjax::resolveAndExecute($action, $params)`
+*   **Entry Point**: `\SPPMod\SPPAPI\SPPAjax::resolveAndExecute($action, $params)`
 *   **The Pipeline**:
     1.  **Resolution**: Checks for grouped services (`Group.Method`), then standalone files, then the `General.php` controller.
     2.  **Execution**: Wraps the include/function call in an output buffer to capture echoed HTML.

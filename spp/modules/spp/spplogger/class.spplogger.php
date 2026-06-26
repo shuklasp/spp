@@ -17,13 +17,13 @@ class SPP_Logger extends \SPP\SPPObject
 {
     /** PSR-3 Log Levels */
     public const EMERGENCY = 'emergency';
-    public const ALERT     = 'alert';
-    public const CRITICAL  = 'critical';
-    public const ERROR     = 'error';
-    public const WARNING   = 'warning';
-    public const NOTICE    = 'notice';
-    public const INFO      = 'info';
-    public const DEBUG     = 'debug';
+    public const ALERT = 'alert';
+    public const CRITICAL = 'critical';
+    public const ERROR = 'error';
+    public const WARNING = 'warning';
+    public const NOTICE = 'notice';
+    public const INFO = 'info';
+    public const DEBUG = 'debug';
 
     /**
      * Main delegator method for logging.
@@ -37,11 +37,11 @@ class SPP_Logger extends \SPP\SPPObject
     {
         // Read configuration for the module
         $precedence = \SPP\Module::getConfig('log_precedence', 'spplogger') ?: 'db_first';
-        $targets    = (array) \SPP\Module::getConfig('log_targets', 'spplogger') ?: ['db', 'file'];
+        $targets = (array) \SPP\Module::getConfig('log_targets', 'spplogger') ?: ['db', 'file'];
 
         // Extract metadata for the log entry
         $metadata = self::extractMetadata();
-        $message  = self::interpolate($message, $context);
+        $message = self::interpolate($message, $context);
 
         // [BEGIN CHANNEL SUPPORT]
         $channel = $context['channel'] ?? 'app';
@@ -99,7 +99,7 @@ class SPP_Logger extends \SPP\SPPObject
         if (isset(self::$targetsMap['db'])) {
             return self::$targetsMap['db']->write($message, $level, $metadata, $context);
         }
-        
+
         if (class_exists('\SPPMod\SPPLogger\DBLoggerProvider')) {
             $provider = new \SPPMod\SPPLogger\DBLoggerProvider();
             self::setTarget('db', $provider);
@@ -175,9 +175,9 @@ class SPP_Logger extends \SPP\SPPObject
         $replace = [
             '{appname}' => $appname,
             '{channel}' => $channel,
-            '{date}'    => $date,
-            '{level}'   => $level,
-            '{index}'   => $index
+            '{date}' => $date,
+            '{level}' => $level,
+            '{index}' => $index
         ];
 
         $filename = strtr($format, $replace);
@@ -205,14 +205,14 @@ class SPP_Logger extends \SPP\SPPObject
         }
 
         return [
-            'uid'       => $uid,
-            'uname'     => $uname,
-            'ip'        => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
+            'uid' => $uid,
+            'uname' => $uname,
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1',
             'timestamp' => date('Y-m-d H:i:s'),
-            'sessid'    => session_id(),
-            'uri'       => $_SERVER['REQUEST_URI'] ?? 'cli',
-            'method'    => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
-            'agent'     => $_SERVER['HTTP_USER_AGENT'] ?? 'none'
+            'sessid' => session_id(),
+            'uri' => $_SERVER['REQUEST_URI'] ?? 'cli',
+            'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
+            'agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'none'
         ];
     }
 

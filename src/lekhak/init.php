@@ -41,7 +41,7 @@ spl_autoload_register(function ($className) {
 });
 
 require_once __DIR__ . '/modules/spptheme/events/ThemeEventHandler.php';
-\SPP\SPPEvent::listen('event_spp_view_render_theme', [new \SPPMod\SppTheme\Events\ThemeEventHandler('event_spp_view_render_theme'), 'onRenderTheme']);
+\SPP\SPPEvent::listen('event_spp_view_render_theme', [new \SPPMod\SPPTheme\Events\ThemeEventHandler('event_spp_view_render_theme'), 'onRenderTheme']);
 
 // ── Module Registry Initialization ──────────────────────────────────────
 require_once __DIR__ . '/ModuleRegistry.php';

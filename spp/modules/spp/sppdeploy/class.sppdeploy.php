@@ -31,7 +31,7 @@ class SPPDeploy
     {
         $expected = self::configuredToken();
         $provided = $_SERVER['HTTP_X_DEPLOY_TOKEN'] ?? '';
-        
+
         if (!$expected || $expected === 'spp_deploy_token_placeholder' || !$provided || !hash_equals($expected, $provided)) {
             $dbg = "Token Auth Failed. Expected: '{$expected}', Provided: '{$provided}'";
             http_response_code(403);
@@ -54,7 +54,8 @@ class SPPDeploy
     public static function configuredToken(): string
     {
         $env = getenv('SPP_DEPLOY_TOKEN');
-        if ($env) return $env;
+        if ($env)
+            return $env;
 
         $confFile = SPP_BASE_DIR . '/.sppdeploy.yml';
         if (file_exists($confFile)) {

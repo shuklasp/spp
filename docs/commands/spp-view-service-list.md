@@ -16,7 +16,7 @@ Outputs a structured, human-readable overview of all registered AJAX API service
 
 # UNDER THE HOOD ACTIVITY
 
-The command initiates by determining the target application context from the `--app` option. It then calls `\SPPMod\SppApi\SPPAjax::listServices()` wrapped inside a `\SPP\Scheduler::withContext()` block to fetch the raw array of registered services.
+The command initiates by determining the target application context from the `--app` option. It then calls `\SPPMod\SPPAPI\SPPAjax::listServices()` wrapped inside a `\SPP\Scheduler::withContext()` block to fetch the raw array of registered services.
 
 If no services exist, a graceful message is printed. Otherwise, a highly structured ASCII table is generated. The command pads the string outputs (`str_pad()`) to align the "Service Name", "Method", "Script", and "Source" columns. Similar to the page lister, it resolves the source column text intelligently by differentiating between database attributes (`db_summary`) and file-based attributes (`source_path`).
 

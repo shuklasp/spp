@@ -40,7 +40,7 @@ class JWTAuth
     public static function encode(array $payload, string $secret, int $expiration = 3600): string
     {
         $header = json_encode(['typ' => 'JWT', 'alg' => 'HS256']);
-        
+
         $payload['iat'] = time();
         $payload['exp'] = time() + $expiration;
         $payloadJson = json_encode($payload);

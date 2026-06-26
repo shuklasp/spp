@@ -28,7 +28,7 @@ class MakeBladeProjectCommand extends BaseMakeCommand
             // Only error if it's not empty and not forced
             // (make:app creates the dir first, so we allow it if it's just been created)
         }
-        
+
         if (!is_dir($appDir)) {
             mkdir($appDir, 0777, true);
         }
@@ -40,7 +40,7 @@ class MakeBladeProjectCommand extends BaseMakeCommand
         mkdir($appDir . '/data', 0777, true);
         mkdir($appDir . '/logs', 0777, true);
         mkdir($appDir . '/forms', 0777, true);
-        
+
         // 2. Configure SPPBlade for this app
         $bladeConfig = [
             'variables' => [
@@ -83,8 +83,9 @@ class MakeBladeProjectCommand extends BaseMakeCommand
 
         // 5. Create a Base Layout
         $layoutDir = $viewsDir . "/layouts";
-        if (!is_dir($layoutDir)) mkdir($layoutDir, 0777, true);
-        
+        if (!is_dir($layoutDir))
+            mkdir($layoutDir, 0777, true);
+
         $layout = "
 <!DOCTYPE html>
 <html lang='en'>
@@ -346,7 +347,8 @@ echo $blade->render('index', ['appName' => '{{APP_NAME}}', 'title' => 'Integrate
 PHP;
         $entryPoint = str_replace('{{APP_NAME}}', $appName, $entryPoint);
         $entryPoint = str_replace("require_once __DIR__ . '/spp/sppinit.php';", "require_once __DIR__ . '/../../spp/sppinit.php';", $entryPoint);
-        if (!is_dir(dirname($appEntryFile))) mkdir(dirname($appEntryFile), 0777, true);
+        if (!is_dir(dirname($appEntryFile)))
+            mkdir(dirname($appEntryFile), 0777, true);
         file_put_contents($appEntryFile, $entryPoint);
 
         // 7. Automatically register in global-settings.yml

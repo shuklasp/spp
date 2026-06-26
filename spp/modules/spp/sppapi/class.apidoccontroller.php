@@ -19,7 +19,7 @@ class ApiDocController
         // 1. Discover all SPPEntity configs dynamically
         $yamlFiles = [];
         $srcDir = SPP_APP_DIR . '/src';
-        
+
         if (is_dir($srcDir)) {
             $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($srcDir));
             foreach ($iterator as $file) {
@@ -36,10 +36,10 @@ class ApiDocController
             $data = \Symfony\Component\Yaml\Yaml::parseFile($yaml);
             $base = basename($yaml, '.yml');
             $entityName = preg_replace('/^entity\./', '', $base);
-            
+
             if ((isset($data['attributes']) || isset($data['table'])) && !empty($data['enable_api'])) {
                 $methods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
-                
+
                 foreach ($methods as $method) {
                     $endpoints[] = [
                         'method' => $method,
@@ -112,7 +112,7 @@ class ApiDocController
             .try-btn { background: #f43f5e; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
             pre { background: #000; padding: 1rem; border-radius: 4px; overflow-x: auto; color: #38bdf8; }
         </style>';
-        
+
         $html .= '<script>
             function toggle(el) { el.parentElement.classList.toggle("active"); }
             async function tryItOut(btn, method, path) {
@@ -145,7 +145,7 @@ class ApiDocController
                 }
             }
         </script>';
-        
+
         $html .= '</head><body>';
         $html .= '<div style="display: flex; justify-content: space-between; align-items: center;">';
         $html .= '<h1>📚 SPP Zero-Touch API Explorer</h1>';
@@ -162,14 +162,14 @@ class ApiDocController
             $html .= '<span class="summary">' . htmlspecialchars($ep['summary']) . '</span>';
             $html .= '</div>';
             $html .= '<div class="body">';
-            
+
             if (!empty($ep['attributes'])) {
                 $html .= '<h4 style="margin-top:0;">Payload Attributes:</h4><pre>';
                 $html .= htmlspecialchars(json_encode($ep['attributes'], JSON_PRETTY_PRINT));
                 $html .= '</pre>';
             }
 
-            $html .= '<button class="try-btn" onclick="tryItOut(this, \''.htmlspecialchars($ep['method']).'\', \''.htmlspecialchars($ep['path']).'\')">⚡ Try it out!</button>';
+            $html .= '<button class="try-btn" onclick="tryItOut(this, \'' . htmlspecialchars($ep['method']) . '\', \'' . htmlspecialchars($ep['path']) . '\')">⚡ Try it out!</button>';
             $html .= '<pre style="margin-top: 1rem;">// Output will appear here</pre>';
 
             $html .= '</div></div>';

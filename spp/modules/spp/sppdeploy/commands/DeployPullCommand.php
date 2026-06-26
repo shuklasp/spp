@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -26,7 +26,7 @@ class DeployPullCommand extends Command
             }
         }
 
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         if (!$force) {
             echo "\n⚠️  CRITICAL WARNING: PULL IS DESTRUCTIVE.\n";

@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -26,15 +26,15 @@ class DeployPlanCommand extends Command
             }
         }
 
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         echo "🔍 Scanning local application state...\n";
-        $fileScanner = new \SPPMod\Sppdeploy\Scanner\FileScanner(SPP_BASE_DIR);
+        $fileScanner = new \SPPMod\SPPDeploy\Scanner\FileScanner(SPP_BASE_DIR);
         $localHashes = $fileScanner->scan();
 
         $localDbHashes = [];
         if (!$noDb) {
-            $dbScanner = new \SPPMod\Sppdeploy\Scanner\DbScanner();
+            $dbScanner = new \SPPMod\SPPDeploy\Scanner\DbScanner();
             $localDbHashes = $dbScanner->scan();
         }
 

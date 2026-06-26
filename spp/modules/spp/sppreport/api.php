@@ -211,7 +211,8 @@ function spp_report_api_handler($action, $payload)
                 }
                 $files = glob($dir . '/*.yml');
                 $reports = array_map(function ($f) {
-                    return basename($f, '.yml'); }, $files);
+                    return basename($f, '.yml');
+                }, $files);
                 echo json_encode(['status' => 'success', 'reports' => $reports]);
                 break;
 
@@ -305,7 +306,8 @@ function spp_report_api_handler($action, $payload)
                 }
                 // Sort descending by timestamp
                 usort($versions, function ($a, $b) {
-                    return strcmp($b['timestamp'], $a['timestamp']); });
+                    return strcmp($b['timestamp'], $a['timestamp']);
+                });
                 echo json_encode(['status' => 'success', 'versions' => $versions]);
                 break;
 
@@ -341,7 +343,8 @@ function spp_report_api_handler($action, $payload)
                 }
                 $files = glob($dir . '/*.html');
                 $templates = array_map(function ($f) {
-                    return basename($f, '.html'); }, $files);
+                    return basename($f, '.html');
+                }, $files);
                 echo json_encode(['status' => 'success', 'templates' => $templates]);
                 break;
 

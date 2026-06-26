@@ -17,71 +17,71 @@ class ContentPermissionProvider implements PermissionProviderInterface
      */
     private const PERMISSIONS = [
         'content.create' => [
-            'label'       => 'Create Content',
+            'label' => 'Create Content',
             'description' => 'Create new content nodes of any type.',
         ],
         'content.edit.own' => [
-            'label'       => 'Edit Own Content',
+            'label' => 'Edit Own Content',
             'description' => 'Edit content nodes that the user authored.',
         ],
         'content.edit.any' => [
-            'label'       => 'Edit Any Content',
+            'label' => 'Edit Any Content',
             'description' => 'Edit any content node regardless of authorship.',
         ],
         'content.delete.own' => [
-            'label'       => 'Delete Own Content',
+            'label' => 'Delete Own Content',
             'description' => 'Delete content nodes that the user authored.',
         ],
         'content.delete.any' => [
-            'label'       => 'Delete Any Content',
+            'label' => 'Delete Any Content',
             'description' => 'Delete any content node.',
         ],
         'content.submit_review' => [
-            'label'       => 'Submit for Review',
+            'label' => 'Submit for Review',
             'description' => 'Move content from draft to review state.',
         ],
         'content.approve' => [
-            'label'       => 'Approve & Publish',
+            'label' => 'Approve & Publish',
             'description' => 'Approve reviewed content and publish it.',
         ],
         'content.reject' => [
-            'label'       => 'Reject Content',
+            'label' => 'Reject Content',
             'description' => 'Reject content and send it back to draft.',
         ],
         'content.fast_publish' => [
-            'label'       => 'Fast Publish',
+            'label' => 'Fast Publish',
             'description' => 'Publish content directly without review.',
         ],
         'content.unpublish' => [
-            'label'       => 'Unpublish',
+            'label' => 'Unpublish',
             'description' => 'Move published content back to draft.',
         ],
         'content.archive' => [
-            'label'       => 'Archive Content',
+            'label' => 'Archive Content',
             'description' => 'Move content to the archive.',
         ],
         'content.restore' => [
-            'label'       => 'Restore from Archive',
+            'label' => 'Restore from Archive',
             'description' => 'Restore archived content back to draft.',
         ],
         'content.editor_approve' => [
-            'label'       => 'Editor-Level Approval',
+            'label' => 'Editor-Level Approval',
             'description' => 'Approve content at the editor stage (article workflow).',
         ],
         'content.view.unpublished' => [
-            'label'       => 'View Unpublished Content',
+            'label' => 'View Unpublished Content',
             'description' => 'View content that has not been published.',
         ],
         'content.manage_types' => [
-            'label'       => 'Manage Content Types',
+            'label' => 'Manage Content Types',
             'description' => 'Create, edit, and delete content type definitions.',
         ],
         'content.manage_fields' => [
-            'label'       => 'Manage Fields',
+            'label' => 'Manage Fields',
             'description' => 'Add, edit, and remove fields on content types.',
         ],
         'content.manage_taxonomy' => [
-            'label'       => 'Manage Taxonomy',
+            'label' => 'Manage Taxonomy',
             'description' => 'Create and manage vocabularies and terms.',
         ],
     ];
@@ -124,7 +124,8 @@ class ContentPermissionProvider implements PermissionProviderInterface
         }
 
         $authorId = $entity->get('author') ?? $entity->get('uid') ?? null;
-        if (!$authorId) return false;
+        if (!$authorId)
+            return false;
 
         $currentUser = $userId;
         if (!$currentUser && class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
@@ -132,6 +133,6 @@ class ContentPermissionProvider implements PermissionProviderInterface
             $currentUser = $cu['username'] ?? ($cu['id'] ?? null);
         }
 
-        return $currentUser && (string)$authorId === (string)$currentUser;
+        return $currentUser && (string) $authorId === (string) $currentUser;
     }
 }

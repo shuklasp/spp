@@ -22,7 +22,7 @@ class ModuleController extends AdminController
             }
             $modulesParam = $_POST['modules'] ?? [];
             $singleModule = $_POST['module'] ?? $_GET['module'] ?? '';
-            
+
             // If it's a bulk action, use checkboxes.
             // If it's a single action, use ONLY the single module.
             if (strpos($action, 'bulk_') !== 0 && !empty($singleModule)) {
@@ -48,10 +48,12 @@ class ModuleController extends AdminController
                         $count++;
                     }
                 }
-                
+
                 $actionDisplay = str_replace('bulk_', '', $action) . 'd';
-                if ($actionDisplay == 'enabledd') $actionDisplay = 'enabled'; // Grammar correction
-                if ($actionDisplay == 'disabledd') $actionDisplay = 'disabled';
+                if ($actionDisplay == 'enabledd')
+                    $actionDisplay = 'enabled'; // Grammar correction
+                if ($actionDisplay == 'disabledd')
+                    $actionDisplay = 'disabled';
                 $message = "Successfully {$actionDisplay} {$count} module(s).";
             }
 
@@ -86,7 +88,7 @@ class ModuleController extends AdminController
         }
 
         ModuleRegistry::runUpdates();
-        
+
         return $this->render('modules_update', [
             'title' => 'Database Updates',
             'subtitle' => 'Ran database updates successfully.',

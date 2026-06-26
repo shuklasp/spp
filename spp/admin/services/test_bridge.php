@@ -4,7 +4,7 @@
  * Tests a polyglot runtime by calling a simple addition function in the bridge library.
  */
 
-$la = $la ?? new \SPPMod\SppApi\LiveAction();
+$la = $la ?? new \SPPMod\SPPAPI\LiveAction();
 $params = $params ?? $_REQUEST;
 
 $lang = $params['lang'] ?? 'python';
@@ -33,7 +33,7 @@ try {
         // For scripted languages, we call test_lib.add
         $res = \SPP\PolyglotBridge::call($lang, 'test_lib', 'add', [5, 7]);
     }
-    
+
     if ($res['success']) {
         $la->setData([
             'result' => $res['data'],

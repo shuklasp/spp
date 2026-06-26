@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -64,7 +64,7 @@ class DeployPushCommand extends Command
             }
         }
 
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         if ($artifactPath) {
             $fullArtifactPath = SPP_BASE_DIR . '/' . ltrim($artifactPath, '/');

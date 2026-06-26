@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>08. Advanced Features | SPP Framework Tutorial</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>SPP Framework</h2>
@@ -35,12 +39,14 @@
     <main class="main-content">
         <article class="content-container">
             <h1>08. Advanced Features</h1>
-            <p>SPP comes with several powerful modules that extend its core capabilities for enterprise usage, AI integration, and real-time communication.</p>
-            
+            <p>SPP comes with several powerful modules that extend its core capabilities for enterprise usage, AI
+                integration, and real-time communication.</p>
+
             <hr>
 
             <h2>SPPAuth: Authentication & Roles</h2>
-            <p>The <span class="accent">sppauth</span> module provides a comprehensive security layer for your application. It supports User Management, Roles & Rights, and Session Security.</p>
+            <p>The <span class="accent">sppauth</span> module provides a comprehensive security layer for your
+                application. It supports User Management, Roles & Rights, and Session Security.</p>
 
             <h3>Example Login</h3>
             <pre><code>if (\SPPMod\SPPAuth\SPPAuth::login($username, $password)) {
@@ -55,7 +61,8 @@
             <hr>
 
             <h2>SPPLogger: Flexible Logging</h2>
-            <p>The <span class="accent">spplogger</span> module provides advanced logging capabilities, including Database and/or File Logging, Log Rotation, and Log Priority.</p>
+            <p>The <span class="accent">spplogger</span> module provides advanced logging capabilities, including
+                Database and/or File Logging, Log Rotation, and Log Priority.</p>
             <pre><code>\SPPMod\SPPLogger\SPP_Logger::error("Database connection failed!");
 \SPPMod\SPPLogger\SPP_Logger::info("User {uname} logged in.", ['uname' => 'John']);</code></pre>
 
@@ -67,49 +74,61 @@
 foreach ($results as $r) {
     echo $r['name'];
 }</code></pre>
-            <p>When an entity is saved, <span class="accent">SPPAI</span> can automatically generate and store embeddings for its attributes, enabling powerful semantic search within your application.</p>
+            <p>When an entity is saved, <span class="accent">SPPAI</span> can automatically generate and store
+                embeddings for its attributes, enabling powerful semantic search within your application.</p>
 
             <hr>
 
             <h2>SPPLive: Real-time WebSockets</h2>
-            <p>The <span class="accent">spplive</span> module integrates a WebSocket engine to enable real-time features such as Live Notifications, Real-time Collaboration, and Dashboard Updates.</p>
+            <p>The <span class="accent">spplive</span> module integrates a WebSocket engine to enable real-time features
+                such as Live Notifications, Real-time Collaboration, and Dashboard Updates.</p>
 
             <hr>
 
             <h2>SPPNexus: Edge Compiler</h2>
-            <p>For maximum performance, the <span class="accent">SPPNexus</span> compiler can bundle your application core and modules into a single, optimized "Edge Node."</p>
+            <p>For maximum performance, the <span class="accent">SPPNexus</span> compiler can bundle your application
+                core and modules into a single, optimized "Edge Node."</p>
             <pre><code>php spp/spp.php build:edge</code></pre>
 
             <hr>
 
             <h2>SPPConfig: The .env & YAML Engine</h2>
-            <p><span class="accent">SPPConfig</span> is the heart of the configuration management system. It securely maps environment variables (from <code>.env</code> files or OS injections) into your YAML configuration files using <strong>YAML Interpolation</strong>.</p>
-            
+            <p><span class="accent">SPPConfig</span> is the heart of the configuration management system. It securely
+                maps environment variables (from <code>.env</code> files or OS injections) into your YAML configuration
+                files using <strong>YAML Interpolation</strong>.</p>
+
             <h3>The Problem with Hardcoding Secrets</h3>
-            <p>Never commit passwords to Git! Instead of writing your database password into <code>settings.yml</code>, use the <code>env:</code> prefix:</p>
-<pre><code># etc/settings.yml
+            <p>Never commit passwords to Git! Instead of writing your database password into <code>settings.yml</code>,
+                use the <code>env:</code> prefix:</p>
+            <pre><code># etc/settings.yml
 sppdb:
   host: "env:DB_HOST"
   password: "env:DB_PASS"</code></pre>
 
             <h3>The .env File</h3>
             <p>Create a <code>.env</code> file at the root of your project:</p>
-<pre><code>DB_HOST=127.0.0.1
+            <pre><code>DB_HOST=127.0.0.1
 DB_PASS=SuperSecretPassword123!</code></pre>
 
             <h3>Accessing the Interpolated Config</h3>
-            <p>When your application requests <code>SPPConfig::get('mod:sppdb:password')</code>, the framework automatically detects the <code>env:</code> prefix in the YAML file and replaces it with the actual value from your <code>.env</code> file on-the-fly.</p>
-<pre><code>// Returns "SuperSecretPassword123!"
+            <p>When your application requests <code>SPPConfig::get('mod:sppdb:password')</code>, the framework
+                automatically detects the <code>env:</code> prefix in the YAML file and replaces it with the actual
+                value from your <code>.env</code> file on-the-fly.</p>
+            <pre><code>// Returns "SuperSecretPassword123!"
 $password = \SPP\SPPConfig::get('mod:sppdb:password');</code></pre>
 
             <h3>Fallbacks and Type-Casting</h3>
-            <p>You can provide default fallback values using the pipe (<code>|</code>) operator. Furthermore, the engine automatically casts <code>"true"</code>, <code>"false"</code>, <code>"null"</code>, and numerics into their strict PHP types.</p>
-<pre><code># etc/settings.yml
+            <p>You can provide default fallback values using the pipe (<code>|</code>) operator. Furthermore, the engine
+                automatically casts <code>"true"</code>, <code>"false"</code>, <code>"null"</code>, and numerics into
+                their strict PHP types.</p>
+            <pre><code># etc/settings.yml
 sppapi:
   enable_jwt: "env:JWT_ENABLED|true"
   max_retries: "env:API_RETRIES|5"</code></pre>
-            <p>If <code>JWT_ENABLED</code> is missing from the <code>.env</code> file, it will safely fallback to the <strong>boolean</strong> <code>true</code>.</p>
-            <p>This guarantees your application is "Twelve-Factor App" compliant and completely secure for production Docker/Kubernetes deployments.</p>
+            <p>If <code>JWT_ENABLED</code> is missing from the <code>.env</code> file, it will safely fallback to the
+                <strong>boolean</strong> <code>true</code>.</p>
+            <p>This guarantees your application is "Twelve-Factor App" compliant and completely secure for production
+                Docker/Kubernetes deployments.</p>
 
             <footer class="footer-nav">
                 <a href="07_events.html" class="nav-button">
@@ -124,4 +143,5 @@ sppapi:
         </article>
     </main>
 </body>
+
 </html>

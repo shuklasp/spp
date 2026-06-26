@@ -1,9 +1,11 @@
 <?php
 namespace SPPMod\SPPAPI;
 
-class SPPApiResponse {
-    
-    public static function success($data = null, string $message = 'Success', int $code = 200) {
+class SPPApiResponse
+{
+
+    public static function success($data = null, string $message = 'Success', int $code = 200)
+    {
         http_response_code($code);
         header('Content-Type: application/json');
         echo json_encode([
@@ -14,7 +16,8 @@ class SPPApiResponse {
         exit;
     }
 
-    public static function error(string $message = 'Error', int $code = 400, $errors = null) {
+    public static function error(string $message = 'Error', int $code = 400, $errors = null)
+    {
         http_response_code($code);
         header('Content-Type: application/json');
         echo json_encode([
@@ -24,8 +27,9 @@ class SPPApiResponse {
         ]);
         exit;
     }
-    
-    public static function paginate(array $items, int $total, int $perPage, int $currentPage) {
+
+    public static function paginate(array $items, int $total, int $perPage, int $currentPage)
+    {
         return self::success([
             'items' => $items,
             'pagination' => [

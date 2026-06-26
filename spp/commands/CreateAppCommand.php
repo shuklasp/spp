@@ -41,7 +41,7 @@ class CreateAppCommand extends Command
     private function scaffoldApplication(string $appName, string $mode, ?string $aiBlueprint = null): void
     {
         $baseDir = SPP_APP_DIR . '/src/' . $appName;
-        
+
         echo "🚀 Provisioning self-contained Instructional Skeleton App: '{$appName}'...\n";
 
         $dirs = [
@@ -290,7 +290,7 @@ HTML;
 
         // 7. Generate rich responsive master landing skeleton inside pages/index.php prominently showcasing SPP Branding
         $navAttr = ($mode === 'spa') ? 'data-spp-navigation="spa"' : 'data-spp-navigation="standard"';
-        
+
         $blueprintBox = "";
         if (!empty($aiBlueprint)) {
             $safeBlueprint = htmlspecialchars($aiBlueprint, ENT_QUOTES);

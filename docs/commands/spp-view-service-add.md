@@ -22,7 +22,7 @@ Binds a specific backend PHP script to a standardized AJAX API endpoint name, al
 
 The script scans the arguments array to extract configuration flags. It enforces the requirement for both `--name` and `--script`.
 
-Execution context is dynamically swapped via `\SPP\Scheduler::withContext()` to isolate the registration strictly to the requested application domain. Inside this closure, it triggers `\SPPMod\SppApi\SPPAjax::registerService($name, $script, $method, $source)`. This static method interacts with the core service registry, securely appending the new AJAX bridge definition to either the YAML topology file or the database routing tables based on the `--source` parameter.
+Execution context is dynamically swapped via `\SPP\Scheduler::withContext()` to isolate the registration strictly to the requested application domain. Inside this closure, it triggers `\SPPMod\SPPAPI\SPPAjax::registerService($name, $script, $method, $source)`. This static method interacts with the core service registry, securely appending the new AJAX bridge definition to either the YAML topology file or the database routing tables based on the `--source` parameter.
 
 # EXAMPLES
 

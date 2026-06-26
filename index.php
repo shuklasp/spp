@@ -71,7 +71,7 @@ if ($context !== '') {
 
 require_once('global.php');
 
-\SPP\Core\MiddlewareKernel::run(function($request) {
+\SPP\Core\MiddlewareKernel::run(function ($request) {
     $context = \SPP\Scheduler::getContext() ?: 'default';
     \SPP\Scheduler::setContext($context);
     $appBaseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
@@ -91,19 +91,19 @@ require_once('global.php');
 
 
 
-// Intercept Deployment Requests globally (bypasses any App)
-if (class_exists('\SPPMod\SPPDeploy\SPPDeploy') && \SPPMod\SPPDeploy\SPPDeploy::isDeployRequest()) {
-    \SPPMod\SPPDeploy\SPPDeploy::handle();
-    return;
-}
+    // Intercept Deployment Requests globally (bypasses any App)
+    if (class_exists('\SPPMod\SPPDeploy\SPPDeploy') && \SPPMod\SPPDeploy\SPPDeploy::isDeployRequest()) {
+        \SPPMod\SPPDeploy\SPPDeploy::handle();
+        return;
+    }
 
     if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAPI') && \SPPMod\SPPAPI\SPPAPI::isApiRequest()) {
         \SPPMod\SPPAPI\SPPAPI::handle();
         return;
     }
 
-    if (\SPP\Module::isEnabled('sppajax') && class_exists('\SPPMod\SppApi\SPPAjax') && \SPPMod\SppApi\SPPAjax::isAjaxRequest()) {
-        \SPPMod\SppApi\SPPAjax::handle();
+    if (\SPP\Module::isEnabled('sppajax') && class_exists('\SPPMod\SPPAPI\SPPAjax') && \SPPMod\SPPAPI\SPPAjax::isAjaxRequest()) {
+        \SPPMod\SPPAPI\SPPAjax::handle();
         return;
     }
 

@@ -1,5 +1,5 @@
 <?php
-namespace SPPMod\Sppdeploy\Commands;
+namespace SPPMod\SPPDeploy\Commands;
 
 use SPP\CLI\Command;
 
@@ -9,7 +9,7 @@ class DeployRollbackCommand extends Command
     {
         $target = $args[2] ?? null;
         $backupId = $args[3] ?? null;
-        
+
         if (!$target || !$backupId) {
             echo "Error: Target connection URI and backup ID are required.\n";
             echo "Usage: php spp.php deploy:rollback <target_uri> <backup_id> [--key=YOUR_API_KEY] [--force]\n";
@@ -18,7 +18,7 @@ class DeployRollbackCommand extends Command
 
         $apiKey = 'default_cli_key';
         $force = false;
-        
+
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--key=')) {
                 $apiKey = substr($arg, 6);
@@ -27,9 +27,9 @@ class DeployRollbackCommand extends Command
                 $force = true;
             }
         }
-        
-        $conn = \SPPMod\Sppdeploy\Deployer\TargetConnection::resolve($target, $apiKey);
-        
+
+        $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
+
         if (!$force) {
             echo "⚠️  WARNING: You are about to initiate a destructive rollback on {$target}.\n";
             echo "This will replace the current codebase and database with the state from: {$backupId}\n";
@@ -45,7 +45,7 @@ class DeployRollbackCommand extends Command
 
         echo "📡 Sending rollback command to {$target}...\n";
         $resp = $conn->executeRollback($backupId);
-        
+
         if (!isset($resp['status']) || $resp['status'] !== 'ok') {
             echo "❌ Rollback failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
             return;

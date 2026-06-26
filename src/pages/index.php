@@ -4,7 +4,7 @@ if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
 } else {
     // User is not logged in, redirect to login page
     //header("Location: /vidyalaya/login");
-    include_once (\SPPMod\SPPView\Pages::getPage('login')['url']);
+    include_once(\SPPMod\SPPView\Pages::getPage('login')['url']);
     exit;
 }
 // index.php - Main page for Virtual Shiksha Vidyala
@@ -28,9 +28,12 @@ if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
                 <div class="profile-dropdown">
                     <img src="res/img/profile-icon.png" alt="Profile" class="profile-icon" id="profileIcon">
                     <div class="dropdown-content" id="dropdownContent">
-                        <a href="#" data-href="profile.php"><img src="res/img/profile-page-icon.png" alt="Profile Icon" class="menu-icon"> Profile</a>
-                        <a href="#" data-href="preferences.php"><img src="res/img/preferences-icon.png" alt="Preferences Icon" class="menu-icon"> Preferences</a>
-                        <a href="#" data-href="logout.php"><img src="res/img/logout-icon.png" alt="Logout Icon" class="menu-icon"> Logout</a>
+                        <a href="#" data-href="profile.php"><img src="res/img/profile-page-icon.png" alt="Profile Icon"
+                                class="menu-icon"> Profile</a>
+                        <a href="#" data-href="preferences.php"><img src="res/img/preferences-icon.png"
+                                alt="Preferences Icon" class="menu-icon"> Preferences</a>
+                        <a href="#" data-href="logout.php"><img src="res/img/logout-icon.png" alt="Logout Icon"
+                                class="menu-icon"> Logout</a>
                     </div>
                 </div>
                 <button>Login</button>
@@ -42,11 +45,16 @@ if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
 
     <nav>
         <ul>
-            <li><a href="#" class="nav-link active" data-href="home.php"><img src="res/img/home-icon.png" alt="Home Icon" class="nav-icon"> Home</a></li>
-            <li><a href="#" class="nav-link" data-href="student.php" data-sidebar="student-sidebar.php"><img src="res/img/student-icon.png" alt="Student Icon" class="nav-icon"> Student</a></li>
-            <li><a href="#" class="nav-link" data-href="staff.php" data-sidebar="staff-sidebar.php"><img src="res/img/staff-icon.png" alt="Staff Icon" class="nav-icon"> Staff</a></li>
-            <li><a href="#" class="nav-link" data-href="finance.php" data-sidebar="finance-sidebar.php"><img src="res/img/finance-icon.png" alt="Finance Icon" class="nav-icon"> Finance</a></li>
-            <li><a href="#" class="nav-link" data-href="management.php" data-sidebar="management-sidebar.php"><img src="res/img/management-icon.png" alt="Management Icon" class="nav-icon"> Management</a></li>
+            <li><a href="#" class="nav-link active" data-href="home.php"><img src="res/img/home-icon.png"
+                        alt="Home Icon" class="nav-icon"> Home</a></li>
+            <li><a href="#" class="nav-link" data-href="student.php" data-sidebar="student-sidebar.php"><img
+                        src="res/img/student-icon.png" alt="Student Icon" class="nav-icon"> Student</a></li>
+            <li><a href="#" class="nav-link" data-href="staff.php" data-sidebar="staff-sidebar.php"><img
+                        src="res/img/staff-icon.png" alt="Staff Icon" class="nav-icon"> Staff</a></li>
+            <li><a href="#" class="nav-link" data-href="finance.php" data-sidebar="finance-sidebar.php"><img
+                        src="res/img/finance-icon.png" alt="Finance Icon" class="nav-icon"> Finance</a></li>
+            <li><a href="#" class="nav-link" data-href="management.php" data-sidebar="management-sidebar.php"><img
+                        src="res/img/management-icon.png" alt="Management Icon" class="nav-icon"> Management</a></li>
         </ul>
         <button class="toggle-sidebar-btn" style="display: none;">No Menu</button>
     </nav>

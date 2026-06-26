@@ -1,12 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>13. Security Hardening | SPP Framework Tutorial</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <aside class="sidebar">
         <h2>SPP Framework</h2>
@@ -35,108 +39,154 @@
     <main class="main-content">
         <article class="content-container">
             <h1>13. Security Hardening (The Brutal Audit)</h1>
-            <p>Welcome to the <strong>Security Hardening</strong> chapter. Security is the paramount feature of the SPP Framework. In order to construct an enterprise-grade portal, your core foundation must be cryptographically sound and mathematically secure against all vectors of attack.</p>
-            <p>The SPP Framework has recently undergone an exhaustive, framework-wide security audit known as the <strong>"Brutal Audit"</strong>. This chapter covers the major defenses implemented natively across the architecture.</p>
+            <p>Welcome to the <strong>Security Hardening</strong> chapter. Security is the paramount feature of the SPP
+                Framework. In order to construct an enterprise-grade portal, your core foundation must be
+                cryptographically sound and mathematically secure against all vectors of attack.</p>
+            <p>The SPP Framework has recently undergone an exhaustive, framework-wide security audit known as the
+                <strong>"Brutal Audit"</strong>. This chapter covers the major defenses implemented natively across the
+                architecture.</p>
 
             <hr>
 
             <h2>1. SQL Injection (SQLi) Elimination</h2>
-            <p>Legacy database interactions are highly vulnerable to SQL injection, especially in dynamic <code>ORDER BY</code> or <code>WHERE</code> clauses.</p>
+            <p>Legacy database interactions are highly vulnerable to SQL injection, especially in dynamic
+                <code>ORDER BY</code> or <code>WHERE</code> clauses.</p>
             <ul>
-                <li><strong>QueryBuilder Sanitization:</strong> Both <code>sppdb</code> and <code>sppxdb</code> rigidly enforce regex column sanitization. Operators are actively whitelisted against a hard-coded array (<code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>LIKE</code>, <code>IN</code>, <code>IS NULL</code>, etc.). It is physically impossible to execute chained commands or subqueries through the QueryBuilder.</li>
-                <li><strong>Reporting Engine Integrity:</strong> <code>sppreport</code> completely blocks spaces and quotes in dynamic <code>CUSTOM</code> aggregate fields. This means dynamic reporting calculations are limited solely to math (<code>SUM(amount * tax_rate)</code>), completely rejecting any embedded subqueries.</li>
+                <li><strong>QueryBuilder Sanitization:</strong> Both <code>sppdb</code> and <code>sppxdb</code> rigidly
+                    enforce regex column sanitization. Operators are actively whitelisted against a hard-coded array
+                    (<code>=</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>LIKE</code>,
+                    <code>IN</code>, <code>IS NULL</code>, etc.). It is physically impossible to execute chained
+                    commands or subqueries through the QueryBuilder.</li>
+                <li><strong>Reporting Engine Integrity:</strong> <code>sppreport</code> completely blocks spaces and
+                    quotes in dynamic <code>CUSTOM</code> aggregate fields. This means dynamic reporting calculations
+                    are limited solely to math (<code>SUM(amount * tax_rate)</code>), completely rejecting any embedded
+                    subqueries.</li>
             </ul>
 
             <hr>
 
             <h2>2. Path Traversal &amp; LFI Mitigations</h2>
-            <p>When frameworks dynamically resolve file paths based on URLs or template directives, they open themselves to Local File Inclusion (LFI).</p>
+            <p>When frameworks dynamically resolve file paths based on URLs or template directives, they open themselves
+                to Local File Inclusion (LFI).</p>
             <ul>
-                <li><strong>View Router (<code>spprouter</code>):</strong> Deep directory traversal tokens (<code>..</code>) are stripped, and absolute paths are validated.</li>
-                <li><strong>PHP Components (<code>&lt;php-include&gt;</code>):</strong> <code>sppview</code> recursively checks included files and blocks path traversal characters natively at the AST compilation layer.</li>
-                <li><strong>File Disk Wrappers (<code>sppstorage</code>):</strong> <code>LocalDisk</code> aggressively filters path traversal payloads before executing any <code>fopen()</code> or <code>file_get_contents()</code> calls.</li>
+                <li><strong>View Router (<code>spprouter</code>):</strong> Deep directory traversal tokens
+                    (<code>..</code>) are stripped, and absolute paths are validated.</li>
+                <li><strong>PHP Components (<code>&lt;php-include&gt;</code>):</strong> <code>sppview</code> recursively
+                    checks included files and blocks path traversal characters natively at the AST compilation layer.
+                </li>
+                <li><strong>File Disk Wrappers (<code>sppstorage</code>):</strong> <code>LocalDisk</code> aggressively
+                    filters path traversal payloads before executing any <code>fopen()</code> or
+                    <code>file_get_contents()</code> calls.</li>
             </ul>
 
             <hr>
 
             <h2>3. RCE &amp; PHP Object Injection (POP) Blocking</h2>
-            <p>Deserializing arbitrary data is incredibly dangerous and historically leads to Remote Code Execution via POP chains.</p>
+            <p>Deserializing arbitrary data is incredibly dangerous and historically leads to Remote Code Execution via
+                POP chains.</p>
             <ul>
-                <li><strong>Safe Caching:</strong> <code>sppcache</code> executes <code>unserialize()</code> with the strict <code>['allowed_classes' =&gt; false]</code> directive. If a malicious payload attempts to inject an object, PHP safely neuters it into <code>__PHP_Incomplete_Class</code>.</li>
-                <li><strong>Inheritance-Bound Queues:</strong> <code>sppqueue</code> job deserialization rigorously enforces <code>is_subclass_of($job, \SPP\Job::class)</code>. Rogue classes are dropped from memory instantly before any magic methods can fire.</li>
-                <li><strong>Code Stub Generation:</strong> <code>sppmaker</code> securely regex-whitelists entity names to prevent evaluating arbitrary code within the generation templates.</li>
+                <li><strong>Safe Caching:</strong> <code>sppcache</code> executes <code>unserialize()</code> with the
+                    strict <code>['allowed_classes' =&gt; false]</code> directive. If a malicious payload attempts to
+                    inject an object, PHP safely neuters it into <code>__PHP_Incomplete_Class</code>.</li>
+                <li><strong>Inheritance-Bound Queues:</strong> <code>sppqueue</code> job deserialization rigorously
+                    enforces <code>is_subclass_of($job, \SPP\Job::class)</code>. Rogue classes are dropped from memory
+                    instantly before any magic methods can fire.</li>
+                <li><strong>Code Stub Generation:</strong> <code>sppmaker</code> securely regex-whitelists entity names
+                    to prevent evaluating arbitrary code within the generation templates.</li>
             </ul>
 
             <hr>
 
             <h2>4. Log Forging (Injection)</h2>
-            <p>When logging user behavior, inserting unfiltered payloads like HTTP User Agents directly into a text log file can allow attackers to inject carriage returns (<code>\r\n</code>) and write falsified log lines.</p>
+            <p>When logging user behavior, inserting unfiltered payloads like HTTP User Agents directly into a text log
+                file can allow attackers to inject carriage returns (<code>\r\n</code>) and write falsified log lines.
+            </p>
             <ul>
-                <li><strong>CRLF Stripping:</strong> <code>spplogger</code> actively sanitizes user-supplied HTTP headers and messages using <code>str_replace()</code>, condensing multiline payloads and preventing log manipulation.</li>
+                <li><strong>CRLF Stripping:</strong> <code>spplogger</code> actively sanitizes user-supplied HTTP
+                    headers and messages using <code>str_replace()</code>, condensing multiline payloads and preventing
+                    log manipulation.</li>
             </ul>
 
             <hr>
 
             <h2>5. WebSocket Integrity</h2>
-            <p>WebSockets typically suffer from cross-site websocket hijacking (CSWSH) and unauthenticated broadcast spoofing.</p>
+            <p>WebSockets typically suffer from cross-site websocket hijacking (CSWSH) and unauthenticated broadcast
+                spoofing.</p>
             <ul>
-                <li><strong>HMAC Signatures:</strong> The <code>spplive</code> Engine utilizes HMAC SHA-256 digital signatures (<code>X-SPP-Live-Signature</code>) on all internal broadcast API requests.</li>
+                <li><strong>HMAC Signatures:</strong> The <code>spplive</code> Engine utilizes HMAC SHA-256 digital
+                    signatures (<code>X-SPP-Live-Signature</code>) on all internal broadcast API requests.</li>
             </ul>
 
             <hr>
 
             <h2>6. Middleware-Based Security Layer</h2>
-            <p>SPP enforces critical security policies through its <strong>Middleware Pipeline</strong> — a layered onion architecture that intercepts every HTTP request before routing occurs. Security middleware runs automatically on every request via the <code>MiddlewareKernel</code>.</p>
+            <p>SPP enforces critical security policies through its <strong>Middleware Pipeline</strong> — a layered
+                onion architecture that intercepts every HTTP request before routing occurs. Security middleware runs
+                automatically on every request via the <code>MiddlewareKernel</code>.</p>
 
             <h3>CSRF Protection</h3>
             <p>SPP provides two complementary CSRF middleware implementations:</p>
-            <p><strong>Global CSRF Middleware</strong> (<code>SPP\Core\Middleware\CSRFMiddleware</code>) runs on every request via <code>middleware.yml</code>. It validates tokens on all <code>api.php</code> and <code>sppux_api</code> endpoints, checking both the <code>csrf_token</code> request parameter and the <code>X-CSRF-TOKEN</code> header.</p>
-            <p><strong>Route-level CSRF Middleware</strong> (<code>SPPMod\Sppsecurity\Middleware\CsrfMiddleware</code>) can be applied to specific controllers via the <code>#[Middleware]</code> attribute. It validates only state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:</p>
-<pre><code>#[Middleware(\SPPMod\Sppsecurity\Middleware\CsrfMiddleware::class)]
+            <p><strong>Global CSRF Middleware</strong> (<code>SPP\Core\Middleware\CSRFMiddleware</code>) runs on every
+                request via <code>middleware.yml</code>. It validates tokens on all <code>api.php</code> and
+                <code>sppux_api</code> endpoints, checking both the <code>csrf_token</code> request parameter and the
+                <code>X-CSRF-TOKEN</code> header.</p>
+            <p><strong>Route-level CSRF Middleware</strong> (<code>SPPMod\SPPSecurity\Middleware\CsrfMiddleware</code>)
+                can be applied to specific controllers via the <code>#[Middleware]</code> attribute. It validates only
+                state-changing methods (POST, PUT, DELETE, PATCH) and respects per-app configuration:</p>
+            <pre><code>#[Middleware(\SPPMod\SPPSecurity\Middleware\CsrfMiddleware::class)]
 class AdminController {
     // CSRF enforced on all POST/PUT/DELETE/PATCH requests
 }</code></pre>
 
             <h3>API Authentication</h3>
-            <p><code>ApiAuthMiddleware</code> is <strong>hardcoded</strong> as the first middleware in the global pipeline. It intercepts all <code>api/v1/*</code> routes and enforces authentication via:</p>
+            <p><code>ApiAuthMiddleware</code> is <strong>hardcoded</strong> as the first middleware in the global
+                pipeline. It intercepts all <code>api/v1/*</code> routes and enforces authentication via:</p>
             <ul>
                 <li><strong>Bearer tokens</strong> (JWT) from the <code>Authorization</code> header</li>
                 <li><strong>API keys</strong> from the <code>api_key</code> query parameter</li>
             </ul>
-            <p>Token verification is delegated to the event system (<code>api.auth.verify_token</code>), allowing modules to plug in custom validation logic.</p>
+            <p>Token verification is delegated to the event system (<code>api.auth.verify_token</code>), allowing
+                modules to plug in custom validation logic.</p>
 
             <h3>Rate Limiting &amp; Throttling</h3>
             <p>Two middleware implementations handle rate limiting:</p>
             <ul>
-                <li><strong><code>RateLimiterMiddleware</code></strong> — IP-based rate limiting using <code>SPP\Cache</code>. Returns <code>429 Too Many Requests</code> with <code>Retry-After</code> and <code>X-RateLimit-*</code> response headers.</li>
-                <li><strong><code>ThrottleMiddleware</code></strong> — Token-bucket algorithm via <code>SPPSecurityService</code>. Configurable max requests and decay window.</li>
+                <li><strong><code>RateLimiterMiddleware</code></strong> — IP-based rate limiting using
+                    <code>SPP\Cache</code>. Returns <code>429 Too Many Requests</code> with <code>Retry-After</code> and
+                    <code>X-RateLimit-*</code> response headers.</li>
+                <li><strong><code>ThrottleMiddleware</code></strong> — Token-bucket algorithm via
+                    <code>SPPSecurityService</code>. Configurable max requests and decay window.</li>
             </ul>
-<pre><code>// Apply throttling to specific routes
+            <pre><code>// Apply throttling to specific routes
 #[Route('/api/heavy-endpoint')]
-#[Middleware(\SPPMod\Sppsecurity\Middleware\ThrottleMiddleware::class)]
+#[Middleware(\SPPMod\SPPSecurity\Middleware\ThrottleMiddleware::class)]
 public function heavyEndpoint() { ... }</code></pre>
 
             <h3>Security Headers</h3>
-            <p><code>SecurityHeadersMiddleware</code> adds defensive HTTP headers on the <strong>response</strong> path (post-processing):</p>
-<pre><code>X-Content-Type-Options: nosniff
+            <p><code>SecurityHeadersMiddleware</code> adds defensive HTTP headers on the <strong>response</strong> path
+                (post-processing):</p>
+            <pre><code>X-Content-Type-Options: nosniff
 X-Frame-Options: SAMEORIGIN
 X-XSS-Protection: 1; mode=block
 Strict-Transport-Security: max-age=31536000; includeSubDomains</code></pre>
 
             <h3>Configuration</h3>
             <p>Global security middleware is declared in <code>spp/etc/middleware.yml</code>:</p>
-<pre><code>global:
+            <pre><code>global:
   - SPP\Core\Middleware\CSRFMiddleware
   - SPPMod\SPPLogger\RequestLogger</code></pre>
             <p>Apps can layer additional security middleware in their own <code>etc/middleware.yml</code>.</p>
 
             <div class="alert alert-tip">
-                <strong>Tip:</strong> For a complete guide to the middleware architecture, see <a href="15_middleware.html">Chapter 15: The Middleware Pipeline</a>.
+                <strong>Tip:</strong> For a complete guide to the middleware architecture, see <a
+                    href="15_middleware.html">Chapter 15: The Middleware Pipeline</a>.
             </div>
 
             <hr>
 
-            <p>By utilizing the standard framework primitives (<code>SPPDB</code>, <code>SPPLogger</code>, <code>SPPCache</code>, <code>SPPQueue</code>, <code>LiveComponent</code>) and the middleware pipeline, your application automatically inherits this impenetrable defense matrix.</p>
+            <p>By utilizing the standard framework primitives (<code>SPPDB</code>, <code>SPPLogger</code>,
+                <code>SPPCache</code>, <code>SPPQueue</code>, <code>LiveComponent</code>) and the middleware pipeline,
+                your application automatically inherits this impenetrable defense matrix.</p>
 
             <footer class="footer-nav">
                 <a href="12_live_components.html" class="nav-button">
@@ -151,4 +201,5 @@ Strict-Transport-Security: max-age=31536000; includeSubDomains</code></pre>
         </article>
     </main>
 </body>
+
 </html>

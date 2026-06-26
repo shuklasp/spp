@@ -47,11 +47,11 @@ class ViewServiceTestCommand extends Command
 
         // Capture output since resolveAndExecute will likely call exit()
         ob_start();
-        
-        \SPP\Scheduler::withContext($appname, function() use ($name, $payload) {
+
+        \SPP\Scheduler::withContext($appname, function () use ($name, $payload) {
             try {
                 // Suppress headers already sent warnings in CLI mode
-                @\SPPMod\SppApi\SPPAjax::resolveAndExecute($name, $payload);
+                @\SPPMod\SPPAPI\SPPAjax::resolveAndExecute($name, $payload);
             } catch (\Exception $e) {
                 echo json_encode([
                     'status' => 'error',
@@ -61,7 +61,7 @@ class ViewServiceTestCommand extends Command
         });
 
         $output = ob_get_clean();
-        
+
         // Try to pretty-print JSON if it's JSON
         $jsonStart = strpos($output, '{');
         if ($jsonStart !== false) {
@@ -75,7 +75,7 @@ class ViewServiceTestCommand extends Command
         } else {
             echo $output . "\n";
         }
-        
+
         echo str_repeat("-", 50) . "\n";
         echo "Test completed.\n";
     }

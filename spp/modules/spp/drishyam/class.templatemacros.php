@@ -35,7 +35,7 @@ class TemplateMacros
         $fname = str_replace(['\'', '"'], '', $fname);
         $app = \SPP\App::getApp($appName);
         $baseDir = $app->getAppConfDir() . '/forms/';
-        
+
         $formFile = null;
         foreach (['yml', 'yaml', 'xml'] as $ext) {
             if (file_exists($baseDir . $fname . '.' . $ext)) {

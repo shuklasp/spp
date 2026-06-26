@@ -11,7 +11,7 @@ try {
     $user = new SPPUser('admin');
     echo "User loaded. Hash: " . $user->password . "\n";
     echo "Verify test: " . ($user->verifyPassword('admin123') ? 'Pass' : 'Fail') . "\n";
-    
+
     echo "Testing login...\n";
     $res = SPPAuth::login('admin', 'admin123');
     echo "Login successful: " . ($res ? 'Yes' : 'No') . "\n";
