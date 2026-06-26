@@ -1,8 +1,26 @@
-.TH SPP-diff-rollback 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-diff-rollback 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# diff:rollback
+.PP
 .SH NAME
-spp-diff-rollback \- Rollback an entity to a previous state
+diff:rollback - Rollback an entity to a previous state
+.PP
 .SH SYNOPSIS
-.B php spp.php diff:rollback
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp.php diff:rollback --type=<ModelClass> --id=<ID> --rev=<RevID>
+php spp.php diff:rollback --type=<ModelClass> --id=<ID> --rev=<RevID>
+.PP
+.SH PURPOSE
+Reverts a specific Entity to an exact historic revision tracked by the RevisionManager.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--type=<ModelClass>`: **Required**. The fully qualified class name of the entity.
+.br
+\(bu `--id=<ID>`: **Required**. The primary key ID of the entity.
+.br
+\(bu `--rev=<RevID>`: **Required**. The specific integer Revision ID to roll back to.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+The command instantiates the target ModelClass and uses find_one() to verify the entity's current existence. It queries \SPPMod\SPPDiff\RevisionManager::getRevision($entity, $revId) to synthesize an older state of the entity object based on the delta logs. Finally, it executes the entity's native save() method, flushing the synthesized previous state directly back to the database as the new definitive state.
+.PP
+.SH EXAMPLES
+php spp.php diff:rollback --type="\App\Entities\User" --id=42 --rev=5
+.PP

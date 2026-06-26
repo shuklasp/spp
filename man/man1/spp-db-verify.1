@@ -1,8 +1,21 @@
-.TH SPP-db-verify 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-db-verify 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# db:verify
+.PP
 .SH NAME
-spp-db-verify \- Runs the SPP XDB MySQL Compatibility Verification Suite
+db:verify - Runs the SPP XDB MySQL Compatibility Verification Suite
+.PP
 .SH SYNOPSIS
-.B php spp.php db:verify
-[OPTIONS]
-.SH DESCRIPTION
-Runs the SPP XDB MySQL Compatibility Verification Suite
+php spp.php db:verify
+.PP
+.SH PURPOSE
+Executes the SPP XDB MySQL compatibility check script to ensure the SPPDB abstraction layers handle cross-engine translations without syntax faults or connection errors.
+.PP
+.SH OPTIONS AVAILABLE
+This command does not accept additional options.
+.PP
+.SH UNDER THE HOOD ACTIVITY
+When triggered, the command looks for a specific test suite file located at spp/modules/spp/sppxdb/test_mysql_compatibility.php. If the file exists, it uses the native PHP passthru() function to spawn a sub-process running the script directly. This offloads the heavy functional testing directly to the test harness and relays the real-time stdout feedback to the user's terminal.
+.PP
+.SH EXAMPLES
+php spp.php db:verify
+.PP

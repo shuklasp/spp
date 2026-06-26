@@ -1,8 +1,24 @@
-.TH SPP-lang-set 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-lang-set \- Set a translation for a key
+.TH SPP-lang-set 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `LANG:SET`
+.PP
+Purpose: Set a translation for a key
+.PP
 .SH SYNOPSIS
-.B php spp.php lang:set
-[OPTIONS]
-.SH DESCRIPTION
+php spp.php lang:set [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php lang:set <key> <locale> <translation>
+.PP
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from LangSetCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: spplang.
+.br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

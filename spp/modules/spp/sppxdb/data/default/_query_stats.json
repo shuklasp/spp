@@ -1,7 +1,7 @@
 {
     "SHOW TABLES": 57,
     "SELECT name, script, method FROM sppajax_services": 50,
-    "INSERT INTO audit_logs (entity_type, entity_id, action, old_values, new_values, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)": 53,
+    "INSERT INTO audit_logs (entity_type, entity_id, action, old_values, new_values, user_id, ip_address, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)": 193,
     "SELECT name FROM sqlite_master WHERE type=? AND name=?": 2,
     "SELECT ?": 2,
     "SELECT id FROM spp_users WHERE username=?": 6,

@@ -1,8 +1,18 @@
-.TH SPP-storage-sync 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-storage-sync \- Sync local storage with external disks (stub)
+.TH SPP-storage-sync 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `STORAGE:SYNC`
+.PP
+Purpose: Sync local storage with external disks (stub)
+.PP
 .SH SYNOPSIS
-.B php spp.php storage:sync
-[OPTIONS]
-.SH DESCRIPTION
-Sync local storage with external disks (stub)
+php spp.php storage:sync [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from StorageSyncCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

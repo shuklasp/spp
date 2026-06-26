@@ -1,8 +1,21 @@
-.TH SPP-config-sync 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-config-sync \- Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+.TH SPP-config-sync 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `CONFIG:SYNC`
+.PP
+Purpose: Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+.PP
 .SH SYNOPSIS
-.B php spp.php config:sync
-[OPTIONS]
-.SH DESCRIPTION
-Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+php spp.php config:sync [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

@@ -1,0 +1,48 @@
+# NAME
+`polyglot:worker` - Manage Polyglot persistent workers
+
+# SYNOPSIS
+`php spp.php polyglot:worker [start|stop|restart|status] <module> [<lang>]`
+`php spp.php polyglot:worker async <module> <payloadB64>`
+
+# PURPOSE
+The `polyglot:worker` command is responsible for managing background daemon processes (workers) for polyglot services. By keeping polyglot modules running persistently, the application avoids the overhead of booting the interpreter/runtime on every request. This command allows administrators and the framework itself to start, stop, restart, or check the status of these long-running worker processes across varying languages.
+
+# OPTIONS AVAILABLE
+* `[action]`
+  **Required.** The lifecycle action to perform. Accepted values are `start`, `stop`, `restart`, `status`, or `async`.
+* `<module>`
+  **Required (except for `status` with no module).** The relative path or identifier of the polyglot module to manage.
+* `[<lang>]`
+  *Optional.* Explicitly specify the language (e.g., `python`, `node`, `go`, `cs`, `pl`, `java`, `compiler`). If omitted, the command attempts to infer the language from the module's file extension.
+* `<payloadB64>`
+  *Required when action is `async`.* The base64-encoded JSON payload used for asynchronous execution.
+
+# UNDER THE HOOD ACTIVITY
+The command manages the lifecycle of worker processes through PID and port files stored in the framework's shared daemons directory (`var/shared/bridge/daemons`). First, it resolves the absolute path to this directory, creating it if it doesn't exist. It calculates an MD5 hash of the module's realpath to uniquely identify the worker and generate specific `.port`, `.pid`, and `.module` files.
+
+If the action is `async`, it bypasses process management entirely and routes the execution directly to `\SPP\PolyglotBridge::call()` as an asynchronous, fire-and-forget payload processing task.
+
+For the `status` action without a specific module, the command globs the daemons directory for `*.port` files. For each found, it reads the active port and the corresponding module path (from the `.module` file), echoing the state to the terminal.
+
+For the `stop` and `restart` actions, the command checks for the existence of the worker's `.pid` file. If found, it reads the Process ID and issues an OS-specific kill command (`taskkill` on Windows, `kill -9` on Unix). It then deletes the `.pid`, `.port`, and `.module` files. If the action was `stop`, execution terminates.
+
+For the `start` and `restart` actions, the command first prevents duplicate starts by checking the `.pid` file. It determines the language of the module, either from user input or by inference from the extension mapping. It then consults `\SPP\PolyglotBridge::discoverRuntimes()` to locate the correct binary path on the host system. The command dynamically constructs a shell invocation based on the target language. For script languages like Python, Node, and Perl, it wraps the module in a framework-provided dispatch script. For Java, it assembles a classpath. For Go and .NET, it uses native build/run commands. For C++ (`compiler`), it compiles the source to a binary on the fly and points the command to the generated executable. In all cases, the `--daemon` flag and the path to the expected `.port` file are injected.
+
+Finally, the command spawns the process in the background. On Windows, this is achieved using a dynamically generated VBScript (`daemon_runner.vbs`) and a batch file to launch the command silently via `WScript.Shell`. On Unix, it uses `nohup ... & echo $!` to launch the process and capture the PID. The system then waits, polling every 100ms for up to 30 seconds, for the target language dispatcher to bind to an available socket port and write that port number to the `.port` file. If successful, it confirms the binding; otherwise, it warns the user to inspect the generated `.log` file for errors.
+
+# EXAMPLES
+Start a Python worker for a machine learning model:
+```bash
+php spp.php polyglot:worker start modules/ml/predictor.py python
+```
+
+Check the status of all running workers:
+```bash
+php spp.php polyglot:worker status
+```
+
+Stop a specific Node.js worker:
+```bash
+php spp.php polyglot:worker stop services/websockets.js
+```

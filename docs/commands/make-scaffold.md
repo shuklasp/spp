@@ -1,0 +1,24 @@
+# NAME
+`make:scaffold` - Create a full stack scaffold (Entity, DB, Controller, View)
+
+# SYNOPSIS
+`php spp.php make:scaffold [EntityName]`
+
+# PURPOSE
+The `make:scaffold` command is an interactive, legacy RAD tool orchestrating the holistic creation of MVC logic tied directly to SPPEntity definitions. Unlike `make:blade-scaffold` which focuses on Blade and YAML integration, this scaffolds programmatic controller logic and a native View skeleton.
+
+# OPTIONS AVAILABLE
+- `[EntityName]` (string, optional): The name of the Entity to scaffold. If omitted, triggers interactive mode.
+
+# UNDER THE HOOD ACTIVITY
+1. **Interactive Loop**: The command utilizes `fgets(STDIN)` extensively. It polls for `Entity Name`, `Application/Context`, `Database Table`, and traps the user in an infinite attribute creation loop (`Attribute Name`, `Type`) until an empty string is supplied.
+2. **Entity Generation**: Utilizing the arrays built in memory, it invokes `\SPPMod\SppDb\SPPEntity::saveEntityDefinition()` writing the database map configuration to disk.
+3. **Controller Scaffolding**: It targets `src/{app_name}/controllers/` and reads a hardcoded external stub file `stubs/scaffold_controller.stub`. It replaces `{appname}`, `{controllerName}`, and `{entityName}` tokens before explicitly saving the file.
+4. **View Scaffolding**: It creates `src/{app_name}/views/{entityName}/index.php` embedding a minimal HTML comment and H1 tag.
+5. **Hinting**: It reads `global-settings.yml`. Depending on `auto_evolution` status, it advises the user to run `db:sync`.
+
+# EXAMPLES
+**1. Scaffold a native Book CRUD:**
+```bash
+php spp.php make:scaffold Book
+```

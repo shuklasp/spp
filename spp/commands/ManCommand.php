@@ -121,8 +121,20 @@ class ManCommand extends Command
             }
 
             if (!empty($matches)) {
-                echo "\033[1mNAME\033[0m\n";
-                echo "       \033[1m{$targetCmdName}\033[0m - Namespace grouping for '{$targetCmdName}:*' commands\n\n";
+                $baseDir = dirname(SPP_BASE_DIR);
+                $nsMdFile = $baseDir . "/docs/commands/ns-{$targetCmdName}.md";
+                if (file_exists($nsMdFile)) {
+                    $mdOut = file_get_contents($nsMdFile);
+                    $mdOut = preg_replace('/^### (.*)$/m', "\033[1;36m$1\033[0m", $mdOut);
+                    $mdOut = preg_replace('/^## (.*)$/m', "\033[1;34m$1\033[0m", $mdOut);
+                    $mdOut = preg_replace('/\*\*(.*?)\*\*/', "\033[1m$1\033[0m", $mdOut);
+                    $mdOut = preg_replace('/`(.*?)`/', "\033[33m$1\033[0m", $mdOut);
+                    echo $mdOut . "\n\n";
+                } else {
+                    echo "\033[1mNAME\033[0m\n";
+                    echo "       \033[1m{$targetCmdName}\033[0m - Namespace grouping for '{$targetCmdName}:*' commands\n\n";
+                }
+
                 echo "\033[1mAVAILABLE COMMANDS\033[0m\n";
                 ksort($matches);
                 foreach ($matches as $cmdName => $cmdObj) {
@@ -141,7 +153,33 @@ class ManCommand extends Command
 
         $cmd = $commands[$targetCmdName];
         $name = $cmd->getName();
+        $safeName = str_replace(':', '-', $name);
         $desc = $cmd->getDescription();
+
+        $baseDir = dirname(SPP_BASE_DIR);
+        $docsDir = $baseDir . '/docs/commands';
+        
+        $mdFile1 = $docsDir . "/{$safeName}.md";
+        $mdFile2 = $docsDir . "/spp-{$safeName}.md";
+        
+        $mdOut = null;
+        if (file_exists($mdFile1)) {
+            $mdOut = file_get_contents($mdFile1);
+        } elseif (file_exists($mdFile2)) {
+            $mdOut = file_get_contents($mdFile2);
+        }
+
+        if ($mdOut !== null) {
+            // Apply some basic terminal formatting for headers
+            $mdOut = preg_replace('/^### (.*)$/m', "\033[1;36m$1\033[0m", $mdOut);
+            $mdOut = preg_replace('/^## (.*)$/m', "\033[1;34m$1\033[0m", $mdOut);
+            $mdOut = preg_replace('/\*\*(.*?)\*\*/', "\033[1m$1\033[0m", $mdOut);
+            $mdOut = preg_replace('/`(.*?)`/', "\033[33m$1\033[0m", $mdOut);
+            echo $mdOut . "\n";
+            return;
+        }
+
+        // Fallback if not generated
         $help = $cmd->getHelp();
 
         $out = "";
@@ -159,7 +197,7 @@ class ManCommand extends Command
             }
         } else {
             $out .= "       {$desc}\n";
-            $out .= "       (No extended usage documentation available for this command).\n";
+            $out .= "       (No extended usage documentation available. Run 'php spp.php man:generate' to build detailed manuals).\n";
         }
         $out .= "\n";
 

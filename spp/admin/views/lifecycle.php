@@ -1,7 +1,7 @@
 <?php
 /**
- * System Lifecycle & Updates View (PHP-Hybrid)
- * EXACT PARITY WITH lifecycle.js
+ * System Lifecycle & Deployment View (PHP-Hybrid Fallback)
+ * This is the server-rendered fallback. The primary view is lifecycle.js.
  */
 $la = $params['la'] ?? null;
 $data = $params['data'] ?? [];
@@ -17,85 +17,46 @@ foreach($environments as $name => $env) {
 
 <div class="view-header">
     <div class="view-title">
-        <span class="icon">🚀</span>
-        <h1>Lifecycle & Deployment</h1>
+        <span class="icon">⚡</span>
+        <h1>SPPDeploy — Enterprise Deployment Command Center</h1>
     </div>
     <div class="view-actions">
+        <select id="target-env" class="form-control" style="width: 180px;">
+            <?php echo $envOptions ?: '<option value="production">production</option>'; ?>
+        </select>
         <button class="btn btn-secondary" onclick="admin.api('lifecycle_backup')">
-            <span class="icon">📦</span> Local Backup
+            <span class="icon">📦</span> Backup
         </button>
         <button class="btn btn-primary" onclick="admin.runSystemUpdate()">
-            <span class="icon">🔍</span> Check Sync Status
+            <span class="icon">🔍</span> Check Sync
         </button>
     </div>
 </div>
 
-<div class="lifecycle-grid">
-    <div class="card env-card">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h3>Environment Target</h3>
-            <button class="btn btn-sm ghost-btn" onclick="admin.api('lifecycle_config_target')" title="Configure Target">⚙️</button>
-        </div>
-        <div class="form-group">
-            <label>Target Server</label>
-            <select id="target-env" class="form-control">
-                <?php echo $envOptions ?: '<option value="production">production</option>'; ?>
-            </select>
-        </div>
-        <div id="env-status" class="status-indicator">
-            Status: <span class="badge badge-neutral">Unknown</span>
-        </div>
+<div class="lifecycle-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
+    <div class="card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.8rem;">🚀</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-bright);">—</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Deployments</div>
     </div>
-
-    <div class="card security-card">
-        <h3>Security & Authorization</h3>
-        <div class="form-group">
-            <label>Local Deployment Token</label>
-            <div class="input-group-with-btn" style="display: flex; gap: 8px;">
-                <input type="password" id="local-token" class="form-control" readonly value="••••••••••••••••">
-                <button class="btn btn-sm btn-secondary" onclick="admin.notify('Vault access restricted', 'info')" title="Show/Hide">👁️</button>
-                <button class="btn btn-sm btn-outline-danger" onclick="admin.syncDeploymentToken()" title="Rotate Token">🔄</button>
-            </div>
-            <small class="muted">This token is required by remote servers to authorize pushes from this machine.</small>
-        </div>
+    <div class="card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.8rem;">✅</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-bright);">—</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Last Deploy</div>
     </div>
-
-    <div class="card remote-config-card">
-        <h3>Remote Config Management</h3>
-        <div id="remote-config-status">
-            <button class="btn btn-sm btn-outline-primary" onclick="admin.notify('Fetching production settings...', 'info')">
-                Fetch Production Settings
-            </button>
-        </div>
-        <div id="remote-config-list" style="margin-top: 15px; display: none;">
-            <div class="muted" style="font-size: 0.8rem; margin-bottom: 5px;">Manage production settings without leaving local workbench.</div>
-            <div class="remote-config-table-wrapper" style="max-height: 200px; overflow-y: auto;">
-                <table class="table table-sm" id="remote-config-table">
-                    <tbody id="remote-config-body"></tbody>
-                </table>
-            </div>
-        </div>
+    <div class="card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.8rem;">📦</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-bright);">—</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Backups</div>
+    </div>
+    <div class="card" style="text-align: center; padding: 1.5rem;">
+        <div style="font-size: 1.8rem;">⏱️</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-bright);">—</div>
+        <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase;">Latency</div>
     </div>
 </div>
 
-<div class="card delta-card" id="delta-container" style="display: none;">
-    <h3>Pending Changes</h3>
-    <div class="delta-list-wrapper">
-        <table class="table" id="delta-table">
-            <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Path / Resource</th>
-                    <th>Action</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody id="delta-body"></tbody>
-        </table>
-    </div>
-    <div class="view-footer">
-        <button class="btn btn-success" id="btn-sync-all">
-            Deploy All Changes
-        </button>
-    </div>
-</div>
+<p style="color: var(--text-dim); text-align: center; padding: 2rem;">
+    This is a simplified server-rendered fallback. For the full interactive deployment dashboard with live log tailing,
+    remote command execution, cluster management, and webhook configuration, ensure JavaScript is enabled.
+</p>

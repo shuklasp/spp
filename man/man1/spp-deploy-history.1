@@ -1,0 +1,36 @@
+.TH SPP-deploy-history 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+.PP
+deploy:history - Fetch and display deployment history from a remote target
+.PP
+# SYNOPSIS
+.PP
+php spp.php deploy:history <target_uri> [--key=YOUR_API_KEY]
+.PP
+# PURPOSE
+.PP
+The deploy:history command retrieves the historical log of all deployment events executed against a specific remote target environment. It displays a tabular output of past deployments, including timestamps, originator IPs, deployment statuses, file/database operation counts, and associated commit or status messages.
+.PP
+# OPTIONS AVAILABLE
+.PP
+*   <target_uri> (Required)
+The connection URI or identifier of the remote environment from which to fetch the deployment history.
+*   --key=YOUR_API_KEY (Optional)
+The secure API token used to authenticate the request with the remote server. Defaults to default_cli_key if omitted.
+.PP
+# UNDER THE HOOD ACTIVITY
+.PP
+Upon execution, the command verifies that a target URI has been supplied. It then parses the arguments for an optional --key flag to override the default API key. Next, it establishes a communication channel with the remote target using the SPPMod\Sppdeploy\Deployer\TargetConnection::resolve() factory method.
+.PP
+The command triggers the $conn->getHistory() method, which performs a secure request to the remote server's deployment API to fetch its internal logs or database records of past deployments. The remote server responds with a structured payload containing a status indicator and a history array.
+.PP
+If the request is successful and history exists, the command prepares a formatted ASCII table in standard output. It iterates over the retrieved history entries, formatting timestamps, resolving IP addresses, and extracting deployment metadata like filesCount (number of files modified) and dbCount (number of database migrations applied). To maintain console readability, it normalizes multi-line deployment messages into single lines and truncates any message longer than 30 characters using an ellipsis. Finally, it pads the columns to fixed widths and echoes the tabular data.
+.PP
+# EXAMPLES
+.PP
+View deployment history for the production environment using a custom API key:
+php spp.php deploy:history http://prod.example.com --key=my_secure_token
+.PP
+View history for a local testing node:
+php spp.php deploy:history http://localhost:8080
+.PP

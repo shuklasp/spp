@@ -1,8 +1,23 @@
-.TH SPP-man-generate 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-man-generate \- Generate man-pages in Markdown and UNIX roff formats
-.SH SYNOPSIS
-.B php spp.php man:generate
-[OPTIONS]
-.SH DESCRIPTION
-Generate man-pages in Markdown and UNIX roff formats
+.TH SPP-man-generate 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+man:generate - Generate highly detailed man-pages in Markdown and UNIX roff formats via static code analysis
+.PP
+# SYNOPSIS
+php spp.php man:generate
+.PP
+# PURPOSE
+Automatically extracts, parses, and statically analyzes the source code of every registered SPP CLI command to generate exhaustive documentation. It outputs individual Markdown files and standard UNIX roff formatted manual pages, compiling a complete CLI reference manual.
+.PP
+# OPTIONS AVAILABLE
+No options required.
+.PP
+# UNDER THE HOOD ACTIVITY
+Upon execution, the command uses SPP\CLI\CommandManager::discover() to acquire the full suite of CLI commands. For every command discovered, it leverages PHP's ReflectionClass to locate the source code file of the command class. It reads the raw PHP source into memory using file_get_contents() and applies an array of complex regular expressions to perform static code analysis.
+First, it extracts CLI option flags by searching the Abstract Syntax Tree/code strings for patterns like str_starts_with, strict equality checks, in_array calls, and array key checks (e.g., $args['options']).
+Secondly, it scans for known framework APIs to determine side effects. It checks for database interaction (SPP\DB, DB::), filesystem operations (file_put_contents, mkdir), execution of system binaries (exec, shell_exec), module loading (loadModule), context switching (Scheduler::withContext), HTTP calls (curl_init), and caching operations (Redis::, Cache::).
+Based on this heuristic data, it dynamically constructs a comprehensive description of the command's internal behavior. Finally, the tool formats this payload into two formats: an index-linked Markdown document suite saved to docs/commands/ and standard UNIX man1 roff files saved to man/man1/. A unified table of contents is also written to docs/spp-cli-manual.md.
+.PP
+# EXAMPLES
+\(bu `php spp.php man:generate` - Scans all commands and generates documentation in the `docs/` and `man/` directories.
+.br
+.PP

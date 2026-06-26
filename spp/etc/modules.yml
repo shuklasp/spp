@@ -87,8 +87,8 @@ modules:
         path: spp/sppxdb
         status: active
     17:
-        name: sppmigrate
-        path: spp/sppmigrate
+        name: sppdeploy
+        path: spp/sppdeploy
         status: active
     18:
         name: sppsecurity

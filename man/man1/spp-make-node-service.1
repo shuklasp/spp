@@ -1,0 +1,23 @@
+.TH SPP-make-node-service 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+make:node-service - Create a new Node.js service script
+.PP
+# SYNOPSIS
+php spp.php make:node-service <name> [--app=context]
+.PP
+# PURPOSE
+The make:node-service command scaffolds a standalone JavaScript/Node.js execution service file. This allows JavaScript to be utilized natively on the server-side as a polyglot microservice within the SPP ecosystem.
+.PP
+# OPTIONS AVAILABLE
+\(bu `<name>` (string, required): The specific logic identifier for the JS script.
+.br
+\(bu `--app=<context>` (string, optional): Determines the target execution namespace.
+.br
+.PP
+# UNDER THE HOOD ACTIVITY
+The command resolves the application context and constructs a target path of services/node/service.{lowercase_name}.js. Using the internal buildFromStub() mechanism against the node_service stub format, it injects the CLASS_NAME natively into the JavaScript source file.
+.PP
+# EXAMPLES
+1. Scaffold a Node.js data worker:
+php spp.php make:node-service DataWorker --app=default
+.PP

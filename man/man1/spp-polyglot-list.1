@@ -1,8 +1,24 @@
-.TH SPP-polyglot-list 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-polyglot-list \- Discovers and tabulates all registered polyglot services
-.SH SYNOPSIS
-.B php spp.php polyglot:list
-[OPTIONS]
-.SH DESCRIPTION
-Discovers and tabulates all registered polyglot services
+.TH SPP-polyglot-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+polyglot:list - Discovers and tabulates all registered polyglot services
+.PP
+# SYNOPSIS
+php spp.php polyglot:list
+.PP
+# PURPOSE
+The polyglot:list command automatically scans designated service directories within the SPP framework to discover non-PHP files that act as polyglot microservices or scripts. It then generates a formatted table detailing the detected language and the relative path of each service, making it easy to audit the multi-language integrations within the current application.
+.PP
+# OPTIONS AVAILABLE
+This command does not accept any specific options or arguments.
+.PP
+# UNDER THE HOOD ACTIVITY
+Upon execution, the command defines three primary search directories to scan for polyglot services: the core services/ directory, the framework's src/services/ directory, and the application-specific services/ folder (SPP_APP_DIR/services/).
+.PP
+It uses PHP's RecursiveDirectoryIterator and RecursiveIteratorIterator to recursively traverse these directories. For every file encountered, it extracts the file extension and normalizes the path string (replacing backslashes with forward slashes). It checks if the extension matches a known list of supported polyglot languages, which includes py (Python), go, js (Node.js), rs (Rust), rb (Ruby), sh (Shell), cpp/cs (C++/C#), java, and pl (Perl).
+.PP
+Furthermore, to prevent indexing compiled binaries or intermediate build objects, it filters out any paths containing /obj/ or /bin/. If a valid polyglot service file passes these filters, its language (derived from the uppercased file extension) and relative path (stripped of the SPP_BASE_DIR prefix) are stored in an array. After completing the filesystem scan, if no services are found, it outputs a default message. Otherwise, it renders the compiled list of services to standard output using a padded, ASCII-art-style table.
+.PP
+# EXAMPLES
+List all discovered polyglot services:
+php spp.php polyglot:list
+.PP

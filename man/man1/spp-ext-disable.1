@@ -1,8 +1,22 @@
-.TH SPP-ext-disable 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ext-disable 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# ext:disable
+.PP
 .SH NAME
-spp-ext-disable \- Disable a specific extension
+ext:disable - Disable a specific extension
+.PP
 .SH SYNOPSIS
-.B php spp.php ext:disable
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp.php ext:disable <extension_name>
+php spp.php ext:disable <extension_name>
+.PP
+.SH PURPOSE
+Placeholder stub for explicitly disabling an installed SPP extension by its module name identifier.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `<extension_name>`: **Required**. The system identifier of the target extension.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Command accepts positional extraction of the primary argument representing the module payload string. Currently constructed exclusively as a structural shell, it prints a pending implementation note and gracefully terminates execution.
+.PP
+.SH EXAMPLES
+php spp.php ext:disable SppDiff
+.PP

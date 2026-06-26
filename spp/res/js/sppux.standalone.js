@@ -529,8 +529,16 @@ class BaseComponent {
     }
 
     async prompt(msg, defaultValue = '') {
-        if (window.SPPUX && SPPUX.Prompt) return await SPPUX.Prompt(msg, defaultValue);
-        if (window.SPPUX && SPPUX.prompt) return await SPPUX.prompt(msg, defaultValue);
+        if (window.SPPUX && SPPUX.Prompt && typeof SPPUX.Prompt.show === 'function') {
+            return new Promise((resolve) => {
+                SPPUX.Prompt.show('Input', msg, (val) => resolve(val));
+                setTimeout(() => {
+                    const input = document.getElementById('sppux-prompt-input');
+                    if (input && defaultValue) input.value = defaultValue;
+                }, 120);
+            });
+        }
+        if (window.SPPUX && typeof SPPUX.prompt === 'function') return await SPPUX.prompt(msg, defaultValue);
         return window.prompt(msg, defaultValue);
     }
 

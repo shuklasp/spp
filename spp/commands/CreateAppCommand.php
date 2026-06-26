@@ -30,12 +30,12 @@ class CreateAppCommand extends Command
 
     public function getName(): string
     {
-        return 'make:app';
+        return 'make:app-legacy';
     }
 
     public function getDescription(): string
     {
-        return 'Scaffolds a self-contained skeleton app natively (Legacy)';
+        return 'Legacy scaffolder — use make:app instead (kept for backward compatibility)';
     }
 
     private function scaffoldApplication(string $appName, string $mode, ?string $aiBlueprint = null): void
@@ -381,7 +381,8 @@ BOX;
                     <span style="font-size:0.85rem; color:var(--text-dim);">Powered by SPP Engine</span>
                 </div>
             </div>
-            <div class="badge">Mode: strtoupper($mode)</div>
+            <div class="badge">Mode: {$mode}</div>
+        </header>
         {\$blueprintBox}
 
         <!-- Dynamic Demonstration Component tag usage -->

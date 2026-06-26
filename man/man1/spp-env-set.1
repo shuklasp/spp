@@ -1,8 +1,26 @@
-.TH SPP-env-set 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-env-set 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# env:set
+.PP
 .SH NAME
-spp-env-set \- Set a specific configuration variable
+env:set - Set a specific configuration variable
+.PP
 .SH SYNOPSIS
-.B php spp.php env:set
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp.php env:set <key> <value> [--app=appname]
+php spp.php env:set <key> <value> [--app=appname]
+.PP
+.SH PURPOSE
+Updates a live configuration key with a new value directly from the CLI.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `<key>`: **Required**. Target setting index (e.g., `app:key`).
+.br
+\(bu `<value>`: **Required**. The literal value to enforce.
+.br
+\(bu `--app=<app_name>`: Target context scope.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+It captures positional strings off the CLI string stream. Inside the bounded application context, it runs a rudimentary scalar normalization block—it explicitly intercepts the text string representations of "true", "false", and "null", type-casting them to native PHP boolean/null variants. It further passes numeric inputs through a mathematical identity translation ($value + 0) to derive native integers/floats over strings. The polished payload is forwarded to \SPP\SPPConfig::set($key, $value), assuming the configuration layer possesses write-back persistence logic.
+.PP
+.SH EXAMPLES
+php spp.php env:set system.maintenance true
+.PP

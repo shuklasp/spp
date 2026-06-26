@@ -1,0 +1,24 @@
+.TH SPP-event-dispatch 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# event:dispatch
+.PP
+.SH NAME
+event:dispatch - Alias for event:fire
+.PP
+.SH SYNOPSIS
+php spp.php event:dispatch --event=<event_name> [--payload=<json>]
+.PP
+.SH PURPOSE
+Triggers a programmatic global event hook across the entire framework scope. Functions identically as an alias namespace for EventFireCommand.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--event=<event_name>`: Target event name.
+.br
+\(bu `--payload=<json>`: JSON formatted payload data.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Inherits all class methodologies, logic, and state behavior exclusively from EventFireCommand by explicitly requiring its parent script location dynamically (require_once __DIR__ . '/EventFireCommand.php') and extending it. It merely overrides the class-protected $name to event:dispatch.
+.PP
+.SH EXAMPLES
+php spp.php event:dispatch --event=user.login
+.PP

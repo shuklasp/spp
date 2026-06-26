@@ -1,0 +1,24 @@
+.TH SPP-make-eventhand 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+make:eventhand - Create a new Event Handler class
+.PP
+# SYNOPSIS
+php spp.php make:eventhand <HandlerClassName> [--app=appname]
+.PP
+# PURPOSE
+The make:eventhand command specifically scaffolds an unlinked Event Handler PHP class. Unlike make:event, it *does not* register the class in the events.yml configuration map, allowing developers to manually link complex event topologies.
+.PP
+# OPTIONS AVAILABLE
+\(bu `<HandlerClassName>` (string, required): The target name for the PHP Class.
+.br
+\(bu `--app=<appname>` (string, optional): The application context namespace.
+.br
+.PP
+# UNDER THE HOOD ACTIVITY
+It resolves the target Events namespace based on the requested application context. If context is explicitly default, the namespace degrades to EventHandlers. It invokes the buildFromStub() compiler passing the eventhandler stub format, generating {HandlerClassName}.php.
+Once generation concludes, it programmatically triggers a system cache flush via an asynchronous shell_exec("php spp.php cache:clear") invocation to guarantee namespace auto-discovery.
+.PP
+# EXAMPLES
+1. Generate an isolated handler:
+php spp.php make:eventhand AuditLogger --app=api
+.PP

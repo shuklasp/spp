@@ -1,8 +1,22 @@
-.TH SPP-i18n-export 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-i18n-export \- Export translations for a specific locale to a JSON file.
+.TH SPP-i18n-export 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `I18N:EXPORT`
+.PP
+Purpose: Export translations for a specific locale to a JSON file.
+.PP
 .SH SYNOPSIS
-.B php spp.php i18n:export
-[OPTIONS]
-.SH DESCRIPTION
-Export translations for a specific locale to a JSON file.
+php spp.php i18n:export [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--locale=` : Expects a value. Extracted via static analysis from I18nExportCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

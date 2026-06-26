@@ -1,8 +1,30 @@
-.TH SPP-view-page-add 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-view-page-add \- Add a new page route to an app
+.TH SPP-view-page-add 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `VIEW:PAGE:ADD`
+.PP
+Purpose: Add a new page route to an app
+.PP
 .SH SYNOPSIS
-.B php spp.php view:page:add
-[OPTIONS]
-.SH DESCRIPTION
+php spp.php view:page:add [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php view:page:add --name=<route> --url=<target> [--app=default] [--source=yaml|db]
+.PP
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+.br
+\(bu `--name=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+.br
+\(bu `--url=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+.br
+\(bu `--source=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+\(bu Instantiates internal components: page.
+.br
+.PP
+.PP

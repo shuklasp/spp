@@ -1,0 +1,28 @@
+# NAME
+`make:ux-component` - Scaffold a new SPP-UX reactive component
+
+# SYNOPSIS
+`php spp.php make:ux-component <ComponentName> [--template=external]`
+
+# PURPOSE
+The `make:ux-component` command scaffolds an SPP-UX specific web component. SPP-UX is an internal, zero-build client-side reactivity engine. This command bridges modern frontend component-based development directly into SPP without requiring Webpack or NPM.
+
+# OPTIONS AVAILABLE
+- `<ComponentName>` or `--name=<ComponentName>` (string, required): The Javascript component name.
+- `--template=external` (flag, optional): If utilized, it splits the component logically, creating both a logic controller `.js` file and a detached HTML layout file `.html`, wiring them together asynchronously.
+
+# UNDER THE HOOD ACTIVITY
+The command resolves the application context, mapping it to `src/{context}/comp/`.
+If `--template=external` is omitted, it creates a single `.js` file defining an ES6 class extending `BaseComponent`. This class embeds a complex `lit-html` style template literal directly within its `render()` function, fully styled with deep CSS gradients, interactive roadmap tabs, state conditionals (`${activeTab === 'roadmap' ? ... : ...}`), and an asynchronous `onInit` lifecyle hook utilizing `this.setState()`.
+If `--template=external` is supplied, it scaffolds two separate files. The `.html` file contains purely raw CSS/HTML markup. The `.js` file is vastly altered: its `render()` method explicitly returns a `Fragment`, and its `onInit()` method constructs an async `fetch()` request targeting `${this.app.config.baseUrl}/src/{CONTEXT}/comp/{FILE_NAME}.html`, downloading the template and dynamically injecting it as an HTML `<template>` node into the DOM, linking it implicitly to the `BaseComponent` shadow DOM rendering cycle.
+
+# EXAMPLES
+**1. Scaffold an inline reactive component:**
+```bash
+php spp.php make:ux-component DataTable
+```
+
+**2. Scaffold an external template component:**
+```bash
+php spp.php make:ux-component LoginWidget --template=external
+```

@@ -4,6 +4,61 @@ require_once('vendor/autoload.php');
 require_once('spp/sppinit.php');
 
 // 1. Context Sync: Ensure 'q' is relative to the detected application base
+if (file_exists(__DIR__ . '/.maintenance')) {
+    http_response_code(503);
+    echo '<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>503 Service Unavailable</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #09090b; 
+            --surface: rgba(24, 24, 27, 0.7); 
+            --primary: #f59e0b; 
+            --text: #f4f4f5; 
+            --muted: #a1a1aa; 
+            --border: rgba(255,255,255,0.08);
+            --glow: rgba(245, 158, 11, 0.15);
+        }
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            background-image: radial-gradient(circle at center, var(--glow), transparent 600px);
+            color: var(--text); 
+            font-family: "Inter", sans-serif; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container { 
+            max-width: 600px; 
+            padding: 50px; 
+            background: var(--surface); 
+            backdrop-filter: blur(12px);
+            border-radius: 20px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+        }
+        .icon { font-size: 64px; margin-bottom: 20px; }
+        .message { font-size: 24px; font-weight: 600; margin: 20px 0; color: var(--primary); }
+        .desc { color: var(--muted); line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">🚧</div>
+        <div class="message">System Maintenance</div>
+        <div class="desc">' . htmlspecialchars(file_get_contents(__DIR__ . '/.maintenance') ?: 'We are currently performing a scheduled deployment. The system will be back online shortly.') . '</div>
+    </div>
+</body>
+</html>';
+    exit;
+}
 $q = $_GET['q'] ?? '';
 $context = \SPP\Scheduler::getContext();
 if ($context !== '') {
@@ -36,10 +91,11 @@ require_once('global.php');
 
 
 
-    if (class_exists('\SPPMod\SPPMigrate\SPPMigrate') && \SPPMod\SPPMigrate\SPPMigrate::isMigrateRequest()) {
-        \SPPMod\SPPMigrate\SPPMigrate::handle();
-        return;
-    }
+// Intercept Deployment Requests globally (bypasses any App)
+if (class_exists('\SPPMod\SPPDeploy\SPPDeploy') && \SPPMod\SPPDeploy\SPPDeploy::isDeployRequest()) {
+    \SPPMod\SPPDeploy\SPPDeploy::handle();
+    return;
+}
 
     if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAPI') && \SPPMod\SPPAPI\SPPAPI::isApiRequest()) {
         \SPPMod\SPPAPI\SPPAPI::handle();

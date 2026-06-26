@@ -3,3 +3,6 @@ modules:
         name: schperson
         path: schperson
         status: inactive
+    -
+        name: sppdeploy
+        status: active

@@ -1,8 +1,27 @@
-.TH SPP-xdb-describe 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-xdb-describe 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# xdb:describe
+.PP
 .SH NAME
-spp-xdb-describe \- Describe the schema of an XDB table
+xdb:describe - Describe the schema of an XDB table.
+.PP
 .SH SYNOPSIS
-.B php spp.php xdb:describe
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp xdb:describe <table_name> [--db=dbname]
+php spp xdb:describe <table_name> [--db=<dbname>]
+.PP
+.SH PURPOSE
+Provides a clear view of the schema configuration for a specific table within the SPPXDB XML database. Useful for debugging and understanding the structure of stored XML entities.
+.PP
+.SH OPTIONS AVAILABLE
+* <table_name>: The name of the table to describe. Required.
+* --db=<dbname>: The target database name. Defaults to default.
+.PP
+.SH UNDER THE HOOD ACTIVITY
+The xdb:describe command iterates through the provided arguments, extracting the --db= option to determine the target database context. The first unflagged argument that isn't the script or command name is treated as the table name. If no table name is provided, the command halts and displays the usage instructions.
+.PP
+It then requires the SPP_XDB core module class from modules/spp/sppxdb/class.sppxdb.php. An instance of \SPPMod\SPPXDB\SPP_XDB is instantiated, passing the extracted database name (or 'default') to its constructor. It queries the schema by executing the DESCRIBE <table_name> SQL command through the $xdb->querySQL() method.
+.PP
+Once the schema definition is fetched, it attempts to display the results cleanly. If a global helper function printTable exists within the CLI context, it utilizes it to render the output in a formatted table layout using the array keys of the first row as headers. Otherwise, it falls back to displaying the raw array using print_r.
+.PP
+.SH EXAMPLES
+* php spp xdb:describe users
+* php spp xdb:describe orders --db=ecommerce
+.PP

@@ -1,0 +1,38 @@
+.TH SPP-deploy-maintenance 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+.PP
+deploy:maintenance - Toggle manual maintenance mode on a target environment
+.PP
+# SYNOPSIS
+.PP
+php spp.php deploy:maintenance <target_uri> --on|--off [--key=YOUR_API_KEY]
+.PP
+# PURPOSE
+.PP
+The deploy:maintenance command is used to enable or disable maintenance mode on an application instance. When enabled, the application typically blocks user access and displays a maintenance page. This command is versatile as it can act upon a remote deployment target or the local environment directly.
+.PP
+# OPTIONS AVAILABLE
+.PP
+*   <target_uri> (Required)
+The connection URI of the remote server, or the special keyword local to toggle maintenance mode on the current local instance.
+*   --on / --off (Required)
+Specifies the desired state of maintenance mode. You must provide exactly one of these flags.
+*   --key=YOUR_API_KEY (Optional)
+The API token to authenticate the request if toggling maintenance mode on a remote server.
+.PP
+# UNDER THE HOOD ACTIVITY
+.PP
+The command's behavior branches significantly depending on whether the target is local or a remote URL.
+.PP
+If the target is set to local, the command interacts directly with the local file system. It resolves the project root directory and targets a hidden .maintenance file within it. If --on is passed, it uses file_put_contents to create the .maintenance file, writing a default message: "Site is undergoing manual maintenance. Please check back later." The framework's core lifecycle hooks likely check for the existence of this file early in the request pipeline to halt execution and serve a generic 503 response. If --off is passed, the command uses unlink() to delete the .maintenance file if it exists, restoring normal application functionality.
+.PP
+If the target is a remote URI, the command delegates the operation to the deployment connection layer (TargetConnection::resolve()). It triggers $conn->setMaintenanceMode($state), passing "on" or "off". This fires an API request to the remote deployment receiver, which then performs the exact file system operations (creating or deleting its own .maintenance file) securely over the network. The remote target responds with a JSON payload indicating success or failure, which the CLI evaluates to print the final status message.
+.PP
+# EXAMPLES
+.PP
+Enable maintenance mode on the local machine:
+php spp.php deploy:maintenance local --on
+.PP
+Disable maintenance mode on a remote production server:
+php spp.php deploy:maintenance http://prod.example.com --off --key=secure_admin_key
+.PP

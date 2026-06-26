@@ -1,8 +1,22 @@
-.TH SPP-site-install 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-site-install \- Initialize the database and load default configurations for a specific profile.
+.TH SPP-site-install 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `SITE:INSTALL`
+.PP
+Purpose: Initialize the database and load default configurations for a specific profile.
+.PP
 .SH SYNOPSIS
-.B php spp.php site:install
-[OPTIONS]
-.SH DESCRIPTION
-Initialize the database and load default configurations for a specific profile.
+php spp.php site:install [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--profile=` : Expects a value. Extracted via static analysis from SiteInstallCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

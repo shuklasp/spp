@@ -154,7 +154,7 @@ class App extends \SPP\SPPObject
                                 // Robustly prefix relative paths for dynamic apps so they resolve from src/
                                 foreach (['etc_path', 'src_path', 'var_path', 'modules_path'] as $pk) {
                                     $val = $appSettings[$pk] ?? '';
-                                    if ($val !== '' && strpos($val, ':') === false && strpos($val, '/') !== 0 && strpos($val, '\\') !== 0 && strpos($val, 'src/') !== 0) {
+                                    if ($val !== '' && strpos($val, ':') === false && strpos($val, '/') !== 0 && strpos($val, '\\') !== 0 && strpos($val, 'src/') !== 0 && !($pk === 'etc_path' && strpos($val, 'etc/') === 0)) {
                                         $appSettings[$pk] = 'src/' . $d . '/' . trim($val, '/\\');
                                     }
                                 }

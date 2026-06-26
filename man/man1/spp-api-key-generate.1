@@ -1,8 +1,29 @@
-.TH SPP-api-key-generate 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-api-key-generate \- Generate a new API access token
-.SH SYNOPSIS
-.B php spp.php api:key:generate
-[OPTIONS]
-.SH DESCRIPTION
-Generate a new API access token
+.TH SPP-api-key-generate 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# NAME
+.PP
+api:key:generate
+.PP
+# SYNOPSIS
+.PP
+php spp.php api:key:generate "<name>"
+.PP
+# PURPOSE
+.PP
+Generates a new, highly secure, permanent API key token and records it in the database for client authentication.
+.PP
+# OPTIONS AVAILABLE
+.PP
+\(bu `"<name>"` (Required Positional Argument) : A human-readable identifier or description for the generated key. Typically the name of the client or service.
+.br
+.PP
+# UNDER THE HOOD ACTIVITY
+.PP
+The command validates that the required <name> positional argument is present at $args[2], throwing an error if absent. The API token itself is generated using a secure cryptographically random generator via bin2hex(random_bytes(32)), resulting in a robust 64-character hexadecimal string.
+.PP
+A standard \SPPMod\SPPDB\SPPDB database connection is instantiated. The command performs a basic schema verification by asserting the existence of the api_keys table. A unique identifier for the database row is created using uniqid(). A parameterized INSERT query is then executed on the api_keys table to persist the generated row ID, the descriptive token name, the raw API token, an active status flag (integer 1), and the creation timestamp using NOW(). After successfully writing to the database, the raw API key token is echo'ed to the console for the user to securely capture.
+.PP
+# EXAMPLES
+.PP
+Generate an API key for the mobile application:
+php spp.php api:key:generate "MobileApp_Production"
+.PP

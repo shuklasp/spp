@@ -1,8 +1,22 @@
-.TH SPP-diff-apply 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-diff-apply 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# diff:apply
+.PP
 .SH NAME
-spp-diff-apply \- Apply a patch or delta file
+diff:apply - Apply a patch or delta file
+.PP
 .SH SYNOPSIS
-.B php spp.php diff:apply
-[OPTIONS]
-.SH DESCRIPTION
-Usage: diff:apply --file=patch.json
+php spp.php diff:apply [--file=<patch.json>]
+.PP
+.SH PURPOSE
+Applies a generic JSON delta patch to the underlying state engine.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--file=<patch.json>`: Target delta file to apply.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+The command checks the system for the presence of the \SPPMod\SPPDiff\DeltaEngine module class. Currently acting as a stub, it asserts module availability and indicates command usage, reserving full delta assimilation logic for future module iterations.
+.PP
+.SH EXAMPLES
+php spp.php diff:apply --file=patch.json
+.PP

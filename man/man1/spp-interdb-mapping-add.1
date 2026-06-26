@@ -1,8 +1,24 @@
-.TH SPP-interdb-mapping-add 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-interdb-mapping-add \- Add a new InterDB mapping
+.TH SPP-interdb-mapping-add 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `INTERDB:MAPPING:ADD`
+.PP
+Purpose: Add a new InterDB mapping
+.PP
 .SH SYNOPSIS
-.B php spp.php interdb:mapping:add
-[OPTIONS]
-.SH DESCRIPTION
+php spp.php interdb:mapping:add [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php interdb:mapping:add <alias> <engine> <table>
+.PP
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--mappings` : Boolean flag or option. Extracted via static analysis from InterdbMappingAddCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates internal components: InterDB.
+.br
+.PP
+.PP

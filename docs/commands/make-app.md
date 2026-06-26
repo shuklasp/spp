@@ -1,0 +1,39 @@
+# NAME
+`make:app` - Create a new SPP application context
+
+# SYNOPSIS
+`php spp.php make:app [app_name] [app_type] [base_url] [table_prefix] [--enterprise]`
+
+# PURPOSE
+The `make:app` command is used to bootstrap a new SPP application context, providing a fully functional directory structure, environment configurations, and entry points. It supports various frontend paradigms ranging from native PHP, React, Vue, to SPP's own Blade and UX engines, or even a headless Drupal integration.
+
+# OPTIONS AVAILABLE
+- `[app_name]` (string): The name of the new application context (e.g., `dashboard`, `api`). If omitted, the CLI will prompt for it interactively.
+- `[app_type]` (string): The architecture pattern to scaffold. Available options are `native`, `blade`, `react`, `vue`, `drupal`, `sppux`, and `dropin`. Defaults to `native`. If omitted, prompts interactively.
+- `[base_url]` (string): The base URL route for the application (e.g., `/dashboard`). If omitted, it defaults to `/{app_name}` and prompts interactively.
+- `[table_prefix]` (string): The prefix for database tables specific to this app. Defaults to `{app_name}_` and prompts interactively.
+- `--enterprise` (flag): Enables Enterprise Mode. Configures the app to use Redis for caching and session management. If omitted and the command lacks arguments, it prompts interactively.
+
+# UNDER THE HOOD ACTIVITY
+When the `make:app` command is invoked, it sequentially performs several backend provisioning tasks to set up the application environment:
+1. **Directory Provisioning**: It creates a standardized directory tree under `SPP_APP_DIR/etc/apps/{app_name}` (for forms and config) and `SPP_APP_DIR/src/{app_name}` (for controllers, services, events, etc.), as well as a view folder under `resources/{app_name}/views`.
+2. **Global Settings Registration**: It parses the `spp/etc/global-settings.yml` file and injects the new application's configuration block. This includes routing data, base URL, table prefixes, and if Enterprise mode is enabled, overrides the default cache and session handlers to use a local Redis instance (`tcp://127.0.0.1:6379`).
+3. **Routing & Events**: It writes a default `pages.yml` in the app's `etc` directory establishing an `index` route, and creates a stub `events.yml` to lay the groundwork for event-driven handlers (like `BootHandler`).
+4. **Context Scaffolding**: Based on the selected `app_type`, it generates the corresponding boilerplate. 
+   - For `native`, it creates a bare-bones PHP entry script loading `\SPP\App`.
+   - For `blade`, it chains execution directly to `make:blade-project` to scaffold a fully integrated Blade environment.
+   - For `sppux`, it writes a complex, reactive `main.js` web component along with a stylish, glassmorphic HTML entry file pre-wired with the SPP-UX JS runtime and simulated admin bridges.
+   - For `dropin`, it generates an HTML view template and automatically builds a matching `contact.yml` low-code form, wiring them together via an auto-detecting `ViewPage::processForms()` router.
+   - For `react` and `vue`, it drops in the basic HTML structure, CDNs (for Vue) or Module loaders (for React), and starter `.jsx`/`.vue` files.
+   - For `drupal`, it scaffolds a stub entry point designed to operate as an integrated backend.
+
+# EXAMPLES
+**1. Scaffold a React application interactively:**
+```bash
+php spp.php make:app frontend react /app front_
+```
+
+**2. Scaffold an Enterprise SPP-UX application:**
+```bash
+php spp.php make:app admin sppux /admin adm_ --enterprise
+```

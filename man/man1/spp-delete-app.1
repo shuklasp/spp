@@ -1,8 +1,24 @@
-.TH SPP-delete-app 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-delete-app 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# delete:app
+.PP
 .SH NAME
-spp-delete-app \- Delete an SPP application context and all its data
+delete:app - Delete an SPP application context and all its data
+.PP
 .SH SYNOPSIS
-.B php spp.php delete:app
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp.php delete:app <AppName> [--force]
+php spp.php delete:app [AppNameToConfirm] [--force]
+.PP
+.SH PURPOSE
+Completely removes an existing SPP application, wiping its configuration, source code, and resource directories from the system.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `AppNameToConfirm`: The name of the application context to delete. Prompts interactively if omitted.
+.br
+\(bu `--force`: Bypass the standard "(y/N)" confirmation prompt.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+The command starts by validating the target app name, actively preventing deletion of protected system apps like default or admin. It requests manual confirmation via prompt() if --force is absent. It then systematically performs a recursive deletion of three specific directories using standard filesystem scanning (scandir, unlink, rmdir): etc/apps/{appName}, src/{appName}, and resources/{appName}. To complete the operation, it opens the master spp/etc/global-settings.yml registry with the Symfony YAML component, unsets the application entry under the ['apps'] node, and flushes the modified registry back to the disk.
+.PP
+.SH EXAMPLES
+php spp.php delete:app storefront --force
+.PP

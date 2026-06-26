@@ -1,0 +1,19 @@
+# NAME
+`manifest:export` - Exports tool autodiscovery definitions for AI Copilots
+
+# SYNOPSIS
+`php spp.php manifest:export`
+
+# PURPOSE
+Synthesizes and exports an AI Copilot autodiscovery manifest (`spp-ai-plugin.json`), enabling external Large Language Models (like OpenAI's GPT) to natively discover, understand, and interact with the SPP framework's operational tools via an OpenAPI schema.
+
+# OPTIONS AVAILABLE
+No options required.
+
+# UNDER THE HOOD ACTIVITY
+When triggered, the command first validates the existence of the `.well-known` directory within the application root (`SPP_APP_DIR`). If absent, it creates it with `0777` permissions. 
+The command then dynamically checks if the SPP AI module is available by verifying the existence of the `\SPPMod\SPPAI\SPPAI` class and its `generateAiManifest` method. If the AI module is installed and active, it delegates the manifest construction to that module, ensuring custom AI definitions are respected. 
+If the AI module is unavailable, it gracefully falls back to generating a default JSON object conforming to the standard AI Plugin Schema v1. This default payload defines the model as `SPP_Enterprise_Engine`, describes the system interface, sets authentication type to `none`, maps the OpenAPI definition URL to `/api.php?__manifest=true`, and assigns a logo URL. The resulting JSON payload is directly written to `.well-known/spp-ai-plugin.json` using `file_put_contents()`, making the platform instantly compatible with standard AI plugin discovery protocols.
+
+# EXAMPLES
+- `php spp.php manifest:export` - Generates and saves the `.well-known/spp-ai-plugin.json` manifest.

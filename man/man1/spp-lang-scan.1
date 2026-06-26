@@ -1,8 +1,22 @@
-.TH SPP-lang-scan 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-lang-scan \- Scan directories for new translation keys
+.TH SPP-lang-scan 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `LANG:SCAN`
+.PP
+Purpose: Scan directories for new translation keys
+.PP
 .SH SYNOPSIS
-.B php spp.php lang:scan
-[OPTIONS]
-.SH DESCRIPTION
-Scan directories for new translation keys
+php spp.php lang:scan [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from LangScanCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: spplang.
+.br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+\(bu Instantiates internal components: translation.
+.br
+.PP
+.PP

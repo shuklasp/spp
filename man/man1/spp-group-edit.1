@@ -1,8 +1,24 @@
-.TH SPP-group-edit 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-group-edit \- Edit an existing shared resource group
+.TH SPP-group-edit 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `GROUP:EDIT`
+.PP
+Purpose: Edit an existing shared resource group
+.PP
 .SH SYNOPSIS
-.B php spp.php group:edit
-[OPTIONS]
-.SH DESCRIPTION
+php spp.php group:edit [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php group:edit <group_name> [--extends=...] [--prefix=...]
+.PP
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--extends=` : Expects a value. Extracted via static analysis from GroupEditCommand.php.
+.br
+\(bu `--prefix=` : Expects a value. Extracted via static analysis from GroupEditCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP

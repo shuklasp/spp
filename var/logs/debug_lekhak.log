@@ -17650,3 +17650,27 @@ TEST[2026-05-10 23:36:23] SPPINIT: Context is lekhak, AppClass is \App\Lekhak\Le
 [2026-06-20 09:18:39] SPPBlade: Rendering absolute file. ViewName: dashboard, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/themes\/lekhak_themes\/glass_admin\/views","\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
 [2026-06-20 09:18:39] SPPBlade: Render successful for dashboard
 [2026-06-20 09:18:44] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/lekhak_themes/glass_admin/theme.css'
+[2026-06-24 11:12:37] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 11:12:37] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 11:12:37] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 11:14:54] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 11:14:54] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 11:14:54] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 14:04:16] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 14:04:16] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 14:04:16] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 14:13:23] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 14:13:23] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 14:13:23] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 14:21:31] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 14:21:31] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 14:21:31] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 14:21:59] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 14:21:59] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 14:21:59] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-24 14:24:37] SPPBlade: Starting render for 'src.Samvaad.index.php'
+[2026-06-24 14:24:38] SPPBlade: Rendering relative view 'src.Samvaad.index.php' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-06-24 14:24:38] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/Samvaad/resources/views/src.Samvaad.index.php
+[2026-06-25 14:34:25] SPPBlade: Starting render for '/mnt/c/projects/apache/school1/src/lekhak/resources/views/login.blade.php'
+[2026-06-25 14:34:25] SPPBlade: Rendering absolute file. ViewName: login, Paths: ["\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/resources\/views"]
+[2026-06-25 14:34:26] SPPBlade: Render successful for login

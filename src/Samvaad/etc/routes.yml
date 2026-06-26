@@ -1,0 +1,14 @@
+################################################################################
+# Application Isolated Routes
+# These routes are discovered by SPPRouter when scanning modules.
+# They supplement (not replace) the main etc/apps/Samvaad/pages.yml
+################################################################################
+
+routes:
+  - path: "login"
+    target: "\App\Samvaad\Serv\AuthController@loginForm"
+    type: "controller"
+
+  - path: "logout"
+    target: "\App\Samvaad\Serv\AuthController@logout"
+    type: "controller"

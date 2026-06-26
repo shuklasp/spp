@@ -1,8 +1,25 @@
-.TH SPP-view-service-test 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-view-service-test \- Test an AJAX service endpoint from the CLI
+.TH SPP-view-service-test 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `VIEW:SERVICE:TEST`
+.PP
+Purpose: Test an AJAX service endpoint from the CLI
+.PP
 .SH SYNOPSIS
-.B php spp.php view:service:test
-[OPTIONS]
-.SH DESCRIPTION
+php spp.php view:service:test [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php view:service:test --name=<service> [--app=default] [--payload=
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
+.br
+\(bu `--name=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
+.br
+\(bu `--payload=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

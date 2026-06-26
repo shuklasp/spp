@@ -1,8 +1,23 @@
-.TH SPP-config-export 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-config-export \- Export database tables and global settings to SQL, SQLite, or XDB format
+.TH SPP-config-export 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `CONFIG:EXPORT`
+.PP
+Purpose: Export database tables and global settings to SQL, SQLite, or XDB format
+.PP
 .SH SYNOPSIS
-.B php spp.php config:export
-[OPTIONS]
-.SH DESCRIPTION
-Export database tables and global settings to SQL, SQLite, or XDB format
+php spp.php config:export [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
+.br
+.PP
+.PP

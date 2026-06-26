@@ -1,8 +1,18 @@
-.TH SPP-view-service-list 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-view-service-list \- List all registered AJAX services for an app
+.TH SPP-view-service-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `VIEW:SERVICE:LIST`
+.PP
+Purpose: List all registered AJAX services for an app
+.PP
 .SH SYNOPSIS
-.B php spp.php view:service:list
-[OPTIONS]
-.SH DESCRIPTION
-List all registered AJAX services for an app
+php spp.php view:service:list [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from ViewServiceListCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

@@ -1,8 +1,22 @@
-.TH SPP-di-list 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-di-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# di:list
+.PP
 .SH NAME
-spp-di-list \- List the Dependency Injection container bindings
+di:list - List the Dependency Injection container bindings
+.PP
 .SH SYNOPSIS
-.B php spp.php di:list
-[OPTIONS]
-.SH DESCRIPTION
-List the Dependency Injection container bindings
+php spp.php di:list [--app=<app_name>]
+.PP
+.SH PURPOSE
+Provides a diagnostic listing of all active bindings and singletons present inside the SPP Dependency Injection container.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=<app_name>`: Context boundary for evaluating the DI container (default: 'default').
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+The command bootstraps into the requested application context using \SPP\Scheduler::withContext(). It retrieves the core application container via \SPP\App::getApp()->getContainer(). Due to internal visibility, it leverages PHP's \ReflectionClass to bypass encapsulation and extract the protected bindings and instances properties. It loops over the bindings array, inspecting whether each binding is mapped as a Closure or class name, classifying them as Singletons (shared) or Factories. It then merges this output with directly resolved instances that bypass strict initial bindings, outputting a cleanly padded, columnar table.
+.PP
+.SH EXAMPLES
+php spp.php di:list
+.PP

@@ -1,0 +1,6 @@
+name: sppdeploy
+description: SPP Automated Deployment & Rollback System
+version: 1.0.0
+author: System
+core: ">=1.0.0"
+token: "spp_deploy_token_placeholder"

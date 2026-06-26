@@ -1,8 +1,20 @@
-.TH SPP-cache-stats 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
-.SH NAME
-spp-cache-stats \- Display cache driver statistics
+.TH SPP-cache-stats 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH `CACHE:STATS`
+.PP
+Purpose: Display cache driver statistics
+.PP
 .SH SYNOPSIS
-.B php spp.php cache:stats
-[OPTIONS]
-.SH DESCRIPTION
-Display cache driver statistics
+php spp.php cache:stats [OPTIONS]
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=` : Expects a value. Extracted via static analysis from CacheStatsCommand.php.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+\(bu Interacts with the application cache layer (Redis/Memcached).
+.br
+.PP
+.PP

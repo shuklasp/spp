@@ -265,6 +265,15 @@ return array (
       'options_yaml' => 'template: crm
 created_at: 1780656744',
     ),
+    'Samvaad' => 
+    array (
+      'base_url' => '/samvaad',
+      'table_prefix' => 'Samvaad_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/Samvaad',
+      'src_path' => 'src/Samvaad',
+    ),
     'spp_docs' => 
     array (
       'base_url' => '/spp/docs',

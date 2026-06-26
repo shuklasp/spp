@@ -1,8 +1,31 @@
-.TH SPP-xdb-query 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-xdb-query 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# xdb:query
+.PP
 .SH NAME
-spp-xdb-query \- Execute a SQL or XPath query on the XML database
+xdb:query - Execute a SQL or XPath query on the XML database.
+.PP
 .SH SYNOPSIS
-.B php spp.php xdb:query
-[OPTIONS]
-.SH DESCRIPTION
-Usage: php spp xdb:query \
+php spp xdb:query "<query>" [--type=<sql|xpath>]
+.PP
+.SH PURPOSE
+Executes queries directly against the SPPXDB system using the command line. This allows developers to interact with the underlying XML-based data structures without needing a specialized client, supporting both traditional SQL-like queries and raw XPath expressions.
+.PP
+.SH OPTIONS AVAILABLE
+* "<query>": The actual SQL or XPath string to execute. It should be enclosed in quotes to prevent shell parsing issues. This is the first non-option argument.
+* --type=<sql|xpath>: Specifies the query engine to use. Defaults to sql.
+\(bu `sql`: Uses the SQL parser to interpret the query.
+.br
+\(bu `xpath`: Passes the query directly to the XPath engine.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+When xdb:query is invoked, it parses the command-line arguments to separate the query string from the options. It ignores the script name (spp.php or spp/spp.php) and the command name itself (xdb:query). It extracts the --type flag if present, defaulting to sql otherwise.
+.PP
+The command then dynamically attempts to locate and load the SPP_XDB core class from modules/spp/sppxdb/class.sppxdb.php. If the file is missing, it throws an exception.
+.PP
+Once the class is loaded, it instantiates \SPPMod\SPPXDB\SPP_XDB. Depending on the query type specified, it calls either $xdb->queryX($query) for XPath expressions or $xdb->querySQL($query) for SQL statements. The XPath execution assumes the user is either targeting a global scope or implicitly relying on a default connection state. Finally, the results are captured; if an array of records is returned, it prints the count and the raw output via print_r. If a non-array response (like a boolean for an insert/update) is returned, it outputs the result using var_export.
+.PP
+.SH EXAMPLES
+* php spp xdb:query "SELECT * FROM users"
+* php spp xdb:query "//user[age>18]" --type=xpath
+.PP

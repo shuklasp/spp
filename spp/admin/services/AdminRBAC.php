@@ -110,6 +110,17 @@ function getActionScopeMap(): array {
         'sync_deployment_token' => 'admin.lifecycle',
         'system_update_run'     => 'admin.lifecycle',
         'sys_upgrade'           => 'admin.lifecycle',
+        'lifecycle_deploy_history'    => 'admin.lifecycle',
+        'lifecycle_list_backups'      => 'admin.lifecycle',
+        'lifecycle_restore_backup'    => 'admin.lifecycle',
+        'lifecycle_remote_logs'       => 'admin.lifecycle',
+        'lifecycle_remote_run'        => 'admin.lifecycle',
+        'lifecycle_health_check'      => 'admin.lifecycle',
+        'lifecycle_get_webhooks'      => 'admin.lifecycle',
+        'lifecycle_save_webhooks'     => 'admin.lifecycle',
+        'lifecycle_test_webhook'      => 'admin.lifecycle',
+        'lifecycle_cluster_status'    => 'admin.lifecycle',
+        'lifecycle_maintenance_toggle'=> 'admin.lifecycle',
 
         // Destructive actions
         'delete_entity'         => 'admin.entities',

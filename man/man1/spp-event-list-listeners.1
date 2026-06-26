@@ -1,8 +1,22 @@
-.TH SPP-event-list-listeners 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-event-list-listeners 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
+# event:list-listeners
+.PP
 .SH NAME
-spp-event-list-listeners \- List all registered global event listeners
+event:list-listeners - List all registered global event listeners
+.PP
 .SH SYNOPSIS
-.B php spp.php event:list-listeners
-[OPTIONS]
-.SH DESCRIPTION
-List all registered global event listeners
+php spp.php event:list-listeners [--app=<app_name>]
+.PP
+.SH PURPOSE
+Exposes the internal mapping of every subscribed callback bound to system events inside the application context.
+.PP
+.SH OPTIONS AVAILABLE
+\(bu `--app=<app_name>`: Specifies which application's DI context to evaluate.
+.br
+.PP
+.SH UNDER THE HOOD ACTIVITY
+Bootstrapped within the bounded app closure, the command validates if \SPP\Core\EventManager is included in the memory pool. Due to strict memory encapsulation, it establishes a \ReflectionClass context around the EventManager. It forcefully extracts the private listeners mapping property using setAccessible(true) and getValue(). It scans the resulting nested associative array matrix, identifying discrete string-based event names, and prints them out alongside an aggregate count of connected callbacks listening to that specific node.
+.PP
+.SH EXAMPLES
+php spp.php event:list-listeners
+.PP
