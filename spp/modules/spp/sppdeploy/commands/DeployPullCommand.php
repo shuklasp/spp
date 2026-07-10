@@ -8,10 +8,8 @@ class DeployPullCommand extends Command
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
-        if (!$target) {
-            echo "Error: Target connection URI required.\n";
-            echo "Usage: php spp.php deploy:pull <target_uri> [--key=YOUR_API_KEY] [-y|--force]\n";
-            return;
+        if (!$target || str_starts_with($target, '--') || str_starts_with($target, '-')) {
+            $target = \SPPMod\SPPDeploy\Deployer\TargetConnection::getDefaultEnvironment();
         }
 
         $apiKey = getenv('SPP_DEPLOY_TOKEN') ?: 'default_cli_key';

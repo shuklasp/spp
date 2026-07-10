@@ -1,22 +1,22 @@
-.TH SPP-ext-install 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# ext:install
-.PP
+.TH SPP-ext-install 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-ext:install - Install an extension from a zip or directory
-.PP
+spp-ext-install \- Install an extension from a zip or directory
 .SH SYNOPSIS
-php spp.php ext:install --source=<path_or_url>
+.B php spp.php ext:install
+[OPTIONS]
+.SH DESCRIPTION
+Install an extension from a zip or directory
 .PP
-.SH PURPOSE
-Provision an external extension archive or directory onto the SPP extension registry.
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--source=<path_or_url>`: **Required**. Defines the raw target URI or discrete system path to the extension payload.
+Usage: php spp.php ext:install --source=<path_or_url>
 .br
+
 .PP
-.SH UNDER THE HOOD ACTIVITY
-It evaluates CLI arguments for the bounded --source input flag. Validates its active presence. The script represents an unfinished stub interface intended to ultimately deploy archives or git source packages to the modules/ system domain.
+.SH OPTIONS
+.TP
+.B --source=
+Expects a value. Extracted via static analysis from ExtInstallCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH EXAMPLES
-php spp.php ext:install --source=https://example.com/ext.zip
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

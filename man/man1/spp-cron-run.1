@@ -1,18 +1,20 @@
-.TH SPP-cron-run 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `CRON:RUN`
-.PP
-Purpose: Execute pending cron jobs manually
-.PP
+.TH SPP-cron-run 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-cron-run \- Execute pending cron jobs manually
 .SH SYNOPSIS
-php spp.php cron:run [OPTIONS]
+.B php spp.php cron:run
+[OPTIONS]
+.SH DESCRIPTION
+Execute pending cron jobs manually
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from CronRunCommand.php.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from CronRunCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
+\(bu Instantiates key components: \SPP\CLI\Commands\WorkflowProcessTimeoutsCommand.
 .br
-.PP
-.PP

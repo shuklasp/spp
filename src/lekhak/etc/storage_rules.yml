@@ -1,0 +1,6 @@
+smart_storage:
+  rules:
+    audit_logs:
+      disk: file_shared
+      match_prefix: [audit_]
+      match_extension: [log]

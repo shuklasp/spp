@@ -1,0 +1,39 @@
+################################################################################
+# Contact Form Definition — TestApp2
+#
+# HOW THIS WORKS:
+# YAML forms are automatically processed by SPPView when a POST contains
+# the hidden field: <input type="hidden" name="spp_form_id" value="contact">
+#
+# FIELD TYPES: text, email, textarea, select, checkbox, radio, hidden, number
+# VALIDATION:  required, min:N, max:N, email, numeric, regex:pattern
+#
+# HOW TO ADD A NEW FORM:
+# 1. Create a new YAML file here (e.g., feedback.yml)
+# 2. Add <input type="hidden" name="spp_form_id" value="feedback"> to your HTML
+# 3. Or use the Blade directive: @sppform('feedback')
+################################################################################
+
+id: contact
+public_name: "Contact Form"
+success_message: "Thank you! Your message has been received."
+redirect_to: "contact"
+
+fields:
+  guest_name:
+    label: "Your Name"
+    type: text
+    required: true
+    validation: "min:2"
+    placeholder: "John Doe"
+  email:
+    label: "Email Address"
+    type: email
+    required: false
+    placeholder: "you@example.com"
+  message:
+    label: "Message"
+    type: textarea
+    required: true
+    validation: "min:10"
+    placeholder: "Tell us what's on your mind..."

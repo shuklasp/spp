@@ -26,8 +26,7 @@
 spl_autoload_register(function ($className) {
     // Only handle our app namespace
     $prefix = 'App\\Samvaad\\';
-    if (strpos($className, $prefix) !== 0)
-        return;
+    if (strpos($className, $prefix) !== 0) return;
 
     $relative = substr($className, strlen($prefix));
     $parts = explode('\\', $relative);
@@ -62,4 +61,11 @@ spl_autoload_register(function ($className) {
 // This means @sppux directives and SPPUX::render() work on any page.
 if (php_sapi_name() !== 'cli' && class_exists('\\SPPMod\\Drishyam\\SPPUX')) {
     \SPPMod\Drishyam\SPPUX::boot('Samvaad');
+}
+
+// ── Dynamic Asset Inclusion ───────────────────────────────────
+// Automatically injects mapped CSS and JS assets from module.yml
+// configurations via the secure AssetRouter alias system.
+if (php_sapi_name() !== 'cli') {
+    \SPP\App::includeAssets();
 }

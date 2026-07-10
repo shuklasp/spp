@@ -111,6 +111,17 @@ abstract class EventHandler
         // No-op in modern router
     }
 
+    public function __invoke(mixed $params = [])
+    {
+        if ($params instanceof \SPP\EventParams) {
+            $payload = $params->getPayload();
+            $this->overrideHandler($payload);
+            $params->setPayload($payload);
+        } else {
+            $this->overrideHandler($params);
+        }
+    }
+
     public function __call($name, $arguments)
     {
         throw new \BadMethodCallException("Call to undefined method " . static::class . "::{$name}()");

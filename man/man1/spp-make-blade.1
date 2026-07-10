@@ -1,25 +1,22 @@
-.TH SPP-make-blade 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:blade - Scaffold a new Blade template (Drishyam Paradigm)
+.TH SPP-make-blade 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-blade \- Scaffold a new Blade template (Drishyam Paradigm)
+.SH SYNOPSIS
+.B php spp.php make:blade
+[OPTIONS]
+.SH DESCRIPTION
+Scaffold a new Blade template (Drishyam Paradigm)
 .PP
-# SYNOPSIS
-php spp.php make:blade <ViewName> [--name=<ViewName>]
-.PP
-# PURPOSE
-The make:blade command generates a new SPP Blade view file specifically tailored for the Drishyam Paradigm. This creates a visually stylized starter template integrating SPP's internal Blade compilation engine.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<ViewName>` or `--name=<ViewName>` (string): The name of the Blade view you wish to create. It automatically ensures the `.blade.php` extension is appended if not provided.
+Usage: php spp.php make:blade <ViewName>
 .br
+
 .PP
-# UNDER THE HOOD ACTIVITY
-When executed, this command reads the current execution context via getContext() to determine which app namespace to target (e.g. default, admin). It resolves the view folder to SPP_APP_DIR/resources/views/<context>/. If the <ViewName>.blade.php file does not exist, it forcefully creates the directory structure.
-It writes a predefined Drishyam layout scaffold containing basic HTML and CSS boilerplate, an app layout extension directive (@extends('layouts.app')), and specific hero banner code styled with a linear-gradient and inter fonts. The resulting file acts as a standalone interactive view with a placeholder JavaScript alert wired to a primary button.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# EXAMPLES
-1. Scaffold a dashboard view:
-php spp.php make:blade dashboard
-.PP
-2. Scaffold a dashboard view explicitly:
-php spp.php make:blade --name=dashboard
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: Drishyam, Blade.
+.br

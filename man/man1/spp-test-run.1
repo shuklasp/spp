@@ -1,22 +1,22 @@
-.TH SPP-test-run 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `TEST:RUN`
-.PP
-Purpose: Runs Parikshak evaluation for an entity or the whole suite
-.PP
+.TH SPP-test-run 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-test-run \- Runs Parikshak evaluation for an entity or the whole suite
 .SH SYNOPSIS
-php spp.php test:run [OPTIONS]
+.B php spp.php test:run
+[OPTIONS]
+.SH DESCRIPTION
+Runs Parikshak evaluation for an entity or the whole suite
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--coverage` : Boolean flag or option. Extracted via static analysis from TestRunCommand.php.
-.br
+.SH OPTIONS
+.TP
+.B --coverage
+Boolean flag. Extracted via static analysis from TestRunCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Dynamically loads SPP kernel modules: parikshak.
+\(bu Dynamically loads kernel modules: parikshak.
 .br
-\(bu Bootstraps a full application execution context via Scheduler.
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-\(bu Instantiates internal components: \SPPMod\Parikshak\Parikshak.
+\(bu Instantiates key components: \SPPMod\Parikshak\Parikshak.
 .br
-.PP
-.PP

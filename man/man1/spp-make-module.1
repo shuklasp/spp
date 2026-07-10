@@ -1,32 +1,24 @@
-.TH SPP-make-module 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:module - Create a new SPP module
+.TH SPP-make-module 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-module \- Create a new SPP module
+.SH SYNOPSIS
+.B php spp.php make:module
+[OPTIONS]
+.SH DESCRIPTION
+Create a new SPP module
 .PP
-# SYNOPSIS
-php spp.php make:module <name> [--scope=spp|contrib|app]
-.PP
-# PURPOSE
-The make:module command scaffolds the architectural boilerplate required to construct a modular, pluggable application extension within SPP. It constructs the essential module directory, the autoloader manifest (module.xml), and the core bootstrap PHP class.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<name>` (string, required): The name of the module (e.g. `Blog`, `Forum`).
+Usage: php spp.php make:module <name> [--scope=spp|contrib|app]
 .br
-\(bu `--scope=<spp|contrib|app>` (string, optional): Defines the organizational boundary of the module.
-.br
-\(bu `app` (default): Installs into `SPP_APP_DIR/spp/modules/app/`.
-.br
-\(bu `spp`: Installs globally into the core framework at `SPP_BASE_DIR/modules/spp/`.
-.br
-\(bu `contrib`: Installs into the community plugin directory at `SPP_BASE_DIR/modules/contrib/`.
-.br
+
 .PP
-# UNDER THE HOOD ACTIVITY
-It sanitizes the requested module name, aggressively stripping all non-alphanumeric characters using preg_replace('/[^a-zA-Z0-9]/', '', $name) and enforcing lowercase. It calculates the absolute target directory based on the --scope argument.
-It then physically executes mkdir() to generate the directory structure.
-First, it generates a robust module.xml manifest detailing the module's name, version, description, namespace (SPPMod\{Name}), and explicitly maps the autoloader rules referencing the primary class file.
-Second, it generates the primary bootstrap class class.{name}.php extending \SPP\SPPObject, setting up the constructor logic. The CLI also provides a renderAdminUI() bridge to allow modular scaffolding directly from the visual SPP admin dashboard.
+.SH OPTIONS
+.TP
+.B --scope=
+Expects a value. Extracted via static analysis from MakeModuleCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# EXAMPLES
-1. Create a local application module:
-php spp.php make:module Forum --scope=app
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: SPP.
+.br

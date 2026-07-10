@@ -1,0 +1,480 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "SPP Framework OpenAPI Specification",
+        "version": "1.0.0",
+        "description": "Automatically generated OpenAPI 3.0 specs from SPP routes and entities."
+    },
+    "paths": {
+        "\/api\/users": {
+            "get": {
+                "summary": "List all users (Fallback sample)",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            },
+            "post": {
+                "summary": "Create a new user (Fallback sample)",
+                "responses": {
+                    "200": {
+                        "description": "Successful operation"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "SPPRight": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "name": {
+                        "type": "varchar(100)"
+                    },
+                    "description": {
+                        "type": "text"
+                    }
+                }
+            },
+            "SPPRole": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "role_name": {
+                        "type": "varchar(100)"
+                    },
+                    "description": {
+                        "type": "text"
+                    }
+                }
+            },
+            "SPPUser": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "int"
+                    },
+                    "username": {
+                        "type": "varchar(100)"
+                    },
+                    "email": {
+                        "type": "varchar(255)"
+                    },
+                    "password_hash": {
+                        "type": "varchar(255)"
+                    },
+                    "password": {
+                        "type": "varchar(255)"
+                    },
+                    "role_id": {
+                        "type": "int"
+                    },
+                    "status": {
+                        "type": "varchar(20)"
+                    },
+                    "created_at": {
+                        "type": "datetime"
+                    },
+                    "updated_at": {
+                        "type": "datetime"
+                    }
+                }
+            },
+            "Organiusation": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "SCH_Person": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Role": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(100)"
+                    },
+                    "slug": {
+                        "type": "varchar(100)"
+                    },
+                    "description": {
+                        "type": "text"
+                    }
+                }
+            },
+            "Permission": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(100)"
+                    },
+                    "slug": {
+                        "type": "varchar(100)"
+                    },
+                    "description": {
+                        "type": "text"
+                    }
+                }
+            },
+            "SPPGroup": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(255)"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "created_at": {
+                        "type": "datetime"
+                    },
+                    "ai_vector": {
+                        "type": "text"
+                    },
+                    "metadata": {
+                        "type": "text"
+                    },
+                    "source": {
+                        "type": "varchar(50)"
+                    },
+                    "group_context": {
+                        "type": "varchar(100)"
+                    }
+                }
+            },
+            "BlogPost": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "DummyEntity": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(255)"
+                    },
+                    "dob": {
+                        "type": "datetime"
+                    }
+                }
+            },
+            "Employee": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "NewEntity1": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Staff": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Teacher": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "TestEditEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "TestEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "Block": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(50)"
+                    },
+                    "title": {
+                        "type": "varchar(255)"
+                    },
+                    "region": {
+                        "type": "varchar(50)"
+                    },
+                    "visibility_paths": {
+                        "type": "text"
+                    },
+                    "content": {
+                        "type": "longtext"
+                    },
+                    "type": {
+                        "type": "varchar(20)"
+                    },
+                    "weight": {
+                        "type": "int"
+                    }
+                }
+            },
+            "ContentType": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(50)"
+                    },
+                    "label": {
+                        "type": "varchar(255)"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "storage_strategy": {
+                        "type": "varchar(20)"
+                    },
+                    "help_text": {
+                        "type": "text"
+                    }
+                }
+            },
+            "ContentTranslation": {
+                "type": "object",
+                "properties": {
+                    "entity_type": {
+                        "type": "varchar(50)"
+                    },
+                    "entity_id": {
+                        "type": "varchar(50)"
+                    },
+                    "langcode": {
+                        "type": "varchar(10)"
+                    },
+                    "field_name": {
+                        "type": "varchar(100)"
+                    },
+                    "translated_value": {
+                        "type": "text"
+                    }
+                }
+            },
+            "Field": {
+                "type": "object",
+                "properties": {
+                    "bundle": {
+                        "type": "varchar(50)"
+                    },
+                    "field_name": {
+                        "type": "varchar(50)"
+                    },
+                    "label": {
+                        "type": "varchar(255)"
+                    },
+                    "type": {
+                        "type": "varchar(50)"
+                    },
+                    "settings": {
+                        "type": "text"
+                    },
+                    "required": {
+                        "type": "boolean"
+                    },
+                    "weight": {
+                        "type": "int"
+                    },
+                    "widget_type": {
+                        "type": "varchar(50)"
+                    },
+                    "widget_settings": {
+                        "type": "text"
+                    },
+                    "formatter_type": {
+                        "type": "varchar(50)"
+                    },
+                    "formatter_settings": {
+                        "type": "text"
+                    }
+                }
+            },
+            "Node": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "varchar(255)"
+                    },
+                    "alias": {
+                        "type": "varchar(255)"
+                    },
+                    "bundle": {
+                        "type": "varchar(50)"
+                    },
+                    "body": {
+                        "type": "longtext"
+                    },
+                    "author_id": {
+                        "type": "bigint"
+                    },
+                    "status": {
+                        "type": "varchar(20)"
+                    },
+                    "langcode": {
+                        "type": "varchar(10)"
+                    },
+                    "translation_id": {
+                        "type": "bigint"
+                    },
+                    "created": {
+                        "type": "datetime"
+                    },
+                    "changed": {
+                        "type": "datetime"
+                    },
+                    "fields_data": {
+                        "type": "longtext"
+                    }
+                }
+            },
+            "LekhakNode": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "varchar(255)"
+                    },
+                    "alias": {
+                        "type": "varchar(255)"
+                    },
+                    "bundle": {
+                        "type": "varchar(50)"
+                    },
+                    "body": {
+                        "type": "longtext"
+                    },
+                    "author_id": {
+                        "type": "bigint"
+                    },
+                    "status": {
+                        "type": "varchar(20)"
+                    },
+                    "langcode": {
+                        "type": "varchar(10)"
+                    },
+                    "translation_id": {
+                        "type": "bigint"
+                    },
+                    "created": {
+                        "type": "datetime"
+                    },
+                    "changed": {
+                        "type": "datetime"
+                    },
+                    "fields_data": {
+                        "type": "longtext"
+                    }
+                }
+            },
+            "Term": {
+                "type": "object",
+                "properties": {
+                    "vid": {
+                        "type": "varchar(50)"
+                    },
+                    "name": {
+                        "type": "varchar(255)"
+                    },
+                    "parent_id": {
+                        "type": "int"
+                    },
+                    "description": {
+                        "type": "text"
+                    },
+                    "weight": {
+                        "type": "int"
+                    }
+                }
+            },
+            "ViewDefinition": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(100)"
+                    },
+                    "label": {
+                        "type": "varchar(255)"
+                    },
+                    "base_table": {
+                        "type": "varchar(100)"
+                    },
+                    "fields": {
+                        "type": "text"
+                    },
+                    "filters": {
+                        "type": "text"
+                    },
+                    "sorts": {
+                        "type": "text"
+                    },
+                    "pagination": {
+                        "type": "int"
+                    },
+                    "display_format": {
+                        "type": "varchar(50)"
+                    }
+                }
+            },
+            "Vocabulary": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "varchar(50)"
+                    },
+                    "label": {
+                        "type": "varchar(255)"
+                    },
+                    "description": {
+                        "type": "text"
+                    }
+                }
+            },
+            "Student": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            }
+        }
+    }
+}

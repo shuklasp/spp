@@ -1,22 +1,22 @@
-.TH SPP-make-twig 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:twig - Scaffold a new Twig template (Drishyam Paradigm)
+.TH SPP-make-twig 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-twig \- Scaffold a new Twig template (Drishyam Paradigm)
+.SH SYNOPSIS
+.B php spp.php make:twig
+[OPTIONS]
+.SH DESCRIPTION
+Scaffold a new Twig template (Drishyam Paradigm)
 .PP
-# SYNOPSIS
-php spp.php make:twig <ViewName> [--name=<ViewName>]
-.PP
-# PURPOSE
-The make:twig command scaffolds a .twig View template file explicitly formatted to leverage the Drishyam rendering paradigm, seamlessly bridging enterprise Twig syntax with the SPP Framework context ecosystem.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<ViewName>` or `--name=<ViewName>` (string, required): The core filename for the view. If it lacks a `.twig` extension, it will be automatically appended.
+Usage: php spp.php make:twig <ViewName>
 .br
+
 .PP
-# UNDER THE HOOD ACTIVITY
-When executed, it derives the application target context and resolves the resources/views/{context}/ directory.
-It writes a hardcoded HEREDOC string heavily styled with custom CSS (drishyam-container, .twig-hero gradient) utilizing traditional Twig syntax rules like {% extends "layouts/app.twig" %}, {% block title %}, and {% block content %}. It replaces structural tokens ({{VIEW_NAME}}, {{CONTEXT}}) dynamically prior to forcefully writing the file to disk via file_put_contents.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# EXAMPLES
-1. Scaffold a Twig profile view:
-php spp.php make:twig UserProfile
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: Drishyam, Twig.
+.br

@@ -27,6 +27,19 @@ $command = $argv[1];
 
 // Native fast-paths for performance critical commands (like cron)
 // Attempt to dynamically resolve the command rather than hardcoding paths
+if ($command === 'serve:async') {
+    require_once __DIR__ . '/sppinit.php';
+    require_once __DIR__ . '/core/Async/AsyncWorker.php';
+    $appName = 'default';
+    $port = 8080;
+    foreach ($argv as $arg) {
+        if (str_starts_with($arg, '--app=')) $appName = substr($arg, 6);
+        if (str_starts_with($arg, '--port=')) $port = (int)substr($arg, 7);
+    }
+    \SPP\Core\Async\AsyncWorker::serve($appName, $port);
+    exit(0);
+}
+
 if ($command === 'cron' || str_ends_with($command, ':cron')) {
     require_once __DIR__ . '/sppinit.php';
     // If it's a specific module cron, try to load it safely

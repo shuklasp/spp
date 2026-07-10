@@ -1,21 +1,16 @@
-.TH SPP-drishyam-clear 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# drishyam:clear
-.PP
+.TH SPP-drishyam-clear 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-drishyam:clear - Clear the Drishyam rendering cache
-.PP
+spp-drishyam-clear \- Clear the Drishyam rendering cache
 .SH SYNOPSIS
-php spp.php drishyam:clear
+.B php spp.php drishyam:clear
+[OPTIONS]
+.SH DESCRIPTION
+Clear the Drishyam rendering cache
 .PP
-.SH PURPOSE
-Purges all temporarily compiled view artifacts from the Drishyam template engine.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-This command takes no arguments.
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command builds the path to the localized Drishyam cache located at var/storage/temp/views relative to SPP_APP_DIR. It utilizes glob() to load all internal file paths into an array, and iteratively calls the native PHP unlink() command on every valid file it discovers, keeping a count of successful purges to output to the developer.
-.PP
-.SH EXAMPLES
-php spp.php drishyam:clear
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br

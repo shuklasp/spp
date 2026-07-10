@@ -3,8 +3,8 @@
 Welcome to the modernized version of the SPP Framework! This guide covers the key architectural changes and how to use the new features.
 
 ## 1. Security First
-The new `sppsecurity` module is now part of the core ecosystem.
-- **CSRF Protection:** Use `SPPMod\SPPSecurity\Middleware\CsrfMiddleware` to protect all state-changing routes. Generate tokens using the `SPPSecurityProvider`.
+The `sppsecurity` module has been merged directly into the core ecosystem (`SPP\Core\Security`).
+- **CSRF Protection:** Use `SPP\Core\Security\Middleware\CsrfMiddleware` to protect all state-changing routes. Generate tokens using the `SPPSecurityProvider`.
 - **XSS Prevention:** `SPPSanitizer` provides context-aware escaping (html, js, attribute).
 - **Rate Limiting:** `ThrottleMiddleware` handles IP-based rate limiting using the new Token Bucket implementation via the SPP Cache.
 
@@ -69,7 +69,7 @@ SPPView introduces an ecosystem that mirrors modern reactive frameworks without 
 ## 12. Massive Security Hardening (The Brutal Audit)
 The framework has undergone a massive, exhaustive codebase-wide security overhaul targeting 14 different core modules to mathematically eliminate vulnerability vectors.
 - **SQL Injection (SQLi) Elimination:** Both the core `sppdb` and experimental `sppxdb` `QueryBuilder` classes now strictly enforce regex-based column and operator sanitization. The dynamic reporting engine (`sppreport`) explicitly blocks spaces and quotes in `CUSTOM` mathematical aggregation formulas to prevent subquery injection.
-- **Local File Inclusion (LFI) & Path Traversal Preventions:** Hardened `spprouter` (view rendering), `sppview` (`<php-include>` rendering), and `sppstorage` (`LocalDisk` adapters) against arbitrary directory traversal via rigorous `..` and `/` character filtering.
+- **Local File Inclusion (LFI) & Path Traversal Preventions:** Hardened `spprouter` (view rendering), `sppview` (`<php-include>` rendering), and `sppcore` (`LocalDisk` adapters) against arbitrary directory traversal via rigorous `..` and `/` character filtering.
 - **RCE & PHP Object Injection (POP) Mitigation:** `sppcache` now strictly explicitly disables classes during `unserialize()`. `sppqueue` job deserialization rigorously enforces `is_subclass_of` checks against the `\SPP\Job` interface to prevent execution of rogue POP chains. `sppmaker` aggressively sanitizes entity names via regex before inserting them into code stubs to eliminate eval/injection vectors.
 - **Log Forging / Injection Protection:** `spplogger` actively strips CRLF (`\r\n`) payload markers from URIs and User-Agents before appending to flat-file text logs.
 - **Websocket Message Forgery Prevention:** The `spplive` engine enforces an HMAC SHA-256 digital signature mechanism (`X-SPP-Live-Signature`) validating all cross-server websocket broadcasts natively within the internal network.

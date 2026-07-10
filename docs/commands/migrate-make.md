@@ -1,38 +1,18 @@
-# NAME
+## `migrate:make`
 
-migrate:make - Generate a new database migration class
+**Description**: Generate a new database migration class.
 
-# SYNOPSIS
-
-`php spp.php migrate:make <name> [--name=<name>] [--app=<app_name>]`
-
-# PURPOSE
-
-The `migrate:make` command is used to scaffold a new database migration file within the SPP Framework. It automates the creation of boilerplate PHP classes necessary for defining database schema changes (`up` methods) and their corresponding reversions (`down` methods), ensuring consistency and saving developer time.
-
-# OPTIONS AVAILABLE
-
-*   `<name>` or `--name=<name>` (Required)
-    The identifier for the migration. This should briefly describe the schema change (e.g., `create_users_table`). Only alphanumeric characters and underscores are permitted.
-*   `--app=<app_name>` (Optional)
-    Specifies the sub-application or context for which this migration is being created. If omitted, the framework defaults to the current context returned by `\SPP\Scheduler::getContext()`, or `default` if no context is active.
-
-# UNDER THE HOOD ACTIVITY
-
-When `migrate:make` is executed, the command parses the CLI arguments to extract the desired migration name and the target application context (`appname`). It enforces strict validation on the migration name via a regular expression (`/^[a-zA-Z0-9_]+$/`), rejecting any input containing spaces or special characters to guarantee valid PHP class names.
-
-The command then interfaces with the `\SPP\App` singleton to retrieve the application instance matching the context. It resolves the absolute file path to the application's migration directory by calling `$app->resolvePath('db/migrations', $app->getAppSrcDir())`. If this `db/migrations` directory does not exist, the command recursively creates it with `0755` permissions.
-
-Next, it generates a unique, timestamped class name (e.g., `Migration_20260623_143000_create_users_table`) using `date('Ymd_His')`. It dynamically computes the correct PHP namespace (`App\<Appname>\Migrations`) and populates a heredoc template with the boilerplate code extending `\SPP\Core\Migration`. This stub includes empty `up()` and `down()` methods and a `getVersion()` method returning `'1.0.0'`. Finally, it uses `file_put_contents` to write this PHP string to disk and prints a success message containing the absolute path of the newly created file.
-
-# EXAMPLES
-
-**Create a migration for a new posts table in the default application:**
+### Synopsis
 ```bash
-php spp.php migrate:make create_posts_table
+php spp.php migrate:make [OPTIONS]
 ```
 
-**Create a migration using explicit flags for a specific sub-application:**
-```bash
-php spp.php migrate:make --name=add_status_to_orders --app=admin
-```
+### Options
+- `--name=` : Expects a value. Extracted via static analysis from MakeCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from MakeCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: database.
+

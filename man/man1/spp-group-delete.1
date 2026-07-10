@@ -1,22 +1,20 @@
-.TH SPP-group-delete 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `GROUP:DELETE`
-.PP
-Purpose: Delete a shared resource group
-.PP
+.TH SPP-group-delete 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-group-delete \- Delete a shared resource group
 .SH SYNOPSIS
-php spp.php group:delete [OPTIONS]
+.B php spp.php group:delete
+[OPTIONS]
+.SH DESCRIPTION
+Delete a shared resource group
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php group:delete <group_name>
-.PP
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--shared_group` : Boolean flag or option. Extracted via static analysis from GroupDeleteCommand.php.
 .br
+
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-.PP

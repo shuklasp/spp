@@ -1,21 +1,23 @@
-# NAME
-`make:twig` - Scaffold a new Twig template (Drishyam Paradigm)
+## `make:twig`
 
-# SYNOPSIS
-`php spp.php make:twig <ViewName> [--name=<ViewName>]`
+**Description**: Scaffold a new Twig template (Drishyam Paradigm)
 
-# PURPOSE
-The `make:twig` command scaffolds a `.twig` View template file explicitly formatted to leverage the Drishyam rendering paradigm, seamlessly bridging enterprise Twig syntax with the SPP Framework context ecosystem.
-
-# OPTIONS AVAILABLE
-- `<ViewName>` or `--name=<ViewName>` (string, required): The core filename for the view. If it lacks a `.twig` extension, it will be automatically appended.
-
-# UNDER THE HOOD ACTIVITY
-When executed, it derives the application target context and resolves the `resources/views/{context}/` directory. 
-It writes a hardcoded HEREDOC string heavily styled with custom CSS (`drishyam-container`, `.twig-hero` gradient) utilizing traditional Twig syntax rules like `{% extends "layouts/app.twig" %}`, `{% block title %}`, and `{% block content %}`. It replaces structural tokens (`{{VIEW_NAME}}`, `{{CONTEXT}}`) dynamically prior to forcefully writing the file to disk via `file_put_contents`.
-
-# EXAMPLES
-**1. Scaffold a Twig profile view:**
+### Synopsis
 ```bash
-php spp.php make:twig UserProfile
+php spp.php make:twig [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php make:twig <ViewName>
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Drishyam, Twig.
+

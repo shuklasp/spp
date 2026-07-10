@@ -51,18 +51,23 @@ class WebGuard implements GuardInterface
 
             // Only query the database every 60 seconds to avoid Ping of Death
             if (time() - $lastHeartbeat >= 60) {
-                $db = new \SPPMod\SPPDB\SPPDB();
-                $result = $db->execute_query('SELECT 1 FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
+                try {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    $result = $db->execute_query('SELECT 1 FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
 
-                if (empty($result)) {
-                    // Session was revoked from the database
-                    $this->logout();
-                    return false;
+                    if (empty($result)) {
+                        // Session was revoked from the database
+                        $this->logout();
+                        return false;
+                    }
+
+                    \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
+                    // Update lastaccess for accurate active devices dashboard
+                    $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=? WHERE sessid=?', [date('Y-m-d H:i:s'), $sessid]);
+                } catch (\Exception $e) {
+                    // Graceful fallback if SPPDB or loginrec table is not initialized
+                    \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
                 }
-
-                \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
-                // Update lastaccess for accurate active devices dashboard
-                $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=? WHERE sessid=?', [date('Y-m-d H:i:s'), $sessid]);
             }
         }
 
@@ -293,14 +298,18 @@ class WebGuard implements GuardInterface
         // Loginrec Device Tracking
         $sessid = session_id();
         if ($sessid) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $table = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
-            $res = $db->execute_query("SELECT count(*) as cnt FROM $table WHERE sessid = ?", [$sessid]);
-            $now = date('Y-m-d H:i:s');
-            if (!empty($res) && (int) $res[0]['cnt'] > 0) {
-                $db->execute_query("UPDATE $table SET lastaccess = ? WHERE sessid = ?", [$now, $sessid]);
-            } else {
-                $db->execute_query("INSERT INTO $table (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, ?, ?, ?)", [$sessid, $id, $now, $ip, $now]);
+            try {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $table = \SPPMod\SPPDB\SPPDB::sppTable('loginrec');
+                $res = $db->execute_query("SELECT count(*) as cnt FROM $table WHERE sessid = ?", [$sessid]);
+                $now = date('Y-m-d H:i:s');
+                if (!empty($res) && (int) $res[0]['cnt'] > 0) {
+                    $db->execute_query("UPDATE $table SET lastaccess = ? WHERE sessid = ?", [$now, $sessid]);
+                } else {
+                    $db->execute_query("INSERT INTO $table (sessid, uid, logintime, ipaddr, lastaccess) VALUES (?, ?, ?, ?, ?)", [$sessid, $id, $now, $ip, $now]);
+                }
+            } catch (\Exception $e) {
+                // Ignore DB tracking if SPPDB or loginrec is missing
             }
         }
 
@@ -342,8 +351,12 @@ class WebGuard implements GuardInterface
         $this->user = null;
         $sessid = session_id();
         if ($sessid) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
+            try {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
+            } catch (\Exception $e) {
+                // Ignore DB tracking if SPPDB or loginrec is missing
+            }
         }
 
         if (isset($_COOKIE['spp_remember_me'])) {

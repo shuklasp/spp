@@ -1,25 +1,26 @@
-.TH SPP-view-service-test 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `VIEW:SERVICE:TEST`
-.PP
-Purpose: Test an AJAX service endpoint from the CLI
-.PP
+.TH SPP-view-service-test 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-view-service-test \- Test an AJAX service endpoint from the CLI
 .SH SYNOPSIS
-php spp.php view:service:test [OPTIONS]
+.B php spp.php view:service:test
+[OPTIONS]
+.SH DESCRIPTION
+Test an AJAX service endpoint from the CLI
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php view:service:test --name=<service> [--app=default] [--payload=
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
-.br
-\(bu `--name=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
-.br
-\(bu `--payload=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php.
-.br
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+.TP
+.B --name=
+Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+.TP
+.B --payload=
+Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.PP

@@ -8,6 +8,9 @@ shared_groups:
       - rights
       - userroles
       - roleright
+      - loginrec
+      - remember_tokens
+      - migrations
   academic:
     extends: core
     table_prefix: sch_
@@ -183,6 +186,34 @@ apps:
     shared_group: core
     etc_path: etc/apps/Samvaad
     src_path: src/Samvaad
+  TestApp:
+    base_url: /TestApp
+    table_prefix: TestApp_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/TestApp
+    src_path: src/TestApp
+  TestApp2:
+    base_url: /TestApp2
+    table_prefix: TestApp2_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/TestApp2
+    src_path: src/TestApp2
+  FinalTest:
+    base_url: /FinalTest
+    table_prefix: FinalTest_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/FinalTest
+    src_path: src/FinalTest
+  test_api_app:
+    base_url: /test_api_app
+    table_prefix: test_api_app_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/test_api_app
+    src_path: src/test_api_app
 base_app: lekhak
 prototyping:
   auto_evolution: manual
@@ -197,7 +228,7 @@ dev:
     fuzz_intensity: 10
 settings:
   site_name: 'Lekhak Portal'
-  debug: false
+  debug: true
   compulsory_modules:
     - sppauth
     - sppdb
@@ -208,3 +239,6 @@ settings:
     branding:
       color: '#00ff00'
 test_key: test_val
+assets:
+  admin_js: spp/admin/js
+  admin_css: spp/admin/css

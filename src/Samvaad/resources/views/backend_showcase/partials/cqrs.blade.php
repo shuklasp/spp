@@ -1,0 +1,27 @@
+<div class="glass-panel">
+    <h2>CQRS & Event Store</h2>
+    <p>SPP includes a native CQRS (Command Query Responsibility Segregation) engine. Changes to entities can be recorded as immutable events, allowing you to project read models or reconstruct the entity state at any point in time.</p>
+
+    <div style="background: rgba(0,0,0,0.2); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h3 style="margin-top: 0;">Log a Domain Event</h3>
+        <form hx-post="<?= \SPP\App::url('backend-showcase/cqrs/event', 'samvaad') ?>" hx-target="#cqrs-results">
+            <div class="form-group">
+                <label class="form-label">Event Name</label>
+                <select name="event_name" class="form-input">
+                    <option value="ItemCreated">ItemCreated</option>
+                    <option value="TitleUpdated">TitleUpdated</option>
+                    <option value="StatusChanged">StatusChanged</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Event Payload (JSON)</label>
+                <input type="text" name="payload" class="form-input" value='{"actor": "admin", "value": "New Update"}'>
+            </div>
+            <button type="submit" class="btn btn-primary">Append Event</button>
+        </form>
+    </div>
+
+    <div id="cqrs-results">
+        @include('backend_showcase.partials.cqrs_log', ['events' => $events ?? []])
+    </div>
+</div>

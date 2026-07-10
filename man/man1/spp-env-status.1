@@ -1,22 +1,20 @@
-.TH SPP-env-status 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# env:status
-.PP
+.TH SPP-env-status 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-env:status - Display system health and environment status
-.PP
+spp-env-status \- Display system health and environment status
 .SH SYNOPSIS
-php spp.php env:status [--app=<app_name>]
+.B php spp.php env:status
+[OPTIONS]
+.SH DESCRIPTION
+Display system health and environment status
 .PP
-.SH PURPOSE
-A comprehensive diagnostic utility yielding immediate performance metrics, connectivity statuses, and global health checks for the active SPP configuration.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from EnvStatusCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=<app_name>`: Evaluated application space.
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Inside the closure of the bounded context, it dynamically maps server diagnostics using PHP intrinsic functions (PHP_VERSION, PHP_OS, ini_get('memory_limit')). It probes database connectivity by deliberately wrapping a new instantiation of \SPPMod\SPPDB\SPPDB() within an output buffer (ob_start()) and a try/catch block to gracefully fail without polluting the CLI stdout stream. It uses is_writable() to verify filesystem permissioning. It parses session_save_path() (defaulting to sys_get_temp_dir()) and counts valid active web sessions via glob('sess_*'). It weighs the size of the global middleware layers from \SPP\Registry and reads the queue size. Finally, it scores the integrity metrics on a 100% scale and outputs the matrix.
-.PP
-.SH EXAMPLES
-php spp.php env:status
-.PP
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
+.br

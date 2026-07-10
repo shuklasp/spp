@@ -1,24 +1,25 @@
-.TH SPP-diff-history 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# diff:history
-.PP
+.TH SPP-diff-history 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-diff:history - View revision history of an entity
-.PP
+spp-diff-history \- View revision history of an entity
 .SH SYNOPSIS
-php spp.php diff:history --type=<ModelClass> --id=<ID>
+.B php spp.php diff:history
+[OPTIONS]
+.SH DESCRIPTION
+View revision history of an entity
 .PP
-.SH PURPOSE
-Pulls the complete list of chronological revisions logged by the SPPDiff RevisionManager for a given Entity instance.
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--type=<ModelClass>`: **Required**. The fully qualified class name of the entity.
+Usage: php spp.php diff:history --type=<ModelClass> --id=<ID>
 .br
-\(bu `--id=<ID>`: **Required**. The primary key ID of the entity.
+
+.PP
+.SH OPTIONS
+.TP
+.B --type=
+Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+.TP
+.B --id=
+Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command verifies that the passed ModelClass exists. It invokes the static find_one() method on the entity class to query the active instance from the database using the provided ID. If found, it delegates the entity to \SPPMod\SPPDiff\RevisionManager::getHistory($entity). It iterates through the chronological revision payload returning metadata such as the Revision ID, creation timestamp, and the responsible User ID.
-.PP
-.SH EXAMPLES
-php spp.php diff:history --type="\App\Entities\User" --id=42
-.PP

@@ -1,0 +1,25 @@
+.TH FEATURE:TOGGLE 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+feature:toggle \- Manage advanced feature flags, canary rollout percentages, and evaluate Telemetry Kill Switch status.
+.SH SYNOPSIS
+\fBphp spp.php feature:toggle\fR [\fB\-\-flag=\fI<name>\fR] [\fB\-\-enable=\fI<true|false>\fR] [\fB\-\-canary=\fI<percentage>\fR]
+.SH DESCRIPTION
+The \fBfeature:toggle\fR command provides enterprise deployment decoupling. It allows systems administrators and developers to enable or disable advanced features dynamically, rollout experimental features to a percentage of active users (canary releases), and monitor the real-time status of the automated Telemetry Kill Switch.
+.SH OPTIONS
+.TP
+\fB\-\-flag=\fI<name>\fR
+Exact name of the feature flag to target.
+.TP
+\fB\-\-enable=\fI<true|false>\fR
+Explicitly enable or disable the feature flag.
+.TP
+\fB\-\-canary=\fI<percentage>\fR
+Set the percentage of traffic (0-100) to expose to the canary release.
+.SH UNDER THE HOOD
+1. \fBStrict SAPI Guarding\fR: Validates that execution occurs in a secure CLI environment via \fIisCLIOnly(): bool\fR.
+.PP
+2. \fBDynamic Flag Mutation\fR: Updates the in-memory or persisted configuration state within \fIFeatureManager\fR.
+.PP
+3. \fBCanary Hashing\fR: Uses deterministic hashing (\fIcrc32\fR) of the flag name and user ID to ensure consistent canary routing.
+.PP
+4. \fBTelemetry Kill Switch Check\fR: Queries \fIOpenTelemetryExporter\fR for active error counts associated with the flag scope. If errors exceed the threshold, the flag is marked as \fITRIGGERED\fR and automatically disabled.

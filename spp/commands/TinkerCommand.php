@@ -9,6 +9,11 @@ class TinkerCommand extends Command
     protected string $name = 'tinker';
     protected string $description = 'Interact with your application in a REPL shell.';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         // Enforce Local Environment Only

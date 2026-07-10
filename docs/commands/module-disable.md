@@ -1,18 +1,22 @@
-# NAME
-`module:disable` - Disable an SPP module
+## `module:disable`
 
-# SYNOPSIS
-`php spp.php module:disable <modulename>`
+**Description**: Disable an SPP module
 
-# PURPOSE
-Safely deactivates an installed SPP framework module, preventing its logic, hooks, and routes from being loaded during the application lifecycle, without deleting its data or source files.
+### Synopsis
+```bash
+php spp.php module:disable [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-- `<modulename>` : The exact registry name of the module to disable.
+### Extended Usage
+```text
+Usage: php spp.php module:disable <modulename>
 
-# UNDER THE HOOD ACTIVITY
-The command relies heavily on the core `SPP\Core\ModuleInstaller` class. When invoked with a valid module identifier, it calls the `setModuleStatus()` method, passing the state as `inactive`.
-Under the hood, this operation locates the module's registration state (typically stored in a central configuration or database registry) and toggles its active flag. Additionally, deactivating a module inherently triggers a framework-wide cache invalidation and recompilation process, ensuring that the router, dependency injection container, and event dispatchers are purged of the disabled module's bindings. The command wraps this entire procedure in a try-catch block to gracefully handle filesystem permission errors or registry inconsistencies, outputting immediate feedback to standard out.
+```
 
-# EXAMPLES
-- `php spp.php module:disable sppdb` - Disables the `sppdb` module.
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

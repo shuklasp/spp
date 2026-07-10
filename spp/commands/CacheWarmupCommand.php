@@ -29,6 +29,27 @@ class CacheWarmupCommand extends Command
                 if (class_exists('\\SPPMod\\SPPBlade\\SPPBlade')) {
                     echo "Blade module active, cache warmup triggered.\n";
                 }
+
+                echo "Scanning for custom warmup procedures...\n";
+                $searchDirs = [];
+                if (defined('SPP_APP_DIR')) {
+                    $searchDirs[] = SPP_APP_DIR;
+                }
+                if (defined('SPP_MODULES_DIR')) {
+                    $searchDirs[] = SPP_MODULES_DIR;
+                }
+
+                foreach ($searchDirs as $dir) {
+                    if (is_dir($dir)) {
+                        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir, \FilesystemIterator::SKIP_DOTS));
+                        foreach ($iterator as $file) {
+                            if ($file->isFile() && str_ends_with(strtolower($file->getFilename()), 'warmup.php')) {
+                                echo "Found custom warmup script: " . $file->getPathname() . "\n";
+                                require_once $file->getPathname();
+                            }
+                        }
+                    }
+                }
                 
                 echo "Cache warmup complete.\n";
             } catch (\Exception $e) {

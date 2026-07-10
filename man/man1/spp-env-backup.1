@@ -1,21 +1,18 @@
-.TH SPP-env-backup 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# env:backup
-.PP
+.TH SPP-env-backup 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-env:backup - Backup all environment configurations
-.PP
+spp-env-backup \- Backup all environment configurations
 .SH SYNOPSIS
-php spp.php env:backup
+.B php spp.php env:backup
+[OPTIONS]
+.SH DESCRIPTION
+Backup all environment configurations
 .PP
-.SH PURPOSE
-Locates, archives, and stores system-wide and application-specific .yml, .yaml, and .json configuration files into a time-stamped ZIP package.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-No additional options are accepted.
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command verifies or provisions the var/backups directory in SPP_BASE_DIR. It utilizes PHP's native \ZipArchive extension to open a newly minted archive appended with a Ymd_His date format timestamp. It sweeps the global etc/ folder for configurations, buffering their paths. It then uses array filtering and glob() to recursively traverse the SPP_APP_DIR, entering each valid context to map internal etc/ directories. It loops through the aggregated file array, passing each source path into ZipArchive::addFile(), recreating the logical tree locally within the zip structure, and flushes the archive buffer.
-.PP
-.SH EXAMPLES
-php spp.php env:backup
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: \ZipArchive.
+.br

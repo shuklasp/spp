@@ -683,6 +683,9 @@ class SPPRouter extends \SPP\SPPObject
         }
 
         foreach ($mods as $mod) {
+            if (!$mod) {
+                continue;
+            }
             $routes = [];
 
             // 1. Routes from module.yml
@@ -1133,13 +1136,26 @@ class SPPRouter extends \SPP\SPPObject
             $dirsToScan = [
                 SPP_APP_DIR . '/controllers',
                 SPP_APP_DIR . '/src/Controllers',
-                SPP_APP_DIR . '/src/controllers'
+                SPP_APP_DIR . '/src/controllers',
+                SPP_APP_DIR . '/serv',
+                SPP_APP_DIR . '/src/' . $appname . '/serv',
+                SPP_APP_DIR . '/src/' . ucfirst($appname) . '/serv',
+                SPP_APP_DIR . '/src/' . $appname . '/Controllers',
+                SPP_APP_DIR . '/src/' . ucfirst($appname) . '/Controllers'
             ];
 
             foreach ($dirsToScan as $dir) {
                 if (is_dir($dir)) {
-                    $scanned = RouteScanner::scan($dir);
-                    $routes = array_merge($routes, $scanned);
+                    try {
+                        if (class_exists('\\SPPMod\\SPPView\\RouteScanner')) {
+                            $scanned = \SPPMod\SPPView\RouteScanner::scan($dir);
+                            if (is_array($scanned)) {
+                                $routes = array_merge($routes, $scanned);
+                            }
+                        }
+                    } catch (\Throwable $t) {
+                        error_log("SPP Routing Error: Failed to scan directory $dir - " . $t->getMessage());
+                    }
                 }
             }
 

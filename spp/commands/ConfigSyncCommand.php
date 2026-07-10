@@ -15,6 +15,11 @@ class ConfigSyncCommand extends \SPP\CLI\Command
         return 'Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries';
     }
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $action = $args[0] ?? 'all';
@@ -45,7 +50,132 @@ class ConfigSyncCommand extends \SPP\CLI\Command
             if (class_exists('\\SPP\\Core\\WorkflowManager')) {
                 $workflows = \SPP\Core\WorkflowManager::getWorkflows();
                 echo "Workflows loaded successfully. Validated " . count($workflows) . " workflows from configuration.\n";
-                // If there were a db-backed workflow state registry, we would sync it here.
+                
+                if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    
+                    // 1. Provision spp_workflows table
+                    $tableWorkflows = \SPPMod\SPPDB\SPPDB::sppTable('spp_workflows');
+                    if (!$db->tableExists($tableWorkflows)) {
+                        echo "Table {$tableWorkflows} does not exist. Creating...\n";
+                        $sql = "CREATE TABLE {$tableWorkflows} (
+                            entity_type VARCHAR(100) NOT NULL,
+                            bundle VARCHAR(100) DEFAULT 'default',
+                            definition TEXT NOT NULL,
+                            PRIMARY KEY (entity_type, bundle)
+                        )";
+
+                        if ($db->getDriver() === 'sqlite') {
+                            $sql = "CREATE TABLE {$tableWorkflows} (
+                                entity_type TEXT NOT NULL,
+                                bundle TEXT DEFAULT 'default',
+                                definition TEXT NOT NULL,
+                                PRIMARY KEY (entity_type, bundle)
+                            );";
+                        }
+
+                        if ($db->getDriver() === 'sqlite') {
+                            $statements = explode(';', $sql);
+                            foreach ($statements as $statement) {
+                                if (trim($statement)) {
+                                    $db->exec($statement);
+                                }
+                            }
+                        } else {
+                            $db->exec($sql);
+                        }
+                        echo "Table {$tableWorkflows} created successfully.\n";
+                    }
+
+                    // 2. Provision spp_entity_workflow_history table
+                    $tableHistory = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_workflow_history');
+                    if (!$db->tableExists($tableHistory)) {
+                        echo "Table {$tableHistory} does not exist. Creating...\n";
+                        $sql = "CREATE TABLE {$tableHistory} (
+                            id INT AUTO_INCREMENT PRIMARY KEY,
+                            entity_type VARCHAR(100) NOT NULL,
+                            entity_id VARCHAR(255) NOT NULL,
+                            old_status VARCHAR(50) NOT NULL,
+                            new_status VARCHAR(50) NOT NULL,
+                            user_id BIGINT NOT NULL,
+                            transition_timestamp DATETIME NOT NULL,
+                            comment TEXT,
+                            context_data TEXT
+                        )";
+
+                        if ($db->getDriver() === 'sqlite') {
+                            $sql = "CREATE TABLE {$tableHistory} (
+                                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                entity_type TEXT NOT NULL,
+                                entity_id TEXT NOT NULL,
+                                old_status TEXT NOT NULL,
+                                new_status TEXT NOT NULL,
+                                user_id INTEGER NOT NULL,
+                                transition_timestamp TEXT NOT NULL,
+                                comment TEXT,
+                                context_data TEXT
+                            );";
+                        }
+
+                        if ($db->getDriver() === 'sqlite') {
+                            $statements = explode(';', $sql);
+                            foreach ($statements as $statement) {
+                                if (trim($statement)) {
+                                    $db->exec($statement);
+                                }
+                            }
+                        } else {
+                            $db->exec($sql);
+                        }
+                        echo "Table {$tableHistory} created successfully.\n";
+                    } else {
+                        // Ensure context_data column exists
+                        try {
+                            if ($db->getDriver() === 'sqlite') {
+                                $cols = $db->exec_squery("PRAGMA table_info({$tableHistory})");
+                                $hasContext = false;
+                                foreach ($cols as $col) {
+                                    if ($col['name'] === 'context_data') {
+                                        $hasContext = true;
+                                        break;
+                                    }
+                                }
+                                if (!$hasContext) {
+                                    $db->exec("ALTER TABLE {$tableHistory} ADD COLUMN context_data TEXT");
+                                    echo "Column context_data added to {$tableHistory}.\n";
+                                }
+                            } else {
+                                $db->exec("ALTER TABLE {$tableHistory} ADD COLUMN context_data TEXT");
+                                echo "Column context_data added to {$tableHistory}.\n";
+                            }
+                        } catch (\Exception $colE) {
+                            // Column might already exist in non-sqlite DBs
+                        }
+                    }
+
+                    // 3. Populate spp_workflows
+                    foreach ($workflows as $key => $definition) {
+                        $parts = explode('.', $key);
+                        $entityType = $parts[0];
+                        $bundle = $parts[1] ?? 'default';
+                        $jsonDef = json_encode($definition, JSON_UNESCAPED_UNICODE);
+
+                        if ($db->getDriver() === 'sqlite') {
+                            $db->exec_squery(
+                                "INSERT OR REPLACE INTO %tab% (entity_type, bundle, definition) VALUES (?, ?, ?)",
+                                $tableWorkflows,
+                                [$entityType, $bundle, $jsonDef]
+                            );
+                        } else {
+                            $db->exec_squery(
+                                "INSERT INTO %tab% (entity_type, bundle, definition) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE definition = ?",
+                                $tableWorkflows,
+                                [$entityType, $bundle, $jsonDef, $jsonDef]
+                            );
+                        }
+                    }
+                    echo "Workflow definitions synchronized to database successfully.\n";
+                }
             } else {
                 echo "WorkflowManager not found. Skipping.\n";
             }

@@ -1,0 +1,21 @@
+.TH SPP-xdb-migrate 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-xdb-migrate \- Run SPP_XDB Database Migrations
+.SH SYNOPSIS
+.B php spp.php xdb:migrate
+[OPTIONS]
+.SH DESCRIPTION
+Run SPP_XDB Database Migrations
+.PP
+.SH OPTIONS
+.TP
+.B --steps=
+Expects a value. Extracted via static analysis from XdbMigrateCommand.php
+.TP
+.B --rollback
+Boolean flag. Extracted via static analysis from XdbMigrateCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: SPP_XDB, MigrationManager.
+.br

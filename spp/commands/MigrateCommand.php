@@ -47,6 +47,7 @@ class MigrateCommand extends Command
         $mods = \SPP\Registry::get('__modobj');
         if (is_array($mods)) {
             foreach ($mods as $mod) {
+                if (!$mod) continue;
                 $modMigDir = $mod->ModPath . '/migrations';
                 if (is_dir($modMigDir)) {
                     $dirsToScan[] = $modMigDir;

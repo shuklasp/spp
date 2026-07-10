@@ -15,12 +15,15 @@ class RouteScanner
     public static function scan(string $directory, string $namespacePrefix = ''): array
     {
         $routes = [];
+
         if (!is_dir($directory)) {
             return $routes;
         }
 
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
         $regex = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
+
+        file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Iterating files...\n", FILE_APPEND);
 
         foreach ($regex as $file) {
             $filePath = $file[0];
@@ -38,12 +41,21 @@ class RouteScanner
                     continue;
                 }
 
+                file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Class extracted: $fullClass\n", FILE_APPEND);
+
                 // Ensure the class is loaded
                 if (!class_exists($fullClass)) {
-                    require_once $filePath;
+                    try {
+                        require_once $filePath;
+                    } catch (\Throwable $e) {
+                        continue;
+                    }
                 }
 
+                file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Class required, exists: " . (class_exists($fullClass) ? 'YES' : 'NO') . "\n", FILE_APPEND);
+
                 if (class_exists($fullClass)) {
+                    file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Reflecting $fullClass...\n", FILE_APPEND);
                     $reflection = new ReflectionClass($fullClass);
                     
                     // Class-level route prefixes and middleware
@@ -70,7 +82,7 @@ class RouteScanner
                         $attributes = $method->getAttributes(Route::class);
                         foreach ($attributes as $attribute) {
                             $routeAttr = $attribute->newInstance();
-                            $path = ltrim($prefix . '/' . ltrim($routeAttr->path, '/'), '/');
+                            $path = trim($prefix . '/' . ltrim($routeAttr->path, '/'), '/');
                             
                             $mergedMiddlewares = array_merge($classMiddlewares, $methodMiddlewares, $routeAttr->middleware);
                             
@@ -86,6 +98,7 @@ class RouteScanner
             }
         }
 
+        file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Done scanning $directory\n", FILE_APPEND);
         return $routes;
     }
 

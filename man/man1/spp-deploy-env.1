@@ -1,40 +1,28 @@
-.TH SPP-deploy-env 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
+.TH SPP-deploy-env 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-deploy-env \- Manage remote environment variables securely
+.SH SYNOPSIS
+.B php spp.php deploy:env
+[OPTIONS]
+.SH DESCRIPTION
+Manage remote environment variables securely
 .PP
-deploy:env - Manage remote environment variables securely
+Usage: php spp.php deploy:env [target_uri] push --key=MY_KEY --value=MY_VALUE [--key_api=YOUR_API_KEY]
+.br
+
 .PP
-# SYNOPSIS
+.SH OPTIONS
+.TP
+.B --key_api=
+Expects a value. Extracted via static analysis from DeployEnvCommand.php
+.TP
+.B --key=
+Expects a value. Extracted via static analysis from DeployEnvCommand.php
+.TP
+.B --value=
+Expects a value. Extracted via static analysis from DeployEnvCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-php spp.php deploy:env <target_uri> push --key=MY_KEY --value=MY_VALUE [--key_api=YOUR_API_KEY]
-.PP
-# PURPOSE
-.PP
-The deploy:env command is used to securely push and update environment variable key-value pairs to a remote deployment target. It allows developers to configure environment variables (such as database credentials, API tokens, or feature flags) without needing to SSH directly into the remote server or manually edit .env files.
-.PP
-# OPTIONS AVAILABLE
-.PP
-*   <target_uri> (Required)
-The connection URI or identifier for the remote target environment where the environment variable should be set.
-*   push (Required)
-The action to perform. Currently, only the push action is supported.
-*   --key=MY_KEY (Required)
-The name of the environment variable key you wish to set or update.
-*   --value=MY_VALUE (Required)
-The value to assign to the specified environment variable key.
-*   --key_api=YOUR_API_KEY (Optional)
-The API token/key used to authenticate with the remote target. If not provided, it defaults to default_cli_key.
-.PP
-# UNDER THE HOOD ACTIVITY
-.PP
-When deploy:env is executed, the command first validates the presence of the required arguments (target_uri and the push action). It then iterates over the provided arguments to extract the values for --key, --value, and optionally --key_api. If the required key or value is missing, the command immediately halts execution and displays an error message.
-.PP
-Once the parameters are parsed, the command initializes a connection to the remote server using the SPPMod\SPPDeploy\Deployer\TargetConnection::resolve() method, passing the target URI and the API key. This abstract connection layer then sends a remote procedure call or HTTP API request via the $conn->pushEnvKey($envKey, $envValue) method. The remote server, assuming it runs the SPP deployment receiver, processes this payload and typically modifies its active .env file or environment configuration safely, returning a structured JSON response indicating success or failure. The CLI command parses this response and outputs a localized success or failure message to the standard output.
-.PP
-# EXAMPLES
-.PP
-Push an API endpoint configuration to a staging server:
-php spp.php deploy:env http://staging.example.com push --key=PAYMENT_GATEWAY_URL --value=https://api.sandbox.paypal.com --key_api=secret_token_123
-.PP
-Set a debugging flag on the production server:
-php spp.php deploy:env http://prod.example.com push --key=APP_DEBUG --value=false --key_api=my_prod_secret
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

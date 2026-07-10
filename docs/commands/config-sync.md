@@ -1,18 +1,18 @@
 ## `config:sync`
 
-**Purpose**: Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+**Description**: Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
 
 ### Synopsis
 ```bash
 php spp.php config:sync [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 

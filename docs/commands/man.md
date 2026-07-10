@@ -1,22 +1,16 @@
-# NAME
-`man` - Format and display manual pages for SPP commands
+## `man`
 
-# SYNOPSIS
-`php spp.php man [COMMAND_NAME]`
+**Description**: Format and display manual pages for SPP commands
 
-# PURPOSE
-Provides a built-in terminal-based manual pager (similar to UNIX `man`) for all discovered SPP CLI commands. It can group commands by namespace, list available commands under a specific namespace, or provide deep documentation for a specific command if `getHelp()` is implemented.
+### Synopsis
+```bash
+php spp.php man [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-- `COMMAND_NAME` : Optional. The specific command or namespace to query (e.g., `cache` or `cache:clear`). If omitted, displays the root command index and namespace groups.
+### Options
+No static options detected.
 
-# UNDER THE HOOD ACTIVITY
-When invoked, the `man` command utilizes `SPP\CLI\CommandManager::discover()` to dynamically introspect the CLI environment, gathering a list of all registered `Command` classes.
-If no argument is passed, it parses the command names, splitting them by the `:` delimiter to aggregate a count of commands per namespace. It maps predefined human-readable descriptions to these namespaces (e.g., `db` maps to 'Database migrations and verifications') and renders a structured, formatted index to standard output.
-When a specific prefix (namespace) is queried, it filters the discovered commands to those starting with the given prefix and lists their descriptions.
-If an exact command match is found, it instantiates the corresponding `Command` object, retrieves metadata via `getName()`, `getDescription()`, and `getHelp()`, and dynamically generates a bolded, cleanly formatted text manual directly to the terminal. It does not perform any file writing or interact with external data sources; it solely performs reflection-like introspection of the CLI registry.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: elements.
 
-# EXAMPLES
-- `php spp.php man` - Lists all available CLI namespaces and root commands.
-- `php spp.php man cache` - Lists all commands within the `cache` namespace.
-- `php spp.php man cache:clear` - Displays the full manual page for the `cache:clear` command.

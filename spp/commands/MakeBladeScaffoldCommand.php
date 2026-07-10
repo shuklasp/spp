@@ -42,6 +42,7 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
             'table' => $tableName,
             'id_field' => 'id',
             'sequence' => $tableName . '_seq',
+            'key_type' => 'int',
             'attributes' => [
                 'name' => 'varchar(255)',
                 'description' => 'text'
@@ -71,7 +72,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
                 ],
                 'validations' => [
                     'validation' => [
-                        ['control' => 'name', 'type' => 'SPPRequiredValidator', 'message' => 'Name is required']
+                        ['control' => 'name', 'type' => 'SPPRequiredValidator', 'message' => 'Name is required'],
+                        ['control' => 'name', 'type' => 'SPPWorkflowGuardValidator', 'message' => 'Entity must be in an editable workflow state']
                     ]
                 ]
             ]
@@ -85,21 +87,27 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
         if (!is_dir($viewsDir))
             mkdir($viewsDir, 0777, true);
 
-        // List View
+        // List View & External Partial
+        $partialDir = SPP_APP_DIR . "/src/" . $appName . "/pages/partials";
+        if (!is_dir($partialDir)) mkdir($partialDir, 0777, true);
+        $statsPartial = "<!-- External HTML Partial: {$entityName} Stats -->\n<div class='spp-partial-container'><div class='partial-body'><strong>Total Items:</strong> {{ \$count ?? 0 }} (Rendered via @spppartial without inline HTML literals)</div></div>";
+        file_put_contents($partialDir . "/" . strtolower($entityName) . "_stats.html", $statsPartial);
+
         $listView = "
 @extends('layouts.app')
 @section('content')
     <div class='card'>
-        <h1>{{ $title }}</h1>
+        <h1>{{ \$title }}</h1>
+        @spppartial('partials/" . strtolower($entityName) . "_stats.html', ['count' => count(\$items)])
         <table class='table'>
             <thead><tr><th>ID</th><th>Name</th><th>Actions</th></tr></thead>
             <tbody>
-                @foreach($items as $item)
+                @foreach(\$items as \$item)
                 <tr>
-                    <td>{{ $item->id }}</td>
-                    <td>{{ $item->name }}</td>
+                    <td>{{ \$item->id }}</td>
+                    <td>{{ \$item->name }}</td>
                     <td>
-                        <a href='?action=edit&id={{ $item->id }}'>Edit</a>
+                        <a href='?action=edit&id={{ \$item->id }}'>Edit</a>
                     </td>
                 </tr>
                 @endforeach
@@ -162,6 +170,8 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
 <body>
     @yield('content')
     <script src='/spp/admin/js/spp-loader.js' type='module'></script>
+    <script src='/spp/admin/js/htmx.min.js'></script>
+    <script src='/spp/admin/js/turbo-streams.min.js'></script>
 </body>
 </html>
 ";
@@ -217,7 +227,50 @@ PHP;
         file_put_contents($entryFile, $logic);
         echo "DONE\n";
 
-        echo "\nSuccess: Full Blade Scaffold for {$entityName} created!\n";
+        // 6. Generate Workflow Scaffolding & Tutorial Comments
+        echo "Creating Workflow Definitions... ";
+        $workflowDir = SPP_APP_DIR . "/etc/apps/{$appName}/workflows";
+        if (!is_dir($workflowDir)) mkdir($workflowDir, 0777, true);
+
+        $workflowContent = <<<WORKFLOW
+# ##############################################################################
+# Scaffolded Blade Workflow Definition for {$entityName}
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+" . strtolower($entityName) . ":
+  description: "Blade lifecycle workflow for {$entityName}"
+  states:
+    - draft
+    - pending_approval
+    - active
+    - archived
+  transitions:
+    submit:
+      from: [draft]
+      to: pending_approval
+      timeout: "7 days"
+      timeout_transition: "auto_archive"
+    approve:
+      from: [pending_approval]
+      to: active
+    auto_archive:
+      from: [pending_approval]
+      to: archived
+    archive:
+      from: [active]
+      to: archived
+WORKFLOW;
+        file_put_contents($workflowDir . "/" . strtolower($entityName) . ".yml", trim($workflowContent));
+        echo "DONE\n";
+
+        echo "\nSuccess: Full Blade Scaffold (with workflows) for {$entityName} created!\n";
         echo "1. Run 'php spp.php db:sync' to create the table.\n";
         echo "2. Open: http://localhost/" . basename($entryFile) . "\n";
     }

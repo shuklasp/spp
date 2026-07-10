@@ -1,21 +1,16 @@
-.TH SPP-module-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-module:list - Discovers and tabulates active kernel framework modules
+.TH SPP-module-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-module-list \- Discovers and tabulates active kernel framework modules
+.SH SYNOPSIS
+.B php spp.php module:list
+[OPTIONS]
+.SH DESCRIPTION
+Discovers and tabulates active kernel framework modules
 .PP
-# SYNOPSIS
-php spp.php module:list
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-Performs a rapid filesystem discovery to list all enterprise modules physically present within the framework's core module directory.
-.PP
-# OPTIONS AVAILABLE
-No options required.
-.PP
-# UNDER THE HOOD ACTIVITY
-When executed, this command does not query the database or the compiled framework registry. Instead, it performs a raw filesystem traversal. It specifically scans the directory path defined by SPP_APP_DIR . '/spp/modules/spp'.
-Using PHP's scandir() function, it reads the contents of this directory, filtering out the standard . and .. navigational artifacts. It validates that each discovered entity is a valid directory via is_dir(). For every valid directory found, it outputs a formatted string to standard output, identifying the directory name as a Module Context. Due to its direct filesystem approach, it serves as a raw diagnostic tool to verify the physical presence of module source code, bypassing potential logical errors in the framework's configuration or caching layers.
-.PP
-# EXAMPLES
-\(bu `php spp.php module:list` - Lists all directories recognized as modules.
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP

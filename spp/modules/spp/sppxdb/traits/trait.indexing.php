@@ -9,6 +9,9 @@ trait XDB_Indexing
         if (!$this->tableName) {
             return false;
         }
+        if (class_exists('\SPPMod\SPPXDB\Index\XdbBinaryIndexer')) {
+            \SPPMod\SPPXDB\Index\XdbBinaryIndexer::invalidateIndex($this->dataDir, $this->tableName, $column);
+        }
         $file = $this->dataDir . '/_indexes/' . $this->tableName . '/' . $column . '.json';
         if (file_exists($file)) {
             @unlink($file);
@@ -45,7 +48,23 @@ trait XDB_Indexing
 
         $this->saveIndex($column, $index);
         $this->indexes[$column] = $index;
+
+        if (class_exists('\SPPMod\SPPXDB\Index\XdbBinaryIndexer')) {
+            \SPPMod\SPPXDB\Index\XdbBinaryIndexer::buildIndex($this->dataDir, $this->tableName, $column, $results);
+        }
+
         return true;
+    }
+
+    /**
+     * Search using high-performance binary index.
+     */
+    public function searchBinaryIndex($column, $value): array
+    {
+        if (!$this->tableName || !class_exists('\SPPMod\SPPXDB\Index\XdbBinaryIndexer')) {
+            return [];
+        }
+        return \SPPMod\SPPXDB\Index\XdbBinaryIndexer::searchIndex($this->dataDir, $this->tableName, $column, $value);
     }
 
     /**

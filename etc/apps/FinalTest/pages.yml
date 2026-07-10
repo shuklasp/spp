@@ -1,0 +1,41 @@
+defaults:
+  home: home
+  pagedir: /src/FinalTest
+specials:
+  -
+    name: resources
+    method: serveResource
+pages:
+  app:
+    url: index.php
+    special: 1
+  home:
+    controller: \App\FinalTest\Serv\HomeController@index
+  about:
+    controller: \App\FinalTest\Serv\HomeController@about
+  guide:
+    url: pages/guide.php
+  dashboard:
+    controller: \App\FinalTest\Serv\DashboardController@index
+  login:
+    controller: \App\FinalTest\Serv\AuthController@loginForm
+  auth/login:
+    controller: \App\FinalTest\Serv\AuthController@login
+  auth/logout:
+    controller: \App\FinalTest\Serv\AuthController@logout
+  api/v1/items:
+    controller: \App\FinalTest\Serv\ApiController@index
+  'api/v1/items/{id}':
+    controller: \App\FinalTest\Serv\ApiController@show
+  contact:
+    url: pages/contact.php
+  error/404:
+    url: pages/errors/404.php
+  error/500:
+    url: pages/errors/500.php
+  assets:
+    assets: assets
+  theme-assets:
+    assets: resources/themes
+  comp-assets:
+    assets: comp

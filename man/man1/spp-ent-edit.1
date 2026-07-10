@@ -1,35 +1,78 @@
-.TH SPP-ent-edit 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# ent:edit
-.PP
+.TH SPP-ent-edit 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-ent:edit - Edit an existing SPPEntity definition
-.PP
+spp-ent-edit \- Edit an existing SPPEntity definition
 .SH SYNOPSIS
-php spp.php ent:edit [EntityName] [OPTIONS]
+.B php spp.php ent:edit
+[OPTIONS]
+.SH DESCRIPTION
+Edit an existing SPPEntity definition
 .PP
-.SH PURPOSE
-Facilitates CLI-driven or interactive editing of Entity YAML configurations, including structural relationships, database bindings, and raw attribute mutation.
+Edits an existing SPPEntity definition. If run without flags, it will launch an interactive wizard.
+.br
+Passing any of the double-dash flags will bypass the wizard and execute a non-interactive edit.
+.br
+
+.br
+Usage:
+.br
+  php spp.php ent:edit [EntityName] [OPTIONS]
+.br
+
+.br
+Options:
+.br
+  --table=TableName            Update the database table name.
+.br
+  --extends=Class              Update the parent entity class (e.g. "\App\Entities\User").
+.br
+  --login=true|false           Enable or disable SPP Login Support for this entity.
+.br
+  --add-field="name:type"      Add or update attributes. Format: "name:type" (comma-separated).
+.br
+  --remove-field="name"        Remove attributes by name (comma-separated).
+.br
+  --add-relation="Target:..."  Add relationships. Format: "Target:Type:ForeignKey:PivotTable" (comma-separated).
+.br
+  --remove-relation=index      Remove a relationship by its integer index.
+.br
+
+.br
+Examples:
+.br
+  Interactive Mode:
+.br
+    php spp.php ent:edit Student
+.br
+
+.br
+  Non-Interactive Edit:
+.br
+    php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--table=TableName`: Updates the physical database table mapped to the entity.
-.br
-\(bu `--extends=Class`: Replaces the logical parent entity class.
-.br
-\(bu `--login=true|false`: Toggles SPP Login feature support flag.
-.br
-\(bu `--add-field="name:type"`: Comma-separated list for injecting or modifying schema attributes.
-.br
-\(bu `--remove-field="name"`: Comma-separated list of attributes to purge.
-.br
-\(bu `--add-relation="Target:Type:ForeignKey:PivotTable"`: Appends relation definitions.
-.br
-\(bu `--remove-relation=index`: Removes a specific relation structure by integer array index.
-.br
+.SH OPTIONS
+.TP
+.B --table=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --extends=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --login=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --add-field=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --remove-field=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --add-relation=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.TP
+.B --remove-relation=
+Expects a value. Extracted via static analysis from EntEditCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-If no arguments are provided, it forces an interactive wizard by listing available entities from SPPEntity::listAvailableEntities() and taking user input via a prompt() wrapper. It locates the entity config via SPPEntity::getEntityConfigFile(). It parses the source YAML, allowing either flag-driven arrays manipulations or a deeply nested interactive CLI loop. Through CLI flags, it interprets the parameters (like auto-computing many-to-many pivot tables logic) and dynamically mutates the YAML array structure. It serializes and persists the updated state strictly via \SPPMod\SPPDB\SPPEntity::saveEntityDefinition().
-.PP
-.SH EXAMPLES
-php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int"
-php spp.php ent:edit User --add-relation="Role:ManyToMany:user_id:user_role"
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

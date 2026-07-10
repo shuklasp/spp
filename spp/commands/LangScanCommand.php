@@ -9,6 +9,11 @@ class LangScanCommand extends Command
     protected string $name = 'lang:scan';
     protected string $description = 'Scan directories for new translation keys';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

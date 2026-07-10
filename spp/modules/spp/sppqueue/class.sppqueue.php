@@ -46,4 +46,27 @@ class SppQueue
             }
         }
     }
+
+    /**
+     * Push a task node into the DAG execution graph with explicit dependencies.
+     */
+    public static function pushDagNode(string $jobId, $job, array $dependencies = [], array $data = []): void
+    {
+        if (!class_exists('\SPPMod\SPPQueue\Workflow\DagJobOrchestrator')) {
+            require_once __DIR__ . '/Workflow/DagJobOrchestrator.php';
+        }
+        \SPPMod\SPPQueue\Workflow\DagJobOrchestrator::addJobNode($jobId, $job, $dependencies, $data);
+    }
+
+    /**
+     * Process the full DAG execution graph with token-bucket throttling.
+     */
+    public static function workDag(int $bucketCapacity = 10, float $fillRate = 5.0): bool
+    {
+        if (!class_exists('\SPPMod\SPPQueue\Workflow\DagJobOrchestrator')) {
+            require_once __DIR__ . '/Workflow/DagJobOrchestrator.php';
+        }
+        return \SPPMod\SPPQueue\Workflow\DagJobOrchestrator::executeDag($bucketCapacity, $fillRate);
+    }
 }
+

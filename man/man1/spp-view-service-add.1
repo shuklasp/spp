@@ -1,32 +1,36 @@
-.TH SPP-view-service-add 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `VIEW:SERVICE:ADD`
-.PP
-Purpose: Register a new AJAX service endpoint
-.PP
+.TH SPP-view-service-add 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-view-service-add \- Register a new AJAX service endpoint
 .SH SYNOPSIS
-php spp.php view:service:add [OPTIONS]
+.B php spp.php view:service:add
+[OPTIONS]
+.SH DESCRIPTION
+Register a new AJAX service endpoint
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php view:service:add --name=<service> --script=<path> [--method=POST] [--app=default] [--source=yaml|db]
+.br
+
 .PP
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+.TP
+.B --name=
+Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+.TP
+.B --script=
+Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+.TP
+.B --method=
+Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+.TP
+.B --source=
+Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php.
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-\(bu `--name=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php.
+\(bu Instantiates key components: AJAX.
 .br
-\(bu `--script=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php.
-.br
-\(bu `--method=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php.
-.br
-\(bu `--source=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php.
-.br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: AJAX.
-.br
-.PP
-.PP

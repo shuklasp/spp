@@ -21,12 +21,11 @@ namespace App\Samvaad\Serv;
  *   @sppguest ... @endsppguest                 — Show if guest
  * ============================================================================
  */
-class AuthController
+class AuthController extends \SPPMod\SPPView\ViewController
 {
     public function loginForm()
     {
-        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('login', [
+        return $this->render('login', [
             'app_name' => 'Samvaad',
             'base_url' => \SPP\App::getBaseUrl('Samvaad'),
             'error' => ''
@@ -44,9 +43,9 @@ class AuthController
                 try {
                     // Demo credential check — replace with real auth
                     if ($username === 'admin' && ($password === 'admin' || $password === 'password')) {
-                        $user = (object) ['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
+                        $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
                         \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
-                        header('Location: ' . \SPP\App::getBaseUrl('Samvaad') . '?q=dashboard');
+                        header('Location: ' . \SPP\App::url('dashboard', 'Samvaad'));
                         exit;
                     } else {
                         $error = 'Invalid credentials.';
@@ -57,8 +56,7 @@ class AuthController
             }
         }
 
-        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('login', [
+        return $this->render('login', [
             'app_name' => 'Samvaad',
             'base_url' => \SPP\App::getBaseUrl('Samvaad'),
             'error' => $error
@@ -70,7 +68,7 @@ class AuthController
         if (class_exists('\SPPMod\SPPAuth\SPPAuth')) {
             \SPPMod\SPPAuth\SPPAuth::guard('web')->logout();
         }
-        header('Location: ' . \SPP\App::getBaseUrl('Samvaad') . '?q=home');
+        header('Location: ' . \SPP\App::url('home', 'Samvaad'));
         exit;
     }
 

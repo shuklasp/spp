@@ -147,6 +147,18 @@ class ManCommand extends Command
                 return;
             }
 
+            // Check if a dedicated markdown manual exists for built-in or custom commands like tab
+            $customMdFile = dirname(SPP_BASE_DIR) . "/docs/commands/{$targetCmdName}.md";
+            if (file_exists($customMdFile)) {
+                $mdOut = file_get_contents($customMdFile);
+                $mdOut = preg_replace('/^### (.*)$/m', "\033[1;36m$1\033[0m", $mdOut);
+                $mdOut = preg_replace('/^## (.*)$/m', "\033[1;34m$1\033[0m", $mdOut);
+                $mdOut = preg_replace('/\*\*(.*?)\*\*/', "\033[1m$1\033[0m", $mdOut);
+                $mdOut = preg_replace('/`(.*?)`/', "\033[33m$1\033[0m", $mdOut);
+                echo $mdOut . "\n";
+                return;
+            }
+
             echo "No manual entry for {$targetCmdName}\n";
             return;
         }

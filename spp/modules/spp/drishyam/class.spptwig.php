@@ -62,6 +62,13 @@ class SPPTwig extends \SPP\SPPObject
         $this->engine->addFunction(new TwigFunction('react', ['\\SPPMod\\Drishyam\\TemplateMacros', 'react'], $safeHtml));
         $this->engine->addFunction(new TwigFunction('vue', ['\\SPPMod\\Drishyam\\TemplateMacros', 'vue'], $safeHtml));
         $this->engine->addFunction(new TwigFunction('sppux', ['\\SPPMod\\Drishyam\\TemplateMacros', 'sppux'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('spppartial', ['\\SPPMod\\Drishyam\\TemplateMacros', 'spppartial'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('polyglotpartial', ['\\SPPMod\\Drishyam\\TemplateMacros', 'polyglotpartial'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('polyglot', ['\\SPPMod\\Drishyam\\TemplateMacros', 'polyglot'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('spptransform', ['\\SPPMod\\Drishyam\\TemplateMacros', 'spptransform'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('sppuntransform', ['\\SPPMod\\Drishyam\\TemplateMacros', 'sppuntransform'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('sppcompose', ['\\SPPMod\\Drishyam\\TemplateMacros', 'sppcompose'], $safeHtml));
+        $this->engine->addFunction(new TwigFunction('spplivepartial', ['\\SPPMod\\Drishyam\\TemplateMacros', 'spplivepartial'], $safeHtml));
     }
 
     public static function getInstance(): self

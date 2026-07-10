@@ -80,6 +80,7 @@ HELP;
             'table' => $tableName,
             'id_field' => 'id',
             'sequence' => $tableName . '_seq',
+            'key_type' => 'int',
             'extends' => '',
             'login_enabled' => false,
             'attributes' => [],

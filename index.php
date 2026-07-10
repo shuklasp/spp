@@ -69,7 +69,7 @@ if ($context !== '') {
     }
 }
 
-require_once('global.php');
+require_once('global_v3.php');
 
 \SPP\Core\MiddlewareKernel::run(function ($request) {
     $context = \SPP\Scheduler::getContext() ?: 'default';
@@ -102,7 +102,22 @@ require_once('global.php');
         return;
     }
 
-    if (\SPP\Module::isEnabled('sppajax') && class_exists('\SPPMod\SPPAPI\SPPAjax') && \SPPMod\SPPAPI\SPPAjax::isAjaxRequest()) {
+    // Strict API Contract: If __svc is requested but CSRF/Ajax validation fails, reject immediately.
+    // Exception: live_sse (EventSource cannot send custom headers)
+    if ($svc !== '' && $svc !== 'live_sse') {
+        if (!class_exists('\SPPMod\SPPAPI\SPPAjax') || !\SPPMod\SPPAPI\SPPAjax::isAjaxRequest()) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => 'error',
+                'success' => false,
+                'message' => 'CSRF Protection: Missing X-SPP-Ajax header or invalid payload signature.'
+            ]);
+            exit;
+        }
+    }
+
+    if (\SPP\Module::isEnabled('sppapi') && class_exists('\SPPMod\SPPAPI\SPPAjax') && (\SPPMod\SPPAPI\SPPAjax::isAjaxRequest() || $svc === 'live_sse')) {
         \SPPMod\SPPAPI\SPPAjax::handle();
         return;
     }
@@ -143,6 +158,13 @@ require_once('global.php');
             $server->issueToken($clientId, $clientSecret, $code);
             return;
         }
+    }
+
+    // Route asset requests
+    if (str_starts_with($qPath, 'sppasset/')) {
+        require_once SPP_BASE_DIR . '/core/AssetRouter.php';
+        \SPP\Core\AssetRouter::handle($qPath);
+        return;
     }
 
     if (str_starts_with($qPath, 'api/v1/')) {

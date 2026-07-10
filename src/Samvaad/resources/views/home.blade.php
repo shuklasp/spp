@@ -36,6 +36,15 @@
         </div>
     </div>
 
+    {{-- Backend Enterprise Showcase --}}
+    <div class="card" style="border: 1px solid var(--primary); background: rgba(99, 102, 241, 0.03);">
+        <h2>⚙️ Backend Enterprise Showcase</h2>
+        <p>Explore the non-SPPUX capabilities of the framework, including the native ORM, Event Store (CQRS), Workflow engine, and more, all rendered via Blade + HTMX.</p>
+        <div style="margin-top: 1rem;">
+            <a href="@url('backend-showcase')" class="btn btn-primary">Explore Backend Showcase</a>
+        </div>
+    </div>
+
     {{-- YAML Form --}}
     <div class="card">
         <h2>📝 YAML-Driven Form</h2>

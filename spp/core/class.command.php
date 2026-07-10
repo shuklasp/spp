@@ -38,6 +38,25 @@ abstract class Command
     }
 
     /**
+     * Indicates whether this command is strictly restricted to CLI environment execution.
+     */
+    public function isCLIOnly(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Helper to safely validate and escape SQL DDL identifiers.
+     */
+    protected function escapeIdentifier(string $identifier): string
+    {
+        if (!class_exists('\SPP\Core\SchemaValidator')) {
+            require_once __DIR__ . '/class.schemavalidator.php';
+        }
+        return \SPP\Core\SchemaValidator::escapeIdentifier($identifier);
+    }
+
+    /**
      * Helpers for CLI output
      */
     protected function line(string $text): void

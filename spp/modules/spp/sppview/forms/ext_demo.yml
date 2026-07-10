@@ -27,4 +27,4 @@ elements:
     type: editor
     height: "400px"
     placeholder: "Start typing your masterpiece..."
-    value: "<h1>The Future is SPP</h1><p>This content was rendered via <b>sppext</b>.</p>"
+    value: "<h1>The Future is SPP</h1><p>This content was rendered via <b>drishyam</b>.</p>"

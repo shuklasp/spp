@@ -63,4 +63,25 @@ interface CacheInterface
      * @return bool
      */
     public function invalidateTag(string $tag): bool;
+
+    /**
+     * Cache stampede protection / Mutex locking.
+     * @param string $key
+     * @param int $ttl
+     * @param callable $callback
+     * @return mixed
+     */
+    public function getWithLock(string $key, int $ttl, callable $callback);
+
+    /**
+     * Prune expired cache items.
+     * @return bool
+     */
+    public function prune(): bool;
+
+    /**
+     * Get driver statistics and telemetry.
+     * @return array
+     */
+    public function stats(): array;
 }

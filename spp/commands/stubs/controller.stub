@@ -3,20 +3,67 @@
 namespace {{namespace}};
 
 use SPPMod\SPPView\Attributes\Route;
+use SPPMod\SPPView\Attributes\Middleware;
 
 /**
  * Class {{className}}
- * Auto-generated controller class.
+ * Auto-generated controller class with Developer-Friendly Enterprise ViewController capabilities.
+ *
+ * AVAILABLE ENTERPRISE FEATURES & EXTERNAL PARTIAL REFERENCING:
+ *   - #[Middleware(ClassName::class)] : Attach middleware via PHP 8 attributes at class or method level.
+ *   - $this->validate(array $rules)   : Validate incoming requests using ViewValidator rules.
+ *   - $this->hydrate(string $class)   : Dynamically hydrate DTOs or Entities using DataTransformers.
+ *   - $this->share($key, $value)      : Share data across all rendered views in this controller.
+ *   - $this->getCspNonce()            : Secure per-request Content Security Policy nonce generation.
+ *   - $this->stream($view, $data)     : Real-time Turbo Streams / live view streaming.
+ *   - $this->json($data, $status)     : Send standardized JSON responses instantly.
+ *   - ViewComposer & ViewLocator      : Auto-inject data into views and cache view resolution paths.
+ *   - External Partials / Streams     : Reference standalone .html, .php, or .js files instead of writing HTML literals
+ *                                       to dynamically update or insert content at particular places in the main page.
  */
-class {{className}}
+class {{className}} extends \SPPMod\SPPView\ViewController
 {
+    public function __construct()
+    {
+        // Example: Share data across all views rendered by this controller
+        // $this->share('shared_title', '{{className}} Dashboard');
+    }
+
     /**
      * Display a listing of the resource.
      */
     #[Route('/{{routeName}}', method: 'GET')]
+    // #[Middleware(\App\Default\Middleware\AuthGuard::class)]
     public function index()
     {
-        // return new ViewResponse('index', ['data' => 'Hello']);
+        // =====================================================================
+        // DEVELOPER-FRIENDLY ENTERPRISE CAPABILITIES BOILERPLATE
+        // =====================================================================
+
+        // 1. W3C Trace Context Propagation (SPPReport)
+        // $traceId = \SPPMod\SPPReport\W3CTraceContext::getCurrentTraceId();
+        // $header = \SPPMod\SPPReport\W3CTraceContext::buildTraceparentHeader();
+
+        // 2. O(log N) Binary Index Lookup (SPPStorage)
+        // $index = new \SPPMod\SPPStorage\XdbBinaryIndexer(\SPP\App::getApp()->getStoragePath() . '/indexes/sample.idx');
+        // $offset = $index->find(12345);
+
+        // 3. AI Tool Calling (SPPAI)
+        // $tools = [['name' => 'fetch_data', 'description' => 'Fetch dashboard data', 'parameters' => ['type' => 'object', 'properties' => ['filter' => ['type' => 'string']], 'required' => ['filter']]]];
+        // $aiResult = \SPPMod\SPPAI\SPPAI::using('ollama')::callTool('Get active dashboard filters', $tools);
+
+        // 4. Secure CSP Nonce generation for inline scripts/styles
+        // $nonce = $this->getCspNonce();
+
+        // 5. Stream real-time view response for heavy data tables referencing an external stream file
+        // return $this->stream('streams/table-stream.blade.php', ['data' => 'Streaming Hello']);
+
+        // 6. Return an external partial file for HTMX / Ajax requests to insert into a specific DOM location
+        // if ($this->isHtmx()) {
+        //     return $this->renderPartial('partials/user-card.html', ['data' => 'HTMX Hello']);
+        // }
+
+        return $this->render('index', ['data' => 'Hello']);
     }
 
     /**
@@ -25,7 +72,29 @@ class {{className}}
     #[Route('/{{routeName}}', method: 'POST')]
     public function store(array $data)
     {
-        //
+        // Example: Enterprise Request Validation
+        // $val = $this->validate(['title' => ['required', 'min:3']]);
+        // if (!$val->isValid()) {
+        //     $this->json(['success' => false, 'errors' => $val->getErrors()], 422);
+        // }
+
+        // Example: Enterprise DTO / Entity Hydration
+        // $entity = $this->hydrate(\App\Default\Entities\SampleEntity::class, $data);
+
+        // Example: CQRS Event Store Logging
+        // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('{{className}}', 'new_id', 'ResourceCreated', $data);
+
+        // Example: Token-Bucket Throttled DAG Job Dispatching (SPPQueue)
+        // $orchestrator = new \SPPMod\SPPQueue\DagJobOrchestrator();
+        // $orchestrator->addJob('job_1', 'ProcessResourceJob', ['data' => $data]);
+        // $orchestrator->dispatchAll();
+
+        // Example: Return an external partial file upon successful creation (e.g. inserting new item via HTMX)
+        // if ($this->isHtmx()) {
+        //     return $this->renderPartial('partials/single-item.php', ['item' => $data]);
+        // }
+
+        $this->json(['success' => true, 'message' => 'Resource created successfully.'], 201);
     }
 
     /**
@@ -34,7 +103,10 @@ class {{className}}
     #[Route('/{{routeName}}/{id}', method: 'GET')]
     public function show($id)
     {
-        //
+        // Example: Fetch latest snapshot from CQRS Event Store
+        // $snapshot = \SPPMod\SPPWorkflow\CQRS\EventStore::getLatestSnapshot('{{className}}', $id);
+
+        // return $this->render('show', ['id' => $id]);
     }
 
     /**
@@ -43,7 +115,16 @@ class {{className}}
     #[Route('/{{routeName}}/{id}', method: 'PUT')]
     public function update($id, array $data)
     {
-        //
+        // Example: Enterprise Request Validation
+        // $val = $this->validate(['title' => ['required', 'min:3']]);
+        // if (!$val->isValid()) {
+        //     $this->json(['success' => false, 'errors' => $val->getErrors()], 422);
+        // }
+
+        // Example: CQRS Event Store Logging
+        // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('{{className}}', $id, 'ResourceUpdated', $data);
+
+        $this->json(['success' => true, 'message' => 'Resource updated successfully.'], 200);
     }
 
     /**
@@ -52,6 +133,9 @@ class {{className}}
     #[Route('/{{routeName}}/{id}', method: 'DELETE')]
     public function destroy($id)
     {
-        //
+        // Example: CQRS Event Store Logging
+        // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('{{className}}', $id, 'ResourceDeleted', []);
+
+        $this->json(['success' => true, 'message' => 'Resource deleted successfully.'], 200);
     }
 }

@@ -1,21 +1,22 @@
-# diff:apply
+## `diff:apply`
 
-## NAME
-diff:apply - Apply a patch or delta file
+**Description**: Apply a patch or delta file
 
-## SYNOPSIS
-`php spp.php diff:apply [--file=<patch.json>]`
-
-## PURPOSE
-Applies a generic JSON delta patch to the underlying state engine.
-
-## OPTIONS AVAILABLE
-- `--file=<patch.json>`: Target delta file to apply.
-
-## UNDER THE HOOD ACTIVITY
-The command checks the system for the presence of the `\SPPMod\SPPDiff\DeltaEngine` module class. Currently acting as a stub, it asserts module availability and indicates command usage, reserving full delta assimilation logic for future module iterations.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php diff:apply --file=patch.json
+php spp.php diff:apply [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: diff:apply --file=patch.json
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

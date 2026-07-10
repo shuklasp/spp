@@ -1,24 +1,22 @@
-.TH SPP-env-get 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# env:get
-.PP
+.TH SPP-env-get 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-env:get - Get a specific configuration variable
-.PP
+spp-env-get \- Get a specific configuration variable
 .SH SYNOPSIS
-php spp.php env:get <key> [--app=appname]
+.B php spp.php env:get
+[OPTIONS]
+.SH DESCRIPTION
+Get a specific configuration variable
 .PP
-.SH PURPOSE
-Fetches and displays real-time compiled framework configuration values.
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `<key>`: **Required**. The configuration key notation to query (e.g., `sys:debug`).
+Usage: php spp.php env:get <key> [--app=appname]
 .br
-\(bu `--app=<app_name>`: Scope the variable read to a specific app.
+
+.PP
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from EnvGetCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-It parses the positional CLI argument to extract the target key. It shifts context via Scheduler::withContext(). The heavy lifting defers to \SPP\SPPConfig::get($key). The return payload is verified against null. If the resolved payload is a scalar primitive, it stringifies it directly. If it yields an array block or an object, it processes the structure natively using json_encode() with JSON_PRETTY_PRINT format.
-.PP
-.SH EXAMPLES
-php spp.php env:get database.host --app=storefront
-.PP

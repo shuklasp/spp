@@ -1,5 +1,5 @@
 ################################################################################
-# App Services — Callable from JavaScript via spp_admin.callAppService()
+# App Services â€” Callable from JavaScript via spp_admin.callAppService()
 #
 # HOW TO ADD A SERVICE:
 # 1. Create a PHP script in serv/ (e.g., serv/my_action.php)
@@ -13,4 +13,28 @@
 services:
   - name: "task.create"
     script: "src/Samvaad/serv/task_create.php"
+    method: "POST"
+  - name: "enterprise.ai"
+    script: "src/Samvaad/serv/enterprise_ai.php"
+    method: "POST"
+  - name: "enterprise.cqrs"
+    script: "src/Samvaad/serv/enterprise_cqrs.php"
+    method: "POST"
+  - name: "enterprise.dag"
+    script: "src/Samvaad/serv/enterprise_dag.php"
+    method: "POST"
+  - name: "enterprise.workflow"
+    script: "src/Samvaad/serv/enterprise_workflow.php"
+    method: "POST"
+  - name: "enterprise.stream"
+    script: "src/Samvaad/serv/enterprise_stream.php"
+    method: "GET"
+  - name: "enterprise.indexing"
+    script: "src/Samvaad/serv/enterprise_indexing.php"
+    method: "POST"
+  - name: "enterprise.tracing"
+    script: "src/Samvaad/serv/enterprise_tracing.php"
+    method: "POST"
+  - name: "enterprise.live"
+    script: "src/Samvaad/serv/enterprise_live.php"
     method: "POST"

@@ -6,7 +6,7 @@ use SPP\CLI\Command;
 
 /**
  * Class {{className}}
- * Auto-generated CLI command class.
+ * Auto-generated CLI command class with Developer-Friendly Enterprise capabilities.
  */
 class {{className}} extends Command
 {
@@ -15,6 +15,14 @@ class {{className}} extends Command
 
     /** @var string Command description */
     protected string $description = '{{description}}';
+
+    /**
+     * Mandatory CLI SAPI Guarding to ensure zero-trust security execution.
+     */
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
 
     /**
      * {{className}} constructor.
@@ -32,6 +40,31 @@ class {{className}} extends Command
     public function execute(array $args): void
     {
         echo "Executing {{commandName}}...\n";
+
+        // =====================================================================
+        // DEVELOPER-FRIENDLY ENTERPRISE CAPABILITIES BOILERPLATE
+        // =====================================================================
+
+        // 1. Distributed Mutex Locking (SPPDeploy) to prevent race conditions
+        // try {
+        //     \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+        //     // ... command logic ...
+        // } finally {
+        //     \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
+        // }
+
+        // 2. AI Tool Calling (SPPAI)
+        // $tools = [['name' => 'sample_tool', 'description' => 'Executes a sample action', 'parameters' => ['type' => 'object', 'properties' => ['param1' => ['type' => 'string']], 'required' => ['param1']]]];
+        // $result = \SPPMod\SPPAI\SPPAI::using('ollama')::callTool('Run sample action with test param', $tools);
+
+        // 3. CQRS Event Store Logging
+        // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('CLI', '{{commandName}}', 'CommandExecuted', ['args' => $args]);
+
+        // 4. Identifier Sanitization (SchemaValidator)
+        // if (\SPPMod\SPPDB\SchemaValidator::isValidIdentifier('sample_table')) {
+        //     // Safe to use in DDL statements
+        // }
+
         // TODO: Implement command logic
     }
 }

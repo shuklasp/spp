@@ -10,9 +10,14 @@ class DeployRollbackCommand extends Command
         $target = $args[2] ?? null;
         $backupId = $args[3] ?? null;
 
+        if ($target && !$backupId) {
+            $backupId = $target;
+            $target = \SPPMod\SPPDeploy\Deployer\TargetConnection::getDefaultEnvironment();
+        }
+
         if (!$target || !$backupId) {
             echo "Error: Target connection URI and backup ID are required.\n";
-            echo "Usage: php spp.php deploy:rollback <target_uri> <backup_id> [--key=YOUR_API_KEY] [--force]\n";
+            echo "Usage: php spp.php deploy:rollback [target_uri] <backup_id> [--key=YOUR_API_KEY] [--force]\n";
             return;
         }
 
@@ -30,28 +35,36 @@ class DeployRollbackCommand extends Command
 
         $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
-        if (!$force) {
-            echo "⚠️  WARNING: You are about to initiate a destructive rollback on {$target}.\n";
-            echo "This will replace the current codebase and database with the state from: {$backupId}\n";
-            echo "\n❓ Proceed with rollback? [Y/n] ";
-            $handle = fopen("php://stdin", "r");
-            $line = trim(fgets($handle));
-            fclose($handle);
-            if (strtolower($line) === 'n' || strtolower($line) === 'no') {
-                echo "⛔ Rollback aborted by user.\n";
+        try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+
+            if (!$force) {
+                echo "⚠️  WARNING: You are about to initiate a destructive rollback on {$target}.\n";
+                echo "This will replace the current codebase and database with the state from: {$backupId}\n";
+                echo "\n❓ Proceed with rollback? [Y/n] ";
+                $handle = fopen("php://stdin", "r");
+                $line = trim(fgets($handle));
+                fclose($handle);
+                if (strtolower($line) === 'n' || strtolower($line) === 'no') {
+                    echo "⛔ Rollback aborted by user.\n";
+                    return;
+                }
+            }
+
+            echo "📡 Sending rollback command to {$target}...\n";
+            $resp = $conn->executeRollback($backupId);
+
+            if (!isset($resp['status']) || $resp['status'] !== 'ok') {
+                echo "❌ Rollback failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
                 return;
             }
+
+            echo "✅ " . $resp['message'] . "\n";
+        } catch (\Exception $e) {
+            echo "❌ Fatal Error: " . $e->getMessage() . "\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
-
-        echo "📡 Sending rollback command to {$target}...\n";
-        $resp = $conn->executeRollback($backupId);
-
-        if (!isset($resp['status']) || $resp['status'] !== 'ok') {
-            echo "❌ Rollback failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            return;
-        }
-
-        echo "✅ " . $resp['message'] . "\n";
     }
 
     public function getName(): string

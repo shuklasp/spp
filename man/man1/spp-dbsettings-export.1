@@ -1,22 +1,18 @@
-.TH SPP-dbsettings-export 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# dbsettings:export
-.PP
+.TH SPP-dbsettings-export 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-dbsettings:export - Export SPP module DB settings to JSON
-.PP
+spp-dbsettings-export \- Export SPP module DB settings to JSON
 .SH SYNOPSIS
-php spp.php dbsettings:export [--app=<app_name>]
+.B php spp.php dbsettings:export
+[OPTIONS]
+.SH DESCRIPTION
+Export SPP module DB settings to JSON
 .PP
-.SH PURPOSE
-Exports the currently configured database settings mapped by the DBSettings module into a structured JSON file format for backups or environment migrations.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from DBSettingsExportCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=<app_name>`: Specify the SPP application context (default: 'default').
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command extracts the application context from the --app argument. It then attempts to invoke \SPP\Scheduler::withContext() to set the runtime context. Within the closure, it checks whether the \SPPMod\DBSettings\DBSettings class is loaded and available. Currently, the actual export logic is a stub and outputs a "Implementation pending" message if the module is active.
-.PP
-.SH EXAMPLES
-php spp.php dbsettings:export --app=admin
-.PP

@@ -1,0 +1,25 @@
+.TH INTEGRATION-SEED 1 "July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+integration:seed \- Bulk seed local SPP users into a specific integration target.
+.SH SYNOPSIS
+.B php spp.php integration:seed
+.IR <app_name>
+.SH DESCRIPTION
+The
+.B integration:seed
+command automates the mass migration and synchronization of the historical SPP user base into a newly attached external application.
+.PP
+For example, if your SPP application has been running for 2 years with 5,000 users, and you decide to install Magento today, Magento will have 0 users. By running this command, SPP will query the local spp_users table, extract the identities, and iteratively use the MagentoDriver to bulk-inject all 5,000 users natively into Magento.
+.SH OPTIONS
+.TP
+.B app_name
+The alias of the registered target driver (e.g., magento, discourse).
+.SH UNDER THE HOOD
+.B Filesystem Writes:
+None.
+.br
+.B DB Interactions:
+Performs a mass SELECT query on the local spp_users table.
+.br
+.B Outbound HTTP Calls:
+Will generate outbound HTTP calls if the selected driver (e.g., Discourse) communicates via REST API rather than Native Bootstrapping.

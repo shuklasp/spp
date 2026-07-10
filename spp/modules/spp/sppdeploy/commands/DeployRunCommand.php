@@ -11,9 +11,14 @@ class DeployRunCommand extends Command
         $target = $args[2] ?? null;
         $commandToRun = $args[3] ?? null;
 
+        if ($target && !$commandToRun) {
+            $commandToRun = $target;
+            $target = TargetConnection::getDefaultEnvironment();
+        }
+
         if (!$target || !$commandToRun) {
             echo "Error: Target connection URI and command are required.\n";
-            echo "Usage: php spp.php deploy:run <target_uri> \"<command>\" [--key=YOUR_API_KEY]\n";
+            echo "Usage: php spp.php deploy:run [target_uri] \"<command>\" [--key=YOUR_API_KEY]\n";
             return;
         }
 

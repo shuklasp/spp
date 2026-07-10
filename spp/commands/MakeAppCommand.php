@@ -172,6 +172,13 @@ YAML
         // 5. Generate common structure shared by ALL modes
         $this->scaffoldCommonStructure($appName, $appType);
 
+        // 6. Auto-run database migrations if DB is enabled
+        if (\SPP\Module::isEnabled('sppdb')) {
+            echo "\nRunning database migrations (App: {$appName} and modules)...\n";
+            $migrateCmd = sprintf('php spp.php migrate --app=%s', escapeshellarg($appName));
+            passthru($migrateCmd);
+        }
+
         echo "\n✅ Application '{$appName}' created successfully!\n";
         echo "   Mode:   {$appType}\n";
         echo "   Source: src/{$appName}/\n";
@@ -475,8 +482,9 @@ YAML
  * with its own simple router that serves files from the resources/views/ dir.
  *
  * HOW TO ADD A NEW PAGE:
- * 1. Create a file in resources/{{APP_NAME}}/views/ (e.g., contact.php)
- * 2. Access it at: /{base_url}?q=index&page=contact
+ * 1. Create a file `contact.php` in `src/{{APP_NAME}}/pages/`
+ * 2. Access it at: /{base_url}/index?page=contact
+ * 3. Add to navigation in `index.php`
  *
  * HOW TO UPGRADE:
  * To use the full SPP routing pipeline instead, switch to 'native' or 'mixed'
@@ -555,9 +563,9 @@ PHP
 
             <h3>📂 How Drop-in Mode Works</h3>
             <ul>
-                <li><b>Add pages:</b> Create <code>.php</code> or <code>.html</code> files in <code>resources/{{APP_NAME}}/views/</code></li>
-                <li><b>Access them:</b> Visit <code>?q=index&page=filename</code> (without extension)</li>
-                <li><b>Forms:</b> Use YAML form definitions in <code>etc/apps/{{APP_NAME}}/forms/</code></li>
+                <li><b>Create pages:</b> Add `.php` or `.html` files in <code>src/{{APP_NAME}}/pages/</code></li>
+                <li><b>Access them:</b> Visit <code>/index?page=filename</code> (without extension)</li>
+                <li><b>Include UI components:</b> Use <code><?php include __DIR__ . '/../ui/navbar.php'; ?></code></li>
                 <li><b>Upgrade:</b> Switch to <code>native</code> or <code>mixed</code> mode for full framework features</li>
             </ul>
 
@@ -699,7 +707,7 @@ HTML
     <div data-spp-component="1"
          data-spp-type="ux"
          data-spp-path="<?php echo \SPPMod\Drishyam\SPPUX::componentPath('main'); ?>"
-         data-spp-props='{"appName":"<?php echo '{{APP_NAME}}'; ?>"}'>
+         data-spp-props='{"appName":"<?php echo '{{APP_NAME}}'; ?>", "appRoot":"<?php echo \SPP\App::getBaseUrl(); ?>"}'>
         <!-- This content shows while the component loads -->
         <div class="spp-app-loading">
             <div class="spinner"></div>
@@ -720,6 +728,9 @@ HTML
 
     <!-- Auto-mounter: scans DOM for data-spp-component and instantiates them -->
     <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::loaderPath(); ?>"></script>
+
+    <!-- SPPLive: LiveComponent reactivity engine (wire:click, wire:model) -->
+    <script src="<?php echo \SPP\App::getAssetUrl('core', 'admin_js', 'spplive.min.js'); ?>"></script>
 </body>
 </html>
 PHP
@@ -1751,20 +1762,20 @@ SPP DIRECTIVES AVAILABLE:
 <body>
     <nav class="nav">
         <div class="layout-container nav-inner">
-            <a href="{{ $base_url }}" class="nav-brand">🚀 {{APP_NAME}}</a>
+            <a href="@url('')" class="nav-brand">🚀 {{APP_NAME}}</a>
             <div class="nav-links">
-                <a href="{{ $base_url }}?q=home">Home</a>
-                <a href="{{ $base_url }}?q=about">About</a>
-                <a href="{{ $base_url }}?q=dashboard">Dashboard</a>
-                <a href="{{ $base_url }}?q=contact">Contact</a>
-                <a href="{{ $base_url }}?q=app">SPP-UX App</a>
+                <a href="@url('home')">Home</a>
+                <a href="@url('about')">About</a>
+                <a href="@url('dashboard')">Dashboard</a>
+                <a href="@url('contact')">Contact</a>
+                <a href="@url('app')">SPP-UX App</a>
 
                 {{-- Auth-aware navigation --}}
                 @sppauth
-                    <a href="{{ $base_url }}?q=auth/logout" style="color: #ef4444;">Logout</a>
+                    <a href="@url('auth/logout')" style="color: #ef4444;">Logout</a>
                 @endsppauth
                 @sppguest
-                    <a href="{{ $base_url }}?q=login">Login</a>
+                    <a href="@url('login')">Login</a>
                 @endsppguest
             </div>
         </div>
@@ -4722,11 +4733,10 @@ if (file_exists($viewsDir . $page . '.php')) {
 ├── contact.php      ← Contact form page
 └── gallery.html     ← Static HTML page</code></pre>
         <p>Access pages via URL parameter:</p>
-        <ul>
-            <li><code>?q=index</code> → loads <code>index.html</code> (default)</li>
-            <li><code>?q=index&amp;page=about</code> → loads <code>about.php</code></li>
-            <li><code>?q=index&amp;page=contact</code> → loads <code>contact.php</code></li>
-            <li><code>?q=index&amp;page=guide</code> → loads <code>guide.html</code> (this page)</li>
+            <li><code>/index</code> → loads <code>index.html</code> (default)</li>
+            <li><code>/index?page=about</code> → loads <code>about.php</code></li>
+            <li><code>/index?page=contact</code> → loads <code>contact.php</code></li>
+            <li><code>/index?page=guide</code> → loads <code>guide.html</code> (this page)</li>
         </ul>
     </div>
 
@@ -4827,7 +4837,7 @@ pages:
 
     <div class="footer">
         &copy; {{APP_NAME}} &bull; Powered by SPP Framework &bull; Drop-in Mode<br>
-        <small>Access this guide at: <code>?q=index&amp;page=guide</code></small>
+        <small>Access this guide at: <code>/index?page=guide</code></small>
     </div>
 </div>
 </body>
@@ -4994,6 +5004,13 @@ spl_autoload_register(function (\$className) {
 if (php_sapi_name() !== 'cli' && class_exists('\\\\SPPMod\\\\Drishyam\\\\SPPUX')) {
     \\SPPMod\\Drishyam\\SPPUX::boot('{$appName}');
 }
+
+// ── Dynamic Asset Inclusion ───────────────────────────────────
+// Automatically injects mapped CSS and JS assets from module.yml
+// configurations via the secure AssetRouter alias system.
+if (php_sapi_name() !== 'cli') {
+    \\\\SPP\\\\App::includeAssets();
+}
 PHP
         );
 
@@ -5137,7 +5154,7 @@ CSS
             @if(!empty($error))
                 <div style="background: rgba(239,68,68,0.1); color: #dc2626; padding: 0.8rem; border-radius: 8px; margin-bottom: 1rem;">{{ $error }}</div>
             @endif
-            <form method="POST" action="{{ $base_url }}?q=auth/login">
+            <form method="POST" action="@url('auth/login')">
                 <div style="margin-bottom: 1rem;">
                     <label style="display:block; font-weight:600; font-size:0.85rem; margin-bottom:0.4rem; color:var(--muted);">Username</label>
                     <input type="text" name="username" required style="width:100%; padding:0.8rem; border:1px solid var(--border); border-radius:8px; font-family:inherit;">
@@ -5156,7 +5173,7 @@ CSS
     @sppauth
     <div class="card" style="text-align:center;">
         <h2>✅ You are already logged in</h2>
-        <a href="{{ $base_url }}?q=dashboard" class="btn btn-primary">Go to Dashboard</a>
+        <a href="@url('dashboard')" class="btn btn-primary">Go to Dashboard</a>
     </div>
     @endsppauth
 @endsection
@@ -5217,7 +5234,7 @@ class AuthController
                     if (\$username === 'admin' && (\$password === 'admin' || \$password === 'password')) {
                         \$user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
                         \\SPPMod\\SPPAuth\\SPPAuth::guard('web')->login(\$user);
-                        header('Location: ' . \\SPP\\App::getBaseUrl('{$appName}') . '?q=dashboard');
+                        header('Location: ' . \\SPP\\App::url('dashboard', '{$appName}'));
                         exit;
                     } else {
                         \$error = 'Invalid credentials.';
@@ -5241,7 +5258,7 @@ class AuthController
         if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
             \\SPPMod\\SPPAuth\\SPPAuth::guard('web')->logout();
         }
-        header('Location: ' . \\SPP\\App::getBaseUrl('{$appName}') . '?q=home');
+        header('Location: ' . \\SPP\\App::url('home', '{$appName}'));
         exit;
     }
 
@@ -5413,7 +5430,7 @@ class AuthGuard
     {
         if (!self::check()) {
             \$baseUrl = \\SPP\\App::getBaseUrl(\$appName ?: '{$appName}');
-            header('Location: ' . \$baseUrl . '?q=login');
+            header('Location: ' . \$baseUrl . '/login');
             exit;
         }
     }
@@ -5470,6 +5487,9 @@ class Item
     {
         \$meta = [
             'table' => self::getTableName(),
+            'id_field' => 'id',
+            'sequence' => self::getTableName() . '_seq',
+            'key_type' => 'int',
             'enable_api' => true,  // Expose via REST API
             'fields' => ['id', 'name', 'status', 'created_at'],
             'searchable' => ['name'],

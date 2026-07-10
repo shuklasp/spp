@@ -1,31 +1,20 @@
-.TH SPP-app-set-base 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
+.TH SPP-app-set-base 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-app-set-base \- Set an application as the primary/base application
+.SH SYNOPSIS
+.B php spp.php app:set-base
+[OPTIONS]
+.SH DESCRIPTION
+Set an application as the primary/base application
 .PP
-app:set-base
-.PP
-# SYNOPSIS
-.PP
-php spp.php app:set-base <app_name>
-.PP
-# PURPOSE
-.PP
-Modifies the global configuration to designate a specific application as the primary or "base" application for routing and context purposes.
-.PP
-# OPTIONS AVAILABLE
-.PP
-\(bu `<app_name>` : (Required Positional Argument) The registered name of the application to promote to the base context.
+Usage: php spp.php app:set-base <app_name>
 .br
+
 .PP
-# UNDER THE HOOD ACTIVITY
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-Execution begins by asserting the presence of the <app_name> positional argument at index 2 of the CLI argument array. If missing, it outputs the expected usage. It defines the path to the configuration matrix at SPP_BASE_DIR . '/etc/global-settings.yml' and aborts if the file cannot be located.
-.PP
-The command parses the YAML payload into memory utilizing Symfony\Component\Yaml\Yaml::parseFile(). It conducts a validation check to ensure the provided <app_name> actually exists within the ['apps'] configuration key. If the application is unregistered, it throws an error and exits.
-.PP
-Upon successful validation, the top-level configuration key ['base_app'] is overridden with the newly designated application name. The modified array structure is serialized via Yaml::dump() (configured with a depth parameter of 10 and 2 spaces indentation) and persisted directly to the global-settings.yml file using file_put_contents(), making the state change immediate across the framework.
-.PP
-# EXAMPLES
-.PP
-Set the 'frontend' application as the global base:
-php spp.php app:set-base frontend
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br

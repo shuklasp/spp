@@ -1,21 +1,16 @@
-# xdb:list-dbs
+## `xdb:list-dbs`
 
-## NAME
-`xdb:list-dbs` - List all available XDB databases.
+**Description**: List all available XDB databases
 
-## SYNOPSIS
-`php spp xdb:list-dbs`
+### Synopsis
+```bash
+php spp.php xdb:list-dbs [OPTIONS]
+```
 
-## PURPOSE
-Outputs a list of all databases managed by the SPPXDB system.
+### Options
+No static options detected.
 
-## OPTIONS AVAILABLE
-This command currently accepts no arguments or options.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
-## UNDER THE HOOD ACTIVITY
-When executed, `xdb:list-dbs` loads the core `SPP_XDB` class by explicitly requiring `modules/spp/sppxdb/class.sppxdb.php`. It initializes a new instance of the `SPP_XDB` engine without a specific database parameter. It subsequently calls the `$xdb->querySQL("SHOW DATABASES")` method to instruct the engine to scan for existing database containers. 
-
-The returned result set is then iterated over, extracting the `'Database'` key from each row to print a bulleted list to standard output. If the query returns an empty set, it informs the user that no databases were found. Any exceptions triggered during the loading or querying phase are caught and printed as error messages.
-
-## EXAMPLES
-* `php spp xdb:list-dbs`

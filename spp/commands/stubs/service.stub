@@ -4,7 +4,7 @@ namespace {{namespace}};
 
 /**
  * Class {{className}}
- * Auto-generated service class.
+ * Auto-generated service class with Developer-Friendly Enterprise Capabilities.
  */
 class {{className}}
 {
@@ -17,10 +17,31 @@ class {{className}}
     }
 
     /**
-     * Example method.
+     * Execute the core service business logic.
      */
     public function execute()
     {
+        // =====================================================================
+        // DEVELOPER-FRIENDLY ENTERPRISE CAPABILITIES BOILERPLATE
+        // =====================================================================
+
+        // 1. W3C Trace Context Propagation (SPPReport)
+        // $traceId = \SPPMod\SPPReport\W3CTraceContext::getCurrentTraceId();
+        // $header = \SPPMod\SPPReport\W3CTraceContext::buildTraceparentHeader();
+
+        // 2. AI Tool Calling (SPPAI)
+        // $tools = [['name' => 'process_service_task', 'description' => 'Executes an AI task for the service', 'parameters' => ['type' => 'object', 'properties' => ['task_id' => ['type' => 'string']], 'required' => ['task_id']]]];
+        // $result = \SPPMod\SPPAI\SPPAI::using('ollama')::callTool('Analyze service execution task', $tools);
+
+        // 3. Token-Bucket Throttled DAG Job Orchestration (SPPQueue)
+        // $orchestrator = new \SPPMod\SPPQueue\DagJobOrchestrator();
+        // $orchestrator->addJob('step_1', 'ServiceTask1Job', ['id' => 1]);
+        // $orchestrator->addJob('step_2', 'ServiceTask2Job', ['id' => 1], ['step_1']); // step_2 depends on step_1
+        // $orchestrator->dispatchAll();
+
+        // 4. CQRS Event Store Logging
+        // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('Service', class_basename(self::class), 'ServiceExecuted', ['timestamp' => time()]);
+
         // TODO: Implement business logic
     }
 }

@@ -1,6 +1,6 @@
 ## `make:go-service`
 
-**Purpose**: Create a new Go service script
+**Description**: Create a new Go service script
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: spp make:go-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Go.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Go.
 

@@ -2,14 +2,73 @@
 namespace App\{{appname}}\Controllers;
 
 use SPP\Core\ResourceController;
+use SPPMod\SPPView\Attributes\Middleware;
 
 /**
  * Class {{controllerName}}
- * Scaffolded by SPP Rapid Engine
+ * Scaffolded by SPP Rapid Engine with Developer-Friendly Enterprise ViewController Capabilities
+ *
+ * AVAILABLE ENTERPRISE FEATURES & EXTERNAL PARTIAL REFERENCING:
+ *   - #[Middleware(ClassName::class)] : Attach middleware via PHP 8 attributes at class or method level.
+ *   - $this->validate(array $rules)   : Validate incoming requests using ViewValidator rules.
+ *   - $this->hydrate(string $class)   : Dynamically hydrate DTOs or Entities using DataTransformers.
+ *   - $this->share($key, $value)      : Share data across all rendered views in this controller.
+ *   - $this->getCspNonce()            : Secure per-request Content Security Policy nonce generation.
+ *   - $this->stream($view, $data)     : Real-time Turbo Streams / live view streaming.
+ *   - $this->json($data, $status)     : Send standardized JSON responses instantly.
+ *   - $this->transitionEntity(...)    : Evaluate workflow transitions with smart content negotiation (HTMX/Turbo Streams).
+ *   - External Partials / Streams     : Reference standalone .html, .php, or .js files instead of writing HTML literals
+ *                                       to dynamically update or insert content at particular places in the main page.
  */
 class {{controllerName}} extends ResourceController
 {
     protected string $entityClass = \App\{{appname}}\Entities\{{entityName}}::class;
 
+    public function __construct()
+    {
+        parent::__construct();
+        // Example: Share common context with all views
+        // $this->share('entity_heading', '{{entityName}} Management');
+    }
+
+    // =========================================================================
+    // DEVELOPER-FRIENDLY ENTERPRISE CAPABILITIES BOILERPLATE
+    // =========================================================================
+
     // Custom controller logic can be added here
+    // Example: Return an external partial file for HTMX / Ajax requests to insert into a specific DOM location
+    // public function customAction()
+    // {
+    //     // 1. W3C Trace Context Propagation (SPPReport)
+    //     // $traceId = \SPPMod\SPPReport\W3CTraceContext::getCurrentTraceId();
+    //
+    //     // 2. O(log N) Binary Index Lookup (SPPStorage)
+    //     // $index = new \SPPMod\SPPStorage\XdbBinaryIndexer(\SPP\App::getApp()->getStoragePath() . '/indexes/{{entityName}}.idx');
+    //     // $offset = $index->find(12345);
+    //
+    //     // 3. AI Tool Calling (SPPAI)
+    //     // $tools = [['name' => 'analyze_entity', 'description' => 'Analyze entity metrics', 'parameters' => ['type' => 'object', 'properties' => ['id' => ['type' => 'number']], 'required' => ['id']]]];
+    //     // $aiResult = \SPPMod\SPPAI\SPPAI::using('ollama')::callTool('Inspect entity data', $tools);
+    //
+    //     if ($this->isHtmx()) {
+    //         return $this->renderPartial('partials/user-card.html', ['data' => 'HTMX Hello']);
+    //     }
+    //     return $this->stream('streams/live-update.blade.php', ['data' => 'Streaming Hello']);
+    // }
+
+    // Example: Execute workflow transition with smart content negotiation and CQRS Event Logging
+    // public function applyTransitionAction(string $id, string $transition)
+    // {
+    //     $entity = $this->entityClass::load($this->entityClass::getTableName(), $id);
+    //
+    //     // Log state transition to CQRS Event Store
+    //     // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('{{entityName}}', $id, 'WorkflowTransitionRequested', ['transition' => $transition]);
+    //
+    //     // Orchestrate dependent post-transition jobs via DAG Job Orchestrator
+    //     // $orchestrator = new \SPPMod\SPPQueue\DagJobOrchestrator();
+    //     // $orchestrator->addJob('notify', 'SendTransitionNotificationJob', ['id' => $id, 'state' => $transition]);
+    //     // $orchestrator->dispatchAll();
+    //
+    //     return $this->transitionEntity($entity, $transition, ['comment' => 'Transition applied'], 'partials/{{entityName}}_row.php', 'partials/error_alert.html');
+    // }
 }

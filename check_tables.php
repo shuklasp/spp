@@ -1,8 +1,7 @@
 <?php
-try { 
-    $db = new PDO('sqlite:var/db/school.sqlite'); 
-    $stmt=$db->query('SELECT name FROM sqlite_master WHERE type="table"'); 
-    print_r($stmt->fetchAll(PDO::FETCH_COLUMN)); 
-} catch (Exception $e) { 
-    echo $e->getMessage(); 
+require 'spp/sppinit.php';
+$db = new \SPPMod\SPPDB\SPPDB();
+$tables = $db->query("SHOW TABLES");
+foreach ($tables as $t) {
+    echo implode(", ", array_values($t)) . "\n";
 }

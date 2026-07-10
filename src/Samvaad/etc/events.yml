@@ -10,6 +10,8 @@
 #   event_spp_page_render       — Fired during page rendering
 #   PageNotFound                — Fired when no route matches
 #   app.boot                    — Custom app boot event
+#   workflow.before_transition  — Fired before a workflow state transition
+#   workflow.after_transition   — Fired after a workflow state transition completes
 #
 # EXAMPLE:
 #   app.boot:

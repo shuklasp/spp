@@ -52,7 +52,7 @@ class SPPLang
         foreach ($iterator as $file) {
             if ($file->isFile()) {
                 $ext = strtolower($file->getExtension());
-                if ($ext === 'php' || $ext === 'yml' || $ext === 'yaml') {
+                if ($ext === 'php' || $ext === 'yml' || $ext === 'yaml' || $ext === 'html' || $ext === 'js') {
                     $content = file_get_contents($file->getPathname());
                     if ($content === false) {
                         continue;
@@ -69,6 +69,17 @@ class SPPLang
                             }
                         }
                     }
+
+                    // Look for <spp-lang key="key"> or <spp-trans key="key"> in html/php/js/etc.
+                    preg_match_all('/<spp-(?:lang|trans)\s+key=(["\'])(.*?)\1/is', $content, $tagMatches);
+                    if (!empty($tagMatches[2])) {
+                        foreach ($tagMatches[2] as $k) {
+                            $k = trim($k);
+                            if ($k !== '') {
+                                $keys[$k] = true;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -78,18 +89,7 @@ class SPPLang
         $newlyAdded = [];
 
         foreach ($discovered as $key) {
-            // we use getOne to check if it exists in repo? 
-            // Wait, getOne falls back to the key itself. So we just blindly save if we only want to ensure it's there.
-            // But we might overwrite translation? Actually, let's just use getMany or direct insert.
-            // Since this is scanning, we don't want to overwrite if exists.
-            $existing = $repo->getMany(['search' => $key, 'locale' => $locale]);
-            $exists = false;
-            foreach ($existing as $row) {
-                if ($row['key_code'] === $key) {
-                    $exists = true; break;
-                }
-            }
-            if (!$exists) {
+            if (!$repo->keyExists($key, $locale)) {
                 $repo->save($key, $locale, $key);
                 $newlyAdded[] = $key;
             }
@@ -115,10 +115,36 @@ class SPPLang
     }
 
     /**
-     * Retrieve a specific translation by key and locale.
+     * Retrieve a specific translation by key and locale, with optional parameter interpolation / ICU MessageFormat.
      */
-    public static function getTranslation(string $key, string $locale = 'en'): string
+    public static function getTranslation(string $key, string $locale = 'en', array $params = []): string
     {
-        return self::getRepository()->getOne($key, $locale);
+        $translation = self::getRepository()->getOne($key, $locale);
+
+        if (empty($params)) {
+            return $translation;
+        }
+
+        if (extension_loaded('intl')) {
+            try {
+                $formatter = new \MessageFormatter($locale, $translation);
+                if ($formatter) {
+                    $result = $formatter->format($params);
+                    if ($result !== false) {
+                        return $result;
+                    }
+                }
+            } catch (\Exception $e) {
+                // fallback below
+            }
+        }
+
+        foreach ($params as $k => $v) {
+            if (is_scalar($v)) {
+                $translation = str_replace('{' . $k . '}', (string)$v, $translation);
+            }
+        }
+
+        return $translation;
     }
 }

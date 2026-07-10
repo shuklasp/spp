@@ -1,24 +1,25 @@
-.TH SPP-dbsettings-import 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# dbsettings:import
-.PP
+.TH SPP-dbsettings-import 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-dbsettings:import - Import SPP module DB settings from JSON
-.PP
+spp-dbsettings-import \- Import SPP module DB settings from JSON
 .SH SYNOPSIS
-php spp.php dbsettings:import --file=<settings.json> [--app=<app_name>]
+.B php spp.php dbsettings:import
+[OPTIONS]
+.SH DESCRIPTION
+Import SPP module DB settings from JSON
 .PP
-.SH PURPOSE
-Imports database configuration overrides and parameters directly from a JSON source file into the SPP DB Settings registry.
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--file=<path>`: **Required**. Path to the JSON file containing the exported database settings.
+Usage: php spp.php dbsettings:import --file=settings.json [--app=<app_name>]
 .br
-\(bu `--app=<app_name>`: Specify the SPP application context (default: 'default').
+
+.PP
+.SH OPTIONS
+.TP
+.B --file=
+Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command validates the presence of the --file flag. It shifts the application context via \SPP\Scheduler::withContext(). Like the export command, it verifies the existence of the \SPPMod\DBSettings\DBSettings module. If found, it indicates that the underlying core logic for consuming the JSON file is still an unimplemented stub.
-.PP
-.SH EXAMPLES
-php spp.php dbsettings:import --file=settings_backup.json --app=default
-.PP

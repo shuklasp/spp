@@ -8,10 +8,8 @@ class DeployMaintenanceCommand extends Command
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
-        if (!$target) {
-            echo "Error: Target connection URI required (or 'local').\n";
-            echo "Usage: php spp.php deploy:maintenance <target_uri> --on|--off [--key=YOUR_API_KEY]\n";
-            return;
+        if (!$target || str_starts_with($target, '--') || str_starts_with($target, '-')) {
+            $target = \SPPMod\SPPDeploy\Deployer\TargetConnection::getDefaultEnvironment();
         }
 
         $state = null;

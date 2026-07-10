@@ -1,19 +1,18 @@
-.TH SPP-lekhak-setup 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `LEKHAK:SETUP`
-.PP
-Purpose: Initializes Lekhak CMS database tables.
-.PP
+.TH SPP-lekhak-setup 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-lekhak-setup \- Initializes Lekhak CMS database tables.
 .SH SYNOPSIS
-php spp.php lekhak:setup [OPTIONS]
+.B php spp.php lekhak:setup
+[OPTIONS]
+.SH DESCRIPTION
+Initializes Lekhak CMS database tables.
 .PP
-.SH OPTIONS AVAILABLE
-No static options detected for this command.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
+\(bu Interacts with the SPP database layer directly.
 .br
-\(bu Instantiates internal components: SPPDB.
+\(bu Instantiates key components: SPPDB.
 .br
-.PP
-.PP

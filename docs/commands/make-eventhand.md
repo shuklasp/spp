@@ -1,22 +1,23 @@
-# NAME
-`make:eventhand` - Create a new Event Handler class
+## `make:eventhand`
 
-# SYNOPSIS
-`php spp.php make:eventhand <HandlerClassName> [--app=appname]`
+**Description**: Create a new Event Handler class
 
-# PURPOSE
-The `make:eventhand` command specifically scaffolds an unlinked Event Handler PHP class. Unlike `make:event`, it *does not* register the class in the `events.yml` configuration map, allowing developers to manually link complex event topologies.
-
-# OPTIONS AVAILABLE
-- `<HandlerClassName>` (string, required): The target name for the PHP Class.
-- `--app=<appname>` (string, optional): The application context namespace.
-
-# UNDER THE HOOD ACTIVITY
-It resolves the target `Events` namespace based on the requested application context. If context is explicitly `default`, the namespace degrades to `EventHandlers`. It invokes the `buildFromStub()` compiler passing the `eventhandler` stub format, generating `{HandlerClassName}.php`.
-Once generation concludes, it programmatically triggers a system cache flush via an asynchronous `shell_exec("php spp.php cache:clear")` invocation to guarantee namespace auto-discovery.
-
-# EXAMPLES
-**1. Generate an isolated handler:**
+### Synopsis
 ```bash
-php spp.php make:eventhand AuditLogger --app=api
+php spp.php make:eventhand [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php make:eventhand <HandlerClassName> [--app=appname]
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes external system binaries or shell commands.
+- Instantiates key components: Event.
+

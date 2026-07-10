@@ -1,26 +1,26 @@
-.TH SPP-test-blueprint 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `TEST:BLUEPRINT`
-.PP
-Purpose: Generate a structural blueprint for an entity
-.PP
+.TH SPP-test-blueprint 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-test-blueprint \- Generate a structural blueprint for an entity
 .SH SYNOPSIS
-php spp.php test:blueprint [OPTIONS]
+.B php spp.php test:blueprint
+[OPTIONS]
+.SH DESCRIPTION
+Generate a structural blueprint for an entity
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php test:blueprint <EntityClass>
-.PP
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from TestBlueprintCommand.php.
 .br
+
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Dynamically loads SPP kernel modules: parikshak.
-.br
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: \SPPMod\Parikshak\Parikshak.
-.br
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from TestBlueprintCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Dynamically loads kernel modules: parikshak.
+.br
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br
+\(bu Instantiates key components: \SPPMod\Parikshak\Parikshak.
+.br

@@ -11,6 +11,11 @@ class Router
     private static string $currentGroupPrefix = '';
     private static array $currentGroupMiddleware = [];
 
+    public static function getRoutes(): array
+    {
+        return self::$routes;
+    }
+
     public static function get(string $uri, string|callable $action, array $middleware = []): void
     {
         self::addRoute('GET', $uri, $action, $middleware);

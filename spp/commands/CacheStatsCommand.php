@@ -25,11 +25,9 @@ class CacheStatsCommand extends Command
                 $driverClass = get_class($driver);
                 echo "Active Cache Driver: {$driverClass}\n";
                 
-                if (method_exists($driver, 'stats')) {
-                    print_r($driver->stats());
-                } else {
-                    echo "Driver does not support detailed stats.\n";
-                }
+                echo "--- L1 Memory Cache & Telemetry ---\n";
+                print_r(Cache::stats());
+                
             } catch (\Exception $e) {
                 echo "Error fetching cache stats: " . $e->getMessage() . "\n";
             }

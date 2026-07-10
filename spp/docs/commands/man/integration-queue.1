@@ -1,0 +1,22 @@
+.TH INTEGRATION-QUEUE-WORK 1 "July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+integration:queue:work \- Run the persistent CDC integration event queue worker.
+.SH SYNOPSIS
+.B php spp.php integration:queue:work
+.SH DESCRIPTION
+The
+.B integration:queue:work
+command is a persistent daemon that handles Path 3 CDC (Change Data Capture). When an external application (like phpBB) is installed on the same database but is not routed through SPP, it cannot use the IntegrationGateway middleware.
+.PP
+Instead, SPP generates SQL Triggers for the external app's database tables. When a change happens natively, the trigger inserts an event into spp_integration_events. This command runs continuously in the background, polling that table, extracting the events, and broadcasting them through the Data Mesh using the Saga Orchestrator.
+.SH OPTIONS
+None.
+.SH UNDER THE HOOD
+.B Filesystem Writes:
+None.
+.br
+.B DB Interactions:
+Continuously polls the spp_integration_events table for pending records and updates their status to processed.
+.br
+.B Outbound HTTP Calls:
+None directly (delegates broadcast to the DAG Orchestrator).

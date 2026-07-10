@@ -1,22 +1,16 @@
-# entity:crud
+## `entity:crud`
 
-## NAME
-entity:crud - Manage SPP entities (list, create, edit, delete)
+**Description**: Manage SPP entities (list, create, edit, delete)
 
-## SYNOPSIS
-`php spp.php entity:crud [action] [options]`
-
-## PURPOSE
-An inherited element manager command to handle basic CRUD structural operations over SPP entity config files directly on the filesystem.
-
-## OPTIONS AVAILABLE
-Inherited dynamically from `BaseElementCommand`. Supports listing, generating, editing, and deleting YAML configurations.
-
-## UNDER THE HOOD ACTIVITY
-The command inherits extensive logic from `BaseElementCommand`. When run, it funnels the context into `handleCrud('entity', $args)`. It resolves the file storage path through the `getElementPath()` hook, directing file pointers to the specific `App::getApp()->getAppConfDir() . '/entities/{name}.yml'` location. `listElements()` is similarly overridden to use a bracketed `glob()` call fetching all `.yml, .yaml, .xml` structural files directly from the `entities/` subfolder.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php entity:crud list
-php spp.php entity:crud delete User
+php spp.php entity:crud [OPTIONS]
 ```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

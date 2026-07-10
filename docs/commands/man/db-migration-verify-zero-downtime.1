@@ -1,0 +1,19 @@
+.TH DB:MIGRATION:VERIFY-ZERO-DOWNTIME 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+db:migration:verify-zero-downtime \- Verify database migrations for zero-downtime compliance and DDL safety.
+.SH SYNOPSIS
+\fBphp spp.php db:migration:verify-zero-downtime\fR [\fB\-\-path=\fI<migrations_directory>\fR]
+.SH DESCRIPTION
+The \fBdb:migration:verify-zero-downtime\fR command parses all pending and historical database migration files in the target directory to verify DDL safety before execution. It acts as an automated DBA guardrail, detecting dangerous blocking operations such as direct column drops, table renaming without views, or non-concurrent index additions.
+.SH OPTIONS
+.TP
+\fB\-\-path=\fI<migrations_directory>\fR
+Absolute or relative path to the migrations directory to inspect. Defaults to \fImigrations\fR.
+.SH UNDER THE HOOD
+1. \fBStrict SAPI Guarding\fR: Validates execution occurs in a secure CLI context via \fIisCLIOnly(): bool\fR.
+.PP
+2. \fBDistributed Mutex Locking\fR: Acquires a distributed deployment lock via \fITargetConnection::acquireDeploymentLock()\fR to prevent concurrent schema modifications.
+.PP
+3. \fBIdentifier Sanitization\fR: Validates every table and column name via \fISchemaValidator::isValidIdentifier()\fR.
+.PP
+4. \fBZero-Downtime Evaluation\fR: Inspects SQL DDL statements against enterprise non-blocking schema evolution rules and outputs a formatted Pass/Warning matrix. Releases mutex lock upon completion.

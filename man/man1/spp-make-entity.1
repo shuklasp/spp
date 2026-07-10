@@ -1,41 +1,83 @@
-.TH SPP-make-entity 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:entity - Create a new SPPEntity definition
+.TH SPP-make-entity 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-entity \- Create a new SPPEntity definition
+.SH SYNOPSIS
+.B php spp.php make:entity
+[OPTIONS]
+.SH DESCRIPTION
+Create a new SPPEntity definition
 .PP
-# SYNOPSIS
-php spp.php make:entity [EntityName] [--app=AppName] [--table=TableName] [--extends=Class] [--login=true|false] [--fields="f1:type,f2"] [--relations="Rel"] [--api] [--resource]
+Creates a new SPPEntity definition. If run without flags, it will launch an interactive wizard.
+.br
+
+.br
+Usage:
+.br
+  php spp.php make:entity [EntityName] [OPTIONS]
+.br
+
+.br
+Options:
+.br
+  --app=AppName         Specify the application context (defaults to "default").
+.br
+  --table=TableName     Specify the database table name (defaults to lowercase plural of EntityName).
+.br
+  --extends=Class       Specify the parent entity class (e.g. "\App\Entities\User").
+.br
+  --login=true|false    Enable or disable SPP Login Support for this entity.
+.br
+  --fields="f1:type,f2" Define attributes. Format: "name:type". Default type is varchar(255).
+.br
+  --relations="Rel"     Define relationships. Format: "Target:Type:ForeignKey:PivotTable".
+.br
+                        Example: "\App\Entities\Course:ManyToMany:student_id:student_courses"
+.br
+  --api, --resource     Generate a REST API controller for this entity.
+.br
+
+.br
+Examples:
+.br
+  Interactive Mode:
+.br
+    php spp.php make:entity Student
+.br
+
+.br
+  Non-Interactive Mode:
+.br
+    php spp.php make:entity Student --table=spp_students --fields="name:varchar(255),age:int" --extends="\App\Entities\User" --login=true --relations="\App\Entities\Profile:OneToOne:student_id"
 .PP
-# PURPOSE
-The make:entity command is a powerful data-modeling tool. It dynamically generates structural configurations for an SPPEntity instance, mapping object-oriented models to underlying relational databases. It supports both interactive wizard workflows and inline CLI argument execution for complex, CI/CD-friendly schema generation.
+.SH OPTIONS
+.TP
+.B --fields=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --table=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --extends=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --login=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --relations=
+Expects a value. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --api
+Boolean flag. Extracted via static analysis from MakeEntityCommand.php
+.TP
+.B --resource
+Boolean flag. Extracted via static analysis from MakeEntityCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# OPTIONS AVAILABLE
-\(bu `[EntityName]` (string): The logical name of the entity (e.g. `Student`).
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-\(bu `--app=<AppName>` (string): The application context context. Defaults to interactive prompt or `default`.
+\(bu Instantiates key components: SPPEntity.
 .br
-\(bu `--table=<TableName>` (string): Explicitly override the default database table. If not provided, it resolves to the plural lowercase representation of the Entity Name (e.g., `students`).
-.br
-\(bu `--extends=<Class>` (string): Establish PHP class inheritance for the entity object (e.g., `\App\Entities\User`).
-.br
-\(bu `--login=<true|false>` (boolean): If `true`, injects SPP Login Support directly into this specific entity layer.
-.br
-\(bu `--fields="<name:type>"` (string): Comma-separated list of attributes. Defaults to `varchar(255)` if the type is omitted. (e.g., `--fields="name:varchar(255),age:int"`).
-.br
-\(bu `--relations="<Target:Type:ForeignKey:Pivot>"` (string): A comma-separated list of database relations. Types include `OneToMany` and `ManyToMany`.
-.br
-\(bu `--api`, `--resource` (flag): Dynamically scaffolds a boilerplate RESTful JSON controller mapping CRUD methods (`index`, `show`, `store`, `update`, `destroy`) to the newly built entity in `src/{app_name}/controllers/api/`.
-.br
-.PP
-# UNDER THE HOOD ACTIVITY
-The command checks if it needs to trigger the Interactive Wizard (if arguments like --fields, --extends, etc., are missing) or if it operates in Headless mode.
-It compiles an extensive schema $config array mapping table, id_field, sequence, extends, login_enabled, attributes, and relations. For relations, it specifically identifies ManyToMany declarations to automatically guess pivot table names (e.g., student_course).
-It executes \SPPMod\SPPDB\SPPEntity::saveEntityDefinition(), directly writing the YAML or serialized schema to disk.
-If the --api or --resource flags are detected, it hooks into standard file manipulation, constructing a .php file in the API controllers directory implementing the \SPP\Core\ResourceController interface, and wires it to \SPPMod\SPPEntity\SPPEntity methods.
-.PP
-# EXAMPLES
-1. Execute the Interactive Wizard:
-php spp.php make:entity Student
-.PP
-2. Non-interactive CLI Scaffold with API:
-php spp.php make:entity Course --table=spp_courses --fields="title:varchar(100),credits:int" --relations="\App\Entities\Student:ManyToMany:course_id" --api
-.PP

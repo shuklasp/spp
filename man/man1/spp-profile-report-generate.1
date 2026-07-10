@@ -1,27 +1,16 @@
-.TH SPP-profile-report-generate 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-profile:report:generate - Dump a performance profile trace for debugging
+.TH SPP-profile-report-generate 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-profile-report-generate \- Dump a performance profile trace for debugging
+.SH SYNOPSIS
+.B php spp.php profile:report:generate
+[OPTIONS]
+.SH DESCRIPTION
+Dump a performance profile trace for debugging
 .PP
-# SYNOPSIS
-php spp.php profile:report:generate
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-The profile:report:generate command is a straightforward debugging tool intended to trigger the generation and dumping of a performance profile trace to the filesystem. It is useful when developers need a concrete, snapshot view of profiling telemetry (though its current implementation serves primarily as a stub or placeholder for future enhancements).
-.PP
-# OPTIONS AVAILABLE
-This command does not accept any specific options or arguments.
-.PP
-# UNDER THE HOOD ACTIVITY
-When the command is executed, it first outputs a status message to standard output indicating that the trace generation is beginning.
-.PP
-Under the hood, it constructs an absolute file path for the output using the SPP_BASE_DIR constant, appending the string /tmp/profile_ followed by the current UNIX timestamp (generated via PHP's time() function) and a .json extension. It then uses file_put_contents() to write a hardcoded, serialized JSON payload ({"status":"ok","trace":[]}) directly into this generated path. Finally, it echoes the path of the generated file back to the console so the user can locate it.
-.PP
-*(Note: In the current iteration of the framework, this command generates a stubbed empty trace array. The actual integration with the SPPProfile module for live trace dumping appears to be slated for future development or is handled externally.)*
-.PP
-# EXAMPLES
-Generate a performance profile trace:
-php spp.php profile:report:generate
-Expected output:
-Generating performance profile trace...
-Report generated at: /path/to/project/tmp/profile_1690000000.json
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br

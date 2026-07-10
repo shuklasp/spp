@@ -1,6 +1,6 @@
 ## `group:delete`
 
-**Purpose**: Delete a shared resource group
+**Description**: Delete a shared resource group
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php group:delete <group_name>
 
 ```
 
-### Options Available
-- `--shared_group` : Boolean flag or option. Extracted via static analysis from GroupDeleteCommand.php.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 

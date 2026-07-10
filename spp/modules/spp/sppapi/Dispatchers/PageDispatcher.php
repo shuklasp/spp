@@ -11,7 +11,7 @@ class PageDispatcher
     {
         $q = isset($_GET['q']) ? trim($_GET['q']) : null;
 
-        $page = \SPPMod\SPPView\Pages::getPage($q);
+        $page = \SPPMod\SPPRouter\SPPRouter::getPage($q);
 
         if (empty($page['url'])) {
             SPPAjax::respond('error', ['message' => 'Page not found.'], 404);

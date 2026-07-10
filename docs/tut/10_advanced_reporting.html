@@ -27,7 +27,8 @@
                 <li><a href="12_live_components.html">12. Live Components</a></li>
                 <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
                 <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
-                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="15_middleware.html">15. Middleware Pipeline</a></li>
+                <li><a href="16_workflow_orchestration.html">16. Workflow Orchestration</a></li>
             </ul>
         </nav>
     </aside>
@@ -35,109 +36,88 @@
     <main class="main-content">
         <article class="content-container">
             <h1>10. Business Intelligence & Advanced Reporting</h1>
-            <p>Welcome to the final chapter of the tutorial. We'll explore the <strong>SPP Report Builder</strong>, a zero-dependency, highly dynamic Business Intelligence tool built natively into the SPP ecosystem.</p>
+            <p>Welcome to the final chapter of the tutorial. We'll explore the <strong>SPP Report Builder</strong>, a zero-dependency, highly dynamic Business Intelligence tool built natively into the SPP ecosystem with state-of-the-art Hypermedia capabilities.</p>
 
             <h2>The SPPReport Engine</h2>
-            <p>Reporting traditionally requires heavy client-side libraries (like DataTables) or massive server-side code generation. The <code>sppreport</code> module changes this by offering a declarative SPP-UX web component and a JSON-to-SQL backend builder.</p>
+            <p>Reporting traditionally requires heavy client-side libraries (like DataTables) or massive server-side code generation. The <code>sppreport</code> module changes this by offering highly performant Hypermedia external partials (HTMX & Turbo Streams), a clean ResourceController API, and a JSON-to-SQL backend builder.</p>
             
             <h3>Key Capabilities:</h3>
             <ul>
+                <li><strong>Hypermedia Core (HTMX & Turbo Streams):</strong> Zero inline HTML literals in controllers. Renders standalone external partials via smart content negotiation (<code>HX-Request</code>, <code>Turbo-Frame</code>).</li>
+                <li><strong>Dual-Mode Templating Architecture:</strong> Unified templates providing distinct views for both interactive Screen Mode (<code>.spp-screen-mode</code>) and unconstrained printer-friendly Print Mode (<code>.spp-print-mode</code>).</li>
                 <li><strong>AI-Powered Builder (Ask AI):</strong> Translate natural language into complex SQL joins and aggregations instantly using <code>SPPAI</code>.</li>
-                <li><strong>Federated BI:</strong> Query completely external databases dynamically via secure PDO connections mapped in the UI.</li>
-                <li><strong>Dynamic Schema Introspection:</strong> Automatically reads your database entities.</li>
+                <li><strong>Federated BI:</strong> Query completely external databases dynamically via secure PDO connections mapped in the UI with strict SSRF protection.</li>
+                <li><strong>Dynamic Schema Introspection:</strong> Automatically reads your database entities and validates DDL identifiers via <code>SchemaValidator</code>.</li>
                 <li><strong>Relational Joins:</strong> Visually link multiple tables together (LEFT JOIN, INNER JOIN).</li>
                 <li><strong>Calculated Columns:</strong> Define custom arithmetic logic directly in the UI.</li>
                 <li><strong>Interactive Pivot Tables:</strong> Slice, dice, and cross-tabulate data securely in the browser without writing SQL.</li>
                 <li><strong>Infinite Nested Filters & RBAC:</strong> Supports AND/OR grouped conditions visually, and dynamic Row-Level Security (e.g. <code>{{CURRENT_USER_ID}}</code>).</li>
                 <li><strong>White-Labeling & Live Data:</strong> Embed with multi-tenant custom CSS themes (logos, fonts, brand colors) and auto-refresh intervals.</li>
-                <li><strong>Visual Dashboards:</strong> Chart.js integration out-of-the-box via CDN.</li>
-                <li><strong>Automated Cron Emails:</strong> Schedule background workers to email Rich HTML or PDF exports.</li>
-                <li><strong>WYSIWYG Print Templates:</strong> Design corporate PDF and print templates.</li>
-                <li><strong>Zero-Dependency:</strong> Built entirely with native browser features and core SPP PHP.</li>
+                <li><strong>Automated Cron Emails:</strong> Schedule background workers to email Rich HTML or PDF exports with strict CLI SAPI guarding and distributed mutex locking.</li>
+                <li><strong>Zero-Dependency:</strong> Built entirely with native browser features, local standalone client assets (<code>htmx.min.js</code>, <code>turbo-streams.min.js</code>), and core SPP PHP.</li>
             </ul>
 
             <h2>One-Line Integration</h2>
-            <p>Integrating the BI suite into any page of your app is completely declarative. SPP provides two distinct components depending on your user's role.</p>
+            <p>Integrating the BI suite into any page of your app is completely declarative and hypermedia-driven.</p>
             
-            <h3>1. The Builder (For Admins & Authors)</h3>
-            <p>Give users the ability to build queries from scratch, configure columns, and design print templates.</p>
-            <pre><code>&lt;div 
-    data-spp-type="ux" 
-    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"&gt;
+            <h3>1. The Hypermedia Dashboard Mount</h3>
+            <p>Mount the full interactive analytics dashboard and query configurator using HTMX:</p>
+            <pre><code>&lt;div id="spp-main-dashboard-mount" hx-get="/spp/admin/api.php?action=report_api&modname=sppreport&report_action=dashboard" hx-trigger="load" hx-swap="innerHTML"&gt;
+    Initializing Hypermedia Analytics Dashboard...
 &lt;/div&gt;</code></pre>
             
-            <h3>2. The Viewer (For End-Users)</h3>
-            <p>Embed a read-only viewer for a specific saved report. It hides the complex query builder and only exposes the data grid, runtime filters, and export buttons.</p>
-            <pre><code>&lt;div 
-    data-spp-type="ux" 
-    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-viewer.js"
-    data-spp-props='{"reportName": "Monthly Sales"}'&gt;
-&lt;/div&gt;</code></pre>
+            <h3>2. Legacy SPP-UX Fallback (Deprecated)</h3>
+            <p>For backwards compatibility with V3/V4 client-side rendering apps:</p>
+            <pre><code>&lt;div data-spp-type="ux" data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"&gt;&lt;/div&gt;</code></pre>
+
+            <h2>Next-Gen Enterprise BI Features (V5)</h2>
             
-            <p>When the page loads, <code>spp-loader.js</code> automatically mounts the isolated interactive application into this div container.</p>
-
-            <h2>Enterprise BI Features (V3)</h2>
-            <p>The SPPReport engine scales with your business by offering advanced SaaS-level capabilities zero-dependency.</p>
-
-            <h3>1. Natural Language "Ask AI" 🤖</h3>
-            <p>In the Builder (<code>sppreport-ui.js</code>), administrators will notice a <strong>✨ Ask AI</strong> bar. By typing an English request (e.g., <em>"Show me sum of sales grouped by region for 2024"</em>), the system contacts your local <code>SPPAI</code> driver, parses the database schema context, and automatically configures the Tables, Columns, Aggregates, and Joins in the visual builder instantly.</p>
-
-            <h3>2. Federated BI (Multi-Source Data) 🌐</h3>
-            <p>You are no longer restricted to the internal SPP application database. In the <strong>Settings Modal</strong>, you can define an <strong>External PDO DSN</strong> (e.g., <code>mysql:host=live.logistics;dbname=shipping</code>). The engine will dynamically build a secure PDO wrapper, fetch the external schema, and allow you to build reports over an entirely separate system completely transparently.</p>
-
-            <h3>3. Client-Side Pivot Tables 📊</h3>
-            <p>When embedding the Viewer (<code>sppreport-viewer.js</code>), end-users can click the <strong>Pivot View</strong> toggle. This replaces the standard data grid with a powerful Drag-and-Drop style cross-tabulation table. Users select Row, Column, and Value fields (with dynamic aggregations like COUNT/SUM/AVG) to slice the dataset on the fly without issuing new queries to the server.</p>
-
-            <h3>4. Multi-Tenant White Labeling & Live TV Dashboards 🎨</h3>
-            <p>The Report Viewer and Dashboards are designed for multi-tenant SaaS embedding.</p>
+            <h3>1. Unified Dual-Mode (Screen & Print) Templating 📄</h3>
+            <p>A flagship architectural enhancement in V5 is the unified Dual-Mode Report Template (<code>views/partials/report_template_dual_mode.php</code>). A single template encapsulates two distinct presentation wrappers:</p>
             <ul>
-                <li><strong>Theming:</strong> Set a custom Logo URL, Primary Hex Color, and Google Font (like <code>Inter</code>) via the Builder Settings. The viewer securely maps these as CSS custom properties (<code>--sppux-primary</code>) to adopt any brand visually.</li>
-                <li><strong>Auto-Refresh:</strong> Set an interval in seconds (e.g., <code>30</code>). The viewer will silently poll the server to repaint the charts and grids, allowing you to project live data onto a big screen just like a TV Dashboard.</li>
+                <li><strong>Screen Mode (<code>.spp-screen-mode.no-print</code>)</strong>: Renders a premium glassmorphism interface with live local table search bars (<code>sppFilterTable()</code>), active record count counters, horizontal scrollable grids (<code>overflow-x: auto</code>), generated SQL syntax highlighting, and instant export buttons (CSV, Excel, Print/PDF).</li>
+                <li><strong>Print Mode (<code>.spp-print-mode.only-print</code>)</strong>: Automatically toggled via CSS <code>@media print</code> queries. Disables all scrollbars to let table rows flow unconstrained across pages with repeating table headers (<code>display: table-header-group</code>). Automatically injects formal corporate branding (<code>SPP Global Enterprise Solutions</code>), confidentiality notices, and formal authorization signature blocks (Prepared By, Reviewed By, Approved By).</li>
             </ul>
 
-            <h2>Advanced Enterprise BI (V4)</h2>
-            <p>With V4, SPPReport pushes into full-scale BI territory.</p>
+            <h3>2. Smart Content Negotiation & Zero Inline HTML Literals 🧠</h3>
+            <p>The <code>ReportController</code> inspects incoming request headers (<code>HX-Request</code>, <code>Turbo-Frame</code>, <code>Accept: text/vnd.turbo-stream.html</code>). Instead of returning raw JSON or mixing HTML string literals in PHP logic, it dynamically negotiates the exact standalone external partial (<code>report_dashboard.html</code>, <code>report_configurator.php</code>, <code>report_preview.php</code>) or Turbo Stream (<code>report_update.php</code>) to serve.</p>
 
-            <h3>1. Interactive Drill-Downs 🔍</h3>
-            <p>Users can interact directly with visualizations to see the raw underlying data. Clicking any bar, pie slice, or line point in a Chart.js dashboard, or any numerical cell inside a cross-tabulation Pivot Table, will instantly filter the dataset and pop up a modal showing the exact rows that contributed to that aggregate.</p>
+            <h3>3. Real-Time Turbo Streams Broadcasting ⚡</h3>
+            <p>By passing <code>Accept: text/vnd.turbo-stream.html</code> or configuring live streaming parameters, <code>ReportController</code> broadcasts live data updates directly to DOM targets using local standalone client assets (<code>spp/admin/js/turbo-streams.min.js</code>). The broadcast template (<code>streams/report_update.php</code>) is fully configurable for streaming intervals, target IDs, action types (<code>replace</code>, <code>append</code>, <code>update</code>), and widget display formats (Data Grid, KPI Cards, Threshold Alert Banners).</p>
 
-            <h3>2. Automated AI Insights ✨</h3>
-            <p>The Viewer features an <strong>✨ AI Insights</strong> button. When clicked, the engine sends a sample of the generated report dataset through <code>SPPAI</code>. The AI acts as an expert Data Analyst, returning a 3-bullet executive summary (identifying upward trends, anomalies, or outliers) directly into the UI.</p>
+            <h3>4. Robust CLI Guarding & Distributed Mutex Locking 🔒</h3>
+            <p>The automated reporting cron (<code>ReportCronCommand.php</code>) enforces strict CLI SAPI guarding (<code>isCLIOnly()</code>) to prevent execution from web contexts. To eliminate race conditions during concurrent cron triggers across clustered deployments, the engine wraps execution in distributed mutex locks:</p>
+            <pre><code>try {
+    \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+    // Execute scheduled reports & evaluate webhook thresholds
+} finally {
+    \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
+}</code></pre>
 
-            <h3>3. Threshold Alerts & Webhooks 🚨</h3>
-            <p>In the <strong>Settings Modal</strong>, authors can define a <strong>Webhook URL</strong> and an <strong>Alert Condition</strong> (e.g., <code>revenue < 10000</code>). During the background <code>sppreport_cron.php</code> execution, the engine evaluates the dataset against the condition. If breached, an HTTP POST request is instantly dispatched to the Webhook URL (e.g. Slack, MS Teams) containing the alert trigger and the top 5 rows.</p>
+            <h2>Advanced Enterprise BI (V4 & Legacy)</h2>
 
-            <h3>4. Geospatial Mapping 🌍</h3>
-            <p>The Dashboard component supports a <strong>Map</strong> chart type. It dynamically loads Leaflet JS from a CDN and automatically plots <code>lat/lng</code> or <code>latitude/longitude</code> columns onto an interactive OpenStreetMap.</p>
+            <h3>1. Natural Language "Ask AI" & Automated Insights 🤖</h3>
+            <p>Administrators can type an English request (e.g., <em>"Show me sum of sales grouped by region for 2024"</em>). The system contacts your local <code>SPPAI</code> driver, parses the database schema context, and automatically configures the Tables, Columns, Aggregates, and Joins in the visual builder instantly. End-users can also click <strong>✨ AI Insights</strong> to generate a 3-bullet executive summary identifying upward trends, anomalies, or outliers.</p>
+
+            <h3>2. Federated BI (Multi-Source Data) 🌐</h3>
+            <p>In the Settings Modal, you can define an External PDO DSN (e.g., <code>mysql:host=live.logistics;dbname=shipping</code>). The engine dynamically builds a secure <code>ExternalDatabaseConnection</code> wrapper, fetches the external schema, and allows you to build reports over an entirely separate system completely transparently.</p>
+
+            <h3>3. Client-Side Pivot Tables & Interactive Drill-Downs 📊</h3>
+            <p>End-users can toggle the <strong>Pivot View</strong> to enable a drag-and-drop cross-tabulation table. Users select Row, Column, and Value fields (with dynamic aggregations like COUNT/SUM/AVG) to slice the dataset on the fly. Clicking any visualization bar, pie slice, or numerical pivot cell instantly filters the dataset to display the exact contributing rows.</p>
+
+            <h3>4. Threshold Alerts & Webhooks 🚨</h3>
+            <p>Authors can define a Webhook URL and an Alert Condition (e.g., <code>revenue < 10000</code>). During the background <code>sppreport_cron.php</code> execution, the engine evaluates the dataset against the condition. If breached, an HTTP POST request is instantly dispatched to the Webhook URL (e.g. Slack, MS Teams) containing the alert trigger and the top 5 rows.</p>
 
             <h3>5. Report Version Control & Audit Trail 🕒</h3>
             <p>Every time you save a report in the Builder, a timestamped <code>.yml.bak</code> copy is automatically generated in <code>etc/sppreports/history/</code>. A <strong>🕒 History</strong> button in the Builder toolbar allows one-click rollback to a safe state.</p>
 
-            <h2>Report Persistence & Scheduling</h2>
-            <p>Reports and templates are persisted using YAML files in the <code>etc/sppreports/</code> directory, continuing our philosophy of database-free configuration portability.</p>
-
-            <p>When building a report, you can access the <strong>Settings Modal</strong> to configure:</p>
-            <ul>
-                <li><strong>Allowed Roles:</strong> Comma-separated list to lock down report viewing (e.g. <code>admin,manager</code>).</li>
-                <li><strong>Cron Scheduling:</strong> A standard cron expression (e.g. <code>0 8 * * *</code>) that triggers the <code>sppreport_cron.php</code> worker to generate and email the report.</li>
-                <li><strong>Export Formats:</strong> Choose between a Rich HTML email with CSV attachment (zero dependencies) or a PDF attachment (requires installing <code>TCPDF</code> via Composer).</li>
-            </ul>
-
-            <h2>Visual Dashboards</h2>
-            <p>SPPReport also includes a Dashboard component to visually graph any saved report using Chart.js. Simply embed this component:</p>
-            <pre><code>&lt;div 
-    data-spp-type="ux" 
-    data-spp-path="/spp/modules/spp/sppreport/js/sppreport-dashboard.js"
-    data-spp-props='{"report": "Monthly_Sales", "type": "pie"}'&gt;
-&lt;/div&gt;</code></pre>
-
             <h2>Enterprise Security & Access Control 🛡️</h2>
             <p>Reporting engines have direct access to sensitive database information, making security critical. The <code>sppreport</code> module employs multiple layers of defense:</p>
             <ol>
-                <li><strong>Strict API Authentication:</strong> The <code>api.php</code> handler is strictly locked down using <code>SPPAuth</code>. Unauthenticated access is rejected, and destructive actions (e.g., saving queries, modifying templates, and version restoration) are hard-coded to require the <strong>Admin</strong> role.</li>
+                <li><strong>Strict API Authentication & SAPI Guards:</strong> The <code>api.php</code> handler is strictly locked down using <code>SPPAuth</code>. Unauthenticated access is rejected, and destructive actions (saving queries, modifying templates, version restoration) require the <strong>Admin</strong> role. CLI commands enforce <code>isCLIOnly()</code>.</li>
                 <li><strong>Role-Based Access Control (RBAC):</strong> Every saved report can specify <code>allowed_roles</code>. When an end-user attempts to view or export a report, the backend engine validates their active session roles against the report's configuration.</li>
                 <li><strong>SSRF Protection:</strong> The Federated BI functionality (External DSNs) is restricted entirely to Admin users. This prevents malicious actors from utilizing your server to scan or query internal network IP addresses via Server-Side Request Forgery.</li>
-                <li><strong>Export Sanitization:</strong> All CSV and XLS exports are automatically sanitized on-the-fly. Any dataset values beginning with executable formula characters (<code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>) are prefixed with a single quote (<code>'</code>), protecting administrators from spreadsheet macro injection attacks.</li>
+                <li><strong>DDL Identifier & Export Sanitization:</strong> Dynamic SQL table and column names are securely verified through <code>\SPP\Core\SchemaValidator::isValidIdentifier()</code>. All CSV and XLS exports are automatically sanitized on-the-fly: any dataset values beginning with executable formula characters (<code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>) are prefixed with a single quote (<code>'</code>), protecting administrators from spreadsheet macro injection attacks.</li>
             </ol>
 
             <footer class="footer-nav">

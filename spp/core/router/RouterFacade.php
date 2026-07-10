@@ -13,6 +13,14 @@ namespace SPP\Core\Router;
 class RouterFacade
 {
     /**
+     * Get all registered routes.
+     */
+    public static function getRoutes(): array
+    {
+        return \SPP\Core\Router\Router::getRoutes();
+    }
+
+    /**
      * Get the active route or context.
      */
     public static function getActiveRoute(): string

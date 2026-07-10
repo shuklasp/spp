@@ -1,30 +1,16 @@
-.TH SPP-app-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
+.TH SPP-app-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-app-list \- List all registered SPP applications
+.SH SYNOPSIS
+.B php spp.php app:list
+[OPTIONS]
+.SH DESCRIPTION
+List all registered SPP applications
 .PP
-app:list
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# SYNOPSIS
-.PP
-php spp.php app:list
-.PP
-# PURPOSE
-.PP
-Scans the system configuration and directories to display a comprehensive list of all registered and discovered SPP applications.
-.PP
-# OPTIONS AVAILABLE
-.PP
-This command accepts no specific options.
-.PP
-# UNDER THE HOOD ACTIVITY
-.PP
-The command attempts to resolve and parse the framework configuration file at SPP_BASE_DIR . '/etc/global-settings.yml' via Symfony\Component\Yaml\Yaml::parseFile(). It extracts the apps dictionary, which serves as the formal registry.
-.PP
-To ensure complete visibility (even for unregistered apps), the command then scans the filesystem directory SPP_APP_DIR . '/spp/etc/apps' using scandir(). It iterates over the results, and if a valid directory is found that does not exist in the YAML registry keys, it appends it to the internal list of applications.
-.PP
-With the complete array of application names assembled, it iterates over them to cross-reference metadata. It extracts properties like type (defaulting to 'native'), base_url (defaulting to /appname), and table_prefix. Furthermore, it evaluates the global base_app configuration key, appending a [BASE] tag to the application name that matches it. The final output is formatted into a fixed-width ASCII table using PHP's str_pad() function and echoed to standard output.
-.PP
-# EXAMPLES
-.PP
-List all applications:
-php spp.php app:list
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

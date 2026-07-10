@@ -1,0 +1,35 @@
+.TH INTEGRATION-INSTALL 1 "July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+integration:install \- Automates the scaffolding and routing of an external application within the SPP environment.
+.SH SYNOPSIS
+.B php spp.php integration:install
+.IR <app_name>
+.IR <route_path>
+.SH DESCRIPTION
+The
+.B integration:install
+command is the foundational tool for establishing a local Data Mesh. When you want to run a monolithic application (like WordPress or Magento) on the same server as your SPP framework, this command provisions the necessary infrastructure.
+.PP
+It automatically performs three critical steps:
+.br
+1. Filesystem Scaffolding: It creates a physical directory in the public folder corresponding to the requested route.
+.br
+2. Route Bypassing: It modifies etc/routes.yml to instruct the SPP router to ignore this path.
+.br
+3. Driver Instantiation: It prepares the internal IntegrationFactory driver with the absolute local path.
+.SH OPTIONS
+.TP
+.B app_name
+The alias of the registered driver (e.g., wordpress, moodle, magento).
+.TP
+.B route_path
+The web-accessible path where the app will live (e.g., /blog, /lms).
+.SH UNDER THE HOOD
+.B Filesystem Writes:
+Creates directories via mkdir() in the /public root. Appends bypass configuration strings to etc/routes.yml.
+.br
+.B DB Interactions:
+None.
+.br
+.B Outbound HTTP Calls:
+None.

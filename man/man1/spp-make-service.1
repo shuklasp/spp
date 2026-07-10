@@ -1,31 +1,22 @@
-.TH SPP-make-service 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:service - Create a new service class
+.TH SPP-make-service 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-service \- Create a new service class
+.SH SYNOPSIS
+.B php spp.php make:service
+[OPTIONS]
+.SH DESCRIPTION
+Create a new service class
 .PP
-# SYNOPSIS
-php spp.php make:service <name> [--app=appname] [--lang=python|node|go|dotnet|perl|java]
-.PP
-# PURPOSE
-The make:service command provisions a business logic service class. What makes this command exceptionally powerful is its built-in integration with the SPP Polyglot Worker system. It can scaffold standard PHP services or intelligently scaffold microservices in external languages (like Python or Go) while simultaneously generating a perfectly mapped PHP Proxy class to interface with them.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<name>` (string, required): The target identifier for the service logic.
+Usage: php spp.php make:service <name> [--app=appname] [--lang=python]
 .br
-\(bu `--app=<appname>` (string, optional): The application namespace (e.g. `school`, `admin`).
+
+.PP
+.SH OPTIONS
+.TP
+.B --lang=
+Expects a value. Extracted via static analysis from MakeServiceCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand.
 .br
-\(bu `--lang=<language>` (string, optional): Indicates the target programming language. Valid options include `php` (default), `python`, `node`, `go`, `dotnet`, `perl`, and `java`.
-.br
-.PP
-# UNDER THE HOOD ACTIVITY
-First, it extracts the target application context and the intended language.
-If the --lang flag matches an external language (e.g., python), it physically instantiates and executes the specific CLI sub-command (e.g., MakePythonCommand->execute()), constructing the native .py file deep in the services/python/ folder.
-Next, it calculates the absolute path to that newly created external script. It utilizes buildFromStub() mapping to the polyglot_proxy template, passing the language explicitly (polyglotLang) and the absolute path (polyglotModule). It generates the PHP Proxy in src/{context}/services/class.{name}.php. This PHP Proxy class dynamically translates standard PHP method calls into IPC invocations directed at the external worker.
-If no language is specified or php is requested, it simply builds a standard PHP Service structure using the service stub.
-.PP
-# EXAMPLES
-1. Scaffold a standard PHP service:
-php spp.php make:service PaymentGateway --app=billing
-.PP
-2. Scaffold a Python service with a PHP Proxy:
-php spp.php make:service ImageProcessor --lang=python --app=media
-.PP

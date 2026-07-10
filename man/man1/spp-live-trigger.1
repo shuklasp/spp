@@ -1,26 +1,28 @@
-.TH SPP-live-trigger 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `LIVE:TRIGGER`
-.PP
-Purpose: Push a live event to clients
-.PP
+.TH SPP-live-trigger 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-live-trigger \- Push a live event to clients
 .SH SYNOPSIS
-php spp.php live:trigger [OPTIONS]
+.B php spp.php live:trigger
+[OPTIONS]
+.SH DESCRIPTION
+Push a live event to clients
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php live:trigger --channel=<channel> --event=<event> [--payload=<json>]
-.PP
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--channel=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php.
 .br
-\(bu `--event=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php.
-.br
-\(bu `--payload=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php.
-.br
+
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+.SH OPTIONS
+.TP
+.B --channel=
+Expects a value. Extracted via static analysis from LiveTriggerCommand.php
+.TP
+.B --event=
+Expects a value. Extracted via static analysis from LiveTriggerCommand.php
+.TP
+.B --payload=
+Expects a value. Extracted via static analysis from LiveTriggerCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

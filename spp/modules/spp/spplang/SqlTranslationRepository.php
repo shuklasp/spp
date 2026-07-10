@@ -4,6 +4,9 @@ namespace SPPMod\SPPLang;
 class SqlTranslationRepository implements TranslationRepositoryInterface
 {
     private ?\SPPMod\SPPDB\SPPDB $dbInstance = null;
+    private array $cache = [];
+    private array $loadedLocales = [];
+    private array $existingKeysCache = [];
 
     private function getDB(): \SPPMod\SPPDB\SPPDB
     {
@@ -54,6 +57,17 @@ class SqlTranslationRepository implements TranslationRepositoryInterface
                 [$key, $locale, $translation, $status]
             );
         }
+
+        if (isset($this->cache[$locale])) {
+            if ($status === 'active') {
+                $this->cache[$locale][$key] = $translation;
+            } else {
+                unset($this->cache[$locale][$key]);
+            }
+        }
+        if (isset($this->existingKeysCache[$locale])) {
+            $this->existingKeysCache[$locale][$key] = true;
+        }
     }
 
     public function getMany(array $filters = []): array
@@ -91,16 +105,42 @@ class SqlTranslationRepository implements TranslationRepositoryInterface
 
     public function getOne(string $key, string $locale = 'en'): string
     {
-        $this->ensureSchema();
-        $db = $this->getDB();
-        $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+        if (!isset($this->loadedLocales[$locale])) {
+            $this->ensureSchema();
+            $db = $this->getDB();
+            $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+            $res = $db->exec_squery("SELECT key_code, translation FROM %tab% WHERE locale = ? AND status = 'active'", $table, [$locale]);
+            $this->cache[$locale] = [];
+            if (!empty($res)) {
+                foreach ($res as $row) {
+                    $this->cache[$locale][$row['key_code']] = (string) $row['translation'];
+                }
+            }
+            $this->loadedLocales[$locale] = true;
+        }
 
-        $res = $db->exec_squery("SELECT translation FROM %tab% WHERE key_code = ? AND locale = ?", $table, [$key, $locale]);
-        if (!empty($res)) {
-            return (string) $res[0]['translation'];
+        if (isset($this->cache[$locale][$key])) {
+            return $this->cache[$locale][$key];
         }
 
         // Fallback to key itself if not found
         return $key;
+    }
+
+    public function keyExists(string $key, string $locale = 'en'): bool
+    {
+        if (!isset($this->existingKeysCache[$locale])) {
+            $this->ensureSchema();
+            $db = $this->getDB();
+            $table = \SPPMod\SPPDB\SPPDB::sppTable('translations');
+            $res = $db->exec_squery("SELECT key_code FROM %tab% WHERE locale = ?", $table, [$locale]);
+            $this->existingKeysCache[$locale] = [];
+            if (!empty($res)) {
+                foreach ($res as $row) {
+                    $this->existingKeysCache[$locale][$row['key_code']] = true;
+                }
+            }
+        }
+        return isset($this->existingKeysCache[$locale][$key]);
     }
 }

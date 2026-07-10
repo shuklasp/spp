@@ -1,0 +1,28 @@
+################################################################################
+# App Services — Callable from JavaScript via spp_admin.callAppService()
+#
+# HOW TO ADD A SERVICE:
+# 1. Create a PHP script in serv/ (e.g., serv/my_action.php)
+# 2. Register it here with a unique name
+# 3. Call from JS: await spp_admin.callAppService('my.action', {param: 'value'})
+#
+# The PHP script receives POST data and should set $response array:
+#   $response = ['status' => 'success', 'data' => [...]]
+################################################################################
+
+services:
+  - name: "task.create"
+    script: "src/FinalTest/serv/task_create.php"
+    method: "POST"
+  - name: "enterprise.stream"
+    script: "src/FinalTest/serv/enterprise_stream.php"
+    method: "GET"
+  - name: "enterprise.indexing"
+    script: "src/FinalTest/serv/enterprise_indexing.php"
+    method: "POST"
+  - name: "enterprise.tracing"
+    script: "src/FinalTest/serv/enterprise_tracing.php"
+    method: "POST"
+  - name: "enterprise.live"
+    script: "src/FinalTest/serv/enterprise_live.php"
+    method: "POST"

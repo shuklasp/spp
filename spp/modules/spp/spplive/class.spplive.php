@@ -52,7 +52,7 @@ class SPPLive extends \SPP\SPPObject
                 return \SPPMod\SPPAuth\SPPAuth::isLoggedIn() && \SPPMod\SPPAuth\SPPAuth::hasRole(1); // Assuming 1 is admin
             }
             // Fallback for dev mode
-            return \SPP\Config\YamlLoader::get('app', 'dev_mode', false);
+            return defined('SPP_DEBUG') && SPP_DEBUG;
         }
 
         // User-specific topics
@@ -69,5 +69,23 @@ class SPPLive extends \SPP\SPPObject
     public static function bootLive()
     {
         return true;
+    }
+
+    public static function broadcastEntityEvent($entity, string $eventType = 'update'): void
+    {
+        if ($entity instanceof \SPP\EventParams) {
+            $entity = $entity->get('entity');
+        }
+        if (is_object($entity)) {
+            $table = method_exists($entity, 'getTable') ? $entity->getTable() : strtolower((new \ReflectionClass($entity))->getShortName());
+            $id = method_exists($entity, 'getId') ? $entity->getId() : (isset($entity->id) ? $entity->id : 'unknown');
+            $values = method_exists($entity, 'getValues') ? $entity->getValues() : (method_exists($entity, 'toArray') ? $entity->toArray() : ['id' => $id]);
+
+            $componentId = "entity_{$table}_{$id}";
+            $topic = "entity_{$table}";
+
+            LiveEmitter::emit($componentId, "entity_{$eventType}", $values, $topic);
+            LiveEmitter::emit($componentId, "entity_{$eventType}", $values, 'global');
+        }
     }
 }

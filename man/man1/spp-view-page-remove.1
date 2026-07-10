@@ -1,26 +1,28 @@
-.TH SPP-view-page-remove 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `VIEW:PAGE:REMOVE`
-.PP
-Purpose: Remove a page route from an app
-.PP
+.TH SPP-view-page-remove 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-view-page-remove \- Remove a page route from an app
 .SH SYNOPSIS
-php spp.php view:page:remove [OPTIONS]
+.B php spp.php view:page:remove
+[OPTIONS]
+.SH DESCRIPTION
+Remove a page route from an app
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php view:page:remove --name=<route> [--app=default] [--source=yaml|db]
-.PP
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php.
 .br
-\(bu `--name=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php.
-.br
-\(bu `--source=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php.
-.br
+
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+.TP
+.B --name=
+Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+.TP
+.B --source=
+Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.PP

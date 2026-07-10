@@ -21,7 +21,7 @@ class ViewPageListCommand extends Command
         echo "Listing pages for app: {$appname}\n\n";
 
         $pages = \SPP\Scheduler::withContext($appname, function() {
-            return \SPPMod\SPPView\Pages::listPages();
+            return \SPPMod\SPPRouter\SPPRouter::listPages();
         });
 
         if (empty($pages)) {

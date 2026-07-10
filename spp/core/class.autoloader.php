@@ -73,6 +73,11 @@ class Autoloader
             return $file;
         }
 
+        // EventHandlers\* mapping
+        if ($file = self::resolveEventHandlersClass($className, $path, $class)) {
+            return $file;
+        }
+
         // 5. General SPP\* resolving to root & PSR Polyfills
         if ($file = self::resolvePsrClass($className, $path)) {
             return $file;
@@ -86,10 +91,32 @@ class Autoloader
         return null;
     }
 
+    private static function resolveEventHandlersClass(string $className, array $path, string $class): ?string
+    {
+        if (strpos($className, 'EventHandlers\\') === 0) {
+            $parts = $path;
+            array_shift($parts); // Remove EventHandlers
+            $subPath = !empty($parts) ? implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR : '';
+            $search = [
+                SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'events' . DIRECTORY_SEPARATOR . $subPath . $class . '.php',
+                SPP_BASE_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'events' . DIRECTORY_SEPARATOR . $subPath . $class . '.php',
+                dirname(SPP_BASE_DIR) . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'events' . DIRECTORY_SEPARATOR . $subPath . $class . '.php'
+            ];
+            foreach ($search as $file) {
+                if (file_exists($file)) return $file;
+            }
+        }
+        return null;
+    }
+
     private static function resolveInterfaceAliases(string $className): bool
     {
-        if ($className === 'SPP\\CacheInterface' || $className === 'SPP\\MiddlewareInterface' || $className === 'SPP\\iModule') {
+        if ($className === 'SPP\\CacheInterface' || $className === 'SPP\\MiddlewareInterface' || $className === 'SPP\\iModule' || $className === 'SPP\\Storage' || $className === 'SPP\\SmartStorage') {
             class_alias('\\SPP\\Core\\' . substr($className, 4), '\\' . $className);
+            return true;
+        }
+        if ($className === 'SPP\\SmartData') {
+            class_alias('\\SPP\\Core\\SmartStorage', '\\SPP\\SmartData');
             return true;
         }
         if (substr($className, -9) === 'Exception' && $className !== 'SPPException' && $className !== 'SPP\\SPPException') {
@@ -117,7 +144,12 @@ class Autoloader
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . 'class.' . strtolower($class) . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . $class . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . strtolower($class) . '.php',
-                SPP_CORE_DIR . DIRECTORY_SEPARATOR . $class . '.php'
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'security' . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'security' . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $class . 'Driver.php',
+                SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'SPP' . $class . 'Manager.php'
             ];
             foreach ($search_paths as $file) {
                 if (file_exists($file)) return $file;

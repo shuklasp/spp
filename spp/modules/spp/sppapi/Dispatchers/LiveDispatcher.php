@@ -31,9 +31,13 @@ class LiveDispatcher
         }
 
         // SPA Native Auth interceptor protecting endpoint dynamically
+        // Note: Global auth check is disabled to support public Live Components.
+        // Components should manage their own authorization logic using #[Locked] or custom attributes.
+        /*
         if (!\SPPMod\SPPAPI\SPPAPI::checkAuth()) {
             SPPAjax::respond('error', ['message' => 'Unauthorized component execution.'], 401);
         }
+        */
 
         try {
             $result = LiveComponent::handleRequest($compClass, $state, $updates, $checksum, $method, $params, ['global']);

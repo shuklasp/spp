@@ -40,6 +40,40 @@ class MakeBladeProjectCommand extends BaseMakeCommand
         mkdir($appDir . '/data', 0777, true);
         mkdir($appDir . '/logs', 0777, true);
         mkdir($appDir . '/forms', 0777, true);
+        mkdir($appDir . '/workflows', 0777, true);
+
+        // Generate Sample Workflow & Tutorial Comments
+        $workflowContent = <<<WORKFLOW
+# ##############################################################################
+# Scaffolded Project Workflow Definition for {$appName}
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+project.base:
+  description: "Base project lifecycle workflow"
+  states:
+    - initialized
+    - in_development
+    - production
+    - legacy
+  transitions:
+    start_dev:
+      from: [initialized]
+      to: in_development
+    deploy:
+      from: [in_development]
+      to: production
+    deprecate:
+      from: [production]
+      to: legacy
+WORKFLOW;
+        file_put_contents($appDir . '/workflows/project.yml', trim($workflowContent));
 
         // 2. Configure SPPBlade for this app
         $bladeConfig = [
@@ -74,7 +108,8 @@ class MakeBladeProjectCommand extends BaseMakeCommand
                 'validations' => [
                     'validation' => [
                         ['control' => 'username', 'type' => 'SPPRequiredValidator', 'message' => 'Username is required'],
-                        ['control' => 'password', 'type' => 'SPPRequiredValidator', 'message' => 'Password is required']
+                        ['control' => 'password', 'type' => 'SPPRequiredValidator', 'message' => 'Password is required'],
+                        ['control' => 'username', 'type' => 'SPPWorkflowGuardValidator', 'message' => 'Account must be in active workflow state']
                     ]
                 ]
             ]
@@ -199,6 +234,8 @@ class MakeBladeProjectCommand extends BaseMakeCommand
             &copy; {{ date('Y') }} SPP Framework • Powering Enterprise PHP with Blade
         </footer>
     </div>
+    <script src='/spp/admin/js/htmx.min.js'></script>
+    <script src='/spp/admin/js/turbo-streams.min.js'></script>
 </body>
 </html>
 ";

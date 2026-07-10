@@ -6,7 +6,7 @@ use SPPMod\SPPView\LiveComponent;
 
 /**
  * Class {{className}}
- * A Live Component with real-time reactivity.
+ * A Live Component with real-time View Transitions reactivity and zero inline HTML literals.
  */
 class {{className}} extends LiveComponent
 {
@@ -15,22 +15,39 @@ class {{className}} extends LiveComponent
     public function mount(array $params = []): void
     {
         // Component initialization logic
+        $this->setState('counter', $params['counter'] ?? 0);
     }
 
+    /**
+     * Render the component using external standalone partials to strictly prevent inline HTML strings.
+     */
     public function render(): string
     {
-        return <<<HTML
-        <div class="live-component" id="{\$this->getComponentId()}">
-            <h2>{{ \$this->title }}</h2>
-            <p>Counter: {{ \$this->getState('counter', 0) }}</p>
-            <button spp-click="increment">Increment</button>
-        </div>
-        HTML;
+        // =====================================================================
+        // DEVELOPER-FRIENDLY EXTERNAL PARTIAL REFERENCING & VIEW TRANSITIONS
+        // =====================================================================
+        // The external partial file (e.g. partials/{{className}}.html) should contain:
+        // <div class="live-component" wire:id="{$this->getComponentId()}" wire:transition>
+        //     <h2>{{ $title }}</h2>
+        //     <p>Counter: {{ $counter }}</p>
+        //     <button wire:click="increment">Increment</button>
+        // </div>
+
+        return $this->renderPartial('partials/' . class_basename(self::class) . '.html', [
+            'title' => $this->title,
+            'counter' => $this->getState('counter', 0),
+            'componentId' => $this->getComponentId()
+        ]);
     }
 
     public function increment(): void
     {
         $current = $this->getState('counter', 0);
         $this->setState('counter', $current + 1);
+
+        // Example: Log state transition to CQRS Event Store
+        if (class_exists('\SPPMod\SPPWorkflow\CQRS\EventStore')) {
+            \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('LiveComponent', $this->getComponentId(), 'CounterIncremented', ['new_value' => $current + 1]);
+        }
     }
 }

@@ -19,6 +19,8 @@
             <li><b>Events</b> (<code>events/</code>): Framework event handlers</li>
             <li><b>Tests</b> (<code>tests/</code>): Parikshak unit & evolutionary tests</li>
             <li><b>Config</b> (<code>etc/</code>): Routes, services, forms, settings</li>
+            <li><b>Reports</b> (<code>etc/sppreports/</code>): V5 Dual-Mode (Screen & Print) hypermedia reporting</li>
+            <li><b>Storage</b> (<code>etc/storage.yml</code>): Virtual disk management & public symlinks</li>
         </ul>
     </div>
 </div>

@@ -1,21 +1,22 @@
-# ext:disable
+## `ext:disable`
 
-## NAME
-ext:disable - Disable a specific extension
+**Description**: Disable a specific extension
 
-## SYNOPSIS
-`php spp.php ext:disable <extension_name>`
-
-## PURPOSE
-Placeholder stub for explicitly disabling an installed SPP extension by its module name identifier.
-
-## OPTIONS AVAILABLE
-- `<extension_name>`: **Required**. The system identifier of the target extension.
-
-## UNDER THE HOOD ACTIVITY
-Command accepts positional extraction of the primary argument representing the module payload string. Currently constructed exclusively as a structural shell, it prints a pending implementation note and gracefully terminates execution.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php ext:disable SppDiff
+php spp.php ext:disable [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php ext:disable <extension_name>
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

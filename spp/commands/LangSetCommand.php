@@ -9,6 +9,11 @@ class LangSetCommand extends Command
     protected string $name = 'lang:set';
     protected string $description = 'Set a translation for a key';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

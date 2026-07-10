@@ -7,7 +7,7 @@ use SPPMod\SPPView\Attributes\Title;
 
 /**
  * ============================================================================
- * AttributeController — PHP 8 Attribute-Based Routing
+ * AttributeController — PHP 8 Attribute-Based Routing & Middleware
  * ============================================================================
  *
  * HOW PHP 8 ATTRIBUTE ROUTING WORKS:
@@ -15,7 +15,7 @@ use SPPMod\SPPView\Attributes\Title;
  * directly on controller methods. The SPP RouteScanner automatically
  * discovers these attributes and registers routes.
  *
- * AVAILABLE ATTRIBUTES:
+ * AVAILABLE ATTRIBUTES & ENTERPRISE VIEWCONTROLLER INTEGRATION:
  *
  *   #[Route('/path', method: 'GET|POST', name: 'route.name', middleware: [])]
  *     - path:       URL path (supports {param} placeholders)
@@ -29,6 +29,8 @@ use SPPMod\SPPView\Attributes\Title;
  *     - Class-level middleware applies to ALL methods
  *     - Method-level middleware stacks with class-level
  *     - IS_REPEATABLE: can use multiple times
+ *     - ViewController automatically discovers and executes #[Middleware] attributes
+ *       during dispatch before any action method is invoked.
  *
  *   #[Title('Page Title')]
  *     - CLASS-level only
@@ -41,6 +43,14 @@ use SPPMod\SPPView\Attributes\Title;
  *   #[Isolate]
  *     - CLASS-level only
  *     - Runs controller in an isolated context (no shared state)
+ *
+ * ENTERPRISE VIEWCONTROLLER CAPABILITIES AVAILABLE IN ACTIONS:
+ *   - $this->share($key, $value)      : Share data across all rendered views in this controller.
+ *   - $this->validate(array $rules)   : Validate incoming requests using ViewValidator rules.
+ *   - $this->hydrate(string $class)   : Dynamically hydrate DTOs or Entities using DataTransformers.
+ *   - $this->getCspNonce()            : Secure per-request Content Security Policy nonce generation.
+ *   - $this->stream($view, $data)     : Real-time Turbo Streams / live view streaming.
+ *   - $this->json($data, $status)     : Send standardized JSON responses instantly.
  *
  * HOW ROUTES ARE DISCOVERED:
  * The SPP RouteScanner scans these directories for #[Route] attributes:
@@ -66,7 +76,7 @@ use SPPMod\SPPView\Attributes\Title;
 // Class-level #[Route] sets a prefix for all method routes
 #[Route('/attr')]
 #[Title('Samvaad Attribute Routes')]
-class AttributeController
+class AttributeController extends \SPPMod\SPPView\ViewController
 {
     /**
      * GET /attr/hello

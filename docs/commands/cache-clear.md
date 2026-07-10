@@ -1,18 +1,16 @@
-# NAME
-**cache:clear** - Clear the entire SPP Cache directory
+## `cache:clear`
 
-# SYNOPSIS
-`php spp.php cache:clear`
+**Description**: Clear the application file/redis cache
 
-# PURPOSE
-Flushes all cached data stored by the application. This is typically used after deploying new code, altering configurations, or when system memory needs to be purged to eliminate stale views and records.
+### Synopsis
+```bash
+php spp.php cache:clear [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-This command takes no arguments or options.
+### Options
+No static options detected.
 
-# UNDER THE HOOD ACTIVITY
-The command retrieves the singleton instance of the caching engine by calling `\SPP\Cache::getInstance()`. It then invokes the `flush()` method on this instance. The `flush()` method is responsible for invalidating and purging all cache pools, which natively targets the filesystem cache directory or external data stores (like Redis or Memcached), depending on the active cache configuration. Finally, it outputs a success message upon completion.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
-# EXAMPLES
-Clear the application cache:
-`php spp.php cache:clear`

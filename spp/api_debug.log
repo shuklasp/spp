@@ -3062,3 +3062,421 @@ gateAdminAction: hasAdminScope returned true
                 script  VARCHAR(255) NOT NULL,
                 method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
             ))
+[2026-06-27 16:03:51] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:03:51] Context set to sppadmin
+[2026-06-27 16:03:51] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:03:51] Context set to sppadmin
+[2026-06-27 16:03:52] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:03:52] Context set to sppadmin
+[2026-06-27 16:03:53] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:03:53] Context set to sppadmin
+[2026-06-27 16:03:54] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:03:54] Context set to sppadmin
+[2026-06-27 16:06:27] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:06:27] Context set to sppadmin
+[2026-06-27 16:06:27] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:06:27] Context set to sppadmin
+[2026-06-27 16:06:28] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:06:28] Context set to sppadmin
+[2026-06-27 16:06:29] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:06:29] Context set to sppadmin
+[2026-06-27 16:06:29] API Request: action=none session_keys=__default_sppsession,__lekhak_sppsession
+[2026-06-27 16:06:30] Context set to sppadmin
+[2026-06-30 12:37:15] API Request: action=check_auth session_keys=__default_sppsession,__Samvaad_sppsession,__lekhak_sppsession,__sppadmin_sppsession
+[2026-06-30 12:37:18] Context set to sppadmin
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE lek_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[HY000]: General error: 1 near "AUTO_INCREMENT": syntax error (SQL: CREATE TABLE test_api_app_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))
+[SPPAjax] Schema initialization failed: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'Samvaad_sppajax_services' already exists (SQL: CREATE TABLE Samvaad_sppajax_services (
+                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                name    VARCHAR(255) NOT NULL UNIQUE,
+                script  VARCHAR(255) NOT NULL,
+                method  VARCHAR(10)  NOT NULL DEFAULT 'POST'
+            ))

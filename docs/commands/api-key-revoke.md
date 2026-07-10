@@ -1,28 +1,22 @@
-# NAME
+## `api:key:revoke`
 
-`api:key:revoke`
+**Description**: Revoke an existing API token
 
-# SYNOPSIS
-
-`php spp.php api:key:revoke --token=<token>`
-
-# PURPOSE
-
-Revoke an existing API token to instantly prevent further client authentication using that key.
-
-# OPTIONS AVAILABLE
-
-- `--token=<token>` : (Required) The literal API token string that should be revoked.
-
-# UNDER THE HOOD ACTIVITY
-
-The command explicitly iterates through the CLI `$args` array to locate the `--token=` parameter and extracts the trailing substring value. If the parameter is missing, it outputs usage instructions to standard output and returns immediately. Upon successfully identifying the token, it prints a success message. 
-
-*Note: In the current iteration of the framework, the actual database status revocation logic is stubbed out. It does not actively perform a SQL `UPDATE` or `DELETE` against the `api_keys` table.*
-
-# EXAMPLES
-
-Revoke a specific API token:
+### Synopsis
 ```bash
-php spp.php api:key:revoke --token=a1b2c3d4e5f6g7h8...
+php spp.php api:key:revoke [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php api:key:revoke --token=<token>
+
+```
+
+### Options
+- `--token=` : Expects a value. Extracted via static analysis from ApiKeyRevokeCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

@@ -1,24 +1,22 @@
-.TH SPP-make-react-component 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:react-component - Scaffold a new React component (ESM/No-build)
+.TH SPP-make-react-component 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-react-component \- Scaffold a new React component (ESM/No-build)
+.SH SYNOPSIS
+.B php spp.php make:react-component
+[OPTIONS]
+.SH DESCRIPTION
+Scaffold a new React component (ESM/No-build)
 .PP
-# SYNOPSIS
-php spp.php make:react-component <ComponentName> [--Name=<ComponentName>] [--app=context]
-.PP
-# PURPOSE
-The make:react-component command scaffolds an unbundled, raw EcmaScript Module (ESM) version of a React Component. Unlike standard React development requiring Webpack or Vite, this command provisions a .js file that relies on modern browser imports (https://esm.sh/react), allowing SPP architectures to drop-in React interfaces instantly without compilation pipelines.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<ComponentName>` or `--Name=<ComponentName>` (string, required): The target Javascript component name (e.g. `ProfileCard`).
+Usage: php spp.php make:react-component <ComponentName>
 .br
-\(bu `--app=<context>` (string, optional): The application context affecting directory resolution.
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-The command resolves the application context and isolates the component target directory via getTargetDir('comp', ...). It creates {ClassName}.js.
-The CLI hardcodes an explicit JS script into the generated file containing import React from 'https://esm.sh/react'; and defines a functional default exported React component utilizing native React.createElement() arrays mapped to a functional hook useState(). This explicitly avoids JSX transpilation, ensuring it can be natively interpreted by the browser engine interacting natively with SPP views.
-.PP
-# EXAMPLES
-1. Scaffold a drop-in React chart:
-php spp.php make:react-component DataChart --app=dashboard
-.PP
+\(bu Instantiates key components: React.
+.br

@@ -1,8 +1,22 @@
-.TH SPP-userprofile-export 1 "31 May 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-userprofile-export 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
 spp-userprofile-export \- Export user profile data for compliance/GDPR
 .SH SYNOPSIS
 .B php spp.php userprofile:export
 [OPTIONS]
 .SH DESCRIPTION
+Export user profile data for compliance/GDPR
+.PP
 Usage: php spp.php userprofile:export --user=<user_id>
+.br
+
+.PP
+.SH OPTIONS
+.TP
+.B --user=
+Expects a value. Extracted via static analysis from UserProfileExportCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

@@ -1,24 +1,16 @@
-.TH SPP-polyglot-status 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-polyglot:status - Checks the runtime environment for polyglot language binaries
+.TH SPP-polyglot-status 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-polyglot-status \- Checks the runtime environment for polyglot language binaries
+.SH SYNOPSIS
+.B php spp.php polyglot:status
+[OPTIONS]
+.SH DESCRIPTION
+Checks the runtime environment for polyglot language binaries
 .PP
-# SYNOPSIS
-php spp.php polyglot:status
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-The polyglot:status command serves as a diagnostic tool. It audits the underlying host server or operating system environment to determine the presence, status, and installed versions of the runtime binaries required to execute polyglot services (e.g., Python, Node.js, Go, Ruby, Rust).
-.PP
-# OPTIONS AVAILABLE
-This command does not accept any specific options or arguments.
-.PP
-# UNDER THE HOOD ACTIVITY
-When triggered, the command initiates an environment check using a predefined array mapping language names to their respective version check commands (e.g., 'python --version', 'node --version', 'go version'). It then prints a formatted ASCII table header to the console.
-.PP
-The core logic iterates over this mapping. For each language, it executes the designated version check command using PHP's exec() function, appending 2>&1 to capture both standard output and standard error. It captures the exit code ($returnVar) and the command's output array.
-.PP
-If the command executes successfully (meaning the exit code is exactly 0 and the output is not empty), the script assigns a status of OK and concatenates the output array into a single string. To maintain table alignment, it truncates the version string to a maximum of 40 characters using substr(). If the command fails (indicated by a non-zero exit code or an empty response), it assigns a status of MISSING and sets the version info string to "Not found in PATH". Each evaluated language's results are immediately formatted with str_pad() to ensure exact column widths and printed to the terminal, completing the diagnostic table.
-.PP
-# EXAMPLES
-Run the environment diagnostic check:
-php spp.php polyglot:status
-.PP
+\(bu Executes external system binaries or shell commands.
+.br

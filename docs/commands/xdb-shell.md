@@ -1,21 +1,16 @@
-# xdb:shell
+## `xdb:shell`
 
-## NAME
-`xdb:shell` - Launch the interactive SPPXDB shell.
+**Description**: Launch the interactive SPPXDB shell
 
-## SYNOPSIS
-`php spp xdb:shell`
+### Synopsis
+```bash
+php spp.php xdb:shell [OPTIONS]
+```
 
-## PURPOSE
-Initiates an interactive read-eval-print loop (REPL) shell environment for interacting with the SPPXDB database, enabling continuous query execution without repeatedly invoking the `spp` CLI.
+### Options
+No static options detected.
 
-## OPTIONS AVAILABLE
-This command accepts no parameters. All interactions happen within the REPL after launch.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
-## UNDER THE HOOD ACTIVITY
-The `xdb:shell` command functions as a proxy to launch a dedicated interactive script. Upon execution, it dynamically computes the path to `xdb-shell.php` located in `modules/spp/sppxdb/xdb-shell.php`. 
-
-It first verifies the existence of this file; if it is missing, it aborts with an error message. If the file is present, the command includes the shell script directly into the current process using the `include()` statement. This hands over control of the standard input/output streams to the `xdb-shell.php` script, which contains its own infinite loop for parsing user input, executing SQL/XPath queries against the `SPP_XDB` engine, and printing the formatted results back to the console until the user exits.
-
-## EXAMPLES
-* `php spp xdb:shell`

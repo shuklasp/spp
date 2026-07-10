@@ -30,7 +30,7 @@ class AuthGuard
     {
         if (!self::check()) {
             $baseUrl = \SPP\App::getBaseUrl($appName ?: 'Samvaad');
-            header('Location: ' . $baseUrl . '?q=login');
+            header('Location: ' . \SPP\App::url('login', 'Samvaad'));
             exit;
         }
     }

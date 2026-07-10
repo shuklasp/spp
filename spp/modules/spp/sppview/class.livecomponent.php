@@ -386,12 +386,12 @@ abstract class LiveComponent implements FrontendComponentInterface
      */
     public static function signState(array $state): string
     {
-        $secret = \SPP\SPPSession::getSessionVar('spplive_secret');
-        if (!$secret) {
-            $secret = bin2hex(random_bytes(32));
-            \SPP\SPPSession::setSessionVar('spplive_secret', $secret);
-        }
+        // Use a persistent application secret rather than a volatile session secret
+        // to prevent "tampering" errors when the user's session expires (e.g. after 24 mins).
+        $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : (class_exists('\SPP\Config') ? \SPP\Config::get('app.secret', 'spp-default-insecure-key') : 'spp-default-insecure-key');
         
+        // Sort the state keys to ensure deterministic JSON encoding
+        ksort($state);
         $payload = json_encode($state);
         return hash_hmac('sha256', $payload, $secret);
     }

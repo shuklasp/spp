@@ -236,7 +236,7 @@ export class BaseComponent {
             
             // If not in our specific containers, check if we own the handler for this target
             // If not in our specific containers, check if we own the handler for this target
-            const el = e.target.closest(`[data-spp-evt], [data-spp-evt-${e.type}]`);
+            const el = e.target && e.target.closest ? e.target.closest(`[data-spp-evt], [data-spp-evt-${e.type}]`) : null;
             if (!isOurEvent && el) {
                 const id = el.getAttribute(`data-spp-evt-${e.type}`) || el.getAttribute('data-spp-evt');
                 if (this._handlers.has(id)) {
@@ -331,7 +331,7 @@ export class BaseComponent {
         });
 
         // Also register system overlays and their descendants as event sources
-        const overlaySelectors = ['#sppux-modal-root', '.sub-modal', '.glass-overlay', '#header-actions', '#sppux-drawer-root', '#studio-modal-overlay'];
+        const overlaySelectors = ['#sppux-modal-root', '.sub-modal', '.glass-overlay', '#header-actions', '#sppux-drawer-root', '#studio-modal-overlay', '#sppux-spotlight-root', '#sppux-popover-root'];
         overlaySelectors.forEach(sel => {
             document.querySelectorAll(sel).forEach(el => {
                 this._eventContainers.add(el);
@@ -392,7 +392,18 @@ export class BaseComponent {
 
         try {
             Signal.activeSubscriber = subscriber;
-            let template = this.render();
+            let template;
+            try {
+                template = this.render();
+            } catch (renderError) {
+                console.error(`[SPPUX] Render Error in ${this.constructor.name}:`, renderError);
+                template = new TrustedHTML(`
+                    <div class="sppux-alert sppux-alert-danger" style="margin: 1rem; text-align: left;">
+                        <strong>💥 UI Component Crash: <code>${this.constructor.name}</code></strong><br>
+                        <span style="font-family: monospace; font-size: 0.85rem; opacity: 0.8;">${renderError.message}</span>
+                    </div>
+                `);
+            }
             Signal.activeSubscriber = null;
             
             // Automagic separate HTML template decoupling ingestion integration
@@ -462,7 +473,11 @@ export class BaseComponent {
             } else {
                 console.log(`[BaseComponent] Skipping DOM update for ${this.constructor.name} (no container)`);
             }
-            this.afterUpdate();
+            try {
+                this.afterUpdate();
+            } catch (afterUpdateError) {
+                console.error(`[SPPUX] afterUpdate Error in ${this.constructor.name}:`, afterUpdateError);
+            }
         } finally {
             this._isRendering = false;
             Signal.activeSubscriber = null;
@@ -922,11 +937,18 @@ export const SPPUX = {
         if (this._isDispatcherInit) return;
         this._isDispatcherInit = true;
         
-        const events = ['click', 'input', 'change', 'submit', 'blur', 'focus', 'keydown', 'keyup', 'keypress', 'dragstart', 'dragover', 'dragleave', 'drop', 'dragend'];
+        const events = [
+            'click', 'input', 'change', 'submit', 'blur', 'focus', 
+            'keydown', 'keyup', 'keypress', 
+            'dragstart', 'dragover', 'dragleave', 'drop', 'dragend',
+            'mousedown', 'mouseup', 'mousemove', 'mouseenter', 'mouseleave',
+            'pointerdown', 'pointerup', 'pointermove', 'pointerenter', 'pointerleave'
+        ];
         events.forEach(evt => {
+            const useCapture = (evt === 'focus' || evt === 'blur' || evt === 'mouseenter' || evt === 'mouseleave' || evt === 'pointerenter' || evt === 'pointerleave');
             document.addEventListener(evt, (e) => {
-                const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-change], [data-spp-evt-input], [data-spp-evt-submit]';
-                const target = e.target.closest(selectors);
+                const selectors = '[data-spp-evt], [data-spp-evt-' + evt + ']';
+                const target = e.target && e.target.closest ? e.target.closest(selectors) : null;
                 // if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
                 
                 // Find all components that could handle this event
@@ -944,7 +966,7 @@ export const SPPUX = {
                     // If event was handled (default prevented), we stop propagation to other components
                     if (e.defaultPrevented) break;
                 }
-            }, true);
+            }, useCapture);
         });
 
         // Initialize LiveService Global Listener
@@ -958,7 +980,7 @@ export const SPPUX = {
 
         // 3. Handle Live Inputs (Debounced)
         document.addEventListener('input', (e) => {
-            const el = e.target.closest('[data-spp-live-input]');
+            const el = e.target && e.target.closest ? e.target.closest('[data-spp-live-input]') : null;
             if (!el) return;
 
             const service = el.getAttribute('data-spp-live-input');
@@ -981,7 +1003,7 @@ export const SPPUX = {
     _handleLocalAction(e, eventType) {
         if (eventType !== 'click') return;
         
-        const el = e.target.closest('[data-live-toggle], [data-live-remove], [data-live-url]');
+        const el = e.target && e.target.closest ? e.target.closest('[data-live-toggle], [data-live-remove], [data-live-url]') : null;
         if (!el) return;
 
         // Toggle Class
@@ -1017,7 +1039,7 @@ export const SPPUX = {
     },
 
     async _handleLiveEvent(e, eventType) {
-        const el = e.target.closest('[data-spp-live]');
+        const el = e.target && e.target.closest ? e.target.closest('[data-spp-live]') : null;
         if (!el) return;
 
         // Verify trigger
@@ -1103,7 +1125,10 @@ export const SPPUX = {
             return await SPPUX.apiPost(actionOrData);
         }
         const action = actionOrData;
-        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        let endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        if (endpoint === 'api.php' && !window.location.pathname.includes('/sppadmin') && !window.location.pathname.includes('/spp/admin')) {
+            endpoint = window.location.pathname;
+        }
         const ts = Date.now();
         
         // Auto-inject app context if available
@@ -1135,7 +1160,10 @@ export const SPPUX = {
         return result; 
     },
     apiPost: async (formData) => {
-        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        let endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        if (endpoint === 'api.php' && !window.location.pathname.includes('/sppadmin') && !window.location.pathname.includes('/spp/admin')) {
+            endpoint = window.location.pathname;
+        }
         
         // Auto-inject app context if available
         if (!formData.has('appname') && !formData.has('context')) {
@@ -1363,7 +1391,7 @@ export const SPPUX = {
             get(target, prop) {
                 if (prop === 'subscribe') return (fn) => { listeners.add(fn); return () => listeners.delete(fn); };
                 if (prop === 'get') return () => target;
-                if (prop === 'set') return (newState) => { Object.assign(target, newState); notify(); };
+                if (prop === 'set' && typeof target.set !== 'function') return (newState) => { Object.assign(target, newState); notify(); };
                 return Reflect.get(target, prop);
             },
             set(target, prop, value) {
@@ -1381,7 +1409,7 @@ export const SPPUX = {
             this.routes = routes;
             window.addEventListener('popstate', () => this.handleRoute());
             document.body.addEventListener('click', (e) => {
-                const link = e.target.closest('a[data-spp-route]');
+                const link = e.target && e.target.closest ? e.target.closest('a[data-spp-route]') : null;
                 if (link) {
                     e.preventDefault();
                     this.push(link.getAttribute('href'));
@@ -1488,7 +1516,7 @@ function initHtmlDirectives() {
 
     // 1. Zero-JS Declarative Actions: Intercept clicks/submits on elements carrying data-spp-post or data-spp-action
     document.addEventListener('submit', async (e) => {
-        const targetForm = e.target.closest('[data-spp-post], [data-spp-action]');
+        const targetForm = e.target && e.target.closest ? e.target.closest('[data-spp-post], [data-spp-action]') : null;
         if (!targetForm) return;
 
         e.preventDefault();
@@ -1638,7 +1666,7 @@ function initHtmlDirectives() {
 
     // 8. Copy to Clipboard (data-spp-copy)
     document.addEventListener('click', async (e) => {
-        const copyTarget = e.target.closest('[data-spp-copy]');
+        const copyTarget = e.target && e.target.closest ? e.target.closest('[data-spp-copy]') : null;
         if (copyTarget) {
             const selectorId = copyTarget.getAttribute('data-spp-copy');
             let text = '';
@@ -1661,7 +1689,7 @@ function initHtmlDirectives() {
 
     // 9. Ripple Effect (data-spp-ripple)
     document.addEventListener('pointerdown', (e) => {
-        const rippleEl = e.target.closest('[data-spp-ripple]');
+        const rippleEl = e.target && e.target.closest ? e.target.closest('[data-spp-ripple]') : null;
         if (rippleEl) {
             const rect = rippleEl.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -1929,7 +1957,7 @@ function initHtmlDirectives() {
 
     // 18. Voice Input Dictation (data-spp-voice-input)
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-spp-voice-input]');
+        const btn = e.target && e.target.closest ? e.target.closest('[data-spp-voice-input]') : null;
         if (btn) {
             const targetId = btn.getAttribute('data-spp-voice-input');
             const targetEl = document.getElementById(targetId);

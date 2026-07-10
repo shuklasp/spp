@@ -1,0 +1,21 @@
+/*
+ * Custom Theme CSS — TestApp2
+ *
+ * Override SPP-UX CSS variables here for custom branding.
+ * These override the built-in theme presets.
+ *
+ * Available variables (see spp/modules/spp/drishyam/css/sppux.css for full list):
+ *   --sppux-primary: #6366f1;
+ *   --sppux-primary-glow: rgba(99, 102, 241, 0.4);
+ *   --sppux-bg: #0f0f23;
+ *   --sppux-panel: rgba(30, 30, 60, 0.8);
+ *   --sppux-text: #e2e8f0;
+ *   --sppux-border: rgba(255, 255, 255, 0.08);
+ */
+
+/* Uncomment to customize:
+:root {
+    --sppux-primary: #f43f5e;
+    --sppux-primary-glow: rgba(244, 63, 94, 0.4);
+}
+*/

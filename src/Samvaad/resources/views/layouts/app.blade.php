@@ -83,18 +83,19 @@ SPP DIRECTIVES AVAILABLE:
         <div class="layout-container nav-inner">
             <a href="{{ $base_url }}" class="nav-brand">🚀 Samvaad</a>
             <div class="nav-links">
-                <a href="{{ $base_url }}?q=home">Home</a>
-                <a href="{{ $base_url }}?q=about">About</a>
-                <a href="{{ $base_url }}?q=dashboard">Dashboard</a>
-                <a href="{{ $base_url }}?q=contact">Contact</a>
-                <a href="{{ $base_url }}?q=app">SPP-UX App</a>
+                <a href="@url('home')">Home</a>
+                <a href="@url('about')">About</a>
+                <a href="@url('dashboard')">Dashboard</a>
+                <a href="@url('contact')">Contact</a>
+                <a href="@url('app')">SPP-UX App</a>
+                <a href="@url('backend-showcase')">Backend Showcase</a>
 
                 {{-- Auth-aware navigation --}}
                 @sppauth
-                    <a href="{{ $base_url }}?q=auth/logout" style="color: #ef4444;">Logout</a>
+                    <a href="@url('auth/logout')" style="color: #ef4444;">Logout</a>
                 @endsppauth
                 @sppguest
-                    <a href="{{ $base_url }}?q=login">Login</a>
+                    <a href="@url('login')">Login</a>
                 @endsppguest
             </div>
         </div>

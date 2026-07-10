@@ -1,24 +1,20 @@
-.TH SPP-sys-debug 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# sys:debug
-.PP
+.TH SPP-sys-debug 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-sys:debug - Toggle global framework debug mode (on|off)
-.PP
+spp-sys-debug \- Toggle global framework debug mode (on|off)
 .SH SYNOPSIS
-php spp.php sys:debug <on|off>
+.B php spp.php sys:debug
+[OPTIONS]
+.SH DESCRIPTION
+Toggle global framework debug mode (on|off)
 .PP
-.SH PURPOSE
-Enables or disables verbose diagnostics and the API Flight Recorder globally across the SPP framework.
-.PP
-.SH OPTIONS AVAILABLE
-\(bu `on`: Enable debug mode.
+Usage: php spp.php sys:debug on|off
 .br
-\(bu `off`: Disable debug mode.
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-The command validates the desired state argument (on or off). It locates the global-settings.yml configuration file inside SPP_ETC_DIR. It utilizes the Symfony\Component\Yaml\Yaml component to parse the YAML document into a PHP associative array. It navigates to the ['settings']['debug'] key, forcefully creating the ['settings'] array block if absent, and assigns a boolean derived from the command input. It then re-dumps the array structure into YAML format and performs a file_put_contents flush to disk to solidify the change.
-.PP
-.SH EXAMPLES
-php spp.php sys:debug on
-.PP

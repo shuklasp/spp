@@ -8,12 +8,23 @@ namespace SPPMod\SPPLang;
  */
 class ContentTranslator
 {
+    private static ?\SPPMod\SPPDB\SPPDB $dbInstance = null;
+    private static array $cache = [];
+
+    private static function getDB(): \SPPMod\SPPDB\SPPDB
+    {
+        if (self::$dbInstance === null) {
+            self::$dbInstance = new \SPPMod\SPPDB\SPPDB();
+        }
+        return self::$dbInstance;
+    }
+
     /**
      * Ensures the global content translation schema exists.
      */
     public static function ensureSchema(): void
     {
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = self::getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('content_translations');
         if (!$db->tableExists($table)) {
             $db->exec_squery("CREATE TABLE %tab% (
@@ -35,6 +46,38 @@ class ContentTranslator
     }
 
     /**
+     * Preloads translations for a batch of entity IDs in a single query, eliminating N+1 queries.
+     *
+     * @param string $entityType e.g. 'article'
+     * @param array $entityIds List of primary keys
+     * @param string|null $locale Target locale
+     */
+    public static function preloadTranslations(string $entityType, array $entityIds, ?string $locale = null): void
+    {
+        if (empty($entityIds)) return;
+        $locale = $locale ?? \SPP\Core\Translation::getLocale();
+        self::ensureSchema();
+        $db = self::getDB();
+        $table = \SPPMod\SPPDB\SPPDB::sppTable('content_translations');
+
+        $inClause = implode(',', array_fill(0, count($entityIds), '?'));
+        $params = array_merge([$entityType, $locale], array_map('strval', $entityIds));
+
+        $res = $db->exec_squery(
+            "SELECT entity_id, field_name, translation FROM %tab% WHERE entity_type = ? AND locale = ? AND entity_id IN ($inClause)",
+            $table,
+            $params
+        );
+
+        if (!empty($res)) {
+            foreach ($res as $row) {
+                $cacheKey = "{$entityType}_{$row['entity_id']}_{$locale}_{$row['field_name']}";
+                self::$cache[$cacheKey] = $row['translation'];
+            }
+        }
+    }
+
+    /**
      * Fetch a translated field for a specific entity.
      *
      * @param string $entityType e.g. 'article'
@@ -46,12 +89,14 @@ class ContentTranslator
     public static function getTranslation(string $entityType, $entityId, string $fieldName, ?string $locale = null): ?string
     {
         $locale = $locale ?? \SPP\Core\Translation::getLocale();
+        $cacheKey = "{$entityType}_{$entityId}_{$locale}_{$fieldName}";
 
-        // Fast path: if locale is English (or default), we might not even need to check,
-        // but for safety we check if a translation exists.
+        if (array_key_exists($cacheKey, self::$cache)) {
+            return self::$cache[$cacheKey];
+        }
 
         self::ensureSchema();
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = self::getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('content_translations');
 
         $res = $db->exec_squery(
@@ -61,9 +106,11 @@ class ContentTranslator
         );
 
         if (!empty($res) && isset($res[0]['translation'])) {
-            return $res[0]['translation'];
+            self::$cache[$cacheKey] = $res[0]['translation'];
+            return self::$cache[$cacheKey];
         }
 
+        self::$cache[$cacheKey] = null;
         return null;
     }
 
@@ -75,7 +122,7 @@ class ContentTranslator
         $locale = $locale ?? \SPP\Core\Translation::getLocale();
         self::ensureSchema();
 
-        $db = new \SPPMod\SPPDB\SPPDB();
+        $db = self::getDB();
         $table = \SPPMod\SPPDB\SPPDB::sppTable('content_translations');
 
         $res = $db->exec_squery(
@@ -97,5 +144,8 @@ class ContentTranslator
                 [$entityType, (string) $entityId, $locale, $fieldName, $translation]
             );
         }
+
+        $cacheKey = "{$entityType}_{$entityId}_{$locale}_{$fieldName}";
+        self::$cache[$cacheKey] = $translation;
     }
 }

@@ -1,32 +1,18 @@
-# NAME
-`queue:list` - List all jobs currently in the queue
+## `queue:list`
 
-# SYNOPSIS
-`php spp.php queue:list [--app=<app_name>]`
+**Description**: List all jobs currently in the queue
 
-# PURPOSE
-The `queue:list` command queries the background job queue (stored in the database) and outputs a tabular list of jobs that are currently pending execution. It provides developers and administrators with immediate visibility into the backlog, showing job IDs, scheduling times, and small snippets of the job payloads.
-
-# OPTIONS AVAILABLE
-* `--app=<app_name>`
-  *Optional.* Specifies the application context to connect to. Defaults to `default`. If the system utilizes multiple databases or contextual queues based on the application name, this flag ensures the query targets the correct `spp_jobs` table.
-
-# UNDER THE HOOD ACTIVITY
-When the command is run, it first parses the command-line arguments to extract any provided `--app=` flag, defaulting to `'default'`. It then delegates the core execution to the `\SPP\Scheduler::withContext()` method, wrapping the logic inside a closure that runs under the targeted application context.
-
-Inside the context, the command attempts to instantiate the database connection via `\SPPMod\SPPDB\SPPDB()`. Because database connections can fail or the module might not be present, this instantiation is wrapped in output buffering (`ob_start()`) and a `try-catch` block. If the connection fails, the buffers are cleaned, and a graceful error message is displayed indicating the queue is empty or unavailable.
-
-Once the database connection is secured, the command executes a raw SQL query: `SELECT * FROM spp_jobs ORDER BY available_at ASC LIMIT 50`. If the queue is empty, the process returns immediately with a notification. Otherwise, it prints a formatted ASCII table header.
-
-For each retrieved job row, the command extracts the `id`, `available_at`, and `created_at` fields. It grabs the serialized JSON string from the `payload` column and truncates it to a maximum of 30 characters (appending `...` if it exceeds this length) to form a safe, readable snippet. These fields are spaced using `str_pad` and printed to the terminal. Finally, it executes a secondary `COUNT(*)` query to determine the total number of jobs residing in the `spp_jobs` table and prints a summary footer, highlighting whether the console is showing a limited view (50 out of X jobs) or the entirety of the queue.
-
-# EXAMPLES
-List pending jobs for the default application:
+### Synopsis
 ```bash
-php spp.php queue:list
+php spp.php queue:list [OPTIONS]
 ```
 
-List pending jobs for a specific application:
-```bash
-php spp.php queue:list --app=admin_panel
-```
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from QueueListCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+

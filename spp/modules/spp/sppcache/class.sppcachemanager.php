@@ -38,16 +38,22 @@ class SPPCacheManager
         }
     }
 
-    public static function set(string $cid, $data, array $tags = [])
+    public static function set(string $cid, $data, $ttlOrTags = 3600, array $tags = [])
     {
         self::init();
+        $ttl = 3600;
+        if (is_array($ttlOrTags)) {
+            $tags = $ttlOrTags;
+        } else {
+            $ttl = (int) $ttlOrTags;
+        }
         $payload = [
             'data' => $data,
             'tags' => $tags,
             'time' => time()
         ];
         // Utilize the framework's caching layer (Redis / File)
-        \SPP\Cache::setWithTags($cid, $payload, $tags);
+        \SPP\Cache::setWithTags($cid, $payload, $tags, $ttl);
     }
 
     public static function get(string $cid)

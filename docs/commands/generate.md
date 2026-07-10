@@ -1,16 +1,16 @@
 ## `generate`
 
-**Purpose**: AI Copilot: Generate an entire application feature from a natural language prompt.
+**Description**: AI Copilot: Generate an entire application feature from a natural language prompt.
 
 ### Synopsis
 ```bash
 php spp.php generate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

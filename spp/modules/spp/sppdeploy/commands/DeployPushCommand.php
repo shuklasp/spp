@@ -8,10 +8,8 @@ class DeployPushCommand extends Command
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
-        if (!$target) {
-            echo "Error: Target connection URI required.\n";
-            echo "Usage: php spp.php deploy:push <target_uri> [--key=YOUR_API_KEY] [--dry-run]\n";
-            return;
+        if (!$target || str_starts_with($target, '--') || str_starts_with($target, '-')) {
+            $target = \SPPMod\SPPDeploy\Deployer\TargetConnection::getDefaultEnvironment();
         }
 
         $apiKey = getenv('SPP_DEPLOY_TOKEN') ?: 'default_cli_key';
@@ -66,38 +64,40 @@ class DeployPushCommand extends Command
 
         $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
-        if ($artifactPath) {
-            $fullArtifactPath = SPP_BASE_DIR . '/' . ltrim($artifactPath, '/');
-            if (!is_file($fullArtifactPath)) {
-                echo "❌ Artifact not found: {$artifactPath}\n";
-                return;
-            }
-            $manifestPath = substr($fullArtifactPath, 0, -4) . '.json';
-            if (!is_file($manifestPath)) {
-                echo "❌ Manifest not found for artifact: {$manifestPath}\n";
-                return;
-            }
-
-            echo "📦 Loading pre-built artifact...\n";
-            $payloadMeta = json_decode(file_get_contents($manifestPath), true);
-            $archiveData = file_get_contents($fullArtifactPath);
-            self::transmitPayload($conn, $archiveData, $payloadMeta, $target);
-            return;
-        }
-
-        $localHashes = [];
-        if (!$noFiles) {
-            $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
-            $localHashes = $scanner->scan(SPP_BASE_DIR);
-        }
-
-        $localDbHashes = [];
-        if (!$noDb) {
-            $dbScanner = new \SPPMod\SPPDeploy\Scanner\DbScanner();
-            $localDbHashes = $dbScanner->scan();
-        }
-
         try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+
+            if ($artifactPath) {
+                $fullArtifactPath = SPP_BASE_DIR . '/' . ltrim($artifactPath, '/');
+                if (!is_file($fullArtifactPath)) {
+                    echo "❌ Artifact not found: {$artifactPath}\n";
+                    return;
+                }
+                $manifestPath = substr($fullArtifactPath, 0, -4) . '.json';
+                if (!is_file($manifestPath)) {
+                    echo "❌ Manifest not found for artifact: {$manifestPath}\n";
+                    return;
+                }
+
+                echo "📦 Loading pre-built artifact...\n";
+                $payloadMeta = json_decode(file_get_contents($manifestPath), true);
+                $archiveData = file_get_contents($fullArtifactPath);
+                self::transmitPayload($conn, $archiveData, $payloadMeta, $target);
+                return;
+            }
+
+            $localHashes = [];
+            if (!$noFiles) {
+                $scanner = new \SPPMod\SPPDeploy\Scanner\ProjectScanner();
+                $localHashes = $scanner->scan(SPP_BASE_DIR);
+            }
+
+            $localDbHashes = [];
+            if (!$noDb) {
+                $dbScanner = new \SPPMod\SPPDeploy\Scanner\DbScanner();
+                $localDbHashes = $dbScanner->scan();
+            }
+
             echo "🩺 Running pre-flight health checks...\n";
             $healthResp = $conn->getHealth();
             if (!isset($healthResp['status']) || $healthResp['status'] !== 'ok') {
@@ -232,6 +232,8 @@ class DeployPushCommand extends Command
 
         } catch (\Exception $e) {
             echo "❌ Fatal Error: " . $e->getMessage() . "\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
     }
 

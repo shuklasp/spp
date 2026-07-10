@@ -15,7 +15,7 @@ Legacy database interactions are highly vulnerable to SQL injection, especially 
 When frameworks dynamically resolve file paths based on URLs or template directives, they open themselves to Local File Inclusion (LFI).
 - **View Router (`spprouter`):** Deep directory traversal tokens (`..`) are stripped, and absolute paths are validated.
 - **PHP Components (`<php-include>`):** `sppview` recursively checks included files and blocks path traversal characters natively at the AST compilation layer.
-- **File Disk Wrappers (`sppstorage`):** `LocalDisk` aggressively filters path traversal payloads before executing any `fopen()` or `file_get_contents()` calls.
+- **File Disk Wrappers (`sppcore`):** `LocalDisk` aggressively filters path traversal payloads before executing any `fopen()` or `file_get_contents()` calls.
 
 ## 3. RCE & PHP Object Injection (POP) Blocking
 Deserializing arbitrary data is incredibly dangerous and historically leads to Remote Code Execution via POP chains.

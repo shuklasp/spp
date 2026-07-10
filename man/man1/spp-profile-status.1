@@ -1,22 +1,16 @@
-.TH SPP-profile-status 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-profile:status - Check if the performance profiler is running/enabled
+.TH SPP-profile-status 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-profile-status \- Check if the performance profiler is running/enabled
+.SH SYNOPSIS
+.B php spp.php profile:status
+[OPTIONS]
+.SH DESCRIPTION
+Check if the performance profiler is running/enabled
 .PP
-# SYNOPSIS
-php spp.php profile:status
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-The profile:status command is used to quickly determine the health and operational status of the SPPProfile module within the framework. It checks whether the application's performance profiler is currently active and monitoring execution traces.
-.PP
-# OPTIONS AVAILABLE
-This command does not accept any specific options or arguments.
-.PP
-# UNDER THE HOOD ACTIVITY
-The command performs a lightweight runtime check using PHP's class_exists() function. It specifically looks for the \SPPMod\SPPProfile\SPPProfile class definition in the current execution environment.
-.PP
-If the class is found in memory, the command infers that the profiler module has been installed, loaded, and initialized properly by the framework. It then prints out a confirmation that the module is ACTIVE and is currently "Monitoring performance traces". Conversely, if the class is not found, it outputs that the module is NOT ACTIVE, indicating that profiling is either uninstalled or disabled in the environment configurations.
-.PP
-# EXAMPLES
-Check the status of the performance profiler:
-php spp.php profile:status
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

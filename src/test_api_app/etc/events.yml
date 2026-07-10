@@ -1,0 +1,21 @@
+################################################################################
+# Event Listeners for test_api_app
+#
+# HOW TO USE:
+# Register event handlers that run when framework events fire.
+# Format:  event_name:  [\Namespace\ClassName, methodName]
+#
+# AVAILABLE EVENTS:
+#   event_spp_view_render_theme — Fired before theme rendering (inject HTML)
+#   event_spp_page_render       — Fired during page rendering
+#   PageNotFound                — Fired when no route matches
+#   app.boot                    — Custom app boot event
+#
+# EXAMPLE:
+#   app.boot:
+#     - \App\test_api_app\Events\AppBootHandler
+################################################################################
+
+events:
+  # app.boot:
+  #   - \App\test_api_app\Events\AppBootHandler

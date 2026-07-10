@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>16. Enterprise Workflow Orchestration | SPP Framework Tutorial</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <aside class="sidebar">
+        <h2>SPP Framework</h2>
+        <nav>
+            <ul>
+                <li><a href="index.html">Welcome</a></li>
+                <li><a href="01_introduction.html">01. Introduction</a></li>
+                <li><a href="02_getting_started.html">02. Getting Started</a></li>
+                <li><a href="03_modules.html">03. Modules Architecture</a></li>
+                <li><a href="04_data_models.html">04. Data Modeling</a></li>
+                <li><a href="05_routing_and_views.html">05. Routing &amp; Views</a></li>
+                <li><a href="06_forms_and_validation.html">06. Forms &amp; Validation</a></li>
+                <li><a href="07_events.html">07. The Event System</a></li>
+                <li><a href="08_advanced.html">08. Advanced Features</a></li>
+                <li><a href="09_project_twitter.html">09. Project: SPP-Twitter</a></li>
+                <li><a href="10_advanced_reporting.html">10. Advanced Reporting</a></li>
+                <li><a href="11_multi_engine_routing.html">11. Multi-Engine Routing</a></li>
+                <li><a href="12_live_components.html">12. Live Components</a></li>
+                <li><a href="13_security_hardening.html">13. Security Hardening</a></li>
+                <li><a href="14_blogging_platform.html">14. Project: Blogging Platform</a></li>
+                <li><a href="15_middleware.html">15. Middleware Pipeline</a></li>
+                <li><a href="16_workflow_orchestration.html" class="active">16. Workflow Orchestration</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <article class="content-container">
+            <h1>16. Enterprise Workflow Orchestration</h1>
+            <p>SPP provides a high-performance, YAML-driven workflow engine (<code>SPPWorkflowManager</code>) capable of powering strict state machines, multi-state parallel markings, interactive multi-step wizards, and multi-tier organizational approval hierarchies.</p>
+
+            <hr>
+
+            <h2>Core Concepts</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Term</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>WorkflowManager</strong></td>
+                        <td>Central orchestrator for evaluating state transitions, dynamic guards, and events.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Parallel Markings</strong></td>
+                        <td>Support for entities occupying multiple concurrent states simultaneously.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Saga Pattern</strong></td>
+                        <td>Automated compensating transactions (<code>rollback()</code>) to gracefully revert failed workflows.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>WizardController</strong></td>
+                        <td>Abstract base controller for step-by-step interactive wizards using HTMX external partials.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ApprovalChain</strong></td>
+                        <td>Organizational hierarchy manager supporting tier thresholds and dynamic approvers.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rich Auditing</strong></td>
+                        <td><code>spp_entity_workflow_history</code> table capturing transition timestamps, comments, and JSON context evidence.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <hr>
+
+            <h2>Defining Workflows in YAML</h2>
+            <p>Workflows are defined in <code>workflows.yml</code> files located in <code>APP_ETC_DIR</code> (<code>etc/apps/workflows/**/*.yml</code>) or <code>SPP_ETC_DIR</code> (<code>spp/etc/workflows.yml</code>). The engine automatically deep-scans these directories and caches definitions.</p>
+
+            <pre><code># etc/apps/workflows/cms/articles.yml
+node.article:
+  description: "Standard editorial workflow for publishing articles"
+  states:
+    - draft
+    - in_review
+    - published
+  transitions:
+    submit:
+      from: [draft]
+      to: in_review
+      permission: "content.submit"
+    publish:
+      from: [in_review]
+      to: published
+      guards: ["\\App\\Default\\Guards\\ContentGuard::validateCompleteness"]</code></pre>
+
+            <hr>
+
+            <h2>Applying Transitions</h2>
+            <p>To transition an entity, call <code>WorkflowManager::applyTransition</code>. This automatically validates permissions, executes dynamic guards, fires lifecycle events, and records audit logs.</p>
+
+            <pre><code>use SPP\Core\WorkflowManager;
+
+// Apply a transition with rich audit context
+WorkflowManager::applyTransition(
+    $entity, 
+    'published', 
+    $currentUser, 
+    'Approved for release', 
+    ['ip' => $_SERVER['REMOTE_ADDR'], 'document_id' => 12345]
+);</code></pre>
+
+            <hr>
+
+            <h2>Multi-Step Wizards (<code>WizardController</code>)</h2>
+            <p>The <code>WizardController</code> provides turn-key multi-step wizard routing. To adhere to SPP's <strong>Zero Inline HTML Literals</strong> architectural rule, it serves dynamic HTMX/Turbo external partials for each step.</p>
+
+            <pre><code>namespace App\Default\Controllers;
+
+use SPP\Core\Workflow\WizardController;
+
+class OnboardingWizardController extends WizardController
+{
+    protected string $entityType = 'wizard';
+    protected string $bundle = 'onboarding';
+
+    protected function getWizardEntity()
+    {
+        return $_SESSION['onboarding_entity'] ?? new \stdClass();
+    }
+
+    protected function saveWizardEntity($entity): void
+    {
+        $_SESSION['onboarding_entity'] = $entity;
+    }
+}</code></pre>
+
+            <hr>
+
+            <h2>Organizational Hierarchies (<code>ApprovalChain</code>)</h2>
+            <p>The <code>ApprovalChain</code> orchestrates multi-tier approvals (<code>manager</code>, <code>director</code>, <code>finance</code>), automatically evaluating financial/quantity thresholds to determine necessary sign-offs.</p>
+
+            <pre><code>use SPP\Core\Workflow\ApprovalChain;
+
+// Automatically builds the chain from workflows.yml definition
+$chain = ApprovalChain::createFromWorkflow('expense');
+
+// Evaluates which tier requires approval based on expense amount
+$requiredTier = $chain->evaluateRequiredTier($expenseEntity, 'amount');
+
+if ($requiredTier) {
+    $chain->approve($expenseEntity, $currentUser, $requiredTier, 'pending_director', 'Manager sign-off complete.');
+}</code></pre>
+
+            <hr>
+
+            <h2>CLI Tooling</h2>
+            <p>SPP provides three high-powered CLI commands for workflow administration:</p>
+            <ul>
+                <li><strong><code>php spp.php config:sync workflows</code></strong>: Synchronizes YAML definitions to <code>spp_workflows</code> and provisions <code>spp_entity_workflow_history</code>.</li>
+                <li><strong><code>php spp.php workflow:dump &lt;entity_type.bundle&gt;</code></strong>: Generates visual state machine diagrams in Mermaid.js or Graphviz DOT format.</li>
+                <li><strong><code>php spp.php workflow:process-timeouts</code></strong>: Asynchronous daemon that monitors SLA timeouts and automatically fires escalation transitions.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Native Entity Workflow APIs</h2>
+            <p>All database models extending <code>\SPPMod\SPPDB\SPPEntity</code> natively inherit comprehensive workflow capabilities. Rather than directly setting or manipulating raw status properties, always utilize the native fluent methods:</p>
+            <ul>
+                <li><code>$entity-&gt;getWorkflowState()</code>: Retrieves current state markings (including parallel states).</li>
+                <li><code>$entity-&gt;canTransition($transitionName)</code>: Checks if a transition is valid from the current state.</li>
+                <li><code>$entity-&gt;applyTransition($transitionName, $user, $comment, $contextData)</code>: Executes a transition, evaluates guards, triggers event hooks, and logs audit history.</li>
+                <li><code>$entity-&gt;getWorkflowHistory()</code>: Retrieves the lineage of state changes from <code>spp_entity_workflow_history</code>.</li>
+            </ul>
+
+            <hr>
+
+            <h2>Controller Transition Helpers &amp; Smart Content Negotiation</h2>
+            <p>In any controller extending <code>ViewController</code>, <code>ResourceController</code>, or <code>WizardController</code>, you can avoid manual transition checks and custom response formatting by using the native helper:</p>
+            <pre><code>$this-&gt;transitionEntity($entity, $transitionName, $contextData, $successView, $errorView);</code></pre>
+            <p>This helper automatically applies the transition and performs smart content negotiation:</p>
+            <ul>
+                <li><strong>HTMX Requests (<code>HX-Request</code>)</strong>: Directly resolves and serves external HTML/PHP partials (<code>partials/{entity}_row.php</code>, etc.).</li>
+                <li><strong>Turbo Streams (<code>Turbo-Frame</code>)</strong>: Automatically streams real-time updates using standalone Turbo Stream templates (<code>streams/update.php</code>).</li>
+            </ul>
+
+            <hr>
+
+            <h2>Dual Event Bus Firing</h2>
+            <p>When evaluating state changes, <code>SPPWorkflowManager</code> guarantees full coverage for all event subscribers by simultaneously firing both <code>\SPP\SPPEvent::fireEvent()</code> and <code>\SPP\SPPEvent::triggerHook()</code> for:</p>
+            <ul>
+                <li><code>workflow:before_transition</code> (and <code>workflow.before_transition</code>)</li>
+                <li><code>workflow:after_transition</code> (and <code>workflow.after_transition</code>)</li>
+            </ul>
+
+            <hr>
+
+            <h2>Workflow Form Guards</h2>
+            <p>When building forms or update endpoints for workflow-managed entities, <code>SPPWorkflowGuardValidator</code> (or <code>SPP_Validator_WorkflowGuardValidator</code>) can be included in form validation rules to prevent unauthorized modifications on locked, pending, or in-flight entities.</p>
+
+            <hr>
+
+            <h2>Local Standalone Client Assets</h2>
+            <p>To ensure maximum performance and security without relying on external CDNs, SPP bundles local standalone client asset distributions for HTMX and Turbo Streams. Include them directly in your base layouts:</p>
+            <pre><code>&lt;script src="/spp/admin/js/htmx.min.js"&gt;&lt;/script&gt;
+&lt;script src="/spp/admin/js/turbo-streams.min.js"&gt;&lt;/script&gt;</code></pre>
+        </article>
+    </main>
+</body>
+
+</html>

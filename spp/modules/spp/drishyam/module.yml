@@ -6,11 +6,12 @@ module:
     pubname: SPP Drishyam
     modgroup: Core
     category: 'Core Required'
-    pubdesc: Consolidated Frontend Engine (Blade templating, PWA, SPPUX Components).
+    pubdesc: Consolidated Frontend Engine (Blade templating, PWA, SPPUX Components, SPPExt Orchestrator).
     includes:
         - class.sppblade.php
         - class.sppux.php
         - class.spppwa.php
+        - class.sppext.php
     services:
         blade:
             class: \SPPMod\Drishyam\SPPBlade

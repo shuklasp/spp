@@ -1,0 +1,18 @@
+.TH SPP-cache-prune 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-cache-prune \- Prune expired cache items from storage
+.SH SYNOPSIS
+.B php spp.php cache:prune
+[OPTIONS]
+.SH DESCRIPTION
+Prune expired cache items from storage
+.PP
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from CachePruneCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br

@@ -8,6 +8,16 @@ namespace SPP\CLI;
  */
 class CommandManager
 {
+    private static array $manuallyRegisteredCommands = [];
+
+    /**
+     * Registers a CLI command manually (e.g., from modinit.php).
+     */
+    public static function registerCommand(Command $command): void
+    {
+        self::$manuallyRegisteredCommands[$command->getName()] = $command;
+    }
+
     /**
      * Safely checks if a file contains a class extending SPP\CLI\Command before requiring it.
      * @param string $file The path to the PHP file.
@@ -38,27 +48,30 @@ class CommandManager
 
         foreach ($tokens as $token) {
             if (is_array($token)) {
-                if ($token[0] === T_NAMESPACE) {
+                if ($token[0] === T_NAMESPACE && $namespace === '') {
                     $inNamespace = true;
-                } elseif ($inNamespace && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED)) {
-                    $namespace = $token[1];
-                    $inNamespace = false;
-                } elseif ($token[0] === T_CLASS) {
+                } elseif ($inNamespace && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED || $token[0] === T_NS_SEPARATOR)) {
+                    $namespace .= $token[1];
+                } elseif ($token[0] === T_CLASS && $className === '') {
                     $inClass = true;
                 } elseif ($inClass && $token[0] === T_STRING) {
                     $className = $token[1];
                     $inClass = false;
-                } elseif ($token[0] === T_EXTENDS) {
+                } elseif ($token[0] === T_EXTENDS && $extends === '') {
                     $inExtends = true;
-                } elseif ($inExtends && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED)) {
-                    $extends = $token[1];
+                } elseif ($inExtends && ($token[0] === T_STRING || $token[0] === T_NAME_QUALIFIED || $token[0] === T_NAME_FULLY_QUALIFIED || $token[0] === T_NS_SEPARATOR)) {
+                    $extends .= $token[1];
+                }
+            } else {
+                if ($token === ';' || $token === '{') {
+                    $inNamespace = false;
                     $inExtends = false;
                 }
             }
         }
 
         if ($className !== $expectedClass) return false;
-        if ($expectedNamespace && $namespace !== $expectedNamespace) return false;
+        if ($expectedNamespace && strcasecmp($namespace, $expectedNamespace) !== 0) return false;
 
         return stripos($extends, 'Command') !== false;
     }
@@ -78,6 +91,9 @@ class CommandManager
         }
 
         $discoveredCommands = [];
+        foreach (self::$manuallyRegisteredCommands as $name => $cmd) {
+            $discoveredCommands[$name] = $cmd;
+        }
 
         // 1. Scan CORE Commands
         $coreCmdDir = defined('SPP_BASE_DIR') ? SPP_BASE_DIR . '/commands' : dirname(__DIR__) . '/commands';
@@ -229,6 +245,21 @@ class CommandManager
             }
         }
 
+        foreach (self::$manuallyRegisteredCommands as $name => $cmd) {
+            $discoveredCommands[$name] = $cmd;
+        }
+
+        if (isset($discoveredCommands['cache:clear']) && !isset($discoveredCommands['clear:cache'])) {
+            $discoveredCommands['clear:cache'] = $discoveredCommands['cache:clear'];
+        }
+
+        if (isset($discoveredCommands['docs:build'])) {
+            $discoveredCommands['docs:api'] = $discoveredCommands['docs:build'];
+            $discoveredCommands['docs:openapi'] = $discoveredCommands['docs:build'];
+            $discoveredCommands['docs:man'] = $discoveredCommands['docs:build'];
+            $discoveredCommands['docs:phpdoc'] = $discoveredCommands['docs:build'];
+        }
+
         \SPP\Registry::register('CLI_COMMANDS', $discoveredCommands);
         return $discoveredCommands;
     }
@@ -248,6 +279,10 @@ class CommandManager
         }
 
         $command = $commands[$name];
+
+        if ($command->isCLIOnly() && PHP_SAPI !== 'cli') {
+            return ['success' => false, 'error' => "Security Exception: Command '{$name}' is strictly restricted to CLI environment execution."];
+        }
 
         // Capture output
         ob_start();

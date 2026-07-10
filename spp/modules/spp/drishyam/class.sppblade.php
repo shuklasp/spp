@@ -290,8 +290,8 @@ class SPPBlade extends \SPP\SPPObject
                 $output = $this->engine->run($viewName, $data);
                 @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Render successful for $viewName\n", FILE_APPEND);
                 return $output;
-            } catch (\Exception $e) {
-                $msg = "SPPBlade ERROR (Absolute): " . $e->getMessage() . " in " . $e->getFile() . " line " . $e->getLine();
+            } catch (\Throwable $e) {
+                $msg = "SPPBlade ERROR (Absolute): " . $e->getMessage() . "\n" . $e->getTraceAsString();
                 @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
                 return "Blade Error: " . $e->getMessage();
             }
@@ -311,8 +311,8 @@ class SPPBlade extends \SPP\SPPObject
 
         try {
             return $this->engine->run($view, $data);
-        } catch (\Exception $e) {
-            $msg = "SPPBlade ERROR (Relative): " . $e->getMessage();
+        } catch (\Throwable $e) {
+            $msg = "SPPBlade ERROR (Relative): " . $e->getMessage() . "\n" . $e->getTraceAsString();
             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
             return "Blade Error: " . $e->getMessage();
         }

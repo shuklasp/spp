@@ -41,6 +41,7 @@ class SPPLive {
 
         if (!this.cleanupObserver) {
             this.cleanupObserver = new MutationObserver((mutations) => {
+                let hasNewLiveComponents = false;
                 mutations.forEach(mutation => {
                     mutation.removedNodes.forEach(node => {
                         if (node.nodeType === 1) { 
@@ -54,7 +55,16 @@ class SPPLive {
                             }
                         }
                     });
+                    mutation.addedNodes.forEach(node => {
+                        if (node.nodeType === 1) {
+                            if (node.hasAttribute && node.hasAttribute('wire:id')) hasNewLiveComponents = true;
+                            else if (node.querySelector && node.querySelector('[wire\\:id]')) hasNewLiveComponents = true;
+                        }
+                    });
                 });
+                if (hasNewLiveComponents) {
+                    this.scanComponents();
+                }
             });
             this.cleanupObserver.observe(document.body, { childList: true, subtree: true });
         }
@@ -245,16 +255,24 @@ class SPPLive {
             const doc = parser.parseFromString(html, 'text/html');
             
             document.title = doc.title;
-            if (window.SPPUX && typeof window.SPPUX.morph === 'function') {
-                document.dispatchEvent(new CustomEvent('spplive:morphing', { detail: { id: 'root', el: document.body, html: doc.body.outerHTML } }));
-                window.SPPUX.morph(document.body, doc.body.outerHTML);
-                document.dispatchEvent(new CustomEvent('spplive:morphed', { detail: { id: 'root', el: document.body } }));
-            } else {
-                document.body.replaceWith(doc.body);
-            }
+            const updateDOM = () => {
+                if (window.SPPUX && typeof window.SPPUX.morph === 'function') {
+                    document.dispatchEvent(new CustomEvent('spplive:morphing', { detail: { id: 'root', el: document.body, html: doc.body.outerHTML } }));
+                    window.SPPUX.morph(document.body, doc.body.outerHTML);
+                    document.dispatchEvent(new CustomEvent('spplive:morphed', { detail: { id: 'root', el: document.body } }));
+                } else {
+                    document.body.replaceWith(doc.body);
+                }
 
-            if (pushState) history.pushState(null, doc.title, url);
-            this.init(); // Re-initialize after navigation
+                if (pushState) history.pushState(null, doc.title, url);
+                this.init(); // Re-initialize after navigation
+            };
+
+            if (document.startViewTransition) {
+                document.startViewTransition(updateDOM);
+            } else {
+                updateDOM();
+            }
         };
 
         if (this.prefetchedPages[url] && this.prefetchedPages[url] !== 'fetching') {
@@ -752,63 +770,75 @@ class SPPLive {
                     } catch (e) {}
                 }
                 
-                window.SPPUX.morph(comp.el, newEl.outerHTML);
-                // Update element reference after morphing might not be needed if reference stays same, but safe to re-query
-                comp.el = document.querySelector(`[wire\\:id="${id}"]`) || comp.el;
-                
-                // Restore Scroll Positions and Focus
-                window.scrollTo(scrollX, scrollY);
-                const newEls = Array.from(comp.el.querySelectorAll('*'));
-                internalScrolls.forEach(s => {
-                    const target = s.id ? comp.el.querySelector(`#${s.id}`) : newEls[s.index];
-                    if (target) {
-                        target.scrollTop = s.top;
-                        target.scrollLeft = s.left;
-                    }
-                });
+                const performMorph = () => {
+                    window.SPPUX.morph(comp.el, newEl.outerHTML);
+                    // Update element reference after morphing might not be needed if reference stays same, but safe to re-query
+                    comp.el = document.querySelector(`[wire\\:id="${id}"]`) || comp.el;
+                    
+                    // Restore Scroll Positions and Focus
+                    window.scrollTo(scrollX, scrollY);
+                    const newEls = Array.from(comp.el.querySelectorAll('*'));
+                    internalScrolls.forEach(s => {
+                        const target = s.id ? comp.el.querySelector(`#${s.id}`) : newEls[s.index];
+                        if (target) {
+                            target.scrollTop = s.top;
+                            target.scrollLeft = s.left;
+                        }
+                    });
 
-                if (activeModelName) {
-                    const restoredActive = comp.el.querySelector(`[wire\\:model="${activeModelName}"]`);
-                    if (restoredActive) {
-                        restoredActive.focus();
-                        if (selectionStart !== null && selectionEnd !== null) {
-                            try { restoredActive.setSelectionRange(selectionStart, selectionEnd); } catch (e) {}
+                    if (activeModelName) {
+                        const restoredActive = comp.el.querySelector(`[wire\\:model="${activeModelName}"]`);
+                        if (restoredActive) {
+                            restoredActive.focus();
+                            if (selectionStart !== null && selectionEnd !== null) {
+                                try { restoredActive.setSelectionRange(selectionStart, selectionEnd); } catch (e) {}
+                            }
                         }
                     }
+                    
+                    // Fade in new wire:transition elements
+                    const newTransitions = Array.from(comp.el.querySelectorAll('[wire\\:transition]'));
+                    newTransitions.forEach(node => {
+                        if (!oldTransitions.includes(node.outerHTML)) {
+                            node.style.opacity = '0';
+                            setTimeout(() => {
+                                node.style.transition = 'opacity 0.3s ease';
+                                node.style.opacity = '1';
+                            }, 20);
+                        }
+                    });
+
+                    // Handle DOM Teleportation
+                    comp.el.querySelectorAll('[wire\\:teleport]').forEach(el => {
+                        const targetSelector = el.getAttribute('wire:teleport') || 'body';
+                        const targetEl = document.querySelector(targetSelector);
+                        if (targetEl) {
+                            const teleportId = el.id || 'teleport-' + Math.random().toString(36).substr(2, 9);
+                            el.setAttribute('wire:teleported', teleportId);
+                            
+                            const placeholder = document.createElement('template');
+                            placeholder.setAttribute('wire:teleport-placeholder', teleportId);
+                            
+                            el.replaceWith(placeholder);
+                            targetEl.appendChild(el);
+                        }
+                    });
+
+                    // Dispatch morphed event
+                    document.dispatchEvent(new CustomEvent('spplive:morphed', { detail: { id, el: comp.el } }));
+                };
+
+                if (document.startViewTransition) {
+                    document.startViewTransition(performMorph);
+                } else {
+                    performMorph();
                 }
-                
-                // Fade in new wire:transition elements
-                const newTransitions = Array.from(comp.el.querySelectorAll('[wire\\:transition]'));
-                newTransitions.forEach(node => {
-                    if (!oldTransitions.includes(node.outerHTML)) {
-                        node.style.opacity = '0';
-                        setTimeout(() => {
-                            node.style.transition = 'opacity 0.3s ease';
-                            node.style.opacity = '1';
-                        }, 20);
-                    }
-                });
-
-                // Handle DOM Teleportation
-                comp.el.querySelectorAll('[wire\\:teleport]').forEach(el => {
-                    const targetSelector = el.getAttribute('wire:teleport') || 'body';
-                    const targetEl = document.querySelector(targetSelector);
-                    if (targetEl) {
-                        const teleportId = el.id || 'teleport-' + Math.random().toString(36).substr(2, 9);
-                        el.setAttribute('wire:teleported', teleportId);
-                        
-                        const placeholder = document.createElement('template');
-                        placeholder.setAttribute('wire:teleport-placeholder', teleportId);
-                        
-                        el.replaceWith(placeholder);
-                        targetEl.appendChild(el);
-                    }
-                });
-
-                // Dispatch morphed event
-                document.dispatchEvent(new CustomEvent('spplive:morphed', { detail: { id, el: comp.el } }));
             } else {
-                comp.el.replaceWith(newEl);
+                if (document.startViewTransition) {
+                    document.startViewTransition(() => comp.el.replaceWith(newEl));
+                } else {
+                    comp.el.replaceWith(newEl);
+                }
             }
             
             // Handle Query String Sync

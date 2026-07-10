@@ -935,7 +935,7 @@ const SPPUX = {
         events.forEach(evt => {
             document.addEventListener(evt, (e) => {
                 const selectors = '[data-spp-evt], [data-spp-evt-click], [data-spp-evt-change], [data-spp-evt-input], [data-spp-evt-submit]';
-                const target = e.target.closest(selectors);
+                const target = e.target && e.target.closest ? e.target.closest(selectors) : null;
                 // if (target) console.log(`[SPPUX] Event: ${evt} on`, target);
                 
                 // Find all components that could handle this event
@@ -963,7 +963,7 @@ const SPPUX = {
 
         // 3. Handle Live Inputs (Debounced)
         document.addEventListener('input', (e) => {
-            const el = e.target.closest('[data-spp-live-input]');
+            const el = e.target && e.target.closest ? e.target.closest('[data-spp-live-input]') : null;
             if (!el) return;
 
             const service = el.getAttribute('data-spp-live-input');
@@ -986,7 +986,7 @@ const SPPUX = {
     _handleLocalAction(e, eventType) {
         if (eventType !== 'click') return;
         
-        const el = e.target.closest('[data-live-toggle], [data-live-remove], [data-live-url]');
+        const el = e.target && e.target.closest ? e.target.closest('[data-live-toggle], [data-live-remove], [data-live-url]') : null;
         if (!el) return;
 
         // Toggle Class
@@ -1022,7 +1022,7 @@ const SPPUX = {
     },
 
     async _handleLiveEvent(e, eventType) {
-        const el = e.target.closest('[data-spp-live]');
+        const el = e.target && e.target.closest ? e.target.closest('[data-spp-live]') : null;
         if (!el) return;
 
         // Verify trigger
@@ -1108,7 +1108,10 @@ const SPPUX = {
             return await SPPUX.apiPost(actionOrData);
         }
         const action = actionOrData;
-        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        let endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        if (endpoint === 'api.php' && !window.location.pathname.includes('/sppadmin') && !window.location.pathname.includes('/spp/admin')) {
+            endpoint = window.location.pathname;
+        }
         const ts = Date.now();
         
         // Auto-inject app context if available
@@ -1140,7 +1143,10 @@ const SPPUX = {
         return result; 
     },
     apiPost: async (formData) => {
-        const endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        let endpoint = window.SPP_CONFIG?.apiEndpoint || 'api.php';
+        if (endpoint === 'api.php' && !window.location.pathname.includes('/sppadmin') && !window.location.pathname.includes('/spp/admin')) {
+            endpoint = window.location.pathname;
+        }
         
         // Auto-inject app context if available
         if (!formData.has('appname') && !formData.has('context')) {
@@ -1386,7 +1392,7 @@ const SPPUX = {
             this.routes = routes;
             window.addEventListener('popstate', () => this.handleRoute());
             document.body.addEventListener('click', (e) => {
-                const link = e.target.closest('a[data-spp-route]');
+                const link = e.target && e.target.closest ? e.target.closest('a[data-spp-route]') : null;
                 if (link) {
                     e.preventDefault();
                     this.push(link.getAttribute('href'));
@@ -1493,7 +1499,7 @@ function initHtmlDirectives() {
 
     // 1. Zero-JS Declarative Actions: Intercept clicks/submits on elements carrying data-spp-post or data-spp-action
     document.addEventListener('submit', async (e) => {
-        const targetForm = e.target.closest('[data-spp-post], [data-spp-action]');
+        const targetForm = e.target && e.target.closest ? e.target.closest('[data-spp-post], [data-spp-action]') : null;
         if (!targetForm) return;
 
         e.preventDefault();
@@ -1643,7 +1649,7 @@ function initHtmlDirectives() {
 
     // 8. Copy to Clipboard (data-spp-copy)
     document.addEventListener('click', async (e) => {
-        const copyTarget = e.target.closest('[data-spp-copy]');
+        const copyTarget = e.target && e.target.closest ? e.target.closest('[data-spp-copy]') : null;
         if (copyTarget) {
             const selectorId = copyTarget.getAttribute('data-spp-copy');
             let text = '';
@@ -1666,7 +1672,7 @@ function initHtmlDirectives() {
 
     // 9. Ripple Effect (data-spp-ripple)
     document.addEventListener('pointerdown', (e) => {
-        const rippleEl = e.target.closest('[data-spp-ripple]');
+        const rippleEl = e.target && e.target.closest ? e.target.closest('[data-spp-ripple]') : null;
         if (rippleEl) {
             const rect = rippleEl.getBoundingClientRect();
             const x = e.clientX - rect.left;
@@ -1934,7 +1940,7 @@ function initHtmlDirectives() {
 
     // 18. Voice Input Dictation (data-spp-voice-input)
     document.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-spp-voice-input]');
+        const btn = e.target && e.target.closest ? e.target.closest('[data-spp-voice-input]') : null;
         if (btn) {
             const targetId = btn.getAttribute('data-spp-voice-input');
             const targetEl = document.getElementById(targetId);

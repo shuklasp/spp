@@ -1,0 +1,22 @@
+.TH STORAGE:CRDT:SYNC 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+storage:crdt:sync \- Perform multi-region active-active CRDT synchronization and resolve write conflicts.
+.SH SYNOPSIS
+\fBphp spp.php storage:crdt:sync\fR [\fB\-\-local=\fI<region>\fR] [\fB\-\-remote=\fI<region>\fR]
+.SH DESCRIPTION
+The \fBstorage:crdt:sync\fR command facilitates global high-availability active-active database cluster synchronization. Using Conflict-Free Replicated Data Type (CRDT) mechanics, it exchanges vector clocks and Last-Write-Wins (LWW) element registers between geographic regions to automatically reconcile concurrent updates without human intervention.
+.SH OPTIONS
+.TP
+\fB\-\-local=\fI<region>\fR
+Target local geographic region ID. Defaults to \fIus-east-1\fR.
+.TP
+\fB\-\-remote=\fI<region>\fR
+Target remote geographic region ID. Defaults to \fIeu-west-1\fR.
+.SH UNDER THE HOOD
+1. \fBStrict SAPI Guarding\fR: Validates secure CLI execution via \fIisCLIOnly(): bool\fR.
+.PP
+2. \fBDistributed Mutex Locking\fR: Acquires a distributed deployment lock via \fITargetConnection::acquireDeploymentLock()\fR to guarantee zero concurrency race conditions during state replication.
+.PP
+3. \fBVector Clock Merge\fR: Compares and merges region vector clocks, selecting the element-wise maximum.
+.PP
+4. \fBLWW Conflict Resolution\fR: Resolves concurrent element updates using floating-point timestamp comparison, falling back to lexicographical region comparison on tie-breakers. Safely releases the distributed lock upon completion.

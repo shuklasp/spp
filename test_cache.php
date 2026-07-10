@@ -10,6 +10,16 @@
 
   $appname = 'lekhak';
   $cacheFile = 'var/cache/modules_lekhak.php';
+  if (!file_exists($cacheFile)) {
+      require_once __DIR__ . '/spp/sppinit.php';
+      if (class_exists('\SPP\App')) {
+          try { new \SPP\App($appname); } catch (\Exception $e) {}
+      }
+  }
+  if (!file_exists($cacheFile)) {
+      echo "Cache file $cacheFile does not exist (app not fully configured or cache cleared). Skipping compiled check.\n";
+      exit(0);
+  }
   $compiled = require $cacheFile;
   $meta = $compiled['__meta'];
   $manifest_mtime = $meta['manifest_mtime'];

@@ -1,18 +1,18 @@
-.TH SPP-view-page-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `VIEW:PAGE:LIST`
-.PP
-Purpose: List all registered pages/routes for an app
-.PP
+.TH SPP-view-page-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-view-page-list \- List all registered pages/routes for an app
 .SH SYNOPSIS
-php spp.php view:page:list [OPTIONS]
+.B php spp.php view:page:list
+[OPTIONS]
+.SH DESCRIPTION
+List all registered pages/routes for an app
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from ViewPageListCommand.php.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from ViewPageListCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-.PP
-.PP

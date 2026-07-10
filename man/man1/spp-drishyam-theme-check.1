@@ -1,22 +1,18 @@
-.TH SPP-drishyam-theme-check 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# drishyam:theme:check
-.PP
+.TH SPP-drishyam-theme-check 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-drishyam:theme:check - Validate Drishyam theme assets and structure
-.PP
+spp-drishyam-theme-check \- Validate Drishyam theme assets and structure
 .SH SYNOPSIS
-php spp.php drishyam:theme:check [--app=<app_name>]
+.B php spp.php drishyam:theme:check
+[OPTIONS]
+.SH DESCRIPTION
+Validate Drishyam theme assets and structure
 .PP
-.SH PURPOSE
-Analyzes registered themes loaded in the active context, verifying configuration presence and structural directory integrity.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from DrishyamThemeCheckCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=<app_name>`: Application context binding (default: 'default').
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Inside the bounded execution context, the script summons the Drishyam core instance and invokes boot(). It extracts an array of active themes via getThemes(). It iterates over the collection, isolating the getPath() of each theme. It performs discrete file system checks using file_exists() and glob() to verify the presence of theme.yml, style.css, or *.info.yml for validity. It further probes for an active views/ directory inside the theme root. Output is formatted into a structural terminal block per theme.
-.PP
-.SH EXAMPLES
-php spp.php drishyam:theme:check
-.PP

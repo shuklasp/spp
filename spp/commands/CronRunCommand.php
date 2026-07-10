@@ -18,7 +18,7 @@ class CronRunCommand extends Command
             }
         }
 
-        \SPP\Scheduler::withContext($appname, function() use ($appname) {
+        \SPP\Scheduler::withContext($appname, function() use ($appname, $args) {
             echo "Starting manual cron run for app: {$appname}...\n";
             
             if (class_exists('\\SPP\\Cron\\Scheduler')) {
@@ -26,6 +26,12 @@ class CronRunCommand extends Command
                 echo "Cron run finished.\n";
             } else {
                 echo "Cron Scheduler not found in core.\n";
+            }
+
+            echo "Evaluating Workflow SLA Timeouts via Cron...\n";
+            if (class_exists('\\SPP\\CLI\\Commands\\WorkflowProcessTimeoutsCommand')) {
+                $cmd = new \SPP\CLI\Commands\WorkflowProcessTimeoutsCommand();
+                $cmd->execute($args);
             }
         });
     }

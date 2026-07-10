@@ -27,14 +27,30 @@ namespace App\Samvaad\Serv;
  *   @sppbind($entity)                       — Bind entity to form
  *   @sppoffline('key') ... @endsppoffline   — Offline cache template
  *
+ * ENTERPRISE VIEWCONTROLLER CAPABILITIES:
+ *   - $this->share($key, $value)      : Share data across all rendered views in this controller.
+ *   - $this->validate(array $rules)   : Validate incoming requests using ViewValidator rules.
+ *   - $this->hydrate(string $class)   : Dynamically hydrate DTOs or Entities using DataTransformers.
+ *   - $this->getCspNonce()            : Secure per-request Content Security Policy nonce generation.
+ *   - $this->stream($view, $data)     : Real-time Turbo Streams / live view streaming.
+ *   - $this->json($data, $status)     : Send standardized JSON responses instantly.
+ *   - External Partials / Streams     : Reference standalone .html, .php, or .js files instead of writing HTML literals
+ *                                       to dynamically update or insert content at particular places in the main page.
+ *
  * HOW TO ADD A NEW PAGE:
  *   1. Create resources/views/mypage.blade.php
  *   2. Add method: public function mypage() { return $this->render('mypage'); }
  *   3. Add route in pages.yml: mypage: { controller: \App\Samvaad\Serv\HomeController@mypage }
  * ============================================================================
  */
-class HomeController
+class HomeController extends \SPPMod\SPPView\ViewController
 {
+    public function __construct()
+    {
+        // Example: Share common application meta across all views
+        $this->share('app_title', 'Samvaad Portal');
+    }
+
     public function index()
     {
         // Boot SPP-UX assets so Blade views can use @sppux directive
@@ -42,13 +58,24 @@ class HomeController
             \SPPMod\Drishyam\SPPUX::boot();
         }
 
+        // Generate CSP nonce for inline scripts or styles
+        $cspNonce = $this->getCspNonce();
+
+        // Example: Return an external partial file for HTMX / Ajax requests to insert into a specific DOM location
+        // if ($this->isHtmx()) {
+        //     return $this->renderPartial('partials/user-card.html', ['title' => 'HTMX Partial']);
+        // }
+
         return $this->render('home', [
             'title' => 'Welcome to Samvaad',
+            'csp_nonce' => $cspNonce,
             'features' => [
                 ['icon' => '🚀', 'title' => 'SPP-UX Components', 'desc' => 'Reactive UI with zero dependencies'],
                 ['icon' => '🎨', 'title' => 'Blade Templates', 'desc' => 'Server-rendered with custom directives'],
                 ['icon' => '⚡', 'title' => 'REST API', 'desc' => 'JSON endpoints with entity CRUD'],
                 ['icon' => '🔒', 'title' => 'Authentication', 'desc' => 'Session guards with SPPAuth'],
+                ['icon' => '🛡️', 'title' => 'Enterprise Architecture', 'desc' => 'Request validation, DTO hydration, CSP nonces & view streaming'],
+                ['icon' => '📁', 'title' => 'External Partials', 'desc' => 'Reference standalone .html, .php, or .js files instead of writing HTML literals'],
             ]
         ]);
     }
@@ -69,16 +96,5 @@ class HomeController
         return $this->render('guide', [
             'title' => 'Samvaad Developer Guide',
         ]);
-    }
-
-    /**
-     * Helper: Render a Blade template with data.
-     */
-    protected function render(string $view, array $data = []): string
-    {
-        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        $data['app_name'] = 'Samvaad';
-        $data['base_url'] = \SPP\App::getBaseUrl('Samvaad');
-        return $blade->run($view, $data);
     }
 }

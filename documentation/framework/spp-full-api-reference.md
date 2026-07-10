@@ -494,7 +494,7 @@ File: `spp/core/class.storage.php`
 
 | Method | Usage |
 | --- | --- |
-| `disk(string $name = 'local'): DiskInterface` | Returns a disk adapter. |
+| `disk(string $name = 'local'): DiskInterface` | Returns a disk adapter (`local`, `file_shared`, `redis_shared`, `flysystem`). Includes graceful Redis fallback. |
 | `__callStatic($method, $args)` | Proxies static calls to default disk. |
 
 `DiskInterface`:
@@ -505,12 +505,35 @@ File: `spp/core/class.storage.php`
 | `put(string $path, string $contents): bool` | Writes a file. |
 | `exists(string $path): bool` | Checks existence. |
 | `delete(string $path): bool` | Deletes a file. |
+| `readStream(string $path)` | Opens a read stream resource. |
+| `writeStream(string $path, $resource): bool` | Writes directly from a stream resource. |
 
 Example:
 
 ```php
-\SPP\Storage::put('reports/latest.json', json_encode($payload));
-$json = \SPP\Storage::get('reports/latest.json');
+\SPP\Storage::disk('file_shared')->put('reports/latest.json', json_encode($payload));
+$json = \SPP\Storage::disk('file_shared')->get('reports/latest.json');
+```
+
+#### `SPP\SmartStorage` (and `SPP\SmartData`)
+
+File: `spp/core/class.smartstorage.php`
+
+| Method | Usage |
+| --- | --- |
+| `getDiskForCategory(?string $category, string $key): DiskInterface` | Resolves optimal disk based on intent, key prefix, file extension, or custom app rules. |
+| `put(string $key, string $contents, ?string $category = null): bool` | Seamlessly categorizes and stores data in the optimal driver. |
+| `get(string $key, ?string $category = null): ?string` | Retrieves data, including multi-disk fallback check if location changed. |
+| `saveRulesConfig(array $rules): bool` | Saves custom routing rules to the active application's `etc/storage_rules.yml`. |
+| `readStream`, `writeStream`, `exists`, `delete` | Stream and lifecycle methods mirroring `DiskInterface`. |
+
+Example:
+
+```php
+// Auto-routes to 'local', 'redis_shared', and 'flysystem' based on intent!
+\SPP\SmartData::put('avatar.jpg', $imageBytes);
+\SPP\SmartData::put('sess_token_8891', 'xyz123');
+\SPP\SmartData::put('db_backup.tar.gz', $archive);
 ```
 
 ### Utility APIs
@@ -1323,13 +1346,13 @@ Use cases:
 
 ### `sppext`
 
-Path: `spp/modules/spp/sppext`
+Path: `spp/modules/spp/drishyam` *(Integrated into drishyam)*
 
 Purpose: extension integration.
 
 Main class:
 
-- `SPPMod\SPPExt\SPPExt`
+- `SPPMod\Drishyam\Sppext`
 
 Use cases:
 
@@ -1456,14 +1479,14 @@ These modules are available in `spp/modules/spp` and should be treated as extens
 | `spppjax` | `class.spppjax.php` | PJAX page updates. |
 | `sppsync` | `class.sppsync.php` | Sync workflows. |
 | `sppmigrate` | `class.sppmigrate.php`, `module.php` | Migration execution. |
-| `sppext` | `class.sppext.php` | Extension hooks. |
+| `sppext` | `class.sppext.php` | <i>(Integrated into drishyam)</i> |
 | `sppcache` | `class.sppcachemanager.php` | Cache management. |
 | `sppai` | `class.sppai.php`, `int.aidriver.php` | AI provider abstraction. |
 | `sppaudit` | `class.sppaudit.php` | Audit trail. |
 | `sppblade` | `class.sppblade.php` | Blade-style rendering. |
 | `dbsettings` | `class.dbsettings.php` | Database settings. |
 | `marketing` | `class.marketing.php` | Marketing helpers. |
-| `drishyam` | `modinit.php` | Visual helpers. |
+| `drishyam` | `modinit.php`, `class.sppext.php` | Visual helpers & Extensions. |
 
 ## Contrib Module APIs
 

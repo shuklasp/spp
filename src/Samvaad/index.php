@@ -1,7 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 /**
  * ============================================================================
  * Samvaad — SPP-UX Single Page Application Entry Point
@@ -32,7 +29,6 @@ error_reporting(E_ALL);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,8 +38,7 @@ error_reporting(E_ALL);
     <link rel="stylesheet" href="<?php echo \SPPMod\Drishyam\SPPUX::cssPath(); ?>">
 
     <!-- Google Fonts for premium typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         /* ── App-level CSS overrides ─────────────────────────────────
@@ -67,25 +62,17 @@ error_reporting(E_ALL);
             color: var(--sppux-text, #e2e8f0);
             font-family: 'Inter', sans-serif;
         }
-
         .spp-app-loading .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(99, 102, 241, 0.2);
+            width: 40px; height: 40px;
+            border: 3px solid rgba(99,102,241,0.2);
             border-top-color: #6366f1;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
             margin-right: 1rem;
         }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-
 <body>
     <!--
         ═══════════════════════════════════════════════════════════════
@@ -105,9 +92,10 @@ error_reporting(E_ALL);
         Just add more divs with these attributes anywhere in the HTML.
         ═══════════════════════════════════════════════════════════════
     -->
-    <div data-spp-component="1" data-spp-type="ux"
-        data-spp-path="<?php echo \SPPMod\Drishyam\SPPUX::componentPath('main'); ?>"
-        data-spp-props='{"appName":"<?php echo 'Samvaad'; ?>"}'>
+    <div data-spp-component="1"
+         data-spp-type="ux"
+         data-spp-path="<?php echo \SPPMod\Drishyam\SPPUX::componentPath('main'); ?>"
+         data-spp-props='{"appName":"<?php echo 'Samvaad'; ?>", "appRoot":"<?php echo \SPP\App::getBaseUrl(); ?>"}'>
         <!-- This content shows while the component loads -->
         <div class="spp-app-loading">
             <div class="spinner"></div>
@@ -128,6 +116,14 @@ error_reporting(E_ALL);
 
     <!-- Auto-mounter: scans DOM for data-spp-component and instantiates them -->
     <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::loaderPath(); ?>"></script>
-</body>
 
+    <!-- SPPLive: LiveComponent reactivity engine (wire:click, wire:model) -->
+    <script src="<?php echo \SPP\App::getAssetUrl('core', 'admin_js', 'spplive.min.js'); ?>"></script>
+
+    <!-- ═══ SPPEX Premium Ecosystem ═══ -->
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::extPath(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::exPath(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::exProPath(); ?>"></script>
+    <script type="module" src="<?php echo \SPPMod\Drishyam\SPPUX::exUltraPath(); ?>"></script>
+</body>
 </html>

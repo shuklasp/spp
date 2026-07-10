@@ -3,27 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPP Report Builder</title>
+    <title>SPP Advanced BI & Reports</title>
     <!-- Core SPP-UX -->
     <link rel="stylesheet" href="/spp/modules/spp/drishyam/css/sppux.css">
     <script type="module" src="/spp/modules/spp/drishyam/js/sppux.js"></script>
     <script type="module" src="/spp/modules/spp/drishyam/js/sppux-ui.js"></script>
     <script type="module" src="/spp/modules/spp/drishyam/js/spp-loader.js"></script>
+    
+    <!-- Mandatory Local Standalone Client Assets -->
+    <script src="/spp/admin/js/htmx.min.js"></script>
+    <script src="/spp/admin/js/turbo-streams.min.js"></script>
+
     <style>
-        body { padding: 20px; font-family: var(--sppux-font-sans); background: var(--sppux-bg); color: var(--sppux-text); }
-        .spp-header { margin-bottom: 20px; }
-        .spp-header h1 { font-size: 2rem; margin: 0; background: linear-gradient(135deg, var(--sppux-primary), var(--sppux-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            padding: 32px 48px; 
+            font-family: 'Inter', var(--sppux-font-sans, system-ui), sans-serif; 
+            background: var(--sppux-bg, #0f172a); 
+            color: var(--sppux-text, #f8fafc); 
+            min-height: 100vh;
+            margin: 0;
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        .spp-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 36px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+            padding-bottom: 24px;
+        }
+
+        .spp-header h1 { 
+            font-size: 2.4rem; 
+            font-weight: 800;
+            margin: 0 0 8px 0; 
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+            letter-spacing: -0.5px;
+        }
+
+        .spp-toggle-mode {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .spp-toggle-mode:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        @keyframes sppFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes sppPulse {
+            0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            70% { box-shadow: 0 0 0 14px rgba(99, 102, 241, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        @media print {
+            .no-print, .spp-screen-mode { display: none !important; }
+            .only-print, .spp-print-mode { display: block !important; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            table { page-break-inside: auto; border-collapse: collapse; width: 100%; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            thead { display: table-header-group; }
+            tfoot { display: table-footer-group; }
+        }
+        @media screen {
+            .only-print, .spp-print-mode { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
     <div class="spp-header no-print">
-        <h1>SPP Advanced Reports</h1>
-        <p style="color: var(--sppux-text-dim);">Build complex queries, analyze data, and export with infinite nested filters.</p>
+        <div>
+            <h1>SPP Advanced BI & Reports</h1>
+            <p style="color: var(--sppux-text-dim, #94a3b8); margin: 0; font-size: 1.05rem;">Next-Gen Hypermedia Analytics Dashboard powered by HTMX & Turbo Streams.</p>
+        </div>
+        <div>
+            <button class="spp-toggle-mode" onclick="toggleLegacyMode()">🔄 Toggle Legacy SPP-UX View</button>
+        </div>
     </div>
 
-    <!-- SPPUX Declarative Integration -->
-    <div data-spp-type="ux" data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"></div>
+    <!-- Main HTMX Mounting Point for Hypermedia Partials -->
+    <div id="spp-main-dashboard-mount" hx-get="/spp/admin/api.php?action=report_api&modname=sppreport&report_action=dashboard" hx-trigger="load" hx-swap="innerHTML">
+        <div style="display: flex; align-items: center; justify-content: center; min-height: 400px; color: #64748b; font-size: 1.1rem; font-weight: 500;">
+            <span style="display: inline-block; animation: sppPulse 1.2s infinite; width: 14px; height: 14px; background: #6366f1; border-radius: 50%; margin-right: 12px;"></span>
+            Initializing Hypermedia Analytics Dashboard...
+        </div>
+    </div>
 
+    <!-- SPPUX Declarative Integration (Legacy / Deprecated Fallback) -->
+    <div id="spp-legacy-mount" style="display: none; margin-top: 40px; border-top: 1px dashed rgba(255,255,255,0.2); padding-top: 40px;">
+        <div style="margin-bottom: 20px; padding: 12px 20px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; color: #f59e0b; font-weight: 600; font-size: 0.9rem;">
+            ⚠️ Legacy SPP-UX Client-Side Rendering Mode. This view is deprecated in favor of high-performance Hypermedia external partials.
+        </div>
+        <div data-spp-type="ux" data-spp-path="/spp/modules/spp/sppreport/js/sppreport-ui.js"></div>
+    </div>
+
+    <script>
+        function toggleLegacyMode() {
+            const legacyMount = document.getElementById('spp-legacy-mount');
+            const mainMount = document.getElementById('spp-main-dashboard-mount');
+            if (legacyMount.style.display === 'none') {
+                legacyMount.style.display = 'block';
+                mainMount.style.display = 'none';
+            } else {
+                legacyMount.style.display = 'none';
+                mainMount.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>

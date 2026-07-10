@@ -49,6 +49,20 @@ class SPP_Logger extends \SPP\SPPObject
         unset($context['channel']); // remove from context after extraction
         // [END CHANNEL SUPPORT]
 
+        // [BEGIN SELF-HEALING AI EXCEPTION HANDLER]
+        if (in_array($level, [self::ERROR, self::CRITICAL, self::EMERGENCY]) && isset($context['exception']) && $context['exception'] instanceof \Throwable) {
+            if (!class_exists('\SPPMod\SPPAI\AIExceptionHandler')) {
+                $aiHandlerPath = dirname(__DIR__) . '/sppai/AIExceptionHandler.php';
+                if (file_exists($aiHandlerPath)) {
+                    require_once $aiHandlerPath;
+                }
+            }
+            if (class_exists('\SPPMod\SPPAI\AIExceptionHandler')) {
+                $metadata['ai_analysis'] = \SPPMod\SPPAI\AIExceptionHandler::analyze($context['exception']);
+            }
+        }
+        // [END SELF-HEALING AI EXCEPTION HANDLER]
+
         $dbSuccess = false;
         $fileSuccess = false;
 
@@ -142,15 +156,17 @@ class SPP_Logger extends \SPP\SPPObject
             $cleanMessage = str_replace(["\r", "\n"], ' ', $message);
             $cleanUri = str_replace(["\r", "\n"], ' ', $metadata['uri']);
             $cleanUid = str_replace(["\r", "\n"], ' ', $metadata['uid']);
+            $cleanTrace = str_replace(["\r", "\n"], ' ', $metadata['traceparent'] ?? 'none');
             $logLine = sprintf(
-                "[%s] %s.%s: %s %s [URI: %s, UID: %s]\n",
+                "[%s] %s.%s: %s %s [URI: %s, UID: %s, TRACE: %s]\n",
                 $metadata['timestamp'],
                 strtoupper($appname),
                 strtoupper($level),
                 $cleanMessage,
                 json_encode($context),
                 $cleanUri,
-                $cleanUid
+                $cleanUid,
+                $cleanTrace
             );
 
             file_put_contents($filePath, $logLine, FILE_APPEND);
@@ -204,6 +220,11 @@ class SPP_Logger extends \SPP\SPPObject
             $uname = \SPPMod\SPPAuth\SPPAuth::get('UserName');
         }
 
+        $traceparent = null;
+        if (class_exists('\SPPMod\SPPAudit\Middleware\TraceContextMiddleware')) {
+            $traceparent = \SPPMod\SPPAudit\Middleware\TraceContextMiddleware::getTraceparent();
+        }
+
         return [
             'uid' => $uid,
             'uname' => $uname,
@@ -212,7 +233,8 @@ class SPP_Logger extends \SPP\SPPObject
             'sessid' => session_id(),
             'uri' => $_SERVER['REQUEST_URI'] ?? 'cli',
             'method' => $_SERVER['REQUEST_METHOD'] ?? 'CLI',
-            'agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'none'
+            'agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'none',
+            'traceparent' => $traceparent
         ];
     }
 

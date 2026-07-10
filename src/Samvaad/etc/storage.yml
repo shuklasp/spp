@@ -1,0 +1,45 @@
+################################################################################
+# SPPStorage Virtual Disk Configuration — Samvaad
+#
+# CONCEPTS & CAPABILITIES:
+# SPPStorage provides a unified filesystem abstraction for local disks, public symlinks,
+# temporary scratch spaces, and external object storage (S3/Cloud).
+#
+# VIRTUAL DISKS:
+#   - local: Private application storage (var/storage/private)
+#   - public: Publicly accessible storage linked to public/storage via `php spp.php storage:link`
+#   - temp: Temporary scratch files cleaned via `php spp.php storage:clean`
+#
+# CLI MANAGEMENT:
+#   php spp.php storage:link --app=Samvaad   (Create public symlinks)
+#   php spp.php storage:clean --app=Samvaad  (Prune temp files)
+#   php spp.php storage:sync --app=Samvaad   (Sync local disks with external mirrors)
+################################################################################
+
+default_disk: "local"
+
+disks:
+  local:
+    driver: "local"
+    root: "var/storage/private"
+    permissions:
+      file: 0644
+      dir: 0755
+
+  public:
+    driver: "local"
+    root: "var/storage/public"
+    url: "/public/storage"
+    visibility: "public"
+
+  temp:
+    driver: "local"
+    root: "var/storage/temp"
+    auto_clean_days: 7
+
+  s3_mirror:
+    driver: "s3"
+    bucket: "spp-archive-storage"
+    region: "us-east-1"
+    endpoint: "https://s3.amazonaws.com"
+    sync_on_write: false

@@ -1,0 +1,11 @@
+variables:
+  dbtype: mysql
+  sqlite_path: var/db/Samvaad.sqlite
+  db_engine: pdo
+  dbname: Samvaad
+  dbhost: localhost
+  dbport: 3306
+  dbuser: root
+  dbpasswd: hello123
+  global_table_prefix: Samvaad_
+  installed: true

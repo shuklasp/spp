@@ -1,21 +1,16 @@
-.TH SPP-ext-list 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# ext:list
-.PP
+.TH SPP-ext-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-ext:list - List all available and installed extensions
-.PP
+spp-ext-list \- List all available and installed extensions
 .SH SYNOPSIS
-php spp.php ext:list
+.B php spp.php ext:list
+[OPTIONS]
+.SH DESCRIPTION
+List all available and installed extensions
 .PP
-.SH PURPOSE
-Displays all discrete module packages physically present inside the system's extension ecosystem.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-This command requires no additional options.
-.PP
-.SH UNDER THE HOOD ACTIVITY
-It defines the path to the physical system module footprint located at SPP_BASE_DIR . '/modules'. It verifies active directory presence before using a specialized glob($extDir . '/*', GLOB_ONLYDIR) search to locate discrete folders exclusively, completely ignoring loose files. It iterates over the results, formatting the raw directory basename strings, appending a static "(Enabled)" indicator suffix for terminal output.
-.PP
-.SH EXAMPLES
-php spp.php ext:list
-.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

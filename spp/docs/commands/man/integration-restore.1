@@ -1,0 +1,29 @@
+.TH INTEGRATION-RESTORE 1 "July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+integration:restore \- Time-travel a user state to a historical point using CQRS Event Sourcing.
+.SH SYNOPSIS
+.B php spp.php integration:restore
+.IR <user_id>
+.IR <timestamp_or_snapshot_id>
+.SH DESCRIPTION
+The
+.B integration:restore
+command leverages SPP's internal CQRS Event Store to provide point-in-time recovery for integrated data.
+.PP
+If an administrator accidentally corrupts a user's profile in Joomla, or a webhook sends malformed data that overwrites a user's email across the Data Mesh, you can use this command. It queries the EventStore for the user's exact state at the requested historical timestamp, extracts the payload, and re-broadcasts it through the Saga Orchestrator. This forces all integrated applications to instantly sync backward to the correct historical state.
+.SH OPTIONS
+.TP
+.B user_id
+The ID of the user to restore.
+.TP
+.B timestamp_or_snapshot_id
+The historical Unix timestamp or specific CQRS Snapshot ID to revert to.
+.SH UNDER THE HOOD
+.B Filesystem Writes:
+None.
+.br
+.B DB Interactions:
+Queries the CQRS EventStore tables for historical snapshots.
+.br
+.B Outbound HTTP Calls:
+None directly (delegates broadcast to the DAG Orchestrator).

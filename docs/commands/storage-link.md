@@ -1,17 +1,17 @@
 ## `storage:link`
 
-**Purpose**: Create symbolic links for public storage
+**Description**: Create symbolic links for public storage
 
 ### Synopsis
 ```bash
 php spp.php storage:link [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis from StorageLinkCommand.php.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from StorageLinkCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context (Scheduler::withContext).
 

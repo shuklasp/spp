@@ -50,6 +50,27 @@
         createWrapper(options) {
             const { assets, init, cleanup } = options;
             return class extends BaseComponent {
+                constructor(a, b, c) {
+                    let app = null, container = null, props = {};
+                    if (a instanceof HTMLElement || typeof a === 'string') {
+                        container = typeof a === 'string' ? document.querySelector(a) : a;
+                        props = b || {};
+                    } else if (b instanceof HTMLElement || typeof b === 'string') {
+                        if (c !== undefined) {
+                            app = a;
+                            container = typeof b === 'string' ? document.querySelector(b) : b;
+                            props = c || {};
+                        } else {
+                            props = a || {};
+                            container = typeof b === 'string' ? document.querySelector(b) : b;
+                        }
+                    } else {
+                        app = a;
+                        container = b;
+                        props = c || {};
+                    }
+                    super(app, container, props);
+                }
                 async onMount() {
                     if (assets) await SPPUX.Bridge.load(assets);
                     this.instance = init.call(this, this.container, this.props);

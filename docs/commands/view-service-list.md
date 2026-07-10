@@ -1,16 +1,16 @@
 ## `view:service:list`
 
-**Purpose**: List all registered AJAX services for an app
+**Description**: List all registered AJAX services for an app
 
 ### Synopsis
 ```bash
 php spp.php view:service:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis from ViewServiceListCommand.php.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 

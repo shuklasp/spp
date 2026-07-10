@@ -18,3 +18,10 @@ if (class_exists('\\SPP\\SPPEvent')) {
         }
     });
 }
+
+if (class_exists('\\SPP\\CLI\\CommandManager')) {
+    if (!class_exists('\\SPPMod\\SPPDB\\Commands\\VerifyZeroDowntimeCommand')) {
+        require_once __DIR__ . '/commands/VerifyZeroDowntimeCommand.php';
+    }
+    \SPP\CLI\CommandManager::registerCommand(new \SPPMod\SPPDB\Commands\VerifyZeroDowntimeCommand());
+}

@@ -1011,6 +1011,9 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         $deadModules = [];
 
         foreach ($mods as $mod) {
+            if (!$mod) {
+                continue;
+            }
             $modArr = (array) $mod;
 
             // Handle type and base direction resolution

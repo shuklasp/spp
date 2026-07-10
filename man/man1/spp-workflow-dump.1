@@ -1,0 +1,18 @@
+.TH SPP-workflow-dump 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-workflow-dump \- Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+.SH SYNOPSIS
+.B php spp.php workflow:dump
+[OPTIONS]
+.SH DESCRIPTION
+Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+.PP
+.SH OPTIONS
+.TP
+.B --format=
+Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

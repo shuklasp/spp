@@ -15,13 +15,14 @@
      * Theme Manager (Legendary) - Upgraded to SPPUX Global Store
      */
     const _themeSchemes = {
-        night: { primary: '#6366f1', panel: 'rgba(15, 23, 42, 0.98)', glow: 'rgba(99, 102, 241, 0.4)', text: '#f3f4f6' },
-        day: { primary: '#2563eb', panel: '#ffffff', glow: 'rgba(37, 99, 235, 0.15)', text: '#0f172a' },
-        emerald: { primary: '#10b981', panel: 'rgba(6, 78, 59, 0.98)', glow: 'rgba(16, 185, 129, 0.4)', text: '#f3f4f6' },
-        royal: { primary: '#8b5cf6', panel: 'rgba(46, 16, 101, 0.98)', glow: 'rgba(139, 92, 246, 0.4)', text: '#f3f4f6' },
-        cyberpunk: { primary: '#ff00ff', panel: 'rgba(20, 0, 40, 0.98)', glow: 'rgba(255, 0, 255, 0.4)', text: '#ffffff' },
-        ocean: { primary: '#0ea5e9', panel: 'rgba(7, 89, 133, 0.98)', glow: 'rgba(14, 165, 233, 0.4)', text: '#f3f4f6' },
-        saffron: { primary: '#ff9933', panel: 'rgba(255, 247, 237, 0.98)', glow: 'rgba(255, 153, 51, 0.4)', text: '#431407' }
+        midnight: { primary: '#4f46e5', panel: 'rgba(14, 16, 28, 0.98)', glow: 'rgba(99, 102, 241, 0.4)', text: '#f3f4f6', bgDark: '#06070d', bgSurface: '#0d0f18' },
+        night: { primary: '#4f46e5', panel: 'rgba(14, 16, 28, 0.98)', glow: 'rgba(99, 102, 241, 0.4)', text: '#f3f4f6', bgDark: '#06070d', bgSurface: '#0d0f18' },
+        day: { isLight: true, primary: '#2563eb', panel: '#ffffff', glow: 'rgba(37, 99, 235, 0.15)', text: '#0f172a', bgDark: '#f8fafc', bgSurface: '#ffffff' },
+        emerald: { primary: '#047857', panel: 'rgba(6, 78, 59, 0.98)', glow: 'rgba(16, 185, 129, 0.4)', text: '#f3f4f6', bgDark: '#022c22', bgSurface: '#043b2c' },
+        royal: { primary: '#6d28d9', panel: 'rgba(46, 16, 101, 0.98)', glow: 'rgba(139, 92, 246, 0.4)', text: '#f3f4f6', bgDark: '#1e053a', bgSurface: '#2e1052' },
+        cyberpunk: { primary: '#c026d3', panel: 'rgba(20, 0, 40, 0.98)', glow: 'rgba(255, 0, 255, 0.4)', text: '#ffffff', bgDark: '#0d001a', bgSurface: '#17002e' },
+        ocean: { primary: '#0369a1', panel: 'rgba(7, 89, 133, 0.98)', glow: 'rgba(14, 165, 233, 0.4)', text: '#f3f4f6', bgDark: '#03293e', bgSurface: '#053c5a' },
+        saffron: { isLight: true, primary: '#c2410c', panel: 'rgba(255, 247, 237, 0.98)', glow: 'rgba(255, 153, 51, 0.4)', text: '#431407', bgDark: '#fff7ed', bgSurface: '#ffedd5' }
     };
 
     SPPUX.Theme = (SPPUX.createStore ? SPPUX.createStore({ current: 'midnight' }) : { current: 'midnight' });
@@ -32,15 +33,19 @@
         if (!theme) return;
         this.current = name; // If it's a proxy store, this triggers reactivity globally!
         const root = document.documentElement;
-        if (name === 'day') {
+        
+        if (theme.isLight || name === 'day') {
             root.setAttribute('data-theme', 'day');
         } else {
             root.removeAttribute('data-theme');
-            root.style.setProperty('--sppux-primary', theme.primary);
-            root.style.setProperty('--sppux-panel', theme.panel);
-            root.style.setProperty('--sppux-primary-glow', theme.glow);
-            root.style.setProperty('--sppux-text', theme.text || '#f3f4f6');
         }
+
+        root.style.setProperty('--sppux-primary', theme.primary);
+        root.style.setProperty('--sppux-panel', theme.panel);
+        root.style.setProperty('--sppux-primary-glow', theme.glow);
+        root.style.setProperty('--sppux-text', theme.text || '#f3f4f6');
+        if (theme.bgDark) root.style.setProperty('--sppux-bg-dark', theme.bgDark);
+        if (theme.bgSurface) root.style.setProperty('--sppux-bg-surface', theme.bgSurface);
         document.body.classList.add('sppux-theme-transitioning');
         setTimeout(() => document.body.classList.remove('sppux-theme-transitioning'), 600);
         localStorage.setItem('sppux_theme', name);
@@ -310,11 +315,11 @@
             <div class="modal-content glass-panel sppux-sub-editor-animate" style="width: 80vw; max-width: 1000px; height: 80vh; background: var(--sppux-panel); display: flex; flex-direction: column;">
                 <div class="modal-header">
                     <h3>${title}</h3>
-                    <button class="close-btn" onclick="this.closest('.sub-modal').remove()">✕</button>
+                    <button class="close-btn">✕</button>
                 </div>
                 <div class="modal-body" id="sub-editor-body" style="flex: 1; overflow-y: auto; padding: 1.5rem;"></div>
                 <div class="modal-footer">
-                    <button class="btn secondary-btn" onclick="this.closest('.sub-modal').remove()">Cancel</button>
+                    <button class="btn secondary-btn">Cancel</button>
                     <button class="btn primary-btn" id="sub-modal-save">Apply Changes</button>
                 </div>
             </div>`;
@@ -397,14 +402,16 @@
      */
     SPPUX.Popover = {
         open(triggerEl, title, content) {
+            const existing = document.querySelector('.sppux-popover');
+            if (existing) existing.remove();
             const pop = document.createElement('div'); pop.className = 'sppux-popover';
             pop.innerHTML = `<div class="sppux-popover-header"><b>${title}</b></div><div class="sppux-popover-body">${content}</div>`;
             document.body.appendChild(pop);
-            const rect = triggerEl.getBoundingClientRect();
-            pop.style.left = rect.left + 'px'; pop.style.top = rect.bottom + 8 + 'px';
+            const rect = (triggerEl && typeof triggerEl.getBoundingClientRect === 'function') ? triggerEl.getBoundingClientRect() : { left: 100, bottom: 100 };
+            pop.style.position = 'fixed'; pop.style.left = rect.left + 'px'; pop.style.top = rect.bottom + 8 + 'px';
             const close = (e) => { 
                 if (e.type === 'keydown' && e.key === 'Escape') { pop.remove(); cleanup(); } 
-                else if (e.type === 'mousedown' && !pop.contains(e.target) && e.target !== triggerEl) { pop.remove(); cleanup(); } 
+                else if (e.type === 'mousedown' && !pop.contains(e.target) && (!triggerEl || typeof triggerEl.contains !== 'function' || !triggerEl.contains(e.target))) { pop.remove(); cleanup(); } 
             };
             const cleanup = () => { document.removeEventListener('mousedown', close); document.removeEventListener('keydown', close); };
             document.addEventListener('mousedown', close);
@@ -441,7 +448,9 @@
             const spotlight = new (class extends BaseComponent {
                 onInit() { this.setState({ query: '', filtered: this.props.items }); }
                 onMount() { 
-                    this.container.querySelector('input')?.focus(); 
+                    setTimeout(() => {
+                        this.container.querySelector('input')?.focus(); 
+                    }, 50);
                     this._escListener = (e) => { if (e.key === 'Escape') this.close(); };
                     document.addEventListener('keydown', this._escListener);
                 }
@@ -459,10 +468,15 @@
                 filter(q) { this.setState({ query: q, filtered: this.props.items.filter(i => i.title.toLowerCase().includes(q.toLowerCase())) }); }
                 close() { 
                     if (this._escListener) document.removeEventListener('keydown', this._escListener);
-                    this.container.classList.remove('active'); 
-                    setTimeout(() => this.dispose(), 100); 
+                    const overlay = this.container.querySelector('.sppux-spotlight-overlay');
+                    if (overlay) overlay.classList.remove('active');
+                    setTimeout(() => {
+                        this.container.innerHTML = '';
+                        this.dispose();
+                    }, 100); 
                 }
             })(null, container, { items, onSelect });
+            if (typeof spotlight.onInit === 'function') spotlight.onInit();
             spotlight.update();
             spotlight.onMount();
             return spotlight;
@@ -507,12 +521,21 @@
             onMount() {
                 this._escListener = (e) => { if (e.key === 'Escape') this.close(); };
                 document.addEventListener('keydown', this._escListener);
+                // Force a reflow before adding active class to ensure CSS transitions trigger
+                setTimeout(() => {
+                    const overlay = this.container.querySelector('.sppux-drawer-overlay');
+                    if (overlay) overlay.classList.add('active');
+                }, 10);
             }
-            render() { return html`<div class="sppux-drawer-overlay active"><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="close-icon" @click=${this.close}>✕</button></div><div class="modal-body">${this.props.content}</div></div></div>`; } 
+            render() { return html`<div class="sppux-drawer-overlay" @click=${(e) => { if(e.target.classList.contains('sppux-drawer-overlay')) this.close(); }}><div class="sppux-drawer sppux-drawer-${this.props.side}"><div class="modal-header"><h3>${this.props.title}</h3><button class="btn ghost" style="padding: 4px 10px; min-width: auto; font-size: 1.2rem; margin: -10px -10px -10px 0;" @click=${this.close}>✕</button></div><div class="modal-body" style="flex:1;">${this.props.content}</div></div></div>`; } 
             close() { 
                 if (this._escListener) document.removeEventListener('keydown', this._escListener);
-                this.container.classList.remove('active'); 
-                setTimeout(() => this.dispose(), 150); 
+                const overlay = this.container.querySelector('.sppux-drawer-overlay');
+                if (overlay) overlay.classList.remove('active'); 
+                setTimeout(() => {
+                    this.container.innerHTML = '';
+                    this.dispose();
+                }, 300); 
             } 
         })(null, container, { title: t, content: c, side: s }); 
         drawer.update(); 
@@ -536,16 +559,29 @@
     SPPUX.Chips = {
         render(items, onAdd, onRemove) {
             return html`
-                <div class="sppux-chip-container" @click=${(e) => e.currentTarget.querySelector('input').focus()}>
+                <div class="sppux-chip-container" @click=${(e) => {
+                    const container = e.target.closest('.sppux-chip-container');
+                    if (container) {
+                        const input = container.querySelector('.sppux-chip-input');
+                        if (input) input.focus();
+                    }
+                }}>
                     ${items.map((item, idx) => html`
                         <span class="sppux-chip">
                             ${item} <span class="sppux-chip-close" @click=${(e) => { e.stopPropagation(); onRemove(idx); }}>✕</span>
                         </span>
                     `)}
-                    <input type="text" class="sppux-chip-input" placeholder="Add tag..." @keydown=${(e) => {
+                    <input type="text" class="sppux-chip-input" placeholder="Add tag..." @keyup=${(e) => {
                         if (e.key === 'Enter' && e.target.value.trim()) {
+                            const parentNode = e.target.closest('.sppux-chip-container').parentNode;
                             onAdd(e.target.value.trim());
                             e.target.value = '';
+                            setTimeout(() => {
+                                if (parentNode) {
+                                    const input = parentNode.querySelector('.sppux-chip-input');
+                                    if (input) input.focus();
+                                }
+                            }, 50);
                         }
                     }}>
                 </div>
@@ -580,18 +616,21 @@
     };
 
     SPPUX.Dropzone = {
-        render(onDrop, text = "Drag & Drop files here or click to browse") {
+        render(onDrop, text = "Drag & Drop files here or click to browse", files = null, onRemove = null) {
             const handleDragOver = (e) => {
                 e.preventDefault();
-                e.currentTarget.classList.add('drag-over');
+                const zone = e.target.closest('.sppux-dropzone');
+                if (zone) zone.classList.add('drag-over');
             };
             const handleDragLeave = (e) => {
-                e.currentTarget.classList.remove('drag-over');
+                const zone = e.target.closest('.sppux-dropzone');
+                if (zone) zone.classList.remove('drag-over');
             };
             const handleDrop = (e) => {
                 e.preventDefault();
-                e.currentTarget.classList.remove('drag-over');
-                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                const zone = e.target.closest('.sppux-dropzone');
+                if (zone) zone.classList.remove('drag-over');
+                if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                     onDrop(Array.from(e.dataTransfer.files));
                 }
             };
@@ -604,6 +643,29 @@
                 };
                 input.click();
             };
+
+            const renderFiles = () => {
+                if (!files || files.length === 0) return '';
+                return html`
+                    <div style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px; text-align: left; width: 100%; max-width: 300px; margin-left: auto; margin-right: auto;">
+                        ${files.map((f, index) => html`
+                            <div style="display: flex; align-items: center; gap: 10px; background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.9rem;">
+                                <span>📄</span>
+                                <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1;" title="${f.name}">${f.name}</span>
+                                <span style="opacity: 0.6; font-size: 0.8rem;">${(f.size / 1024).toFixed(1)} KB</span>
+                                ${onRemove ? html`
+                                    <button style="background:transparent; border:none; color:#ef4444; font-size:1.2rem; line-height:1; padding:0 4px; cursor:pointer; border-radius:4px; opacity:0.8;" 
+                                        @mouseenter=${(e) => { e.target.style.opacity='1'; e.target.style.background='rgba(239,68,68,0.1)'; }} 
+                                        @mouseleave=${(e) => { e.target.style.opacity='0.8'; e.target.style.background='transparent'; }}
+                                        title="Remove File" 
+                                        @click=${(e) => { e.stopPropagation(); onRemove(index); }}>&times;</button>
+                                ` : ''}
+                            </div>
+                        `)}
+                    </div>
+                `;
+            };
+
             return html`
                 <div class="sppux-dropzone" 
                     @dragover=${handleDragOver} 
@@ -612,6 +674,7 @@
                     @click=${handleClick}>
                     <div>☁️</div>
                     <div style="margin-top: 10px;">${text}</div>
+                    ${renderFiles()}
                 </div>
             `;
         }
@@ -694,9 +757,15 @@
                     <div class="sppux-combobox-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; background: var(--sppux-panel); border: 1px solid var(--sppux-glass-border); border-radius: var(--sppux-radius-sm); max-height: 200px; overflow-y: auto; z-index: 100;">
                         ${options.map(opt => html`
                             <div style="padding: 10px; cursor: pointer;" 
-                                @click=${() => onChange(opt.value)}
-                                onmouseover="this.style.background='var(--sppux-primary-subtle)'"
-                                onmouseout="this.style.background='transparent'">
+                                @mousedown=${(e) => {
+                                    const input = e.target.closest('.sppux-combobox').querySelector('input');
+                                    if (input) input.value = opt.label;
+                                }}
+                                @click=${() => {
+                                    onChange(opt.value);
+                                }}
+                                @mouseenter=${(e) => e.target.style.background='var(--sppux-primary-subtle)'}
+                                @mouseleave=${(e) => e.target.style.background='transparent'}>
                                 ${opt.label}
                             </div>
                         `)}
@@ -729,12 +798,14 @@
         render(nodes) {
             const renderNode = (node) => html`
                 <div style="margin-left: 20px;">
-                    <div style="cursor: pointer; padding: 4px 0;" @click=${(e) => {
-                        const childContainer = e.currentTarget.nextElementSibling;
+                    <div class="sppux-tree-row" style="cursor: pointer; padding: 4px 0;" @click=${(e) => {
+                        const row = e.target.closest('.sppux-tree-row');
+                        if (!row) return;
+                        const childContainer = row.nextElementSibling;
                         if (childContainer) {
                             const isHidden = childContainer.style.display === 'none';
                             childContainer.style.display = isHidden ? 'block' : 'none';
-                            e.currentTarget.querySelector('.sppux-tree-icon').textContent = isHidden ? '▼' : '▶';
+                            row.querySelector('.sppux-tree-icon').textContent = isHidden ? '▼' : '▶';
                         }
                     }}>
                         <span class="sppux-tree-icon" style="display: inline-block; width: 15px; font-size: 0.8rem;">
@@ -759,18 +830,17 @@
                 <div style="display: flex; width: 100%; height: 100%;">
                     <div class="sppux-split-left" style="flex: 1; overflow: auto;">${leftContent}</div>
                     <div class="sppux-split-resizer" style="width: 5px; cursor: col-resize; background: var(--sppux-glass-border); transition: 0.2s;"
-                        onmouseover="this.style.background='var(--sppux-primary)'"
-                        onmouseout="this.style.background='var(--sppux-glass-border)'"
+                        @mouseenter=${(e) => e.target.style.background='var(--sppux-primary)'}
+                        @mouseleave=${(e) => e.target.style.background='var(--sppux-glass-border)'}
                         @pointerdown=${(e) => {
                             e.preventDefault();
                             const resizer = e.target;
                             const leftPane = resizer.previousElementSibling;
-                            const container = resizer.parentElement;
                             const startX = e.clientX;
                             const startWidth = leftPane.getBoundingClientRect().width;
                             const onMove = (evt) => {
                                 const newWidth = startWidth + (evt.clientX - startX);
-                                leftPane.style.flex = `0 0 ${newWidth}px`;
+                                leftPane.style.flex = '0 0 ' + newWidth + 'px';
                             };
                             const onUp = () => {
                                 document.removeEventListener('pointermove', onMove);
@@ -778,6 +848,7 @@
                             };
                             document.addEventListener('pointermove', onMove);
                             document.addEventListener('pointerup', onUp);
+                            resizer.setPointerCapture(e.pointerId);
                         }}></div>
                     <div class="sppux-split-right" style="flex: 1; overflow: auto;">${rightContent}</div>
                 </div>
@@ -925,11 +996,19 @@
                                 <span class="badge" style="background:var(--sppux-glass-bg);">${col.cards.length}</span>
                             </div>
                             <div class="sppux-kanban-dropzone" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;min-height:100px;"
-                                @dragover=${(e) => { e.preventDefault(); e.currentTarget.style.background = 'var(--sppux-glass-bg)'; }}
-                                @dragleave=${(e) => { e.currentTarget.style.background = 'transparent'; }}
+                                @dragover=${(e) => { 
+                                    e.preventDefault(); 
+                                    const dz = e.target.closest('.sppux-kanban-dropzone');
+                                    if (dz) dz.style.background = 'var(--sppux-glass-bg)'; 
+                                }}
+                                @dragleave=${(e) => { 
+                                    const dz = e.target.closest('.sppux-kanban-dropzone');
+                                    if (dz) dz.style.background = 'transparent'; 
+                                }}
                                 @drop=${(e) => {
                                     e.preventDefault();
-                                    e.currentTarget.style.background = 'transparent';
+                                    const dz = e.target.closest('.sppux-kanban-dropzone');
+                                    if (dz) dz.style.background = 'transparent';
                                     const cardId = e.dataTransfer.getData('text/plain');
                                     onDragEnd(cardId, col.id);
                                 }}>
@@ -937,9 +1016,13 @@
                                     <div class="sppux-kanban-card" draggable="true" data-card-id="${card.id}" style="background:var(--sppux-card-bg);padding:12px;border:1px solid var(--sppux-glass-border);border-radius:var(--sppux-radius-sm);cursor:grab;box-shadow:0 2px 4px rgba(0,0,0,0.1);"
                                         @dragstart=${(e) => {
                                             e.dataTransfer.setData('text/plain', card.id);
-                                            e.currentTarget.style.opacity = '0.5';
+                                            const c = e.target.closest('.sppux-kanban-card');
+                                            if (c) c.style.opacity = '0.5';
                                         }}
-                                        @dragend=${(e) => { e.currentTarget.style.opacity = '1'; }}>
+                                        @dragend=${(e) => { 
+                                            const c = e.target.closest('.sppux-kanban-card');
+                                            if (c) c.style.opacity = '1'; 
+                                        }}>
                                         ${card.content}
                                     </div>
                                 `)}
@@ -1188,6 +1271,54 @@
     SPPUX.System.init();
     window.admin_notify = SPPUX.Notify.show.bind(SPPUX.Notify);
     SPPUX.notify = SPPUX.Notify.show.bind(SPPUX.Notify);
+
+    SPPUX.MasterGrid = class extends BaseComponent {
+        onInit() {
+            this.setState({
+                columns: this.props.columns || [],
+                data: this.props.data || [],
+                rowHeight: this.props.rowHeight || 45,
+                scrollTop: 0
+            });
+        }
+        render() {
+            const { columns, data, rowHeight, scrollTop } = this.state;
+            const containerHeight = 450; // default visible height for showcase
+            const totalHeight = data.length * rowHeight;
+            const startIndex = Math.max(0, Math.floor(scrollTop / rowHeight));
+            const endIndex = Math.min(data.length - 1, Math.floor((scrollTop + containerHeight) / rowHeight) + 2);
+            
+            const visibleData = [];
+            for (let i = startIndex; i <= endIndex; i++) {
+                if (data[i]) {
+                    visibleData.push({ index: i, row: data[i] });
+                }
+            }
+
+            return html`
+                <div class="sppux-master-grid" style="display: flex; flex-direction: column; height: 100%; border: 1px solid var(--sppux-glass-border); border-radius: var(--sppux-radius-md); overflow: hidden; background: var(--sppux-panel);">
+                    <div class="sppux-grid-header" style="display: flex; background: var(--sppux-glass-bg); border-bottom: 1px solid var(--sppux-glass-border); font-weight: 600;">
+                        ${columns.map(col => html`
+                            <div style="flex: ${col.width ? `0 0 ${col.width}` : '1'}; padding: 12px; border-right: 1px solid rgba(255,255,255,0.05); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; opacity: 0.8;">${col.label}</div>
+                        `)}
+                    </div>
+                    <div class="sppux-grid-body" style="flex: 1; overflow-y: auto; position: relative;" @scroll=${(e) => this.setState({ scrollTop: e.target.scrollTop })}>
+                        <div style="height: ${totalHeight}px; position: relative;">
+                            ${visibleData.map(item => html`
+                                <div class="sppux-grid-row" style="position: absolute; top: ${item.index * rowHeight}px; left: 0; right: 0; height: ${rowHeight}px; display: flex; border-bottom: 1px solid rgba(255,255,255,0.05); transition: background 0.1s;" @mouseenter=${(e) => e.target.style.background='var(--sppux-glass-bg)'} @mouseleave=${(e) => e.target.style.background='transparent'}>
+                                    ${columns.map(col => html`
+                                        <div style="flex: ${col.width ? `0 0 ${col.width}` : '1'}; padding: 0 12px; display: flex; align-items: center; border-right: 1px solid rgba(255,255,255,0.02); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.95rem;">
+                                            ${item.row[col.key]}
+                                        </div>
+                                    `)}
+                                </div>
+                            `)}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    };
 
     // Web Component Registrations
     if (SPPUX.defineElement) {

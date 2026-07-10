@@ -1,30 +1,33 @@
-.TH SPP-view-page-add 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `VIEW:PAGE:ADD`
-.PP
-Purpose: Add a new page route to an app
-.PP
+.TH SPP-view-page-add 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-view-page-add \- Add a new page route to an app
 .SH SYNOPSIS
-php spp.php view:page:add [OPTIONS]
+.B php spp.php view:page:add
+[OPTIONS]
+.SH DESCRIPTION
+Add a new page route to an app
 .PP
-.SH EXTENDED USAGE
 Usage: php spp.php view:page:add --name=<route> --url=<target> [--app=default] [--source=yaml|db]
+.br
+
 .PP
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+.TP
+.B --name=
+Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+.TP
+.B --url=
+Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+.TP
+.B --source=
+Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-\(bu `--name=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
+\(bu Instantiates key components: page.
 .br
-\(bu `--url=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
-.br
-\(bu `--source=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php.
-.br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: page.
-.br
-.PP
-.PP

@@ -1,0 +1,67 @@
+<div class="spp-bi-dashboard" style="display: flex; flex-direction: column; gap: 28px; animation: sppFadeIn 0.4s ease-out;">
+    <!-- Top Bar / KPI Summary Cards -->
+    <div class="spp-kpi-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+        <div class="spp-kpi-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 22px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+            <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 600; color: #6366f1; letter-spacing: 0.5px;">Total Queries Run</div>
+            <div class="kpi-val" id="kpi-total-queries" style="font-size: 2.2rem; font-weight: 800; margin: 8px 0; color: var(--sppux-text, #1e293b);">1,482</div>
+            <div style="font-size: 0.8rem; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                <span>▲ 14.5%</span> <span style="color: var(--sppux-text-dim, #64748b);">vs last month</span>
+            </div>
+        </div>
+
+        <div class="spp-kpi-card" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 22px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+            <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 600; color: #a855f7; letter-spacing: 0.5px;">Active Schedules & Cron</div>
+            <div class="kpi-val" id="kpi-active-schedules" style="font-size: 2.2rem; font-weight: 800; margin: 8px 0; color: var(--sppux-text, #1e293b);">24</div>
+            <div style="font-size: 0.8rem; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                <span>▲ 100% SLA</span> <span style="color: var(--sppux-text-dim, #64748b);">all passing</span>
+            </div>
+        </div>
+
+        <div class="spp-kpi-card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(239, 68, 68, 0.15)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 22px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+            <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 600; color: #ec4899; letter-spacing: 0.5px;">Avg Execution Time</div>
+            <div class="kpi-val" id="kpi-avg-time" style="font-size: 2.2rem; font-weight: 800; margin: 8px 0; color: var(--sppux-text, #1e293b);">114 ms</div>
+            <div style="font-size: 0.8rem; color: #10b981; display: flex; align-items: center; gap: 4px;">
+                <span>⚡ Optimized</span> <span style="color: var(--sppux-text-dim, #64748b);">via generator streams</span>
+            </div>
+        </div>
+
+        <div class="spp-kpi-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(14, 165, 233, 0.15)); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 22px; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.08); transition: transform 0.2s ease, box-shadow 0.2s ease;">
+            <div style="font-size: 0.85rem; text-transform: uppercase; font-weight: 600; color: #10b981; letter-spacing: 0.5px;">Federated Sources</div>
+            <div class="kpi-val" id="kpi-federated" style="font-size: 2.2rem; font-weight: 800; margin: 8px 0; color: var(--sppux-text, #1e293b);">3 DSNs</div>
+            <div style="font-size: 0.8rem; color: #64748b; display: flex; align-items: center; gap: 4px;">
+                <span>🔒 Strict RBAC</span> <span style="color: var(--sppux-text-dim, #64748b);">Admin guarded</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Report Explorer & Dynamic Charting -->
+    <div class="spp-dashboard-main" style="background: var(--sppux-card-bg, rgba(255, 255, 255, 0.7)); border: 1px solid var(--sppux-glass-border, rgba(0,0,0,0.1)); border-radius: 20px; padding: 28px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 40px rgba(0,0,0,0.05);">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px;">
+            <div>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 4px 0; color: var(--sppux-text, #0f172a);">BI Analytics Overview</h2>
+                <p style="margin: 0; font-size: 0.9rem; color: var(--sppux-text-dim, #64748b);">Select a saved report configuration to visualize live metrics or explore raw datasets.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <label style="font-weight: 600; font-size: 0.9rem; color: var(--sppux-text, #334155);">Load Report:</label>
+                <select class="spp-select-premium" id="spp-dashboard-report-select" hx-get="/spp/admin/api.php?action=report_api&modname=sppreport&report_action=schema" hx-target="#spp-configurator-container" hx-trigger="change" style="padding: 10px 18px; border-radius: 12px; border: 1px solid rgba(99, 102, 241, 0.4); background: var(--sppux-bg, #ffffff); color: var(--sppux-text, #0f172a); font-weight: 600; outline: none; cursor: pointer; min-width: 220px; box-shadow: 0 2px 8px rgba(99, 102, 241, 0.1);">
+                    <option value="sales_overview">Sales Overview</option>
+                    <option value="user_engagement">User Engagement</option>
+                    <option value="system_performance">System Performance</option>
+                    <option value="custom_ad_hoc">Custom Ad-Hoc Report</option>
+                </select>
+                <button hx-get="/spp/admin/api.php?action=report_api&modname=sppreport&report_action=schema" hx-target="#spp-configurator-container" class="spp-btn-premium" style="padding: 10px 20px; border-radius: 12px; border: none; background: linear-gradient(135deg, #6366f1, #a855f7); color: white; font-weight: 600; cursor: pointer; transition: opacity 0.2s ease, transform 0.1s ease; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);">
+                    ✨ Launch Configurator
+                </button>
+            </div>
+        </div>
+
+        <!-- Dynamic Content Mounting Point for Configurator & Previews -->
+        <div id="spp-configurator-container" style="min-height: 400px; display: flex; align-items: center; justify-content: center; border: 1px dashed rgba(100, 116, 139, 0.3); border-radius: 16px; padding: 24px; background: rgba(100, 116, 139, 0.02);">
+            <div style="text-align: center; color: var(--sppux-text-dim, #64748b);">
+                <div style="font-size: 2.8rem; margin-bottom: 12px;">📊</div>
+                <h3 style="font-size: 1.2rem; font-weight: 600; margin: 0 0 6px 0; color: var(--sppux-text, #334155);">No active query configured</h3>
+                <p style="margin: 0; font-size: 0.9rem;">Use the options above to launch the interactive query builder or load a saved configuration.</p>
+            </div>
+        </div>
+    </div>
+</div>

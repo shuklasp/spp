@@ -1,22 +1,23 @@
-# diff:history
+## `diff:history`
 
-## NAME
-diff:history - View revision history of an entity
+**Description**: View revision history of an entity
 
-## SYNOPSIS
-`php spp.php diff:history --type=<ModelClass> --id=<ID>`
-
-## PURPOSE
-Pulls the complete list of chronological revisions logged by the SPPDiff RevisionManager for a given Entity instance.
-
-## OPTIONS AVAILABLE
-- `--type=<ModelClass>`: **Required**. The fully qualified class name of the entity.
-- `--id=<ID>`: **Required**. The primary key ID of the entity.
-
-## UNDER THE HOOD ACTIVITY
-The command verifies that the passed ModelClass exists. It invokes the static `find_one()` method on the entity class to query the active instance from the database using the provided ID. If found, it delegates the entity to `\SPPMod\SPPDiff\RevisionManager::getHistory($entity)`. It iterates through the chronological revision payload returning metadata such as the Revision ID, creation timestamp, and the responsible User ID.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php diff:history --type="\App\Entities\User" --id=42
+php spp.php diff:history [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php diff:history --type=<ModelClass> --id=<ID>
+
+```
+
+### Options
+- `--type=` : Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+- `--id=` : Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

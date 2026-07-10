@@ -1,22 +1,22 @@
-# event:dispatch
+## `event:dispatch`
 
-## NAME
-event:dispatch - Alias for event:fire
+**Description**: Alias for event:fire
 
-## SYNOPSIS
-`php spp.php event:dispatch --event=<event_name> [--payload=<json>]`
-
-## PURPOSE
-Triggers a programmatic global event hook across the entire framework scope. Functions identically as an alias namespace for `EventFireCommand`.
-
-## OPTIONS AVAILABLE
-- `--event=<event_name>`: Target event name.
-- `--payload=<json>`: JSON formatted payload data.
-
-## UNDER THE HOOD ACTIVITY
-Inherits all class methodologies, logic, and state behavior exclusively from `EventFireCommand` by explicitly requiring its parent script location dynamically (`require_once __DIR__ . '/EventFireCommand.php'`) and extending it. It merely overrides the class-protected `$name` to `event:dispatch`.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php event:dispatch --event=user.login
+php spp.php event:dispatch [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php event:fire --event=<event_name> [--payload=<json>]
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+

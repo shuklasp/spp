@@ -1,0 +1,5 @@
+{
+    "welcome": "Welcome to our app!",
+    "greeting": "Hello, {name}!",
+    "items_count": "You have {count} item(s)"
+}

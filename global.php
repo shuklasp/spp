@@ -18,5 +18,3 @@ function test_form_submitted() {
     }
 }
 
-require_once __DIR__ . '/DashboardComponent.php';
-require_once __DIR__ . '/TasksComponent.php';

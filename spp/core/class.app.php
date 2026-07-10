@@ -4,6 +4,8 @@ namespace SPP;
 
 use Symfony\Component\Yaml\Yaml;
 
+require_once __DIR__ . '/class.sppobject.php';
+
 class App extends \SPP\SPPObject
 {
     private bool $modsloaded = false;
@@ -567,6 +569,164 @@ class App extends \SPP\SPPObject
 
         $appRoot = $webRoot . ($appPath ? '/' . $appPath : '');
         return rtrim($appRoot, '/\\');
+    }
+
+    public static function hasUrlRewriting(): bool
+    {
+        if (php_sapi_name() === 'cli') {
+            return true;
+        }
+        if (function_exists('apache_get_modules') && in_array('mod_rewrite', apache_get_modules())) {
+            return true;
+        }
+        if (isset($_SERVER['IIS_UrlRewriteModule'])) {
+            return true;
+        }
+        $reqUri = $_SERVER['REQUEST_URI'] ?? '';
+        $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+        if (strpos($reqUri, 'index.php') === false && strpos($scriptName, 'index.php') !== false) {
+            return true;
+        }
+        if (defined('SPP_FORCE_CLEAN_URLS') && SPP_FORCE_CLEAN_URLS) {
+            return true;
+        }
+        return false;
+    }
+
+    public static function url(string $path = '', ?string $appName = null): string
+    {
+        $baseUrl = self::getBaseUrl($appName);
+        $path = ltrim($path, '/');
+        
+        if ($path === '') {
+            return $baseUrl;
+        }
+        
+        if (self::hasUrlRewriting()) {
+            return $baseUrl . '/' . $path;
+        }
+        
+        return $baseUrl . '/?q=' . $path;
+    }
+
+    /**
+     * Get the URL for a dynamically mapped asset alias.
+     * @param string $module The module name (or 'core')
+     * @param string $dirAlias The directory alias defined in the config
+     * @param string $file The relative file path
+     * @return string
+     */
+    public static function getAssetUrl(string $module, string $dirAlias, string $file): string
+    {
+        $webRoot = defined('APP_BASE_URI') ? APP_BASE_URI : '';
+        $webRoot = rtrim($webRoot, '/\\');
+        return $webRoot . '/sppasset/' . $module . '/' . $dirAlias . '/' . ltrim($file, '/');
+    }
+
+    /**
+     * Retrieve a combined map of all registered asset aliases across core and modules.
+     * @return array
+     */
+    public static function getAllAssets(): array
+    {
+        $cacheKey = 'spp_all_assets_map';
+        if (\SPP\Module::isEnabled('sppcache') && class_exists('\SPPMod\SPPCache\SPPCacheManager')) {
+            $cached = \SPPMod\SPPCache\SPPCacheManager::get($cacheKey);
+            if ($cached !== false) {
+                return $cached;
+            }
+        }
+
+        $allAssets = [];
+        
+        // Fetch core assets
+        $coreAssets = self::getGlobalSettings('assets') ?? [];
+        if (!empty($coreAssets)) {
+            $allAssets['core'] = $coreAssets;
+        }
+
+        // Fetch module assets by scanning module.yml files
+        $moduleFiles = glob(SPP_BASE_DIR . '/modules/*/*/module.yml');
+        if (is_array($moduleFiles)) {
+            foreach ($moduleFiles as $file) {
+                $modname = basename(dirname($file));
+                $config = \SPP\Module::getConfig('assets', $modname);
+                if (!empty($config)) {
+                    $allAssets[$modname] = $config;
+                }
+            }
+        }
+
+        if (\SPP\Module::isEnabled('sppcache') && class_exists('\SPPMod\SPPCache\SPPCacheManager')) {
+            \SPPMod\SPPCache\SPPCacheManager::set($cacheKey, $allAssets, 86400, ['assets']);
+        }
+
+        return $allAssets;
+    }
+
+    /**
+     * Scan mapped asset directories and include CSS and JS files in the view.
+     * @param string|null $modname If provided, includes only assets for this module (or 'core').
+     */
+    public static function includeAssets(?string $modname = null): void
+    {
+        $cacheKey = 'spp_included_assets_' . ($modname ?: 'all');
+        if (\SPP\Module::isEnabled('sppcache') && class_exists('\SPPMod\SPPCache\SPPCacheManager')) {
+            $cached = \SPPMod\SPPCache\SPPCacheManager::get($cacheKey);
+            if ($cached !== false && is_array($cached)) {
+                if (!empty($cached['css'])) {
+                    foreach ($cached['css'] as $css) \SPPMod\SPPView\ViewPage::addCssIncludeFile($css);
+                }
+                if (!empty($cached['js'])) {
+                    foreach ($cached['js'] as $js) \SPPMod\SPPView\ViewPage::addJsIncludeFile($js);
+                }
+                return;
+            }
+        }
+
+        $assets = self::getAllAssets();
+        if ($modname !== null) {
+            $assets = isset($assets[$modname]) ? [$modname => $assets[$modname]] : [];
+        }
+
+        $cssList = [];
+        $jsList = [];
+
+        foreach ($assets as $mod => $dirs) {
+            foreach ($dirs as $alias => $physicalPath) {
+                $baseDir = null;
+                if ($mod === 'core') {
+                    $baseDir = SPP_BASE_DIR . '/../' . ltrim($physicalPath, '/\\');
+                } else {
+                    $moduleDir = \SPP\Module::getModuleDir($mod);
+                    if ($moduleDir) {
+                        $baseDir = $moduleDir . '/' . ltrim($physicalPath, '/\\');
+                    }
+                }
+
+                if ($baseDir && is_dir($baseDir)) {
+                    // Match .js and .css files
+                    $files = glob($baseDir . '/*.[cj][sS]*');
+                    if (is_array($files)) {
+                        foreach ($files as $file) {
+                            $filename = basename($file);
+                            $url = self::getAssetUrl($mod, $alias, $filename);
+                            if (preg_match('/\.css$/i', $filename)) {
+                                $cssList[] = $url;
+                                \SPPMod\SPPView\ViewPage::addCssIncludeFile($url);
+                            } elseif (preg_match('/\.js$/i', $filename)) {
+                                $jsList[] = $url;
+                                \SPPMod\SPPView\ViewPage::addJsIncludeFile($url);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        if (\SPP\Module::isEnabled('sppcache') && class_exists('\SPPMod\SPPCache\SPPCacheManager')) {
+            \SPPMod\SPPCache\SPPCacheManager::set($cacheKey, ['css' => $cssList, 'js' => $jsList], 86400, ['assets']);
+        }
     }
 
     /**

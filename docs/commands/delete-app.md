@@ -1,22 +1,26 @@
-# delete:app
+## `delete:app`
 
-## NAME
-delete:app - Delete an SPP application context and all its data
+**Description**: Delete an SPP application context and all its data (files, config, caches, views)
 
-## SYNOPSIS
-`php spp.php delete:app [AppNameToConfirm] [--force]`
-
-## PURPOSE
-Completely removes an existing SPP application, wiping its configuration, source code, and resource directories from the system.
-
-## OPTIONS AVAILABLE
-- `AppNameToConfirm`: The name of the application context to delete. Prompts interactively if omitted.
-- `--force`: Bypass the standard "(y/N)" confirmation prompt.
-
-## UNDER THE HOOD ACTIVITY
-The command starts by validating the target app name, actively preventing deletion of protected system apps like `default` or `admin`. It requests manual confirmation via `prompt()` if `--force` is absent. It then systematically performs a recursive deletion of three specific directories using standard filesystem scanning (`scandir`, `unlink`, `rmdir`): `etc/apps/{appName}`, `src/{appName}`, and `resources/{appName}`. To complete the operation, it opens the master `spp/etc/global-settings.yml` registry with the Symfony YAML component, unsets the application entry under the `['apps']` node, and flushes the modified registry back to the disk.
-
-## EXAMPLES
+### Synopsis
 ```bash
-php spp.php delete:app storefront --force
+php spp.php delete:app [OPTIONS]
 ```
+
+### Extended Usage
+```text
+Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]
+
+```
+
+### Options
+- `--force` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--keep-db` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--dry-run` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Executes external system binaries or shell commands.
+- Instantiates key components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+

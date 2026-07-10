@@ -1,17 +1,17 @@
 ## `cron:list`
 
-**Purpose**: List all registered scheduled tasks
+**Description**: List all registered scheduled tasks
 
 ### Synopsis
 ```bash
 php spp.php cron:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis from CronListCommand.php.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CronListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 

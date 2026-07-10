@@ -1,24 +1,20 @@
-.TH SPP-make-middleware 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:middleware - Create a new middleware class
+.TH SPP-make-middleware 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-middleware \- Create a new middleware class
+.SH SYNOPSIS
+.B php spp.php make:middleware
+[OPTIONS]
+.SH DESCRIPTION
+Create a new middleware class
 .PP
-# SYNOPSIS
-php spp.php make:middleware <name> [--app=appname]
-.PP
-# PURPOSE
-The make:middleware command rapidly scaffolds an HTTP Middleware class. Middleware acts as a filtering layer intercepting requests before they hit controllers or intercepting responses before they are returned to the client, commonly utilized for authentication, CORS, or logging.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<name>` (string, required): The logical name of the middleware (e.g. `RequireAuth`, `RateLimiter`).
+Usage: php spp.php make:middleware <name> [--app=appname]
 .br
-\(bu `--app=<appname>` (string, optional): Determines the target execution context namespace.
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: middleware.
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-It normalizes the provided name and isolates the application context via getContext(). It calculates the fully qualified Middleware namespace and targets the middleware subfolder, ensuring the PHP file is prefixed as class.{lowercase_middleware_name}.php.
-The command utilizes the internal buildFromStub() generator against the middleware stub configuration, dynamically populating the namespace and class structure. It advises the user post-generation to explicitly register the new middleware within the spp/etc/middleware.yml mapping file or app-specific configurations.
-.PP
-# EXAMPLES
-1. Scaffold a rate limiting middleware:
-php spp.php make:middleware ThrottleRequests --app=api
-.PP

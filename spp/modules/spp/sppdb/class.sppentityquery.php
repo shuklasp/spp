@@ -119,6 +119,46 @@ class SppEntityQuery
     }
 
     /**
+     * Add an IN condition.
+     */
+    public function whereIn(string $field, array $values): self
+    {
+        return $this->condition($field, $values, 'IN');
+    }
+
+    /**
+     * Add a NOT IN condition.
+     */
+    public function whereNotIn(string $field, array $values): self
+    {
+        return $this->condition($field, $values, 'NOT IN');
+    }
+
+    /**
+     * Add a BETWEEN condition.
+     */
+    public function whereBetween(string $field, array $values): self
+    {
+        return $this->condition($field, $values, 'BETWEEN');
+    }
+
+    /**
+     * Add a WHERE NULL condition.
+     */
+    public function whereNull(string $field): self
+    {
+        return $this->condition($field, null, 'IS');
+    }
+
+    /**
+     * Add a WHERE NOT NULL condition.
+     */
+    public function whereNotNull(string $field): self
+    {
+        return $this->condition($field, null, 'IS NOT');
+    }
+
+    /**
      * Set the sort order.
      *
      * @param string $field The field to sort by.
@@ -186,6 +226,7 @@ class SppEntityQuery
     }
 
     private int $rememberTtl = 0;
+    private ?string $rememberCacheKey = null;
 
     /**
      * Set the relations to be eager-loaded.
@@ -206,11 +247,13 @@ class SppEntityQuery
      * Cache the results of this query.
      *
      * @param int $ttl Time to live in seconds
+     * @param string|null $cacheKey Optional explicit cache key
      * @return $this
      */
-    public function remember(int $ttl): self
+    public function remember(int $ttl, ?string $cacheKey = null): self
     {
         $this->rememberTtl = $ttl;
+        $this->rememberCacheKey = $cacheKey;
         return $this;
     }
 
@@ -272,9 +315,19 @@ class SppEntityQuery
         $entityInstance = new $this->entityClass();
         $baseTable = $entityInstance->getTable();
 
-        $cacheKey = null;
-        if ($this->rememberTtl > 0 && class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
-            $cacheKey = 'sppdb_query_' . md5($sql . serialize($values));
+        if ($this->rememberTtl > 0 && class_exists('\\SPP\\Cache')) {
+            $cacheKey = $this->rememberCacheKey ?? 'sppdb_query_' . md5($sql . serialize($values));
+            $tag = $this->entityClass::getEntityName($this->entityClass) . '_list';
+            $result = \SPP\Cache::getWithLock($cacheKey, $this->rememberTtl, function() use ($db, $sql, $baseTable, $values, $cacheKey, $tag) {
+                $res = $db->exec_squery($sql, $baseTable, $values);
+                if (class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
+                    \SPPMod\SPPCache\SPPCacheManager::set($cacheKey, $res, $this->rememberTtl, [$tag]);
+                }
+                return $res;
+            });
+            return $this->hydrateFromRaw($result);
+        } elseif ($this->rememberTtl > 0 && class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
+            $cacheKey = $this->rememberCacheKey ?? 'sppdb_query_' . md5($sql . serialize($values));
             $cached = \SPPMod\SPPCache\SPPCacheManager::get($cacheKey);
             if ($cached !== false) {
                 return $this->hydrateFromRaw($cached);
@@ -283,7 +336,7 @@ class SppEntityQuery
 
         $result = $db->exec_squery($sql, $baseTable, $values);
 
-        if ($cacheKey !== null) {
+        if ($this->rememberTtl > 0 && class_exists('\\SPPMod\\SPPCache\\SPPCacheManager') && isset($cacheKey)) {
             $tag = $this->entityClass::getEntityName($this->entityClass) . '_list';
             \SPPMod\SPPCache\SPPCacheManager::set($cacheKey, $result, $this->rememberTtl, [$tag]);
         }

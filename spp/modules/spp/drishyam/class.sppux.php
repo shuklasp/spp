@@ -37,6 +37,26 @@ class SPPUX extends \SPP\SPPObject
         return self::toAppUri($value ?: 'spp/modules/spp/drishyam/js/sppux-ui.js');
     }
 
+    public static function extPath(?string $appname = null): string
+    {
+        return self::toAppUri('spp/modules/spp/drishyam/js/sppext.js');
+    }
+
+    public static function exPath(?string $appname = null): string
+    {
+        return self::toAppUri('spp/modules/spp/drishyam/js/sppex.js');
+    }
+
+    public static function exProPath(?string $appname = null): string
+    {
+        return self::toAppUri('spp/modules/spp/drishyam/js/sppex-pro.js');
+    }
+
+    public static function exUltraPath(?string $appname = null): string
+    {
+        return self::toAppUri('spp/modules/spp/drishyam/js/sppex-ultra.js');
+    }
+
     public static function cssPath(?string $appname = null): string
     {
         $value = \SPP\Module::getConfig('css_path', 'sppux', $appname);
@@ -99,12 +119,14 @@ class SPPUX extends \SPP\SPPObject
 
         // Add Core CSS
         \SPPMod\SPPView\ViewPage::addCssIncludeFile(self::cssPath($appname));
+        \SPPMod\SPPView\ViewPage::addCssIncludeFile(self::toAppUri('spp/modules/spp/drishyam/css/sppext-premium.css'));
 
-        // Add Runtime, UI Library, Grid & Bridge
+        // Add Runtime, UI Library, Grid, Bridge & Premium Extensions
         \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::runtimePath($appname), ['type' => 'module']);
         \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::uiPath($appname), ['type' => 'module']);
         \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::gridPath($appname), ['type' => 'module']);
         \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::bridgePath($appname), ['type' => 'module']);
+        \SPPMod\SPPView\ViewPage::addJsIncludeFile(self::toAppUri('spp/modules/spp/drishyam/js/sppext.js'));
 
         // Add Loader if auto_mount is enabled
         $autoMount = \SPP\Module::getConfig('auto_mount', 'sppux', $appname);
@@ -127,18 +149,33 @@ class SPPUX extends \SPP\SPPObject
         \SPPMod\SPPView\ViewPage::addJsContent(<<<'JS'
 window.spp_admin = window.spp_admin || {
     api: async (action, data = {}) => {
-        const params = new URLSearchParams({ action, ...data });
-        const response = await fetch('api.php?' + params.toString(), { credentials: 'same-origin' });
+        const endpoint = window.SPP_CONFIG?.apiEndpoint || window.location.pathname;
+        const ts = Date.now();
+        const response = await fetch(`${endpoint}?action=${encodeURIComponent(action)}&t=${ts}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-SPP-Ajax': '1'
+            },
+            body: JSON.stringify(data),
+            credentials: 'same-origin'
+        });
         return response.json();
     },
     apiPost: async (actionOrFormData, data = {}) => {
+        const endpoint = window.SPP_CONFIG?.apiEndpoint || window.location.pathname;
         const formData = actionOrFormData instanceof FormData ? actionOrFormData : new FormData();
         if (!(actionOrFormData instanceof FormData)) {
             formData.append('action', actionOrFormData);
             Object.entries(data).forEach(([key, value]) => formData.append(key, value));
         }
-        const response = await fetch('api.php', {
+        const response = await fetch(endpoint, {
             method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-SPP-Ajax': '1'
+            },
             body: formData,
             credentials: 'same-origin'
         });

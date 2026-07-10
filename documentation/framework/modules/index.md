@@ -18,6 +18,7 @@ The SPP Framework is powered by a suite of high-performance core modules. These 
 *   [**State & Config**](state-config.md): SppConfig, SppSetting, and persistent runtime settings.
 *   [**Orion Cache**](orion-cache.md): High-performance module registry and zero-I/O bootstrapping.
 *   [**Lekhni Editor**](lekhni.md): The Ultimate Contrib Block, Dual-Mode VSCode IDE & Rich Document Workspace Suite.
+*   [**SppWorkflow**](sppworkflow.md): High-performance enterprise workflow engine, parallel state machines, and Saga compensations.
 *   **SppBlade**: (Coming Soon) The advanced templating engine integration.
 *   **SppAi**: (Coming Soon) The AI and Large Language Model integration layer.
 *   **SppAudit**: (Coming Soon) System-wide auditing and action logging.

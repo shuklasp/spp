@@ -1,0 +1,29 @@
+# ##############################################################################
+# Scaffolded Application Workflow Definition for Samvaad
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+app.default:
+  description: "Default application entity workflow"
+  states:
+    - pending
+    - processing
+    - completed
+  transitions:
+    start:
+      from: [pending]
+      to: processing
+      timeout: "24 hours"
+      timeout_transition: "force_complete"
+    complete:
+      from: [processing]
+      to: completed
+    force_complete:
+      from: [processing]
+      to: completed

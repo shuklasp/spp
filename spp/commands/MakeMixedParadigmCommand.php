@@ -46,6 +46,10 @@ class MakeMixedParadigmCommand extends BaseMakeCommand
         $uxDir = $this->getTargetDir('comp', $context);
         $uxJsPath = $uxDir . "/" . $className . "Island.js";
 
+        // 4. Generate the External Partial
+        $partialDir = $this->getTargetDir('pages/partials', $context);
+        $partialPath = $partialDir . "/" . strtolower($className) . "_extra.html";
+
         if (file_exists($sppViewPath)) {
             echo "Error: Mixed Paradigm {$name} already exists.\n";
             return;
@@ -59,6 +63,7 @@ namespace App\{{CONTEXT}}\Views;
 
 use SPPMod\SPPView\SPPView;
 use SPPMod\Drishyam\Drishyam;
+use SPPMod\Drishyam\TemplateMacros;
 
 class {{CLASS_NAME}} extends SPPView
 {
@@ -67,11 +72,14 @@ class {{CLASS_NAME}} extends SPPView
         // Render Blade Fragment
         $drishyam = new Drishyam();
         $bladeContent = $drishyam->render('{{CONTEXT_LOWER}}.fragments.{{FILE_NAME}}_fragment', $data);
+        $partialContent = TemplateMacros::spppartial('partials/{{FILE_NAME}}_extra.html', $data);
 
         return $this->html([
             $this->head([
                 $this->title('Mixed Paradigm - Kitchen Sink'),
-                $this->script(['type' => 'module', 'src' => '/src/{{CONTEXT_LOWER}}/comp/{{CLASS_NAME}}Island.js'])
+                $this->script(['type' => 'module', 'src' => '/src/{{CONTEXT_LOWER}}/comp/{{CLASS_NAME}}Island.js']),
+                $this->script(['src' => '/spp/admin/js/htmx.min.js']),
+                $this->script(['src' => '/spp/admin/js/turbo-streams.min.js'])
             ]),
             $this->body([
                 $this->div(['style' => 'font-family: sans-serif; max-width: 900px; margin: auto; padding: 2rem;'], [
@@ -86,7 +94,12 @@ class {{CLASS_NAME}} extends SPPView
                     $this->hr(),
                     
                     $this->h2('Layer 3: SPPUX (Reactive Island)'),
-                    $this->tag('spp-element', ['name' => '{{CLASS_NAME}}Island'], [])
+                    $this->tag('spp-element', ['name' => '{{CLASS_NAME}}Island'], []),
+                    
+                    $this->hr(),
+                    
+                    $this->h2('Layer 4: External View Partial (@spppartial)'),
+                    $this->div([], [$partialContent])
                 ])
             ])
         ]);
@@ -132,19 +145,69 @@ export default class {{CLASS_NAME}}Island extends BaseComponent {
 JS;
         $uxJsContent = str_replace('{{CLASS_NAME}}', $className, $uxJsContent);
 
+        // --- Partial Content ---
+        $partialContent = <<<'PARTIAL'
+<!-- External HTML Partial: {{CLASS_NAME}} Extra -->
+<div class="spp-partial-container" style="background: #f0fff4; padding: 1rem; border-radius: 8px; border: 1px solid #c6f6d5;">
+    <h3>Rendered from External Partial</h3>
+    <p>This standalone partial was rendered externally via TemplateMacros::spppartial without inline HTML string literals in controllers.</p>
+</div>
+PARTIAL;
+        $partialContent = str_replace('{{CLASS_NAME}}', $className, $partialContent);
 
         // Create directories and write files
         @mkdir(dirname($sppViewPath), 0777, true);
         @mkdir(dirname($bladePath), 0777, true);
         @mkdir(dirname($uxJsPath), 0777, true);
+        @mkdir(dirname($partialPath), 0777, true);
+
+        $workflowDir = SPP_APP_DIR . "/etc/apps/" . $context . "/workflows";
+        @mkdir($workflowDir, 0777, true);
+
+        $workflowContent = <<<WORKFLOW
+# ##############################################################################
+# Scaffolded Mixed Paradigm Workflow Definition for {$className}
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+" . strtolower($className) . ":
+  description: "Mixed paradigm lifecycle workflow for {$className}"
+  states:
+    - new
+    - rendering
+    - interactive
+    - destroyed
+  transitions:
+    render:
+      from: [new]
+      to: rendering
+    activate:
+      from: [rendering]
+      to: interactive
+    destroy:
+      from: [interactive]
+      to: destroyed
+WORKFLOW;
+        $workflowPath = $workflowDir . "/" . strtolower($className) . ".yml";
 
         file_put_contents($sppViewPath, $sppViewContent);
         file_put_contents($bladePath, $bladeContent);
         file_put_contents($uxJsPath, $uxJsContent);
+        file_put_contents($partialPath, $partialContent);
+        file_put_contents($workflowPath, trim($workflowContent));
 
         echo "Success: Mixed Paradigm '{$className}' created.\n";
-        echo " - SPPView: {$sppViewPath}\n";
-        echo " - Blade:   {$bladePath}\n";
-        echo " - SPPUX:   {$uxJsPath}\n";
+        echo " - SPPView:  {$sppViewPath}\n";
+        echo " - Blade:    {$bladePath}\n";
+        echo " - SPPUX:    {$uxJsPath}\n";
+        echo " - Partial:  {$partialPath}\n";
+        echo " - Workflow: {$workflowPath}\n";
     }
 }
+

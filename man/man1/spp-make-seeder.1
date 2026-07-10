@@ -1,25 +1,22 @@
-.TH SPP-make-seeder 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:seeder - Create a new Database Seeder class
+.TH SPP-make-seeder 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-seeder \- Create a new Database Seeder class
+.SH SYNOPSIS
+.B php spp.php make:seeder
+[OPTIONS]
+.SH DESCRIPTION
+Create a new Database Seeder class
 .PP
-# SYNOPSIS
-php spp.php make:seeder <SeederName> [--app=appname]
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from MakeSeederCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-The make:seeder command scaffolds a Database Seeder PHP class. Seeders are heavily utilized to programmatically inject mock data, default states, or testing artifacts into the application database structure.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<SeederName>` (string, required): The target identifier for the Seeder class. If missing, it prompts interactively.
+\(bu Interacts with the SPP database layer directly.
 .br
-\(bu `--app=<appname>` (string, optional): Determines the target execution namespace (resolves to `src/{app_name}/seeders/`).
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-The command sanitizes the provided string, automatically appending Seeder if it does not naturally terminate with it (e.g. User -> UserSeeder).
-It dynamically calculates the directory src/{app_name}/seeders, constructing the folder hierarchy forcefully.
-It generates a raw PHP string building the App\Seeders namespace and a class exposing a public run(SPPDB $db) method. A boilerplate $db->execute_query() string is heavily commented inline as an architectural example. Finally, it commits the string natively to the file system using file_put_contents.
-.PP
-# EXAMPLES
-1. Scaffold an Admin seeder:
-php spp.php make:seeder AdminUser --app=core
-.PP
+\(bu Instantiates key components: Database.
+.br

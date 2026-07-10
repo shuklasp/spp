@@ -1,23 +1,22 @@
-.TH SPP-config-import 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `CONFIG:IMPORT`
-.PP
-Purpose: Import database tables and settings from an exported SQL, SQLite, or XDB file
-.PP
+.TH SPP-config-import 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-config-import \- Import database tables and settings from an exported SQL, SQLite, or XDB file
 .SH SYNOPSIS
-php spp.php config:import [OPTIONS]
+.B php spp.php config:import
+[OPTIONS]
+.SH DESCRIPTION
+Import database tables and settings from an exported SQL, SQLite, or XDB file
 .PP
-.SH OPTIONS AVAILABLE
-No static options detected for this command.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
+\(bu Interacts with the SPP database layer directly.
 .br
-\(bu Performs direct filesystem modifications (create/write/delete).
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
 .br
-.PP
-.PP

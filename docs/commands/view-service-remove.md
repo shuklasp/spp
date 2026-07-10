@@ -1,6 +1,6 @@
 ## `view:service:remove`
 
-**Purpose**: Remove an AJAX service endpoint from an app
+**Description**: Remove an AJAX service endpoint from an app
 
 ### Synopsis
 ```bash
@@ -13,12 +13,12 @@ Usage: php spp.php view:service:remove --name=<service> [--app=default] [--sourc
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php.
-- `--name=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php.
-- `--source=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
+- `--source=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 

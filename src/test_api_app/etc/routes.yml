@@ -1,0 +1,14 @@
+################################################################################
+# Application Isolated Routes
+# These routes are discovered by SPPRouter when scanning modules.
+# They supplement (not replace) the main etc/apps/test_api_app/pages.yml
+################################################################################
+
+routes:
+  - path: "login"
+    target: "\App\test_api_app\Serv\AuthController@loginForm"
+    type: "controller"
+
+  - path: "logout"
+    target: "\App\test_api_app\Serv\AuthController@logout"
+    type: "controller"

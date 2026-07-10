@@ -1,19 +1,16 @@
-# NAME
-**deploy:backups** - List available snapshot backups on a remote target for rollback
+## `deploy:backups`
 
-# SYNOPSIS
-`php spp.php deploy:backups <target_uri> [--key=YOUR_API_KEY]`
+**Description**: List available snapshot backups on a remote target for rollback
 
-# PURPOSE
-Queries a remote deployment node to list all available rollback snapshots, allowing administrators to review backup histories before initiating a restoration.
+### Synopsis
+```bash
+php spp.php deploy:backups [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-- `<target_uri>` : **Required.** The HTTP URI of the target server to query.
-- `--key=<api_key>` : **Optional.** The API authentication key to authorize the request on the remote node. Defaults to `default_cli_key`.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployBackupsCommand.php
 
-# UNDER THE HOOD ACTIVITY
-The command extracts the target URI and the optional `--key` flag from the runtime arguments. It calls `\SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey)` to instantiate a client for the remote node. Using this connection, it invokes the `getBackups()` method, which performs an HTTP request to the target server. The target responds with a JSON array of backup metadata. The command checks the `status` flag of the response. If successful, it parses the `backups` array and formats a tabular view containing the backup date, filename (snapshot ID), and physical file size rounded to MB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
-# EXAMPLES
-Check backups on the staging server:
-`php spp.php deploy:backups https://staging.example.com --key=secret_123`

@@ -47,10 +47,23 @@ IGNORE;
             $ymlContent = <<<YML
 # SPPDeploy Configuration File
 
+default_environment: {$envName}
+
 environments:
   {$envName}:
     url: http://your-remote-server.com
     token: {$token}
+#  staging:
+#    url: http://staging.your-remote-server.com
+#    token: some_secure_token_here
+#  db_node:
+#    url: http://10.0.0.51
+#    token: internal_db_token
+
+# clusters:
+#   web_farm:
+#     - {$envName}
+#     - http://second-node.your-remote-server.com
 
 # webhooks:
 #   - "https://discord.com/api/webhooks/.../..."
@@ -59,6 +72,9 @@ environments:
 # post_deploy:
 #   - "composer install --no-dev"
 #   - "php spp.php cache:clear"
+#   # Hub-and-Spoke Gateway Orchestration: Distribute specialized tasks to internal sub-servers
+#   # - "php spp.php deploy:push db_node --key=internal_db_token"
+#   # - "php spp.php deploy:run http://10.0.0.52 'queue:restart' --key=queue_token"
 
 # anonymize:
 #   users:

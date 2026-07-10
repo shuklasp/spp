@@ -1,0 +1,18 @@
+.TH SPP-xdb-seed 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-xdb-seed \- Run SPP_XDB Database Seeders
+.SH SYNOPSIS
+.B php spp.php xdb:seed
+[OPTIONS]
+.SH DESCRIPTION
+Run SPP_XDB Database Seeders
+.PP
+.SH OPTIONS
+.TP
+.B --class=
+Expects a value. Extracted via static analysis from XdbSeedCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: SPP_XDB, SeederManager.
+.br

@@ -1,21 +1,17 @@
-# NAME
-**sys:test:auto** - Runs Automated Evolutionary Testing (Parikshak) for the current application.
+## `sys:test:auto`
 
-# SYNOPSIS
-`php spp.php sys:test:auto [appname]`
+**Description**: Runs Automated Evolutionary Testing (Parikshak) for the current application.
 
-# PURPOSE
-Executes the Parikshak Automated Evaluation suite, verifying system integrity, checking entity invariants, and running all associated unit tests for a designated application context.
+### Synopsis
+```bash
+php spp.php sys:test:auto [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-- `[appname]` : **Optional.** The name of the application context to evaluate. Defaults to the current active context retrieved via `\SPP\Scheduler::getContext()`, or `default`.
+### Options
+No static options detected.
 
-# UNDER THE HOOD ACTIVITY
-The command first checks if the `parikshak` module is enabled via `\SPP\Module::getConfig('active', 'parikshak')`. If inactive, it aborts. It isolates the testing environment by dynamically overwriting the database configuration (`sppdb` module) to use an in-memory SQLite database (`:memory:`), and injects a fresh `\SPPMod\SPPDB\SPPDB` instance. It then instantiates `\SPPMod\Parikshak\Parikshak` and calls `runSuite($appname)`. The suite runs entity evaluations and unit tests, and returns an array of results. Finally, the CLI formats and renders a comprehensive console report, highlighting passed/failed entity rules and unit test outcomes with ANSI color codes.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, Parikshak.
 
-# EXAMPLES
-Run tests for the default context:
-`php spp.php sys:test:auto`
-
-Run tests for a specific app context named "api":
-`php spp.php sys:test:auto api`

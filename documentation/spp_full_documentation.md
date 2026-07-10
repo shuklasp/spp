@@ -180,7 +180,7 @@ php spp.php audit:lineage --app=portal
 
 <a name="sandboxing"></a>
 ### 2.4 WASM Sandboxing & Sub-Resource Integrity (SRI) Hashes
-* **WASM Micro-Frontends**: Core extensions securely isolate external untrusted computational logic inside strict runtime payload caps using `SPPExt::executeFederatedSandbox()`.
+* **WASM Micro-Frontends**: Core extensions securely isolate external untrusted computational logic inside strict runtime payload caps using `\SPPMod\Drishyam\Sppext::executeFederatedSandbox()`.
 * **SRI Hash Generation**: The `DrishyamRenderer` dynamically signs compiled template responses with SHA-256 inline hash validation tags (`data-spp-sri`), locking root components against untrusted client code vectors.
 
 <a name="hmr-cache"></a>

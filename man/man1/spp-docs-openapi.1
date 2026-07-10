@@ -1,0 +1,20 @@
+.TH SPP-docs-openapi 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-docs-openapi \- Documentation utilities (build, api, openapi, man, phpdoc).
+.SH SYNOPSIS
+.B php spp.php docs:openapi
+[OPTIONS]
+.SH DESCRIPTION
+Documentation utilities (build, api, openapi, man, phpdoc).
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
+.br

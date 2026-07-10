@@ -100,10 +100,29 @@ async function mountSPPUXComponent(el) {
 
         return instance;
     } catch (error) {
-        console.error(`Failed to mount SPP component:`, error);
-        el.innerHTML = `<div class="spp-ux-error" style="color: #e53e3e; padding: 1rem; border: 1px solid #feb2b2; border-radius: 8px; background: #fff5f5; font-family: system-ui;">
-            <strong>SPP-UX Loader Error:</strong> ${error.message}
-        </div>`;
+        console.error(`[SPP-UX] Failed to mount component:`, error);
+        el.innerHTML = `
+            <div style="margin:2rem; padding:2rem; background:rgba(255,50,50,0.1); border:1px solid rgba(255,50,50,0.3); border-radius:12px; font-family:system-ui, sans-serif; color:#ef4444; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1.5rem; border-bottom:1px solid rgba(255,50,50,0.2); padding-bottom:1rem;">
+                    <span style="font-size:2rem;">💥</span>
+                    <div>
+                        <h2 style="margin:0; font-size:1.4rem; color:#ef4444;">Frontend Component Error</h2>
+                        <div style="font-size:0.9rem; opacity:0.8; margin-top:0.3rem;">The SPP-UX engine caught a critical compilation or runtime error.</div>
+                    </div>
+                </div>
+                
+                <div style="background:rgba(0,0,0,0.2); padding:1.2rem; border-radius:8px; margin-bottom:1.5rem;">
+                    <strong style="display:block; margin-bottom:0.5rem; font-size:1.1rem;">${error.name || 'Error'}: ${error.message}</strong>
+                    <pre style="margin:0; white-space:pre-wrap; font-size:0.85rem; color:#f87171; line-height:1.5; font-family:monospace; overflow-x:auto;">${error.stack || 'No stack trace available'}</pre>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end;">
+                    <button onclick="window.location.reload(true)" style="background:#ef4444; color:white; border:none; padding:0.6rem 1.2rem; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.9rem; transition:background 0.2s;">
+                        ↻ Hard Reload App
+                    </button>
+                </div>
+            </div>
+        `;
         return null;
     }
 }

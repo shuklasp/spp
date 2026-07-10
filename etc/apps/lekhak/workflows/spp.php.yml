@@ -1,0 +1,28 @@
+# ##############################################################################
+# Scaffolded Mixed Paradigm Workflow Definition for Spp.php
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+" . strtolower(Spp.php) . ":
+  description: "Mixed paradigm lifecycle workflow for Spp.php"
+  states:
+    - new
+    - rendering
+    - interactive
+    - destroyed
+  transitions:
+    render:
+      from: [new]
+      to: rendering
+    activate:
+      from: [rendering]
+      to: interactive
+    destroy:
+      from: [interactive]
+      to: destroyed

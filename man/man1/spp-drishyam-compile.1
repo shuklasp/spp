@@ -1,22 +1,18 @@
-.TH SPP-drishyam-compile 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# drishyam:compile
-.PP
+.TH SPP-drishyam-compile 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-drishyam:compile - Pre-compile Drishyam templates for production
-.PP
+spp-drishyam-compile \- Pre-compile Drishyam templates for production
 .SH SYNOPSIS
-php spp.php drishyam:compile [--app=<app_name>]
+.B php spp.php drishyam:compile
+[OPTIONS]
+.SH DESCRIPTION
+Pre-compile Drishyam templates for production
 .PP
-.SH PURPOSE
-Actively bootstraps the Drishyam rendering engine and forces a systemic pre-warming of all templates to disk cache, minimizing production latency.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from DrishyamCompileCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=<app_name>`: Bound application context (default: 'default').
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-It enters the bounded app context via Scheduler::withContext(). It validates that the \SPPMod\Drishyam\Drishyam engine is available and active. It retrieves the engine's singleton instance through getInstance(), forces a structural bootstrap routine via boot(), and instructs the engine to traverse and eagerly cache all reachable templates via the preWarm() method.
-.PP
-.SH EXAMPLES
-php spp.php drishyam:compile --app=storefront
-.PP

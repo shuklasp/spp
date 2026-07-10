@@ -1,26 +1,20 @@
-.TH SPP-make-live-component 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:live-component - Create a new Live Component class
+.TH SPP-make-live-component 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-live-component \- Create a new Live Component class
+.SH SYNOPSIS
+.B php spp.php make:live-component
+[OPTIONS]
+.SH DESCRIPTION
+Create a new Live Component class
 .PP
-# SYNOPSIS
-php spp.php make:live-component <name> [--app=appname]
-.PP
-# PURPOSE
-The make:live-component command provisions a PHP class for the SPPLive subsystem (conceptually similar to Livewire). These components enable complex, interactive, and reactive server-side state mutations transmitted dynamically to the frontend without requiring custom JavaScript implementations.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<name>` (string, required): The target name of the component (e.g. `UserSearch`, `InteractiveTable`).
+Usage: php spp.php make:live-component <name> [--app=appname]
 .br
-\(bu `--app=<appname>` (string, optional): Determines the target execution context.
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: Live.
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-Upon execution, it validates the name, normalizes it using ucfirst(), and retrieves the relevant application context via getContext().
-It targets the live directory within the application context, naming the file explicitly as class.{lowercase_component_name}.php.
-The buildFromStub() compiler is executed using the livecomponent stub format, writing the properly namespaced class to disk.
-Furthermore, this command includes the internal renderAdminUI() function, empowering administrators to invoke this command through a visual HTML interface via the SPP Admin Panel utilizing the window.executeCommand JavaScript bridge.
-.PP
-# EXAMPLES
-1. Create a reactive search component:
-php spp.php make:live-component SearchFilter --app=frontend
-.PP

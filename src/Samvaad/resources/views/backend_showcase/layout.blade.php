@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@yield('title', 'Backend Enterprise Showcase')</title>
+    <!-- HTMX and Turbo Streams -->
+    <script src="<?= (defined('APP_BASE_URI') ? APP_BASE_URI : '') ?>/sppadmin/js/htmx.min.js"></script>
+    <script src="<?= (defined('APP_BASE_URI') ? APP_BASE_URI : '') ?>/sppadmin/js/turbo-streams.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: rgba(30, 41, 59, 0.7);
+            --surface-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --danger: #ef4444;
+            --sidebar-width: 280px;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.15), transparent 25%);
+            color: var(--text-main);
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--surface-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-right: 1px solid var(--surface-border);
+            padding: 2rem 0;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 0 2rem 2rem;
+            border-bottom: 1px solid var(--surface-border);
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 1rem 2rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border-left-color: var(--primary);
+        }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 3rem;
+            max-width: 1200px;
+        }
+
+        .glass-panel {
+            background: var(--surface-color);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--surface-border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            margin-bottom: 2rem;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 { margin-top: 0; font-size: 1.8rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 1rem; }
+        
+        p { color: var(--text-muted); line-height: 1.7; }
+
+        /* Forms & Buttons */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn:active { transform: translateY(1px); }
+        
+        .btn-success { background: var(--success); }
+        .btn-outline { background: transparent; border: 1px solid var(--surface-border); }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem; }
+        .form-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--surface-border);
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        .form-input:focus { outline: none; border-color: var(--primary); }
+
+        /* Code display */
+        pre {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--surface-border);
+            overflow-x: auto;
+            color: #a78bfa;
+            font-family: 'Fira Code', monospace;
+        }
+
+        /* HTMX Indicator */
+        .htmx-indicator { display: none; margin-left: 10px; }
+        .htmx-request .htmx-indicator { display: inline-block; }
+        .htmx-request.htmx-indicator { display: inline-block; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h1>Backend Enterprise<br>Showcase</h1>
+        </div>
+        <nav hx-target="#showcase-container" hx-swap="innerHTML" hx-indicator="#global-spinner">
+            <a class="nav-item active" hx-get="<?= \SPP\App::url('backend-showcase/partial/intro', 'samvaad') ?>" onclick="setActive(this)">Welcome</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/orm', 'samvaad') ?>" onclick="setActive(this)">ORM & Active Record</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/cqrs', 'samvaad') ?>" onclick="setActive(this)">CQRS Event Store</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/workflow', 'samvaad') ?>" onclick="setActive(this)">Workflow Engine</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/routing', 'samvaad') ?>" onclick="setActive(this)">Attribute Routing</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/sppai', 'samvaad') ?>" onclick="setActive(this)">AI Gateway (SPPAI)</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/queue', 'samvaad') ?>" onclick="setActive(this)">DAG Jobs (SPPQueue)</a>
+            <a class="nav-item" hx-get="<?= \SPP\App::url('backend-showcase/partial/polyglot', 'samvaad') ?>" onclick="setActive(this)">Polyglot Bridge</a>
+        </nav>
+        
+        <div style="margin-top: auto; padding: 2rem;">
+            <a href="<?= \SPP\App::url('', 'samvaad') ?>" class="btn btn-outline" style="width: 100%; justify-content: center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"></path><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Back to Original App
+            </a>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <div style="font-size: 0.9rem; color: var(--text-muted);">
+                Powered by SPP Framework (Non-SPPUX Mode)
+            </div>
+            <div id="global-spinner" class="htmx-indicator">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-loader" style="animation: spin 1s linear infinite;"><line x1="12" y1="2" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="22"></line><line x1="4.93" y1="4.93" x2="7.76" y2="7.76"></line><line x1="16.24" y1="16.24" x2="19.07" y2="19.07"></line><line x1="2" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="22" y2="12"></line><line x1="4.93" y1="19.07" x2="7.76" y2="16.24"></line><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"></line></svg>
+                <style>@keyframes spin { 100% { transform: rotate(360deg); } }</style>
+            </div>
+        </div>
+
+        <div id="showcase-container">
+            @yield('content')
+        </div>
+    </main>
+
+    <script>
+        function setActive(element) {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            element.classList.add('active');
+        }
+        
+        // Let htmx handle pushState history if needed
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            // Optional: attach CSRF token if needed
+        });
+    </script>
+</body>
+</html>

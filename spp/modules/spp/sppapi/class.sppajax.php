@@ -119,6 +119,31 @@ class SPPAjax extends \SPP\SPPObject
             return;
         }
 
+        // Fallback for SPPUX Legacy actions (action= in query string)
+        $legacyAction = $_GET['action'] ?? $_POST['action'] ?? null;
+        if ($legacyAction) {
+            // Read JSON body params once for all patterns
+            $jsonBody = json_decode(file_get_contents('php://input'), true) ?: [];
+
+            $svcName = null;
+            if ($legacyAction === 'call_service') {
+                // Pattern: SPPUX.api('call_service', { service: 'enterprise.ai', ... })
+                $svcName = $jsonBody['service'] ?? $_POST['service'] ?? $_GET['service'] ?? null;
+            } elseif ($legacyAction === 'service') {
+                // Pattern: SPPUX.api('service', { name: 'enterprise.ai', ... })
+                $svcName = $jsonBody['name'] ?? $_POST['name'] ?? $_GET['name'] ?? null;
+            } else {
+                // Direct action name: SPPUX.api('my_action', { ... })
+                $svcName = $legacyAction;
+            }
+            
+            if ($svcName) {
+                \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::dispatch(trim($svcName));
+                return;
+            }
+        }
+
+
         // Component JS: ?__js_comp=ComponentName
         if (isset($_GET['__js_comp'])) {
             \SPPMod\SPPAPI\Dispatchers\ComponentDispatcher::dispatchJS(trim($_GET['__js_comp']));
@@ -136,7 +161,8 @@ class SPPAjax extends \SPP\SPPObject
     {
         return (isset($_GET['__spa']) && $_GET['__spa'] === '1')
             || (isset($_SERVER['HTTP_X_SPP_AJAX']) && $_SERVER['HTTP_X_SPP_AJAX'] === '1')
-            || (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1');
+            || (isset($_SERVER['X-SPP-Ajax']) && $_SERVER['X-SPP-Ajax'] === '1')
+            || (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest' && isset($_GET['action']));
     }
 
     /**
@@ -440,6 +466,12 @@ class SPPAjax extends \SPP\SPPObject
         $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'services.yml';
 
         if (!file_exists($file)) {
+            // Check src/{AppName}/etc/services.yml (scaffold convention)
+            $srcFile = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc' . SPP_DS . 'services.yml';
+            if (file_exists($srcFile)) {
+                return $srcFile;
+            }
+
             $registryPath = \SPP\Module::getConfig('spa_services_registry', 'sppajax');
             if ($registryPath) {
                 $file = SPP_APP_DIR . $registryPath;

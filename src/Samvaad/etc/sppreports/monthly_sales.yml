@@ -1,0 +1,50 @@
+################################################################################
+# SPPReport V5 Enterprise Report Definition — Samvaad
+#
+# ARCHITECTURAL FEATURES:
+# 1. Hypermedia Presentation: Native support for HTMX & Turbo Streams.
+# 2. Dual-Mode Templating: Unified template supporting `.spp-screen-mode` (with filter forms
+#    and scrollable interactive tables) and `.spp-print-mode` (printer-friendly layout).
+# 3. Zero Inline HTML Literals: Controllers and generators rely strictly on external partials.
+# 4. Smart Content Negotiation: Automatically serves JSON, HTML partials, or Turbo Streams based
+#    on request headers (`HX-Request`, `Turbo-Frame`).
+# 5. CLI Guarding & Mutex Locking: Cron schedules enforce `isCLIOnly()` and acquire distributed
+#    mutex locks to prevent concurrent report generation race conditions.
+################################################################################
+
+report:
+  id: "monthly_sales"
+  name: "Monthly Sales & Performance Summary"
+  description: "Comprehensive dual-mode sales summary supporting real-time filters and high-fidelity print output."
+  group: "Finance"
+  allowed_roles: ["admin", "finance_manager"]
+
+  # Database query definition
+  data_source:
+    external_dsn: "default"
+    sql_query: "SELECT department, SUM(amount) as total_sales, COUNT(id) as transactions FROM Samvaad_sales WHERE created_at >= :start_date AND created_at <= :end_date GROUP BY department"
+    default_params:
+      start_date: "2026-06-01 00:00:00"
+      end_date: "2026-06-30 23:59:59"
+
+  # Templating and View Engine
+  view:
+    engine: "blade"
+    template: "reports.monthly_sales_template"
+    dual_mode_enabled: true
+    hypermedia:
+      enabled: true
+      turbo_stream_target: "report-monthly-sales-stream"
+      htmx_indicator: "#report-loading-indicator"
+
+  # Automation & Scheduling
+  automation:
+    cron_schedule: "0 2 1 * *" # 2:00 AM on the 1st of every month
+    enforce_cli_only: true
+    acquire_mutex_lock: true
+    destinations:
+      disk: "public" # Uses SPPStorage disk
+      path: "reports/monthly_sales_{YYYY}_{MM}.pdf"
+    notifications:
+      webhook_url: "https://hooks.slack.com/services/T000/B000/XXXX"
+      alert_condition: "total_sales < 50000"

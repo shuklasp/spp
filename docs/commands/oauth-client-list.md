@@ -1,18 +1,17 @@
-# NAME
-**oauth:client:list** - List all OAuth 2.0 Client Apps
+## `oauth:client:list`
 
-# SYNOPSIS
-`php spp.php oauth:client:list`
+**Description**: List all OAuth 2.0 Client Apps
 
-# PURPOSE
-Displays a registry of all active OAuth 2.0 Client Applications provisioned on the server.
+### Synopsis
+```bash
+php spp.php oauth:client:list [OPTIONS]
+```
 
-# OPTIONS AVAILABLE
-This command takes no arguments or options.
+### Options
+No static options detected.
 
-# UNDER THE HOOD ACTIVITY
-The command uses the `SPPDB` database abstraction layer to query the `oauth_clients` table. It performs a `SELECT` operation requesting the `id`, `name`, `redirect_uri`, and `created_at` fields, sorting the results chronologically descending by creation date. The raw result set is parsed and, if the global `printTable()` CLI helper is available, rendered as a neatly formatted ASCII table. Otherwise, it falls back to printing the list sequentially in a standard text format.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
-# EXAMPLES
-View all registered clients:
-`php spp.php oauth:client:list`

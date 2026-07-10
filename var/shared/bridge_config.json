@@ -1,11 +1,11 @@
 {
-    "timestamp": 1782475224,
+    "timestamp": 1783511907,
     "spp_version": "0.7",
     "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
-        "dbtype": "sqlite",
+        "dbtype": "mysql",
         "dbhost": "localhost",
-        "dbname": "lekhak1",
+        "dbname": "Samvaad",
         "dbuser": "root",
         "dbpasswd": "hello123"
     },
@@ -22,51 +22,44 @@
         "lekhni": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/contrib\/lekhni",
         "sppxdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb",
         "sppdeploy": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdeploy",
-        "sppsecurity": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppsecurity",
-        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter",
-        "lekhak": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
-        "lekhak_commerce": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
-        "lekhak_drupal_bridge": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
-        "lekhak_peeche": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
-        "sankhyaki": "\/mnt\/c\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
-        "sppadmin": false
+        "sppdoc": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdoc",
+        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter"
     },
     "runtimes": {
         "python": {
             "name": "Python",
-            "path": "C:\\Python312\\python.exe",
-            "version": "Python 3.12.0"
+            "path": "\/usr\/bin\/python3",
+            "version": "Python 3.12.3"
         },
         "perl": {
             "name": "Perl",
-            "path": "C:\\xampp\\perl\\bin\\perl.exe",
-            "version": "5.32.1"
+            "path": "\/usr\/bin\/perl",
+            "version": "5.38.2"
         },
         "java": {
             "name": "Java",
-            "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
-            "version": "15.0.2"
+            "path": "\/usr\/bin\/java",
+            "version": "21.0.11"
         },
         "node": {
             "name": "Node.js",
-            "path": "C:\\Program Files\\nodejs\\node.exe",
-            "version": "v21.4.0"
+            "path": "",
+            "version": ""
         },
         "dotnet": {
             "name": ".NET",
-            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
-            "version": "9.0.201"
+            "path": "\/usr\/bin\/dotnet",
+            "version": "8.0.128"
         },
         "go": {
             "name": "Go",
-            "path": "C:\\Program Files\\Go\\bin\\go.exe",
-            "version": "1.26.2"
+            "path": "\/usr\/bin\/go",
+            "version": "1.22.2"
         },
         "compiler": {
-            "name": "MSVC",
-            "path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.43.34808\\bin\\Hostx64\\x64\\cl.exe",
-            "version": "19.43.34809",
-            "vcvars": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+            "name": "GCC",
+            "path": "\/usr\/bin\/gcc",
+            "version": "13.3.0"
         }
     },
     "bridge_settings": {

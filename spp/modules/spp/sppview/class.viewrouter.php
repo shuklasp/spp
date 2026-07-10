@@ -51,6 +51,12 @@ class ViewRouter
         SPPGlobal::set('numparams', count($pageData['params']));
 
         $filename = ($pageData['url'] !== '') ? (SPP_APP_DIR . SPP_DS . ltrim($pageData['url'], '/\\')) : null;
+        if ($filename !== null && !file_exists($filename)) {
+            $srcPath = rtrim(SPP_APP_DIR, '/\\') . SPP_DS . trim($src, '/\\') . SPP_DS . ltrim($pageData['url'], '/\\');
+            if (file_exists($srcPath)) {
+                $filename = $srcPath;
+            }
+        }
 
         if ($filename !== null && $filename === SPP_APP_DIR . SPP_US . 'index.php') {
             throw new SPPException('Router safety: Infinite recursion detected. Please check your "pagedir" setting in pages.yml.');
@@ -77,8 +83,6 @@ class ViewRouter
                 $controller = new $class();
                 if (method_exists($controller, $method)) {
                     $params = $pageData['params'] ?? [];
-
-                    var_dump($controller, $method, $params);
                     $result = call_user_func_array([$controller, $method], $params);
                     if (is_string($result)) {
                         echo $result;
@@ -93,8 +97,7 @@ class ViewRouter
             $viewName = str_replace(['/', '\\'], '.', preg_replace('/\.html$/', '', ltrim($pageData['url'], '/\\')));
 
             $app = \SPP\App::getApp();
-            $pageData['base_url'] = rtrim((defined('APP_BASE_URI') ? APP_BASE_URI : ''), '/') . '/' . ltrim($app->base_url ?? '', '/');
-            $pageData['base_url'] = rtrim($pageData['base_url'], '/');
+            $pageData['base_url'] = \SPP\App::getBaseUrl($app->getName());
             if ($pageData['base_url'] === '') {
                 $pageData['base_url'] = '/';
             }
@@ -117,8 +120,12 @@ class ViewRouter
                 try {
                     $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
                     $html = $blade->renderInstance($viewName, ['pageData' => $pageData]);
-                    echo $html;
-                    return true;
+                    if (strpos(strtolower($html), 'blade error: template not found') !== false || strpos(strtolower($html), 'blade error: template does not exist') !== false || strpos(strtolower($html), 'not exist') !== false) {
+                        // Blade template not found. Fall through to native PHP view rendering.
+                    } else {
+                        echo $html;
+                        return true;
+                    }
                 } catch (\Exception $e) {
                     if (strpos(strtolower($e->getMessage()), 'not found') === false && strpos(strtolower($e->getMessage()), 'does not exist') === false && strpos(strtolower($e->getMessage()), 'not exist') === false) {
                         throw $e;
@@ -129,8 +136,7 @@ class ViewRouter
 
         if ($filename && file_exists($filename) && is_file($filename)) {
             $app = \SPP\App::getApp();
-            $pageData['base_url'] = rtrim((defined('APP_BASE_URI') ? APP_BASE_URI : ''), '/') . '/' . ltrim($app->base_url ?? '', '/');
-            $pageData['base_url'] = rtrim($pageData['base_url'], '/');
+            $pageData['base_url'] = \SPP\App::getBaseUrl($app->getName());
             if ($pageData['base_url'] === '') {
                 $pageData['base_url'] = '/';
             }

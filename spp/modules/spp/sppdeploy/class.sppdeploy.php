@@ -1,7 +1,7 @@
 <?php
 namespace SPPMod\SPPDeploy;
 
-class SPPDeploy
+class SPPDeploy extends \SPP\Module
 {
     public static function isDeployRequest(): bool
     {

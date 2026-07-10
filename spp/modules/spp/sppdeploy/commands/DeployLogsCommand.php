@@ -9,10 +9,8 @@ class DeployLogsCommand extends Command
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
-        if (!$target) {
-            echo "Error: Target connection URI required.\n";
-            echo "Usage: php spp.php deploy:logs <target_uri> [--key=YOUR_API_KEY] [--tail] [--lines=100]\n";
-            return;
+        if (!$target || str_starts_with($target, '--') || str_starts_with($target, '-')) {
+            $target = TargetConnection::getDefaultEnvironment();
         }
 
         $apiKey = 'default_cli_key';

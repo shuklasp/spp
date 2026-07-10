@@ -9,6 +9,11 @@ class LangListCommand extends Command
     protected string $name = 'lang:list';
     protected string $description = 'List all translations';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

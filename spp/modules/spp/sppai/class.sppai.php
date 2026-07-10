@@ -42,13 +42,25 @@ class SPPAI extends \SPP\SPPObject
         $provider = self::$selectedProvider ?: \SPP\Module::getConfig('default_provider', 'sppai') ?: 'google';
         $config = \SPP\Module::getConfig('providers', 'sppai')[$provider] ?? [];
 
-        $className = "SPPMod\\SPPAI\\" . ($config['class'] ?? (ucfirst($provider) . "Driver"));
+        $shortClass = $config['class'] ?? (ucfirst($provider) . "Driver");
+        $className = "SPPMod\\SPPAI\\" . $shortClass;
+
+        if (!class_exists($className)) {
+            $interfacePath = __DIR__ . '/int.aidriver.php';
+            if (file_exists($interfacePath) && !interface_exists("SPPMod\\SPPAI\\AIDriverInterface")) {
+                require_once $interfacePath;
+            }
+            $driverPath = __DIR__ . '/drivers/class.' . strtolower($shortClass) . '.php';
+            if (file_exists($driverPath)) {
+                require_once $driverPath;
+            }
+        }
 
         if (!class_exists($className)) {
             throw new \SPP\SPPException("AI Driver not found: {$className}");
         }
 
-        $driver = \SPP\App::getInstance()->make($className, ['config' => $config]);
+        $driver = \SPP\App::getApp()->make($className, ['config' => $config]);
         if (self::$selectedModel) {
             $driver->setModel(self::$selectedModel);
         }
@@ -133,3 +145,11 @@ class SPPAI extends \SPP\SPPObject
         ];
     }
 }
+
+if (class_exists('\SPP\CLI\CommandManager')) {
+    if (!class_exists('\SPPMod\SPPAI\Commands\AIBenchmarkCommand')) {
+        require_once __DIR__ . '/Commands/AIBenchmarkCommand.php';
+    }
+    \SPP\CLI\CommandManager::registerCommand(new \SPPMod\SPPAI\Commands\AIBenchmarkCommand());
+}
+

@@ -95,8 +95,8 @@ modules:
         path: spp/sppsecurity
         status: active
     19:
-        name: sppdocs
-        path: spp/sppdocs
+        name: sppdoc
+        path: spp/sppdoc
         status: active
     20:
         name: spprouter

@@ -30,8 +30,17 @@ class SPPEvent extends \SPP\SPPObject
         $cacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_compiled.php';
         if (file_exists($cacheFile)) {
             $data = require $cacheFile;
-            self::$listeners = $data['listeners'] ?? [];
-            self::$eventDefinitions = $data['definitions'] ?? [];
+            $cachedListeners = $data['listeners'] ?? [];
+            foreach ($cachedListeners as $evt => $handlers) {
+                if (!isset(self::$listeners[$evt])) {
+                    self::$listeners[$evt] = [];
+                }
+                self::$listeners[$evt] = array_merge(self::$listeners[$evt], $handlers);
+                usort(self::$listeners[$evt], function($a, $b) {
+                    return $b['priority'] <=> $a['priority'];
+                });
+            }
+            self::$eventDefinitions = array_merge(self::$eventDefinitions, $data['definitions'] ?? []);
             return;
         }
 
@@ -247,7 +256,7 @@ class SPPEvent extends \SPP\SPPObject
     /**
      * Dispatch an event.
      */
-    public static function fireEvent($event_name, \SPP\EventParams $params, ?callable $inline_handler = null)
+    public static function fireEvent($event_name, \SPP\EventParams $params, callable|string|array|null $inline_handler = null)
     {
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
             $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
@@ -261,8 +270,37 @@ class SPPEvent extends \SPP\SPPObject
             if (!empty(self::$listeners['instead_' . $event_name])) {
                 self::triggerHook('instead_' . $event_name, $params);
             } else {
-                if (is_callable($inline_handler)) {
-                    call_user_func($inline_handler, $params);
+                if ($inline_handler !== null) {
+                    $callback = $inline_handler;
+                    if (is_string($callback)) {
+                        if (class_exists($callback)) {
+                            $callback = [new $callback, '__invoke'];
+                        } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback)) {
+                            $className = '\\EventHandlers\\Defaults\\' . $callback;
+                            $callback = [new $className, '__invoke'];
+                        }
+                    } elseif (is_array($callback) && is_string($callback[0])) {
+                        if (class_exists($callback[0])) {
+                            try {
+                                $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
+                                if (!$refMethod->isStatic()) {
+                                    $callback[0] = new $callback[0]();
+                                }
+                            } catch (\ReflectionException $e) {}
+                        } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback[0])) {
+                            $className = '\\EventHandlers\\Defaults\\' . $callback[0];
+                            try {
+                                $refMethod = new \ReflectionMethod($className, $callback[1]);
+                                if (!$refMethod->isStatic()) {
+                                    $callback[0] = new $className();
+                                }
+                            } catch (\ReflectionException $e) {}
+                        }
+                    }
+
+                    if (is_callable($callback)) {
+                        call_user_func_array($callback, [&$params]);
+                    }
                 }
                 self::triggerHook($event_name, $params);
             }
@@ -282,18 +320,33 @@ class SPPEvent extends \SPP\SPPObject
             $callback = $listener['callback'];
             
             // Auto-instantiate class names with __invoke
-            if (is_string($callback) && class_exists($callback)) {
-                $callback = [new $callback, '__invoke'];
+            if (is_string($callback)) {
+                if (class_exists($callback)) {
+                    $callback = [new $callback, '__invoke'];
+                } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback)) {
+                    $className = '\\EventHandlers\\Defaults\\' . $callback;
+                    $callback = [new $className, '__invoke'];
+                }
             }
             
             // Auto-instantiate array callbacks if method is not static
-            if (is_array($callback) && is_string($callback[0]) && class_exists($callback[0])) {
-                try {
-                    $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
-                    if (!$refMethod->isStatic()) {
-                        $callback[0] = new $callback[0]();
-                    }
-                } catch (\ReflectionException $e) {}
+            if (is_array($callback) && is_string($callback[0])) {
+                if (class_exists($callback[0])) {
+                    try {
+                        $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
+                        if (!$refMethod->isStatic()) {
+                            $callback[0] = new $callback[0]();
+                        }
+                    } catch (\ReflectionException $e) {}
+                } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback[0])) {
+                    $className = '\\EventHandlers\\Defaults\\' . $callback[0];
+                    try {
+                        $refMethod = new \ReflectionMethod($className, $callback[1]);
+                        if (!$refMethod->isStatic()) {
+                            $callback[0] = new $className();
+                        }
+                    } catch (\ReflectionException $e) {}
+                }
             }
             
             if (is_callable($callback)) {

@@ -1,16 +1,16 @@
 ## `sys:seed`
 
-**Purpose**: Run all database seeders for an application
+**Description**: Run all database seeders for an application
 
 ### Synopsis
 ```bash
 php spp.php sys:seed [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPPDB.
 

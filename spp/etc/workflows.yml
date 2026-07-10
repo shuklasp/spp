@@ -1,0 +1,111 @@
+# -------------------------------------------------------------------------
+# SPP Enterprise Workflows Configuration (workflows.yml)
+# -------------------------------------------------------------------------
+
+# 1. Standard Content Lifecycle Workflow (Keyed by entity_type.bundle)
+node.article:
+  description: "Standard editorial workflow for publishing articles"
+  states:
+    - draft
+    - in_review
+    - published
+    - archived
+  transitions:
+    submit_for_review:
+      from: [draft]
+      to: in_review
+      permission: "content.submit"
+    approve_and_publish:
+      from: [in_review]
+      to: published
+      permission: "content.approve"
+      guards: ["\\App\\Default\\Guards\\ContentGuard::validateCompleteness"]
+    archive:
+      from: [published, in_review]
+      to: archived
+      permission: "content.archive"
+
+# 2. Multi-Step Wizard Workflow (Keyed by entity_type.bundle)
+wizard.onboarding:
+  description: "Multi-step interactive user onboarding wizard"
+  states:
+    - step_1_profile
+    - step_2_company
+    - step_3_billing
+    - completed
+  transitions:
+    proceed_to_company:
+      from: [step_1_profile]
+      to: step_2_company
+      guards: ["\\App\\Default\\Guards\\WizardGuard::validateProfile"]
+    proceed_to_billing:
+      from: [step_2_company]
+      to: step_3_billing
+      guards: ["\\App\\Default\\Guards\\WizardGuard::validateCompany"]
+    complete_onboarding:
+      from: [step_3_billing]
+      to: completed
+
+# 3. Organizational Hierarchy Workflow with SLA Timeouts (Keyed by entity_type)
+expense:
+  description: "Multi-tier organizational approval chain with automated SLA escalations"
+  states:
+    - pending_manager
+    - pending_director
+    - pending_finance
+    - approved
+    - rejected
+    - escalated_to_vp
+  tiers:
+    manager:
+      approvers: [101, 102]
+      threshold: 0.0
+    director:
+      approvers: [201, 205]
+      threshold: 1000.0
+    finance:
+      approvers: [301]
+      threshold: 5000.0
+  transitions:
+    manager_approve:
+      from: [pending_manager]
+      to: pending_director
+      timeout: "48 hours"
+      timeout_transition: "escalate_manager"
+    escalate_manager:
+      from: [pending_manager]
+      to: escalated_to_vp
+    director_approve:
+      from: [pending_director]
+      to: pending_finance
+    finance_approve:
+      from: [pending_finance]
+      to: approved
+    reject_expense:
+      from: [pending_manager, pending_director, pending_finance]
+      to: rejected
+
+# 4. E-Commerce Order Lifecycle with Parallel Markings & Saga Rollback
+order.checkout:
+  description: "Advanced order fulfillment workflow with parallel states and Saga compensating transactions"
+  states:
+    - payment_verified
+    - warehouse_packing
+    - invoice_sent
+    - shipped
+    - cancelled
+  transitions:
+    initiate_packing:
+      from: [payment_verified]
+      to: warehouse_packing
+    send_invoice:
+      from: [payment_verified]
+      to: invoice_sent
+    complete_shipping:
+      from: [warehouse_packing, invoice_sent]
+      to: shipped
+      compensations: ["\\App\\Default\\Compensations\\ShippingCompensation::restock"]
+    cancel_order:
+      from: [payment_verified, warehouse_packing]
+      to: cancelled
+      compensations: ["\\App\\Default\\Compensations\\PaymentCompensation::refund"]

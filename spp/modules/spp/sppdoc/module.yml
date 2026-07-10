@@ -10,7 +10,14 @@ module:
     - { class: SPPDoc, file: class.sppdoc.php }
     - { class: DocParser, file: src/DocParser.php }
     - { class: StaticGenerator, file: src/StaticGenerator.php }
+    - { class: SPPDocGenerator, file: src/SPPDocGenerator.php }
+    - { class: SPPEntityDocCollector, file: src/SPPEntityDocCollector.php }
+    - { class: SPPRouteDocCollector, file: src/SPPRouteDocCollector.php }
+    - { class: ManPageGenerator, file: src/ManPageGenerator.php }
     
   commands:
     - { command: "docs:build", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Build native SPP documentation" }
+    - { command: "docs:api", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Generate standalone API documentation" }
+    - { command: "docs:openapi", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Export OpenAPI 3.0 specification" }
+    - { command: "docs:man", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Generate CLI manual pages" }
     - { command: "docs:phpdoc", class: "DocCommand", file: "spp/commands/DocCommand.php", description: "Run phpDocumentor.phar wrapper" }

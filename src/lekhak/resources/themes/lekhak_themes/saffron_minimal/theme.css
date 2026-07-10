@@ -3,15 +3,15 @@
     --bg-accent: #ffedd5;
     --glass-bg: rgba(255, 250, 245, 0.85);
     --glass-border: rgba(249, 115, 22, 0.2);
-    --accent-primary: #f97316;
-    --accent-secondary: #ea580c;
+    --accent-primary: #c2410c;
+    --accent-secondary: #9a3412;
     --text-main: #431407;
     --text-dim: #9a3412;
     --text-secondary: #7c2d12;
     --input-bg: #ffffff;
     --hover-bg: rgba(249, 115, 22, 0.08);
     --sidebar-border: rgba(255, 255, 255, 0.1);
-    --sidebar-bg: linear-gradient(180deg, #f97316 0%, #ea580c 100%);
+    --sidebar-bg: linear-gradient(180deg, #c2410c 0%, #9a3412 100%);
     --sidebar-text: #ffffff;
     --sidebar-text-dim: rgba(255, 255, 255, 0.85);
     --sidebar-header-text: #ffffff;

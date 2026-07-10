@@ -1091,3 +1091,51 @@ class SPPEmailValidator extends SPP_Validator_EmailValidator
 class SPPCallbackValidator extends SPP_Validator_CallbackValidator
 {
 }
+
+/**
+ * Workflow Guard validator: validates whether an entity is in a specific workflow state or allowed to transition.
+ */
+class SPP_Validator_WorkflowGuardValidator extends SPP_Single_validator
+{
+    public string $entityType = '';
+    public string $requiredState = '';
+
+    public function __construct(?\SPPMod\SPPView\ViewTag $elem = null, string $entityType = '', string $requiredState = '', $errorholder = 'nameerror', $msg = 'Entity is in an invalid workflow state.')
+    {
+        parent::__construct($elem, $errorholder, $msg, 'validateWorkflowGuard');
+        $this->entityType = $entityType;
+        $this->requiredState = $requiredState;
+    }
+
+    public function getJsFunction(): string
+    {
+        $this->setJsParams([$this->entityType, $this->requiredState]);
+        return parent::getJsFunction();
+    }
+
+    public function validate(mixed $value): bool
+    {
+        if (empty($value)) {
+            return false;
+        }
+        if (class_exists('\\SPPMod\\SPPDB\\SPPEntity') && !empty($this->entityType)) {
+            try {
+                $entity = \SPPMod\SPPDB\SPPEntity::load($this->entityType, $value);
+                if ($entity) {
+                    $status = method_exists($entity, 'getWorkflowState') ? $entity->getWorkflowState() : ($entity->status ?? 'draft');
+                    if (is_array($status)) {
+                        return in_array($this->requiredState, $status);
+                    }
+                    return $status === $this->requiredState;
+                }
+            } catch (\Exception $e) {
+                return false;
+            }
+        }
+        return true;
+    }
+}
+
+class SPPWorkflowGuardValidator extends SPP_Validator_WorkflowGuardValidator
+{
+}

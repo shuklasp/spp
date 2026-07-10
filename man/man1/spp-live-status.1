@@ -1,18 +1,18 @@
-.TH SPP-live-status 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `LIVE:STATUS`
-.PP
-Purpose: Check the status of websocket/polling servers
-.PP
+.TH SPP-live-status 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-live-status \- Check the status of websocket/polling servers
 .SH SYNOPSIS
-php spp.php live:status [OPTIONS]
+.B php spp.php live:status
+[OPTIONS]
+.SH DESCRIPTION
+Check the status of websocket/polling servers
 .PP
-.SH OPTIONS AVAILABLE
-\(bu `--app=` : Expects a value. Extracted via static analysis from LiveStatusCommand.php.
+.SH OPTIONS
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from LiveStatusCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-.PP
-.PP

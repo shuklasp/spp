@@ -1,24 +1,17 @@
-# NAME
-`make:drupal-bridge` - Scaffold a Drupal module to bridge SPP into Drupal
+## `make:drupal-bridge`
 
-# SYNOPSIS
-`php spp.php make:drupal-bridge [drupal_root_path]`
+**Description**: Scaffold a Drupal module to bridge SPP into Drupal
 
-# PURPOSE
-The `make:drupal-bridge` command constructs a custom Drupal module (`spp_bridge`) designed to inextricably link a headless or monolithic Drupal instance (versions 8 through 11) with the SPP framework. It effectively injects SPP services, ORM entities, and authentication states directly into Drupal's Twig rendering engine and PHP execution context.
-
-# OPTIONS AVAILABLE
-- `[drupal_root_path]` (string, optional): The relative path from the SPP installation to the root of the Drupal project. If not provided, it falls back to an interactive CLI prompt.
-
-# UNDER THE HOOD ACTIVITY
-This command programmatically generates a standard Drupal module schema in the specified Drupal root's `/modules/custom/spp_bridge` directory. 
-1. **Module Info**: It creates `spp_bridge.info.yml` configuring compatibility for Drupal cores `^8 || ^9 || ^10 || ^11`.
-2. **Bootstrapper**: It builds a `spp_bridge.module` file. This `.module` file aggressively loads SPP's absolute path `sppinit.php` Autoloader, fully booting the SPP framework inside the Drupal request lifecycle. It also registers a `hook_twig_functions` or `theme_suggestions_alter`, providing an explicit example of how to alter Drupal's rendered output based on `\SPPMod\SPPAuth\SPPAuth::isLoggedIn()`.
-3. **Twig Services**: It writes `spp_bridge.services.yml` configuring a new Drupal tagged service (`twig.extension`).
-4. **Twig Extension Class**: It provisions `SPPBridgeExtension.php` mapping custom Twig functions like `spp_entity(entity, id)` and `spp_service(service, method, params)` to the static methods of `\SPPMod\SPPDrupal\SPPDrupalBridge`. This immediately allows Drupal frontend developers to natively query SPP data directly inside Drupal `.html.twig` templates.
-
-# EXAMPLES
-**1. Scaffold a bridge module assuming Drupal is in a parallel folder:**
+### Synopsis
 ```bash
-php spp.php make:drupal-bridge ../drupal_site
+php spp.php make:drupal-bridge [OPTIONS]
 ```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: TwigFunction.
+

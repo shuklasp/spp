@@ -13,6 +13,9 @@ return array (
         2 => 'rights',
         3 => 'userroles',
         4 => 'roleright',
+        5 => 'loginrec',
+        6 => 'remember_tokens',
+        7 => 'migrations',
       ),
     ),
     'academic' => 
@@ -274,6 +277,42 @@ created_at: 1780656744',
       'etc_path' => 'etc/apps/Samvaad',
       'src_path' => 'src/Samvaad',
     ),
+    'TestApp' => 
+    array (
+      'base_url' => '/TestApp',
+      'table_prefix' => 'TestApp_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/TestApp',
+      'src_path' => 'src/TestApp',
+    ),
+    'TestApp2' => 
+    array (
+      'base_url' => '/TestApp2',
+      'table_prefix' => 'TestApp2_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/TestApp2',
+      'src_path' => 'src/TestApp2',
+    ),
+    'FinalTest' => 
+    array (
+      'base_url' => '/FinalTest',
+      'table_prefix' => 'FinalTest_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/FinalTest',
+      'src_path' => 'src/FinalTest',
+    ),
+    'test_api_app' => 
+    array (
+      'base_url' => '/test_api_app',
+      'table_prefix' => 'test_api_app_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/test_api_app',
+      'src_path' => 'src/test_api_app',
+    ),
     'spp_docs' => 
     array (
       'base_url' => '/spp/docs',
@@ -306,7 +345,7 @@ created_at: 1780656744',
   'settings' => 
   array (
     'site_name' => 'Lekhak Portal',
-    'debug' => false,
+    'debug' => true,
     'compulsory_modules' => 
     array (
       0 => 'sppauth',
@@ -324,4 +363,9 @@ created_at: 1780656744',
     ),
   ),
   'test_key' => 'test_val',
+  'assets' => 
+  array (
+    'admin_js' => 'spp/admin/js',
+    'admin_css' => 'spp/admin/css',
+  ),
 );

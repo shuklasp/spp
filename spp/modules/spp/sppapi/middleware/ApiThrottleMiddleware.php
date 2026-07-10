@@ -15,11 +15,11 @@ class ApiThrottleMiddleware implements MiddlewareInterface
 
         $cache = \SPP\Module::getModule('sppcache');
         if ($cache && $cache->isActive()) {
-            $requests = \SPPCache::get($key) ?: 0;
+            $requests = \SPP\Cache::get($key) ?: 0;
             if ($requests > 100) {
                 throw new SPPException("Too many requests. Please try again later.", 429);
             }
-            \SPPCache::set($key, $requests + 1, 60); // 100 requests per minute
+            \SPP\Cache::set($key, $requests + 1, 60); // 100 requests per minute
         }
 
         return $next($request);

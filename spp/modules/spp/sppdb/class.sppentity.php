@@ -6,8 +6,8 @@ use SPP\Exceptions\AttributeNotFoundException;
 use SPP\Exceptions\EntityNotFoundException;
 use SPP\Exceptions\EntityConfigurationException;
 
-require_once('entityexceptions.php');
-require_once('class.sppentityrelations.php');
+require_once __DIR__ . '/entityexceptions.php';
+require_once __DIR__ . '/class.sppentityrelations.php';
 /**
  * class Entity
  * Defines an entity
@@ -70,6 +70,14 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 if (method_exists($observer, $event)) {
                     $observer->$event($this);
                 }
+            }
+        }
+        if (class_exists('\\SPP\\SPPEvent')) {
+            \SPP\SPPEvent::triggerHook("entity:{$event}", $this);
+            if ($event === 'created' || $event === 'updated') {
+                \SPP\SPPEvent::triggerHook('entity:after_save', $this);
+            } elseif ($event === 'deleted') {
+                \SPP\SPPEvent::triggerHook('entity:deleted', $this);
             }
         }
     }
@@ -175,6 +183,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             'table' => strtolower($shortName) . 's',
             'id_field' => 'id',
             'sequence' => strtolower($shortName) . '_seq',
+            'key_type' => 'int',
             'login_enabled' => false,
             'profile' => null,
             'attributes' => []
@@ -343,6 +352,14 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         if (empty($config['table'])) {
             throw new EntityConfigurationException("Entity configuration error: Class '{$class}' has no database table defined and no default could be resolved.");
         }
+    }
+
+    public static function getAllMetadata(): array
+    {
+        if (!isset(self::$_metadata[static::class])) {
+            static::loadEntityConfig(static::class);
+        }
+        return self::$_metadata[static::class] ?? [];
     }
 
     public static function getMetadata(string $key, $default = null)
@@ -528,7 +545,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function getAttributes()
     {
-        $meta = self::getMetadata('attributes', []);
+        $meta = static::getMetadata('attributes', []);
         $defined = $this->define_attributes();
         if (is_array($defined)) {
             $meta = array_merge($meta, $defined);
@@ -785,7 +802,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $entities = [];
         foreach ($result as $row) {
             $entity = new static();
-            $entity->setId($row[self::getMetadata('id_field')]);
+            $entity->setId($row[static::getMetadata('id_field')]);
             foreach ($row as $attribute => $value) {
                 if (!is_numeric($attribute)) {
                     $entity->set($attribute, $value);
@@ -863,7 +880,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function getTable()
     {
-        $table = self::getMetadata('table');
+        $table = static::getMetadata('table');
         if (empty($table)) {
             throw new EntityConfigurationException("Entity " . static::class . " does not have a database table mapping. Check its YAML definition or ensure the class name follows pluralization conventions.");
         }
@@ -908,7 +925,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
 
             $attributes = $this->getAttributes();
-            $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+            $dynamicAttributes = static::getMetadata('dynamic_attributes', []);
             if (array_key_exists($attribute, $attributes)) {
                 $this->_values[$attribute] = $this->castAttributeValue($attribute, $value);
                 return true;
@@ -959,7 +976,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
 
             $attributes = $this->getAttributes();
-            $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+            $dynamicAttributes = static::getMetadata('dynamic_attributes', []);
             if (array_key_exists($attribute, $attributes)) {
                 $this->_values[$attribute] = $value;
             } elseif (array_key_exists($attribute, $dynamicAttributes)) {
@@ -994,7 +1011,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public function setValues($values)
     {
         $attributes = $this->getAttributes();
-        $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+        $dynamicAttributes = static::getMetadata('dynamic_attributes', []);
         foreach ($values as $att => $val) {
             if (array_key_exists($att, $attributes)) {
                 $this->_values[$att] = $val;
@@ -1026,7 +1043,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $exists = true;
         } else {
             $attributes = $this->getAttributes();
-            $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+            $dynamicAttributes = static::getMetadata('dynamic_attributes', []);
             if (array_key_exists($attribute, $attributes) || array_key_exists($attribute, $dynamicAttributes)) {
                 $exists = true;
             } elseif (array_key_exists('fields_data', $attributes)) {
@@ -1065,7 +1082,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
                 $found = true;
             } else {
                 $attributes = $this->getAttributes();
-                $dynamicAttributes = self::getMetadata('dynamic_attributes', []);
+                $dynamicAttributes = static::getMetadata('dynamic_attributes', []);
                 if (array_key_exists($attribute, $attributes)) {
                     $value = $this->_values[$attribute] ?? null;
                     $found = true;
@@ -1102,7 +1119,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
     public static function addAttributes($attributes)
     {
-        $currentAttributes = self::getMetadata('attributes', []);
+        $currentAttributes = static::getMetadata('attributes', []);
         foreach ($attributes as $key => $value) {
             $currentAttributes[$key] = $value;
         }
@@ -1126,18 +1143,18 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public static function install()
     {
         $db = new \SPPMod\SPPDB\SPPDB();
-        $tableBase = self::getMetadata('table');
+        $tableBase = static::getMetadata('table');
         $table = (class_exists('\\SPPMod\\SPPDB\\SPPDB')) ? \SPPMod\SPPDB\SPPDB::sppTable($tableBase) : $tableBase;
 
-        $id_field = self::getMetadata('id_field', 'id');
-        $attributes = self::getMetadata('attributes', []);
-        if (self::getMetadata('soft_delete', false)) {
+        $id_field = static::getMetadata('id_field', 'id');
+        $attributes = static::getMetadata('attributes', []);
+        if (static::getMetadata('soft_delete', false)) {
             $attributes['deleted_at'] = 'datetime';
         }
-        $profile = self::getMetadata('profile');
+        $profile = static::getMetadata('profile');
 
         if (!$db->tableExists($table)) {
-            $idType = self::getMetadata('key_type', 'int') === 'uuid' ? 'varchar(36)' : 'varchar(20)';
+            $idType = static::getMetadata('key_type', 'int') === 'uuid' ? 'varchar(36)' : 'varchar(20)';
             $sql = 'create table ' . $table . ' (' . $id_field . ' ' . $idType . ')';
             $db->exec($sql);
         }
@@ -1278,7 +1295,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function validate(): \SPPMod\SPPView\ValidationResult
     {
-        $rules = self::getMetadata('validation', []);
+        $rules = static::getMetadata('validation', []);
         if (empty($rules)) {
             return new \SPPMod\SPPView\ValidationResult();
         }
@@ -1295,7 +1312,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     protected function castAttributeValue(string $key, $value)
     {
-        $casts = self::getMetadata('casts', []);
+        $casts = static::getMetadata('casts', []);
         if (isset($casts[$key]) && is_string($value)) {
             $type = $casts[$key];
             if ($type === 'json' || $type === 'array') {
@@ -1310,7 +1327,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
     protected function uncastAttributeValue(string $key, $value)
     {
-        $casts = self::getMetadata('casts', []);
+        $casts = static::getMetadata('casts', []);
         if (isset($casts[$key]) && (is_array($value) || is_object($value))) {
             $type = $casts[$key];
             if ($type === 'json' || $type === 'array') {
@@ -1327,7 +1344,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     protected function createId()
     {
-        $keyType = self::getMetadata('key_type', 'int');
+        $keyType = static::getMetadata('key_type', 'int');
         if ($keyType === 'uuid') {
             $data = random_bytes(16);
             $data[6] = chr(ord($data[6]) & 0x0f | 0x40); // set version to 0100
@@ -1335,8 +1352,8 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
         }
 
-        $sequence = self::getMetadata('sequence');
-        $initial_id = self::getMetadata('initial_id', 1);
+        $sequence = static::getMetadata('sequence');
+        $initial_id = static::getMetadata('initial_id', 1);
 
         if (!\SPPMod\SPPDB\SPPSequence::sequenceExists($sequence)) {
             \SPPMod\SPPDB\SPPSequence::createSequence($sequence, $initial_id, 1);
@@ -1397,8 +1414,8 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $attributes = $this->getAttributes();
 
         if ($errorCode == '42S02') { // Base table or view not found
-            $idField = self::getMetadata('id_field', 'id');
-            $idType = self::getMetadata('key_type', 'int') === 'uuid' ? 'varchar(36)' : 'varchar(20)';
+            $idField = static::getMetadata('id_field', 'id');
+            $idType = static::getMetadata('key_type', 'int') === 'uuid' ? 'varchar(36)' : 'varchar(20)';
             $sql = 'create table ' . $table . ' (' . $idField . ' ' . $idType . ')';
             $db->exec($sql);
             $db->add_columns($table, $attributes);
@@ -1416,7 +1433,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public function enableLogin(string $username, string $password)
     {
-        if (!self::getMetadata('login_enabled', false)) {
+        if (!static::getMetadata('login_enabled', false)) {
             throw new \SPP\SPPException('Logins are disabled natively for this Entity YAML payload.');
         }
         if ($this->id == null) {
@@ -1430,7 +1447,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         \SPPMod\SPPAuth\SPPUser::createUser($username, $password);
 
         // 2. Bind Authenticated Profile physically to Dynamic Entity Extractor
-        $profileConfig = self::getMetadata('profile');
+        $profileConfig = static::getMetadata('profile');
         if ($profileConfig !== null) {
             $profName = static::getEntityName(static::class) . '_prof';
             $profile = new \SPPMod\SPPProfile\SPPProfile($profName);
@@ -1454,7 +1471,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         if ($username) {
             \SPPMod\SPPAuth\SPPUser::dropUser($username);
 
-            if (self::getMetadata('profile') !== null && isset($this->_values['profid'])) {
+            if (static::getMetadata('profile') !== null && isset($this->_values['profid'])) {
                 $profName = static::getEntityName(static::class) . '_prof';
                 $profile = new \SPPMod\SPPProfile\SPPProfile($profName);
                 if ($profile->seekProfile($this->_values['profid'])) {
@@ -1473,7 +1490,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
     public function getLoginIdentity()
     {
-        if (self::getMetadata('profile') !== null && isset($this->_values['profid'])) {
+        if (static::getMetadata('profile') !== null && isset($this->_values['profid'])) {
             $profName = static::getEntityName(static::class) . '_prof';
             $profile = new \SPPMod\SPPProfile\SPPProfile($profName);
             if ($profile->seekProfile($this->_values['profid'])) {
@@ -1504,7 +1521,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $db = new \SPPMod\SPPDB\SPPDB();
         if ($this->id != null) {
             // Revisions Tracking Implementation
-            if (self::getMetadata('track_revisions')) {
+            if (static::getMetadata('track_revisions')) {
                 $delta = [];
                 foreach ($this->_values as $key => $newVal) {
                     $oldVal = $this->_snapshot[$key] ?? null;
@@ -1530,10 +1547,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             $values[] = $this->id;
 
             try {
-                $db->updateValues($this->getTable(), $keys, self::getMetadata('id_field') . '=?', $values);
+                $db->updateValues($this->getTable(), $keys, static::getMetadata('id_field') . '=?', $values);
             } catch (\PDOException $e) {
                 $this->handleMagicDatabase($e, $db);
-                $db->updateValues($this->getTable(), $keys, self::getMetadata('id_field') . '=?', $values);
+                $db->updateValues($this->getTable(), $keys, static::getMetadata('id_field') . '=?', $values);
             }
 
             if (class_exists('\\SPPMod\\SPPEntity\\SppDynamicFieldHandler')) {
@@ -1558,15 +1575,23 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             \SPPMod\SPPDB\SppDynamicFieldHandler::deleteFields($this);
         }
         $db = new \SPPMod\SPPDB\SPPDB();
-        if (!$db->isXDB() && self::getMetadata('soft_delete', false)) {
-            $sql = 'update %tab% set deleted_at = CURRENT_TIMESTAMP where ' . self::getMetadata('id_field') . '=?';
+        if (!$db->isXDB() && static::getMetadata('soft_delete', false)) {
+            $sql = 'update %tab% set deleted_at = CURRENT_TIMESTAMP where ' . static::getMetadata('id_field') . '=?';
             $db->exec_squery($sql, $this->getTable(), [$this->id]);
         } else {
-            $sql = 'delete from %tab% where ' . self::getMetadata('id_field') . '=?';
+            $sql = 'delete from %tab% where ' . static::getMetadata('id_field') . '=?';
             $db->exec_squery($sql, $this->getTable(), [$this->id]);
         }
+        $deletedId = $this->id;
         $this->id = null;
         $this->fireEvent('deleted');
+
+        if (class_exists('\\SPPMod\\SPPCache\\SPPCacheManager')) {
+            \SPPMod\SPPCache\SPPCacheManager::invalidateTags([
+                static::getEntityName(static::class) . ':' . $deletedId,
+                static::getEntityName(static::class) . '_list'
+            ]);
+        }
     }
 
     /**
@@ -1576,9 +1601,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     public function restore()
     {
         $db = new \SPPMod\SPPDB\SPPDB();
-        if (!$db->isXDB() && self::getMetadata('soft_delete', false) && $this->id) {
+        if (!$db->isXDB() && static::getMetadata('soft_delete', false) && $this->id) {
             $this->fireEvent('restoring');
-            $sql = 'update %tab% set deleted_at = NULL where ' . self::getMetadata('id_field') . '=?';
+            $sql = 'update %tab% set deleted_at = NULL where ' . static::getMetadata('id_field') . '=?';
             $db->exec_squery($sql, $this->getTable(), [$this->id]);
             $this->fireEvent('restored');
         }
@@ -1595,7 +1620,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     {
         $this->id = $id;
         $db = new \SPPMod\SPPDB\SPPDB();
-        $sql = 'select * from %tab% where ' . self::getMetadata('id_field') . '=?';
+        $sql = 'select * from %tab% where ' . static::getMetadata('id_field') . '=?';
         $result = $db->exec_squery($sql, $this->getTable(), [$id]);
         if (sizeof($result) > 0) {
             $row = $result[0];
@@ -1659,7 +1684,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $entities = [];
         foreach ($result as $row) {
             $entity = new static();
-            $entity->setId($row[self::getMetadata('id_field')]);
+            $entity->setId($row[static::getMetadata('id_field')]);
             foreach ($row as $attribute => $value) {
                 if (!is_numeric($attribute)) {
                     $entity->set($attribute, $value);
@@ -1696,7 +1721,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $entities = [];
         foreach ($result as $row) {
             $entity = new static();
-            $entity->setId($row[self::getMetadata('id_field')]);
+            $entity->setId($row[static::getMetadata('id_field')]);
             foreach ($row as $attribute => $value) {
                 if (!is_numeric($attribute)) {
                     $entity->set($attribute, $value);
@@ -1787,5 +1812,58 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
             }
         }
         return false;
+    }
+
+    /**
+     * Get current workflow state markings (supports parallel markings).
+     */
+    public function getWorkflowState()
+    {
+        $status = $this->get('status');
+        if (is_string($status) && strpos($status, ',') !== false) {
+            return explode(',', $status);
+        }
+        return $status ?: 'draft';
+    }
+
+    /**
+     * Check if entity can transition to a new status.
+     */
+    public function canTransition(string $newStatus, $user = null, array $context = []): bool
+    {
+        if (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+            return \SPPMod\SPPWorkflow\SPPWorkflowManager::canTransition($this, $newStatus, $user, $context);
+        }
+        return true;
+    }
+
+    /**
+     * Apply a workflow transition to this entity.
+     */
+    public function applyTransition(string $newStatus, $user = null, string $comment = '', array $context = []): bool
+    {
+        if (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+            return \SPPMod\SPPWorkflow\SPPWorkflowManager::applyTransition($this, $newStatus, $user, $comment, $context);
+        }
+        $this->set('status', $newStatus);
+        return $this->save();
+    }
+
+    /**
+     * Get workflow transition history.
+     */
+    public function getWorkflowHistory(): array
+    {
+        if ($this->id === null) {
+            return [];
+        }
+        $db = new \SPPMod\SPPDB\SPPDB();
+        if ($db->tableExists('spp_entity_workflow_history')) {
+            return $db->execute_query(
+                "SELECT * FROM spp_entity_workflow_history WHERE entity_id = ? AND entity_type = ? ORDER BY transition_date DESC",
+                [$this->id, static::getEntityName(static::class)]
+            );
+        }
+        return [];
     }
 }

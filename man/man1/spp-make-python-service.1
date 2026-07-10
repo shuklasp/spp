@@ -1,23 +1,20 @@
-.TH SPP-make-python-service 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-make:python-service - Create a new Python service script
+.TH SPP-make-python-service 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-make-python-service \- Create a new Python service script
+.SH SYNOPSIS
+.B php spp.php make:python-service
+[OPTIONS]
+.SH DESCRIPTION
+Create a new Python service script
 .PP
-# SYNOPSIS
-php spp.php make:python-service <name> [--app=context]
-.PP
-# PURPOSE
-The make:python-service command scaffolds a .py Python microservice. This bridges SPP PHP application logic with Python's unparalleled ML, data science, and scripting ecosystem using SPP's Polyglot paradigm.
-.PP
-# OPTIONS AVAILABLE
-\(bu `<name>` (string, required): The core name of the service logic.
+Usage: spp make:python-service <name> [--app=context]
 .br
-\(bu `--app=<context>` (string, optional): Determines the target execution namespace.
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: Python.
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-It defines the target directory services/python/ mapping to the application context. By leveraging buildFromStub() with the python_service stub format, it dynamically outputs service.{lowercase_name}.py, injecting the CLASS_NAME into the boilerplate syntax natively.
-.PP
-# EXAMPLES
-1. Scaffold a Python text analyzer:
-php spp.php make:python-service TextAnalyzer --app=default
-.PP

@@ -1,42 +1,20 @@
-# NAME
+## `deploy:pull`
 
-deploy:pull - Pull the entire state (files and database) from a remote server to the local workspace
+**Description**: 
 
-# SYNOPSIS
-
-`php spp.php deploy:pull <target_uri> [--key=YOUR_API_KEY] [-y|--force]`
-
-# PURPOSE
-
-The `deploy:pull` command is the inverse of `deploy:push`. It downloads a complete snapshot of a remote application's file system and database, automatically extracting and restoring them onto the local development machine. This command is highly destructive to the local environment and is primarily used for synchronizing a local environment with production data.
-
-# OPTIONS AVAILABLE
-
-*   `<target_uri>` (Required)
-    The connection URI of the remote environment from which to pull data.
-*   `--key=YOUR_API_KEY` (Optional)
-    The secure API token for remote authentication. If not provided, it falls back to the `SPP_DEPLOY_TOKEN` environment variable or `default_cli_key`.
-*   `-y` or `--force` (Optional)
-    Bypasses the interactive confirmation prompt, automatically proceeding with the destructive pull.
-
-# UNDER THE HOOD ACTIVITY
-
-Because pulling overwrites local data, the command first issues a severe warning to standard output and halts execution, requiring the user to type 'Y' or 'y' into standard input (`STDIN`) to proceed. This safeguard is disabled if the `--force` flag is provided.
-
-Upon confirmation, the CLI triggers the `$conn->getExport()` method. The remote server executes a full export procedure: dumping its database to a `.sql` file, zipping its application directories, and returning the base64-encoded binary archive in a JSON response. 
-
-The command extracts the base64 payload (`$resp['archive']`), decodes it, and writes it to a temporary zip archive (`var/cache/deploy_pull.zip`). It then instantiates PHP's native `ZipArchive` class to extract the contents directly over the local project root (`dirname(SPP_BASE_DIR)`), forcefully overwriting existing local files.
-
-After file extraction, the command checks for a specific artifact named `db_snapshot.sql` at the root directory. If found, it establishes a PDO connection to the local database using the `SPPMod\SPPDB\SPPDB` wrapper. To prevent foreign key constraint errors during a massive import, it dynamically detects if the driver is MySQL and disables foreign key checks (`SET FOREIGN_KEY_CHECKS=0;`). It then executes the entire SQL dump via `$pdo->exec($sql)`, effectively dropping and recreating the local database state to mirror the remote server. Once completed, foreign key checks are re-enabled, and the `db_snapshot.sql` and temporary zip files are deleted to clean up the workspace.
-
-# EXAMPLES
-
-**Pull production data to your local machine (interactive):**
+### Synopsis
 ```bash
-php spp.php deploy:pull http://prod.example.com --key=admin_token
+php spp.php deploy:pull [OPTIONS]
 ```
 
-**Force a pull from staging without confirmation:**
-```bash
-php spp.php deploy:pull http://staging.example.com -y
-```
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPullCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeployPullCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Executes external system binaries or shell commands.
+- Instantiates key components: \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
+

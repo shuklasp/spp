@@ -119,8 +119,43 @@ This guarantees your application is "Twelve-Factor App" compliant and completely
 
 ---
 
+## Intent-Based SmartStorage & Multi-Disk Streams
+
+SPP elevates storage management from a traditional infrastructure-coupled API to a highly elegant **Intent-Driven Paradigm**.
+
+### The Multi-Disk Factory & Streams
+Through `\SPP\Storage::disk()`, developers can seamlessly switch between `local`, `file_shared`, `redis_shared`, and `flysystem` (S3/Cloud) drivers. All drivers fully support direct stream I/O (`readStream()` and `writeStream()`) to prevent PHP memory exhaustion when handling massive files. Furthermore, if `redis_shared` is requested but the Redis server is unavailable, the engine gracefully self-heals by falling back to `file_shared`.
+
+### Intent-Based Routing (`\SPP\SmartData` / `\SPP\SmartStorage`)
+Instead of making the developer decide which disk to use, `SmartStorage` automatically infers the correct storage engine based on intent, key prefixes (`sess_*`, `manifest*`), or file extensions (`.jpg`, `.json`, `.zip`).
+
+```php
+// Storing Data Seamlessly (Zero Configuration!)
+\SPP\SmartData::put('user_avatar.jpg', $imageBytes); // Auto-routes to 'local'
+\SPP\SmartData::put('sess_token_8891', 'xyz123');    // Auto-routes to 'redis_shared'
+\SPP\SmartData::put('db_backup.tar.gz', $archive);   // Auto-routes to 'flysystem'
+
+// Retrieving Data Seamlessly
+$avatar = \SPP\SmartData::get('user_avatar.jpg');
+```
+
+### Multi-Tenant Application Storage Rules
+Each application instance in SPP can define its own independent storage routing rules within its exact `etc` directory (`etc/apps/<AppName>/storage_rules.yml`), or dynamically save them at runtime:
+
+```php
+\SPP\SmartStorage::saveRulesConfig([
+    'audit_logs' => [
+        'disk' => 'file_shared',
+        'match_prefix' => ['audit_'],
+        'match_extension' => ['log']
+    ]
+]);
+```
+
+---
+
 ## Final Thoughts
 
-You've now covered the basics of the SPP framework! For more advanced implementations, refer to the source code of the core modules in `spp/modules/spp/`.
+You've now covered the basics of the SPP framework! For more advanced implementations, refer to the source code of the core modules in `spp/modules/spp/` and core classes in `spp/core/`.
 
 Happy coding with **Satya Portal Pack**!

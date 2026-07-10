@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>SPP Framework API Documentation</title>
+    <style>
+        /* Premium Glassmorphism UI */
+        body { font-family: "Outfit", "JetBrains Mono", -apple-system, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 3rem; }
+        .container { max-width: 1000px; margin: auto; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); padding: 3rem; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3); }
+        h1 { color: #f8fafc; font-size: 2.5rem; margin-top: 0; border-bottom: 1px কাঠ solid rgba(255,255,255,0.08); padding-bottom: 1rem; }
+        h2 { color: #f43f5e; font-size: 1.5rem; margin-top: 2rem; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 0.5rem; }
+        pre { background: rgba(0,0,0,0.3); color: #38bdf8; padding: 1.5rem; border-radius: 12px; overflow-x: auto; font-family: "JetBrains Mono", monospace; border: 1px solid rgba(255,255,255,0.04); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color: white; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="badge">OpenAPI 3.0 Specs</div>
+        <h1>SPP Framework API Documentation</h1>
+        
+        <h2>API Routes</h2>
+        <pre>[
+    {
+        "method": "GET",
+        "path": "\/api\/users",
+        "description": "List all users (Fallback sample)"
+    },
+    {
+        "method": "POST",
+        "path": "\/api\/users",
+        "description": "Create a new user (Fallback sample)"
+    }
+]</pre>
+        
+        <h2>Domain Entities</h2>
+        <pre>{
+    "SPPRight": {
+        "class": "SPPMod\\SPPAuth\\SPPRight",
+        "table": "rights",
+        "attributes": {
+            "id": "int",
+            "name": "varchar(100)",
+            "description": "text"
+        },
+        "relations": []
+    },
+    "SPPRole": {
+        "class": "SPPMod\\SPPAuth\\SPPRole",
+        "table": "roles",
+        "attributes": {
+            "id": "int",
+            "role_name": "varchar(100)",
+            "description": "text"
+        },
+        "relations": []
+    },
+    "SPPUser": {
+        "class": "SPPMod\\SPPAuth\\SPPUser",
+        "table": "users",
+        "attributes": {
+            "id": "int",
+            "username": "varchar(100)",
+            "email": "varchar(255)",
+            "password_hash": "varchar(255)",
+            "password": "varchar(255)",
+            "role_id": "int",
+            "status": "varchar(20)",
+            "created_at": "datetime",
+            "updated_at": "datetime"
+        },
+        "relations": []
+    },
+    "Organiusation": {
+        "class": "Organiusation",
+        "table": "organiusations",
+        "attributes": [],
+        "relations": []
+    },
+    "SCH_Person": {
+        "class": "SCH_Person",
+        "table": "sch_persons",
+        "attributes": [],
+        "relations": []
+    },
+    "Role": {
+        "class": "SPPMod\\SPPAuth\\Role",
+        "table": "roles",
+        "attributes": {
+            "name": "varchar(100)",
+            "slug": "varchar(100)",
+            "description": "text"
+        },
+        "relations": []
+    },
+    "Permission": {
+        "class": "SPPMod\\SPPAuth\\Permission",
+        "table": "permissions",
+        "attributes": {
+            "name": "varchar(100)",
+            "slug": "varchar(100)",
+            "description": "text"
+        },
+        "relations": []
+    },
+    "SPPGroup": {
+        "class": "SPPMod\\SPPAuth\\SPPGroup",
+        "table": "sppgroups",
+        "attributes": {
+            "name": "varchar(255)",
+            "description": "text",
+            "created_at": "datetime",
+            "ai_vector": "text",
+            "metadata": "text",
+            "source": "varchar(50)",
+            "group_context": "varchar(100)"
+        },
+        "relations": []
+    },
+    "BlogPost": {
+        "class": "App\\Default\\Entities\\BlogPost",
+        "table": "blogposts",
+        "attributes": [],
+        "relations": []
+    },
+    "DummyEntity": {
+        "class": "App\\Default\\Entities\\DummyEntity",
+        "table": "dummyentitys",
+        "attributes": {
+            "name": "varchar(255)",
+            "dob": "datetime"
+        },
+        "relations": []
+    },
+    "Employee": {
+        "class": "App\\Default\\Entities\\Employee",
+        "table": "employees",
+        "attributes": [],
+        "relations": []
+    },
+    "NewEntity1": {
+        "class": "App\\Default\\Entities\\NewEntity1",
+        "table": "newentity1s",
+        "attributes": [],
+        "relations": []
+    },
+    "Staff": {
+        "class": "App\\Default\\Entities\\Staff",
+        "table": "staffs",
+        "attributes": [],
+        "relations": []
+    },
+    "Teacher": {
+        "class": "App\\Default\\Entities\\Teacher",
+        "table": "teachers",
+        "attributes": [],
+        "relations": []
+    },
+    "TestEditEntity": {
+        "class": "App\\Default\\Entities\\TestEditEntity",
+        "table": "testeditentitys",
+        "attributes": [],
+        "relations": []
+    },
+    "TestEntity": {
+        "class": "App\\Default\\Entities\\TestEntity",
+        "table": "testentitys",
+        "attributes": [],
+        "relations": []
+    },
+    "Block": {
+        "class": "App\\Lekhak\\Entities\\Block",
+        "table": "blocks",
+        "attributes": {
+            "name": "varchar(50)",
+            "title": "varchar(255)",
+            "region": "varchar(50)",
+            "visibility_paths": "text",
+            "content": "longtext",
+            "type": "varchar(20)",
+            "weight": "int"
+        },
+        "relations": []
+    },
+    "ContentType": {
+        "class": "App\\Lekhak\\Entities\\ContentType",
+        "table": "content_types",
+        "attributes": {
+            "name": "varchar(50)",
+            "label": "varchar(255)",
+            "description": "text",
+            "storage_strategy": "varchar(20)",
+            "help_text": "text"
+        },
+        "relations": []
+    },
+    "ContentTranslation": {
+        "class": "App\\Lekhak\\Entities\\ContentTranslation",
+        "table": "content_translation",
+        "attributes": {
+            "entity_type": "varchar(50)",
+            "entity_id": "varchar(50)",
+            "langcode": "varchar(10)",
+            "field_name": "varchar(100)",
+            "translated_value": "text"
+        },
+        "relations": []
+    },
+    "Field": {
+        "class": "App\\Lekhak\\Entities\\Field",
+        "table": "fields",
+        "attributes": {
+            "bundle": "varchar(50)",
+            "field_name": "varchar(50)",
+            "label": "varchar(255)",
+            "type": "varchar(50)",
+            "settings": "text",
+            "required": "boolean",
+            "weight": "int",
+            "widget_type": "varchar(50)",
+            "widget_settings": "text",
+            "formatter_type": "varchar(50)",
+            "formatter_settings": "text"
+        },
+        "relations": []
+    },
+    "Node": {
+        "class": "App\\Lekhak\\Entities\\Node",
+        "table": "nodes",
+        "attributes": {
+            "title": "varchar(255)",
+            "alias": "varchar(255)",
+            "bundle": "varchar(50)",
+            "body": "longtext",
+            "author_id": "bigint",
+            "status": "varchar(20)",
+            "langcode": "varchar(10)",
+            "translation_id": "bigint",
+            "created": "datetime",
+            "changed": "datetime",
+            "fields_data": "longtext"
+        },
+        "relations": []
+    },
+    "LekhakNode": {
+        "class": "SPPMod\\Lekhak\\Core\\LekhakNode",
+        "table": "nodes",
+        "attributes": {
+            "title": "varchar(255)",
+            "alias": "varchar(255)",
+            "bundle": "varchar(50)",
+            "body": "longtext",
+            "author_id": "bigint",
+            "status": "varchar(20)",
+            "langcode": "varchar(10)",
+            "translation_id": "bigint",
+            "created": "datetime",
+            "changed": "datetime",
+            "fields_data": "longtext"
+        },
+        "relations": []
+    },
+    "Term": {
+        "class": "App\\Lekhak\\Entities\\Term",
+        "table": "terms",
+        "attributes": {
+            "vid": "varchar(50)",
+            "name": "varchar(255)",
+            "parent_id": "int",
+            "description": "text",
+            "weight": "int"
+        },
+        "relations": []
+    },
+    "ViewDefinition": {
+        "class": "App\\Lekhak\\Entities\\ViewDefinition",
+        "table": "view_definitions",
+        "attributes": {
+            "name": "varchar(100)",
+            "label": "varchar(255)",
+            "base_table": "varchar(100)",
+            "fields": "text",
+            "filters": "text",
+            "sorts": "text",
+            "pagination": "int",
+            "display_format": "varchar(50)"
+        },
+        "relations": []
+    },
+    "Vocabulary": {
+        "class": "App\\Lekhak\\Entities\\Vocabulary",
+        "table": "vocabularies",
+        "attributes": {
+            "name": "varchar(50)",
+            "label": "varchar(255)",
+            "description": "text"
+        },
+        "relations": []
+    },
+    "Student": {
+        "class": "App\\Student\\Entities\\Student",
+        "table": "students",
+        "attributes": [],
+        "relations": []
+    }
+}</pre>
+    </div>
+</body>
+</html>

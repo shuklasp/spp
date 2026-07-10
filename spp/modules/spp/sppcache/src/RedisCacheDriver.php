@@ -79,40 +79,53 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     public function set(string $key, $value, int $ttl = 3600): bool
     {
         $redis = self::getConnection();
-        return $redis->set($key, json_encode($value), $ttl);
+        return $redis->set('spp:cache:' . $key, serialize($value), $ttl);
     }
 
     public function get(string $key)
     {
         $redis = self::getConnection();
-        $val = $redis->get($key);
-        return ($val === false) ? null : json_decode($val, true);
+        $val = $redis->get('spp:cache:' . $key);
+        return ($val === false) ? null : @unserialize($val);
     }
 
     public function delete(string $key): bool
     {
         $redis = self::getConnection();
-        return (bool)$redis->del($key);
+        return (bool)$redis->del('spp:cache:' . $key);
     }
 
     public function has(string $key): bool
     {
         $redis = self::getConnection();
-        return $redis->exists($key);
+        return $redis->exists('spp:cache:' . $key);
     }
 
     public function clear(): bool
     {
         $redis = self::getConnection();
-        return $redis->flushDB();
+        // Safe clearing: scan keys with spp:cache:* and spp:tag:* prefix
+        foreach (['spp:cache:*', 'spp:tag:*'] as $pattern) {
+            $iterator = null;
+            while (true) {
+                $keys = $redis->scan($iterator, $pattern, 1000);
+                if (!empty($keys)) {
+                    $redis->del($keys);
+                }
+                if ($iterator === 0 || $iterator === null || $iterator === false) {
+                    break;
+                }
+            }
+        }
+        return true;
     }
 
     public function setWithTags(string $key, $value, array $tags, int $ttl = 3600): bool
     {
         $redis = self::getConnection();
-        $result = $redis->set($key, json_encode($value), $ttl);
+        $result = $redis->set('spp:cache:' . $key, serialize($value), $ttl);
         foreach ($tags as $tag) {
-            $redis->sAdd('_tag:' . $tag, $key);
+            $redis->sAdd('spp:tag:' . $tag, 'spp:cache:' . $key);
         }
         return $result;
     }
@@ -120,11 +133,54 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     public function invalidateTag(string $tag): bool
     {
         $redis = self::getConnection();
-        $members = $redis->sMembers('_tag:' . $tag);
+        $members = $redis->sMembers('spp:tag:' . $tag);
         if (!empty($members)) {
-            $redis->del($members);
+            foreach (array_chunk($members, 1000) as $chunk) {
+                $redis->del($chunk);
+            }
         }
-        $redis->del('_tag:' . $tag);
+        $redis->del('spp:tag:' . $tag);
         return true;
+    }
+
+    public function getWithLock(string $key, int $ttl, callable $callback)
+    {
+        $value = $this->get($key);
+        if ($value !== null) {
+            return $value;
+        }
+        $redis = self::getConnection();
+        $lockKey = 'spp:lock:' . $key;
+        if ($redis->set($lockKey, 1, ['nx', 'ex' => 10])) {
+            $value = $this->get($key);
+            if ($value === null) {
+                $value = $callback();
+                $this->set($key, $value, $ttl);
+            }
+            $redis->del($lockKey);
+            return $value;
+        }
+        // Fallback if lock is held by another process
+        $value = $callback();
+        $this->set($key, $value, $ttl);
+        return $value;
+    }
+
+    public function prune(): bool
+    {
+        // Redis handles key expiry natively via TTLs
+        return true;
+    }
+
+    public function stats(): array
+    {
+        $redis = self::getConnection();
+        $info = $redis->info();
+        return [
+            'driver' => 'RedisCache',
+            'connected' => true,
+            'used_memory_human' => $info['used_memory_human'] ?? 'unknown',
+            'total_keys' => $redis->dbSize()
+        ];
     }
 }

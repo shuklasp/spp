@@ -6,7 +6,7 @@ use SPPMod\SPPDB\SPPDB;
 
 /**
  * Class {{className}}
- * Auto-generated model class (Fluent-ready).
+ * Auto-generated model class (Fluent-ready with Developer-Friendly Enterprise Capabilities).
  */
 class {{className}}
 {
@@ -35,5 +35,42 @@ class {{className}}
     public static function all()
     {
         return self::query()->get();
+    }
+
+    // =========================================================================
+    // DEVELOPER-FRIENDLY ENTERPRISE CAPABILITIES BOILERPLATE
+    // =========================================================================
+
+    /**
+     * Log a domain event to the CQRS Event Store.
+     */
+    public function recordDomainEvent(string $eventName, array $payload = []): void
+    {
+        if (class_exists('\SPPMod\SPPWorkflow\CQRS\EventStore')) {
+            \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent(class_basename(self::class), $this->id ?? 'system', $eventName, $payload);
+        }
+    }
+
+    /**
+     * Retrieve the latest state snapshot from the CQRS Event Store.
+     */
+    public static function getSnapshot($id): ?array
+    {
+        if (class_exists('\SPPMod\SPPWorkflow\CQRS\EventStore')) {
+            return \SPPMod\SPPWorkflow\CQRS\EventStore::getLatestSnapshot(class_basename(self::class), $id);
+        }
+        return null;
+    }
+
+    /**
+     * High-performance O(log N) Binary Index Lookup for external storage keys.
+     */
+    public static function lookupBinaryIndex(int $key): ?int
+    {
+        if (class_exists('\SPPMod\SPPStorage\XdbBinaryIndexer')) {
+            $indexer = new \SPPMod\SPPStorage\XdbBinaryIndexer(\SPP\App::getApp()->getStoragePath() . '/indexes/' . self::$table . '.idx');
+            return $indexer->find($key);
+        }
+        return null;
     }
 }

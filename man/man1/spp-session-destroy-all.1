@@ -1,17 +1,16 @@
-.TH SPP-session-destroy-all 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `SESSION:DESTROY-ALL`
-.PP
-Purpose: Invalidate all active sessions across the application
-.PP
+.TH SPP-session-destroy-all 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-session-destroy-all \- Invalidate all active sessions across the application
 .SH SYNOPSIS
-php spp.php session:destroy-all [OPTIONS]
+.B php spp.php session:destroy-all
+[OPTIONS]
+.SH DESCRIPTION
+Invalidate all active sessions across the application
 .PP
-.SH OPTIONS AVAILABLE
-No static options detected for this command.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-.PP

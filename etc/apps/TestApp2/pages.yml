@@ -1,0 +1,41 @@
+defaults:
+  home: home
+  pagedir: /src/TestApp2
+specials:
+  -
+    name: resources
+    method: serveResource
+pages:
+  app:
+    url: index.php
+    special: 1
+  home:
+    controller: \App\TestApp2\Serv\HomeController@index
+  about:
+    controller: \App\TestApp2\Serv\HomeController@about
+  guide:
+    url: pages/guide.php
+  dashboard:
+    controller: \App\TestApp2\Serv\DashboardController@index
+  login:
+    controller: \App\TestApp2\Serv\AuthController@loginForm
+  auth/login:
+    controller: \App\TestApp2\Serv\AuthController@login
+  auth/logout:
+    controller: \App\TestApp2\Serv\AuthController@logout
+  api/v1/items:
+    controller: \App\TestApp2\Serv\ApiController@index
+  'api/v1/items/{id}':
+    controller: \App\TestApp2\Serv\ApiController@show
+  contact:
+    url: pages/contact.php
+  error/404:
+    url: pages/errors/404.php
+  error/500:
+    url: pages/errors/500.php
+  assets:
+    assets: assets
+  theme-assets:
+    assets: resources/themes
+  comp-assets:
+    assets: comp

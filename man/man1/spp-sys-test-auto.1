@@ -1,24 +1,18 @@
-.TH SPP-sys-test-auto 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
-sys:test:auto - Runs Automated Evolutionary Testing (Parikshak) for the current application.
+.TH SPP-sys-test-auto 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-sys-test-auto \- Runs Automated Evolutionary Testing (Parikshak) for the current application.
+.SH SYNOPSIS
+.B php spp.php sys:test:auto
+[OPTIONS]
+.SH DESCRIPTION
+Runs Automated Evolutionary Testing (Parikshak) for the current application.
 .PP
-# SYNOPSIS
-php spp.php sys:test:auto [appname]
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# PURPOSE
-Executes the Parikshak Automated Evaluation suite, verifying system integrity, checking entity invariants, and running all associated unit tests for a designated application context.
-.PP
-# OPTIONS AVAILABLE
-\(bu `[appname]` : **Optional.** The name of the application context to evaluate. Defaults to the current active context retrieved via `\SPP\Scheduler::getContext()`, or `default`.
+\(bu Interacts with the SPP database layer directly.
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-The command first checks if the parikshak module is enabled via \SPP\Module::getConfig('active', 'parikshak'). If inactive, it aborts. It isolates the testing environment by dynamically overwriting the database configuration (sppdb module) to use an in-memory SQLite database (:memory:), and injects a fresh \SPPMod\SPPDB\SPPDB instance. It then instantiates \SPPMod\Parikshak\Parikshak and calls runSuite($appname). The suite runs entity evaluations and unit tests, and returns an array of results. Finally, the CLI formats and renders a comprehensive console report, highlighting passed/failed entity rules and unit test outcomes with ANSI color codes.
-.PP
-# EXAMPLES
-Run tests for the default context:
-php spp.php sys:test:auto
-.PP
-Run tests for a specific app context named "api":
-php spp.php sys:test:auto api
-.PP
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB, Parikshak.
+.br

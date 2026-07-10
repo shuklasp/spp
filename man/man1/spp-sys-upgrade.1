@@ -1,17 +1,16 @@
-.TH SPP-sys-upgrade 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-.SH `SYS:UPGRADE`
-.PP
-Purpose: Synchronize the database schema incrementally from all active module definitions (db.yml)
-.PP
+.TH SPP-sys-upgrade 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-sys-upgrade \- Synchronize the database schema incrementally from all active module definitions (db.yml)
 .SH SYNOPSIS
-php spp.php sys:upgrade [OPTIONS]
+.B php spp.php sys:upgrade
+[OPTIONS]
+.SH DESCRIPTION
+Synchronize the database schema incrementally from all active module definitions (db.yml)
 .PP
-.SH OPTIONS AVAILABLE
-No static options detected for this command.
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-.SH UNDER THE HOOD ACTIVITY
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: SPPDB.
+\(bu Instantiates key components: SPPDB.
 .br
-.PP
-.PP

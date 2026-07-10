@@ -10,9 +10,14 @@ class DeployEnvCommand extends Command
         $target = $args[2] ?? null;
         $action = $args[3] ?? null;
 
+        if ($target === 'push') {
+            $action = 'push';
+            $target = \SPPMod\SPPDeploy\Deployer\TargetConnection::getDefaultEnvironment();
+        }
+
         if (!$target || $action !== 'push') {
             echo "Error: Target connection URI and action required.\n";
-            echo "Usage: php spp.php deploy:env <target_uri> push --key=MY_KEY --value=MY_VALUE [--key_api=YOUR_API_KEY]\n";
+            echo "Usage: php spp.php deploy:env [target_uri] push --key=MY_KEY --value=MY_VALUE [--key_api=YOUR_API_KEY]\n";
             return;
         }
 

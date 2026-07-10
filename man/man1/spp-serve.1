@@ -1,34 +1,16 @@
-.TH SPP-serve 1 "23 June 2026" "SPP Framework" "SPP CLI Manual"
-# NAME
+.TH SPP-serve 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-serve \- Start a local development server for the current application
+.SH SYNOPSIS
+.B php spp.php serve
+[OPTIONS]
+.SH DESCRIPTION
+Start a local development server for the current application
 .PP
-serve
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
 .PP
-# SYNOPSIS
-.PP
-php spp.php serve [--port=<port>]
-.PP
-# PURPOSE
-.PP
-Bootstraps the Universal Execution pillar by spinning up local development servers for Native, Blade, or Admin apps.
-.PP
-# OPTIONS AVAILABLE
-.PP
-\(bu `--port=<port>` : Specify the port on which the development server should listen. Defaults to `8000`.
+\(bu Executes external system binaries or shell commands.
 .br
-.PP
-# UNDER THE HOOD ACTIVITY
-.PP
-Upon execution, the command parses the CLI arguments for the --port= parameter, extracting the integer port value (defaulting to 8000). It retrieves the current application context via \SPP\Scheduler::getContext(). It then outputs a colored console header detailing the active context, the local URL, and the administrative URL.
-.PP
-The process then sequentially spawns two distinct PHP server instances. First, it calculates a Hot Module Replacement (HMR) port by adding 1 to the target port. It constructs a background execution command (start /b php -S localhost:{hmrPort} hmr.php) and fires it asynchronously via the exec() function.
-.PP
-Immediately following, the command constructs the foreground primary application server command utilizing PHP's built-in web server (php -S localhost:{port} -t {SPP_APP_DIR}). It sanitizes the document root path with escapeshellarg() and utilizes passthru() to hijack the console's standard output, effectively keeping the main process alive and bound to the server stream until the user terminates it with Ctrl+C.
-.PP
-# EXAMPLES
-.PP
-Start the server on default port 8000:
-php spp.php serve
-.PP
-Start the server on port 8080:
-php spp.php serve --port=8080
-.PP
