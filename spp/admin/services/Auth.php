@@ -18,6 +18,7 @@ function live_Auth_Login($la, $params)
         $success = \SPPMod\SPPAuth\SPPAuth::login($username, $password);
 
         if ($success) {
+            \SPP\SPPSession::regenerateId(true);
             $_SESSION['spp_admin_user'] = $username;
             \SPP\SPPSession::setSessionVar('__sppauth_user__', $username);
             $la->setData(['user' => $username])->notify("Login successful.", "success");
@@ -56,6 +57,7 @@ function live_Auth_VerifyMFA($la, $params)
 
         if (\SPPMod\SPPAuth\MFA::verifyCode($secret, $code)) {
             // Success! Complete login.
+            \SPP\SPPSession::regenerateId(true);
             \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
             \SPPMod\SPPAuth\AuditLogger::log('login_success_mfa', $user->id);
 

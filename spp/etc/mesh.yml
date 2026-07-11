@@ -1,0 +1,7 @@
+mesh_routes:
+  /blog:
+    target: /var/www/wordpress/index.php
+    integration: partial
+    features:
+      - sso_auth
+      - ui_mesh

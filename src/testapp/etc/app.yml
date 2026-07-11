@@ -1,0 +1,6 @@
+# Self-contained application descriptor
+# Discovered automatically by SPP framework
+base_url: "/testapp"
+table_prefix: "testapp_"
+type: "mixed"
+shared_group: "core"

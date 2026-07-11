@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{APP_NAME}} — Drop-in Mode Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #f8fafc; --primary: #6366f1; --text: #0f172a; --muted: #64748b; --surface: #fff; --border: #e2e8f0; --accent: #22c55e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
+        .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .card { background: var(--surface); border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .badge { display: inline-block; background: #e0e7ff; color: #4f46e5; padding: 4px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.05em; margin-bottom: 1rem; }
+        h1 { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; }
+        h2 { color: var(--primary); margin-top: 0; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--border); font-size: 1.2rem; }
+        h3 { color: var(--primary); margin: 1.2rem 0 0.5rem; font-size: 1rem; }
+        p { color: var(--muted); line-height: 1.8; margin: 0.5rem 0; }
+        b, strong { color: var(--text); }
+        code { background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.9em; }
+        pre { background: #0f172a; color: #e2e8f0; padding: 1.2rem; border-radius: 10px; overflow-x: auto; font-size: 0.82rem; line-height: 1.7; margin: 0.8rem 0; }
+        pre code { background: none; padding: 0; color: inherit; }
+        ul, ol { color: var(--muted); padding-left: 1.5rem; margin: 0.5rem 0; line-height: 2; }
+        .tip { background: #f0fdf4; border-left: 4px solid var(--accent); padding: 1rem 1.2rem; border-radius: 0 10px 10px 0; margin: 1rem 0; }
+        .warning { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 1rem 1.2rem; border-radius: 0 10px 10px 0; margin: 1rem 0; }
+        table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.85rem; }
+        th { background: var(--primary); color: #fff; text-align: left; padding: 0.6rem 0.8rem; }
+        td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .footer { text-align: center; margin-top: 2rem; font-size: 0.85rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <div class="badge">DROP-IN MODE GUIDE</div>
+        <h1>{{APP_NAME}} — Drop-in Mode Tutorial</h1>
+        <p>The simplest SPP app mode. Self-contained PHP/HTML files with zero configuration.</p>
+    </div>
+
+    <!-- 1. What is Drop-in Mode? -->
+    <div class="card">
+        <h2>1. What is Drop-in Mode?</h2>
+        <p><strong>Drop-in mode</strong> is the simplest SPP application mode. It's a self-contained PHP/HTML entry point with a mini-router that serves files from a views directory. Think of it as "PHP files with SPP superpowers."</p>
+        <p>Key characteristics:</p>
+        <ul>
+            <li><strong>No controllers</strong> — pages are plain PHP/HTML files</li>
+            <li><strong>No Blade templates</strong> — just regular PHP</li>
+            <li><strong>Special:1 mode</strong> — bypasses the augmentation pipeline</li>
+            <li><strong>SPP is booted</strong> — you have access to sessions, config, events, and all SPP APIs</li>
+            <li><strong>YAML forms</strong> — form processing still works via ViewPage::processForms()</li>
+        </ul>
+    </div>
+
+    <!-- 2. Mini-Router Pattern -->
+    <div class="card">
+        <h2>2. The Mini-Router Pattern</h2>
+        <p>Your <code>src/{{APP_NAME}}/index.php</code> contains a simple router that maps URL parameters to files:</p>
+        <pre><code>// src/{{APP_NAME}}/index.php
+
+// SPP framework is ALREADY booted — no require needed!
+
+// Process YAML forms
+if (class_exists('\SPPMod\SPPView\ViewPage')) {
+    \SPPMod\SPPView\ViewPage::processForms();
+}
+
+// Simple router — maps ?page=xxx to a file
+$page = $_GET['page'] ?? 'index';
+$page = preg_replace('/[^a-zA-Z0-9_\-]/', '', $page);  // Sanitize!
+
+$viewsDir = SPP_APP_DIR . '/resources/{{APP_NAME}}/views/';
+
+if (file_exists($viewsDir . $page . '.php')) {
+    include $viewsDir . $page . '.php';
+} elseif (file_exists($viewsDir . $page . '.html')) {
+    echo file_get_contents($viewsDir . $page . '.html');
+} else {
+    echo "&lt;h1&gt;404 — Page Not Found&lt;/h1&gt;";
+}</code></pre>
+    </div>
+
+    <!-- 3. Adding New Pages -->
+    <div class="card">
+        <h2>3. Adding New Pages</h2>
+        <p>To add a new page, simply create a file in <code>resources/{{APP_NAME}}/views/</code>:</p>
+        <pre><code>resources/{{APP_NAME}}/views/
+├── index.html       ← Home page (loaded by default)
+├── guide.html       ← This guide page
+├── about.php        ← PHP page with dynamic content
+├── contact.php      ← Contact form page
+└── gallery.html     ← Static HTML page</code></pre>
+        <p>Access pages via URL parameter:</p>
+            <li><code>/index</code> → loads <code>index.html</code> (default)</li>
+            <li><code>/index?page=about</code> → loads <code>about.php</code></li>
+            <li><code>/index?page=contact</code> → loads <code>contact.php</code></li>
+            <li><code>/index?page=guide</code> → loads <code>guide.html</code> (this page)</li>
+        </ul>
+    </div>
+
+    <!-- 4. Using SPP Core APIs -->
+    <div class="card">
+        <h2>4. Available SPP Core APIs</h2>
+        <p>Even in drop-in mode, the full SPP framework is booted. You can use:</p>
+        <pre><code>// SESSION — Store/retrieve session data
+$session = \SPP\Session\SPPSession::getInstance();
+$session->set('user_name', 'Alice');
+$name = $session->get('user_name');
+
+// CONFIG — Read framework/app configuration
+$config = \SPP\Config\SPPConfig::get('app.name');
+$dbHost = \SPP\Config\SPPConfig::get('database.host');
+
+// EVENTS — Dispatch and listen to events
+\SPP\Events\SPPEvent::dispatch('page.viewed', ['page' => $page]);
+
+// LOGGING — Write to log files
+\SPP\Logger\SPPLog::info('Page loaded: ' . $page);
+\SPP\Logger\SPPLog::error('Something went wrong');
+
+// BASE URL — Get your app's base URL
+$baseUrl = \SPP\App::getBaseUrl('{{APP_NAME}}');
+
+// DATABASE (if SPPDB module is available)
+// $db = new \SPPMod\SPPDB\SPPDB();
+// $results = $db->execute_query('SELECT * FROM my_table');</code></pre>
+    </div>
+
+    <!-- 5. When to Use Drop-in -->
+    <div class="card">
+        <h2>5. When to Use Drop-in vs Other Modes</h2>
+        <table>
+            <tr><th>Scenario</th><th>Best Mode</th><th>Why</th></tr>
+            <tr><td>Quick prototype / landing page</td><td><strong>dropin</strong></td><td>Fastest setup, minimal files</td></tr>
+            <tr><td>Content site with templates</td><td>blade</td><td>Layouts, partials, directives</td></tr>
+            <tr><td>Interactive SPA dashboard</td><td>sppux</td><td>Reactive components, stores</td></tr>
+            <tr><td>Full-featured web app</td><td>mixed</td><td>All paradigms combined</td></tr>
+            <tr><td>Mobile app backend</td><td>api</td><td>JSON-only, no HTML</td></tr>
+            <tr><td>Simple PHP pages with themes</td><td>native</td><td>PHP pages + augmentation</td></tr>
+        </table>
+    </div>
+
+    <!-- 6. Upgrading -->
+    <div class="card">
+        <h2>6. Upgrading to Native or Mixed Mode</h2>
+        <p>When your drop-in app outgrows its simplicity, upgrade:</p>
+        <h3>Step 1: Edit pages.yml</h3>
+        <pre><code># etc/apps/{{APP_NAME}}/pages.yml
+# BEFORE (drop-in):
+pages:
+  index:
+    url: index.php
+    special: 1          ← Remove this line
+
+# AFTER (native):
+pages:
+  index:
+    url: pages/index.php    ← Move to pages/ directory
+  about:
+    url: pages/about.php
+  contact:
+    url: pages/contact.php</code></pre>
+        <h3>Step 2: Move files</h3>
+        <pre><code># Create pages directory
+mkdir src/{{APP_NAME}}/pages/
+
+# Move your views to pages (as PHP files)
+# Each file now gets theme augmentation (CSS/JS injection)</code></pre>
+        <h3>Step 3: For Mixed mode, add controllers</h3>
+        <pre><code># Add controller routes in pages.yml:
+pages:
+  home:
+    controller: \App\{{APP_NAME}}\Serv\HomeController@index</code></pre>
+        <div class="tip"><strong>Tip:</strong> You can upgrade incrementally. Start with native mode (add more pages.yml routes), then add controllers for Blade, then add SPP-UX components.</div>
+    </div>
+
+    <!-- 7. SPP Framework Already Booted -->
+    <div class="card">
+        <h2>7. How SPP Framework is Already Booted</h2>
+        <p>When a request reaches your drop-in app, SPP has already:</p>
+        <ol>
+            <li><strong>Loaded <code>sppinit.php</code></strong> — Framework core is initialized</li>
+            <li><strong>Read <code>global-settings.yml</code></strong> — Your app is registered</li>
+            <li><strong>Set app context</strong> — <code>SPP_APP_DIR</code>, base URL, etc. are available</li>
+            <li><strong>Started session</strong> — PHP session is active</li>
+            <li><strong>Loaded modules</strong> — SPPDB, SPPAuth, etc. are ready (if installed)</li>
+            <li><strong>Matched route</strong> — ViewRouter found your <code>index</code> route (special:1)</li>
+            <li><strong>Included your <code>index.php</code></strong> — Your code runs with full framework access</li>
+        </ol>
+        <div class="warning"><strong>Never do these in drop-in mode:</strong><br>
+        ❌ <code>require 'sppinit.php'</code> — already loaded<br>
+        ❌ <code>\SPP\App::getApp()</code> to set context — already set<br>
+        ❌ <code>session_start()</code> — already started by SPP</div>
+    </div>
+
+    <div class="footer">
+        &copy; {{APP_NAME}} &bull; Powered by SPP Framework &bull; Drop-in Mode<br>
+        <small>Access this guide at: <code>/index?page=guide</code></small>
+    </div>
+</div>
+</body>
+</html>

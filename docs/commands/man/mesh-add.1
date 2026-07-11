@@ -1,0 +1,53 @@
+.TH MESH:ADD 1 "2026-07-11" "SPP WebOS" "SPP CLI Manual"
+.SH NAME
+mesh:add \- Mounts a legacy application as a passthrough route in the WebOS Mesh.
+.SH SYNOPSIS
+.B php spp.php mesh:add
+.IR uri
+.IR target
+[\-\-integration=partial|none] [\-\-features=feature1,feature2]
+.SH DESCRIPTION
+The
+.B mesh:add
+command allows you to safely mount massive legacy applications (like WordPress or Magento) directly into the SPP routing tree without requiring you to rewrite any of their code.
+.PP
+When you mount a legacy app via the Mesh, SPP acts as a smart reverse-proxy. It intercepts the HTTP request, optionally injects "A La Carte" features (like SSO or UI components), and then directly includes the legacy application's entry script. This guarantees 100% legacy compliance while still delivering modern WebOS capabilities.
+.SH OPTIONS
+.TP
+.IR uri
+The URL route that SPP should listen to (e.g. /blog).
+.TP
+.IR target
+The absolute filesystem path to the legacy application's entry file (e.g. /var/www/wordpress/index.php).
+.TP
+.B \-\-integration=
+The integration level. Defaults to none. Set to partial to enable feature injection.
+.TP
+.B \-\-features=
+A comma-separated list of features to inject into the legacy app. Available options include:
+.RS
+.B sso_auth
+\- Hydrates the PHP session state before inclusion.
+.RE
+.RS
+.B ui_mesh
+\- Injects the global SPP WebOS navigation header.
+.RE
+.RS
+.B hardware_quota
+\- Enforces strict RAM limits on the legacy app via ResourceManager.
+.RE
+.RS
+.B security_headers
+\- Injects strict HTTP headers (X-Frame-Options, XSS-Protection) into the response.
+.RE
+.RS
+.B telemetry
+\- Starts a W3C Trace Context span to log legacy app performance into SPP's monitoring suite.
+.RE
+.SH UNDER THE HOOD
+1. The command parses the arguments and reads the centralized etc/mesh.yml configuration file.
+.br
+2. It injects the new routing definition and writes the file safely to disk.
+.br
+3. It instantly triggers KernelCompiler::compile() to flatten the YAML into a native PHP array, ensuring 0ms boot overhead for FastCGI environments.

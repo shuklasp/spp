@@ -13,11 +13,26 @@ class StreamDispatcher
             ob_end_clean();
         }
 
-        http_response_code(200);
-        header('Content-Type: text/event-stream; charset=utf-8');
-        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-        header('Connection: keep-alive');
-        header('X-Accel-Buffering: no'); // Bypass Nginx/proxy layer buffering
+        try {
+            if (class_exists('\\SPPMod\\SPPLive\\ServerDetector')) {
+                \SPPMod\SPPLive\ServerDetector::applyStreamingHeaders();
+            } else {
+                http_response_code(200);
+                header('Content-Type: text/event-stream; charset=utf-8');
+                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+                header('Connection: keep-alive');
+                header('X-Accel-Buffering: no');
+            }
+        } catch (\SPPMod\SPPLive\StreamingDegradationException $e) {
+            http_response_code(200);
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'degrade_to' => 'polling',
+                'interval' => 3000,
+                'message' => $e->getMessage()
+            ]);
+            exit;
+        }
 
         $emit = function (string $event, array $data) {
             $payload = json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

@@ -1,0 +1,92 @@
+/**
+ * Form Demo Component
+ * Demonstrates: client-side form handling, validation, API submission, SPPUX.Busy
+ */
+export default class FormDemo extends BaseComponent {
+    async onInit() {
+        this.setState({
+            formData: { name: '', email: '', message: '' },
+            errors: {},
+            submitting: false,
+            submitted: false
+        });
+    }
+
+    updateField(field, value) {
+        const formData = { ...this.state.formData, [field]: value };
+        this.setState({ formData, errors: { ...this.state.errors, [field]: '' } });
+    }
+
+    validate() {
+        const errors = {};
+        const { name, email, message } = this.state.formData;
+        if (!name.trim()) errors.name = 'Name is required';
+        if (!email.trim()) errors.email = 'Email is required';
+        else if (!/\S+@\S+\.\S+/.test(email)) errors.email = 'Invalid email format';
+        if (!message.trim()) errors.message = 'Message is required';
+        this.setState({ errors });
+        return Object.keys(errors).length === 0;
+    }
+
+    async submit() {
+        if (!this.validate()) return;
+        this.setState({ submitting: true });
+        SPPUX.Busy.start(); // Show global loading indicator
+        try {
+            // Simulate API call — replace with real service call:
+            // const result = await this.service('form.submit', this.state.formData);
+            await new Promise(r => setTimeout(r, 1500));
+            this.setState({ submitted: true, submitting: false });
+            SPPUX.Busy.stop();
+            this.notify('Form submitted successfully!', 'success');
+        } catch (e) {
+            this.setState({ submitting: false });
+            SPPUX.Busy.stop();
+            this.notify('Submission failed: ' + e.message, 'error');
+        }
+    }
+
+    render() {
+        if (this.state.submitted) {
+            return html`
+                <div style="padding:2rem; text-align:center; background:rgba(34,197,94,0.1); border-radius:14px;">
+                    <span style="font-size:3rem;">✅</span>
+                    <h3>Form Submitted!</h3>
+                    <p style="opacity:0.6;">Data: ${JSON.stringify(this.state.formData)}</p>
+                    <button @click="${() => this.setState({ submitted: false, formData: { name:'', email:'', message:'' } })}"
+                            style="margin-top:1rem; padding:0.7rem 1.5rem; background:var(--sppux-primary); color:#fff; border:none; border-radius:10px; cursor:pointer;">
+                        Submit Another
+                    </button>
+                </div>
+            `;
+        }
+        const { formData, errors } = this.state;
+        const inputStyle = 'width:100%;padding:0.8rem;border-radius:10px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);color:inherit;font-family:inherit;font-size:1rem;';
+        return html`
+            <div style="padding:1.5rem; background:var(--sppux-panel); border-radius:14px;">
+                <h3 style="margin-top:0;">📝 Form Demo</h3>
+                <p style="opacity:0.5; font-size:0.85rem;">Client-side validation + SPPUX.Busy loading indicator</p>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;margin-bottom:0.3rem;font-size:0.85rem;opacity:0.6;">Name</label>
+                    <input style="${inputStyle}" value="${formData.name}" @input="${(e) => this.updateField('name', e.target.value)}" placeholder="Your name">
+                    ${errors.name ? html`<div style="color:#ef4444;font-size:0.8rem;margin-top:0.3rem;">${errors.name}</div>` : ''}
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;margin-bottom:0.3rem;font-size:0.85rem;opacity:0.6;">Email</label>
+                    <input style="${inputStyle}" value="${formData.email}" @input="${(e) => this.updateField('email', e.target.value)}" placeholder="you@example.com">
+                    ${errors.email ? html`<div style="color:#ef4444;font-size:0.8rem;margin-top:0.3rem;">${errors.email}</div>` : ''}
+                </div>
+                <div style="margin-bottom:1rem;">
+                    <label style="display:block;margin-bottom:0.3rem;font-size:0.85rem;opacity:0.6;">Message</label>
+                    <textarea style="${inputStyle}" rows="3" @input="${(e) => this.updateField('message', e.target.value)}" placeholder="Your message">${formData.message}</textarea>
+                    ${errors.message ? html`<div style="color:#ef4444;font-size:0.8rem;margin-top:0.3rem;">${errors.message}</div>` : ''}
+                </div>
+                <button @click="${() => this.submit()}"
+                        style="padding:0.8rem 2rem;background:var(--sppux-primary);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;opacity:${this.state.submitting ? '0.5' : '1'};"
+                        ${this.state.submitting ? 'disabled' : ''}>
+                    ${this.state.submitting ? 'Submitting...' : 'Submit Form'}
+                </button>
+            </div>
+        `;
+    }
+}

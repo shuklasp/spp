@@ -23,13 +23,20 @@ class IntegrationInstallCommand extends Command
     public function execute(array $args): void
     {
         if (count($args) < 2) {
-            echo "Usage: php spp.php integration:install <app_name> <route_path>\n";
-            echo "Example: php spp.php integration:install wordpress /blog\n";
+            echo "Usage: php spp.php integration:install <app_name> <route_path> [--isolation=virtual|physical]\n";
+            echo "Example: php spp.php integration:install wordpress /blog --isolation=virtual\n";
             return;
         }
 
         $appName = strtolower($args[0]);
         $routePath = '/' . ltrim($args[1], '/');
+        
+        $isolation = 'virtual';
+        foreach ($args as $arg) {
+            if (strpos($arg, '--isolation=') === 0) {
+                $isolation = str_replace('--isolation=', '', $arg);
+            }
+        }
         
         // 1. Filesystem Scaffolding
         $publicDir = realpath(__DIR__ . '/../../') . '/public'; // Assuming SPP public dir structure
@@ -72,6 +79,17 @@ class IntegrationInstallCommand extends Command
         } catch (\Exception $e) {
             echo "   [WARNING] " . $e->getMessage() . "\n";
         }
+
+        // 4. WebOS Hardware Abstraction Provisioning
+        echo "4. Provisioning WebOS Hardware Abstraction (Isolation: {$isolation})...\n";
+        $dummyConfig = "<?php\n// SPP WebOS Auto-Generated Configuration\n";
+        $dummyConfig .= "define('DB_HOST', 'spp://kernel');\n";
+        $dummyConfig .= "define('DB_USER', 'spp_system');\n";
+        $dummyConfig .= "define('SPP_ISOLATION', '{$isolation}');\n";
+        $dummyConfig .= "define('SPP_INSTANCE', '{$appName}:' . md5('{$routePath}'));\n";
+        
+        file_put_contents($targetDir . '/spp-webos-config.php', $dummyConfig);
+        echo "   [SUCCESS] WebOS dummy connection string injected into target directory.\n";
 
         echo "\nInstallation complete! You can now install {$appName} into {$routePath}.\n";
     }

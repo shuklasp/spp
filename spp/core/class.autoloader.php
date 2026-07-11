@@ -111,6 +111,22 @@ class Autoloader
 
     private static function resolveInterfaceAliases(string $className): bool
     {
+        // Safe PSR-4 Aliasing to Legacy class.*.php filenames
+        $psr4LegacyMap = [
+            'SPP\App' => 'SPP\Core\App',
+            'SPP\Module' => 'SPP\Core\Module',
+            'SPP\ResourceController' => 'SPP\Core\ResourceController',
+            'SPP\PolyglotBridge' => 'SPP\Core\PolyglotBridge',
+            'SPP\Command' => 'SPP\Core\Command',
+            'SPP\DB' => 'SPP\Core\DB',
+            'SPP\SPPConfig' => 'SPP\Core\SPPConfig',
+        ];
+
+        if (isset($psr4LegacyMap[$className])) {
+            class_alias($psr4LegacyMap[$className], $className);
+            return true;
+        }
+
         if ($className === 'SPP\\CacheInterface' || $className === 'SPP\\MiddlewareInterface' || $className === 'SPP\\iModule' || $className === 'SPP\\Storage' || $className === 'SPP\\SmartStorage') {
             class_alias('\\SPP\\Core\\' . substr($className, 4), '\\' . $className);
             return true;

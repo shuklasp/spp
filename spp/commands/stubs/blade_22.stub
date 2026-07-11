@@ -1,0 +1,329 @@
+{{-- ============================================================================
+     {{APP_NAME}} — COMPREHENSIVE Blade Mode Developer Guide
+     ============================================================================
+     This is a Blade template rendered by HomeController@guide.
+     It uses @extends('layouts.app') to inherit the master layout.
+     Delete this file once you understand the framework!
+     ============================================================================ --}}
+
+@extends('layouts.app')
+
+@section('content')
+<div style="max-width: 1100px; margin: 2rem auto; padding: 0 1rem; font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;">
+    <div style="background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
+
+        <span style="display:inline-block; background:#e0e7ff; color:#4f46e5; padding:4px 14px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-bottom:1rem; letter-spacing:0.05em;">BLADE MODE GUIDE</span>
+        <h1 style="margin: 0 0 0.5rem; font-size: 2rem; color: #1e293b;">Blade Mode — Complete Tutorial</h1>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 2.5rem;">Application: <code style="background:#f1f5f9;padding:2px 8px;border-radius:6px;">{{APP_NAME}}</code></p>
+
+        <!-- ════════════ 1. WHAT IS BLADE MODE? ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">1. What is Blade Mode?</h2>
+        <p style="color:#475569; line-height:1.8;">
+            <b>Blade mode</b> uses server-rendered PHP templates. Your HTML is generated on the server (in PHP) and sent
+            to the browser as a complete page. This is the traditional web approach &mdash; reliable, SEO-friendly, and fast for content-heavy sites.
+        </p>
+        <p style="color:#475569; line-height:1.8;">
+            SPP's Blade engine is inspired by Laravel's Blade but adds custom directives like <code>@sppux</code>, <code>@sppform</code>,
+            <code>@sppauth</code>, and more for deep framework integration.
+        </p>
+
+        <!-- ════════════ 2. BLADE SYNTAX ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">2. Blade Template Syntax</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+{{-- This is a Blade comment (not sent to browser) --}}
+
+{{-- ① Echo with HTML escaping (safe from XSS) --}}
+&lt;p&gt;Hello, {{ $name }}&lt;/p&gt;
+
+{{-- ② Echo WITHOUT escaping (raw HTML — use carefully!) --}}
+&lt;div&gt;{!! $rawHtml !!}&lt;/div&gt;
+
+{{-- ③ Conditionals --}}
+@if ($user->isAdmin())
+    &lt;p&gt;Welcome, Admin!&lt;/p&gt;
+@elseif ($user->isMember())
+    &lt;p&gt;Welcome, Member!&lt;/p&gt;
+@else
+    &lt;p&gt;Welcome, Guest!&lt;/p&gt;
+@endif
+
+{{-- ④ Loops --}}
+@foreach ($items as $item)
+    &lt;li&gt;{{ $item->name }}&lt;/li&gt;
+@endforeach
+
+@for ($i = 0; $i < 10; $i++)
+    &lt;span&gt;{{ $i }}&lt;/span&gt;
+@endfor
+
+@while ($condition)
+    &lt;p&gt;Still going...&lt;/p&gt;
+@endwhile
+
+{{-- ⑤ Checking empty collections --}}
+@forelse ($items as $item)
+    &lt;li&gt;{{ $item->name }}&lt;/li&gt;
+@empty
+    &lt;li&gt;No items found.&lt;/li&gt;
+@endforelse</pre>
+
+        <!-- ════════════ 3. LAYOUTS ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">3. Layouts &amp; Inheritance</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+{{-- ── layouts/app.blade.php (Master Layout) ── --}}
+&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;@yield('title', 'Default Title')&lt;/title&gt;
+    @stack('styles')     {{-- Pushed CSS from child views --}}
+&lt;/head&gt;
+&lt;body&gt;
+    @include('partials.nav')    {{-- Include a partial --}}
+    @yield('content')           {{-- Child content goes here --}}
+    @stack('scripts')           {{-- Pushed JS from child views --}}
+&lt;/body&gt;
+&lt;/html&gt;
+
+{{-- ── home.blade.php (Child View) ── --}}
+@extends('layouts.app')
+
+@section('title', 'Home Page')
+
+@push('styles')
+    &lt;style&gt;.hero { background: #6366f1; }&lt;/style&gt;
+@endpush
+
+@section('content')
+    &lt;div class="hero"&gt;&lt;h1&gt;Welcome!&lt;/h1&gt;&lt;/div&gt;
+@endsection
+
+@push('scripts')
+    &lt;script&gt;console.log('Home loaded');&lt;/script&gt;
+@endpush</pre>
+
+        <!-- ════════════ 4. SPP CUSTOM DIRECTIVES ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">4. ALL SPP Custom Directives</h2>
+        <p style="color:#475569; line-height:1.8;">These are SPP-specific Blade directives that integrate the framework's features:</p>
+
+        <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
+            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.7rem;">Directive</th><th style="text-align:left; padding:0.7rem;">Description</th></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppux('component', ['prop'=>'val'])</code></td><td style="padding:0.7rem;">Mount an SPP-UX reactive component inside Blade</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppform('formName')</code></td><td style="padding:0.7rem;">Render a YAML-defined form (from etc/apps/APP/forms/)</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppform_start('name') / @sppform_end</code></td><td style="padding:0.7rem;">Manual form rendering with custom layout between</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppelement('field', 'formName')</code></td><td style="padding:0.7rem;">Render a single form field from a YAML form</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppauth ... @endsppauth</code></td><td style="padding:0.7rem;">Show content only for authenticated users</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppguest ... @endsppguest</code></td><td style="padding:0.7rem;">Show content only for guests (not logged in)</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@sppbind($entity)</code></td><td style="padding:0.7rem;">Bind a database entity to a form for editing</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@react('Component', ['data'=>$val])</code></td><td style="padding:0.7rem;">Mount a React component (if React bridge loaded)</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@vue('component', ['data'=>$val])</code></td><td style="padding:0.7rem;">Mount a Vue component (if Vue bridge loaded)</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>@sppoffline('key') ... @endsppoffline</code></td><td style="padding:0.7rem;">Cache content for offline access (service worker)</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>@module_component('name')</code></td><td style="padding:0.7rem;">Mount a component from an SPP module</td></tr>
+        </table>
+
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+{{-- Mount a reactive SPP-UX component inside a Blade view --}}
+@sppux('task-manager', ['userId' => $user->id])
+
+{{-- Render a YAML form --}}
+@sppform('contact')
+
+{{-- Conditional auth sections --}}
+@sppauth
+    &lt;p&gt;Welcome back, {{ $user->name }}!&lt;/p&gt;
+    &lt;a href="/dashboard"&gt;Dashboard&lt;/a&gt;
+@endsppauth
+
+@sppguest
+    &lt;a href="/login"&gt;Log In&lt;/a&gt;
+@endsppguest
+
+{{-- Bind entity to form for editing --}}
+@sppbind($task)
+    @sppform('task-edit')
+@endsppbind</pre>
+
+        <!-- ════════════ 5. CONTROLLERS ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">5. Controllers</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+// src/{{APP_NAME}}/serv/HomeController.php
+namespace App\{{APP_NAME}}\Serv;
+
+class HomeController
+{
+    public function index()
+    {
+        // SPPBlade::getInstance()->run() renders a Blade template
+        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
+        return $blade->run('home', [
+            'title'    => 'Welcome',
+            'items'    => $this->getItems(),
+            'user'     => \SPPMod\SPPAuth\SPPAuth::getUser(),
+        ]);
+    }
+
+    // Views are looked up in: src/{{APP_NAME}}/resources/views/
+    // 'home' → home.blade.php
+    // 'layouts.app' → layouts/app.blade.php
+    // 'partials.nav' → partials/nav.blade.php
+}</pre>
+
+        <!-- ════════════ 6. ATTRIBUTE ROUTING ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">6. PHP 8 Attribute Routing</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+use SPPMod\SPPView\Attributes\Route;
+use SPPMod\SPPView\Attributes\Middleware;
+use SPPMod\SPPView\Attributes\Title;
+
+#[Route('/blog')]
+#[Title('Blog')]
+class BlogController
+{
+    #[Route('/', method: 'GET', name: 'blog.index')]
+    public function index() { /* GET /blog */ }
+
+    #[Route('/{slug}', method: 'GET')]
+    public function show() { /* GET /blog/my-post */ }
+
+    #[Route('/create', method: 'POST')]
+    #[Middleware(\App\{{APP_NAME}}\Middleware\AuthGuard::class)]
+    public function store() { /* POST /blog/create */ }
+}</pre>
+
+        <!-- ════════════ 7. THEME SYSTEM ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">7. Theme System</h2>
+        <p style="color:#475569; line-height:1.8;">
+            SPP auto-injects theme CSS from <code>etc/apps/{{APP_NAME}}/theme.yml</code>.
+            The augmentation pipeline wraps your Blade output with theme stylesheets.
+        </p>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+# etc/apps/{{APP_NAME}}/theme.yml
+theme:
+  name: modern
+  css:
+    - /assets/css/theme.css
+    - /assets/css/custom.css
+  js:
+    - /assets/js/app.js
+  meta:
+    viewport: "width=device-width, initial-scale=1"</pre>
+
+        <!-- ════════════ 8. ENTITIES ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">8. Entities &amp; Admin Exposure</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+// src/{{APP_NAME}}/entities/Task.php
+namespace App\{{APP_NAME}}\Entities;
+
+use SPPMod\SPPDB\SPPEntity;
+
+class Task extends SPPEntity
+{
+    protected string $table = '{{APP_NAME}}_tasks';
+    protected bool $adminExpose = true;    // Auto-generates admin CRUD UI
+    protected bool $apiExpose = true;      // Auto-generates REST API endpoints
+
+    protected array $fields = [
+        'title'       => ['type' => 'string', 'required' => true],
+        'description' => ['type' => 'text'],
+        'status'      => ['type' => 'enum', 'values' => ['pending','done']],
+        'due_date'    => ['type' => 'date'],
+    ];
+}</pre>
+
+        <!-- ════════════ 9. YAML FORMS IN BLADE ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">9. YAML Forms in Blade</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+{{-- Simple: render the entire form --}}
+@sppform('contact')
+
+{{-- Advanced: custom layout with individual fields --}}
+@sppform_start('registration')
+    &lt;div class="row"&gt;
+        &lt;div class="col"&gt;@sppelement('first_name', 'registration')&lt;/div&gt;
+        &lt;div class="col"&gt;@sppelement('last_name', 'registration')&lt;/div&gt;
+    &lt;/div&gt;
+    @sppelement('email', 'registration')
+    @sppelement('password', 'registration')
+@sppform_end</pre>
+
+        <!-- ════════════ 10. MIDDLEWARE ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">10. Middleware</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+// src/{{APP_NAME}}/middleware/AuthGuard.php
+namespace App\{{APP_NAME}}\Middleware;
+
+class AuthGuard
+{
+    public function handle($request, $next)
+    {
+        if (!\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
+            header('Location: /login');
+            exit;
+        }
+        return $next($request);
+    }
+}
+
+# Register in etc/apps/{{APP_NAME}}/middleware.yml
+middleware:
+  auth: \App\{{APP_NAME}}\Middleware\AuthGuard
+  csrf: \SPPMod\SPPView\Middleware\CsrfGuard</pre>
+
+        <!-- ════════════ 11. EVENTS ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">11. Events from Blade Context</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+// Dispatch an event from a controller
+\SPP\Events\SPPEvent::dispatch('user.registered', ['user' => $user]);
+
+# Register listener in etc/apps/{{APP_NAME}}/events.yml
+events:
+  user.registered:
+    - \App\{{APP_NAME}}\Events\SendWelcomeEmail
+    - \App\{{APP_NAME}}\Events\LogRegistration</pre>
+
+        <!-- ════════════ 12. ERROR PAGES ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">12. Error Handling &amp; Custom Pages</h2>
+        <p style="color:#475569; line-height:1.8;">
+            Custom error pages live in <code>src/{{APP_NAME}}/pages/errors/</code>.
+            Routes are defined in pages.yml: <code>error/404</code> and <code>error/500</code>.
+        </p>
+
+        <!-- ════════════ 13. TESTING ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">13. Parikshak Testing</h2>
+        <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
+// Test a controller renders the correct view
+use SPP\Testing\Parikshak;
+
+class HomeControllerTest extends Parikshak
+{
+    /** @test */
+    public function home_page_renders()
+    {
+        $controller = new \App\{{APP_NAME}}\Serv\HomeController();
+        $html = $controller->index();
+        $this->assertStringContains('Welcome', $html);
+    }
+}
+
+// Run: php spp.php test:run --app={{APP_NAME}}</pre>
+
+        <!-- ════════════ 14. CLI COMMANDS ════════════ -->
+        <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">14. CLI Commands for Blade</h2>
+        <table style="width:100%; border-collapse:collapse; margin:1rem 0; font-size:0.82rem;">
+            <tr style="background:#6366f1; color:#fff;"><th style="text-align:left; padding:0.7rem;">Command</th><th style="text-align:left; padding:0.7rem;">Description</th></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>php spp.php make:blade --app={{APP_NAME}} mypage</code></td><td style="padding:0.7rem;">Generate a new Blade view</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>php spp.php make:controller --app={{APP_NAME}} Blog</code></td><td style="padding:0.7rem;">Generate a controller class</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>php spp.php make:entity --app={{APP_NAME}} Task</code></td><td style="padding:0.7rem;">Generate a database entity</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>php spp.php make:middleware --app={{APP_NAME}} Auth</code></td><td style="padding:0.7rem;">Generate middleware class</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>php spp.php migrate --app={{APP_NAME}}</code></td><td style="padding:0.7rem;">Run database migrations</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0; background:#fafbfc;"><td style="padding:0.7rem;"><code>php spp.php cache:clear</code></td><td style="padding:0.7rem;">Clear compiled views and caches</td></tr>
+            <tr style="border-bottom:1px solid #e2e8f0;"><td style="padding:0.7rem;"><code>php spp.php test:run --app={{APP_NAME}}</code></td><td style="padding:0.7rem;">Run Parikshak tests</td></tr>
+        </table>
+
+        <div style="margin-top:2rem; padding:1.5rem; background:#eff6ff; border-radius:10px; text-align:center;">
+            <p style="color:#3b82f6; font-weight:600; margin:0;">Tip: Delete this guide page once you are comfortable!</p>
+            <p style="color:#64748b; font-size:0.85rem; margin:0.5rem 0 0;">Remove the <code>'guide'</code> route from pages.yml and delete this file.</p>
+        </div>
+
+    </div>
+</div>
+@endsection

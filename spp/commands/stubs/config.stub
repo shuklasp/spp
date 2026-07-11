@@ -1,0 +1,20 @@
+################################################################################
+# Application Runtime Configuration — {{appName}}
+#
+# Values here can be read via:
+#   \SPP\App::getAppConf('key_name', '{{appName}}')
+################################################################################
+
+app_name: "{{appName}}"
+app_type: "{{appType}}"
+default_layout: "premium-glass"
+
+# Asset directories (relative to app src)
+assets:
+  theme-assets: "resources/themes"
+  app-assets: "assets"
+
+# Uncomment to enable features:
+# debug: true
+# cache: false
+# auth_required: true

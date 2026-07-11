@@ -313,6 +313,15 @@ created_at: 1780656744',
       'etc_path' => 'etc/apps/test_api_app',
       'src_path' => 'src/test_api_app',
     ),
+    'testapp' => 
+    array (
+      'base_url' => '/testapp',
+      'table_prefix' => 'testapp_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'etc/apps/testapp',
+      'src_path' => 'src/testapp',
+    ),
     'spp_docs' => 
     array (
       'base_url' => '/spp/docs',

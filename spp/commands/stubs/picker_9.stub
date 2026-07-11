@@ -1,0 +1,39 @@
+/**
+ * Theme Picker Component
+ * Demonstrates: SPPUX.Theme API, dynamic styling, CSS variable overrides
+ */
+export default class ThemePicker extends BaseComponent {
+    async onInit() {
+        this.setState({
+            current: SPPUX.Theme.current || 'midnight',
+            themes: ['midnight', 'emerald', 'royal', 'cyberpunk', 'ocean', 'saffron', 'day'],
+            customVars: { '--sppux-primary': '#6366f1' }
+        });
+    }
+
+    select(theme) {
+        SPPUX.Theme.set(theme);
+        this.setState({ current: theme });
+        this.notify(`Theme: ${theme}`, 'success');
+    }
+
+    render() {
+        return html`
+            <div style="padding:1.5rem; background:var(--sppux-panel); border-radius:14px;">
+                <h3 style="margin-top:0;">🎨 Theme Picker</h3>
+                <div style="display:flex; flex-wrap:wrap; gap:0.6rem;">
+                    ${this.state.themes.map(t => html`
+                        <button @click="${() => this.select(t)}"
+                                style="padding:0.6rem 1.2rem; border-radius:8px; cursor:pointer; border:2px solid ${this.state.current === t ? 'var(--sppux-primary)' : 'rgba(255,255,255,0.1)'}; background:${this.state.current === t ? 'var(--sppux-primary)' : 'transparent'}; color:${this.state.current === t ? '#fff' : 'inherit'}; font-family:inherit; text-transform:capitalize;">
+                            ${t}
+                        </button>
+                    `)}
+                </div>
+                <p style="margin-top:1rem; opacity:0.5; font-size:0.85rem;">
+                    <b>Custom branding:</b> Override CSS variables in your app stylesheet.
+                    See <code>spp/modules/spp/drishyam/css/sppux.css</code> for all variables.
+                </p>
+            </div>
+        `;
+    }
+}

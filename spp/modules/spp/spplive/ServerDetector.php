@@ -1,6 +1,8 @@
 <?php
 namespace SPPMod\SPPLive;
 
+class StreamingDegradationException extends \RuntimeException {}
+
 /**
  * Detects the web server environment to apply best settings for SSE/long-polling streaming.
  */
@@ -8,7 +10,13 @@ class ServerDetector {
     private static $cacheFile = SPP_BASE_DIR . '/var/cache/server_streaming_config.json';
 
     public static function applyStreamingHeaders(): void {
+        $forcePolling = \SPP\App::getGlobalSettings('security.streaming.force_polling') ?? false;
+        
         $settings = self::getSettings();
+        
+        if ($forcePolling || ($settings['is_apache'] && !function_exists('set_time_limit'))) {
+            throw new StreamingDegradationException("Streaming is degraded to short-polling by configuration or restricted environment.");
+        }
 
         // Standard SSE Headers
         header('Content-Type: text/event-stream');

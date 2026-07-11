@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{APP_NAME}} — SPP-UX Developer Guide</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        /* ── SPP-UX Dark Theme Aesthetic ── */
+        :root {
+            --bg: #0a0a0f;
+            --surface: #12121a;
+            --panel: #1a1a2e;
+            --border: #2a2a3e;
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --primary: #818cf8;
+            --primary-glow: rgba(129,140,248,0.15);
+            --accent: #34d399;
+            --warning: #fbbf24;
+            --code-bg: #0f0f1a;
+            --gradient-start: #6366f1;
+            --gradient-end: #8b5cf6;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+        .guide-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 4rem;
+        }
+        .guide-header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2.5rem;
+        }
+        .guide-header .badge {
+            display: inline-block;
+            background: var(--primary-glow);
+            color: var(--primary);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(129,140,248,0.2);
+        }
+        .guide-header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .guide-header p { color: var(--muted); margin-top: 0.5rem; font-size: 1rem; }
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .toc h3 { color: var(--primary); margin-bottom: 0.8rem; font-size: 1rem; }
+        .toc ol { padding-left: 1.5rem; color: var(--muted); }
+        .toc li { margin: 0.3rem 0; }
+        .toc a { color: var(--primary); text-decoration: none; }
+        .toc a:hover { text-decoration: underline; }
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+        .section h2 {
+            color: var(--primary);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .section h3 { color: var(--accent); margin: 1.5rem 0 0.5rem; font-size: 1.05rem; }
+        .section p { color: var(--muted); margin: 0.5rem 0; }
+        .section ul, .section ol { color: var(--muted); padding-left: 1.5rem; margin: 0.5rem 0; }
+        .section li { margin: 0.3rem 0; }
+        .section b, .section strong { color: var(--text); }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--code-bg);
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            color: var(--accent);
+            border: 1px solid var(--border);
+        }
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.2rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            line-height: 1.7;
+            color: var(--text);
+            margin: 0.8rem 0;
+        }
+        pre code { background: none; border: none; padding: 0; color: inherit; }
+        .tip {
+            background: rgba(52,211,153,0.08);
+            border-left: 3px solid var(--accent);
+            padding: 1rem 1.2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+            color: var(--muted);
+        }
+        .warning {
+            background: rgba(251,191,36,0.08);
+            border-left: 3px solid var(--warning);
+            padding: 1rem 1.2rem;
+            border-radius: 0 8px 8px 0;
+            margin: 1rem 0;
+            color: var(--muted);
+        }
+        table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.85rem; }
+        th { background: var(--panel); color: var(--primary); text-align: left; padding: 0.6rem 0.8rem; }
+        td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="guide-container">
+
+    <div class="guide-header">
+        <div class="badge">SPP-UX COMPREHENSIVE GUIDE</div>
+        <h1>SPP-UX Developer Tutorial</h1>
+        <p>Application: <code>{{APP_NAME}}</code> &mdash; Everything a complete novice needs to build reactive components</p>
+    </div>
+
+    <!-- ════════════ TABLE OF CONTENTS ════════════ -->
+    <div class="toc">
+        <h3>&#128203; Table of Contents</h3>
+        <ol>
+            <li><a href="#what-is-sppux">What is SPP-UX?</a></li>
+            <li><a href="#project-structure">Project Structure</a></li>
+            <li><a href="#lifecycle">Component Lifecycle</a></li>
+            <li><a href="#state">State Management</a></li>
+            <li><a href="#rendering">Rendering &amp; Templates</a></li>
+            <li><a href="#props">Props</a></li>
+            <li><a href="#composition">Component Composition</a></li>
+            <li><a href="#store">SPPStore &mdash; Shared State</a></li>
+            <li><a href="#services">Service Calls</a></li>
+            <li><a href="#ui-helpers">UI Helpers</a></li>
+            <li><a href="#themes">Themes &amp; CSS Variables</a></li>
+            <li><a href="#sppform">SPPForm &mdash; YAML Forms</a></li>
+            <li><a href="#events">Event Handling</a></li>
+            <li><a href="#errors">Error Handling</a></li>
+            <li><a href="#testing">Testing with Parikshak</a></li>
+            <li><a href="#cli">CLI Commands</a></li>
+            <li><a href="#first-component">Your First Component</a></li>
+        </ol>
+    </div>
+
+    <!-- ════════════ 1. WHAT IS SPP-UX? ════════════ -->
+    <div class="section" id="what-is-sppux">
+        <h2>1. What is SPP-UX?</h2>
+        <p><strong>SPP-UX (Drishyam)</strong> is a reactive component framework that runs entirely in the browser. It provides a React/Vue-like developer experience with <strong>zero dependencies</strong> &mdash; no npm, no webpack, no node_modules.</p>
+        <p>Each component is a single <code>.js</code> file that extends <code>SPPComponent</code>. Components have:</p>
+        <ul>
+            <li><strong>Reactive state</strong> &mdash; call <code>this.setState()</code> and the DOM updates automatically</li>
+            <li><strong>Lifecycle hooks</strong> &mdash; <code>onInit</code>, <code>onMount</code>, <code>afterUpdate</code>, <code>onDestroy</code></li>
+            <li><strong>HTML templates</strong> &mdash; tagged template literals with <code>html``</code></li>
+            <li><strong>Event binding</strong> &mdash; <code>@click</code>, <code>@input</code>, <code>@change</code> in templates</li>
+            <li><strong>Service bridge</strong> &mdash; call PHP backend methods from JavaScript</li>
+        </ul>
+        <div class="tip"><strong>Key Insight:</strong> SPP-UX runs client-side but is served by the SPP PHP framework. The <code>index.php</code> entry point loads the SPP-UX runtime, and components auto-mount via <code>data-spp-component</code> attributes.</div>
+    </div>
+
+    <!-- ════════════ 2. PROJECT STRUCTURE ════════════ -->
+    <div class="section" id="project-structure">
+        <h2>2. Project Structure (sppux mode)</h2>
+        <pre><code>your-project/
+&#9500;&#9472;&#9472; etc/apps/{{APP_NAME}}/          # Configuration
+&#9474;   &#9500;&#9472;&#9472; pages.yml                   # Routes (index is special:1)
+&#9474;   &#9500;&#9472;&#9472; forms/                      # YAML form definitions
+&#9474;   &#9474;   &#9492;&#9472;&#9472; contact.yml             # Auto-rendered by SPPForm
+&#9474;   &#9500;&#9472;&#9472; services.yml                # PHP&#8596;JS bridge services
+&#9474;   &#9492;&#9472;&#9472; events.yml                  # Event listeners
+&#9474;
+&#9500;&#9472;&#9472; src/{{APP_NAME}}/               # Source code
+&#9474;   &#9500;&#9472;&#9472; index.php                   # SPA entry point (special:1)
+&#9474;   &#9500;&#9472;&#9472; comp/                       # SPP-UX components (.js files)
+&#9474;   &#9474;   &#9500;&#9472;&#9472; hello-world.js          # Sample component
+&#9474;   &#9474;   &#9500;&#9472;&#9472; task-manager.js         # CRUD example
+&#9474;   &#9474;   &#9492;&#9472;&#9472; theme-picker.js         # Theme switcher demo
+&#9474;   &#9500;&#9472;&#9472; pages/                      # Static/guide pages
+&#9474;   &#9474;   &#9492;&#9472;&#9472; guide.html              # This tutorial!
+&#9474;   &#9500;&#9472;&#9472; assets/                     # CSS, images, static files
+&#9474;   &#9500;&#9472;&#9472; entities/                   # Database entities
+&#9474;   &#9492;&#9472;&#9472; tests/                      # Parikshak tests
+&#9474;
+&#9492;&#9472;&#9472; spp/                            # Framework core</code></pre>
+        <div class="tip"><strong>Naming convention:</strong> Components use kebab-case filenames: <code>my-widget.js</code>. They are mounted with <code>data-spp-component="my-widget"</code>.</div>
+    </div>
+
+    <!-- ════════════ 3. LIFECYCLE ════════════ -->
+    <div class="section" id="lifecycle">
+        <h2>3. Component Lifecycle</h2>
+        <p>Every SPP-UX component goes through a defined lifecycle. Understanding this is crucial:</p>
+        <pre><code>class MyComponent extends SPPComponent {
+    // 1. constructor() &#8594; Called when the class is instantiated.
+    //    Use for: setting initial state, binding methods.
+    //    DO NOT access DOM here &#8212; it doesn't exist yet.
+    constructor() {
+        super();
+        this.state = { count: 0 };
+    }
+
+    // 2. onInit() &#8594; Called ONCE before the first render.
+    //    Use for: fetching initial data, setting up subscriptions.
+    async onInit() {
+        const data = await this.service('getItems');
+        this.setState({ items: data });
+    }
+
+    // 3. render() &#8594; Returns the HTML template. Called on every state change.
+    //    MUST return html`` tagged template literal.
+    render() {
+        return html`&lt;div&gt;Count: ${this.state.count}&lt;/div&gt;`;
+    }
+
+    // 4. onMount() &#8594; Called ONCE after the first render hits the DOM.
+    //    Use for: DOM measurements, third-party library init, focus.
+    onMount() {
+        this.el.querySelector('input')?.focus();
+    }
+
+    // 5. afterUpdate() &#8594; Called AFTER every re-render (not the first).
+    //    Use for: animations, scroll position, post-update logic.
+    afterUpdate() {
+        console.log('DOM updated with new state');
+    }
+
+    // 6. onDestroy() &#8594; Called when the component is removed from DOM.
+    //    Use for: cleanup timers, unsubscribe, close connections.
+    onDestroy() {
+        clearInterval(this._timer);
+    }
+}</code></pre>
+        <table>
+            <tr><th>Hook</th><th>When</th><th>DOM Ready?</th><th>Use For</th></tr>
+            <tr><td><code>constructor</code></td><td>Instantiation</td><td>No</td><td>Initial state, bind methods</td></tr>
+            <tr><td><code>onInit</code></td><td>Before first render</td><td>No</td><td>Async data fetch, subscriptions</td></tr>
+            <tr><td><code>render</code></td><td>Every state change</td><td>No (returns template)</td><td>Declare UI</td></tr>
+            <tr><td><code>onMount</code></td><td>After first DOM paint</td><td>Yes</td><td>DOM access, focus, lib init</td></tr>
+            <tr><td><code>afterUpdate</code></td><td>After re-render</td><td>Yes</td><td>Animations, scroll, post-update</td></tr>
+            <tr><td><code>onDestroy</code></td><td>Removal from DOM</td><td>Yes (about to remove)</td><td>Cleanup timers, listeners</td></tr>
+        </table>
+    </div>
+
+    <!-- ════════════ 4. STATE MANAGEMENT ════════════ -->
+    <div class="section" id="state">
+        <h2>4. State Management</h2>
+        <p>State is the data that drives your component's UI. When state changes, the component re-renders automatically.</p>
+        <pre><code>// &#9989; CORRECT &#8212; use setState() to trigger re-render
+this.setState({ count: this.state.count + 1 });
+
+// &#9989; Partial updates &#8212; only specified keys are changed
+this.setState({ loading: true });  // other state keys unchanged
+
+// &#10060; WRONG &#8212; direct mutation does NOT trigger re-render
+this.state.count = 5;  // UI will NOT update!
+
+// &#9989; Reading current state
+const currentCount = this.state.count;
+
+// &#9989; Complex state updates (arrays, objects)
+this.setState({
+    items: [...this.state.items, newItem],           // append to array
+    user: { ...this.state.user, name: 'New Name' }   // update object
+});</code></pre>
+        <div class="warning"><strong>Immutable State:</strong> Never mutate <code>this.state</code> directly. Always use <code>this.setState()</code>. SPP-UX compares old and new state to determine what changed.</div>
+    </div>
+
+    <!-- ════════════ 5. RENDERING ════════════ -->
+    <div class="section" id="rendering">
+        <h2>5. Rendering &amp; Templates</h2>
+        <p>The <code>render()</code> method returns an <code>html``</code> tagged template literal. This is NOT a string &mdash; it's a template that SPP-UX diffs against the DOM.</p>
+        <pre><code>render() {
+    return html`
+        &lt;div class="my-component"&gt;
+            &lt;!-- &#9312; Text interpolation --&gt;
+            &lt;h1&gt;Hello, ${this.state.name}&lt;/h1&gt;
+
+            &lt;!-- &#9313; Conditional rendering --&gt;
+            ${this.state.loading
+                ? html`&lt;div class="spinner"&gt;Loading...&lt;/div&gt;`
+                : html`&lt;div class="content"&gt;${this.state.data}&lt;/div&gt;`
+            }
+
+            &lt;!-- &#9314; List rendering --&gt;
+            &lt;ul&gt;
+                ${this.state.items.map(item =&gt; html`
+                    &lt;li key="${item.id}"&gt;${item.name}&lt;/li&gt;
+                `)}
+            &lt;/ul&gt;
+
+            &lt;!-- &#9315; Event binding --&gt;
+            &lt;button @click="${() =&gt; this.increment()}"&gt;Click Me&lt;/button&gt;
+
+            &lt;!-- &#9316; Two-way input binding --&gt;
+            &lt;input @input="${e =&gt; this.setState({name: e.target.value})}"
+                   value="${this.state.name}"&gt;
+
+            &lt;!-- &#9317; Dynamic classes --&gt;
+            &lt;div class="item ${this.state.active ? 'is-active' : ''}"&gt;&lt;/div&gt;
+
+            &lt;!-- &#9318; Dynamic styles --&gt;
+            &lt;div style="color: ${this.state.error ? 'red' : 'green'}"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+    `;
+}</code></pre>
+    </div>
+
+    <!-- ════════════ 6. PROPS ════════════ -->
+    <div class="section" id="props">
+        <h2>6. Props</h2>
+        <p>Props are data passed to a component from its parent HTML element via <code>data-spp-props</code>.</p>
+        <pre><code>&lt;!-- In your HTML &#8212; pass props as JSON --&gt;
+&lt;div data-spp-component="user-card"
+     data-spp-props='{"userId": 42, "showAvatar": true}'&gt;&lt;/div&gt;
+
+// In your component &#8212; access via this.props
+class UserCard extends SPPComponent {
+    async onInit() {
+        // this.props contains the parsed JSON
+        const user = await this.service('getUser', { id: this.props.userId });
+        this.setState({ user });
+    }
+
+    render() {
+        return html`
+            &lt;div class="card"&gt;
+                ${this.props.showAvatar
+                    ? html`&lt;img src="${this.state.user?.avatar}"&gt;`
+                    : ''}
+                &lt;h3&gt;${this.state.user?.name}&lt;/h3&gt;
+            &lt;/div&gt;
+        `;
+    }
+}</code></pre>
+        <div class="tip"><strong>Props are read-only.</strong> Components should not modify <code>this.props</code>. Use state for mutable data.</div>
+    </div>
+
+    <!-- ════════════ 7. COMPOSITION ════════════ -->
+    <div class="section" id="composition">
+        <h2>7. Component Composition</h2>
+        <p>Mount sub-components inside a parent using <code>data-spp-component</code> divs in your template:</p>
+        <pre><code>// parent-dashboard.js
+class ParentDashboard extends SPPComponent {
+    render() {
+        return html`
+            &lt;div class="dashboard"&gt;
+                &lt;h1&gt;Dashboard&lt;/h1&gt;
+
+                &lt;!-- Mount child components &#8212; the loader auto-discovers these --&gt;
+                &lt;div data-spp-component="stats-widget"
+                     data-spp-props='{"period": "weekly"}'&gt;&lt;/div&gt;
+
+                &lt;div data-spp-component="recent-activity"&gt;&lt;/div&gt;
+
+                &lt;div data-spp-component="task-manager"&gt;&lt;/div&gt;
+            &lt;/div&gt;
+        `;
+    }
+
+    onMount() {
+        // After render, tell SPP-UX to scan for new component divs
+        SPPUX.mountChildren(this.el);
+    }
+}</code></pre>
+    </div>
+
+    <!-- ════════════ 8. SPPSTORE ════════════ -->
+    <div class="section" id="store">
+        <h2>8. SPPStore &mdash; Shared State</h2>
+        <p>When multiple components need to share data, use <code>SPPStore</code> (a global reactive store):</p>
+        <pre><code>// &#9312; Create a store (usually in your entry point or a shared file)
+const appStore = new SPPStore({
+    user: null,
+    theme: 'midnight',
+    notifications: [],
+    cart: { items: [], total: 0 }
+});
+
+// &#9313; Subscribe to changes in any component
+class NavBar extends SPPComponent {
+    onInit() {
+        appStore.subscribe('user', (newUser) =&gt; {
+            this.setState({ user: newUser });
+        });
+    }
+}
+
+// &#9314; Update from any component &#8212; all subscribers get notified
+class LoginForm extends SPPComponent {
+    async login() {
+        const user = await this.service('authenticate', this.state.form);
+        appStore.set('user', user);    // NavBar auto-updates!
+        appStore.notify('user');        // Explicit notification
+    }
+}
+
+// &#9315; Read store values
+const currentTheme = appStore.get('theme');</code></pre>
+    </div>
+
+    <!-- ════════════ 9. SERVICE CALLS ════════════ -->
+    <div class="section" id="services">
+        <h2>9. Service Calls (PHP&#8596;JS Bridge)</h2>
+        <p>SPP-UX provides three ways to call your PHP backend from JavaScript:</p>
+        <pre><code>// METHOD 1: this.service() &#8212; explicit call with method name
+const items = await this.service('getItems', { page: 1 });
+// Calls the PHP service method registered in etc/apps/{{APP_NAME}}/services.yml
+
+// METHOD 2: this.serv proxy &#8212; shorthand (auto-maps method names)
+const user = await this.serv.getUser({ id: 42 });
+// Equivalent to: this.service('getUser', { id: 42 })
+
+// METHOD 3: SPPUX.api() &#8212; direct REST API call (no service registration)
+const response = await SPPUX.api('/api/v1/items', {
+    method: 'POST',
+    body: { name: 'New Item' }
+});</code></pre>
+        <h3>Registering PHP Services</h3>
+        <pre><code># etc/apps/{{APP_NAME}}/services.yml
+services:
+  getItems:
+    class: \App\{{APP_NAME}}\Serv\ItemService
+    method: getItems
+
+  getUser:
+    class: \App\{{APP_NAME}}\Serv\UserService
+    method: findById</code></pre>
+    </div>
+
+    <!-- ════════════ 10. UI HELPERS ════════════ -->
+    <div class="section" id="ui-helpers">
+        <h2>10. UI Helpers</h2>
+        <p>SPP-UX includes a full UI library for common interactions:</p>
+        <pre><code>// &#9312; Toast Notifications
+this.notify('Item saved successfully!', 'success');  // success, error, warning, info
+this.notify('Something went wrong', 'error');
+
+// &#9313; Confirmation Dialog
+const confirmed = await this.confirm('Delete this item?', 'This cannot be undone.');
+if (confirmed) { /* delete */ }
+
+// &#9314; Prompt Dialog (get user input)
+const name = await this.prompt('Enter your name:', 'Default Value');
+
+// &#9315; Modal (full custom content)
+SPPUX.Modal.open({
+    title: 'Edit Item',
+    content: html`&lt;form&gt;...&lt;/form&gt;`,
+    onClose: () =&gt; console.log('Modal closed'),
+    size: 'lg'   // sm, md, lg, xl, full
+});
+SPPUX.Modal.close();
+
+// &#9316; Busy Indicator (loading overlay)
+SPPUX.Busy.show('Loading data...');
+await fetchData();
+SPPUX.Busy.hide();
+
+// &#9317; Drawer (slide-in panel)
+SPPUX.Drawer.open({
+    title: 'Settings',
+    content: html`&lt;div&gt;...&lt;/div&gt;`,
+    position: 'right'   // left, right
+});
+
+// &#9318; Spotlight (command palette / search)
+SPPUX.Spotlight.open({
+    placeholder: 'Search actions...',
+    items: [{label: 'Go Home', action: () =&gt; navigate('/')}]
+});</code></pre>
+    </div>
+
+    <!-- ════════════ 11. THEMES ════════════ -->
+    <div class="section" id="themes">
+        <h2>11. Themes &amp; CSS Variables</h2>
+        <p>SPP-UX ships with <strong>7 built-in themes</strong>. Switch themes at runtime with one call:</p>
+        <table>
+            <tr><th>Theme</th><th>Style</th><th>Primary Color</th></tr>
+            <tr><td><code>midnight</code></td><td>Dark purple-blue</td><td>#818cf8</td></tr>
+            <tr><td><code>emerald</code></td><td>Dark green</td><td>#34d399</td></tr>
+            <tr><td><code>royal</code></td><td>Dark gold</td><td>#fbbf24</td></tr>
+            <tr><td><code>cyberpunk</code></td><td>Neon pink</td><td>#f472b6</td></tr>
+            <tr><td><code>ocean</code></td><td>Dark teal</td><td>#22d3ee</td></tr>
+            <tr><td><code>saffron</code></td><td>Warm orange</td><td>#fb923c</td></tr>
+            <tr><td><code>day</code></td><td>Light mode</td><td>#6366f1</td></tr>
+        </table>
+        <pre><code>// Switch theme programmatically
+SPPUX.Theme.set('cyberpunk');
+
+// Get current theme
+const current = SPPUX.Theme.get();
+
+// CSS Variables available in all themes:
+// --sppux-bg          Background color
+// --sppux-text        Text color
+// --sppux-primary     Primary accent
+// --sppux-panel       Panel/card background
+// --sppux-border      Border color
+// --sppux-muted       Muted text
+// --sppux-success     Success color
+// --sppux-error       Error color
+// --sppux-warning     Warning color
+// --sppux-radius      Border radius
+// --sppux-shadow      Box shadow
+
+/* Use in your CSS: */
+.my-card {
+    background: var(--sppux-panel);
+    color: var(--sppux-text);
+    border: 1px solid var(--sppux-border);
+    border-radius: var(--sppux-radius);
+    box-shadow: var(--sppux-shadow);
+}</code></pre>
+    </div>
+
+    <!-- ════════════ 12. SPPFORM ════════════ -->
+    <div class="section" id="sppform">
+        <h2>12. SPPForm &mdash; YAML-Driven Forms</h2>
+        <p>Define forms in YAML and SPPForm renders them automatically in the current theme:</p>
+        <pre><code># etc/apps/{{APP_NAME}}/forms/contact.yml
+form:
+  id: contact
+  title: Contact Us
+  action: /api/contact
+  method: POST
+
+fields:
+  name:
+    type: text
+    label: Your Name
+    required: true
+    placeholder: John Doe
+
+  email:
+    type: email
+    label: Email Address
+    required: true
+    validation: email
+
+  message:
+    type: textarea
+    label: Message
+    rows: 5
+
+  priority:
+    type: select
+    label: Priority
+    options:
+      low: Low
+      medium: Medium
+      high: High
+
+submit:
+  label: Send Message
+  class: btn-primary</code></pre>
+        <pre><code>// Mount in a component
+render() {
+    return html`
+        &lt;div data-spp-form="contact"&gt;&lt;/div&gt;
+    `;
+}
+// SPPForm auto-discovers data-spp-form divs and renders the YAML form</code></pre>
+    </div>
+
+    <!-- ════════════ 13. EVENTS ════════════ -->
+    <div class="section" id="events">
+        <h2>13. Event Handling</h2>
+        <p>SPP-UX templates support all DOM events with the <code>@</code> prefix:</p>
+        <table>
+            <tr><th>Event</th><th>Example</th><th>Use For</th></tr>
+            <tr><td><code>@click</code></td><td><code>@click="${() =&gt; this.handleClick()}"</code></td><td>Buttons, links, toggles</td></tr>
+            <tr><td><code>@input</code></td><td><code>@input="${e =&gt; this.onInput(e)}"</code></td><td>Text inputs (fires on each keystroke)</td></tr>
+            <tr><td><code>@change</code></td><td><code>@change="${e =&gt; this.onChange(e)}"</code></td><td>Select, checkbox, radio (on blur)</td></tr>
+            <tr><td><code>@submit</code></td><td><code>@submit="${e =&gt; this.onSubmit(e)}"</code></td><td>Form submission</td></tr>
+            <tr><td><code>@keydown</code></td><td><code>@keydown="${e =&gt; this.onKey(e)}"</code></td><td>Keyboard shortcuts</td></tr>
+            <tr><td><code>@keyup</code></td><td><code>@keyup="${e =&gt; this.onKeyUp(e)}"</code></td><td>After key release</td></tr>
+            <tr><td><code>@focus</code></td><td><code>@focus="${() =&gt; this.onFocus()}"</code></td><td>Input focus</td></tr>
+            <tr><td><code>@blur</code></td><td><code>@blur="${() =&gt; this.onBlur()}"</code></td><td>Input blur (validation)</td></tr>
+            <tr><td><code>@mouseover</code></td><td><code>@mouseover="${() =&gt; this.onHover()}"</code></td><td>Hover effects</td></tr>
+            <tr><td><code>@dragstart</code></td><td><code>@dragstart="${e =&gt; this.onDrag(e)}"</code></td><td>Drag and drop</td></tr>
+            <tr><td><code>@drop</code></td><td><code>@drop="${e =&gt; this.onDrop(e)}"</code></td><td>Drop target</td></tr>
+            <tr><td><code>@scroll</code></td><td><code>@scroll="${e =&gt; this.onScroll(e)}"</code></td><td>Scroll tracking</td></tr>
+        </table>
+    </div>
+
+    <!-- ════════════ 14. ERROR HANDLING ════════════ -->
+    <div class="section" id="errors">
+        <h2>14. Error Handling</h2>
+        <pre><code>class MyComponent extends SPPComponent {
+    async onInit() {
+        try {
+            const data = await this.service('getData');
+            this.setState({ data, error: null });
+        } catch (err) {
+            // Show error toast and set error state
+            this.notify('Failed to load data: ' + err.message, 'error');
+            this.setState({ error: err.message, loading: false });
+        }
+    }
+
+    render() {
+        if (this.state.error) {
+            return html`
+                &lt;div class="error-panel"&gt;
+                    &lt;p&gt;&#9888; ${this.state.error}&lt;/p&gt;
+                    &lt;button @click="${() =&gt; this.retry()}"&gt;Retry&lt;/button&gt;
+                &lt;/div&gt;
+            `;
+        }
+        return html`&lt;div&gt;${this.state.data}&lt;/div&gt;`;
+    }
+
+    async retry() {
+        this.setState({ error: null, loading: true });
+        await this.onInit();
+    }
+}</code></pre>
+    </div>
+
+    <!-- ════════════ 15. TESTING ════════════ -->
+    <div class="section" id="testing">
+        <h2>15. Testing with Parikshak</h2>
+        <pre><code>// src/{{APP_NAME}}/tests/HelloWorldTest.php
+use SPP\Testing\Parikshak;
+
+class HelloWorldTest extends Parikshak
+{
+    /** @test */
+    public function component_file_exists()
+    {
+        $this-&gt;assertFileExists(
+            SPP_APP_DIR . '/src/{{APP_NAME}}/comp/hello-world.js'
+        );
+    }
+
+    /** @test */
+    public function entry_point_boots_sppux()
+    {
+        $content = file_get_contents(SPP_APP_DIR . '/src/{{APP_NAME}}/index.php');
+        $this-&gt;assertStringContains('SPPUX::boot', $content);
+    }
+}
+// Run: php spp.php test:run --app={{APP_NAME}}</code></pre>
+    </div>
+
+    <!-- ════════════ 16. CLI ════════════ -->
+    <div class="section" id="cli">
+        <h2>16. CLI Commands for SPP-UX</h2>
+        <table>
+            <tr><th>Command</th><th>Description</th></tr>
+            <tr><td><code>php spp.php make:ux-component --app={{APP_NAME}} MyWidget</code></td><td>Generate a new component file</td></tr>
+            <tr><td><code>php spp.php make:store --app={{APP_NAME}} AppStore</code></td><td>Generate a shared store</td></tr>
+            <tr><td><code>php spp.php make:service --app={{APP_NAME}} ItemService</code></td><td>Generate a PHP service class</td></tr>
+            <tr><td><code>php spp.php make:entity --app={{APP_NAME}} Task</code></td><td>Generate a database entity</td></tr>
+            <tr><td><code>php spp.php test:run --app={{APP_NAME}}</code></td><td>Run Parikshak tests</td></tr>
+            <tr><td><code>php spp.php cache:clear</code></td><td>Clear framework caches</td></tr>
+            <tr><td><code>php spp.php theme:list</code></td><td>List available themes</td></tr>
+        </table>
+    </div>
+
+    <!-- ════════════ 17. FIRST COMPONENT ════════════ -->
+    <div class="section" id="first-component">
+        <h2>17. Your First Component &mdash; Step by Step</h2>
+        <p>Let's build a simple counter component from scratch:</p>
+
+        <h3>Step 1: Create the file</h3>
+        <pre><code>// Create: src/{{APP_NAME}}/comp/my-counter.js</code></pre>
+
+        <h3>Step 2: Write the component</h3>
+        <pre><code>class MyCounter extends SPPComponent {
+    constructor() {
+        super();
+        this.state = { count: 0 };  // Initial state
+    }
+
+    increment() {
+        this.setState({ count: this.state.count + 1 });
+    }
+
+    decrement() {
+        this.setState({ count: this.state.count - 1 });
+    }
+
+    render() {
+        return html`
+            &lt;div style="text-align:center; padding:2rem;"&gt;
+                &lt;h2&gt;Counter: ${this.state.count}&lt;/h2&gt;
+                &lt;button @click="${() =&gt; this.decrement()}"
+                        style="padding:0.5rem 1rem; margin:0.5rem;"&gt;
+                    &#8722;
+                &lt;/button&gt;
+                &lt;button @click="${() =&gt; this.increment()}"
+                        style="padding:0.5rem 1rem; margin:0.5rem;"&gt;
+                    +
+                &lt;/button&gt;
+            &lt;/div&gt;
+        `;
+    }
+}</code></pre>
+
+        <h3>Step 3: Mount it in index.php</h3>
+        <pre><code>&lt;!-- Add this div anywhere in your index.php body --&gt;
+&lt;div data-spp-component="my-counter"&gt;&lt;/div&gt;
+&lt;!-- The SPP-UX loader auto-discovers and mounts it --&gt;</code></pre>
+
+        <h3>Step 4: Visit your app</h3>
+        <pre><code>Open your browser to your app's URL.
+The counter should appear and respond to button clicks!</code></pre>
+
+        <div class="tip"><strong>Congratulations!</strong> You've built your first SPP-UX component. Delete this guide page when you're comfortable &mdash; remove <code>pages/guide.html</code> from your project.</div>
+    </div>
+
+    <div class="footer">
+        &copy; {{APP_NAME}} &bull; Powered by SPP Framework &bull; SPP-UX Drishyam Engine
+    </div>
+</div>
+</body>
+</html>

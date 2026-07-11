@@ -1,0 +1,279 @@
+<?php
+/**
+ * ============================================================================
+ * {{APP_NAME}} — API Documentation (HTML)
+ * ============================================================================
+ *
+ * This page renders a styled, human-readable API guide for your REST backend.
+ * It is mapped in pages.yml as a special:1 page (standalone HTML).
+ *
+ * TIP: Delete this file once your API is documented elsewhere!
+ * ============================================================================
+ */
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{APP_NAME}} — API Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --surface: #1e293b; --border: #334155; --text: #e2e8f0; --muted: #94a3b8; --primary: #818cf8; --accent: #34d399; --warning: #fbbf24; --error: #f87171; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+        .header { text-align: center; padding: 2rem 0; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+        .header .badge { display: inline-block; background: rgba(129,140,248,0.15); color: var(--primary); padding: 6px 16px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; border: 1px solid rgba(129,140,248,0.2); margin-bottom: 1rem; }
+        .header h1 { font-size: 2.2rem; font-weight: 800; }
+        .header p { color: var(--muted); margin-top: 0.5rem; }
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; }
+        .card h2 { color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+        .card h3 { color: var(--accent); margin: 1.2rem 0 0.5rem; font-size: 1rem; }
+        .card p { color: var(--muted); margin: 0.4rem 0; line-height: 1.7; }
+        .card ul, .card ol { padding-left: 1.5rem; color: var(--muted); }
+        .card li { margin: 0.3rem 0; }
+        .card b, .card strong { color: var(--text); }
+        code { font-family: 'JetBrains Mono', monospace; background: #0f172a; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; color: var(--accent); border: 1px solid var(--border); }
+        pre { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.7; color: var(--text); margin: 0.8rem 0; }
+        pre code { background: none; border: none; padding: 0; color: inherit; }
+        table { width: 100%; border-collapse: collapse; margin: 0.8rem 0; font-size: 0.85rem; }
+        th { background: rgba(129,140,248,0.15); color: var(--primary); text-align: left; padding: 0.6rem 0.8rem; }
+        td { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--border); color: var(--muted); }
+        .method { display: inline-block; padding: 2px 8px; border-radius: 4px; font-weight: 700; font-size: 0.75rem; }
+        .method-get { background: rgba(52,211,153,0.15); color: var(--accent); }
+        .method-post { background: rgba(129,140,248,0.15); color: var(--primary); }
+        .method-put { background: rgba(251,191,36,0.15); color: var(--warning); }
+        .method-delete { background: rgba(248,113,113,0.15); color: var(--error); }
+        .tip { background: rgba(52,211,153,0.08); border-left: 3px solid var(--accent); padding: 0.8rem 1rem; border-radius: 0 8px 8px 0; margin: 1rem 0; }
+        .footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="badge">API MODE GUIDE</div>
+        <h1>{{APP_NAME}} REST API</h1>
+        <p>Comprehensive API documentation and novice tutorial</p>
+    </div>
+
+    <!-- 1. What is API Mode? -->
+    <div class="card">
+        <h2>1. What is API Mode?</h2>
+        <p><strong>API mode</strong> creates a headless REST backend. There are no HTML views &mdash; your application only returns JSON responses. This is ideal for:</p>
+        <ul>
+            <li>Single Page Applications (SPAs) that consume your API</li>
+            <li>Mobile apps (iOS/Android) that need a backend</li>
+            <li>Third-party integrations and webhooks</li>
+            <li>Microservice architectures</li>
+        </ul>
+    </div>
+
+    <!-- 2. Endpoints -->
+    <div class="card">
+        <h2>2. API Endpoints</h2>
+        <table>
+            <tr><th>Method</th><th>Path</th><th>Description</th><th>Auth</th></tr>
+            <tr><td><span class="method method-get">GET</span></td><td><code>/api/v1/items</code></td><td>List all items</td><td>No</td></tr>
+            <tr><td><span class="method method-get">GET</span></td><td><code>/api/v1/items/{id}</code></td><td>Get single item</td><td>No</td></tr>
+            <tr><td><span class="method method-post">POST</span></td><td><code>/api/v1/items</code></td><td>Create new item</td><td>Yes</td></tr>
+            <tr><td><span class="method method-put">PUT</span></td><td><code>/api/v1/items/{id}</code></td><td>Update item</td><td>Yes</td></tr>
+            <tr><td><span class="method method-delete">DELETE</span></td><td><code>/api/v1/items/{id}</code></td><td>Delete item</td><td>Yes</td></tr>
+            <tr><td><span class="method method-post">POST</span></td><td><code>/api/auth/login</code></td><td>Authenticate</td><td>No</td></tr>
+        </table>
+    </div>
+
+    <!-- 3. ApiController -->
+    <div class="card">
+        <h2>3. ApiController Structure</h2>
+        <pre><code>namespace App\{{APP_NAME}}\Serv;
+
+class ApiController
+{
+    // GET /api/v1/items
+    public function index()
+    {
+        header('Content-Type: application/json');
+        $items = []; // Query from database
+        echo json_encode(['status' => 'ok', 'data' => $items]);
+    }
+
+    // GET /api/v1/items/{id}
+    public function show()
+    {
+        $pageData = \SPPMod\SPPView\SPPGlobal::get('page');
+        $id = $pageData['params'][0] ?? null;
+        // ... validate and return
+    }
+
+    // POST /api/v1/items
+    public function store()
+    {
+        $input = json_decode(file_get_contents('php://input'), true);
+        // ... validate, create, and return 201
+    }
+
+    // PUT /api/v1/items/{id}
+    public function update()
+    {
+        // ... validate, update, and return 200
+    }
+
+    // DELETE /api/v1/items/{id}
+    public function delete()
+    {
+        // ... validate, delete, and return 200
+    }
+}</code></pre>
+    </div>
+
+    <!-- 4. Authentication -->
+    <div class="card">
+        <h2>4. Authentication</h2>
+        <h3>JWT / Bearer Tokens</h3>
+        <pre><code>// Request:
+POST /api/auth/login
+Content-Type: application/json
+{"username": "admin", "password": "secret"}
+
+// Response:
+{"status": "ok", "token": "eyJhbGciOiJIUzI1NiIs..."}
+
+// Use token in subsequent requests:
+GET /api/v1/items
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs...</code></pre>
+
+        <h3>API Keys</h3>
+        <pre><code># Generate an API key via CLI:
+php spp.php api:key:generate --app={{APP_NAME}}
+
+# Use in requests:
+GET /api/v1/items
+X-API-Key: your_generated_key_here</code></pre>
+    </div>
+
+    <!-- 5. Response Patterns -->
+    <div class="card">
+        <h2>5. JSON Response Patterns</h2>
+        <pre><code>// Success (single item):
+{"status": "ok", "data": {"id": 1, "name": "Item"}}
+
+// Success (list with pagination):
+{"status": "ok", "data": [...], "meta": {"total": 50, "page": 1, "per_page": 25, "last_page": 2}}
+
+// Error:
+{"status": "error", "message": "Validation failed", "errors": {"name": ["Name is required"]}}
+
+// 401 Unauthorized:
+{"status": "error", "message": "Authentication required", "code": "AUTH_REQUIRED"}</code></pre>
+    </div>
+
+    <!-- 6. Entity Auto-API -->
+    <div class="card">
+        <h2>6. Entity Auto-API ($apiExpose)</h2>
+        <pre><code>// When $apiExpose = true in your entity, SPP auto-generates:
+//   GET    /api/v1/{entity}        → List
+//   GET    /api/v1/{entity}/{id}   → Show
+//   POST   /api/v1/{entity}        → Create
+//   PUT    /api/v1/{entity}/{id}   → Update
+//   DELETE /api/v1/{entity}/{id}   → Delete
+
+class Task extends SPPEntity
+{
+    protected bool $apiExpose = true;  // ← This is all you need!
+}</code></pre>
+        <div class="tip"><strong>Tip:</strong> Use <code>php spp.php make:entity --app={{APP_NAME}} Task</code> to generate an entity, then set <code>$apiExpose = true</code>.</div>
+    </div>
+
+    <!-- 7. Request Validation -->
+    <div class="card">
+        <h2>7. Request Validation</h2>
+        <pre><code>public function store()
+{
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    // Validate required fields
+    $errors = [];
+    if (empty($input['name'])) $errors['name'][] = 'Name is required';
+    if (empty($input['email'])) $errors['email'][] = 'Email is required';
+    if (!empty($input['email']) && !filter_var($input['email'], FILTER_VALIDATE_EMAIL)) {
+        $errors['email'][] = 'Invalid email format';
+    }
+
+    if (!empty($errors)) {
+        http_response_code(422);
+        echo json_encode(['status' => 'error', 'message' => 'Validation failed', 'errors' => $errors]);
+        return;
+    }
+
+    // Process valid input...
+}</code></pre>
+    </div>
+
+    <!-- 8. Versioning & CORS -->
+    <div class="card">
+        <h2>8. Versioning, CORS &amp; Rate Limiting</h2>
+        <pre><code>// API Versioning: Use path prefix
+// /api/v1/items  → Version 1
+// /api/v2/items  → Version 2
+
+// CORS headers (set in init.php or middleware):
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key');
+
+// Rate Limiting headers in response:
+// X-RateLimit-Limit: 60
+// X-RateLimit-Remaining: 45
+// X-RateLimit-Reset: 1625097600</code></pre>
+    </div>
+
+    <!-- 9. Testing -->
+    <div class="card">
+        <h2>9. Testing APIs with Parikshak</h2>
+        <pre><code>use SPP\Testing\Parikshak;
+use SPP\Testing\Traits\InteractsWithApi;
+
+class ApiTest extends Parikshak
+{
+    use InteractsWithApi;
+
+    /** @test */
+    public function list_items_returns_json()
+    {
+        $response = $this-&gt;apiGet('/api/v1/items');
+        $this-&gt;assertStatusCode(200);
+        $this-&gt;assertJsonStructure(['status', 'data']);
+    }
+
+    /** @test */
+    public function create_requires_auth()
+    {
+        $response = $this-&gt;apiPost('/api/v1/items', ['name' => 'Test']);
+        $this-&gt;assertStatusCode(401);
+    }
+}
+
+// Run: php spp.php test:run --app={{APP_NAME}}</code></pre>
+    </div>
+
+    <!-- 10. CLI -->
+    <div class="card">
+        <h2>10. CLI Commands</h2>
+        <table>
+            <tr><th>Command</th><th>Description</th></tr>
+            <tr><td><code>php spp.php api:key:generate --app={{APP_NAME}}</code></td><td>Generate a new API key</td></tr>
+            <tr><td><code>php spp.php api:route:list --app={{APP_NAME}}</code></td><td>List all registered API routes</td></tr>
+            <tr><td><code>php spp.php make:entity --app={{APP_NAME}} Resource</code></td><td>Create entity with auto-API</td></tr>
+            <tr><td><code>php spp.php make:controller --app={{APP_NAME}} Items</code></td><td>Create API controller</td></tr>
+            <tr><td><code>php spp.php test:run --app={{APP_NAME}}</code></td><td>Run Parikshak tests</td></tr>
+            <tr><td><code>php spp.php cache:clear</code></td><td>Clear caches</td></tr>
+        </table>
+    </div>
+
+    <div class="footer">
+        &copy; {{APP_NAME}} &bull; Powered by SPP Framework &bull; REST API Mode
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<?php
+namespace App\\{{ns}}\\Serv;
+
+/**
+ * ============================================================================
+ * ApiDocsController — Self-Documenting API Guide
+ * ============================================================================
+ *
+ * This controller returns comprehensive JSON documentation for the {{ns}} API.
+ * It serves as both a machine-readable schema and a novice tutorial.
+ *
+ * Route: api/docs/json
+ *   Returns JSON with endpoint descriptions, auth info, and examples.
+ *
+ * HOW TO EXTEND:
+ *   Add new entries to the \\\$endpoints array as you build new API routes.
+ * ============================================================================
+ */
+class ApiDocsController
+{
+    public function index()
+    {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'api' => '{{ns}} REST API',
+            'version' => 'v1',
+            'base_url' => '/api/v1',
+            'tutorial' => [
+                'what_is_api_mode' => 'API mode creates a headless REST backend. No HTML views — only JSON responses. Perfect for SPAs, mobile apps, and third-party integrations.',
+                'conventions' => [
+                    'GET /resource' => 'List all items (index)',
+                    'GET /resource/{id}' => 'Get single item (show)',
+                    'POST /resource' => 'Create new item (store)',
+                    'PUT /resource/{id}' => 'Update item (update)',
+                    'DELETE /resource/{id}' => 'Delete item (delete)',
+                ],
+                'status_codes' => [
+                    200 => 'OK — Request succeeded',
+                    201 => 'Created — Resource created',
+                    400 => 'Bad Request — Invalid input',
+                    401 => 'Unauthorized — Authentication required',
+                    403 => 'Forbidden — Insufficient permissions',
+                    404 => 'Not Found — Resource does not exist',
+                    422 => 'Unprocessable — Validation failed',
+                    429 => 'Too Many Requests — Rate limited',
+                    500 => 'Server Error — Something went wrong',
+                ],
+                'authentication' => [
+                    'methods' => ['Bearer Token (JWT)', 'API Key (header)'],
+                    'header' => 'Authorization: Bearer <token>',
+                    'api_key_header' => 'X-API-Key: <key>',
+                    'generate_key' => 'php spp.php api:key:generate --app={{ns}}',
+                ],
+                'error_format' => [
+                    'status' => 'error',
+                    'message' => 'Human-readable error message',
+                    'errors' => ['field' => ['Validation message']],
+                    'code' => 'MACHINE_READABLE_CODE',
+                ],
+                'pagination' => [
+                    'query_params' => '?page=1&per_page=25',
+                    'response_meta' => ['total', 'page', 'per_page', 'last_page'],
+                ],
+                'rate_limiting' => [
+                    'default' => '60 requests/minute',
+                    'headers' => ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'X-RateLimit-Reset'],
+                ],
+                'cors' => [
+                    'headers_sent' => ['Access-Control-Allow-Origin', 'Access-Control-Allow-Methods', 'Access-Control-Allow-Headers'],
+                    'configure' => 'Set in init.php or middleware',
+                ],
+            ],
+            'endpoints' => [
+                ['method' => 'GET', 'path' => '/api/v1/items', 'description' => 'List all items', 'auth' => false, 'params' => ['page' => 'int', 'per_page' => 'int']],
+                ['method' => 'GET', 'path' => '/api/v1/items/{id}', 'description' => 'Get single item', 'auth' => false, 'params' => ['id' => 'int (required)']],
+                ['method' => 'POST', 'path' => '/api/v1/items', 'description' => 'Create new item', 'auth' => true, 'body' => ['name' => 'string (required)', 'status' => 'string']],
+                ['method' => 'POST', 'path' => '/api/auth/login', 'description' => 'Authenticate and get token', 'auth' => false, 'body' => ['username' => 'string', 'password' => 'string']],
+                ['method' => 'GET', 'path' => '/api/docs', 'description' => 'API JSON documentation', 'auth' => false],
+                ['method' => 'GET', 'path' => '/api/docs/html', 'description' => 'API HTML documentation page', 'auth' => false],
+            ],
+            'cli_commands' => [
+                'php spp.php api:key:generate --app={{ns}}' => 'Generate a new API key',
+                'php spp.php api:route:list --app={{ns}}' => 'List all API routes',
+                'php spp.php make:entity --app={{ns}} Resource' => 'Create a new entity with auto-API',
+                'php spp.php test:run --app={{ns}}' => 'Run Parikshak API tests',
+            ],
+        ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+    }
+}

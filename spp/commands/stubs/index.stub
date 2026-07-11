@@ -1,0 +1,44 @@
+<?php
+/**
+ * ============================================================================
+ * {{APP_NAME}} — Drop-in Mode Entry Point
+ * ============================================================================
+ *
+ * HOW THIS WORKS:
+ * This file is included by the SPP ViewRouter when a request matches the
+ * 'index' route (special: 1). It acts as a self-contained mini-application
+ * with its own simple router that serves files from the resources/views/ dir.
+ *
+ * HOW TO ADD A NEW PAGE:
+ * 1. Create a file `contact.php` in `src/{{APP_NAME}}/pages/`
+ * 2. Access it at: /{base_url}/index?page=contact
+ * 3. Add to navigation in `index.php`
+ *
+ * HOW TO UPGRADE:
+ * To use the full SPP routing pipeline instead, switch to 'native' or 'mixed'
+ * mode by editing etc/apps/{{APP_NAME}}/pages.yml and removing 'special: 1'.
+ * ============================================================================
+ */
+
+// The SPP framework is already booted — do NOT require sppinit.php again.
+// The app context is already set — do NOT call App::getApp() again.
+
+// ── Process YAML-driven forms if the SPPView module is available ──
+if (class_exists('\SPPMod\SPPView\ViewPage')) {
+    \SPPMod\SPPView\ViewPage::processForms();
+}
+
+// ── Simple page router ──
+$page = $_GET['page'] ?? 'index';
+$page = preg_replace('/[^a-zA-Z0-9_\-]/', '', $page); // Sanitize
+
+$viewsDir = SPP_APP_DIR . '/resources/{{APP_NAME}}/views/';
+
+if (file_exists($viewsDir . $page . '.php')) {
+    include $viewsDir . $page . '.php';
+} elseif (file_exists($viewsDir . $page . '.html')) {
+    echo file_get_contents($viewsDir . $page . '.html');
+} else {
+    echo "<h1>404 — Page Not Found</h1>";
+    echo "<p>Create <code>resources/{{APP_NAME}}/views/{$page}.php</code> to add this page.</p>";
+}

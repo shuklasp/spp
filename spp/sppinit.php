@@ -97,6 +97,18 @@ if (!defined('SPP_VER')) {
   // Load App class to ensure it's available before booting
   require_once SPP_CORE_DIR . SPP_DS . 'class.app.php';
 
+  // Enforce strict session security parameters before any session_start() call
+  if (session_status() === PHP_SESSION_NONE) {
+      session_set_cookie_params([
+          'lifetime' => 0,
+          'path' => '/',
+          'domain' => '', // Current domain
+          'secure' => isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+          'httponly' => true,
+          'samesite' => 'Strict'
+      ]);
+  }
+
   // Boot the application
   \SPP\App::boot();
 }

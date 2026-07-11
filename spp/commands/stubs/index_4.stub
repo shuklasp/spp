@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{APP_NAME}} — Drop-in App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #f8fafc; --primary: #6366f1; --text: #0f172a; --muted: #64748b; }
+        body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg); color: var(--text); }
+        .container { max-width: 800px; margin: 3rem auto; padding: 0 2rem; }
+        .card { background: #fff; border-radius: 20px; padding: 2.5rem; box-shadow: 0 15px 40px rgba(0,0,0,0.04); border: 1px solid rgba(0,0,0,0.04); }
+        h1 { font-size: 2.2rem; margin: 0 0 0.5rem 0; font-weight: 800; }
+        .badge { display: inline-block; background: #e0e7ff; color: #4f46e5; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; margin-bottom: 1.5rem; }
+        p { color: var(--muted); line-height: 1.7; }
+        code { background: #f1f5f9; padding: 2px 8px; border-radius: 6px; font-size: 0.9em; }
+        h3 { color: var(--primary); margin-top: 2rem; }
+        ul { color: var(--muted); line-height: 2; }
+        .form-section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9; }
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; color: var(--muted); }
+        input, textarea { width: 100%; padding: 0.8rem; border-radius: 10px; border: 1px solid #e2e8f0; font-family: inherit; font-size: 1rem; }
+        input:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+        .btn { background: var(--primary); color: #fff; border: none; padding: 0.9rem 2rem; border-radius: 10px; font-weight: 600; cursor: pointer; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(99,102,241,0.25); }
+        footer { text-align: center; margin-top: 3rem; font-size: 0.85rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="badge">DROP-IN MODE</div>
+            <h1>{{APP_NAME}}</h1>
+            <p>Welcome to your Drop-in application. This is the simplest SPP app mode — just add HTML or PHP files to <code>resources/{{APP_NAME}}/views/</code> and they're instantly accessible.</p>
+
+            <h3>📂 How Drop-in Mode Works</h3>
+            <ul>
+                <li><b>Create pages:</b> Add `.php` or `.html` files in <code>src/{{APP_NAME}}/pages/</code></li>
+                <li><b>Access them:</b> Visit <code>/index?page=filename</code> (without extension)</li>
+                <li><b>Include UI components:</b> Use <code><?php include __DIR__ . '/../ui/navbar.php'; ?></code></li>
+                <li><b>Upgrade:</b> Switch to <code>native</code> or <code>mixed</code> mode for full framework features</li>
+            </ul>
+
+            <div class="form-section">
+                <h3>📝 Sample Form</h3>
+                <p>This form uses the SPP YAML form engine. Define forms in <code>etc/apps/{{APP_NAME}}/forms/contact.yml</code>.</p>
+                <form method="POST">
+                    <input type="hidden" name="spp_form_id" value="contact">
+                    <div class="form-group">
+                        <label>Your Name</label>
+                        <input type="text" name="guest_name" placeholder="John Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea name="message" placeholder="How can we help?" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Submit</button>
+                </form>
+            </div>
+        </div>
+        <footer>&copy; <?php echo date('Y'); ?> {{APP_NAME}} • Powered by SPP Framework</footer>
+    </div>
+</body>
+</html>

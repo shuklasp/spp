@@ -1,0 +1,16 @@
+################################################################################
+# App Services — Callable from JavaScript via spp_admin.callAppService()
+#
+# HOW TO ADD A SERVICE:
+# 1. Create a PHP script in serv/ (e.g., serv/my_action.php)
+# 2. Register it here with a unique name
+# 3. Call from JS: await spp_admin.callAppService('my.action', {param: 'value'})
+#
+# The PHP script receives POST data and should set \$response array:
+#   \$response = ['status' => 'success', 'data' => [...]]
+################################################################################
+
+services:
+  - name: "task.create"
+    script: "src/{{appName}}/serv/task_create.php"
+    method: "POST"

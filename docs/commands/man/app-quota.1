@@ -1,0 +1,29 @@
+.TH APP:QUOTA 1 "July 2026" "SPP WebOS" "SPP Commands Manual"
+.SH NAME
+app:quota \- Configure hardware resource boundaries (RAM/CPU) for WebOS Guest Apps.
+.SH SYNOPSIS
+.B php spp.php app:quota
+.I alias
+[\-\-ram=\fIlimit\fR]
+[\-\-cpu=\fIseconds\fR]
+.SH DESCRIPTION
+The
+.B app:quota
+command configures strict hardware limits for legacy or third-party Guest Apps running under the SPP WebOS Hypervisor. 
+By utilizing the SPP Kernel ResourceManager, it prevents unstable guest applications from consuming excessive memory or CPU time, thereby preventing system-wide crashes (Fault Isolation). If an app exceeds its allocated quota, the Kernel gracefully kills the thread and throws a WebOsKernelPanicException.
+.SH OPTIONS
+.TP
+.BR alias
+The unique IAM identifier assigned to the guest app during installation (e.g., wordpress:blog). This argument is required.
+.TP
+.BR \-\-ram=\fIlimit\fR
+Sets the maximum RAM allocation allowed for the instance, formatted as a standard PHP memory string (e.g., 128M, 1G).
+.TP
+.BR \-\-cpu=\fIseconds\fR
+Sets the maximum execution time in seconds allowed for a single thread spawned by the instance (e.g., 10s, 30s).
+.SH UNDER THE HOOD
+.B Filesystem Writes:
+The command writes the quota definitions directly into the centralized WebOS YAML Registry.
+.PP
+.B Kernel Interception:
+During execution, the SPP ResourceManager dynamically applies \fBini_set('memory_limit')\fR and \fBset_time_limit()\fR before handing control to the guest app.

@@ -8955,5 +8955,1349 @@
                 }
             ]
         }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-07-11 12:59:14",
+        "seed": 6545,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Blogpost",
+                "name": "BlogPost",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Class \"\" does not exist"
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 36.89
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 925.7
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Newentity1",
+                "name": "NewEntity1",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 4.73
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 788
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 2.84
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 822.3
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 4.13
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 620.9
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "failed",
+                        "error": "SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                        "diagnostics": []
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "failed",
+                        "error": "Security Vulnerability or Crash: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "failed",
+                        "error": "Unicode Resilience Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "failed",
+                        "error": "Bulk Stress Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Security Vulnerability or Crash: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Audit Verification Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Unicode Resilience Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Bulk Stress Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 8,
+            "passed": 2,
+            "failed": 3,
+            "skipped": 3
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 44,
+                "passed": 40,
+                "failed": 4
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DBLoggerTest",
+                    "method": "testDBLoggerProviderWritesSuccessfully",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DBLoggerTest",
+                    "method": "testEventBusTriggersDBLogger",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\MockeryTest",
+                    "method": "testMockeryCanMockObjects",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testModuleTypeParsing",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesTrueForCoreAndCompulsory",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesFalseForNonCore",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesFalseForNonCompulsory",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "addition works with functional API",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "it can access $this via closure binding",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "subtraction works with functional API",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "failed",
+                    "error": "Adapter threw exception on valid log level calls: SPPMod\\SPPLogger\\SPP_Logger::log(): Argument #3 ($context) must be of type array, string given, called in C:\\projects\\apache\\school1\\spp\\core\\class.psrloggeradapter.php on line 64"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPExtTest",
+                    "method": "testExtLifecycleDoesNotBootDB",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testMakeCommand",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPPMigrate\\Commands\\MakeCommand\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testRunCommand",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPPMigrate\\Commands\\MigrateCommand\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPRouterTest",
+                    "method": "testGetPageThrowsExceptionForNonExistentRoute",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPRouterTest",
+                    "method": "testGetDefaultReturnsNullIfNoConfig",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewCompilerTest",
+                    "method": "testCompilerTranslatesSppTrans",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
+    },
+    {
+        "app": "default",
+        "timestamp": "2026-07-11 13:08:12",
+        "seed": 8497,
+        "entities": [
+            {
+                "class": "App\\Default\\Entities\\Blogpost",
+                "name": "BlogPost",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Class \"\" does not exist"
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Dummyentity",
+                "name": "DummyEntity",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 13.5
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 702.9
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Employee",
+                "name": "Employee",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Newentity1",
+                "name": "NewEntity1",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 2.54
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: Audit log entry missing for 'create' action."
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 896.8
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "Audit Verification Failed: Audit log entry missing for 'create' action."
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Staff",
+                "name": "Staff",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 3.19
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 948.2
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Teacher",
+                "name": "Teacher",
+                "status": "passed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "passed",
+                        "duration_ms": 3.16
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "passed",
+                        "ops_per_sec": 768.4
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            },
+            {
+                "class": "App\\Default\\Entities\\Testeditentity",
+                "name": "TestEditEntity",
+                "status": "skipped",
+                "scenarios": [],
+                "errors": [
+                    "Skipped: Entity has no attributes defined in metadata."
+                ]
+            },
+            {
+                "class": "App\\Default\\Entities\\Testentity",
+                "name": "TestEntity",
+                "status": "failed",
+                "scenarios": [
+                    {
+                        "name": "ValidData",
+                        "status": "failed",
+                        "error": "SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                        "diagnostics": []
+                    },
+                    {
+                        "name": "Field Length Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Data Type Invariants",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Schema Integrity Check",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Toxic Payload Resilience",
+                        "status": "failed",
+                        "error": "Security Vulnerability or Crash: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Audit Trail Verification",
+                        "status": "failed",
+                        "error": "Audit Verification Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Global Unicode Resilience",
+                        "status": "failed",
+                        "error": "Unicode Resilience Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Bulk Stress Simulation",
+                        "status": "failed",
+                        "error": "Bulk Stress Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                    },
+                    {
+                        "name": "Transactional Integrity",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Multi-Tenant Ghost Isolation",
+                        "status": "passed"
+                    },
+                    {
+                        "name": "Validation Metadata Invariants",
+                        "status": "skipped",
+                        "error": "No validation rules defined for this entity."
+                    }
+                ],
+                "errors": [
+                    "SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Security Vulnerability or Crash: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Audit Verification Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Unicode Resilience Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users",
+                    "Bulk Stress Failed: SQLSTATE[HY000]: General error: 1 no such table: spp_users"
+                ],
+                "coverage": {
+                    "hooks_implemented": [],
+                    "coverage_pct": 0
+                }
+            }
+        ],
+        "dependency_graph": {
+            "nodes": [],
+            "links": []
+        },
+        "summary": {
+            "total": 8,
+            "passed": 2,
+            "failed": 3,
+            "skipped": 3
+        },
+        "unit_tests": {
+            "summary": {
+                "total": 44,
+                "passed": 40,
+                "failed": 4
+            },
+            "tests": [
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DataProviderTest",
+                    "method": "testAddition with data set",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DBLoggerTest",
+                    "method": "testDBLoggerProviderWritesSuccessfully",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\DBLoggerTest",
+                    "method": "testEventBusTriggersDBLogger",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\MockeryTest",
+                    "method": "testMockeryCanMockObjects",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testModuleTypeParsing",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesTrueForCoreAndCompulsory",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesFalseForNonCore",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\ModuleTaxonomyTest",
+                    "method": "testIsCompulsoryEvaluatesFalseForNonCompulsory",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "addition works with functional API",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "it can access $this via closure binding",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "test.PestStyleTest.php",
+                    "method": "subtraction works with functional API",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInstantiation",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testLoggingLevels",
+                    "status": "failed",
+                    "error": "Adapter threw exception on valid log level calls: SPPMod\\SPPLogger\\SPP_Logger::log(): Argument #3 ($context) must be of type array, string given, called in C:\\projects\\apache\\school1\\spp\\core\\class.psrloggeradapter.php on line 64"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\PsrLoggerAdapterTest",
+                    "method": "testInvalidLevelThrowsException",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testDefaultGuardIsWeb",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLoginAndCheck",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testLogout",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPAuthTest",
+                    "method": "testGetCurrentUser",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testGetEnvValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testDefaultValue",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPConfigTest",
+                    "method": "testSetAndGetAppCache",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectAll",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testSelectSpecificColumns",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testMultipleWhereClauses",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrWhereClause",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPDBTest",
+                    "method": "testOrderByAndLimit",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPExtTest",
+                    "method": "testExtLifecycleDoesNotBootDB",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testMakeCommand",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPPMigrate\\Commands\\MakeCommand\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPMigrateTest",
+                    "method": "testRunCommand",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPPMigrate\\Commands\\MigrateCommand\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPRouterTest",
+                    "method": "testGetPageThrowsExceptionForNonExistentRoute",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPRouterTest",
+                    "method": "testGetDefaultReturnsNullIfNoConfig",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentMarkupGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testComponentWithSSRAndIsland",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPUXTest",
+                    "method": "testPaths",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testRequiredValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testEmailValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPValidatorTest",
+                    "method": "testMinLengthValidator",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testViewTagGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testUlGeneration",
+                    "status": "failed",
+                    "error": "Class \"SPPMod\\SPP_HTML_Ul\" not found"
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewTest",
+                    "method": "testTableGeneration",
+                    "status": "passed",
+                    "error": null
+                },
+                {
+                    "scope": "Core",
+                    "class": "SPP\\Tests\\Core\\SPPViewCompilerTest",
+                    "method": "testCompilerTranslatesSppTrans",
+                    "status": "passed",
+                    "error": null
+                }
+            ]
+        }
     }
 ]

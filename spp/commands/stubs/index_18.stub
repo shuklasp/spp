@@ -1,0 +1,55 @@
+<?php
+/**
+ * ============================================================================
+ * Native PHP Landing Page — {{APP_NAME}}
+ * ============================================================================
+ *
+ * HOW THIS WORKS:
+ * This file is included by the SPP ViewRouter as a normal page (special: 0).
+ * The augmentation pipeline automatically:
+ *   - Injects registered JS/CSS files
+ *   - Processes YAML forms (if spp_form_id is posted)
+ *   - Applies the active theme
+ *   - Fires rendering events
+ *
+ * IMPORTANT:
+ *   - Do NOT output <!DOCTYPE> or <html> tags — the augmentation adds them
+ *   - Just output the page BODY content
+ *   - Use ViewPage to register JS/CSS that should be in <head>
+ *
+ * HOW TO ADD JS/CSS:
+ *   \SPPMod\SPPView\ViewPage::addJsIncludeFile('assets/js/app.js');
+ *   \SPPMod\SPPView\ViewPage::addCssIncludeFile('assets/css/app.css');
+ *
+ * HOW TO MOUNT SPP-UX COMPONENTS:
+ *   \SPPMod\Drishyam\SPPUX::boot();   // Register runtime assets
+ *   \SPPMod\Drishyam\SPPUX::render('counter', ['initialCount' => 5]);
+ * ============================================================================
+ */
+
+// Register SPP-UX assets for this page
+if (class_exists('\SPPMod\Drishyam\SPPUX')) {
+    \SPPMod\Drishyam\SPPUX::boot();
+}
+?>
+
+<div style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="background: #fff; border-radius: 16px; padding: 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.04); border: 1px solid #e2e8f0;">
+        <span style="display:inline-block; background:#e0e7ff; color:#4f46e5; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; margin-bottom:1rem;">NATIVE PHP PAGE</span>
+        <h1 style="font-size: 2rem; margin: 0 0 0.5rem;">{{APP_NAME}}</h1>
+        <p style="color: #64748b; line-height: 1.7;">
+            This is a <b>native PHP page</b> rendered through the ViewRouter augmentation pipeline.
+            Unlike <code>special: 1</code> pages, it gets automatic JS/CSS injection, form processing, and theme support.
+        </p>
+
+        <h3 style="margin-top: 2rem; color: #6366f1;">🧩 SPP-UX Component (mounted via PHP)</h3>
+        <p style="color: #64748b; font-size: 0.9rem;">
+            Code: <code>&lt;?php \SPPMod\Drishyam\SPPUX::render('counter', ['initialCount' => 10]); ?&gt;</code>
+        </p>
+        <?php
+        if (class_exists('\SPPMod\Drishyam\SPPUX')) {
+            \SPPMod\Drishyam\SPPUX::render('counter', ['initialCount' => 10]);
+        }
+        ?>
+    </div>
+</div>

@@ -39,19 +39,47 @@ class IntegrationWebhookController extends ViewController
             Raw Payload: {$rawPayload}
             ";
 
+            $userData = [];
             if (class_exists(SPPAI::class)) {
-                $normalizedJson = SPPAI::callTool($prompt, []);
-                $userData = json_decode($normalizedJson, true);
-
-                if (json_last_error() === JSON_ERROR_NONE && !empty($userData['email'])) {
-                    // Magically normalized! Broadcast it to the Mesh.
-                    IntegrationFactory::broadcastUserSync($userData);
-                    echo json_encode(['status' => 'success', 'message' => 'Webhook normalized via AI and broadcasted.']);
-                } else {
-                    echo json_encode(['status' => 'error', 'message' => 'AI failed to normalize payload.']);
+                try {
+                    $normalizedJson = SPPAI::callTool($prompt, []);
+                    if (!empty($normalizedJson)) {
+                        $userData = json_decode($normalizedJson, true) ?? [];
+                    }
+                } catch (\Exception $e) {
+                    // AI failed, fallback to deterministic
                 }
+            }
+            
+            // Deterministic Fallback if AI was unavailable or failed
+            if (empty($userData['email'])) {
+                
+                // Security: Prevent ReDoS by refusing to regex evaluate payloads over 50KB
+                if (strlen($rawPayload) > 50000) {
+                    echo json_encode(['status' => 'error', 'message' => 'Payload exceeds maximum size for regex fallback processing (50KB limit).']);
+                    return;
+                }
+
+                // Security: Tighten regex quantifiers to {2,64} to prevent catastrophic backtracking
+                if (preg_match('/[a-zA-Z0-9._%+-]{1,64}@[a-zA-Z0-9.-]{1,255}\.[a-zA-Z]{2,64}/', $rawPayload, $matches)) {
+                    $userData['email'] = $matches[0];
+                }
+                
+                // Attempt to extract name fields securely
+                if (preg_match('/"first_?name"\s*:\s*"([^"]{1,100})"/i', $rawPayload, $matches)) {
+                    $userData['firstname'] = $matches[1];
+                }
+                if (preg_match('/"last_?name"\s*:\s*"([^"]{1,100})"/i', $rawPayload, $matches)) {
+                    $userData['lastname'] = $matches[1];
+                }
+            }
+
+            if (!empty($userData['email'])) {
+                // Magically normalized! Broadcast it to the Mesh.
+                IntegrationFactory::broadcastUserSync($userData);
+                echo json_encode(['status' => 'success', 'message' => 'Webhook normalized and broadcasted.']);
             } else {
-                echo json_encode(['status' => 'error', 'message' => 'SPPAI module not available.']);
+                echo json_encode(['status' => 'error', 'message' => 'Failed to normalize payload (AI and Fallback both failed).']);
             }
 
         } catch (\Exception $e) {

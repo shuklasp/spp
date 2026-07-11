@@ -1,0 +1,15 @@
+.TH MESH:LIST 1 "2026-07-11" "SPP WebOS" "SPP CLI Manual"
+.SH NAME
+mesh:list \- Lists all active Mesh passthrough routes.
+.SH SYNOPSIS
+.B php spp.php mesh:list
+.SH DESCRIPTION
+The
+.B mesh:list
+command queries the active Mesh routing registry and outputs a formatted table of all currently mounted legacy applications, including their absolute filesystem targets and any injected features. It is highly recommended to run this command after modifying the mesh to verify the exact integration parameters.
+.SH OPTIONS
+None.
+.SH UNDER THE HOOD
+1. Reads the etc/mesh.yml file from the filesystem.
+.br
+2. Parses the configuration and prints a hierarchical tree detailing the routes, targets, and active features.

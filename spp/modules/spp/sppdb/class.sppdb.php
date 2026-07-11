@@ -573,7 +573,7 @@ class SPPDB
         $columns = array_keys(reset($records));
         $safeCols = [];
         foreach ($columns as $col) {
-            $safeCols[] = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
+            $safeCols[] = \SPP\Core\SchemaValidator::escapeIdentifier($col);
         }
         $colsStr = implode(', ', $safeCols);
 
@@ -589,7 +589,8 @@ class SPPDB
             }
         }
 
-        $sql = "INSERT INTO {$table} ({$colsStr}) VALUES " . implode(', ', $placeholders);
+        $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        $sql = "INSERT INTO {$safeTable} ({$colsStr}) VALUES " . implode(', ', $placeholders);
         $this->getAdapterForQuery($sql)->execute($sql, $values);
         return count($records);
     }
@@ -599,6 +600,9 @@ class SPPDB
         if (empty($records)) {
             return 0;
         }
+        
+        $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        $index = \SPP\Core\SchemaValidator::escapeIdentifier($index);
 
         $columns = array_keys(reset($records));
         $columns = array_filter($columns, function ($col) use ($index) {
@@ -613,7 +617,8 @@ class SPPDB
         $ids = [];
 
         foreach ($columns as $col) {
-            $cases[$col] = "{$col} = CASE {$index}";
+            $safeCol = \SPP\Core\SchemaValidator::escapeIdentifier($col);
+            $cases[$col] = "{$safeCol} = CASE {$index}";
         }
 
         foreach ($records as $record) {
@@ -661,6 +666,7 @@ class SPPDB
 
     public function add_columns($table, $cols = [])
     {
+        $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
         // This is engine specific (DDL), so we pass to execute
         foreach ($cols as $col => $type) {
             if (strtoupper($col) === 'PRIMARY KEY' || strtoupper($col) === 'UNIQUE') {
@@ -672,7 +678,8 @@ class SPPDB
             }
 
             try {
-                $this->exec("ALTER TABLE {$table} ADD {$col} {$type}");
+                $safeCol = \SPP\Core\SchemaValidator::escapeIdentifier($col);
+                $this->exec("ALTER TABLE {$safeTable} ADD {$safeCol} {$type}");
             } catch (\Exception $e) {
                 $message = $e->getMessage();
                 if (
@@ -698,11 +705,13 @@ class SPPDB
                 } elseif (strtoupper($colName) === 'UNIQUE') {
                     $constraints[] = "UNIQUE $colDef";
                 } else {
-                    $defs[] = "$colName $colDef";
+                    $safeColName = \SPP\Core\SchemaValidator::escapeIdentifier($colName);
+                    $defs[] = "$safeColName $colDef";
                 }
             }
             $allDefs = array_merge($defs, $constraints);
-            $query = "CREATE TABLE {$tableName} (" . implode(', ', $allDefs) . ")";
+            $safeTableName = \SPP\Core\SchemaValidator::escapeIdentifier($tableName);
+            $query = "CREATE TABLE {$safeTableName} (" . implode(', ', $allDefs) . ")";
             $this->adapter->execute($query);
         } else {
             $this->add_columns($tableName, $columns);
