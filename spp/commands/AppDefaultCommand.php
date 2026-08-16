@@ -6,6 +6,12 @@ use Symfony\Component\Yaml\Yaml;
 class AppDefaultCommand extends Command {
     protected string $name = 'app:default';
     protected string $description = 'Set or view the default global CLI application context';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void {
         $setApp = null;
         foreach ($args as $arg) {

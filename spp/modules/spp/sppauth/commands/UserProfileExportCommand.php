@@ -5,6 +5,12 @@ class UserProfileExportCommand extends Command
 {
     protected string $name = 'userprofile:export';
     protected string $description = 'Export user profile data for compliance/GDPR';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $userId = null;

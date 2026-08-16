@@ -16,9 +16,15 @@ class ModuleDisableCommand extends Command
         return 'Disable an SPP module';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $moduleName = $args[2] ?? null;
+        $moduleName = $this->getArgument($args, 0) ?? null;
 
         if (!$moduleName) {
             echo "Usage: php spp.php module:disable <modulename>\n";

@@ -15,11 +15,17 @@ class ModuleSettingUpdateCommand extends \SPP\CLI\Command
         return 'Update a configuration setting for a specific module';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $modname = $args[2] ?? null;
-        $key = $args[3] ?? null;
-        $val = $args[4] ?? null;
+        $modname = $this->getArgument($args, 0) ?? null;
+        $key = $this->getArgument($args, 1) ?? null;
+        $val = $this->getArgument($args, 2) ?? null;
 
         if (!$modname || !$key || $val === null) {
             echo "\033[31m[ERROR]\033[0m Module name, key, and value required. Usage: spp module:setting:update <modname> <key> <value>\n";

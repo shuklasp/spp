@@ -5,10 +5,16 @@ use SPP\CLI\Command;
 
 class EntEditCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $command = $args[1] ?? '';
-        $entityName = $args[2] ?? null;
+        $entityName = $this->getArgument($args, 0) ?? null;
         if (!$entityName) {
             require_once SPP_APP_DIR . '/spp/sppinit.php';
             $entities = \SPPMod\SPPDB\SPPEntity::listAvailableEntities();

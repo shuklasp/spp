@@ -79,6 +79,6 @@ class HomeController
         $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
         $data['app_name'] = 'TestApp2';
         $data['base_url'] = \SPP\App::getBaseUrl('TestApp2');
-        return $blade->run($view, $data);
+        return $blade->renderInstance($view, $data);
     }
 }

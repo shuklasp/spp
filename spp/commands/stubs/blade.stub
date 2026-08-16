@@ -76,6 +76,7 @@ SPP DIRECTIVES AVAILABLE:
         .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
         .btn-outline { border: 1px solid var(--border); background: transparent; color: var(--text); }
     </style>
+    <link rel="stylesheet" href="@url('theme-assets/default/custom.css?v=' . time())">
     @yield('styles')
 </head>
 <body>

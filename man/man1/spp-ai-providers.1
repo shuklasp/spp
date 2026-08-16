@@ -1,20 +1,23 @@
-.TH SPP-ai-providers 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ai-providers 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-ai-providers \- List all registered AI providers
-.SH SYNOPSIS
-.B php spp.php ai:providers
-[OPTIONS]
+ai:providers
+.PP
+ \- List all registered AI providers
 .SH DESCRIPTION
 List all registered AI providers
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from AiProvidersCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php ai:providers [OPTIONS]
 .PP
-\(bu Dynamically loads kernel modules: sppai.
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: sppai.
 .br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

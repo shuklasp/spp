@@ -1,18 +1,21 @@
-.TH SPP-tinker 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-tinker 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-tinker \- Interact with your application in a REPL shell.
-.SH SYNOPSIS
-.B php spp.php tinker
-[OPTIONS]
+tinker
+.PP
+ \- Interact with your application in a REPL shell.
 .SH DESCRIPTION
 Interact with your application in a REPL shell.
 .PP
-.SH OPTIONS
-.TP
-.B --force
-Boolean flag. Extracted via static analysis from TinkerCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php tinker [OPTIONS]
 .PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+.SH OPTIONS
+\(bu `--force` : Boolean flag or option. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

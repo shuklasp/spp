@@ -9,6 +9,12 @@ class StorageSyncCommand extends Command
     protected string $name = 'storage:sync';
     protected string $description = 'Sync local storage with external disks (stub)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

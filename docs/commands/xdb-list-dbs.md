@@ -1,16 +1,16 @@
 ## `xdb:list-dbs`
 
-**Description**: List all available XDB databases
+**Purpose**: List all available XDB databases
 
 ### Synopsis
 ```bash
 php spp.php xdb:list-dbs [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
 

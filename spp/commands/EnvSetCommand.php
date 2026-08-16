@@ -10,6 +10,12 @@ class EnvSetCommand extends Command
     protected string $name = 'env:set';
     protected string $description = 'Set a specific configuration variable';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

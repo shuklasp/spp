@@ -1,20 +1,23 @@
-.TH SPP-make-view 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-view 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-view \- Create a new view definition (equivalent to Drupal Views).
-.SH SYNOPSIS
-.B php spp.php make:view
-[OPTIONS]
+make:view
+.PP
+ \- Create a new view definition (equivalent to Drupal Views).
 .SH DESCRIPTION
 Create a new view definition (equivalent to Drupal Views).
 .PP
-.SH OPTIONS
-.TP
-.B --table=
-Expects a value. Extracted via static analysis from MakeViewCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php make:view [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--table=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Instantiates key components: view, \SPPMod\SPPDB\SPPDB.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
+\(bu Instantiates internal components: view, \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

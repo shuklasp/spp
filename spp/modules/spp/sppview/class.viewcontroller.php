@@ -454,13 +454,19 @@ abstract class ViewController
         }
 
         if (!class_exists('\\SPP\\PolyglotBridge')) {
-            return "<div class=\"spp-partial-container error\"><div class=\"partial-header\"><h4>Polyglot Partial Error</h4></div><div class=\"partial-body\"><pre>PolyglotBridge class not found.</pre></div></div>";
+            $error = 'PolyglotBridge class not found.';
+            $lang = '';
+            ob_start();
+            include __DIR__ . '/errors/polyglot-error.php';
+            return ob_get_clean();
         }
 
         $res = \SPP\PolyglotBridge::call($lang, $module, $func, $args, $daemon);
         if (!$res['success']) {
-            $error = htmlspecialchars($res['error'] ?? 'Unknown Polyglot Execution Error', ENT_QUOTES, 'UTF-8');
-            return "<div class=\"spp-partial-container error\"><div class=\"partial-header\"><h4>Polyglot Partial Error ({$lang})</h4></div><div class=\"partial-body\"><pre>{$error}</pre></div></div>";
+            $error = $res['error'] ?? 'Unknown Polyglot Execution Error';
+            ob_start();
+            include __DIR__ . '/errors/polyglot-error.php';
+            return ob_get_clean();
         }
 
         $output = is_array($res['data']) ? json_encode($res['data'], JSON_PRETTY_PRINT) : (string)$res['data'];
@@ -493,7 +499,11 @@ abstract class ViewController
     {
         http_response_code($status);
         if (!class_exists('\\SPPMod\\Drishyam\\TemplateMacros')) {
-            return "<div class=\"spp-partial-container error\"><pre>TemplateMacros class not found.</pre></div>";
+            $error = 'TemplateMacros class not found.';
+            $lang = '';
+            ob_start();
+            include __DIR__ . '/errors/polyglot-error.php';
+            return ob_get_clean();
         }
 
         $output = \SPPMod\Drishyam\TemplateMacros::polyglot($name, $data, $useCache, $ttl);
@@ -635,13 +645,10 @@ abstract class ViewController
     public static function renderErrorBoundary(\Throwable $e, string $file): string
     {
         $shortFile = basename($file);
-        $message = htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8');
-        return <<<HTML
-<div class="sppux-alert sppux-alert-danger" style="margin: 1rem 0; padding: 1rem; border-radius: 8px; font-family: system-ui; text-align: left;">
-    <strong>💥 View Template Error: <code>{$shortFile}</code></strong><br>
-    <span style="font-family: monospace; font-size: 0.85rem; opacity: 0.8;">{$message}</span>
-</div>
-HTML;
+        $message = $e->getMessage();
+        ob_start();
+        include __DIR__ . '/errors/error-boundary.php';
+        return ob_get_clean();
     }
 
     /**

@@ -4,27 +4,43 @@
  */
 
 function live_AI_GetRegistry($la, $params) {
-    \SPP\Module::loadModule('sppai');
-    $registry = \SPPMod\SPPAI\SPPAI::getRegistry();
-    $la->setData(['registry' => $registry]);
+        $res = \SPP\CLI\CommandManager::execute('admin:ai', ['getregistry', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_AI_Prompt($la, $params) {
-    \SPP\Module::loadModule('sppai');
-    $provider = $params['provider'] ?? null;
-    $model = $params['model'] ?? null;
-    $prompt = $params['prompt'] ?? '';
-    
-    if (!$prompt) return $la->setStatus('error')->notify("Prompt cannot be empty.");
-    
-    $ai = \SPPMod\SPPAI\SPPAI::class;
-    if ($provider) $ai = $ai::using($provider);
-    if ($model) $ai = $ai::withModel($model);
-    
-    try {
-        $result = $ai::complete($prompt);
-        $la->setData(['response' => $result]);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("AI Error: " . $e->getMessage());
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:ai', ['prompt', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }

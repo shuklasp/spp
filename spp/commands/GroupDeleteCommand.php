@@ -14,9 +14,15 @@ class GroupDeleteCommand extends Command
     protected string $name = 'group:delete';
     protected string $description = 'Delete a shared resource group';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $groupName = $args[2] ?? null;
+        $groupName = $this->getArgument($args, 0) ?? null;
 
         if (!$groupName) {
             echo "Usage: php spp.php group:delete <group_name>\n";

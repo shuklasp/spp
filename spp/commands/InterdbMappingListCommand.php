@@ -10,6 +10,12 @@ class InterdbMappingListCommand extends Command
     protected string $name = 'interdb:mapping:list';
     protected string $description = 'List all InterDB mappings';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $path = SPP_MODULES_DIR . '/spp/sppinterdb/etc/config.yml';

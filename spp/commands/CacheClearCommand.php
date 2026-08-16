@@ -10,6 +10,12 @@ class CacheClearCommand extends Command
     protected string $name = 'cache:clear';
     protected string $description = 'Clear the application file/redis cache';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = $this->getOption($args, 'app', 'default');

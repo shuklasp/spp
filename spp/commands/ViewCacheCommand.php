@@ -14,6 +14,12 @@ class ViewCacheCommand extends Command
     protected string $name = 'view:cache';
     protected string $description = 'Pre-compiles all AST views into PHP for optimal performance';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $app = null;

@@ -26,7 +26,7 @@ class AuthController
     public function loginForm()
     {
         $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('login', [
+        return $blade->renderInstance('login', [
             'app_name' => 'FinalTest',
             'base_url' => \SPP\App::getBaseUrl('FinalTest'),
             'error' => ''
@@ -58,7 +58,7 @@ class AuthController
         }
 
         $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('login', [
+        return $blade->renderInstance('login', [
             'app_name' => 'FinalTest',
             'base_url' => \SPP\App::getBaseUrl('FinalTest'),
             'error' => $error

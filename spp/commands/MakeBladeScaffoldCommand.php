@@ -14,9 +14,15 @@ class MakeBladeScaffoldCommand extends BaseMakeCommand
     protected string $name = 'make:blade-scaffold';
     protected string $description = 'Create a full stack Blade scaffold (Entity, YAML Form, Controller, Blade Views)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $entityName = $args[2] ?? null;
+        $entityName = $this->getArgument($args, 0) ?? null;
         if (!$entityName) {
             echo "Entity Name (e.g. Student): ";
             $entityName = trim(fgets(STDIN));

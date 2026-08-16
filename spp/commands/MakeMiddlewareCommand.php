@@ -11,9 +11,15 @@ class MakeMiddlewareCommand extends BaseMakeCommand
     protected string $name = 'make:middleware';
     protected string $description = 'Create a new middleware class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:middleware <name> [--app=appname]\n";
             return;

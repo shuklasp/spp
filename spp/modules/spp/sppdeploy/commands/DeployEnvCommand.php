@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployEnvCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -45,14 +47,19 @@ class DeployEnvCommand extends Command
         $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         echo "📡 Pushing environment variable '{$envKey}' to {$target}...\n";
-        $resp = $conn->pushEnvKey($envKey, $envValue);
+        try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+            $resp = $conn->pushEnvKey($envKey, $envValue);
 
-        if (!isset($resp['status']) || $resp['status'] !== 'ok') {
-            echo "❌ Failed to update environment variable: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            return;
+            if (!isset($resp['status']) || $resp['status'] !== 'ok') {
+                echo "❌ Failed to update environment variable: " . ($resp['message'] ?? 'Unknown error') . "\n";
+                return;
+            }
+
+            echo "✅ " . $resp['message'] . "\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
-
-        echo "✅ " . $resp['message'] . "\n";
     }
 
     public function getName(): string

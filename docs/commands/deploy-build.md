@@ -1,6 +1,6 @@
 ## `deploy:build`
 
-**Description**: Create a local deployment artifact bundle without pushing
+**Purpose**: Create a local deployment artifact bundle without pushing
 
 ### Synopsis
 ```bash
@@ -13,14 +13,17 @@ Usage: php spp.php deploy:build <target_uri> [--key=YOUR_API_KEY] [--no-db] [--n
 
 ```
 
-### Options
-- `--key=` : Expects a value. Extracted via static analysis from DeployBuildCommand.php
-- `--no-db` : Boolean flag. Extracted via static analysis from DeployBuildCommand.php
-- `--no-files` : Boolean flag. Extracted via static analysis from DeployBuildCommand.php
+### Options Available
+- `--key=` : Expects a value. Extracted via static analysis.
+- `--no-db` : Boolean flag or option. Extracted via static analysis.
+- `--no-files` : Boolean flag or option. Extracted via static analysis.
+- `--status` : Boolean flag or option. Extracted via static analysis.
+- `--sql` : Boolean flag or option. Extracted via static analysis.
+- `--Create Table` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \SPPMod\SPPDB\SPPDB.
 

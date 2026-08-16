@@ -8,109 +8,211 @@ require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.xdbmigrator.php';
 require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.seedermanager.php';
 
 function live_XDB_ListDB($la, $params) {
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
-    $la->setData(['databases' => $xdb->listDatabases()]);
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['listdb', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_ListTables($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname);
-    $la->setData(['tables' => $xdb->listTables()]);
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['listtables', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_GetTableData($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $table = $params['table'] ?? null;
-    if (!$table) return $la->setStatus('error')->notify("Table name required.");
-    
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname, $table);
-    $data = $xdb->querySQL("SELECT * FROM $table LIMIT 100");
-    $la->setData(['rows' => $data]);
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['gettabledata', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_GetTableColumns($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $table = $params['table'] ?? null;
-    if (!$table) return $la->setStatus('error')->notify("Table name required.");
-    
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname);
-    $la->setData(['columns' => $xdb->getTableColumns($table)]);
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['gettablecolumns', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_RunQuery($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $sql = $params['sql'] ?? '';
-    if (!$sql) return $la->setStatus('error')->notify("SQL or XPath query required.");
-    
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname);
-    try {
-        if (strpos(trim($sql), '/') === 0) {
-            $results = $xdb->queryX($sql);
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['runquery', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
         } else {
-            $results = $xdb->querySQL($sql);
+            $la->setStatus('error')->notify($res['error']);
         }
-        $la->setData(['results' => $results]);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
+
 }
 
 function live_XDB_SaveRecord($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $table = $params['table'] ?? '';
-    $data = $params['data'] ?? [];
-    $id = $params['id'] ?? null;
-    if (!$table || empty($data)) return $la->setStatus('error')->notify("Table and data required.");
-    
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname, $table);
-    $res = $id ? $xdb->update($data, "id = ?", [$id]) : $xdb->insert($data);
-    $la->notify($res ? "Record saved." : "Save failed.");
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['saverecord', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_DeleteRecord($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $table = $params['table'] ?? '';
-    $id = $params['id'] ?? null;
-    if (!$table || !$id) return $la->setStatus('error')->notify("Table and ID required.");
-    
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname, $table);
-    $res = $xdb->delete("id = ?", [$id]);
-    $la->notify($res ? "Record deleted." : "Delete failed.");
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['deleterecord', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_Migrate($la, $params) {
-    $rollback = $params['rollback'] ?? false;
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
-    $mgr = new \SPPMod\SPPXDB\MigrationManager($xdb);
-    try {
-        if ($rollback) {
-            $count = $mgr->rollback(1);
-            $la->setData(['count' => $count])->notify("Rolled back $count migrations.");
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['migrate', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
         } else {
-            $count = $mgr->migrate();
-            $la->setData(['count' => $count])->notify("Executed $count migrations.");
+            $la->setStatus('error')->notify($res['error']);
         }
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
+
 }
 
 function live_XDB_Seed($la, $params) {
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
-    $mgr = new \SPPMod\SPPXDB\SeederManager($xdb);
-    try {
-        $count = $mgr->seed();
-        $la->setData(['count' => $count])->notify("Executed $count seeders.");
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['seed', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_XDB_GetProfileLog($la, $params) {
-    try {
-        $log = \SPPMod\SPPXDB\SPP_XDB::getQueryLog();
-        $la->setData(['log' => $log]);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:xdb', ['getprofilelog', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }

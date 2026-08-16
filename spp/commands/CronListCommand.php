@@ -9,6 +9,12 @@ class CronListCommand extends Command
     protected string $name = 'cron:list';
     protected string $description = 'List all registered scheduled tasks';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

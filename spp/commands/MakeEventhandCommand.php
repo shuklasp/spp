@@ -11,9 +11,15 @@ class MakeEventhandCommand extends BaseMakeCommand
     protected string $name = 'make:eventhand';
     protected string $description = 'Create a new Event Handler class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:eventhand <HandlerClassName> [--app=appname]\n";
             return;

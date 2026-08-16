@@ -27,6 +27,26 @@ class FormAugmentor extends \SPP\SPPObject
             return $html;
         }
 
+        if (!extension_loaded('dom')) {
+            // Strict regex fallback parsing
+            $augmented = $html;
+            $modified = false;
+            if (preg_match_all('/<form[^>]*id="([^"]+)"[^>]*>/i', $augmented, $matches)) {
+                foreach ($matches[1] as $formId) {
+                    $yamlPath = defined('APP_ETC_DIR') ? APP_ETC_DIR . SPP_DS . 'forms' . SPP_DS . "{$formId}.yml" : null;
+                    if ($yamlPath && file_exists($yamlPath)) {
+                        $augmented = preg_replace(
+                            '/<form([^>]*)id="' . preg_quote($formId, '/') . '"([^>]*)>/i',
+                            '<form$1id="' . $formId . '" data-augmented="true"$2>',
+                            $augmented
+                        );
+                        $modified = true;
+                    }
+                }
+            }
+            return $modified ? $augmented : $html;
+        }
+
         libxml_use_internal_errors(true);
         $dom = new \DOMDocument();
         $dom->loadHTML('<?xml encoding="utf-8" ?>' . $html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);

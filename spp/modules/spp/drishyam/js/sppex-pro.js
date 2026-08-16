@@ -295,13 +295,22 @@
                     pill.style.padding = '2px 8px';
                     pill.style.borderRadius = '12px';
                     pill.style.fontSize = '12px';
-                    pill.innerHTML = `${opt.text} <span style="cursor:pointer; color:red; margin-left:4px;">x</span>`;
-                    pill.querySelector('span').onclick = (e) => {
+                    pill.textContent = opt.text + ' ';
+                    
+                    const closeBtn = document.createElement('span');
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.style.color = 'red';
+                    closeBtn.style.marginLeft = '4px';
+                    closeBtn.textContent = 'x';
+                    
+                    closeBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
                         opt.selected = false;
                         selectEl.dispatchEvent(new Event('change'));
                         renderPills();
-                    };
+                    });
+                    
+                    pill.appendChild(closeBtn);
                     pillContainer.appendChild(pill);
                 });
             };
@@ -316,15 +325,15 @@
                         item.style.padding = '8px';
                         item.style.cursor = 'pointer';
                         item.textContent = opt.text;
-                        item.onmouseover = () => item.style.background = '#f5f5f5';
-                        item.onmouseout = () => item.style.background = 'transparent';
-                        item.onclick = () => {
+                        item.addEventListener('mouseover', () => item.style.background = '#f5f5f5');
+                        item.addEventListener('mouseout', () => item.style.background = 'transparent');
+                        item.addEventListener('click', () => {
                             opt.selected = true;
                             selectEl.dispatchEvent(new Event('change'));
                             renderPills();
                             searchInput.value = '';
                             dropdown.style.display = 'none';
-                        };
+                        });
                         dropdown.appendChild(item);
                     }
                 });
@@ -332,12 +341,12 @@
                 else dropdown.style.display = 'none';
             };
 
-            wrapper.onclick = () => {
+            wrapper.addEventListener('click', () => {
                 searchInput.focus();
                 renderDropdown(searchInput.value);
-            };
+            });
             
-            searchInput.oninput = (e) => renderDropdown(e.target.value);
+            searchInput.addEventListener('input', (e) => renderDropdown(e.target.value));
             
             document.addEventListener('click', (e) => {
                 if (!wrapper.contains(e.target)) dropdown.style.display = 'none';

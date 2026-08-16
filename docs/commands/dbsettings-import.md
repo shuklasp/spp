@@ -1,6 +1,6 @@
 ## `dbsettings:import`
 
-**Description**: Import SPP module DB settings from JSON
+**Purpose**: Import SPP module DB settings from JSON
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php dbsettings:import --file=settings.json [--app=<app_name>]
 
 ```
 
-### Options
-- `--file=` : Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
-- `--app=` : Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
+### Options Available
+- `--file=` : Expects a value. Extracted via static analysis.
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
 

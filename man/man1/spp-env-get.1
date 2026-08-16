@@ -1,22 +1,25 @@
-.TH SPP-env-get 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-env-get 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-env-get \- Get a specific configuration variable
-.SH SYNOPSIS
-.B php spp.php env:get
-[OPTIONS]
+env:get
+.PP
+ \- Get a specific configuration variable
 .SH DESCRIPTION
 Get a specific configuration variable
 .PP
+.SH SYNOPSIS
+php spp.php env:get [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php env:get <key> [--app=appname]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from EnvGetCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

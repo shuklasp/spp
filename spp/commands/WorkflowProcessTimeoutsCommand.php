@@ -1,7 +1,7 @@
 <?php
 namespace SPP\CLI\Commands;
 
-use SPP\Core\WorkflowManager;
+use SPPMod\SPPWorkflow\SPPWorkflowManager;
 
 class WorkflowProcessTimeoutsCommand extends \SPP\CLI\Command
 {
@@ -29,7 +29,7 @@ class WorkflowProcessTimeoutsCommand extends \SPP\CLI\Command
             return;
         }
 
-        $workflows = WorkflowManager::getWorkflows();
+        $workflows = SPPWorkflowManager::getWorkflows();
         if (empty($workflows)) {
             echo "No active workflows registered. Exiting.\n";
             return;
@@ -64,10 +64,11 @@ class WorkflowProcessTimeoutsCommand extends \SPP\CLI\Command
                     // Find all entities currently in $fromState whose last transition timestamp is older than $timeout
                     $targetTimestamp = date('Y-m-d H:i:s', strtotime("-{$timeout}"));
 
+                    $jsonLikePattern = '%"' . $fromState . '"%';
                     $records = $db->exec_squery(
-                        "SELECT entity_type, entity_id, new_status, transition_timestamp FROM %tab% WHERE entity_type = ? AND new_status = ? AND transition_timestamp <= ? ORDER BY transition_timestamp ASC",
+                        "SELECT entity_type, entity_id, new_status, transition_timestamp FROM %tab% WHERE entity_type = ? AND (new_status = ? OR new_status LIKE ?) AND transition_timestamp <= ? ORDER BY transition_timestamp ASC",
                         $tableHistory,
-                        [$entityType, $fromState, $targetTimestamp]
+                        [$entityType, $fromState, $jsonLikePattern, $targetTimestamp]
                     );
 
                     foreach ($records as $record) {

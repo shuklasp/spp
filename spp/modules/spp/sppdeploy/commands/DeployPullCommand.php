@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployPullCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -39,60 +41,65 @@ class DeployPullCommand extends Command
             }
         }
 
-        echo "📡 Fetching remote snapshot...\n";
-        $resp = $conn->getExport();
-
-        if (!isset($resp['status']) || $resp['status'] !== 'ok' || empty($resp['archive'])) {
-            echo "❌ Pull failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            if (isset($resp['debug']))
-                echo "DEBUG: " . $resp['debug'] . "\n";
-            return;
-        }
-
-        echo "📦 Extracting payload...\n";
-        $archiveData = base64_decode($resp['archive']);
-        $tempArchive = SPP_BASE_DIR . '/var/cache/deploy_pull.zip';
-        if (!is_dir(dirname($tempArchive))) {
-            mkdir(dirname($tempArchive), 0777, true);
-        }
-        file_put_contents($tempArchive, $archiveData);
-
         try {
-            $zip = new \ZipArchive();
-            if ($zip->open($tempArchive) === true) {
-                $zip->extractTo(dirname(SPP_BASE_DIR));
-                $zip->close();
-            } else {
-                throw new \Exception("Failed to open downloaded payload.");
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+            echo "📡 Fetching remote snapshot...\n";
+            $resp = $conn->getExport();
+
+            if (!isset($resp['status']) || $resp['status'] !== 'ok' || empty($resp['archive'])) {
+                echo "❌ Pull failed: " . ($resp['message'] ?? 'Unknown error') . "\n";
+                if (isset($resp['debug']))
+                    echo "DEBUG: " . $resp['debug'] . "\n";
+                return;
             }
 
-            $sqlSnapshot = SPP_BASE_DIR . '/db_snapshot.sql';
-            if (is_file($sqlSnapshot)) {
-                echo "💾 Restoring database...\n";
-                if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
-                    $db = new \SPPMod\SPPDB\SPPDB();
-                    $pdo = $db->getPDO();
-                    if ($pdo) {
-                        $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-                        if ($driver === 'mysql') {
-                            $pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
-                        }
-                        $sql = file_get_contents($sqlSnapshot);
-                        $pdo->exec($sql);
-                        if ($driver === 'mysql') {
-                            $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+            echo "📦 Extracting payload...\n";
+            $archiveData = base64_decode($resp['archive']);
+            $tempArchive = SPP_BASE_DIR . '/var/cache/deploy_pull.zip';
+            if (!is_dir(dirname($tempArchive))) {
+                mkdir(dirname($tempArchive), 0777, true);
+            }
+            file_put_contents($tempArchive, $archiveData);
+
+            try {
+                $zip = new \ZipArchive();
+                if ($zip->open($tempArchive) === true) {
+                    $zip->extractTo(dirname(SPP_BASE_DIR));
+                    $zip->close();
+                } else {
+                    throw new \Exception("Failed to open downloaded payload.");
+                }
+
+                $sqlSnapshot = SPP_BASE_DIR . '/db_snapshot.sql';
+                if (is_file($sqlSnapshot)) {
+                    echo "💾 Restoring database...\n";
+                    if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                        $db = new \SPPMod\SPPDB\SPPDB();
+                        $pdo = $db->getPDO();
+                        if ($pdo) {
+                            $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                            if ($driver === 'mysql') {
+                                $pdo->exec("SET FOREIGN_KEY_CHECKS=0;");
+                            }
+                            $sql = file_get_contents($sqlSnapshot);
+                            $pdo->exec($sql);
+                            if ($driver === 'mysql') {
+                                $pdo->exec("SET FOREIGN_KEY_CHECKS=1;");
+                            }
                         }
                     }
+                    unlink($sqlSnapshot);
                 }
-                unlink($sqlSnapshot);
-            }
 
-            echo "✅ Pull successful.\n";
-        } catch (\Exception $e) {
-            echo "❌ Pull failed during extraction: " . $e->getMessage() . "\n";
+                echo "✅ Pull successful.\n";
+            } catch (\Exception $e) {
+                echo "❌ Pull failed during extraction: " . $e->getMessage() . "\n";
+            } finally {
+                if (is_file($tempArchive))
+                    unlink($tempArchive);
+            }
         } finally {
-            if (is_file($tempArchive))
-                unlink($tempArchive);
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
     }
 

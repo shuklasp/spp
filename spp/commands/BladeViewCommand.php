@@ -13,9 +13,15 @@ class BladeViewCommand extends Command
     protected string $name = 'blade:view';
     protected string $description = 'Manage Blade views (list, create, delete)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $action = $args[2] ?? 'list';
+        $action = $this->getArgument($args, 0) ?? 'list';
         $appName = \SPP\Scheduler::getContext();
 
         if ($appName === 'default' || !$appName) {
@@ -30,12 +36,12 @@ class BladeViewCommand extends Command
                 $this->listViews($viewsDir);
                 break;
             case 'create':
-                $viewName = $args[3] ?? null;
+                $viewName = $this->getArgument($args, 1) ?? null;
                 if (!$viewName) die("Usage: php spp.php blade:view create <name>\n");
                 $this->createView($viewsDir, $viewName);
                 break;
             case 'delete':
-                $viewName = $args[3] ?? null;
+                $viewName = $this->getArgument($args, 1) ?? null;
                 if (!$viewName) die("Usage: php spp.php blade:view delete <name>\n");
                 $this->deleteView($viewsDir, $viewName);
                 break;

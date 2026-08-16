@@ -1,18 +1,22 @@
-.TH SPP-auth-tokens 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-auth-tokens 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-auth-tokens \- Manage Personal Access Tokens for API Authentication
-.SH SYNOPSIS
-.B php spp.php auth:tokens
-[OPTIONS]
+auth:tokens
+.PP
+ \- Manage Personal Access Tokens for API Authentication
 .SH DESCRIPTION
 Manage Personal Access Tokens for API Authentication
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php auth:tokens [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: SPPUser, SPPDB.
+\(bu Instantiates internal components: SPPUser, SPPDB.
 .br
+.PP
+.PP

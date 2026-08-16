@@ -8,6 +8,12 @@ class MakeMigrationCommand extends Command
     protected string $name = 'make:migration';
     protected string $description = 'Create a new database migration file';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         if (empty($args[0])) {

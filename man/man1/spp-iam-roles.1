@@ -1,22 +1,27 @@
-.TH SPP-iam-roles 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-iam-roles 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-iam-roles \- List all Roles and Entity Role Assignments
-.SH SYNOPSIS
-.B php spp.php iam:roles
-[OPTIONS]
+iam:roles
+.PP
+ \- List all Roles and Entity Role Assignments
 .SH DESCRIPTION
 List all Roles and Entity Role Assignments
 .PP
+.SH SYNOPSIS
+php spp.php iam:roles [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php iam:roles list
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+\(bu `--json` : Boolean flag or option. Extracted via static analysis.
+.br
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: SPPDB.
+\(bu Instantiates internal components: SPPDB.
 .br
+.PP
+.PP

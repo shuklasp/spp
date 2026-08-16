@@ -61,7 +61,7 @@ class PsrLoggerAdapter implements LoggerInterface
         $messageString = (string) $message;
         
         if (class_exists('\\SPPMod\\SPPLogger\\SPP_Logger')) {
-            \SPPMod\SPPLogger\SPP_Logger::log($messageString, $level, 'psr', $context);
+            \SPPMod\SPPLogger\SPP_Logger::log($messageString, $level, array_merge(['category' => 'psr'], $context));
         } else {
             error_log(strtoupper($level) . ': ' . $messageString . ' ' . json_encode($context));
         }

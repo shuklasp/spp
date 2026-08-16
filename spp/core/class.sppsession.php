@@ -36,7 +36,7 @@ class SPPSession extends \SPP\SPPObject
             }
         } elseif (is_string($_SESSION[$ssname])) {
             // Migration: convert old serialized object to array
-            $oldObj = unserialize($_SESSION[$ssname], ['allowed_classes' => true]);
+            $oldObj = unserialize($_SESSION[$ssname], ['allowed_classes' => ['SPP\SPPSession']]);
             $vars = [];
             if ($oldObj instanceof SPPSession && property_exists($oldObj, 'sessvars')) {
                 $ref = new \ReflectionProperty(get_class($oldObj), 'sessvars');
@@ -68,6 +68,14 @@ class SPPSession extends \SPP\SPPObject
         if (session_status() === PHP_SESSION_ACTIVE) {
             session_destroy();
         }
+    }
+
+    public static function regenerateId(bool $deleteOldSession = false): bool
+    {
+        if (session_status() === PHP_SESSION_ACTIVE) {
+            return @session_regenerate_id($deleteOldSession);
+        }
+        return false;
     }
 
     /**

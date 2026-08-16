@@ -6,6 +6,8 @@ use SPPMod\SPPDB\Migration\SPPMigrationManager;
 
 class MigrateCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     protected string $name = 'migrate';
     protected string $description = 'Run pending database migrations';
 

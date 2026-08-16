@@ -1,6 +1,7 @@
 <?php
 
 namespace SPPMod\SPPWorkflow;
+require_once __DIR__ . '/src/WorkflowManager.php';
 
 /**
  * SPPWorkflow Module Initialization
@@ -12,7 +13,7 @@ if (class_exists('\\SPP\\SPPEvent')) {
         if ($entity instanceof \SPP\EventParams) {
             $entity = $entity->get('entity');
         }
-        if (is_object($entity) && class_exists('\\SPP\\Core\\WorkflowManager')) {
+        if (is_object($entity) && class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
             $statusField = method_exists($entity, 'getWorkflowStatusField') ? $entity->getWorkflowStatusField() : 'status';
             $status = method_exists($entity, 'get') ? ($entity->get($statusField) ?: 'draft') : (isset($entity->$statusField) ? $entity->$statusField : 'draft');
             
@@ -30,7 +31,7 @@ if (class_exists('\\SPP\\SPPEvent')) {
             }
 
             // Dispatch workflow specific event if workflow exists
-            if (\SPP\Core\WorkflowManager::getWorkflow($entityType, $bundle)) {
+            if (\SPPMod\SPPWorkflow\SPPWorkflowManager::getWorkflow($entityType, $bundle)) {
                 \SPP\SPPEvent::fireEvent('workflow.entity.updated', new \SPP\EventParams([
                     'entity' => $entity,
                     'status' => $status,

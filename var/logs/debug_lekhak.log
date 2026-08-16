@@ -18177,3 +18177,1320 @@ TEST[2026-05-10 23:36:23] SPPINIT: Context is lekhak, AppClass is \App\Lekhak\Le
 [2026-07-08 11:58:12] SPPBlade: Rendering relative view 'backend_showcase.index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
 [2026-07-08 11:58:19] SPPBlade: Starting render for 'backend_showcase.partials.sppai'
 [2026-07-08 11:58:19] SPPBlade: Rendering relative view 'backend_showcase.partials.sppai' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/Samvaad\/resources\/views"
+[2026-08-13 14:38:04] SPPBlade: Starting render for 'home'
+[2026-08-13 14:38:04] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:39:57] SPPBlade: Starting render for 'home'
+[2026-08-13 14:39:57] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:43:48] SPPBlade: Starting render for 'home'
+[2026-08-13 14:43:48] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:43:50] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:44:11] SPPBlade: Starting render for 'element'
+[2026-08-13 14:44:11] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:44:14] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:44:27] SPPBlade: Starting render for 'home'
+[2026-08-13 14:44:27] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:44:29] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:47:00] SPPBlade: Starting render for 'home'
+[2026-08-13 14:47:00] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:47:03] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:49:44] SPPBlade: Starting render for 'home'
+[2026-08-13 14:49:44] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:49:47] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:57:10] SPPBlade: Starting render for 'home'
+[2026-08-13 14:57:10] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:57:12] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:57:18] SPPBlade: Starting render for 'home'
+[2026-08-13 14:57:18] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:57:20] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:57:30] SPPBlade: Starting render for 'home'
+[2026-08-13 14:57:30] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:57:32] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 14:57:41] SPPBlade: Starting render for 'element'
+[2026-08-13 14:57:41] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 14:57:43] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:05:16] SPPBlade: Starting render for 'home'
+[2026-08-13 15:05:16] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:05:18] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:06:22] SPPBlade: Starting render for 'element'
+[2026-08-13 15:06:22] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:06:22] SPPBlade ERROR (Relative): Undefined variable $wiki
+#0 /mnt/c/projects/apache/school1/src/ptable/pages/partials/element_details.php(30): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.templatemacros.php(148): include('...')
+#2 /mnt/c/projects/apache/school1/var/cache/ptable/blade/element_acfeeec84c7671c60f4305efab837873ed2bcd62.bladec(9): SPPMod\Drishyam\TemplateMacros::spppartial()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#4 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#5 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#7 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(122): SPPMod\Drishyam\SPPBlade->renderInstance()
+#8 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(71): App\ptable\Serv\HomeController->render()
+#9 [internal function]: App\ptable\Serv\HomeController->element()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#11 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#12 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#14 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#20 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#21 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#22 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#23 {main}
+[2026-08-13 15:07:49] SPPBlade: Starting render for 'element'
+[2026-08-13 15:07:49] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:07:51] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:26:16] SPPBlade: Starting render for 'study'
+[2026-08-13 15:26:16] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:26:19] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:31:25] SPPBlade: Starting render for 'home'
+[2026-08-13 15:31:25] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:31:44] SPPBlade: Starting render for 'home'
+[2026-08-13 15:31:44] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:32:12] SPPBlade: Starting render for 'element'
+[2026-08-13 15:32:12] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:53:33] SPPBlade: Starting render for 'element'
+[2026-08-13 15:53:33] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:53:33] SPPBlade ERROR (Relative): Trying to access array offset on null
+#0 /mnt/c/projects/apache/school1/src/ptable/pages/partials/element_details.php(30): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.templatemacros.php(148): include('...')
+#2 /mnt/c/projects/apache/school1/var/cache/ptable/blade/element_acfeeec84c7671c60f4305efab837873ed2bcd62.bladec(9): SPPMod\Drishyam\TemplateMacros::spppartial()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#4 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#5 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#7 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(121): SPPMod\Drishyam\SPPBlade->renderInstance()
+#8 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(65): App\ptable\Serv\HomeController->render()
+#9 [internal function]: App\ptable\Serv\HomeController->element()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#11 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#12 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#14 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#20 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#21 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#22 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#23 {main}
+[2026-08-13 15:54:09] SPPBlade: Starting render for 'element'
+[2026-08-13 15:54:09] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:54:09] SPPBlade ERROR (Relative): Trying to access array offset on null
+#0 /mnt/c/projects/apache/school1/src/ptable/pages/partials/element_details.php(30): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.templatemacros.php(148): include('...')
+#2 /mnt/c/projects/apache/school1/var/cache/ptable/blade/element_acfeeec84c7671c60f4305efab837873ed2bcd62.bladec(9): SPPMod\Drishyam\TemplateMacros::spppartial()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#4 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#5 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#7 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(121): SPPMod\Drishyam\SPPBlade->renderInstance()
+#8 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(65): App\ptable\Serv\HomeController->render()
+#9 [internal function]: App\ptable\Serv\HomeController->element()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#11 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#12 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#14 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#20 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#21 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#22 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#23 {main}
+[2026-08-13 15:55:01] SPPBlade: Starting render for 'element'
+[2026-08-13 15:55:01] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:55:16] SPPBlade: Starting render for 'element'
+[2026-08-13 15:55:16] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:55:18] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:55:35] SPPBlade: Starting render for 'study'
+[2026-08-13 15:55:35] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:55:36] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:56:40] SPPBlade: Starting render for 'element'
+[2026-08-13 15:56:40] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:56:43] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:56:47] SPPBlade: Starting render for 'element'
+[2026-08-13 15:56:47] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:56:49] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 15:58:57] SPPBlade: Starting render for 'element'
+[2026-08-13 15:58:57] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 15:59:00] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:00:38] SPPBlade: Starting render for 'element'
+[2026-08-13 16:00:38] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:00:41] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:00:50] SPPBlade: Starting render for 'study'
+[2026-08-13 16:00:50] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:00:53] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:03:27] SPPBlade: Starting render for 'study'
+[2026-08-13 16:03:27] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:06:32] SPPBlade: Starting render for 'study'
+[2026-08-13 16:06:32] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:06:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:07:58] SPPBlade: Starting render for 'study'
+[2026-08-13 16:07:58] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:08:00] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:10:30] SPPBlade: Starting render for 'study'
+[2026-08-13 16:10:30] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:10:32] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 16:14:30] SPPBlade: Starting render for 'study'
+[2026-08-13 16:14:30] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 16:14:32] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:27:02] SPPBlade: Starting render for 'study'
+[2026-08-13 23:27:02] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 23:27:05] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:29:20] SPPBlade: Starting render for 'study'
+[2026-08-13 23:29:20] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 23:29:23] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:31:44] SPPBlade: Starting render for 'study'
+[2026-08-13 23:31:44] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 23:31:46] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:39:09] SPPBlade: Starting render for 'study'
+[2026-08-13 23:39:09] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 23:39:11] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:39:24] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:41:38] SPPBlade: Starting render for 'study'
+[2026-08-13 23:41:38] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-13 23:41:40] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-13 23:41:40] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/cfb2b830fafbcfc1ee570ba132180147.jpg'
+[2026-08-13 23:41:40] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/11c864b33d62911a360d5512c7839d82.jpg'
+[2026-08-14 00:13:19] SPPBlade: Starting render for 'home'
+[2026-08-14 00:13:19] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:13:21] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:13:30] SPPBlade: Starting render for 'element'
+[2026-08-14 00:13:30] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:13:32] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:13:44] SPPBlade: Starting render for 'study'
+[2026-08-14 00:13:44] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:13:46] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:17:41] SPPBlade: Starting render for 'study'
+[2026-08-14 00:17:41] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:17:44] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:18:54] SPPBlade: Starting render for 'study'
+[2026-08-14 00:18:54] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:18:55] SPPBlade: Starting render for 'study'
+[2026-08-14 00:18:55] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:18:58] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:24:21] SPPBlade: Starting render for 'home'
+[2026-08-14 00:24:21] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:24:23] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:24:34] SPPBlade: Starting render for 'element'
+[2026-08-14 00:24:34] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:24:36] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 00:24:52] SPPBlade: Starting render for 'study'
+[2026-08-14 00:24:52] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 00:24:56] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 01:09:45] SPPBlade: Starting render for 'home'
+[2026-08-14 01:09:45] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 01:09:47] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 01:09:56] SPPBlade: Starting render for 'element'
+[2026-08-14 01:09:56] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 01:09:58] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 01:10:14] SPPBlade: Starting render for 'study'
+[2026-08-14 01:10:14] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 01:10:16] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/9f4d8de022151a778e5c424b97942717.png'
+[2026-08-14 01:10:16] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 01:24:19] SPPBlade: Starting render for 'study'
+[2026-08-14 01:24:19] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 01:24:20] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/9f4d8de022151a778e5c424b97942717.png'
+[2026-08-14 01:24:20] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 05:39:32] SPPBlade: Starting render for 'study'
+[2026-08-14 05:39:32] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 05:39:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 05:39:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/9f4d8de022151a778e5c424b97942717.png'
+[2026-08-14 05:39:35] SPPBlade: Starting render for 'study'
+[2026-08-14 05:39:35] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 05:39:36] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 05:39:36] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/9f4d8de022151a778e5c424b97942717.png'
+[2026-08-14 05:42:16] SPPBlade: Starting render for 'study'
+[2026-08-14 05:42:16] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 05:42:17] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 05:42:17] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/9f4d8de022151a778e5c424b97942717.png'
+[2026-08-14 06:01:27] SPPBlade: Starting render for 'study'
+[2026-08-14 06:01:27] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 06:01:30] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 06:22:56] SPPBlade: Starting render for 'home'
+[2026-08-14 06:22:56] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 06:22:58] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 06:23:05] SPPBlade: Starting render for 'element'
+[2026-08-14 06:23:05] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 06:23:07] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 06:23:14] SPPBlade: Starting render for 'study'
+[2026-08-14 06:23:14] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 06:23:16] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 06:23:16] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/11c864b33d62911a360d5512c7839d82.jpg'
+[2026-08-14 06:23:16] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/cfb2b830fafbcfc1ee570ba132180147.jpg'
+[2026-08-14 10:53:02] SPPBlade: Starting render for 'study'
+[2026-08-14 10:53:02] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-14 10:53:19] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-14 10:53:19] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/cfb2b830fafbcfc1ee570ba132180147.jpg'
+[2026-08-14 10:53:27] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/images/inline/11c864b33d62911a360d5512c7839d82.jpg'
+[2026-08-15 00:52:02] SPPBlade: Starting render for 'element'
+[2026-08-15 00:52:02] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 00:52:05] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 00:52:10] SPPBlade: Starting render for 'home'
+[2026-08-15 00:52:10] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 00:52:12] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 00:52:21] SPPBlade: Starting render for 'element'
+[2026-08-15 00:52:21] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 00:52:24] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 00:52:50] SPPBlade: Starting render for 'study'
+[2026-08-15 00:52:50] SPPBlade: Rendering relative view 'study' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 00:52:52] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:02:22] SPPBlade: Starting render for 'home'
+[2026-08-15 01:02:22] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:02:24] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:09:26] SPPBlade: Starting render for 'home'
+[2026-08-15 01:09:26] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:09:28] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:09:42] SPPBlade: Starting render for 'element'
+[2026-08-15 01:09:42] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:09:43] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:12:12] SPPBlade: Starting render for 'home'
+[2026-08-15 01:12:12] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:12:13] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:12:20] SPPBlade: Starting render for 'element'
+[2026-08-15 01:12:20] SPPBlade: Rendering relative view 'element' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:12:22] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:13:46] SPPBlade: Starting render for 'home'
+[2026-08-15 01:13:46] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:13:49] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:15:37] SPPBlade: Starting render for 'home'
+[2026-08-15 01:15:37] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:15:39] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:21:26] SPPBlade: Starting render for 'home'
+[2026-08-15 01:21:26] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:21:28] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:23:54] SPPBlade: Starting render for 'home'
+[2026-08-15 01:23:54] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:23:56] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:26:44] SPPBlade: Starting render for 'home'
+[2026-08-15 01:26:44] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:26:46] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:28:26] SPPBlade: Starting render for 'home'
+[2026-08-15 01:28:26] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:28:28] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:30:01] SPPBlade: Starting render for 'home'
+[2026-08-15 01:30:01] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:30:03] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:32:56] SPPBlade: Starting render for 'home'
+[2026-08-15 01:32:56] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:32:58] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:35:59] SPPBlade: Starting render for 'home'
+[2026-08-15 01:35:59] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:36:01] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:45:40] SPPBlade: Starting render for 'home'
+[2026-08-15 01:45:40] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:45:42] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:49:11] SPPBlade: Starting render for 'home'
+[2026-08-15 01:49:11] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:49:13] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 01:54:32] SPPBlade: Starting render for 'home'
+[2026-08-15 01:54:32] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 01:54:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 03:34:25] SPPBlade: Starting render for 'home'
+[2026-08-15 03:34:25] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:34:28] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 03:39:49] SPPBlade: Starting render for 'home'
+[2026-08-15 03:39:49] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:39:51] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 03:42:21] SPPBlade: Starting render for 'home'
+[2026-08-15 03:42:21] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:42:24] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 03:44:32] SPPBlade: Starting render for 'about'
+[2026-08-15 03:44:32] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:44:32] SPPBlade ERROR (Relative): Unclosed '(' does not match '}'
+#0 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#2 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#3 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(138): SPPMod\Drishyam\SPPBlade->renderInstance()
+#4 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(114): App\ptable\Serv\HomeController->render()
+#5 [internal function]: App\ptable\Serv\HomeController->about()
+#6 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#7 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#8 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#9 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#10 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#11 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#12 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#14 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#18 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#19 {main}
+[2026-08-15 03:45:15] SPPBlade: Starting render for 'about'
+[2026-08-15 03:45:15] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:45:15] SPPBlade ERROR (Relative): Undefined property: eftec\bladeone\BladeOne::$startSection
+#0 /mnt/c/projects/apache/school1/var/cache/ptable/blade/about_8545304fe6a9a6e99a6d00725f700fe2b437fafb.bladec(45): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#2 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#5 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(138): SPPMod\Drishyam\SPPBlade->renderInstance()
+#6 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(114): App\ptable\Serv\HomeController->render()
+#7 [internal function]: App\ptable\Serv\HomeController->about()
+#8 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#9 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#10 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#11 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#12 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#14 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#20 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#21 {main}
+[2026-08-15 03:46:34] SPPBlade: Starting render for 'about'
+[2026-08-15 03:46:34] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:46:34] SPPBlade ERROR (Relative): Undefined property: eftec\bladeone\BladeOne::$startSection
+#0 /mnt/c/projects/apache/school1/var/cache/ptable/blade/about_8545304fe6a9a6e99a6d00725f700fe2b437fafb.bladec(48): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#2 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#5 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(138): SPPMod\Drishyam\SPPBlade->renderInstance()
+#6 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(114): App\ptable\Serv\HomeController->render()
+#7 [internal function]: App\ptable\Serv\HomeController->about()
+#8 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#9 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#10 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#11 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#12 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#14 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#20 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#21 {main}
+[2026-08-15 03:46:41] SPPBlade: Starting render for 'about'
+[2026-08-15 03:46:41] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:46:41] SPPBlade ERROR (Relative): Undefined property: eftec\bladeone\BladeOne::$startSection
+#0 /mnt/c/projects/apache/school1/var/cache/ptable/blade/about_8545304fe6a9a6e99a6d00725f700fe2b437fafb.bladec(48): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#2 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#5 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(138): SPPMod\Drishyam\SPPBlade->renderInstance()
+#6 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(114): App\ptable\Serv\HomeController->render()
+#7 [internal function]: App\ptable\Serv\HomeController->about()
+#8 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#9 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#10 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#11 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#12 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#14 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#20 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#21 {main}
+[2026-08-15 03:47:48] SPPBlade: Starting render for 'about'
+[2026-08-15 03:47:48] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:47:48] SPPBlade ERROR (Relative): Undefined property: eftec\bladeone\BladeOne::$startSection
+#0 /mnt/c/projects/apache/school1/var/cache/ptable/blade/about_8545304fe6a9a6e99a6d00725f700fe2b437fafb.bladec(45): SPP\Core\SPPErrorHandler::handleError()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#2 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#3 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#4 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#5 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(138): SPPMod\Drishyam\SPPBlade->renderInstance()
+#6 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php(114): App\ptable\Serv\HomeController->render()
+#7 [internal function]: App\ptable\Serv\HomeController->about()
+#8 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#9 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#10 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#11 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#12 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#13 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#14 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#15 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#16 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#17 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#18 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#19 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#20 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#21 {main}
+[2026-08-15 03:50:15] SPPBlade: Starting render for 'about'
+[2026-08-15 03:50:15] SPPBlade: Rendering relative view 'about' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:50:17] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 03:51:30] SPPBlade: Starting render for 'home'
+[2026-08-15 03:51:30] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 03:51:32] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:02:38] SPPBlade: Starting render for 'home'
+[2026-08-15 04:02:38] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:02:40] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:07:45] SPPBlade: Starting render for 'compounds'
+[2026-08-15 04:07:45] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:07:47] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:07:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 04:07:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 04:07:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 04:07:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 04:09:33] SPPBlade: Starting render for 'compounds'
+[2026-08-15 04:09:33] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:09:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:09:34] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 04:09:34] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 04:09:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 04:09:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 04:11:29] SPPBlade: Starting render for 'compounds'
+[2026-08-15 04:11:29] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:11:31] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:11:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 04:11:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 04:11:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 04:11:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 04:12:58] SPPBlade: Starting render for 'compounds'
+[2026-08-15 04:12:58] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:12:59] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:12:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 04:13:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 04:13:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 04:13:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 04:14:42] SPPBlade: Starting render for 'home'
+[2026-08-15 04:14:42] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:14:44] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 04:14:55] SPPBlade: Starting render for 'compounds'
+[2026-08-15 04:14:55] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 04:14:57] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 05:43:06] SPPBlade: Starting render for 'home'
+[2026-08-15 05:43:06] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 05:43:10] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 05:45:23] SPPBlade: Starting render for 'home'
+[2026-08-15 05:45:23] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 05:45:27] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 05:45:34] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 05:45:34] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 05:45:37] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 05:45:37] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 05:45:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 05:45:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 05:45:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 05:45:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 05:45:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 05:45:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 05:45:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 05:45:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 05:45:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 05:45:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 05:45:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 05:45:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 05:45:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 05:45:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 05:45:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 05:45:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 05:45:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 05:45:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 05:45:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 05:45:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 05:45:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 05:47:52] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 05:47:52] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 05:47:54] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 05:47:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 05:47:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/water.sdf'
+[2026-08-15 06:03:13] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 06:03:13] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:03:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 06:03:15] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:03:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/water.sdf'
+[2026-08-15 06:05:44] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 06:05:44] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:05:46] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:05:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 06:05:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/water.sdf'
+[2026-08-15 06:07:06] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 06:07:06] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:07:08] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:07:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 06:07:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/water.sdf'
+[2026-08-15 06:07:33] SPPBlade: Starting render for 'home'
+[2026-08-15 06:07:33] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:07:35] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:07:46] SPPBlade: Starting render for 'compounds'
+[2026-08-15 06:07:46] SPPBlade: Rendering relative view 'compounds' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:07:47] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:07:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 06:07:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 06:07:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 06:07:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 06:07:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 06:07:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 06:07:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 06:07:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 06:07:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 06:07:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 06:07:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 06:07:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 06:07:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 06:07:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 06:07:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 06:07:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 06:09:46] SPPBlade: Starting render for 'home'
+[2026-08-15 06:09:46] SPPBlade: Rendering relative view 'home' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:09:49] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 06:09:49] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:09:51] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:09:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 06:09:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 06:09:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 06:09:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 06:09:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 06:09:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 06:09:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 06:09:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 06:09:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 06:09:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 06:09:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 06:09:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 06:09:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 06:09:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 06:09:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 06:09:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 06:09:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 06:09:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 06:09:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 06:09:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 06:09:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 06:09:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 06:19:47] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 06:19:47] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:19:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 06:19:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 06:19:50] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:19:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 06:19:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 06:19:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 06:19:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 06:19:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 06:19:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 06:19:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 06:19:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 06:19:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 06:19:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 06:19:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 06:19:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 06:19:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 06:19:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 06:19:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 06:19:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 06:19:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 06:19:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 06:20:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 06:20:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 06:20:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 06:20:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 06:20:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-amino-2-propanol.png'
+[2026-08-15 06:20:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/56-dihydroxycyclohexa-13-diene-1-carboxylic-acid.png'
+[2026-08-15 06:20:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-amino-2-oxopropyl-phosphate.png'
+[2026-08-15 06:20:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-chloro-24-dinitrobenzene.png'
+[2026-08-15 06:20:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-ethyladenine.png'
+[2026-08-15 06:20:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/45-dideoxy-3-c-methylpentonic-acid.png'
+[2026-08-15 06:20:04] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/inositol-1-dihydrogen-phosphate.png'
+[2026-08-15 06:20:04] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/12-dichloroethane.png'
+[2026-08-15 06:20:05] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/124-trichlorobenzene.png'
+[2026-08-15 06:20:05] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1235-tetrahydroxybenzene.png'
+[2026-08-15 06:20:06] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/7-3-hydroxy-5-oxo-2-3-oxooct-1-enylcyclopentylheptanoic-acid.png'
+[2026-08-15 06:20:06] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/17-hydroxyandrostan-3-one.png'
+[2026-08-15 06:20:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/18-diazacyclotetradecane-29-dione.png'
+[2026-08-15 06:20:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydro-26-pyridinedicarboxylic-acid.png'
+[2026-08-15 06:20:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dioxo-l-gulonic.png'
+[2026-08-15 06:20:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzoic-acid.png'
+[2026-08-15 06:20:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-ethyl-2-hydroxy-3-oxobutanoic-acid.png'
+[2026-08-15 06:20:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzenepropanoic-acid.png'
+[2026-08-15 06:20:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetolactate.png'
+[2026-08-15 06:20:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-3-oxo-1-propen-1-yl-2-butenedioic-acid.png'
+[2026-08-15 06:20:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-5678-tetrahydroxy-6-123-trihydroxypropyl-34a78a-tetrahydropteridin-4-one.png'
+[2026-08-15 06:20:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-2-amino-78-dihydroxy-4-oxo-34a78a-tetrahydropteridin-6-ylpropane-12-dione.png'
+[2026-08-15 06:20:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/24-hexadienedioicacid-2-amino-.png'
+[2026-08-15 06:20:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-oxopropionic-acid.png'
+[2026-08-15 06:20:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/234-trihydroxy-3-methylbutyl-dihydrogen-phosphate.png'
+[2026-08-15 06:20:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-6-oxo-24-hexadienoic-acid.png'
+[2026-08-15 06:20:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/13-butadiene-114-tricarboxylic-acid.png'
+[2026-08-15 06:20:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chloroacetaldehyde.png'
+[2026-08-15 06:20:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-chloro-5-oxo-25-dihydro-2-furylacetic-acid.png'
+[2026-08-15 06:20:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-chloroethanol.png'
+[2026-08-15 06:20:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-isopropylmalic-acid.png'
+[2026-08-15 06:20:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-deoxyhex-2-ulosonic-acid.png'
+[2026-08-15 06:20:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/keto-pantoyllactone.png'
+[2026-08-15 06:20:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-hydroxy-33-dimethyl-2-oxobutanoic-acid.png'
+[2026-08-15 06:20:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-5-methylsulfanyl-3-oxopent-1-enyl-phosphate.png'
+[2026-08-15 06:20:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-deoxyhexopyranose.png'
+[2026-08-15 06:20:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-6-oxo-24-nonadienedioic-acid.png'
+[2026-08-15 06:20:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ --2-hydroxyglutaric-acid.png'
+[2026-08-15 06:20:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/alpha-keto-beta-methylvaleric-acid.png'
+[2026-08-15 06:20:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/tartronic-acid.png'
+[2026-08-15 06:20:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-deoxy-6-o-phosphonohex-2-ulosonic-acid.png'
+[2026-08-15 06:20:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/tartronate.png'
+[2026-08-15 06:20:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-methyl-2-oxobutanoic-acid.png'
+[2026-08-15 06:20:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxoglutaramic-acid.png'
+[2026-08-15 06:20:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hexulosonic-acid.png'
+[2026-08-15 06:20:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxoglutaric-acid.png'
+[2026-08-15 06:20:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2s3r-3-hydroxy-2-methylbutanoyl-coa.png'
+[2026-08-15 06:20:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/alphamethylacetoacetyl-coa.png'
+[2026-08-15 06:20:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/s-[2-[3-[[4-[[[5-6-aminopurin-9-yl-4-hydroxy-3-phosphonooxyoxolan-2-yl]methoxy-hydroxyphosphoryl]oxy-hydroxyphosphoryl]oxy-2-hydroxy-33-dimethylbutanoyl]amino]propanoylamino]ethyl]-2-methylbutanethioate.png'
+[2026-08-15 06:20:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-37111519232731-octamethyldotriaconta-26101418222630-octaenylbenzene-12-diol.png'
+[2026-08-15 06:20:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-371115192327-heptamethyldotriaconta-26101418222630-octaenyl-6-methoxyphenol.png'
+[2026-08-15 06:20:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-37111519232731-octamethyl-26101418222630-dotriacontaoctaen-1-ylphenol.png'
+[2026-08-15 06:20:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxobutanoic-acid.png'
+[2026-08-15 06:20:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-4-amino-2-oxopyrimidin-1-yl-34-dihydroxyoxolan-2-ylmethoxy-hydroxyphosphoryl-24-dihydroxy-3-methyl-3-phosphonooxybutyl-hydrogen-phosphate.png'
+[2026-08-15 06:20:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/diphosphoglyceric-acid.png'
+[2026-08-15 06:20:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-phosphoglyceric-acid.png'
+[2026-08-15 06:20:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/24-diaminopentanoic-acid.png'
+[2026-08-15 06:20:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/245-trichlorocyclohexa-25-dien-1-ol.png'
+[2026-08-15 06:20:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/25-dichlorohydroquinone.png'
+[2026-08-15 06:20:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/25-dichloro-25-cyclohexadiene-14-diol.png'
+[2026-08-15 06:20:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/25-dichlorophenol.png'
+[2026-08-15 06:20:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/25-diketogluconsaure.png'
+[2026-08-15 06:20:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-methyl-butan-1234-tetraol-24-cyclopyrophosphate.png'
+[2026-08-15 06:20:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-6-oxo-24-heptadienoic-acid.png'
+[2026-08-15 06:20:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxoadipic-acid.png'
+[2026-08-15 06:20:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-methyl-2-oxovaleric-acid.png'
+[2026-08-15 06:26:21] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 06:26:21] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:26:22] SPPBlade ERROR (Relative): Template not found: /mnt/c/projects/apache/school1/src/ptable/resources/views/partials/compounds_grid
+#0 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1395): eftec\bladeone\BladeOne->getCompiledFile()
+#1 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1284): eftec\bladeone\BladeOne->compile()
+#2 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1243): eftec\bladeone\BladeOne->runInternal()
+#3 /mnt/c/projects/apache/school1/var/cache/ptable/blade/compounds_index_e76e311bb0e3babe56ba23f600a19a75e976e41a.bladec(265): eftec\bladeone\BladeOne->runChild()
+#4 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1632): include('...')
+#5 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(1292): eftec\bladeone\BladeOne->evaluatePath()
+#6 /mnt/c/projects/apache/school1/vendor/eftec/bladeone/lib/BladeOne.php(2191): eftec\bladeone\BladeOne->runInternal()
+#7 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(329): eftec\bladeone\BladeOne->run()
+#8 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/class.sppblade.php(253): SPPMod\Drishyam\SPPBlade->renderInstance()
+#9 /mnt/c/projects/apache/school1/spp/modules/spp/drishyam/modinit.php(51): SPPMod\Drishyam\SPPBlade::render()
+#10 [internal function]: SPP\Module::{closure}()
+#11 /mnt/c/projects/apache/school1/spp/core/class.sppevent.php(392): call_user_func_array()
+#12 /mnt/c/projects/apache/school1/spp/core/class.sppevent.php(343): SPP\SPPEvent::triggerHook()
+#13 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewcontroller.php(316): SPP\SPPEvent::fireEvent()
+#14 /mnt/c/projects/apache/school1/src/ptable/serv/CompoundController.php(112): SPPMod\SPPView\ViewController->render()
+#15 [internal function]: App\ptable\Serv\CompoundController->index()
+#16 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php(86): call_user_func_array()
+#17 /mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php(46): SPPMod\SPPView\ViewRouter::showPage()
+#18 /mnt/c/projects/apache/school1/index.php(181): SPPMod\SPPView\ViewPage::showPage()
+#19 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(73): {closure}()
+#20 /mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php(24): SPP\Core\Pipeline->SPP\Core\{closure}()
+#21 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPPMod\SPPLogger\RequestLogger->handle()
+#22 /mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php(49): SPP\Core\Pipeline->SPP\Core\{closure}()
+#23 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\CSRFMiddleware->handle()
+#24 /mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php(18): SPP\Core\Pipeline->SPP\Core\{closure}()
+#25 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(59): SPP\Core\Middleware\ApiAuthMiddleware->handle()
+#26 /mnt/c/projects/apache/school1/spp/core/class.pipeline.php(44): SPP\Core\Pipeline->SPP\Core\{closure}()
+#27 /mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php(80): SPP\Core\Pipeline->then()
+#28 /mnt/c/projects/apache/school1/index.php(75): SPP\Core\MiddlewareKernel::run()
+#29 {main}
+[2026-08-15 06:27:24] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 06:27:24] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:27:26] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 06:27:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 06:27:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 06:27:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 06:27:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 06:27:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 06:27:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 06:27:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 06:27:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 06:27:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 06:27:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 06:27:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 06:27:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 06:27:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 06:27:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 06:27:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 06:27:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 06:27:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 06:27:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 06:27:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 06:27:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 06:27:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 06:27:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 06:27:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 06:27:34] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 06:27:55] SPPBlade: Starting render for 'partials.compound_cards'
+[2026-08-15 06:27:55] SPPBlade: Rendering relative view 'partials.compound_cards' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-amino-2-propanol.png'
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/56-dihydroxycyclohexa-13-diene-1-carboxylic-acid.png'
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-ethyladenine.png'
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-amino-2-oxopropyl-phosphate.png'
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-chloro-24-dinitrobenzene.png'
+[2026-08-15 06:27:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/45-dideoxy-3-c-methylpentonic-acid.png'
+[2026-08-15 06:27:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/12-dichloroethane.png'
+[2026-08-15 06:27:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/inositol-1-dihydrogen-phosphate.png'
+[2026-08-15 06:27:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/17-hydroxyandrostan-3-one.png'
+[2026-08-15 06:27:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/124-trichlorobenzene.png'
+[2026-08-15 06:27:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1235-tetrahydroxybenzene.png'
+[2026-08-15 06:27:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/7-3-hydroxy-5-oxo-2-3-oxooct-1-enylcyclopentylheptanoic-acid.png'
+[2026-08-15 06:28:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydro-26-pyridinedicarboxylic-acid.png'
+[2026-08-15 06:28:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/18-diazacyclotetradecane-29-dione.png'
+[2026-08-15 06:28:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzoic-acid.png'
+[2026-08-15 06:28:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dioxo-l-gulonic.png'
+[2026-08-15 06:28:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzenepropanoic-acid.png'
+[2026-08-15 06:28:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-ethyl-2-hydroxy-3-oxobutanoic-acid.png'
+[2026-08-15 06:28:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetolactate.png'
+[2026-08-15 06:28:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-3-oxo-1-propen-1-yl-2-butenedioic-acid.png'
+[2026-08-15 06:28:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-2-amino-78-dihydroxy-4-oxo-34a78a-tetrahydropteridin-6-ylpropane-12-dione.png'
+[2026-08-15 06:28:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-5678-tetrahydroxy-6-123-trihydroxypropyl-34a78a-tetrahydropteridin-4-one.png'
+[2026-08-15 06:28:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/24-hexadienedioicacid-2-amino-.png'
+[2026-08-15 06:28:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-oxopropionic-acid.png'
+[2026-08-15 06:28:12] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 06:28:12] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:17:47] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:17:47] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:17:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 07:17:50] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 07:17:50] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:17:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 07:17:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 07:17:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 07:17:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 07:17:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 07:17:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 07:17:53] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 07:17:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 07:17:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 07:17:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 07:17:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 07:17:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 07:17:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 07:17:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 07:17:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 07:17:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 07:17:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 07:17:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 07:17:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 07:17:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 07:18:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 07:18:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 07:18:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 07:18:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 07:18:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 07:18:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 07:18:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 07:18:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 07:18:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 07:18:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 07:18:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 07:18:21] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:18:21] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:18:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-bromide.png'
+[2026-08-15 07:18:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonium.png'
+[2026-08-15 07:18:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/bromide-ion.png'
+[2026-08-15 07:18:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenate-aso43--monohydrogen.png'
+[2026-08-15 07:18:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenic-acid.png'
+[2026-08-15 07:18:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-cation.png'
+[2026-08-15 07:18:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-monoxide.png'
+[2026-08-15 07:18:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chlordecone.png'
+[2026-08-15 07:18:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chloride.png'
+[2026-08-15 07:18:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-sulfide.png'
+[2026-08-15 07:18:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/cid-406.png'
+[2026-08-15 07:18:32] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 07:18:32] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:18:35] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 07:18:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 07:18:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/sodium-chloride.sdf'
+[2026-08-15 07:19:35] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 07:19:35] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:19:37] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 07:19:37] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 07:19:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 07:19:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 07:19:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 07:19:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 07:19:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 07:19:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 07:19:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 07:19:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 07:19:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 07:19:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 07:19:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 07:19:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 07:19:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 07:19:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 07:19:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 07:19:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 07:19:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 07:19:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 07:19:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 07:19:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 07:19:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 07:19:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 07:19:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 07:43:46] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:43:46] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:43:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 07:43:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 07:43:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 07:43:49] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:43:49] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:43:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/56-dihydroxycyclohexa-13-diene-1-carboxylic-acid.png'
+[2026-08-15 07:43:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 07:43:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydro-26-pyridinedicarboxylic-acid.png'
+[2026-08-15 07:43:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/45-dihydroxy-3-oxocyclohexene-1-carboxylic-acid.png'
+[2026-08-15 07:43:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/13-butadiene-114-tricarboxylic-acid.png'
+[2026-08-15 07:43:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-propanaminium-3-carboxy-2-hydroxy-nnn-trimethyl--inner-salt.png'
+[2026-08-15 07:43:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbonic-acid.png'
+[2026-08-15 07:43:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-monoxide.png'
+[2026-08-15 07:43:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-amino-3-1-carboxyethenoxycyclohexa-15-diene-1-carboxylic-acid.png'
+[2026-08-15 07:43:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/n-carbamoyl-beta-alanine.png'
+[2026-08-15 07:43:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-amino-1h-imidazole-4-carboxylic-acid.png'
+[2026-08-15 07:43:54] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-ureidoimidazole-4-carboxylic-acid.png'
+[2026-08-15 07:43:55] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-4-oxobutane-124-tricarboxylic-acid.png'
+[2026-08-15 07:43:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/bicarbonate-ion.png'
+[2026-08-15 07:43:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/6-amino-33-dimethyl-7-oxo-4-thia-1-azabicyclo3.2.0heptane-2-carboxylic-acid.png'
+[2026-08-15 07:43:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-methoxycarbonylpent-2-enedioic-acid.png'
+[2026-08-15 07:43:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-amino-1-5-o-phosphonopentofuranosyl-1h-imidazole-4-carboxamide.png'
+[2026-08-15 07:43:57] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-[2-[[3-2-carboxyethyl-4-methyl-5-[4-methyl-5-oxo-3-vinyl-pyrrol-2-ylidenemethyl]-1h-pyrrol-2-yl]methyl]-4-methyl-5-[3-methyl-5-oxo-4-vinyl-pyrrol-2-ylidenemethyl]-1h-pyrrol-3-yl]propanoic-acid.png'
+[2026-08-15 07:43:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-2-3-2-carboxyethyl-5-3-ethenyl-4-methyl-5-oxopyrrol-2-ylidenemethyl-4-methyl-1h-pyrrol-2-ylmethylidene-5-4-ethenyl-3-methyl-5-oxopyrrol-2-ylmethylidene-4-methylpyrrol-3-ylpropanoic-acid.png'
+[2026-08-15 07:43:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbamate.png'
+[2026-08-15 07:43:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbamic-acid.png'
+[2026-08-15 07:43:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbamoyl-phosphate.png'
+[2026-08-15 07:43:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-[[5-amino-1-[34-dihydroxy-5-phosphonooxymethyloxolan-2-yl]imidazole-4-carbonyl]amino]butanedioic-acid.png'
+[2026-08-15 07:43:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/dl-carnitine.png'
+[2026-08-15 07:44:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-1-carboxyethenoxy-4-hydroxycyclohexa-15-diene-1-carboxylic-acid.png'
+[2026-08-15 07:44:04] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:04] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 07:44:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 07:44:07] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:07] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 07:44:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 07:44:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 07:44:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 07:44:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 07:44:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 07:44:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-methylumbelliferyl-acetate.png'
+[2026-08-15 07:44:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-5-6-amino-9h-purin-9-yl-4-hydroxy-3-phosphonooxyoxolan-2-yl-359-trihydroxy-88-dimethyl-35101419-pentaoxo-246-trioxa-18-thia-1115-diaza-3lambda~5~5lambda~5~-diphosphahenicosan-21-oic-acid-non-preferred-name.png'
+[2026-08-15 07:44:11] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:11] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 07:44:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 07:44:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 07:44:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 07:44:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 07:44:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 07:44:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 07:44:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-aminopropyl5-6-amino-9h-purin-9-yl-34-dihydroxyoxolan-2-ylmethylmethylsulfanium-non-preferred-name.png'
+[2026-08-15 07:44:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 07:44:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 07:44:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 07:44:16] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:16] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 07:44:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 07:44:20] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:20] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:24] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:24] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:28] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:28] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:36] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:36] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:40] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:40] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:45] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:45] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:44:49] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:44:49] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:45:06] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:45:06] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:45:10] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:45:10] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:45:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/bromide-ion.png'
+[2026-08-15 07:45:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenic-acid.png'
+[2026-08-15 07:45:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonium.png'
+[2026-08-15 07:45:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenate-aso43--monohydrogen.png'
+[2026-08-15 07:45:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-cation.png'
+[2026-08-15 07:45:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-bromide.png'
+[2026-08-15 07:45:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-monoxide.png'
+[2026-08-15 07:45:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chloride.png'
+[2026-08-15 07:45:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-sulfide.png'
+[2026-08-15 07:45:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chlordecone.png'
+[2026-08-15 07:45:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/cid-406.png'
+[2026-08-15 07:45:24] SPPBlade: Starting render for 'partials.compound_cards'
+[2026-08-15 07:45:24] SPPBlade: Rendering relative view 'partials.compound_cards' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:45:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/trithionate.png'
+[2026-08-15 07:45:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/trimetaphosphoric-acid.png'
+[2026-08-15 07:45:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-selenide.png'
+[2026-08-15 07:45:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/trithionic-acid.png'
+[2026-08-15 07:45:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphonic-acid.png'
+[2026-08-15 07:45:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenite.png'
+[2026-08-15 07:45:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenous-acid.png'
+[2026-08-15 07:45:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen.png'
+[2026-08-15 07:45:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydroxylamine.png'
+[2026-08-15 07:45:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/iodine.png'
+[2026-08-15 07:45:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-cation.png'
+[2026-08-15 07:45:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/magnesium-ion.png'
+[2026-08-15 07:45:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-ion.png'
+[2026-08-15 07:45:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydroxyammonium.png'
+[2026-08-15 07:45:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nickel-cation.png'
+[2026-08-15 07:45:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nickel.png'
+[2026-08-15 07:45:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitric-acid.png'
+[2026-08-15 07:45:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrate.png'
+[2026-08-15 07:45:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitroxyl.png'
+[2026-08-15 07:45:33] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrite.png'
+[2026-08-15 07:45:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrogen.png'
+[2026-08-15 07:45:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydroxide.png'
+[2026-08-15 07:45:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/triphosphoric-acid.png'
+[2026-08-15 07:45:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/oxygen.png'
+[2026-08-15 07:45:56] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 07:45:56] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:45:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 07:45:58] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 07:46:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/triphosphoric-acid.sdf'
+[2026-08-15 07:46:21] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 07:46:21] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:46:23] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 07:46:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 07:46:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 07:46:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 07:46:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 07:46:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 07:46:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 07:46:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 07:46:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 07:46:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 07:46:29] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 07:46:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 07:46:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 07:46:31] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 07:46:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 07:46:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 07:46:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 07:46:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 07:46:33] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 07:46:33] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 07:46:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 07:46:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 07:46:35] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+                                                                                                                                                                                                                                      [2026-08-15 08:17:22] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 08:17:22] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 08:17:26] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 08:18:33] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 08:18:33] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 08:18:35] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 10:27:43] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 10:27:43] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 10:27:45] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 10:32:16] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 10:32:16] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 10:32:19] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 10:45:57] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 10:45:57] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 10:45:59] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 10:50:55] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 10:50:55] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 10:50:56] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 10:50:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 10:50:56] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 10:50:58] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 10:50:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 10:50:59] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 10:51:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 10:51:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 10:51:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 10:51:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 10:51:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 10:51:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 10:51:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 10:51:01] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 10:51:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 10:51:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 10:51:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 10:51:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 10:51:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 10:51:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 11:54:41] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 11:54:41] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:54:42] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 11:54:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 11:54:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 11:54:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 11:54:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 11:54:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 11:54:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 11:54:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 11:54:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 11:54:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 11:54:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 11:54:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 11:54:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 11:54:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 11:54:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 11:54:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 11:54:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 11:54:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 11:54:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 11:54:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 11:54:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 11:54:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 11:54:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 11:54:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 11:54:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 11:55:12] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 11:55:12] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxo-3-sulfinopropanoic-acid.png'
+[2026-08-15 11:55:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-chloro-5-oxo-25-dihydro-2-furylacetic-acid.png'
+[2026-08-15 11:55:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/cysteinesulfinic-acid-a --.png'
+[2026-08-15 11:55:14] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 11:55:14] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-35-di-o-phosphonopentofuranosyl-9h-purin-6-amine.png'
+[2026-08-15 11:55:14] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-5-methylsulfanyl-3-oxopent-1-enyl-phosphate.png'
+[2026-08-15 11:55:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/tiformin.png'
+[2026-08-15 11:55:15] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-5-oxo-25h-furanylideneacetic-acid.png'
+[2026-08-15 11:55:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-[3-[2-hydroxy-33-dimethyl-4-phosphonooxybutanoylamino]propanoylamino]-3-sulfanylpropanoic-acid.png'
+[2026-08-15 11:55:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-5-deoxypentofuranosyl-9h-purin-6-amine.png'
+[2026-08-15 11:55:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-aminopropyl5-6-amino-9h-purin-9-yl-34-dihydroxyoxolan-2-ylmethylmethylsulfanium-non-preferred-name.png'
+[2026-08-15 11:55:17] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 11:55:17] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-5-s-methyl-5-thiopentofuranosyl-9h-purin-6-amine.png'
+[2026-08-15 11:55:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-5-6-amino-9h-purin-9-yl-4-hydroxy-3-phosphonooxyoxolan-2-yl-359-trihydroxy-88-dimethyl-35101419-pentaoxo-246-trioxa-18-thia-1115-diaza-3lambda~5~5lambda~5~-diphosphahenicosan-21-oic-acid-non-preferred-name.png'
+[2026-08-15 11:55:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/[5-[2-formamidoacetylamino]-34-dihydroxyoxolan-2-yl]methyl-dihydrogen-phosphate.png'
+[2026-08-15 11:55:18] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/n-glycyl-5-o-phosphonopentofuranosylamine.png'
+[2026-08-15 11:55:19] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-1-amino-2-formamidoethylideneamino-34-dihydroxyoxolan-2-ylmethyl-dihydrogen-phosphate.png'
+[2026-08-15 11:55:19] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/7-[2-[3-[[4-[[[5-6-aminopurin-9-yl-4-hydroxy-3-phosphonooxyoxolan-2-yl]methoxy-hydroxyphosphoryl]oxy-hydroxyphosphoryl]oxy-2-hydroxy-33-dimethylbutanoyl]amino]propanoylamino]ethylsulfanyl]-7-oxoheptanoic-acid.png'
+[2026-08-15 11:55:19] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-5-hydroxy-4-3-hydroxyoct-1-enyl-33a4566a-hexahydrocyclopentabfuran-2-ylidenepentanoic-acid.png'
+[2026-08-15 11:55:19] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 11:55:19] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glytoucan:g23980if.png'
+[2026-08-15 11:55:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/5-amino-1-5-o-phosphonopentofuranosyl-1h-imidazole-4-carboxamide.png'
+[2026-08-15 11:55:20] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-4-5-6-amino-9h-purin-9-yl-34-dihydroxyoxolan-2-ylmethylsulfanylbutanoic-acid.png'
+[2026-08-15 11:55:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/56-dimethyl-1-pentofuranosyl-1h-benzimidazole.png'
+[2026-08-15 11:55:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-{5-o-[hydroxysulfooxyphosphoryl]pentofuranosyl}-9h-purin-6-amine.png'
+[2026-08-15 11:55:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-selenide.png'
+[2026-08-15 11:55:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/[3s8r9s10s13s14s-1013-dimethyl-17-oxo-1234567891112141516-tetradecahydrocyclopenta[a]phenanthren-3-yl]-hydrogen-sulfate.png'
+[2026-08-15 11:55:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-bromide.png'
+[2026-08-15 11:55:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-sulfide.png'
+[2026-08-15 11:55:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-chloride.png'
+[2026-08-15 11:55:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/formate.png'
+[2026-08-15 11:55:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrocene.png'
+[2026-08-15 11:55:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-sulfate.png'
+[2026-08-15 11:55:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-ferrocyanide.png'
+[2026-08-15 11:55:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-iodide.png'
+[2026-08-15 11:55:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-arsenate.png'
+[2026-08-15 11:55:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-hydroxide.png'
+[2026-08-15 11:55:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/bismuth-ferrite.png'
+[2026-08-15 11:55:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-oxide.png'
+[2026-08-15 11:55:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-ferricyanide.png'
+[2026-08-15 11:55:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-phosphate.png'
+[2026-08-15 11:55:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-sulfate.png'
+[2026-08-15 11:55:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-bromide.png'
+[2026-08-15 11:55:27] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-nitrate.png'
+[2026-08-15 11:55:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-nitrate.png'
+[2026-08-15 11:55:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-acetate.png'
+[2026-08-15 11:55:28] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-fluoride.png'
+[2026-08-15 11:55:41] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 11:55:41] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:41] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 11:55:41] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 11:55:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 11:55:42] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 11:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/ferrous-sulfate.sdf'
+[2026-08-15 12:00:32] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 12:00:32] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 12:00:34] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 12:00:34] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 12:00:36] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/ferrous-sulfate.sdf'
+[2026-08-15 15:11:46] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 15:11:46] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:11:47] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:11:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 15:11:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/ferrous-sulfate.sdf'
+[2026-08-15 15:13:12] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 15:13:12] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:13:14] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:13:58] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 15:13:58] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:14:00] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:14:00] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 15:14:02] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/propane.sdf'
+[2026-08-15 15:15:18] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 15:15:18] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:15:19] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:15:19] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 15:15:19] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 15:15:21] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 15:15:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 15:15:22] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 15:15:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 15:15:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 15:15:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 15:15:23] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 15:15:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 15:15:24] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 15:15:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 15:15:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 15:15:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 15:15:25] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 15:15:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 15:15:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 15:15:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-15 15:15:26] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 15:15:28] SPPBlade: Starting render for 'compound_detail'
+[2026-08-15 15:15:28] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:15:30] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-15 15:15:30] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:15:32] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/caffeine.sdf'
+[2026-08-15 15:20:22] SPPBlade: Starting render for 'compounds_index'
+[2026-08-15 15:20:22] SPPBlade: Rendering relative view 'compounds_index' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:20:25] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-15 15:20:40] SPPBlade: Starting render for 'partials.compound_cards'
+[2026-08-15 15:20:40] SPPBlade: Rendering relative view 'partials.compound_cards' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:20:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/9-ethyladenine.png'
+[2026-08-15 15:20:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-chloro-24-dinitrobenzene.png'
+[2026-08-15 15:20:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/45-dideoxy-3-c-methylpentonic-acid.png'
+[2026-08-15 15:20:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-amino-2-propanol.png'
+[2026-08-15 15:20:43] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/56-dihydroxycyclohexa-13-diene-1-carboxylic-acid.png'
+[2026-08-15 15:20:43] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-amino-2-oxopropyl-phosphate.png'
+[2026-08-15 15:20:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/12-dichloroethane.png'
+[2026-08-15 15:20:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/inositol-1-dihydrogen-phosphate.png'
+[2026-08-15 15:20:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1235-tetrahydroxybenzene.png'
+[2026-08-15 15:20:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/124-trichlorobenzene.png'
+[2026-08-15 15:20:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/7-3-hydroxy-5-oxo-2-3-oxooct-1-enylcyclopentylheptanoic-acid.png'
+[2026-08-15 15:20:46] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/17-hydroxyandrostan-3-one.png'
+[2026-08-15 15:20:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydro-26-pyridinedicarboxylic-acid.png'
+[2026-08-15 15:20:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/18-diazacyclotetradecane-29-dione.png'
+[2026-08-15 15:20:49] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dioxo-l-gulonic.png'
+[2026-08-15 15:20:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzoic-acid.png'
+[2026-08-15 15:20:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-ethyl-2-hydroxy-3-oxobutanoic-acid.png'
+[2026-08-15 15:20:50] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/23-dihydroxybenzenepropanoic-acid.png'
+[2026-08-15 15:20:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-3-oxo-1-propen-1-yl-2-butenedioic-acid.png'
+[2026-08-15 15:20:52] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetolactate.png'
+[2026-08-15 15:20:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-2-amino-78-dihydroxy-4-oxo-34a78a-tetrahydropteridin-6-ylpropane-12-dione.png'
+[2026-08-15 15:20:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-5678-tetrahydroxy-6-123-trihydroxypropyl-34a78a-tetrahydropteridin-4-one.png'
+[2026-08-15 15:20:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-3-oxopropionic-acid.png'
+[2026-08-15 15:20:53] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/24-hexadienedioicacid-2-amino-.png'
+[2026-08-15 15:21:00] SPPBlade: Starting render for 'partials.compound_cards'
+[2026-08-15 15:21:00] SPPBlade: Rendering relative view 'partials.compound_cards' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:21:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/chloroacetaldehyde.png'
+[2026-08-15 15:21:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-amino-6-oxo-24-hexadienoic-acid.png'
+[2026-08-15 15:21:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/13-butadiene-114-tricarboxylic-acid.png'
+[2026-08-15 15:21:03] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-chloro-5-oxo-25-dihydro-2-furylacetic-acid.png'
+[2026-08-15 15:21:04] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-chloroethanol.png'
+[2026-08-15 15:21:04] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/234-trihydroxy-3-methylbutyl-dihydrogen-phosphate.png'
+[2026-08-15 15:21:05] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-deoxyhex-2-ulosonic-acid.png'
+[2026-08-15 15:21:05] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-isopropylmalic-acid.png'
+[2026-08-15 15:21:06] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-hydroxy-33-dimethyl-2-oxobutanoic-acid.png'
+[2026-08-15 15:21:06] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/keto-pantoyllactone.png'
+[2026-08-15 15:21:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-deoxyhexopyranose.png'
+[2026-08-15 15:21:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-5-methylsulfanyl-3-oxopent-1-enyl-phosphate.png'
+[2026-08-15 15:21:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ --2-hydroxyglutaric-acid.png'
+[2026-08-15 15:21:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hydroxy-6-oxo-24-nonadienedioic-acid.png'
+[2026-08-15 15:21:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/tartronate.png'
+[2026-08-15 15:21:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/tartronic-acid.png'
+[2026-08-15 15:21:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-methyl-2-oxobutanoic-acid.png'
+[2026-08-15 15:21:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxoglutaramic-acid.png'
+[2026-08-15 15:21:11] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-deoxy-6-o-phosphonohex-2-ulosonic-acid.png'
+[2026-08-15 15:21:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/alpha-keto-beta-methylvaleric-acid.png'
+[2026-08-15 15:21:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-hexulosonic-acid.png'
+[2026-08-15 15:21:12] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-oxoglutaric-acid.png'
+[2026-08-15 15:21:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2s3r-3-hydroxy-2-methylbutanoyl-coa.png'
+[2026-08-15 15:21:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/alphamethylacetoacetyl-coa.png'
+[2026-08-15 15:21:36] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:21:36] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:21:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3-aminopropyl5-6-amino-9h-purin-9-yl-34-dihydroxyoxolan-2-ylmethylmethylsulfanium-non-preferred-name.png'
+[2026-08-15 15:21:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-chloride.png'
+[2026-08-15 15:21:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/1-5-6-amino-9h-purin-9-yl-4-hydroxy-3-phosphonooxyoxolan-2-yl-359-trihydroxy-88-dimethyl-35101419-pentaoxo-246-trioxa-18-thia-1115-diaza-3lambda~5~5lambda~5~-diphosphahenicosan-21-oic-acid-non-preferred-name.png'
+[2026-08-15 15:21:38] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/4-methylumbelliferyl-acetate.png'
+[2026-08-15 15:21:39] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-sulfate.png'
+[2026-08-15 15:21:39] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:21:39] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:21:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrocene.png'
+[2026-08-15 15:21:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-ferrocyanide.png'
+[2026-08-15 15:21:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-selenide.png'
+[2026-08-15 15:21:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-bromide.png'
+[2026-08-15 15:21:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-arsenate.png'
+[2026-08-15 15:21:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-sulfide.png'
+[2026-08-15 15:21:43] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/bismuth-ferrite.png'
+[2026-08-15 15:21:44] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:21:44] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:21:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-iodide.png'
+[2026-08-15 15:21:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-hydroxide.png'
+[2026-08-15 15:21:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-sulfate.png'
+[2026-08-15 15:21:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-oxide.png'
+[2026-08-15 15:21:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-ferricyanide.png'
+[2026-08-15 15:21:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-phosphate.png'
+[2026-08-15 15:21:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-bromide.png'
+[2026-08-15 15:21:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferric-nitrate.png'
+[2026-08-15 15:21:48] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-nitrate.png'
+[2026-08-15 15:21:48] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:21:48] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:21:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-acetate.png'
+[2026-08-15 15:21:51] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ferrous-fluoride.png'
+[2026-08-15 15:22:02] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:22:02] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:22:05] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-15 15:22:05] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-15 15:22:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-15 15:22:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/methane.png'
+[2026-08-15 15:22:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-15 15:22:07] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-15 15:22:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-15 15:22:08] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-15 15:22:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-15 15:22:09] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-15 15:22:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ethanol.png'
+[2026-08-15 15:22:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-15 15:22:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/caffeine.png'
+[2026-08-15 15:22:10] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/benzene.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/glucose.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/aspirin.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetic-acid.png'
+[2026-08-15 15:22:13] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-15 15:22:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/propane.png'
+[2026-08-15 15:22:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sucrose.png'
+[2026-08-15 15:22:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-15 15:22:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/acetyl-dl-carnitine.png'
+[2026-08-15 15:22:16] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-15 15:22:17] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/2-acetyloxy-3-carboxy-nnn-trimethylpropan-1-aminium.png'
+[2026-08-16 00:55:38] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-16 00:55:38] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-16 00:55:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/carbon-dioxide.png'
+[2026-08-16 00:55:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sulfuric-acid.png'
+[2026-08-16 00:55:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonia.png'
+[2026-08-16 00:55:40] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/water.png'
+[2026-08-16 00:55:40] SPPBlade: Starting render for 'partials.compounds_grid'
+[2026-08-16 00:55:40] SPPBlade: Rendering relative view 'partials.compounds_grid' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-16 00:55:41] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-chloride.png'
+[2026-08-16 00:55:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/silicon-dioxide.png'
+[2026-08-16 00:55:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrochloric-acid.png'
+[2026-08-16 00:55:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/calcium-carbonate.png'
+[2026-08-16 00:55:42] SPPBlade: Starting render for 'compound_detail'
+[2026-08-16 00:55:42] SPPBlade: Rendering relative view 'compound_detail' with paths: "\/mnt\/c\/projects\/apache\/school1\/src\/ptable\/resources\/views"
+[2026-08-16 00:55:42] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/hydrogen-peroxide.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/potassium-nitrate.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/nitrous-oxide.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/sodium-hydroxide.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/phosphoric-acid.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/ammonium.png'
+[2026-08-16 00:55:44] DEBUG: Longest match routing: Picked 'theme-assets' for request 'theme-assets/default/custom.css'
+[2026-08-16 00:55:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/arsenate-aso43--monohydrogen.png'
+[2026-08-16 00:55:45] DEBUG: Longest match routing: Picked 'assets' for request 'assets/js/3Dmol-min.js'
+[2026-08-16 00:55:47] DEBUG: Longest match routing: Picked 'assets' for request 'assets/compounds/3d/water.sdf'

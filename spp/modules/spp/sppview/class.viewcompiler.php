@@ -52,14 +52,68 @@ class ViewCompiler
             return "<spp-php id=\"{$id}\"></spp-php>";
         }, $html);
 
-        // 2. Liberal DOM Parsing (Enforce HTML5 leniency)
-        libxml_use_internal_errors(true);
-        $dom = new \DOMDocument();
-        $dom->loadHTML(mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_clear_errors();
+        if (!extension_loaded('dom')) {
+            $compiledHtml = $html;
+            $compiledHtml = preg_replace_callback('/<spp-if\s+condition="([^"]+)">/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php if ({$m[1]}): ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
+            
+            $compiledHtml = preg_replace_callback('/<\/spp-if>/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php endif; ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
 
-        // 3. Process <spp-if> and <spp-foreach> tags
-        $xpath = new \DOMXPath($dom);
+            $compiledHtml = preg_replace_callback('/<spp-foreach\s+loop="([^"]+)">/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php foreach ({$m[1]}): ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
+
+            $compiledHtml = preg_replace_callback('/<\/spp-foreach>/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php endforeach; ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
+
+            $compiledHtml = preg_replace_callback('/<spp-flash\s+key="([^"]+)"\s*\/?>/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php if (\\SPP\\SPPSession::hasFlash('{$m[1]}')): echo '<div class=\"spp-flash spp-flash-{$m[1]}\">' . htmlspecialchars(\\SPP\\SPPSession::getFlash('{$m[1]}')) . '</div>'; endif; ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
+
+            $compiledHtml = preg_replace_callback('/<(spp-lang|spp-trans)\s+key="([^"]+)"\s*\/?>/i', function($m) use (&$phpBlocks) {
+                $id = 'PHP_BLOCK_' . count($phpBlocks);
+                $phpBlocks[$id] = "<?php echo htmlspecialchars(\\SPPMod\\SPPLang\\SPPLang::getTranslation('{$m[2]}', \\SPP\\SPPSession::get('locale', 'en')), ENT_QUOTES, 'UTF-8'); ?>";
+                return "<spp-php id=\"{$id}\"></spp-php>";
+            }, $compiledHtml);
+            
+            $appName = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
+            $compiledHtml = preg_replace_callback('/<php-comp\s+name="([^"]+)"([^>]*)>/i', function($m) use ($appName) {
+                $compName = $m[1];
+                $attrs = $m[2];
+                $state = [];
+                if (preg_match_all('/([a-zA-Z0-9_-]+)="([^"]*)"/', $attrs, $attrMatches, PREG_SET_ORDER)) {
+                    foreach ($attrMatches as $match) {
+                        $state[$match[1]] = $match[2];
+                    }
+                }
+                $phpResolution = "<?php \\SPPMod\\SPPView\\ViewPage::resolveTieredJS('{$appName}', '{$compName}'); ?>";
+                $stateJson = htmlspecialchars(json_encode($state), ENT_QUOTES, 'UTF-8');
+                return "<div data-spp-component=\"{$compName}\" data-state=\"{$stateJson}\">__SPP_RES_" . base64_encode($phpResolution) . "__";
+            }, $compiledHtml);
+            $compiledHtml = str_replace('</php-comp>', '</div>', $compiledHtml);
+        } else {
+            // 2. Liberal DOM Parsing (Enforce HTML5 leniency)
+            libxml_use_internal_errors(true);
+            $dom = new \DOMDocument();
+            $dom->loadHTML(mb_encode_numericentity($html, [0x80, 0x10FFFF, 0, ~0], 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            libxml_clear_errors();
+    
+            // 3. Process <spp-if> and <spp-foreach> tags
+            $xpath = new \DOMXPath($dom);
         
         // Process spp-if
         $ifNodes = $xpath->query('//spp-if');
@@ -159,8 +213,9 @@ class ViewCompiler
             $comp->parentNode->replaceChild($div, $comp);
         }
 
-        // Output HTML while maintaining structure
-        $compiledHtml = $dom->saveHTML();
+            // Output HTML while maintaining structure
+            $compiledHtml = $dom->saveHTML();
+        }
 
         // 4. Restore PHP Blocks
         foreach ($phpBlocks as $id => $phpCode) {

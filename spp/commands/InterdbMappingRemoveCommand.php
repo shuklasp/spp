@@ -10,6 +10,12 @@ class InterdbMappingRemoveCommand extends Command
     protected string $name = 'interdb:mapping:remove';
     protected string $description = 'Remove an InterDB mapping';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $alias = null;

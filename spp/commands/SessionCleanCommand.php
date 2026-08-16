@@ -9,6 +9,12 @@ class SessionCleanCommand extends Command
     protected string $name = 'session:clean';
     protected string $description = 'Clean up expired sessions';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Running session garbage collection...\n";

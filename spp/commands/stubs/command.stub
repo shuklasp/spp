@@ -60,7 +60,20 @@ class {{className}} extends Command
         // 3. CQRS Event Store Logging
         // \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('CLI', '{{commandName}}', 'CommandExecuted', ['args' => $args]);
 
-        // 4. Identifier Sanitization (SchemaValidator)
+        // 4. Token-Bucket Throttled DAG Job Dispatching (SPPQueue)
+        // $orchestrator = new \SPPMod\SPPQueue\DagJobOrchestrator();
+        // $orchestrator->addJob('cli_job', 'CommandBackgroundJob', ['args' => $args]);
+        // $orchestrator->dispatchAll();
+
+        // 5. O(log N) Binary Index Lookup (SPPStorage)
+        // $index = new \SPPMod\SPPStorage\XdbBinaryIndexer(\SPP\App::getApp()->getStoragePath() . '/indexes/cli_cache.idx');
+        // $offset = $index->find(12345);
+
+        // 6. W3C Trace Context Propagation (SPPReport)
+        // $traceId = \SPPMod\SPPReport\W3CTraceContext::getCurrentTraceId();
+        // $header = \SPPMod\SPPReport\W3CTraceContext::buildTraceparentHeader();
+
+        // 7. Identifier Sanitization (SchemaValidator)
         // if (\SPPMod\SPPDB\SchemaValidator::isValidIdentifier('sample_table')) {
         //     // Safe to use in DDL statements
         // }

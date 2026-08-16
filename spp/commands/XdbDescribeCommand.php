@@ -10,6 +10,12 @@ class XdbDescribeCommand extends \SPP\CLI\Command
     protected string $name = 'xdb:describe';
     protected string $description = 'Describe the schema of an XDB table';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $db = 'default';

@@ -10,6 +10,12 @@ class EnvGetCommand extends Command
     protected string $name = 'env:get';
     protected string $description = 'Get a specific configuration variable';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

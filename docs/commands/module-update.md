@@ -1,6 +1,6 @@
 ## `module:update`
 
-**Description**: Execute the update hook for a specific module
+**Purpose**: Execute the update hook for a specific module
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]
 
 ```
 
-### Options
-- `--from=` : Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
-- `--to=` : Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
+### Options Available
+- `--from=` : Expects a value. Extracted via static analysis.
+- `--to=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

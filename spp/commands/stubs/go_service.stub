@@ -22,7 +22,7 @@ func main() {
 	// Business Logic for {{CLASS_NAME}}
 	// Example of calling PHP natively (requires go.mod setup or relative module import):
 	// import spp "spp/lib/go/spp"
-	// phpResult, err := spp.CallPhp("App\\Services\\NativeService", "someMethod", []string{"hello"})
+	// phpResult, err := spp.CallPhp("App\Services\NativeService", "someMethod", []string{"hello"})
 
 	resp := Response{
 		Status:  "success",

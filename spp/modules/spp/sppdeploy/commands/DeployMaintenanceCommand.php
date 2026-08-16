@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployMaintenanceCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -46,14 +48,19 @@ class DeployMaintenanceCommand extends Command
         $conn = \SPPMod\SPPDeploy\Deployer\TargetConnection::resolve($target, $apiKey);
 
         echo "📡 Setting maintenance mode ({$state}) on {$target}...\n";
-        $resp = $conn->setMaintenanceMode($state);
+        try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+            $resp = $conn->setMaintenanceMode($state);
 
-        if (!isset($resp['status']) || $resp['status'] !== 'ok') {
-            echo "❌ Failed to update maintenance mode: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            return;
+            if (!isset($resp['status']) || $resp['status'] !== 'ok') {
+                echo "❌ Failed to update maintenance mode: " . ($resp['message'] ?? 'Unknown error') . "\n";
+                return;
+            }
+
+            echo "✅ " . $resp['message'] . "\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
-
-        echo "✅ " . $resp['message'] . "\n";
     }
 
     public function getName(): string

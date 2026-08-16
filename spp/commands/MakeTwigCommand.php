@@ -13,6 +13,12 @@ class MakeTwigCommand extends BaseMakeCommand
     protected string $name = 'make:twig';
     protected string $description = 'Scaffold a new Twig template (Drishyam Paradigm)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

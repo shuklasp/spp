@@ -28,8 +28,8 @@ class IntegrationRestoreCommand extends Command
             return;
         }
 
-        $userId = $args[0];
-        $targetTime = $args[1];
+        $userId = $this->getArgument($args, 0);
+        $targetTime = $this->getArgument($args, 1);
 
         echo "Initializing CQRS Time Travel for User {$userId} to {$targetTime}...\n";
 

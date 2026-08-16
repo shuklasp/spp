@@ -9,6 +9,12 @@ class TestMonkeyCommand extends Command
     protected string $name = 'test:monkey';
     protected string $description = 'Runs chaos monkey / fuzzing scenarios for an entity';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

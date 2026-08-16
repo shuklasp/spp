@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployPushCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -197,16 +199,18 @@ class DeployPushCommand extends Command
                         $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
                         foreach (['create', 'update'] as $action) {
                             foreach ($diff['db'][$action] as $table) {
+                                $safeTable = $this->escapeIdentifier($table);
+                                // $table is implicitly safe here since escapeIdentifier did not throw
                                 if ($driver === 'sqlite') {
-                                    $stmt = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'")->fetch(\PDO::FETCH_ASSOC);
+                                    $stmt = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$safeTable}'")->fetch(\PDO::FETCH_ASSOC);
                                     if ($stmt && isset($stmt['sql'])) {
-                                        $sqlBuffer .= "DROP TABLE IF EXISTS `{$table}`;\n";
+                                        $sqlBuffer .= "DROP TABLE IF EXISTS " . $safeTable . ";\n";
                                         $sqlBuffer .= $stmt['sql'] . ";\n";
                                     }
                                 } elseif ($driver === 'mysql') {
-                                    $stmt = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
+                                    $stmt = $pdo->query("SHOW CREATE TABLE " . $safeTable)->fetch(\PDO::FETCH_ASSOC);
                                     if ($stmt && isset($stmt['Create Table'])) {
-                                        $sqlBuffer .= "DROP TABLE IF EXISTS `{$table}`;\n";
+                                        $sqlBuffer .= "DROP TABLE IF EXISTS " . $safeTable . ";\n";
                                         $sqlBuffer .= $stmt['Create Table'] . ";\n";
                                     }
                                 }

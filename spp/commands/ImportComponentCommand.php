@@ -5,9 +5,15 @@ use SPP\CLI\Command;
 
 class ImportComponentCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $compName = $args[2] ?? '';
+        $compName = $this->getArgument($args, 0) ?? '';
         if (empty($compName) || str_starts_with($compName, '--')) {
             echo "Error: Target component identifier required. Example: php spp.php import:component UI/DataGrid\n";
             return;

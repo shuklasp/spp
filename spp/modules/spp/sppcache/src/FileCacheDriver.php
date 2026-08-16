@@ -26,7 +26,7 @@ class FileCache implements CacheInterface
         }
 
         $content = file_get_contents($file);
-        $data = @unserialize($content);
+        $data = @unserialize($content, ['allowed_classes' => false]);
 
         if (!is_array($data) || !isset($data['expires']) || !array_key_exists('value', $data)) {
             return null;

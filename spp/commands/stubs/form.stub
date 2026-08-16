@@ -16,6 +16,7 @@ class {{className}}
     public static function build(): \SPPMod\SPPView\ViewForm
     {
         return Form::create('{{formName}}', '/{{formRoute}}')
+            ->addValidator(new \SPPMod\SPPWorkflow\Validators\SPPWorkflowGuardValidator())
             ->addText('example_field', 'Example Field', ['required' => true])
             ->addSubmit('submit_btn', 'Submit')
             ->build();

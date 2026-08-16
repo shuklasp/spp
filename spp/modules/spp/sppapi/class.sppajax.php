@@ -333,6 +333,8 @@ class SPPAjax extends \SPP\SPPObject
         // State validation integrity metadata generation
         $secret = defined('SPP_SECRET_KEY') ? SPP_SECRET_KEY : 'spp-enterprise-integrity-secret-key-v1';
         $envelope['__hmac'] = hash_hmac('sha256', json_encode($envelope), $secret);
+        $envelope['DEBUG_ME'] = true;
+        $envelope['SESSION_DEBUG'] = $_SESSION;
 
         if (defined('SPP_LOG_DIR')) {
             $logFile = SPP_LOG_DIR . '/api_debug.log';
@@ -341,6 +343,8 @@ class SPPAjax extends \SPP\SPPObject
         }
 
         echo json_encode($envelope, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        file_put_contents('C:\projects\apache\school1\session_debug.txt', print_r($_SESSION, true));
+        session_write_close();
         exit;
     }
 
@@ -442,8 +446,9 @@ class SPPAjax extends \SPP\SPPObject
         if ($isXdb) {
             $sql = "CREATE TABLE {$fullTableName} (id AUTO_INCREMENT, name STRING, script STRING, method STRING)";
         } else {
+            $autoInc = $db->getDriver() === 'sqlite' ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT NOT NULL AUTO_INCREMENT PRIMARY KEY';
             $sql = "CREATE TABLE {$fullTableName} (
-                id      INT          NOT NULL AUTO_INCREMENT PRIMARY KEY,
+                id      {$autoInc},
                 name    VARCHAR(255) NOT NULL UNIQUE,
                 script  VARCHAR(255) NOT NULL,
                 method  VARCHAR(10)  NOT NULL DEFAULT 'POST'

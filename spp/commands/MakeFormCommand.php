@@ -14,9 +14,15 @@ class MakeFormCommand extends BaseMakeCommand
     protected string $name = 'make:form';
     protected string $description = 'Create a new SPP form definition';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $formName = $args[2] ?? null;
+        $formName = $this->getArgument($args, 0) ?? null;
         if (!$formName) {
             echo "Usage: php spp.php make:form <name> [--app=appname]\n";
             return;

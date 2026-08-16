@@ -1,83 +1,60 @@
-.TH SPP-make-entity 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-entity 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-entity \- Create a new SPPEntity definition
-.SH SYNOPSIS
-.B php spp.php make:entity
-[OPTIONS]
+make:entity
+.PP
+ \- Create a new SPPEntity definition
 .SH DESCRIPTION
 Create a new SPPEntity definition
 .PP
+.SH SYNOPSIS
+php spp.php make:entity [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Creates a new SPPEntity definition. If run without flags, it will launch an interactive wizard.
-.br
-
-.br
+.PP
 Usage:
-.br
-  php spp.php make:entity [EntityName] [OPTIONS]
-.br
-
-.br
+php spp.php make:entity [EntityName] [OPTIONS]
+.PP
 Options:
-.br
-  --app=AppName         Specify the application context (defaults to "default").
-.br
-  --table=TableName     Specify the database table name (defaults to lowercase plural of EntityName).
-.br
-  --extends=Class       Specify the parent entity class (e.g. "\App\Entities\User").
-.br
-  --login=true|false    Enable or disable SPP Login Support for this entity.
-.br
-  --fields="f1:type,f2" Define attributes. Format: "name:type". Default type is varchar(255).
-.br
-  --relations="Rel"     Define relationships. Format: "Target:Type:ForeignKey:PivotTable".
-.br
-                        Example: "\App\Entities\Course:ManyToMany:student_id:student_courses"
-.br
-  --api, --resource     Generate a REST API controller for this entity.
-.br
-
-.br
+--app=AppName         Specify the application context (defaults to "default").
+--table=TableName     Specify the database table name (defaults to lowercase plural of EntityName).
+--extends=Class       Specify the parent entity class (e.g. "\App\Entities\User").
+--login=true|false    Enable or disable SPP Login Support for this entity.
+--fields="f1:type,f2" Define attributes. Format: "name:type". Default type is varchar(255).
+--relations="Rel"     Define relationships. Format: "Target:Type:ForeignKey:PivotTable".
+Example: "\App\Entities\Course:ManyToMany:student_id:student_courses"
+--api, --resource     Generate a REST API controller for this entity.
+.PP
 Examples:
-.br
-  Interactive Mode:
-.br
-    php spp.php make:entity Student
-.br
-
-.br
-  Non-Interactive Mode:
-.br
-    php spp.php make:entity Student --table=spp_students --fields="name:varchar(255),age:int" --extends="\App\Entities\User" --login=true --relations="\App\Entities\Profile:OneToOne:student_id"
+Interactive Mode:
+php spp.php make:entity Student
+.PP
+Non-Interactive Mode:
+php spp.php make:entity Student --table=spp_students --fields="name:varchar(255),age:int" --extends="\App\Entities\User" --login=true --relations="\App\Entities\Profile:OneToOne:student_id"
 .PP
 .SH OPTIONS
-.TP
-.B --fields=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --table=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --extends=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --login=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --relations=
-Expects a value. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --api
-Boolean flag. Extracted via static analysis from MakeEntityCommand.php
-.TP
-.B --resource
-Boolean flag. Extracted via static analysis from MakeEntityCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+\(bu `--fields=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--app=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--table=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--extends=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--login=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--relations=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--api` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--resource` : Boolean flag or option. Extracted via static analysis.
+.br
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
-\(bu Instantiates key components: SPPEntity.
+\(bu Instantiates internal components: SPPEntity.
 .br
+.PP
+.PP

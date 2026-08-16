@@ -10,6 +10,11 @@ class XdbCommand extends \SPP\CLI\Command
     protected string $name = 'xdb:query';
     protected string $description = 'Execute a SQL or XPath query on the XML database';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         // Identify the query string (the first argument that isn't the script or command name)

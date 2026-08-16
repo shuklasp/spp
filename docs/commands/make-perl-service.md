@@ -1,6 +1,6 @@
 ## `make:perl-service`
 
-**Description**: Create a new Perl service script
+**Purpose**: Create a new Perl service script
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: spp make:perl-service <name> [--app=context]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: Perl.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: Perl.
 

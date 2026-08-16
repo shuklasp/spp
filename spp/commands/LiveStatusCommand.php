@@ -9,6 +9,12 @@ class LiveStatusCommand extends Command
     protected string $name = 'live:status';
     protected string $description = 'Check the status of websocket/polling servers';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Checking SPPLive status...\n";

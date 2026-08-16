@@ -1,20 +1,23 @@
-.TH SPP-cron-flush 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-cron-flush 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-cron-flush \- Clear cron history and lock files
-.SH SYNOPSIS
-.B php spp.php cron:flush
-[OPTIONS]
+cron:flush
+.PP
+ \- Clear cron history and lock files
 .SH DESCRIPTION
 Clear cron history and lock files
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from CronFlushCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php cron:flush [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

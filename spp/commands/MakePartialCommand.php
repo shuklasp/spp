@@ -11,6 +11,12 @@ class MakePartialCommand extends BaseMakeCommand
     protected string $name = 'make:partial';
     protected string $description = 'Scaffold a new external view partial template (HTML/PHP/JS)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;
@@ -29,7 +35,7 @@ class MakePartialCommand extends BaseMakeCommand
         }
 
         $context = $this->getContext($args);
-        $targetDir = $this->getTargetDir('pages/partials', $context);
+        $targetDir = SPP_APP_DIR . '/resources/views/partials';
         
         $fileName = $name;
         if (!preg_match('/\.(php|html|js)$/i', $fileName)) {

@@ -9,13 +9,36 @@ class OAuthClientCommand extends Command
     protected string $name = 'oauth:client:create';
     protected string $description = 'Create a new OAuth 2.0 Client App';
 
+    public function renderAdminUI(): string
+    {
+        $html = '<div class="command-ui-container">';
+        $html .= '  <h3>Create OAuth 2.0 Client</h3>';
+        $html .= '  <p>Fill out the details below to provision a new OAuth client application.</p>';
+        $html .= '  <div class="form-group" style="margin-bottom: 15px;">';
+        $html .= '    <label style="display:block; margin-bottom:5px;">Application Name</label>';
+        $html .= '    <input type="text" id="oauthName" class="spp-input" placeholder="e.g. Mobile App" style="width:100%; background:var(--bg-color-alt); color:var(--text); border:1px solid var(--border-color); padding: 8px; border-radius: 4px;">';
+        $html .= '  </div>';
+        $html .= '  <div class="form-group" style="margin-bottom: 15px;">';
+        $html .= '    <label style="display:block; margin-bottom:5px;">Redirect URI</label>';
+        $html .= '    <input type="text" id="oauthUri" class="spp-input" placeholder="e.g. https://app.example.com/callback" style="width:100%; background:var(--bg-color-alt); color:var(--text); border:1px solid var(--border-color); padding: 8px; border-radius: 4px;">';
+        $html .= '  </div>';
+        $html .= '  <button class="spp-btn primary-btn" onclick="let n = document.getElementById(\'oauthName\').value; let u = document.getElementById(\'oauthUri\').value; if(n && u) executeCommand(\'oauth:client:create\', \'--name=\"\' + n + \'\" --redirect_uri=\"\' + u + \'\"\');">Create Client</button>';
+        $html .= '</div>';
+        return $html;
+    }
+
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = $args['name'] ?? null;
         $redirect_uri = $args['redirect_uri'] ?? null;
 
         if (!$name || !$redirect_uri) {
-            echo "Usage: php spp.php oauth:client:create <name> <redirect_uri>\n";
+            echo "Usage: php spp.php oauth:client:create --name=\"<name>\" --redirect_uri=\"<redirect_uri>\"\n";
             return;
         }
 

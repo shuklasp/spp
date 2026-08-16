@@ -23,9 +23,17 @@ class Vault
      */
     public static function encryptSecret(string $plainText): string
     {
-        // Mock encryption for architectural demonstration.
-        // In production, uses OpenSSL or Sodium with getMasterKey().
-        return 'ENCRYPTED_[' . base64_encode($plainText) . ']';
+        $key = hash('sha256', self::getMasterKey(), true);
+        if (function_exists('sodium_crypto_aead_xchacha20poly1305_ietf_encrypt')) {
+            $nonce = random_bytes(SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES);
+            $cipher = sodium_crypto_aead_xchacha20poly1305_ietf_encrypt($plainText, '', $nonce, $key);
+            return 'SODIUM_[' . base64_encode($nonce . $cipher) . ']';
+        } elseif (function_exists('openssl_encrypt')) {
+            $iv = random_bytes(openssl_cipher_iv_length('aes-256-gcm'));
+            $cipher = openssl_encrypt($plainText, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+            return 'OSSL_[' . base64_encode($iv . $tag . $cipher) . ']';
+        }
+        throw new \Exception("No secure encryption available");
     }
 
     /**
@@ -33,12 +41,31 @@ class Vault
      */
     public static function decryptSecret(string $cipherText): string
     {
-        // Mock decryption.
-        if (strpos($cipherText, 'ENCRYPTED_[') === 0) {
+        $key = hash('sha256', self::getMasterKey(), true);
+        if (strpos($cipherText, 'SODIUM_[') === 0) {
+            $base64 = substr($cipherText, 8, -1);
+            $decoded = base64_decode($base64);
+            $nonceLen = SODIUM_CRYPTO_AEAD_XCHACHA20POLY1305_IETF_NPUBBYTES;
+            $nonce = substr($decoded, 0, $nonceLen);
+            $cipher = substr($decoded, $nonceLen);
+            $plain = sodium_crypto_aead_xchacha20poly1305_ietf_decrypt($cipher, '', $nonce, $key);
+            if ($plain === false) throw new \Exception("Decryption failed");
+            return $plain;
+        } elseif (strpos($cipherText, 'OSSL_[') === 0) {
+            $base64 = substr($cipherText, 6, -1);
+            $decoded = base64_decode($base64);
+            $ivLen = openssl_cipher_iv_length('aes-256-gcm');
+            $iv = substr($decoded, 0, $ivLen);
+            $tag = substr($decoded, $ivLen, 16);
+            $cipher = substr($decoded, $ivLen + 16);
+            $plain = openssl_decrypt($cipher, 'aes-256-gcm', $key, OPENSSL_RAW_DATA, $iv, $tag);
+            if ($plain === false) throw new \Exception("Decryption failed");
+            return $plain;
+        } elseif (strpos($cipherText, 'ENCRYPTED_[') === 0) {
             $base64 = substr($cipherText, 11, -1);
             return base64_decode($base64);
         }
-        return $cipherText; // Fallback if unencrypted
+        return $cipherText;
     }
 
     /**

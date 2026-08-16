@@ -3,6 +3,12 @@
 namespace {{namespace}};
 
 use SPPMod\SPPView\LiveComponent;
+use SPPMod\SPPView\Attributes\Url;
+use SPPMod\SPPView\Attributes\Validate;
+use SPPMod\SPPView\Attributes\Computed;
+use SPPMod\SPPView\Attributes\Locked;
+use SPPMod\SPPView\Attributes\Session;
+use SPPMod\SPPView\Attributes\On;
 
 /**
  * Class {{className}}
@@ -10,13 +16,37 @@ use SPPMod\SPPView\LiveComponent;
  */
 class {{className}} extends LiveComponent
 {
+    // Public properties are automatically stateful
     public string $title = 'Hello LiveComponent';
 
+    // #[Locked] prevents the client from modifying this property directly
+    #[Locked]
+    public int $counter = 0;
+
+    // #[Url] keeps the property in sync with the query string
+    // #[Url(as: 'q')]
+    // public string $query = '';
+
+    // #[Validate('required|min:3')]
+    // public string $name = '';
+
+    /**
+     * Component initialization logic.
+     */
     public function mount(array $params = []): void
     {
-        // Component initialization logic
-        $this->setState('counter', $params['counter'] ?? 0);
+        $this->counter = $params['counter'] ?? 0;
     }
+
+    /**
+     * Lifecycle hooks.
+     */
+    public function boot(): void {}
+    public function booted(): void {}
+    public function updating(string $property, mixed $value): void {}
+    public function updated(string $property, mixed $value): void {}
+    public function rendering(): void {}
+    public function rendered(): void {}
 
     /**
      * Render the component using external standalone partials to strictly prevent inline HTML strings.
@@ -26,28 +56,42 @@ class {{className}} extends LiveComponent
         // =====================================================================
         // DEVELOPER-FRIENDLY EXTERNAL PARTIAL REFERENCING & VIEW TRANSITIONS
         // =====================================================================
-        // The external partial file (e.g. partials/{{className}}.html) should contain:
-        // <div class="live-component" wire:id="{$this->getComponentId()}" wire:transition>
-        //     <h2>{{ $title }}</h2>
-        //     <p>Counter: {{ $counter }}</p>
-        //     <button wire:click="increment">Increment</button>
-        // </div>
-
-        return $this->renderPartial('partials/' . class_basename(self::class) . '.html', [
-            'title' => $this->title,
-            'counter' => $this->getState('counter', 0),
-            'componentId' => $this->getComponentId()
-        ]);
+        // The render method MUST return a file path to an external partial.
+        
+        return 'views/partials/{{className}}.html';
     }
 
+    /**
+     * Event listener example.
+     */
+    // #[On('item-added')]
+    // public function handleItemAdded(array $payload): void
+    // {
+    //     // Handle event
+    // }
+
+    /**
+     * Example action method.
+     */
     public function increment(): void
     {
-        $current = $this->getState('counter', 0);
-        $this->setState('counter', $current + 1);
+        $this->counter++;
+        
+        // $this->validate();
+        // if (!empty($this->errors)) { ... }
+
+        // Example: Event dispatching
+        // $this->dispatch('counter-updated', ['new_value' => $this->counter]);
 
         // Example: Log state transition to CQRS Event Store
         if (class_exists('\SPPMod\SPPWorkflow\CQRS\EventStore')) {
-            \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('LiveComponent', $this->getComponentId(), 'CounterIncremented', ['new_value' => $current + 1]);
+            \SPPMod\SPPWorkflow\CQRS\EventStore::logEvent('LiveComponent', $this->id, 'CounterIncremented', ['new_value' => $this->counter]);
         }
     }
+    
+    // #[Computed]
+    // public function getUserInfo(): array
+    // {
+    //     return ['name' => 'John', 'role' => 'Admin'];
+    // }
 }

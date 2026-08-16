@@ -20,6 +20,12 @@ class CachePurgeCommand extends Command
         return 'Purge cache tags or URLs from the reverse proxy (Varnish/CDN).';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $tags = [];

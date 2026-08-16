@@ -366,6 +366,11 @@ class SPPRouter extends \SPP\SPPObject
      */
     private static function resolveInternalPath(string $path, ?string $modulePath = null, ?string $appname = null): string
     {
+        if (preg_match('/(?:^|\/|\\\\)\.\.(?:\/|\\\\|$)|%2e%2e/i', $path)) {
+            http_response_code(403);
+            return '';
+        }
+
         if (str_contains($path, ':') || str_starts_with($path, '/') || str_starts_with($path, '\\')) {
             return $path;
         }

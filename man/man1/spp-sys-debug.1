@@ -1,20 +1,25 @@
-.TH SPP-sys-debug 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-sys-debug 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-sys-debug \- Toggle global framework debug mode (on|off)
-.SH SYNOPSIS
-.B php spp.php sys:debug
-[OPTIONS]
+sys:debug
+.PP
+ \- Toggle global framework debug mode (on|off)
 .SH DESCRIPTION
 Toggle global framework debug mode (on|off)
 .PP
+.SH SYNOPSIS
+php spp.php sys:debug [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php sys:debug on|off
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+\(bu `--settings` : Boolean flag or option. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP

@@ -11,6 +11,12 @@ class AuthTokensCommand extends Command
     protected string $name = 'auth:tokens';
     protected string $description = 'Manage Personal Access Tokens for API Authentication';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $action = $args[2] ?? 'list';

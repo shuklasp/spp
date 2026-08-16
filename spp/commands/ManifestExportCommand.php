@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 
 class ManifestExportCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "🤖 Synthesizing AI Copilot Autodiscovery Manifest...\n";

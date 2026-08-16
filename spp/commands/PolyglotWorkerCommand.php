@@ -8,11 +8,17 @@ class PolyglotWorkerCommand extends Command
     protected string $name = 'polyglot:worker';
     protected string $description = 'Manage Polyglot persistent workers';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $action = $args[2] ?? null;
-        $module = $args[3] ?? null;
-        $lang = $args[4] ?? null;
+        $action = $this->getArgument($args, 0) ?? null;
+        $module = $this->getArgument($args, 1) ?? null;
+        $lang = $this->getArgument($args, 2) ?? null;
 
         if (!$action || !in_array($action, ['start', 'stop', 'restart', 'status'])) {
             echo "Usage: spp polyglot:worker [start|stop|restart|status] <module> [<lang>]\n";
@@ -208,12 +214,12 @@ class PolyglotWorkerCommand extends Command
 
     private function executeAsync(array $args): void
     {
-        if (empty($args[3])) {
+        if (empty($this->getArgument($args, 1))) {
             error_log("PolyglotAsync: Missing payload.");
             return;
         }
 
-        $payload = json_decode(base64_decode($args[3]), true);
+        $payload = json_decode(base64_decode($this->getArgument($args, 1)), true);
         if (!$payload) {
             error_log("PolyglotAsync: Invalid payload.");
             return;

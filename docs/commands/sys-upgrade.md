@@ -1,16 +1,16 @@
 ## `sys:upgrade`
 
-**Description**: Synchronize the database schema incrementally from all active module definitions (db.yml)
+**Purpose**: Synchronize the database schema incrementally from all active module definitions (db.yml)
 
 ### Synopsis
 ```bash
 php spp.php sys:upgrade [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: SPPDB.
 

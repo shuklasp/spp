@@ -9,6 +9,12 @@ class TestRunCommand extends Command
     protected string $name = 'test:run';
     protected string $description = 'Runs Parikshak evaluation for an entity or the whole suite';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = $this->getOption($args, 'app', 'default');
@@ -30,6 +36,7 @@ class TestRunCommand extends Command
                 } else {
                     echo "Running test suite for app: {$appname}\n";
                     $results = $tester->runSuite($appname, $withCoverage);
+                    print_r($results);
                     echo "\nSuite Summary:\n";
                     echo "Passed: " . $results['summary']['passed'] . " / " . $results['summary']['total'] . "\n";
                 }

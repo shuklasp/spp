@@ -1,18 +1,21 @@
-.TH SPP-import-component 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-import-component 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-import-component \- Imports pristine air-gapped sovereign UI components
-.SH SYNOPSIS
-.B php spp.php import:component
-[OPTIONS]
+import:component
+.PP
+ \- Imports pristine air-gapped sovereign UI components
 .SH DESCRIPTION
 Imports pristine air-gapped sovereign UI components
 .PP
-.SH OPTIONS
-.TP
-.B --target=
-Expects a value. Extracted via static analysis from ImportComponentCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php import:component [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+\(bu `--target=` : Expects a value. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP

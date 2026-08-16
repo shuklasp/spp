@@ -1,20 +1,23 @@
-.TH SPP-i18n-import 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-i18n-import 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-i18n-import \- Import translations from a JSON file into the database.
-.SH SYNOPSIS
-.B php spp.php i18n:import
-[OPTIONS]
+i18n:import
+.PP
+ \- Import translations from a JSON file into the database.
 .SH DESCRIPTION
 Import translations from a JSON file into the database.
 .PP
-.SH OPTIONS
-.TP
-.B --locale=
-Expects a value. Extracted via static analysis from I18nImportCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php i18n:import [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--locale=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

@@ -1,17 +1,17 @@
 ## `cron:flush`
 
-**Description**: Clear cron history and lock files
+**Purpose**: Clear cron history and lock files
 
 ### Synopsis
 ```bash
 php spp.php cron:flush [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from CronFlushCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context via Scheduler.
 

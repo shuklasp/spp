@@ -1,6 +1,6 @@
 ## `make:blade`
 
-**Description**: Scaffold a new Blade template (Drishyam Paradigm)
+**Purpose**: Scaffold a new Blade template (Drishyam Paradigm)
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php make:blade <ViewName>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: Drishyam, Blade.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: Drishyam, Blade.
 

@@ -36,18 +36,7 @@ if (!function_exists('live_Auth_VerifyMFA')) {
         live_Auth_VerifyMFA($la, $p);
     }
 }
-if (!function_exists('live_Auth_SendMagicLink')) {
-    function live_Auth_SendMagicLink($la, $p)
-    {
-        live_Auth_SendMagicLink($la, $p);
-    }
-}
-if (!function_exists('live_Auth_ConsumeMagicLink')) {
-    function live_Auth_ConsumeMagicLink($la, $p)
-    {
-        live_Auth_ConsumeMagicLink($la, $p);
-    }
-}
+
 if (!function_exists('live_logout')) {
     function live_logout($la, $p)
     {

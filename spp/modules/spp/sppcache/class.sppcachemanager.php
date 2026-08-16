@@ -56,7 +56,7 @@ class SPPCacheManager
         \SPP\Cache::setWithTags($cid, $payload, $tags, $ttl);
     }
 
-    public static function get(string $cid)
+    public static function get(string $cid, callable $regenerator = null, $ttlOrTags = 3600, array $tags = [])
     {
         self::init();
         $payload = \SPP\Cache::get($cid);
@@ -67,6 +67,56 @@ class SPPCacheManager
             }
             return $payload['data'];
         }
+        
+        if ($regenerator === null) {
+            return false;
+        }
+        
+        $redisLockAcquired = false;
+        $redis = null;
+        if (extension_loaded('redis') && class_exists('\Redis')) {
+            $redis = new \Redis();
+            try {
+                if ($redis->connect('127.0.0.1', 6379)) {
+                    $redisLockAcquired = $redis->setNx('spp_cache_lock_' . md5($cid), 1);
+                    if ($redisLockAcquired) {
+                        $redis->expire('spp_cache_lock_' . md5($cid), 10);
+                    }
+                }
+            } catch (\Exception $e) {
+                $redisLockAcquired = false;
+            }
+        }
+
+        if ($redisLockAcquired) {
+            $data = call_user_func($regenerator);
+            self::set($cid, $data, $ttlOrTags, $tags);
+            $redis->del('spp_cache_lock_' . md5($cid));
+            return $data;
+        }
+
+        $lockFile = sys_get_temp_dir() . '/spp_cache_lock_' . md5($cid) . '.lock';
+        $lockHandle = fopen($lockFile, 'c');
+        if (flock($lockHandle, LOCK_EX | LOCK_NB)) {
+            // Acquired lock, regenerate
+            $data = call_user_func($regenerator);
+            self::set($cid, $data, $ttlOrTags, $tags);
+            flock($lockHandle, LOCK_UN);
+            fclose($lockHandle);
+            return $data;
+        }
+        
+        // Lock not acquired, wait briefly and retry
+        fclose($lockHandle);
+        usleep(100000); // 100ms
+        $payload = \SPP\Cache::get($cid);
+        if ($payload && is_array($payload) && isset($payload['data'])) {
+            foreach ($payload['tags'] as $tag) {
+                self::addTag($tag);
+            }
+            return $payload['data'];
+        }
+        
         return false;
     }
 

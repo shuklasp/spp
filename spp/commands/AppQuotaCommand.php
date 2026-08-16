@@ -1,7 +1,7 @@
 <?php
-namespace SPP\Commands;
+namespace SPP\CLI\Commands;
 
-use SPPMod\SPPMaker\Command;
+use SPP\CLI\Command;
 
 /**
  * Class AppQuotaCommand
@@ -10,33 +10,37 @@ use SPPMod\SPPMaker\Command;
  */
 class AppQuotaCommand extends Command
 {
-    protected string $signature = 'app:quota {alias} {--ram=} {--cpu=}';
-    protected string $description = 'Set hardware resource limits for a Guest App in the WebOS Registry';
+    protected string $name = 'app:quota';
+    protected string $description = 'Set hardware resource limits for a Guest App in the WebOS Registry. Usage: app:quota <alias> [--ram=...] [--cpu=...]';
 
     public function isCLIOnly(): bool
     {
         return true; // Strict CLI SAPI guarding per SPP Framework Rules
     }
 
-    public function handle(): int
+    public function execute(array $args): void
     {
-        $alias = $this->argument('alias');
-        $ram = $this->option('ram');
-        $cpu = $this->option('cpu');
+        $alias = $this->getArgument($args, 0) ?? null;
+        if (!$alias) {
+            echo "Usage: php spp.php app:quota <alias> [--ram=...] [--cpu=...]\n";
+            return;
+        }
 
-        $this->info("Configuring WebOS quotas for app: $alias");
+        $ram = $this->getOption($args, 'ram');
+        $cpu = $this->getOption($args, 'cpu');
+
+        echo "Configuring WebOS quotas for app: $alias\n";
         
         if ($ram) {
-            $this->info(" -> Set RAM Limit: $ram");
+            echo " -> Set RAM Limit: $ram\n";
         }
         
         if ($cpu) {
-            $this->info(" -> Set CPU Time Limit: $cpu seconds");
+            echo " -> Set CPU Time Limit: $cpu seconds\n";
         }
 
         // Write to etc/integrations.yml logic would go here.
-        $this->info("Quotas successfully written to WebOS Registry.");
-
-        return 0;
+        echo "Quotas successfully written to WebOS Registry.\n";
     }
 }
+

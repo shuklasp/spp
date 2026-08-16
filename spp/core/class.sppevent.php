@@ -112,24 +112,27 @@ class SPPEvent extends \SPP\SPPObject
 
     private static function parseFileForOnAttribute(string $content)
     {
-        if (preg_match('/namespace\s+([^;]+);/i', $content, $nsMatch)) {
-            if (preg_match('/class\s+([a-zA-Z0-9_]+)/i', $content, $clsMatch)) {
-                $className = trim($nsMatch[1]) . '\\' . trim($clsMatch[1]);
-                if (class_exists($className, true)) {
-                    // Skip Frontend UI Components to prevent them from being instantiated on backend server events
-                    if (is_subclass_of($className, '\\SPP\\Core\\Interfaces\\FrontendComponentInterface')) return;
-                    
-                    try {
-                        $ref = new \ReflectionClass($className);
-                        foreach ($ref->getMethods() as $method) {
-                            $attributes = $method->getAttributes('SPP\Attributes\On');
-                            foreach ($attributes as $attr) {
-                                $instance = $attr->newInstance();
-                                self::listen($instance->event, [$className, $method->getName()], false, $instance->priority);
-                            }
+        $namespace = '';
+        if (preg_match('/namespace\s+([^;{]+)[;{]/i', $content, $nsMatch)) {
+            $namespace = trim($nsMatch[1]) . '\\';
+        }
+
+        if (preg_match('/class\s+([a-zA-Z0-9_]+)/i', $content, $clsMatch)) {
+            $className = $namespace . trim($clsMatch[1]);
+            if (class_exists($className, true)) {
+                // Skip Frontend UI Components to prevent them from being instantiated on backend server events
+                if (is_subclass_of($className, '\\SPP\\Core\\Interfaces\\FrontendComponentInterface')) return;
+                
+                try {
+                    $ref = new \ReflectionClass($className);
+                    foreach ($ref->getMethods() as $method) {
+                        $attributes = $method->getAttributes('SPP\Attributes\On');
+                        foreach ($attributes as $attr) {
+                            $instance = $attr->newInstance();
+                            self::listen($instance->event, [$className, $method->getName()], false, $instance->priority);
                         }
-                    } catch (\Throwable $e) {}
-                }
+                    }
+                } catch (\Throwable $e) {}
             }
         }
     }
@@ -289,6 +292,7 @@ class SPPEvent extends \SPP\SPPObject
                             } catch (\ReflectionException $e) {}
                         } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback[0])) {
                             $className = '\\EventHandlers\\Defaults\\' . $callback[0];
+                            $callback[0] = $className;
                             try {
                                 $refMethod = new \ReflectionMethod($className, $callback[1]);
                                 if (!$refMethod->isStatic()) {
@@ -302,6 +306,40 @@ class SPPEvent extends \SPP\SPPObject
                         call_user_func_array($callback, [&$params]);
                     }
                 }
+
+                if (isset(self::$eventDefinitions[$event_name]['default_handler']) && self::$eventDefinitions[$event_name]['default_handler']) {
+                    $defHandler = self::$eventDefinitions[$event_name]['default_handler'];
+                    if (is_string($defHandler)) {
+                        if (class_exists($defHandler)) {
+                            $defHandler = [new $defHandler, '__invoke'];
+                        } elseif (class_exists('\\EventHandlers\\Defaults\\' . $defHandler)) {
+                            $className = '\\EventHandlers\\Defaults\\' . $defHandler;
+                            $defHandler = [new $className, '__invoke'];
+                        }
+                    } elseif (is_array($defHandler) && is_string($defHandler[0])) {
+                        if (class_exists($defHandler[0])) {
+                            try {
+                                $refMethod = new \ReflectionMethod($defHandler[0], $defHandler[1]);
+                                if (!$refMethod->isStatic()) {
+                                    $defHandler[0] = new $defHandler[0]();
+                                }
+                            } catch (\ReflectionException $e) {}
+                        } elseif (class_exists('\\EventHandlers\\Defaults\\' . $defHandler[0])) {
+                            $className = '\\EventHandlers\\Defaults\\' . $defHandler[0];
+                            $defHandler[0] = $className;
+                            try {
+                                $refMethod = new \ReflectionMethod($className, $defHandler[1]);
+                                if (!$refMethod->isStatic()) {
+                                    $defHandler[0] = new $className();
+                                }
+                            } catch (\ReflectionException $e) {}
+                        }
+                    }
+                    if (is_callable($defHandler)) {
+                        call_user_func_array($defHandler, [&$params]);
+                    }
+                }
+
                 self::triggerHook($event_name, $params);
             }
         }
@@ -340,6 +378,7 @@ class SPPEvent extends \SPP\SPPObject
                     } catch (\ReflectionException $e) {}
                 } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback[0])) {
                     $className = '\\EventHandlers\\Defaults\\' . $callback[0];
+                    $callback[0] = $className;
                     try {
                         $refMethod = new \ReflectionMethod($className, $callback[1]);
                         if (!$refMethod->isStatic()) {
@@ -381,7 +420,15 @@ class SPPEvent extends \SPP\SPPObject
     public static function dispatch($event) {}
     public static function scanHandlers() { self::boot(); }
     public static function registerDirs() { self::boot(); }
-    public static function scanAndRegisterDirs($dir, $top_dir = true) {}
+    public static function scanAndRegisterDirs($dir, $top_dir = true) {
+        if (!is_dir($dir)) return;
+        $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
+        foreach ($iterator as $file) {
+            if ($file->isFile() && $file->getExtension() === 'php') {
+                require_once $file->getPathname();
+            }
+        }
+    }
     public static function getCollectedTrace(): array { return self::$collectedTrace; }
     public static function clearTrace(): void { self::$collectedTrace = []; }
     public static function persistTrace(): void {}

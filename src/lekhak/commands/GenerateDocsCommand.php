@@ -44,14 +44,14 @@ class GenerateDocsCommand extends Command
             $entity = new LekhakNode();
             $entity->title = $node->title;
             $entity->body = $node->body;
-            $entity->status = 'published';
             $entity->langcode = 'en';
             
             $alias = "$version/api/" . str_replace('\\', '/', $node->title);
             $entity->alias = $alias;
             
             try {
-                $entity->save();
+                $entity->save(); // Initial save
+                $entity->applyTransition('published');
                 echo "Saved: {$node->title} -> {$alias}\n";
             } catch (\Exception $e) {
                 echo "Error saving {$node->title}: " . $e->getMessage() . "\n";
@@ -81,10 +81,10 @@ class GenerateDocsCommand extends Command
             $entity = new LekhakNode();
             $entity->title = $t['title'];
             $entity->body = $t['body'];
-            $entity->status = 'published';
             $entity->langcode = 'en';
             $entity->alias = $t['alias'];
             $entity->save();
+            $entity->applyTransition('published');
             echo "Saved Tutorial: {$t['title']}\n";
         }
 

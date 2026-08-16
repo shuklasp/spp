@@ -1,22 +1,7 @@
-.TH EBPF:PROFILE:ATTACH 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "ebpf-profile-attach" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-ebpf:profile:attach \- Attach eBPF kernel and user-space probes to running workers for zero-overhead profiling.
+ebpf-profile-attach \- Attach eBPF kernel and user-space probes to running workers for zero-overhead profiling.
 .SH SYNOPSIS
-\fBphp spp.php ebpf:profile:attach\fR [\fB\-\-type=\fI<kprobe|uprobe>\fR] [\fB\-\-symbol=\fI<name>\fR]
+.B php spp.php ebpf-profile-attach
 .SH DESCRIPTION
-The \fBebpf:profile:attach\fR command empowers systems architects to perform zero-overhead execution tracing and memory profiling. By leveraging Extended Berkeley Packet Filter (eBPF) kprobes and uprobes, it gathers granular syscall latency, memory allocation numbers, and network packet drop statistics directly from Linux kernel maps without modifying application code or impacting active request throughput.
-.SH OPTIONS
-.TP
-\fB\-\-type=\fI<kprobe|uprobe>\fR
-Type of eBPF probe to attach. Defaults to \fIuprobe\fR.
-.TP
-\fB\-\-symbol=\fI<name>\fR
-Target kernel symbol or user-space function name to trace. Defaults to \fIphp_execute_script\fR.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Enforces secure CLI-only execution via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBDistributed Mutex Locking\fR: Acquires a distributed deployment lock via \fITargetConnection::acquireDeploymentLock()\fR to prevent multiple profiler daemons from causing probe attachment collisions in kernel space.
-.PP
-3. \fBeBPF Map Communication\fR: Attaches the specified probes in memory and establishes communication channels with eBPF kernel maps (\fIsyscall_latency_ns\fR, \fImemory_alloc_bytes\fR, \fInetwork_packet_drops\fR).
-.PP
-4. \fBClean Detachment\fR: Aggregates real-time metrics, prints them to the console, and safely detaches all kprobes and uprobes before releasing the distributed lock.
+Attach eBPF kernel and user-space probes to running workers for zero-overhead profiling.

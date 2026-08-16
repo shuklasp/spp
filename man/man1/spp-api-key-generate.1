@@ -1,18 +1,22 @@
-.TH SPP-api-key-generate 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-api-key-generate 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-api-key-generate \- Generates a new permanent API Key.
-.SH SYNOPSIS
-.B php spp.php api:key:generate
-[OPTIONS]
+api:key:generate
+.PP
+ \- Generates a new permanent API Key.
 .SH DESCRIPTION
 Generates a new permanent API Key.
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php api:key:generate [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: permanent, \SPPMod\SPPDB\SPPDB.
+\(bu Instantiates internal components: permanent, \SPPMod\SPPDB\SPPDB.
 .br
+.PP
+.PP

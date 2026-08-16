@@ -1,6 +1,6 @@
 ## `make:blade-project`
 
-**Description**: Scaffold a new Blade-enabled SPP application
+**Purpose**: Scaffold a new Blade-enabled SPP application
 
 ### Synopsis
 ```bash
@@ -13,11 +13,12 @@ Usage: php spp.php make:blade-project <app_name>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `----force` : Boolean flag or option. Extracted via static analysis.
+- `--logout` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: Blade, SPP, app.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: Blade, SPP, app.
 

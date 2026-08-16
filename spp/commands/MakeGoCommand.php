@@ -12,9 +12,15 @@ class MakeGoCommand extends BaseMakeCommand
     protected string $name = 'make:go-service';
     protected string $description = 'Create a new Go service script';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: spp make:go-service <name> [--app=context]\n";
             return;

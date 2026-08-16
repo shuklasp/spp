@@ -13,6 +13,12 @@ class AppServeCommand extends Command
     protected string $name = 'serve';
     protected string $description = 'Start a local development server for the current application';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $port = 8000;

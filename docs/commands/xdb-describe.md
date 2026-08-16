@@ -1,6 +1,6 @@
 ## `xdb:describe`
 
-**Description**: Describe the schema of an XDB table
+**Purpose**: Describe the schema of an XDB table
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp xdb:describe <table_name> [--db=dbname]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
 

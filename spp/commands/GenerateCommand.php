@@ -9,6 +9,12 @@ class GenerateCommand extends BaseMakeCommand
     protected string $name = 'generate';
     protected string $description = 'AI Copilot: Generate an entire application feature from a natural language prompt.';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $prompt = implode(' ', array_slice($args, 2));

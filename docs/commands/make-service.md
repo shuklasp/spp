@@ -1,6 +1,6 @@
 ## `make:service`
 
-**Description**: Create a new service class
+**Purpose**: Create a new service class
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:service <name> [--app=appname] [--lang=python]
 
 ```
 
-### Options
-- `--lang=` : Expects a value. Extracted via static analysis from MakeServiceCommand.php
+### Options Available
+- `--lang=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand, MakePerlCommand, MakeJavaCommand.
 

@@ -9,6 +9,12 @@ class EventListListenersCommand extends Command
     protected string $name = 'event:list-listeners';
     protected string $description = 'List all registered global event listeners';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

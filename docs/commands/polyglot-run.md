@@ -1,6 +1,6 @@
 ## `polyglot:run`
 
-**Description**: Executes a specific polyglot service directly
+**Purpose**: Executes a specific polyglot service directly
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php polyglot:run --path=<relative_path_to_service> [args...]
 
 ```
 
-### Options
-- `--path=` : Expects a value. Extracted via static analysis from PolyglotRunCommand.php
-- `--app=` : Expects a value. Extracted via static analysis from PolyglotRunCommand.php
+### Options Available
+- `--path=` : Expects a value. Extracted via static analysis.
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
 - Executes external system binaries or shell commands.
 

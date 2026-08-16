@@ -62,6 +62,10 @@ if (!defined('SPP_VER')) {
         $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/admin'));
       } elseif (str_contains($appBaseUri, '/sppadmin')) {
         $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/sppadmin'));
+      } elseif (str_contains($appBaseUri, '/spp/dev')) {
+        $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp/dev'));
+      } elseif (str_contains($appBaseUri, '/sppdev')) {
+        $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/sppdev'));
       } elseif (str_contains($appBaseUri, '/spp')) {
         $appBaseUri = substr($appBaseUri, 0, strpos($appBaseUri, '/spp'));
       }

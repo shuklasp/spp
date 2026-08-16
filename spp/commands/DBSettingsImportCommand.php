@@ -9,6 +9,12 @@ class DBSettingsImportCommand extends Command
     protected string $name = 'dbsettings:import';
     protected string $description = 'Import SPP module DB settings from JSON';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $file = null;

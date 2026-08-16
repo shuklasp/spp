@@ -9,6 +9,12 @@ class CronRunCommand extends Command
     protected string $name = 'cron:run';
     protected string $description = 'Execute pending cron jobs manually';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

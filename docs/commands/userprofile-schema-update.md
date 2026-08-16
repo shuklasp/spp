@@ -1,16 +1,16 @@
 ## `userprofile:schema:update`
 
-**Description**: Sync extended user profile metadata schemas
+**Purpose**: Sync extended user profile metadata schemas
 
 ### Synopsis
 ```bash
 php spp.php userprofile:schema:update [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

@@ -4,13 +4,17 @@ namespace SPPMod\SPPView\Attributes;
 
 use Attribute;
 
+/**
+ * Sets the document title for a LiveComponent.
+ */
 #[Attribute(Attribute::TARGET_CLASS)]
 class Title
 {
-    public string $title;
-
-    public function __construct(string $title)
-    {
-        $this->title = $title;
+    /**
+     * @param string $title The title of the page.
+     */
+    public function __construct(
+        public string $title
+    ) {
     }
 }

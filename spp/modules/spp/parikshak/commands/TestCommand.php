@@ -12,6 +12,12 @@ class TestCommand extends Command
     protected string $name = 'test';
     protected string $description = 'Run Parikshak Unit and Feature Tests';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $context = \SPP\Scheduler::getContext();

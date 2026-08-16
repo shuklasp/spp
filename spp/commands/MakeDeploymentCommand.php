@@ -9,9 +9,14 @@ class MakeDeploymentCommand extends Command
     protected string $name = 'make:deployment';
     protected string $description = 'Generate Enterprise Docker and K8s scaffolding for the application.';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $appName = $args[2] ?? 'default';
+        $appName = $this->getArgument($args, 0) ?? 'default';
         $withRedis = in_array('--with-redis', $args);
 
         $deployDir = SPP_BASE_DIR . "/deploy/{$appName}";
@@ -174,7 +179,10 @@ SUP;
 
         if ($host && $user) {
             echo "\n🚀 Remote deployment flag detected. Initializing push to {$user}@{$host}...\n";
-            $keyFlag = $key ? "-i {$key}" : "";
+            
+            $escHost = escapeshellarg($host);
+            $escUser = escapeshellarg($user);
+            $escKeyFlag = $key ? "-i " . escapeshellarg($key) : "";
             
             // Build deployment script
             $script = <<<BASH
@@ -182,9 +190,9 @@ SUP;
 echo "Archiving application..."
 tar -czf /tmp/spp_deploy_{$appName}.tar.gz -C ../../ .
 echo "Transferring via SCP..."
-scp $keyFlag /tmp/spp_deploy_{$appName}.tar.gz {$user}@{$host}:/tmp/
+scp $escKeyFlag /tmp/spp_deploy_{$appName}.tar.gz {$escUser}@{$escHost}:/tmp/
 echo "Executing remote setup..."
-ssh $keyFlag {$user}@{$host} "mkdir -p /opt/spp/{$appName} && tar -xzf /tmp/spp_deploy_{$appName}.tar.gz -C /opt/spp/{$appName}/ && cd /opt/spp/{$appName}/deploy/{$appName} && docker-compose up -d --build && rm /tmp/spp_deploy_{$appName}.tar.gz"
+ssh $escKeyFlag {$escUser}@{$escHost} "mkdir -p /opt/spp/{$appName} && tar -xzf /tmp/spp_deploy_{$appName}.tar.gz -C /opt/spp/{$appName}/ && cd /opt/spp/{$appName}/deploy/{$appName} && docker-compose up -d --build && rm /tmp/spp_deploy_{$appName}.tar.gz"
 echo "Deployment successful!"
 BASH;
             $scriptFile = $deployDir . '/push.sh';

@@ -1,6 +1,6 @@
 ## `make:command`
 
-**Description**: Create a new CLI command class
+**Purpose**: Create a new CLI command class
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:command <name> [--app=appname] [--command=cmd:name]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: CLI.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: CLI.
 

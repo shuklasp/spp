@@ -29,14 +29,29 @@ class Parikshak
         $this->oracle = new ParikshakOracle();
         $this->generator = new ParikshakCodeGenerator($this->fuzzer);
 
-        // Enforce SQLite Memory DB to isolate tests and avoid shadow tables
+        $testDbFile = 'spp/scratch/parikshak_' . uniqid() . '.sqlite';
+        
         \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb');
-        \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb');
+        \SPP\Module::setConfig('sqlite_path', $testDbFile, 'sppdb');
 
         try {
             $this->db = new \SPPMod\SPPDB\SPPDB();
             if (class_exists('\\SPP\\DB')) {
                 \SPP\DB::setProvider($this->db);
+            }
+            
+            // Bootstrap the core schema for the isolated test database
+            if (class_exists('\\SPP\\CLI\\Commands\\MigrateCommand')) {
+                $mc = new \SPP\CLI\Commands\MigrateCommand();
+                echo "\nLOADED MODULES FOR MIGRATION:\n";
+                $mods = \SPP\Registry::get('__modobj');
+                print_r(array_keys($mods ?: []));
+                echo "\n";
+                //ob_start();
+                $mc->execute(['migrate']); // Suppress output
+                $rows = $this->db->execute_query("SELECT name FROM sqlite_master WHERE type='table'");
+                echo "\nTABLES IN DB AFTER MIGRATION:\n";
+                print_r($rows);
             }
         } catch (\Exception $e) {
             $this->db = null;
@@ -542,8 +557,9 @@ class Parikshak
                 // Query the audit log for this operation
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $auditTable = \SPPMod\SPPDB\SPPDB::sppTable('audit_logs');
+                $actualClass = get_class($entity);
                 $audit = $db->exec_squery("SELECT * FROM %tab% WHERE entity_type = ? AND entity_id = ? AND action = 'create' ORDER BY id DESC LIMIT 1", $auditTable, [
-                    $entityClass,
+                    $actualClass,
                     (string) $id
                 ]);
 

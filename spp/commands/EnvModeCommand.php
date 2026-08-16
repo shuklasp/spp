@@ -12,7 +12,7 @@ class EnvModeCommand extends Command
 {
     public function execute(array $args): void
     {
-        $mode = isset($args[2]) ? strtolower(trim($args[2])) : '';
+        $mode = null !== $this->getArgument($args, 0) ? strtolower(trim($this->getArgument($args, 0))) : '';
 
         if (!in_array($mode, ['dev', 'prod'], true)) {
             echo "\n❌ Invalid or missing environment mode.\n";

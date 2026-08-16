@@ -11,7 +11,7 @@ sub handle {
 
     # Example: Native back-communication to PHP
     # my $setting = SPP::get_config('app_name');
-    # my $php_result = SPP::call_php('App\\Services\\NativeService', 'someMethod', ['hello']);
+    # my $php_result = SPP::call_php('App\Services\NativeService', 'someMethod', ['hello']);
 
     return {
         status => 'success',

@@ -1,19 +1,7 @@
-.TH AI:REFACTOR:ENTERPRISE 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "ai:refactor:enterprise" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-ai:refactor:enterprise \- AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance.
+ai:refactor:enterprise \- AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
 .SH SYNOPSIS
-\fBphp spp.php ai:refactor:enterprise\fR [\fB\-\-path=\fI<path/to/scan>\fR]
+.B php spp.php ai:refactor:enterprise
 .SH DESCRIPTION
-The \fBai:refactor:enterprise\fR command acts as an automated software architect. It scans legacy PHP controllers and services, identifying non-compliant patterns such as raw inline HTML strings or missing telemetry spans. It then invokes \fISPPAI\fR (Ollama) to automatically rewrite the file using standalone external partials (\fIrenderPartial()\fR) and injecting \fIW3CTraceContext::startSpan()\fR calls.
-.SH OPTIONS
-.TP
-\fB\-\-path=\fI<path>\fR
-Absolute or relative path to the directory or file to refactor. Defaults to \fIsrc/App/Controllers\fR.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Validates secure CLI execution via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBFile & Pattern Matching\fR: Recursively traverses the target path to inspect PHP files for inline HTML literals (e.g., \fI<div>\fR, \fI<span>\fR) and missing telemetry markers.
-.PP
-3. \fBAI Prompting & Tool Calling\fR: Constructs a specialized expert system prompt and passes the file content to \fISPPAI::callTool()\fR.
-.PP
-4. \fBAutomated Refactoring\fR: Validates the AI response for correct PHP syntax and overwrites the original file with the modernized, fully compliant code.
+AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance

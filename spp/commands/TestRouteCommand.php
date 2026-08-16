@@ -7,6 +7,12 @@ class TestRouteCommand extends Command
     protected string $name = 'test:routes';
     protected string $description = 'Test route scanner';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'Samvaad';

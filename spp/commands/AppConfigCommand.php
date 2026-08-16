@@ -14,6 +14,12 @@ class AppConfigCommand extends Command
     protected string $name = 'app:config';
     protected string $description = 'Configure application settings (e.g., base_url, table_prefix)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appName = $this->getArgument($args, 0);

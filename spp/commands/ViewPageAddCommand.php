@@ -9,6 +9,12 @@ class ViewPageAddCommand extends Command
     protected string $name = 'view:page:add';
     protected string $description = 'Add a new page route to an app';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

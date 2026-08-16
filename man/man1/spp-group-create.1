@@ -1,27 +1,31 @@
-.TH SPP-group-create 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-group-create 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-group-create \- Create a new shared resource group
-.SH SYNOPSIS
-.B php spp.php group:create
-[OPTIONS]
+group:create
+.PP
+ \- Create a new shared resource group
 .SH DESCRIPTION
 Create a new shared resource group
 .PP
+.SH SYNOPSIS
+php spp.php group:create [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php group:create <group_name> [--extends=core] [--prefix=...]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-.TP
-.B --extends=
-Expects a value. Extracted via static analysis from GroupCreateCommand.php
-.TP
-.B --prefix=
-Expects a value. Extracted via static analysis from GroupCreateCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+\(bu `--extends=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--prefix=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--shared_groups` : Boolean flag or option. Extracted via static analysis.
+.br
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
-\(bu Instantiates key components: shared.
+\(bu Instantiates internal components: shared.
 .br
+.PP
+.PP

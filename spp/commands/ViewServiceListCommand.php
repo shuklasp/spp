@@ -9,6 +9,12 @@ class ViewServiceListCommand extends Command
     protected string $name = 'view:service:list';
     protected string $description = 'List all registered AJAX services for an app';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

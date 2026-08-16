@@ -14,9 +14,15 @@ class MakeBladeProjectCommand extends BaseMakeCommand
     protected string $name = 'make:blade-project';
     protected string $description = 'Scaffold a new Blade-enabled SPP application';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $appName = $args[2] ?? null;
+        $appName = $this->getArgument($args, 0) ?? null;
         if (!$appName) {
             echo "Usage: php spp.php make:blade-project <app_name>\n";
             return;

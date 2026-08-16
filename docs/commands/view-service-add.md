@@ -1,6 +1,6 @@
 ## `view:service:add`
 
-**Description**: Register a new AJAX service endpoint
+**Purpose**: Register a new AJAX service endpoint
 
 ### Synopsis
 ```bash
@@ -13,15 +13,15 @@ Usage: php spp.php view:service:add --name=<service> --script=<path> [--method=P
 
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
-- `--name=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
-- `--script=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
-- `--method=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
-- `--source=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--name=` : Expects a value. Extracted via static analysis.
+- `--script=` : Expects a value. Extracted via static analysis.
+- `--method=` : Expects a value. Extracted via static analysis.
+- `--source=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
-- Instantiates key components: AJAX.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
+- Instantiates internal components: AJAX.
 

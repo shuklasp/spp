@@ -4,11 +4,17 @@ namespace SPP\Attributes;
 
 use Attribute;
 
-#[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
+/**
+ * Listens for an event on the LiveComponent.
+ */
+#[Attribute(Attribute::TARGET_METHOD | Attribute::IS_REPEATABLE)]
 class On
 {
+    /**
+     * @param string $event The event name to listen for.
+     */
     public function __construct(
-        public string $event,
-        public int $priority = 500
-    ) {}
+        public string $event
+    ) {
+    }
 }

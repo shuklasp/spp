@@ -9,6 +9,12 @@ class ViewPageRemoveCommand extends Command
     protected string $name = 'view:page:remove';
     protected string $description = 'Remove a page route from an app';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

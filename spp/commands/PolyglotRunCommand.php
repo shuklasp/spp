@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 class PolyglotRunCommand extends Command {
     protected string $name = 'polyglot:run';
     protected string $description = 'Executes a specific polyglot service directly';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void {
         $servicePath = null;
         $serviceArgs = [];

@@ -1,5 +1,5 @@
 <?php
-namespace SPP\Commands;
+namespace SPP\CLI\Commands;
 
 use SPP\CLI\Command;
 use SPPMod\SPPDB\SPPDB;
@@ -20,10 +20,15 @@ class DbSyncCommand extends Command
         return 'Synchronize data between two database adapters (e.g. MySQL to XDB)';
     }
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $from = $args['from'] ?? null; // e.g. mysql:users
-        $to = $args['to'] ?? null;     // e.g. xdb:users_backup
+        $from = $this->getOption($args, 'from'); // e.g. mysql:users
+        $to = $this->getOption($args, 'to');     // e.g. xdb:users_backup
 
         if (!$from || !$to) {
             echo "Usage: php spp.php db:sync --from=[engine:table] --to=[engine:table]\n";
@@ -44,8 +49,11 @@ class DbSyncCommand extends Command
         // We simulate a different engine by passing a custom DBURL
         $target = new SPPDB("{$toEngine}:dbname=default");
 
+        $fromTableEscaped = $this->escapeIdentifier($fromTable);
+        $toTableEscaped = $this->escapeIdentifier($toTable);
+
         // 3. Extract
-        $data = $source->execute_query("SELECT * FROM {$fromTable}");
+        $data = $source->execute_query("SELECT * FROM {$fromTableEscaped}");
         $count = count($data);
 
         if ($count === 0) {
@@ -55,12 +63,12 @@ class DbSyncCommand extends Command
 
         // 4. Provision Target (Incremental)
         $schema = $source->getSchema($fromTable);
-        $target->createTableIncremental($toTable, $schema['columns']);
+        $target->createTableIncremental($toTableEscaped, $schema['columns']);
 
         // 5. Load
         echo "Processing {$count} records...\n";
         foreach ($data as $row) {
-            $target->insertValues($toTable, $row);
+            $target->insertValues($toTableEscaped, $row);
         }
 
         echo "Success! Sync completed.\n";

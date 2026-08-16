@@ -22,7 +22,7 @@ class ConfigSyncCommand extends \SPP\CLI\Command
 
     public function execute(array $args): void
     {
-        $action = $args[0] ?? 'all';
+        $action = $this->getArgument($args, 0) ?? 'all';
 
         echo "Starting configuration synchronization...\n";
 
@@ -47,8 +47,8 @@ class ConfigSyncCommand extends \SPP\CLI\Command
     {
         echo "Syncing workflows...\n";
         try {
-            if (class_exists('\\SPP\\Core\\WorkflowManager')) {
-                $workflows = \SPP\Core\WorkflowManager::getWorkflows();
+            if (class_exists('\\SPPMod\\SPPWorkflow\\SPPWorkflowManager')) {
+                $workflows = \SPPMod\SPPWorkflow\SPPWorkflowManager::getWorkflows();
                 echo "Workflows loaded successfully. Validated " . count($workflows) . " workflows from configuration.\n";
                 
                 if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
@@ -56,6 +56,9 @@ class ConfigSyncCommand extends \SPP\CLI\Command
                     
                     // 1. Provision spp_workflows table
                     $tableWorkflows = \SPPMod\SPPDB\SPPDB::sppTable('spp_workflows');
+                    if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                        $tableWorkflows = \SPP\Core\SchemaValidator::escapeIdentifier($tableWorkflows);
+                    }
                     if (!$db->tableExists($tableWorkflows)) {
                         echo "Table {$tableWorkflows} does not exist. Creating...\n";
                         $sql = "CREATE TABLE {$tableWorkflows} (
@@ -89,6 +92,9 @@ class ConfigSyncCommand extends \SPP\CLI\Command
 
                     // 2. Provision spp_entity_workflow_history table
                     $tableHistory = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_workflow_history');
+                    if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                        $tableHistory = \SPP\Core\SchemaValidator::escapeIdentifier($tableHistory);
+                    }
                     if (!$db->tableExists($tableHistory)) {
                         echo "Table {$tableHistory} does not exist. Creating...\n";
                         $sql = "CREATE TABLE {$tableHistory} (
@@ -190,6 +196,9 @@ class ConfigSyncCommand extends \SPP\CLI\Command
         try {
             $db = new \SPPMod\SPPDB\SPPDB();
             $table = \SPPMod\SPPDB\SPPDB::sppTable('spp_entity_fields');
+            if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+            }
 
             if (!$db->tableExists($table)) {
                 echo "Table {$table} does not exist. Creating...\n";

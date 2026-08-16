@@ -23,9 +23,13 @@ class SPPUser extends SPPEntity
     /**
      * Map to existing table name.
      */
-    public function getTable()
+    public function getTable(): string
     {
-        return SPPDB::sppTable('users');
+        $metaTable = static::getMetadata('table');
+        if ($metaTable && $metaTable !== 'users') {
+            return $metaTable;
+        }
+        return \SPPMod\SPPDB\SPPDB::sppTable('users');
     }
 
     /**
@@ -137,7 +141,17 @@ class SPPUser extends SPPEntity
             $val = $this->_values['password'];
             // Hash only if it's not already a bcrypt hash
             if (strpos($val, '$2y$') !== 0) {
-                $this->_values['password'] = password_hash($val, PASSWORD_DEFAULT);
+                $hash = password_hash($val, PASSWORD_DEFAULT);
+            } else {
+                $hash = $val;
+            }
+            
+            $cols = $this->getAttributes();
+            if (array_key_exists('password_hash', $cols)) {
+                $this->_values['password_hash'] = $hash;
+                unset($this->_values['password']);
+            } else {
+                $this->_values['password'] = $hash;
             }
         }
 
@@ -222,34 +236,35 @@ class SPPUser extends SPPEntity
         $hash = $hash ?: $hash2;
 
         if (empty($hash)) {
+            file_put_contents(SPP_BASE_DIR . '/var/logs/my_auth_debug.log', "verifyPassword failed: hash is empty. Attributes: " . print_r($this->getAttributes(), true) . "\n", FILE_APPEND);
             return false;
         }
 
         $isActive = true;
         try {
-            if (isset($this->active)) {
-                $isActive = $this->active;
-            } elseif (isset($this->status)) {
-                $isActive = ($this->status === 'active' || $this->status === '1');
+            $vals = $this->getValues();
+            if (array_key_exists('active', $vals)) {
+                $isActive = $vals['active'];
+            } elseif (array_key_exists('status', $vals)) {
+                $isActive = ($vals['status'] === 'active' || $vals['status'] === '1');
+            } elseif (array_key_exists('enabled', $vals)) {
+                $isActive = ($vals['enabled'] === 'Y' || $vals['enabled'] === '1' || $vals['enabled'] === true);
             }
-        } catch (\Exception $e) {
-            // Ignore if neither attribute exists
-        }
+        } catch (\Exception $e) { }
 
         if (!$isActive) {
+            file_put_contents(SPP_BASE_DIR . '/var/logs/my_auth_debug.log', "verifyPassword failed: not active\n", FILE_APPEND);
             return false;
         }
 
         if (strpos($hash, '$2y$') === 0) {
-            return password_verify($passwd, $hash);
+            $valid = password_verify($passwd, $hash);
+            file_put_contents(SPP_BASE_DIR . '/var/logs/my_auth_debug.log', "verifyPassword bcrypt: $valid for hash $hash\n", FILE_APPEND);
+            return $valid;
         }
 
-        // Legacy plain-text fallback with automatic hash upgrade
-        if ($passwd === $hash) {
-            $this->password = password_hash($passwd, PASSWORD_DEFAULT);
-            $this->save();
-            return true;
-        }
+        // Add logging for fallback checks
+        file_put_contents(SPP_BASE_DIR . '/var/logs/my_auth_debug.log', "verifyPassword fallback reached. hash: $hash\n", FILE_APPEND);
 
         return false;
     }

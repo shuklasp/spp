@@ -1,18 +1,19 @@
 ## `deploy:logs`
 
-**Description**: View and tail remote application error logs securely over HTTP
+**Purpose**: View and tail remote application error logs securely over HTTP
 
 ### Synopsis
 ```bash
 php spp.php deploy:logs [OPTIONS]
 ```
 
-### Options
-- `--key=` : Expects a value. Extracted via static analysis from DeployLogsCommand.php
-- `--lines=` : Expects a value. Extracted via static analysis from DeployLogsCommand.php
-- `--tail` : Boolean flag. Extracted via static analysis from DeployLogsCommand.php
+### Options Available
+- `--key=` : Expects a value. Extracted via static analysis.
+- `--lines=` : Expects a value. Extracted via static analysis.
+- `--tail` : Boolean flag or option. Extracted via static analysis.
+- `--status` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

@@ -1,25 +1,7 @@
-.TH ARENA:MEMORY:MONITOR 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "arena-memory-monitor" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-arena:memory:monitor \- Monitor active MemoryArena worker allocations and trigger instantaneous zero-overhead resets.
+arena-memory-monitor \- Monitor active MemoryArena worker allocations and trigger instantaneous zero-overhead resets.
 .SH SYNOPSIS
-\fBphp spp.php arena:memory:monitor\fR [\fB\-\-arena=\fI<name>\fR] [\fB\-\-capacity=\fI<MB>\fR] [\fB\-\-iterations=\fI<N>\fR]
+.B php spp.php arena-memory-monitor
 .SH DESCRIPTION
-The \fBarena:memory:monitor\fR command introduces high-performance, zero-allocation memory arena mechanics to long-running PHP CLI background daemons. Instead of relying on traditional PHP garbage collection—which causes periodic execution pauses and gradual memory fragmentation over months of continuous uptime—daemons pre-allocate contiguous memory arenas. Workers allocate objects within the arena during a job and instantly reset the arena offset pointer to zero upon completion.
-.SH OPTIONS
-.TP
-\fB\-\-arena=\fI<name>\fR
-Name of the MemoryArena instance to initialize and monitor. Defaults to \fIspp_cqrs_worker_arena\fR.
-.TP
-\fB\-\-capacity=\fI<MB>\fR
-Total contiguous memory capacity in megabytes to pre-allocate for the arena pool. Defaults to \fI64\fR.
-.TP
-\fB\-\-iterations=\fI<N>\fR
-Number of simulated worker job cycles to execute and reset. Defaults to \fI3\fR.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Validates secure CLI execution via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBArena Pre-Allocation\fR: Reserves a contiguous memory block in user space corresponding to the requested capacity in megabytes.
-.PP
-3. \fBOffset Tracking\fR: Allocates worker objects (\fIpayload_json\fR, \fIentity_snapshot\fR, \fIw3c_trace_spans\fR) by advancing an internal byte offset pointer, completely bypassing traditional Zend engine heap allocation overhead.
-.PP
-4. \fBPointer Resets\fR: Upon worker job completion, instantaneously resets the allocation offset pointer back to zero. This effectively wipes all temporary job objects from memory in \fIO(1)\fR time without triggering a single garbage collection cycle.
+Monitor active MemoryArena worker allocations and trigger instantaneous zero-overhead resets.

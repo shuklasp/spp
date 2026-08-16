@@ -11,9 +11,15 @@ class MakeModelCommand extends BaseMakeCommand
     protected string $name = 'make:model';
     protected string $description = 'Create a new model class (Fluent-ready)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:model <name> [--app=appname] [--table=tablename]\n";
             return;

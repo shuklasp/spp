@@ -11,6 +11,16 @@ shared_groups:
       - loginrec
       - remember_tokens
       - migrations
+      - login_attempts
+      - personal_access_tokens
+      - oauth_providers
+      - sppauth_audit_log
+      - magic_links
+      - webauthn_credentials
+      - oauth_clients
+      - oauth_tokens
+      - sppgroup
+      - sppgroupmember
   academic:
     extends: core
     table_prefix: sch_
@@ -221,6 +231,18 @@ apps:
     shared_group: core
     etc_path: etc/apps/testapp
     src_path: src/testapp
+  ptable:
+    base_url: /ptable
+    table_prefix: ptable_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/ptable
+    src_path: src/ptable
+    session_handler: redis
+    session_save_path: 'tcp://127.0.0.1:6379'
+    cache_driver: redis
+    cache_host: 127.0.0.1
+    cache_port: 6379
 base_app: lekhak
 prototyping:
   auto_evolution: manual

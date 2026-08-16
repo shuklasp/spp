@@ -117,12 +117,16 @@ async function mountSPPUXComponent(el) {
                 </div>
 
                 <div style="display:flex; justify-content:flex-end;">
-                    <button onclick="window.location.reload(true)" style="background:#ef4444; color:white; border:none; padding:0.6rem 1.2rem; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.9rem; transition:background 0.2s;">
+                    <button class="spp-error-reload-btn" style="background:#ef4444; color:white; border:none; padding:0.6rem 1.2rem; border-radius:6px; font-weight:bold; cursor:pointer; font-size:0.9rem; transition:background 0.2s;">
                         ↻ Hard Reload App
                     </button>
                 </div>
             </div>
         `;
+        const reloadBtn = el.querySelector('.spp-error-reload-btn');
+        if (reloadBtn) {
+            reloadBtn.addEventListener('click', () => window.location.reload(true));
+        }
         return null;
     }
 }

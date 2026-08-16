@@ -1,18 +1,21 @@
-.TH SPP-make-deployment 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-deployment 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-deployment \- Generate Enterprise Docker and K8s scaffolding for the application.
-.SH SYNOPSIS
-.B php spp.php make:deployment
-[OPTIONS]
+make:deployment
+.PP
+ \- Generate Enterprise Docker and K8s scaffolding for the application.
 .SH DESCRIPTION
 Generate Enterprise Docker and K8s scaffolding for the application.
 .PP
-.SH OPTIONS
-.TP
-.B --with-redis
-Boolean flag. Extracted via static analysis from MakeDeploymentCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php make:deployment [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+\(bu `--with-redis` : Boolean flag or option. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP

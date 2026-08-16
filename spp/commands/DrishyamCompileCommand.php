@@ -9,6 +9,12 @@ class DrishyamCompileCommand extends Command
     protected string $name = 'drishyam:compile';
     protected string $description = 'Pre-compile Drishyam templates for production';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Compiling Drishyam templates...\n";

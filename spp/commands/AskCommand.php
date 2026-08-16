@@ -14,9 +14,15 @@ class AskCommand extends Command
     protected string $name = 'ask';
     protected string $description = 'Ask the SPP AI Mentor a question about the framework.';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        if (empty($args[0])) {
+        if (empty($this->getArgument($args, 0))) {
             echo "Usage: php spp.php ask \"How do I do X?\"\n";
             return;
         }

@@ -9,6 +9,12 @@ class CronFlushCommand extends Command
     protected string $name = 'cron:flush';
     protected string $description = 'Clear cron history and lock files';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

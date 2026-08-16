@@ -101,18 +101,7 @@ class LekhakNode extends SPPEntity
      */
     public function transitionStatus(string $newStatus, $user = null): bool
     {
-        if (class_exists('\\SPP\\Core\\WorkflowManager')) {
-            if (\SPP\Core\WorkflowManager::validateTransition($this, $this->status ?? 'draft', $newStatus, $user)) {
-                $this->status = $newStatus;
-                $this->save();
-                return true;
-            }
-        } else {
-            $this->status = $newStatus;
-            $this->save();
-            return true;
-        }
-        return false;
+        return $this->applyTransition($newStatus, $user);
     }
 
     /**

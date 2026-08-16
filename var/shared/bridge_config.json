@@ -1,35 +1,29 @@
 {
-    "timestamp": 1783768092,
+    "timestamp": 1786841747,
     "spp_version": "0.7",
-    "base_dir": "C:\\projects\\apache\\school1\\spp",
+    "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
     "database": {
         "dbtype": "sqlite",
-        "dbhost": "localhost",
-        "dbname": "lekhak1",
-        "dbuser": "root",
-        "dbpasswd": "hello123"
+        "dbhost": false,
+        "dbname": false,
+        "dbuser": false,
+        "dbpasswd": false
     },
     "modules": {
-        "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
-        "dbconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/dbconfig",
-        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
-        "spplogger": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spplogger",
-        "sppview": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
-        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
-        "drishyam": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/drishyam",
-        "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/parikshak",
-        "sppai": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppai",
-        "lekhni": "C:\\projects\\apache\\school1\\spp\/modules\/contrib\/lekhni",
-        "sppxdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppxdb",
-        "sppdeploy": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdeploy",
-        "sppdoc": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdoc",
-        "spprouter": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spprouter",
-        "lekhak": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak",
-        "lekhak_commerce": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_commerce",
-        "lekhak_drupal_bridge": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_drupal_bridge",
-        "lekhak_peeche": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/lekhak_peeche",
-        "sankhyaki": "C:\/projects\/apache\/school1\/src\/lekhak\/modules\/sankhyaki",
-        "sppadmin": false
+        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi",
+        "sppdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdb",
+        "dbconfig": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/dbconfig",
+        "sppauth": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppauth",
+        "spplogger": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spplogger",
+        "sppview": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppview",
+        "drishyam": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/drishyam",
+        "parikshak": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/parikshak",
+        "sppai": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppai",
+        "lekhni": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/contrib\/lekhni",
+        "sppxdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb",
+        "sppdeploy": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdeploy",
+        "sppdoc": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdoc",
+        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter"
     },
     "runtimes": {
         "python": {
@@ -55,7 +49,7 @@
         "dotnet": {
             "name": ".NET",
             "path": "\/usr\/bin\/dotnet",
-            "version": "8.0.128"
+            "version": "8.0.129"
         },
         "go": {
             "name": "Go",
@@ -69,6 +63,6 @@
         }
     },
     "bridge_settings": {
-        "shared_dir": "C:\\projects\\apache\\school1\\var\\shared"
+        "shared_dir": "\/mnt\/c\/projects\/apache\/school1\/var\/shared"
     }
 }

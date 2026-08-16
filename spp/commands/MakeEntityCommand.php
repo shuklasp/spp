@@ -38,9 +38,14 @@ Examples:
 HELP;
     }
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $entityName = $args[2] ?? null;
+        $entityName = $this->getArgument($args, 0) ?? null;
 
         $fieldsArg = null;
         $tableName = null;
@@ -194,6 +199,33 @@ HELP;
             }
             \SPPMod\SPPDB\SPPEntity::saveEntityDefinition($entityName, $appname, $config);
             echo "\nSuccess: Entity {$entityName} saved and scaffolded in {$appname} context.\n";
+
+            // 4. Generate Workflow Scaffolding & Tutorial Comments
+            $workflowDir = SPP_APP_DIR . "/etc/apps/" . $appname . "/workflows";
+            if (!is_dir($workflowDir)) mkdir($workflowDir, 0777, true);
+
+            $entityNameLower = strtolower($entityName);
+            $workflowContent = <<<WORKFLOW
+# Scaffolded Workflow Definition for {$entityName}
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+{$entityNameLower}:
+  description: "Automated lifecycle workflow for {$entityName}"
+  states:
+    - draft
+    - pending_approval
+    - active
+WORKFLOW;
+            file_put_contents($workflowDir . "/" . strtolower($entityName) . ".yml", trim($workflowContent));
+            echo "Success: Workflow YAML definition generated for {$entityName}.\n";
+
 
             // If --api or --resource flag is passed, scaffold a REST controller
             if (in_array('--api', $args) || in_array('--resource', $args)) {

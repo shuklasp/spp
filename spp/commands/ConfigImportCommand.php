@@ -30,6 +30,12 @@ class ConfigImportCommand extends \SPP\CLI\Command
         return 'Import database tables and settings from an exported SQL, SQLite, or XDB file';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $options = $this->parseOptions($args);
@@ -160,7 +166,8 @@ class ConfigImportCommand extends \SPP\CLI\Command
 
             if ($onConflict === 'drop') {
                 try {
-                    $db->exec("DROP TABLE IF EXISTS {$table}");
+                    $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+                    $db->exec("DROP TABLE IF EXISTS {$safeTable}");
                 } catch (\Exception $e) {
                 }
             }
@@ -232,7 +239,8 @@ class ConfigImportCommand extends \SPP\CLI\Command
 
             if ($onConflict === 'drop') {
                 try {
-                    $db->exec("DROP TABLE IF EXISTS {$tableName}");
+                    $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($tableName);
+                    $db->exec("DROP TABLE IF EXISTS {$safeTable}");
                 } catch (\Exception $e) {
                 }
             }

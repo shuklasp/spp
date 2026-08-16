@@ -4,7 +4,12 @@ use SPP\CLI\Command;
 class MarketingCampaignDispatchCommand extends Command {
     protected string $name = 'marketing:campaign:dispatch';
     protected string $description = 'Dispatch a marketing campaign manually';
-    public function execute(array $args): void {
+        public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
+public function execute(array $args): void {
         $campaignId = null;
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--id=')) $campaignId = substr($arg, 5);

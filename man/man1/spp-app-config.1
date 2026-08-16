@@ -1,20 +1,24 @@
-.TH SPP-app-config 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-app-config 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-app-config \- Configure application settings (e.g., base_url, table_prefix)
-.SH SYNOPSIS
-.B php spp.php app:config
-[OPTIONS]
+app:config
+.PP
+ \- Configure application settings (e.g., base_url, table_prefix)
 .SH DESCRIPTION
 Configure application settings (e.g., base_url, table_prefix)
 .PP
+.SH SYNOPSIS
+php spp.php app:config [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php app:config <app_name> [--base_url=...] [--table_prefix=...]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+No static options detected for this command.
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+.PP
+.PP

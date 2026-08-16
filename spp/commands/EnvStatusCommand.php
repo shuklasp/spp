@@ -9,6 +9,12 @@ class EnvStatusCommand extends Command
     protected string $name = 'env:status';
     protected string $description = 'Display system health and environment status';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

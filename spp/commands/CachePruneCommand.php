@@ -10,6 +10,12 @@ class CachePruneCommand extends Command
     protected string $name = 'cache:prune';
     protected string $description = 'Prune expired cache items from storage';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

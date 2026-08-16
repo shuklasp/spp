@@ -9,6 +9,12 @@ class EventFireCommand extends Command
     protected string $name = 'event:fire';
     protected string $description = 'Trigger a specific event manually';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

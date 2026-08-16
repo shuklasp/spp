@@ -14,6 +14,12 @@ class AppListCommand extends Command
     protected string $name = 'app:list';
     protected string $description = 'List all registered SPP applications';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $gsPath = SPP_BASE_DIR . '/etc/global-settings.yml';

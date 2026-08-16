@@ -164,7 +164,13 @@ class ModuleInstaller
                         $vals = array_values($row);
                         $placeholders = implode(', ', array_fill(0, count($vals), '?'));
                         $insertQ = "INSERT INTO $actualTable (" . implode(', ', $cols) . ") VALUES ($placeholders)";
-                        $db->execute_query($insertQ, $vals);
+                        try {
+                            $db->execute_query($insertQ, $vals);
+                        } catch (\Exception $e) {
+                            $schema = $db->getAdapter()->getSchema($actualTable);
+                            echo "Schema for $actualTable: " . print_r($schema, true) . "\n";
+                            throw $e;
+                        }
                     }
                 }
             }

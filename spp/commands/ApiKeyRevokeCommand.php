@@ -4,6 +4,12 @@ use SPP\CLI\Command;
 class ApiKeyRevokeCommand extends Command {
     protected string $name = 'api:key:revoke';
     protected string $description = 'Revoke an existing API token';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void {
         $token = null;
         foreach ($args as $arg) {

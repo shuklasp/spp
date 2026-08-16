@@ -1,6 +1,6 @@
 ## `event:fire`
 
-**Description**: Trigger a specific event manually
+**Purpose**: Trigger a specific event manually
 
 ### Synopsis
 ```bash
@@ -13,12 +13,12 @@ Usage: php spp.php event:fire --event=<event_name> [--payload=<json>]
 
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from EventFireCommand.php
-- `--event=` : Expects a value. Extracted via static analysis from EventFireCommand.php
-- `--payload=` : Expects a value. Extracted via static analysis from EventFireCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--event=` : Expects a value. Extracted via static analysis.
+- `--payload=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
 

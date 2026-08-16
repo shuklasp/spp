@@ -1,6 +1,6 @@
 ## `oauth:client:delete`
 
-**Description**: Delete an OAuth 2.0 Client App
+**Purpose**: Delete an OAuth 2.0 Client App
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php oauth:client:delete <id>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Instantiates key components: SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Instantiates internal components: SPPDB.
 

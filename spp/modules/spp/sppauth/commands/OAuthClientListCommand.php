@@ -9,12 +9,23 @@ class OAuthClientListCommand extends Command
     protected string $name = 'oauth:client:list';
     protected string $description = 'List all OAuth 2.0 Client Apps';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $db = new SPPDB();
         $table = SPPDB::sppTable('oauth_clients');
+        $isJson = isset($args['json']) || in_array('--json', $args, true);
 
         $clients = $db->execute_query("SELECT id, name, redirect_uri, created_at FROM $table ORDER BY created_at DESC");
+
+        if ($isJson) {
+            echo json_encode(['sources' => [['items' => $clients ?? []]]]);
+            return;
+        }
 
         if (empty($clients)) {
             echo "No OAuth clients found.\n";

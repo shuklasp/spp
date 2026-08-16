@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 class PolyglotStatusCommand extends Command {
     protected string $name = 'polyglot:status';
     protected string $description = 'Checks the runtime environment for polyglot language binaries';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void {
         echo "Checking Polyglot runtime environment...\n\n";
         

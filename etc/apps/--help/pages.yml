@@ -1,8 +1,0 @@
-pages:
-  index:
-    url: index.php
-    title: '--help'
-    special: 1
-defaults:
-  home: index
-  pagedir: /src/--help

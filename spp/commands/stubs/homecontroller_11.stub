@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{ns}}\\Serv;
+namespace App\{{ns}}\Serv;
 
 /**
  * ============================================================================
@@ -9,7 +9,7 @@ namespace App\\{{ns}}\\Serv;
  * HOW THIS WORKS:
  * Controllers are referenced in pages.yml as:
  *   home:
- *     controller: \\App\\{{ns}}\\Serv\\HomeController@index
+ *     controller: \App\{{ns}}\Serv\HomeController@index
  *
  * When SPPRouter matches the route, ViewRouter calls this method.
  * The method should return rendered HTML (string).
@@ -24,13 +24,13 @@ namespace App\\{{ns}}\\Serv;
  *   @sppform('formName')                     — Render YAML form
  *   @sppauth ... @endsppauth                — Show only if logged in
  *   @sppguest ... @endsppguest              — Show only if NOT logged in
- *   @sppbind(\$entity)                       — Bind entity to form
+ *   @sppbind($entity)                       — Bind entity to form
  *   @sppoffline('key') ... @endsppoffline   — Offline cache template
  *
  * HOW TO ADD A NEW PAGE:
  *   1. Create resources/views/mypage.blade.php
- *   2. Add method: public function mypage() { return \$this->render('mypage'); }
- *   3. Add route in pages.yml: mypage: { controller: \\App\\{{ns}}\\Serv\\HomeController@mypage }
+ *   2. Add method: public function mypage() { return $this->render('mypage'); }
+ *   3. Add route in pages.yml: mypage: { controller: \App\{{ns}}\Serv\HomeController@mypage }
  * ============================================================================
  */
 class HomeController
@@ -38,11 +38,11 @@ class HomeController
     public function index()
     {
         // Boot SPP-UX assets so Blade views can use @sppux directive
-        if (class_exists('\\SPPMod\\Drishyam\\SPPUX')) {
-            \\SPPMod\\Drishyam\\SPPUX::boot();
+        if (class_exists('\SPPMod\Drishyam\SPPUX')) {
+            \SPPMod\Drishyam\SPPUX::boot();
         }
 
-        return \$this->render('home', [
+        return $this->render('home', [
             'title' => 'Welcome to {{ns}}',
             'features' => [
                 ['icon' => '🚀', 'title' => 'SPP-UX Components', 'desc' => 'Reactive UI with zero dependencies'],
@@ -55,7 +55,7 @@ class HomeController
 
     public function about()
     {
-        return \$this->render('about', [
+        return $this->render('about', [
             'title' => 'About {{ns}}',
         ]);
     }
@@ -66,7 +66,7 @@ class HomeController
      */
     public function guide()
     {
-        return \$this->render('guide', [
+        return $this->render('guide', [
             'title' => '{{ns}} Developer Guide',
         ]);
     }
@@ -74,11 +74,11 @@ class HomeController
     /**
      * Helper: Render a Blade template with data.
      */
-    protected function render(string \$view, array \$data = []): string
+    protected function render(string $view, array $data = []): string
     {
-        \$blade = \\SPPMod\\Drishyam\\SPPBlade::getInstance();
-        \$data['app_name'] = '{{ns}}';
-        \$data['base_url'] = \\SPP\\App::getBaseUrl('{{ns}}');
-        return \$blade->run(\$view, \$data);
+        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
+        $data['app_name'] = '{{ns}}';
+        $data['base_url'] = \SPP\App::getBaseUrl('{{ns}}');
+        return $blade->renderInstance($view, $data);
     }
 }

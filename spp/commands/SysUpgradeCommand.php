@@ -17,6 +17,12 @@ class SysUpgradeCommand extends Command
         return 'Synchronize the database schema incrementally from all active module definitions (db.yml)';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "🚀 Starting System Upgrade...\n";

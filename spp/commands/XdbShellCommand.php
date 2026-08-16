@@ -10,6 +10,12 @@ class XdbShellCommand extends \SPP\CLI\Command
     protected string $name = 'xdb:shell';
     protected string $description = 'Launch the interactive SPPXDB shell';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $shellScript = dirname(__DIR__) . '/modules/spp/sppxdb/xdb-shell.php';

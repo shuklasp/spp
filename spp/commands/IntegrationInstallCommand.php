@@ -22,14 +22,17 @@ class IntegrationInstallCommand extends Command
 
     public function execute(array $args): void
     {
-        if (count($args) < 2) {
+        $appName = $this->getArgument($args, 0);
+        $routePath = $this->getArgument($args, 1);
+
+        if (!$appName || !$routePath) {
             echo "Usage: php spp.php integration:install <app_name> <route_path> [--isolation=virtual|physical]\n";
             echo "Example: php spp.php integration:install wordpress /blog --isolation=virtual\n";
             return;
         }
 
-        $appName = strtolower($args[0]);
-        $routePath = '/' . ltrim($args[1], '/');
+        $appName = strtolower($appName);
+        $routePath = '/' . ltrim($routePath, '/');
         
         $isolation = 'virtual';
         foreach ($args as $arg) {
@@ -48,7 +51,9 @@ class IntegrationInstallCommand extends Command
         
         echo "1. Creating physical directory for {$appName} at {$targetDir}...\n";
         if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
+            if (!@mkdir($targetDir, 0755, true)) {
+                throw new \Exception("Failed to create directory: {$targetDir}. Check if the path contains invalid characters (like colons on Windows) or if you lack permissions.");
+            }
             echo "   [SUCCESS] Directory created.\n";
         } else {
             echo "   [INFO] Directory already exists.\n";

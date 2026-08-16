@@ -13,10 +13,16 @@ class MakePolyglotCommand extends Command
     protected string $name = 'make:polyglot';
     protected string $description = 'Scaffold a new polyglot service (e.g. php spp.php make:polyglot python MyService)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $language = $args[2] ?? null;
-        $serviceName = $args[3] ?? null;
+        $language = $this->getArgument($args, 0);
+        $serviceName = $this->getArgument($args, 1);
 
         if (!$language || !$serviceName) {
             echo "Usage: spp make:polyglot <language> <service_name> [--app=context]\n";
@@ -46,14 +52,16 @@ class MakePolyglotCommand extends Command
         
         // Pass the remaining args to the specific command
         $newArgs = [
-            $args[0],
-            'make:' . $language . '-service',
+            'spp.php',
+            'make:' . $language,
             $serviceName
         ];
         
         // Append any flags like --app
-        for ($i = 4; $i < count($args); $i++) {
-            $newArgs[] = $args[$i];
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--')) {
+                $newArgs[] = $arg;
+            }
         }
 
         if (class_exists($className)) {

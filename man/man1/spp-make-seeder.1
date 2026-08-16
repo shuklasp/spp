@@ -1,22 +1,25 @@
-.TH SPP-make-seeder 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-seeder 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-seeder \- Create a new Database Seeder class
-.SH SYNOPSIS
-.B php spp.php make:seeder
-[OPTIONS]
+make:seeder
+.PP
+ \- Create a new Database Seeder class
 .SH DESCRIPTION
 Create a new Database Seeder class
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from MakeSeederCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php make:seeder [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Performs raw filesystem modifications (create/write/delete).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: Database.
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+\(bu Instantiates internal components: Database.
+.br
+.PP
+.PP

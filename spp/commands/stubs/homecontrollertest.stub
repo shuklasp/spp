@@ -1,8 +1,8 @@
 <?php
-namespace App\\{{ns}}\\Tests;
+namespace App\{{ns}}\Tests;
 
-use SPPMod\\Parikshak\\SPPTestCase;
-use SPPMod\\Parikshak\\Attributes\\DataProvider;
+use SPPMod\Parikshak\SPPTestCase;
+use SPPMod\Parikshak\Attributes\DataProvider;
 
 /**
  * ============================================================================
@@ -33,15 +33,15 @@ use SPPMod\\Parikshak\\Attributes\\DataProvider;
  *   php spp.php test:run --app={{ns}} EntityName    (test single entity)
  *
  * AVAILABLE ASSERTIONS (from SPPTestCase):
- *   \$this->assertTrue(\$condition, 'message')
- *   \$this->assertFalse(\$condition, 'message')
- *   \$this->assertEquals(\$expected, \$actual, 'message')
- *   \$this->assertSame(\$expected, \$actual, 'message')        // strict ===
- *   \$this->assertInstanceOf(ClassName::class, \$object)
- *   \$this->expectException(ExceptionClass::class, \$callable)
+ *   $this->assertTrue($condition, 'message')
+ *   $this->assertFalse($condition, 'message')
+ *   $this->assertEquals($expected, $actual, 'message')
+ *   $this->assertSame($expected, $actual, 'message')        // strict ===
+ *   $this->assertInstanceOf(ClassName::class, $object)
+ *   $this->expectException(ExceptionClass::class, $callable)
  *
  * AVAILABLE TRAITS:
- *   InteractsWithApi     — HTTP request simulation (\$this->get, \$this->post, etc.)
+ *   InteractsWithApi     — HTTP request simulation ($this->get, $this->post, etc.)
  *   InteractsWithBrowser — Headless browser testing
  *   InteractsWithMockery — Object mocking via Mockery
  *   RefreshDatabase      — Reset DB between tests
@@ -58,7 +58,7 @@ use SPPMod\\Parikshak\\Attributes\\DataProvider;
  */
 class HomeControllerTest extends SPPTestCase
 {
-    use \\SPPMod\\Parikshak\\InteractsWithApi;
+    use \SPPMod\Parikshak\InteractsWithApi;
 
     /**
      * setUp() runs before EACH test method.
@@ -68,7 +68,7 @@ class HomeControllerTest extends SPPTestCase
     {
         parent::setUp();
         // Example: Initialize test data
-        // \$this->testData = ['name' => 'Test Item'];
+        // $this->testData = ['name' => 'Test Item'];
     }
 
     /**
@@ -88,9 +88,9 @@ class HomeControllerTest extends SPPTestCase
      */
     public function testAppNameIsValid(): void
     {
-        \$appName = '{{ns}}';
-        \$this->assertTrue(!empty(\$appName), 'App name should not be empty');
-        \$this->assertTrue(strlen(\$appName) > 0, 'App name should have length > 0');
+        $appName = '{{ns}}';
+        $this->assertTrue(!empty($appName), 'App name should not be empty');
+        $this->assertTrue(strlen($appName) > 0, 'App name should have length > 0');
     }
 
     /**
@@ -98,9 +98,9 @@ class HomeControllerTest extends SPPTestCase
      */
     public function testStringEquality(): void
     {
-        \$expected = '{{ns}}';
-        \$actual = '{{ns}}';
-        \$this->assertEquals(\$expected, \$actual, 'App name should match');
+        $expected = '{{ns}}';
+        $actual = '{{ns}}';
+        $this->assertEquals($expected, $actual, 'App name should match');
     }
 
     /**
@@ -108,9 +108,9 @@ class HomeControllerTest extends SPPTestCase
      */
     public function testStrictTypeChecking(): void
     {
-        \$this->assertSame(42, 42, 'Integer 42 should strictly equal 42');
-        \$this->assertFalse(false, 'false should be false');
-        \$this->assertTrue(true, 'true should be true');
+        $this->assertSame(42, 42, 'Integer 42 should strictly equal 42');
+        $this->assertFalse(false, 'false should be false');
+        $this->assertTrue(true, 'true should be true');
     }
 
     /**
@@ -118,10 +118,10 @@ class HomeControllerTest extends SPPTestCase
      * The #[DataProvider] attribute links to a method that returns test data.
      */
     #[DataProvider('validationDataProvider')]
-    public function testInputValidation(string \$input, bool \$expectedValid): void
+    public function testInputValidation(string $input, bool $expectedValid): void
     {
-        \$isValid = !empty(trim(\$input));
-        \$this->assertSame(\$expectedValid, \$isValid, "Validation failed for input: '\$input'");
+        $isValid = !empty(trim($input));
+        $this->assertSame($expectedValid, $isValid, "Validation failed for input: '$input'");
     }
 
     /**
@@ -143,8 +143,8 @@ class HomeControllerTest extends SPPTestCase
      */
     public function testExceptionIsThrown(): void
     {
-        \$this->expectException(\\InvalidArgumentException::class, function () {
-            throw new \\InvalidArgumentException('This is expected');
+        $this->expectException(\InvalidArgumentException::class, function () {
+            throw new \InvalidArgumentException('This is expected');
         });
     }
 
@@ -155,20 +155,20 @@ class HomeControllerTest extends SPPTestCase
     public function testApiEndpointSimulation(): void
     {
         // The InteractsWithApi trait provides:
-        //   \$this->get('/path')
-        //   \$this->post('/path', ['data' => 'value'])
-        //   \$this->put('/path', ['data' => 'value'])
-        //   \$this->delete('/path')
+        //   $this->get('/path')
+        //   $this->post('/path', ['data' => 'value'])
+        //   $this->put('/path', ['data' => 'value'])
+        //   $this->delete('/path')
         //
         // Returns SPPTestResponse with:
-        //   \$response->statusCode
-        //   \$response->content
-        //   \$response->json()  — decoded JSON
-        //   \$response->assertStatus(200)
-        //   \$response->assertJsonHas('key')
+        //   $response->statusCode
+        //   $response->content
+        //   $response->json()  — decoded JSON
+        //   $response->assertStatus(200)
+        //   $response->assertJsonHas('key')
 
         // Note: Full API testing requires the SPP Kernel boot.
         // This is a placeholder showing the API:
-        \$this->assertTrue(true, 'API testing placeholder — requires full kernel');
+        $this->assertTrue(true, 'API testing placeholder — requires full kernel');
     }
 }

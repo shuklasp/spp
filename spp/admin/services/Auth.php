@@ -15,10 +15,12 @@ function live_Auth_Login($la, $params)
     try {
         require_once SPP_MODULES_DIR . '/spp/sppauth/class.sppauth.php';
 
+        // Regenerate session ID before login so the new ID is recorded in the database
+        \SPP\SPPSession::regenerateId(true);
+
         $success = \SPPMod\SPPAuth\SPPAuth::login($username, $password);
 
         if ($success) {
-            \SPP\SPPSession::regenerateId(true);
             $_SESSION['spp_admin_user'] = $username;
             \SPP\SPPSession::setSessionVar('__sppauth_user__', $username);
             $la->setData(['user' => $username])->notify("Login successful.", "success");
@@ -74,63 +76,6 @@ function live_Auth_VerifyMFA($la, $params)
         }
     } catch (\Exception $e) {
         $la->setStatus('error')->notify("MFA error: " . $e->getMessage());
-    }
-}
-
-// --- Magic Links ---
-
-function live_Auth_SendMagicLink($la, $params)
-{
-    try {
-        $email = $params['email'] ?? '';
-        if (empty($email))
-            return $la->setStatus('error')->notify("Email is required.");
-
-        require_once SPP_MODULES_DIR . '/spp/sppauth/class.magiclink.php';
-
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $sql = "SELECT id FROM " . \SPPMod\SPPDB\SPPDB::sppTable('users') . " WHERE email = ? LIMIT 1";
-        $res = $db->execute_query($sql, [$email]);
-
-        // We always return success to prevent email enumeration attacks
-        if (!empty($res)) {
-            $userId = $res[0]['id'];
-            $token = \SPPMod\SPPAuth\MagicLink::createToken($userId, 15);
-            // In a real system, send email via SPPMailer.
-            // For now, log it.
-            $logFile = 'C:/projects/apache/school1/scratch/auth_debug.log';
-            file_put_contents($logFile, "[MAGIC LINK] Generated for $email: $token\n", FILE_APPEND);
-        }
-
-        $la->notify("If an account exists for $email, a magic link has been sent.", "success");
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Error: " . $e->getMessage());
-    }
-}
-
-function live_Auth_ConsumeMagicLink($la, $params)
-{
-    try {
-        $token = $params['token'] ?? '';
-        if (empty($token))
-            return $la->setStatus('error')->notify("Invalid token.");
-
-        require_once SPP_MODULES_DIR . '/spp/sppauth/class.sppauth.php';
-        require_once SPP_MODULES_DIR . '/spp/sppauth/class.magiclink.php';
-
-        $user = \SPPMod\SPPAuth\MagicLink::consumeToken($token);
-
-        if ($user) {
-            \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
-            $_SESSION['spp_admin_user'] = $user->username;
-            \SPP\SPPSession::setSessionVar('__sppauth_user__', $user->username);
-
-            $la->setData(['user' => $user->username])->notify("Magic link login successful.", "success");
-        } else {
-            $la->setStatus('error')->notify("Link is invalid or has expired.");
-        }
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Error: " . $e->getMessage());
     }
 }
 

@@ -13,6 +13,12 @@ class MakeBladeCommand extends BaseMakeCommand
     protected string $name = 'make:blade';
     protected string $description = 'Scaffold a new Blade template (Drishyam Paradigm)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

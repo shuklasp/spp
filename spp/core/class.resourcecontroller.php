@@ -292,7 +292,9 @@ abstract class ResourceController extends \SPP\SPPObject
             }
         }
 
-        $output = file_get_contents($file);
+        ob_start();
+        include $file;
+        $output = ob_get_clean();
 
         if ($this->cspNonce !== null && (strpos($output, '<script') !== false || strpos($output, '<style') !== false)) {
             $output = preg_replace('/<script(\s+[^>]*?)?(?<!nonce=["\'][^"\']*["\'])>/i', '<script$1 nonce="' . $this->cspNonce . '">', $output);
@@ -543,8 +545,8 @@ abstract class ResourceController extends \SPP\SPPObject
         if (method_exists($entity, 'delete')) {
             $entity->delete();
         } else {
-            $table = method_exists($entity, 'getTable') ? $entity->getTable() : strtolower((new \ReflectionClass($entity))->getShortName()) . 's';
-            $idField = method_exists($entity, 'getMetadata') ? $entity->getMetadata('id_field') : 'id';
+            $table = preg_replace('/[^a-zA-Z0-9_]/', '', method_exists($entity, 'getTable') ? $entity->getTable() : strtolower((new \ReflectionClass($entity))->getShortName()) . 's');
+            $idField = preg_replace('/[^a-zA-Z0-9_]/', '', method_exists($entity, 'getMetadata') ? $entity->getMetadata('id_field') : 'id');
             $sql = "DELETE FROM %tab% WHERE {$idField} = ?";
             $db->exec_squery($sql, $table, [$id]);
         }

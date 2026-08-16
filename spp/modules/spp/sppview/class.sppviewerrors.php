@@ -39,16 +39,7 @@ class SPP_ViewErrors
     {
         $errors = self::getErrors($errorHolder);
         if (count($errors) > 0) {
-            echo '<div class="error-holder '.$errorHolder.'">';
-            foreach ($errors as $errorType => $errorsMessages) {
-                echo '<p>'.$errorType.':</p>';
-                foreach ($errorsMessages as $key => $errorMessage) {
-                    echo '<p class="error-message '.$errorType.'">'.$errorMessage.'</p>';
-                    unset($errorMessage); // free memory
-                    unset(self::$errorHolders [$errorHolder][$errorType][$key]); // free memory
-                }
-            }
-            echo '</div>';
+            include __DIR__ . '/errors/display-errors.php';
         }
     }
 

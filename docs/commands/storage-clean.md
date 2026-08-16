@@ -1,17 +1,17 @@
 ## `storage:clean`
 
-**Description**: Clean up temporary files in storage
+**Purpose**: Clean up temporary files in storage
 
 ### Synopsis
 ```bash
 php spp.php storage:clean [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from StorageCleanCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context via Scheduler.
 

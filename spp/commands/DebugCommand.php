@@ -13,9 +13,15 @@ class DebugCommand extends Command
     protected string $name = 'sys:debug';
     protected string $description = 'Toggle global framework debug mode (on|off)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $state = isset($args[2]) ? strtolower($args[2]) : null;
+        $state = null !== $this->getArgument($args, 0) ? strtolower($this->getArgument($args, 0)) : null;
         
         if ($state !== 'on' && $state !== 'off') {
             echo "Usage: php spp.php sys:debug on|off\n";

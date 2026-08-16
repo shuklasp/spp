@@ -1,6 +1,6 @@
 ## `diff:compare`
 
-**Description**: Compare two JSON arrays or states
+**Purpose**: Compare two JSON arrays or states
 
 ### Synopsis
 ```bash
@@ -9,14 +9,17 @@ php spp.php diff:compare [OPTIONS]
 
 ### Extended Usage
 ```text
-Usage: This command currently requires custom integration to compare specific JSON files.
+Usage: php spp.php diff:compare --type=<ModelClass> --id=<ID> --rev=<RevID> [--json]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--type=` : Expects a value. Extracted via static analysis.
+- `--id=` : Expects a value. Extracted via static analysis.
+- `--rev=` : Expects a value. Extracted via static analysis.
+- `--json` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

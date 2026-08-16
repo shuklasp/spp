@@ -9,6 +9,12 @@ class StorageCleanCommand extends Command
     protected string $name = 'storage:clean';
     protected string $description = 'Clean up temporary files in storage';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

@@ -9,6 +9,12 @@ class ExtListCommand extends Command
     protected string $name = 'ext:list';
     protected string $description = 'List all available and installed extensions';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Installed Extensions:\n";

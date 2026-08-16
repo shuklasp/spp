@@ -15,9 +15,24 @@ class SPPLive {
         this.debounceTimers = {};
         this.pollTimers = {};
         this.prefetchedPages = {};
+        
+        // Phase 5: Request Bundling
+        this.pendingUpdates = [];
+        this._bundleTimer = null;
+
+        // Phase 3: Fix memory leaks
+        this._initialized = false;
+        this._heartbeatInterval = null;
+        this._wsRetryCount = 0;
     }
 
     init() {
+        if (this._initialized) {
+            this.reinitAfterNavigation();
+            return;
+        }
+        this._initialized = true;
+
         this.injectStyles();
         this.scanComponents();
         this.attachListeners();
@@ -70,6 +85,10 @@ class SPPLive {
         }
     }
 
+    reinitAfterNavigation() {
+        this.scanComponents();
+    }
+
     cleanupComponent(id) {
         const comp = this.components[id];
         if (comp) {
@@ -90,6 +109,9 @@ class SPPLive {
         if (!document.getElementById('spplive-styles')) {
             const style = document.createElement('style');
             style.id = 'spplive-styles';
+            if (window.SPPLiveNonce) {
+                style.setAttribute('nonce', window.SPPLiveNonce);
+            }
             style.innerHTML = `
                 [wire\\:loading] { display: none; }
                 [wire\\:offline] { display: none; }
@@ -121,7 +143,10 @@ class SPPLive {
     }
 
     startHeartbeat() {
-        setInterval(() => {
+        if (this._heartbeatInterval) {
+            clearInterval(this._heartbeatInterval);
+        }
+        this._heartbeatInterval = setInterval(() => {
             if (navigator.onLine) {
                 fetch('?__spa=1&__svc=live_presence', {
                     method: 'POST',
@@ -132,15 +157,43 @@ class SPPLive {
         }, 15000); // Every 15 seconds
     }
 
-    flushOfflineQueue() {
-        console.log('[SPPLive] Back online. Flushing queue...');
+    async flushOfflineQueue() {
+        console.log('[SPPLive] Back online. Flushing queue sequentially...');
         while (this.offlineQueue.length > 0) {
             const payload = this.offlineQueue.shift();
-            this.dispatchPayload(payload);
+            try {
+                const response = await fetch('?__spa=1&__svc=live_update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-SPP-Ajax': '1' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await response.json();
+                if (data.success) {
+                    this.handleResponse(data.result);
+                    if (this.offlineQueue.length > 0) {
+                        const comp = this.components[data.result.id];
+                        if (comp) {
+                            this.offlineQueue[0].state = comp.state;
+                            this.offlineQueue[0].checksum = comp.checksum;
+                        }
+                    }
+                }
+            } catch (e) { 
+                console.error('[SPPLive] Offline replay failed:', e); 
+                break; 
+            }
         }
     }
 
     connect() {
+        if (this.socket) {
+            this.socket.close();
+            this.socket = null;
+        }
+        if (this.eventSource) {
+            this.eventSource.close();
+            this.eventSource = null;
+        }
         if (window.SPPLiveEnabled) {
             this.tryWebSocket();
         } else if (window.SPPLiveUseSSE !== false) {
@@ -237,6 +290,15 @@ class SPPLive {
         document.addEventListener('click', e => {
             const link = e.target.closest('a[wire\\:navigate], a[wire\\:navigate\\.hover]');
             if (link) {
+                // Ignore modifier keys and special targets
+                if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                if (link.target === '_blank') return;
+                if (link.hasAttribute('download')) return;
+                if (link.href.startsWith('mailto:')) return;
+                
+                const urlObj = new URL(link.href, document.baseURI);
+                if (urlObj.origin !== window.location.origin) return;
+
                 e.preventDefault();
                 this.navigate(link.href);
             }
@@ -250,12 +312,37 @@ class SPPLive {
     navigate(url, pushState = true) {
         console.log(`[SPPLive] Navigating to ${url}`);
         
+        // Save scroll position for current URL
+        if (pushState) {
+            history.replaceState({ scrollY: window.scrollY }, '', window.location.href);
+        }
+        
         const processHtml = (html) => {
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             
             document.title = doc.title;
+            
             const updateDOM = () => {
+                // Sync Head (diff styles, meta, etc)
+                Array.from(document.head.children).forEach(el => {
+                    if (el.tagName !== 'SCRIPT' && el.tagName !== 'TITLE') el.remove();
+                });
+                Array.from(doc.head.children).forEach(el => {
+                    if (el.tagName !== 'SCRIPT' && el.tagName !== 'TITLE') {
+                        document.head.appendChild(el.cloneNode(true));
+                    }
+                });
+                
+                // Re-evaluate new scripts
+                Array.from(doc.body.querySelectorAll('script')).forEach(script => {
+                    const newScript = document.createElement('script');
+                    Array.from(script.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.innerHTML = script.innerHTML;
+                    if (window.SPPLiveNonce) newScript.setAttribute('nonce', window.SPPLiveNonce);
+                    script.replaceWith(newScript);
+                });
+
                 if (window.SPPUX && typeof window.SPPUX.morph === 'function') {
                     document.dispatchEvent(new CustomEvent('spplive:morphing', { detail: { id: 'root', el: document.body, html: doc.body.outerHTML } }));
                     window.SPPUX.morph(document.body, doc.body.outerHTML);
@@ -264,7 +351,15 @@ class SPPLive {
                     document.body.replaceWith(doc.body);
                 }
 
-                if (pushState) history.pushState(null, doc.title, url);
+                if (pushState) {
+                    history.pushState({ scrollY: 0 }, doc.title, url);
+                    window.scrollTo(0, 0);
+                } else {
+                    // Restore scroll position
+                    const savedScrollY = history.state && history.state.scrollY !== undefined ? history.state.scrollY : 0;
+                    window.scrollTo(0, savedScrollY);
+                }
+                
                 this.init(); // Re-initialize after navigation
             };
 
@@ -277,6 +372,8 @@ class SPPLive {
 
         if (this.prefetchedPages[url] && this.prefetchedPages[url] !== 'fetching') {
             processHtml(this.prefetchedPages[url]);
+            // Clear prefetched cache to prevent stale navigations later
+            delete this.prefetchedPages[url];
         } else {
             fetch(url)
                 .then(res => res.text())
@@ -288,7 +385,87 @@ class SPPLive {
         }
     }
 
+    parseModelDirective(raw) {
+        // Known modifiers that are NOT property path segments
+        const MODIFIERS = ['live', 'blur', 'change', 'defer', 'debounce', 'throttle', 'boolean', 'number', 'fill', 'lazy', 'self'];
+        
+        const parts = raw.split('.');
+        let propParts = [];
+        let modifiers = {};
+        let i = 0;
+        
+        while (i < parts.length) {
+            if (MODIFIERS.includes(parts[i])) {
+                while (i < parts.length) {
+                    if (parts[i] === 'debounce' || parts[i] === 'throttle') {
+                        modifiers[parts[i]] = parseInt(parts[i + 1], 10) || 150;
+                        i += 2;
+                    } else {
+                        modifiers[parts[i]] = true;
+                        i++;
+                    }
+                }
+                break;
+            }
+            propParts.push(parts[i]);
+            i++;
+        }
+        return { propPath: propParts.join('.'), modifiers };
+    }
+    
+    getModelValue(el, id, propPath) {
+        if (el.type === 'checkbox') {
+            const comp = this.components[id];
+            const currentValue = (comp.updates && comp.updates[propPath] !== undefined) ? comp.updates[propPath] : comp.state[propPath];
+            if (Array.isArray(currentValue)) {
+                const arr = [...currentValue];
+                if (el.checked) { 
+                    if (!arr.includes(el.value)) arr.push(el.value); 
+                } else { 
+                    const idx = arr.indexOf(el.value); 
+                    if (idx > -1) arr.splice(idx, 1); 
+                }
+                return arr;
+            }
+            return el.checked;
+        }
+        if (el.type === 'radio') return el.value;
+        if (el.tagName === 'SELECT' && el.multiple) {
+            return Array.from(el.selectedOptions).map(o => o.value);
+        }
+        if (el.isContentEditable) return el.innerHTML;
+        return el.value;
+    }
+
     attachListeners() {
+        document.addEventListener('submit', e => {
+            const formEl = e.target.closest('[wire\\:submit]');
+            if (formEl) {
+                e.preventDefault();
+                const action = formEl.getAttribute('wire:submit');
+                const root = formEl.closest('[wire\\:id]');
+                if (root) {
+                    const id = root.getAttribute('wire:id');
+                    // Send any pending updates before submitting
+                    this.sendUpdate(id, action);
+                }
+            }
+        });
+
+        document.addEventListener('keydown', e => {
+            const el = e.target.closest('[wire\\:keydown]');
+            if (el) {
+                const attr = el.getAttribute('wire:keydown');
+                // Basic implementation for wire:keydown.enter
+                if (el.hasAttribute('wire:keydown.enter') && e.key === 'Enter') {
+                    e.preventDefault();
+                    const action = el.getAttribute('wire:keydown.enter');
+                    const root = el.closest('[wire\\:id]');
+                    if (root) this.sendUpdate(root.getAttribute('wire:id'), action);
+                }
+            }
+        });
+
         document.addEventListener('click', e => {
             const clickEl = e.target.closest('[wire\\:click]');
             if (clickEl) {
@@ -323,33 +500,26 @@ class SPPLive {
         document.addEventListener('input', e => {
             const modelEl = e.target.closest('[wire\\:model]');
             if (modelEl) {
-                const prop = modelEl.getAttribute('wire:model');
-                let debounceMs = 0;
-                
-                // Parse wire:model.debounce.Xms
-                if (prop.includes('.debounce.')) {
-                    const match = prop.match(/\.debounce\.(\d+)ms/);
-                    if (match) debounceMs = parseInt(match[1], 10);
-                }
-
-                const propName = prop.split('.')[0]; // strip modifiers
+                const { propPath, modifiers } = this.parseModelDirective(modelEl.getAttribute('wire:model'));
                 const root = modelEl.closest('[wire\\:id]');
                 if (root) {
                     const id = root.getAttribute('wire:id');
                     if (this.components[id]) {
-                        this.markDirty(id, propName, modelEl);
+                        this.markDirty(id, propPath, modelEl);
+                        
                         if (modelEl.type === 'file') {
-                            this.handleFileUpload(modelEl, id, propName);
+                            this.handleFileUpload(modelEl, id, propPath);
                         } else {
-                            this.components[id].updates[propName] = modelEl.value;
+                            this.components[id].updates[propPath] = this.getModelValue(modelEl, id, propPath);
                             
-                            if (prop.includes('.defer')) {
+                            // wire:model without modifiers is deferred by default in Livewire v3 semantics
+                            if (!modifiers.live && !modifiers.blur && !modifiers.change) {
                                 return;
                             }
-                            
-                            if (debounceMs > 0) {
-                                clearTimeout(this.debounceTimers[propName]);
-                                this.debounceTimers[propName] = setTimeout(() => {
+                            if (modifiers.live) {
+                                const debounceMs = modifiers.debounce || 150;
+                                clearTimeout(this.debounceTimers[propPath]);
+                                this.debounceTimers[propPath] = setTimeout(() => {
                                     this.sendUpdate(id, null);
                                 }, debounceMs);
                             }
@@ -362,29 +532,51 @@ class SPPLive {
         document.addEventListener('change', e => {
             const modelEl = e.target.closest('[wire\\:model]');
             if (modelEl) {
-                const prop = modelEl.getAttribute('wire:model');
-                if (prop.includes('.defer')) return;
+                const { propPath, modifiers } = this.parseModelDirective(modelEl.getAttribute('wire:model'));
+                if (!modifiers.blur && !modifiers.change) return;
 
-                const propName = prop.split('.')[0];
                 const root = modelEl.closest('[wire\\:id]');
                 if (root) {
                     const id = root.getAttribute('wire:id');
                     if (this.components[id]) {
-                        this.markDirty(id, propName, modelEl);
+                        this.components[id].updates[propPath] = this.getModelValue(modelEl, id, propPath);
+                        this.markDirty(id, propPath, modelEl);
                         this.sendUpdate(id, null);
                     }
                 }
             }
         });
+        
+        document.addEventListener('blur', e => {
+            const modelEl = e.target.closest('[wire\\:model]');
+            if (modelEl) {
+                const { propPath, modifiers } = this.parseModelDirective(modelEl.getAttribute('wire:model'));
+                if (modifiers.blur) {
+                    const root = modelEl.closest('[wire\\:id]');
+                    if (root) {
+                        const id = root.getAttribute('wire:id');
+                        if (this.components[id]) {
+                            this.components[id].updates[propPath] = this.getModelValue(modelEl, id, propPath);
+                            this.markDirty(id, propPath, modelEl);
+                            this.sendUpdate(id, null);
+                        }
+                    }
+                }
+            }
+        }, true); // use capture phase for blur
     }
 
     tryWebSocket() {
+        const protocol = location.protocol === 'https:' ? 'wss' : 'ws';
         const host = window.location.hostname;
-        const port = window.SPPLivePort || 8080;
+        const port = window.SPPLivePort || (location.protocol === 'https:' ? 443 : 8080);
+        const path = window.SPPLivePath || '';
         
-        this.socket = new WebSocket(`ws://${host}:${port}`);
+        this.socket = new WebSocket(`${protocol}://${host}:${port}${path}`);
+        
         this.socket.onopen = () => {
             this.useWebSocket = true;
+            this._wsRetryCount = 0;
             console.log('[SPPLive] Connected to WebSocket');
             // Send topic subscription
             this.socket.send(JSON.stringify({ action: 'subscribe', topics: this.topics }));
@@ -394,12 +586,19 @@ class SPPLive {
             this.handleResponse(data);
         };
         this.socket.onerror = () => {
-            this.useWebSocket = false;
-            console.log('[SPPLive] WebSocket failed, falling back to SSE');
-            if (window.SPPLiveUseSSE !== false) {
-                this.trySSE();
-            }
+            console.log('[SPPLive] WebSocket error');
         };
+        this.socket.onclose = () => {
+            this.useWebSocket = false;
+            console.log('[SPPLive] WebSocket closed. Attempting reconnect...');
+            this.reconnectWebSocket();
+        };
+    }
+    
+    reconnectWebSocket() {
+        const delay = Math.min(1000 * Math.pow(2, this._wsRetryCount), 30000);
+        this._wsRetryCount++;
+        setTimeout(() => this.tryWebSocket(), delay);
     }
 
     trySSE() {
@@ -439,10 +638,15 @@ class SPPLive {
         const comp = this.components[id];
         if (!comp) return;
 
+        // Clone updates and clear local so subsequent inputs queue correctly
+        const payloadUpdates = { ...comp.updates };
+        comp.updates = {};
+
         const payload = {
+            id: id, // Needed for bundled payloads mapping
             component: comp.componentClass,
             state: comp.state,
-            updates: comp.updates,
+            updates: payloadUpdates,
             checksum: comp.checksum,
             method: method,
             params: params,
@@ -456,7 +660,55 @@ class SPPLive {
         }
 
         this.startLoading(id, method);
-        this.dispatchPayload(payload);
+        
+        // Phase 5: Request Bundling
+        this.scheduleSend(payload);
+    }
+    
+    scheduleSend(payload) {
+        this.pendingUpdates.push(payload);
+        if (!this._bundleTimer) {
+            this._bundleTimer = setTimeout(() => {
+                this._bundleTimer = null;
+                const batch = this.pendingUpdates.splice(0);
+                this.dispatchBundle(batch);
+            }, 5); // 5ms microtask batch window
+        }
+    }
+
+    dispatchBundle(batch) {
+        if (batch.length === 0) return;
+        
+        const payload = batch.length === 1 ? batch[0] : { components: batch };
+        
+        if (this.useWebSocket && this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify({ action: 'live_update', payload }));
+        } else {
+            fetch('?__spa=1&__svc=live_update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-SPP-Ajax': '1'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    if (data.result && data.result.results) {
+                        data.result.results.forEach(res => this.handleResponse(res));
+                    } else if (data.result) {
+                        this.handleResponse(data.result);
+                    }
+                } else {
+                    console.error('[SPPLive] Server error:', data);
+                }
+            })
+            .catch(err => {
+                console.error('[SPPLive] Fetch error:', err);
+                batch.forEach(b => this.stopLoading(b.id || b.state.id));
+            });
+        }
     }
 
     startLoading(id, action) {
@@ -464,59 +716,56 @@ class SPPLive {
         if (!comp) return;
 
         comp.loadingNodes = [];
+        
+        const applyLoading = (els, type, propName) => {
+            els.forEach(el => {
+                const target = el.getAttribute('wire:target');
+                if (target && target !== action && !target.split(',').includes(action)) return;
 
-        // wire:loading
-        const loaders = comp.el.querySelectorAll('[wire\\:loading]');
-        loaders.forEach(el => {
-            const target = el.getAttribute('wire:target');
-            if (target && target !== action && !target.split(',').includes(action)) return;
+                let delayMs = 0;
+                if (el.hasAttribute('wire:loading.delay')) {
+                    delayMs = 200;
+                    if (el.hasAttribute('wire:loading.delay.short')) delayMs = 100;
+                    if (el.hasAttribute('wire:loading.delay.long')) delayMs = 300;
+                    if (el.hasAttribute('wire:loading.delay.longest')) delayMs = 1000;
+                }
 
-            comp.loadingNodes.push({ el, type: 'display', original: el.style.display });
-            el.style.display = 'inline-block';
-        });
+                const apply = () => {
+                    if (type === 'display') {
+                        comp.loadingNodes.push({ el, type, original: el.style.display });
+                        el.style.display = 'inline-block';
+                    } else if (type === 'display.remove') {
+                        comp.loadingNodes.push({ el, type, original: el.style.display });
+                        el.style.display = 'none';
+                    } else if (type === 'class') {
+                        const classes = el.getAttribute('wire:loading.class').split(' ');
+                        comp.loadingNodes.push({ el, type, classes });
+                        el.classList.add(...classes);
+                    } else if (type === 'class.remove') {
+                        const classes = el.getAttribute('wire:loading.class.remove').split(' ');
+                        comp.loadingNodes.push({ el, type, classes });
+                        el.classList.remove(...classes);
+                    } else if (type === 'attr') {
+                        const attr = el.getAttribute('wire:loading.attr');
+                        comp.loadingNodes.push({ el, type, attr });
+                        el.setAttribute(attr, 'true');
+                    }
+                };
 
-        // wire:loading.remove
-        const removeLoaders = comp.el.querySelectorAll('[wire\\:loading\\.remove]');
-        removeLoaders.forEach(el => {
-            const target = el.getAttribute('wire:target');
-            if (target && target !== action && !target.split(',').includes(action)) return;
+                if (delayMs > 0) {
+                    el._sppDelayTimeout = setTimeout(apply, delayMs);
+                    comp.loadingNodes.push({ el, type: 'delay', timeout: el._sppDelayTimeout });
+                } else {
+                    apply();
+                }
+            });
+        };
 
-            comp.loadingNodes.push({ el, type: 'display.remove', original: el.style.display });
-            el.style.display = 'none';
-        });
-
-        // wire:loading.class
-        const classLoaders = comp.el.querySelectorAll('[wire\\:loading\\.class]');
-        classLoaders.forEach(el => {
-            const target = el.getAttribute('wire:target');
-            if (target && target !== action && !target.split(',').includes(action)) return;
-
-            const classes = el.getAttribute('wire:loading.class').split(' ');
-            comp.loadingNodes.push({ el, type: 'class', classes: classes });
-            el.classList.add(...classes);
-        });
-
-        // wire:loading.class.remove
-        const classRemoveLoaders = comp.el.querySelectorAll('[wire\\:loading\\.class\\.remove]');
-        classRemoveLoaders.forEach(el => {
-            const target = el.getAttribute('wire:target');
-            if (target && target !== action && !target.split(',').includes(action)) return;
-
-            const classes = el.getAttribute('wire:loading.class.remove').split(' ');
-            comp.loadingNodes.push({ el, type: 'class.remove', classes: classes });
-            el.classList.remove(...classes);
-        });
-
-        // wire:loading.attr
-        const attrLoaders = comp.el.querySelectorAll('[wire\\:loading\\.attr]');
-        attrLoaders.forEach(el => {
-            const target = el.getAttribute('wire:target');
-            if (target && target !== action && !target.split(',').includes(action)) return;
-
-            const attr = el.getAttribute('wire:loading.attr');
-            comp.loadingNodes.push({ el, type: 'attr', attr: attr });
-            el.setAttribute(attr, 'true');
-        });
+        applyLoading(comp.el.querySelectorAll('[wire\\:loading]:not([wire\\:loading\\.remove]):not([wire\\:loading\\.class]):not([wire\\:loading\\.class\\.remove]):not([wire\\:loading\\.attr])'), 'display');
+        applyLoading(comp.el.querySelectorAll('[wire\\:loading\\.remove]'), 'display.remove');
+        applyLoading(comp.el.querySelectorAll('[wire\\:loading\\.class]'), 'class');
+        applyLoading(comp.el.querySelectorAll('[wire\\:loading\\.class\\.remove]'), 'class.remove');
+        applyLoading(comp.el.querySelectorAll('[wire\\:loading\\.attr]'), 'attr');
     }
 
     stopLoading(id) {
@@ -524,7 +773,9 @@ class SPPLive {
         if (!comp || !comp.loadingNodes) return;
 
         comp.loadingNodes.forEach(item => {
-            if (item.type === 'display') {
+            if (item.type === 'delay') {
+                clearTimeout(item.timeout);
+            } else if (item.type === 'display') {
                 item.el.style.display = item.original;
             } else if (item.type === 'display.remove') {
                 item.el.style.display = item.original;
@@ -567,11 +818,12 @@ class SPPLive {
     handleFileUpload(input, id, propName) {
         if (!input.files.length) return;
         
-        const file = input.files[0];
         const formData = new FormData();
-        formData.append('file', file);
+        Array.from(input.files).forEach(file => {
+            formData.append('files[]', file);
+        });
         
-        console.log('[SPPLive] Uploading file to staging...');
+        console.log('[SPPLive] Uploading files to staging...');
         
         const xhr = new XMLHttpRequest();
         xhr.open('POST', '?__spa=1&__svc=live_upload', true);
@@ -605,8 +857,8 @@ class SPPLive {
             if (xhr.status === 200) {
                 try {
                     const data = JSON.parse(xhr.responseText);
-                    if (data.success && data.token) {
-                        this.components[id].updates[propName] = data.token;
+                    if (data.success && data.tokens) {
+                        this.components[id].updates[propName] = input.multiple ? data.tokens : data.tokens[0];
                         this.sendUpdate(id, null);
                     } else {
                         console.error('[SPPLive] File upload failed:', data);
@@ -623,34 +875,6 @@ class SPPLive {
         xhr.send(formData);
     }
 
-    dispatchPayload(payload) {
-        if (this.useWebSocket && this.socket && this.socket.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify({ action: 'live_update', payload }));
-        } else {
-            // Fallback to SPPAjax (this works even if SSE is the downstream connection)
-            fetch('?__spa=1&__svc=live_update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-SPP-Ajax': '1'
-                },
-                body: JSON.stringify(payload)
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    this.handleResponse(data.result); // Unpack 'result' from SPPAjax envelope
-                } else {
-                    console.error('[SPPLive] Server error:', data);
-                }
-            })
-            .catch(err => {
-                console.error('[SPPLive] Fetch error:', err);
-                this.stopLoading(payload.state.id);
-            });
-        }
-    }
-
     handleResponse(data) {
         if (!data) return;
 
@@ -660,7 +884,7 @@ class SPPLive {
             } else {
                 alert(`[${data.flash.type.toUpperCase()}] ${data.flash.message}`);
             }
-            if (data.flash.type === 'error') return; // Optionally stop rendering on hard error
+            if (data.flash.type === 'error') return;
         }
 
         if (!data.id) return;
@@ -684,107 +908,63 @@ class SPPLive {
         const id = data.id;
         const comp = this.components[id];
         
-        // Always attempt to stop loaders
         this.stopLoading(id);
 
         if (comp) {
-            // Intelligent DOM Patching if SPPUX morph is available
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = data.html.trim();
-            const newEl = tempDiv.firstChild;
-            
-            // Ensure necessary wire tags are preserved on root
-            newEl.setAttribute('wire:id', id);
-            newEl.setAttribute('wire:state', JSON.stringify(data.state));
-            newEl.setAttribute('wire:checksum', data.checksum);
-            newEl.setAttribute('wire:component', comp.componentClass);
-
-            // Update JS memory object!
-            comp.state = data.state;
-            comp.checksum = data.checksum;
-            comp.updates = {};
-            if (data.isolated !== undefined) {
-                comp.isolated = data.isolated;
+            // Check for wire:stream updates before morphing
+            if (data.streams && Array.isArray(data.streams)) {
+                data.streams.forEach(s => {
+                    const target = comp.el.querySelector(`[wire\\:stream="${s.to}"]`);
+                    if (target) {
+                        if (s.replace) target.innerHTML = s.content;
+                        else target.innerHTML += s.content;
+                    }
+                });
             }
 
-            if (window.SPPUX && typeof window.SPPUX.morph === 'function') {
-                // Restore teleported elements back to their placeholders before morph
-                document.body.querySelectorAll('[wire\\:teleported]').forEach(el => {
-                    const tid = el.getAttribute('wire:teleported');
-                    const placeholder = comp.el.querySelector(`template[wire\\:teleport-placeholder="${tid}"]`);
-                    if (placeholder) {
-                        el.removeAttribute('wire:teleported');
-                        placeholder.replaceWith(el);
-                    }
-                });
-
-                // Snapshot wire:transition elements before morphing
-                const oldTransitions = Array.from(comp.el.querySelectorAll('[wire\\:transition]')).map(el => el.outerHTML);
-
-                // Populate ID from wire:key to ensure morpher tracks them
-                comp.el.querySelectorAll('[wire\\:key]').forEach(el => {
-                    if (!el.id) el.id = el.getAttribute('wire:key');
-                });
-                newEl.querySelectorAll('[wire\\:key]').forEach(el => {
-                    if (!el.id) el.id = el.getAttribute('wire:key');
-                });
-
-                // Dispatch morphing event
-                document.dispatchEvent(new CustomEvent('spplive:morphing', { detail: { id, el: comp.el, html: newEl.outerHTML } }));
-
-                // Capture Scroll Positions
-                const scrollX = window.scrollX;
-                const scrollY = window.scrollY;
-                const internalScrolls = [];
-                comp.el.querySelectorAll('*').forEach((el, index) => {
-                    if (el.scrollTop > 0 || el.scrollLeft > 0) {
-                        internalScrolls.push({ id: el.id, index: index, top: el.scrollTop, left: el.scrollLeft });
-                    }
-                });
-
-                // Protect wire:ignore elements
-                const ignores = comp.el.querySelectorAll('[wire\\:ignore]');
-                ignores.forEach(oldIgnore => {
-                    if (oldIgnore.id) {
-                        const newIgnore = newEl.querySelector(`#${oldIgnore.id}`);
-                        if (newIgnore) {
-                            newIgnore.replaceWith(oldIgnore.cloneNode(true));
-                        }
-                    }
-                });
-
-                // Focus Protection (The Typewriter Race Condition Fix)
-                const activeEl = document.activeElement;
-                let selectionStart = null, selectionEnd = null, activeModelName = null;
-                if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
-                    activeModelName = activeEl.getAttribute('wire:model');
-                    if (activeModelName) {
-                        const newActive = newEl.querySelector(`[wire\\:model="${activeModelName}"]`);
-                        if (newActive) {
-                            newActive.value = activeEl.value; // Prevent server overwrite
-                        }
-                    }
-                    try {
-                        selectionStart = activeEl.selectionStart;
-                        selectionEnd = activeEl.selectionEnd;
-                    } catch (e) {}
-                }
+            // Only morph if we have HTML (Renderless actions return empty HTML)
+            if (data.html) {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data.html.trim();
+                const newEl = tempDiv.firstChild;
                 
-                const performMorph = () => {
-                    window.SPPUX.morph(comp.el, newEl.outerHTML);
-                    // Update element reference after morphing might not be needed if reference stays same, but safe to re-query
-                    comp.el = document.querySelector(`[wire\\:id="${id}"]`) || comp.el;
-                    
-                    // Restore Scroll Positions and Focus
-                    window.scrollTo(scrollX, scrollY);
-                    const newEls = Array.from(comp.el.querySelectorAll('*'));
-                    internalScrolls.forEach(s => {
-                        const target = s.id ? comp.el.querySelector(`#${s.id}`) : newEls[s.index];
-                        if (target) {
-                            target.scrollTop = s.top;
-                            target.scrollLeft = s.left;
+                newEl.setAttribute('wire:id', id);
+                newEl.setAttribute('wire:state', JSON.stringify(data.state));
+                newEl.setAttribute('wire:checksum', data.checksum);
+                newEl.setAttribute('wire:component', comp.componentClass);
+
+                if (window.SPPUX && typeof window.SPPUX.morph === 'function') {
+                    // Protect wire:ignore elements
+                    const ignores = comp.el.querySelectorAll('[wire\\:ignore]');
+                    ignores.forEach(oldIgnore => {
+                        if (oldIgnore.id) {
+                            const newIgnore = newEl.querySelector(`#${oldIgnore.id}`);
+                            if (newIgnore) {
+                                newIgnore.replaceWith(oldIgnore.cloneNode(true));
+                            }
                         }
                     });
+
+                    // Focus Protection
+                    const activeEl = document.activeElement;
+                    let selectionStart = null, selectionEnd = null, activeModelName = null;
+                    if (activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA')) {
+                        activeModelName = activeEl.getAttribute('wire:model');
+                        if (activeModelName) {
+                            const newActive = newEl.querySelector(`[wire\\:model="${activeModelName}"]`);
+                            if (newActive) {
+                                newActive.value = activeEl.value;
+                            }
+                        }
+                        try {
+                            selectionStart = activeEl.selectionStart;
+                            selectionEnd = activeEl.selectionEnd;
+                        } catch (e) {}
+                    }
+                    
+                    document.dispatchEvent(new CustomEvent('spplive:morphing', { detail: { id, el: comp.el, html: newEl.outerHTML } }));
+                    window.SPPUX.morph(comp.el, newEl.outerHTML);
+                    comp.el = document.querySelector(`[wire\\:id="${id}"]`) || comp.el;
 
                     if (activeModelName) {
                         const restoredActive = comp.el.querySelector(`[wire\\:model="${activeModelName}"]`);
@@ -795,52 +975,19 @@ class SPPLive {
                             }
                         }
                     }
-                    
-                    // Fade in new wire:transition elements
-                    const newTransitions = Array.from(comp.el.querySelectorAll('[wire\\:transition]'));
-                    newTransitions.forEach(node => {
-                        if (!oldTransitions.includes(node.outerHTML)) {
-                            node.style.opacity = '0';
-                            setTimeout(() => {
-                                node.style.transition = 'opacity 0.3s ease';
-                                node.style.opacity = '1';
-                            }, 20);
-                        }
-                    });
 
-                    // Handle DOM Teleportation
-                    comp.el.querySelectorAll('[wire\\:teleport]').forEach(el => {
-                        const targetSelector = el.getAttribute('wire:teleport') || 'body';
-                        const targetEl = document.querySelector(targetSelector);
-                        if (targetEl) {
-                            const teleportId = el.id || 'teleport-' + Math.random().toString(36).substr(2, 9);
-                            el.setAttribute('wire:teleported', teleportId);
-                            
-                            const placeholder = document.createElement('template');
-                            placeholder.setAttribute('wire:teleport-placeholder', teleportId);
-                            
-                            el.replaceWith(placeholder);
-                            targetEl.appendChild(el);
-                        }
-                    });
-
-                    // Dispatch morphed event
                     document.dispatchEvent(new CustomEvent('spplive:morphed', { detail: { id, el: comp.el } }));
-                };
-
-                if (document.startViewTransition) {
-                    document.startViewTransition(performMorph);
-                } else {
-                    performMorph();
-                }
-            } else {
-                if (document.startViewTransition) {
-                    document.startViewTransition(() => comp.el.replaceWith(newEl));
                 } else {
                     comp.el.replaceWith(newEl);
                 }
             }
             
+            comp.state = data.state;
+            comp.checksum = data.checksum;
+            if (data.isolated !== undefined) {
+                comp.isolated = data.isolated;
+            }
+
             // Handle Query String Sync
             if (data.queryString && Object.keys(data.queryString).length > 0) {
                 const url = new URL(window.location.href);
@@ -884,7 +1031,6 @@ class SPPLive {
                     } else {
                         window.dispatchEvent(customEvt);
                     }
-                    console.log(`[SPPLive] Event broadcasted: ${evt.name} to ${target}`, evt.params);
                 });
             }
             
@@ -905,19 +1051,17 @@ class SPPLive {
                 }
             }
             
-            // Re-scan components
             this.scanComponents();
         }
     }
 
     store(id) {
         if (!this.components[id]) return null;
-        
+        const self = this;
         return new Proxy(this.components[id].state, {
             set: (target, prop, value) => {
-                target[prop] = value;
-                // Dispatch update to sync PHP state
-                this.sendUpdate(id, null);
+                self.components[id].updates[prop] = value;
+                self.sendUpdate(id, null);
                 return true;
             }
         });
@@ -933,7 +1077,6 @@ class SPPLive {
 
         return {
             get value() {
-                // Return from updates if it was recently changed, otherwise state
                 return comp.updates[propName] !== undefined ? comp.updates[propName] : comp.state[propName];
             },
             set value(val) {
@@ -943,6 +1086,31 @@ class SPPLive {
                 }
             }
         };
+    }
+    
+    getWireProxy(id) {
+        const self = this;
+        const comp = this.components[id];
+        if (!comp) return null;
+        
+        return new Proxy({}, {
+            get(_, prop) {
+                if (prop === '$refresh') return () => self.sendUpdate(id, '$refresh');
+                if (prop === '$set') return (key, val, live = true) => { comp.updates[key] = val; if (live) self.sendUpdate(id, null); };
+                if (prop === '$get') return (key) => comp.updates[key] ?? comp.state[key];
+                if (prop === '$dispatch') return (evt, data) => self.sendUpdate(id, '$dispatch', [evt, data]);
+                
+                // Property access → read from state
+                if (prop in comp.state) return comp.state[prop];
+                // Method call → send to server
+                return (...args) => self.sendUpdate(id, prop, args);
+            },
+            set(_, prop, value) {
+                comp.updates[prop] = value;
+                self.sendUpdate(id, null);
+                return true;
+            }
+        });
     }
 }
 

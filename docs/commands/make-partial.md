@@ -1,6 +1,6 @@
 ## `make:partial`
 
-**Description**: Scaffold a new external view partial template (HTML/PHP/JS)
+**Purpose**: Scaffold a new external view partial template (HTML/PHP/JS)
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php make:partial <PartialName.html|.php|.js> [--app=AppName]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: external.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: external.
 

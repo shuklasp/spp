@@ -1,16 +1,22 @@
-.TH SPP-cache-clear 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-cache-clear 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-cache-clear \- Clear the application file/redis cache
-.SH SYNOPSIS
-.B php spp.php cache:clear
-[OPTIONS]
+cache:clear
+.PP
+ \- Clear the application file/redis cache
 .SH DESCRIPTION
 Clear the application file/redis cache
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php cache:clear [OPTIONS]
 .PP
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
 .br
+\(bu Interacts with the application cache layer (Redis/Memcached).
+.br
+.PP
+.PP

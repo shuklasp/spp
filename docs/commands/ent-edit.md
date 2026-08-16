@@ -1,6 +1,6 @@
 ## `ent:edit`
 
-**Description**: Edit an existing SPPEntity definition
+**Purpose**: Edit an existing SPPEntity definition
 
 ### Synopsis
 ```bash
@@ -32,16 +32,16 @@ Examples:
     php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
 ```
 
-### Options
-- `--table=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--extends=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--login=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--add-field=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--remove-field=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--add-relation=` : Expects a value. Extracted via static analysis from EntEditCommand.php
-- `--remove-relation=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+### Options Available
+- `--table=` : Expects a value. Extracted via static analysis.
+- `--extends=` : Expects a value. Extracted via static analysis.
+- `--login=` : Expects a value. Extracted via static analysis.
+- `--add-field=` : Expects a value. Extracted via static analysis.
+- `--remove-field=` : Expects a value. Extracted via static analysis.
+- `--add-relation=` : Expects a value. Extracted via static analysis.
+- `--remove-relation=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

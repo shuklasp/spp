@@ -1,16 +1,16 @@
 ## `make:deployment`
 
-**Description**: Generate Enterprise Docker and K8s scaffolding for the application.
+**Purpose**: Generate Enterprise Docker and K8s scaffolding for the application.
 
 ### Synopsis
 ```bash
 php spp.php make:deployment [OPTIONS]
 ```
 
-### Options
-- `--with-redis` : Boolean flag. Extracted via static analysis from MakeDeploymentCommand.php
+### Options Available
+- `--with-redis` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
 

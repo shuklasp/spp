@@ -86,7 +86,7 @@ class RedisCache extends \SPP\SPPObject implements CacheInterface
     {
         $redis = self::getConnection();
         $val = $redis->get('spp:cache:' . $key);
-        return ($val === false) ? null : @unserialize($val);
+        return ($val === false) ? null : @unserialize($val, ['allowed_classes' => false]);
     }
 
     public function delete(string $key): bool

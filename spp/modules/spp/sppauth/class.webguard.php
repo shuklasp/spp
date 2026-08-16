@@ -21,6 +21,7 @@ class WebGuard implements GuardInterface
     {
         $user = $this->user();
         if (!$user || $user instanceof AnonymousUser) {
+            file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] WebGuard::check failed: No user or AnonymousUser. User is: " . print_r($user, true) . "\n", FILE_APPEND);
             return false;
         }
 
@@ -29,6 +30,7 @@ class WebGuard implements GuardInterface
             if (time() - $mfaTime > 300) { // 5 minutes timeout
                 $this->logout();
             }
+            file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] WebGuard::check failed: MFA required\n", FILE_APPEND);
             return false;
         }
 
@@ -36,9 +38,12 @@ class WebGuard implements GuardInterface
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
         $ua = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
         $currentFingerprint = hash('sha256', $ip . $ua);
-        $sessionFingerprint = \SPP\SPPSession::sessionVarExists('__sppauth_fingerprint__') ? \SPP\SPPSession::getSessionVar('__sppauth_fingerprint__') : null;
+        $sessionFingerprintData = \SPP\SPPSession::sessionVarExists('__sppauth_fingerprint__') ? \SPP\SPPSession::getSessionVar('__sppauth_fingerprint__') : null;
+        
+        $sessionFingerprint = is_array($sessionFingerprintData) && isset($sessionFingerprintData['val']) ? $sessionFingerprintData['val'] : $sessionFingerprintData;
 
         if ($sessionFingerprint !== $currentFingerprint) {
+            file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] WebGuard::check failed: Fingerprint mismatch. Current: $currentFingerprint, Session: " . print_r($sessionFingerprint, true) . ", IP: $ip, UA: $ua\n", FILE_APPEND);
             $this->logout();
             return false;
         }
@@ -57,6 +62,7 @@ class WebGuard implements GuardInterface
 
                     if (empty($result)) {
                         // Session was revoked from the database
+                        file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] WebGuard::check failed: Session revoked from database.\n", FILE_APPEND);
                         $this->logout();
                         return false;
                     }
@@ -65,6 +71,7 @@ class WebGuard implements GuardInterface
                     // Update lastaccess for accurate active devices dashboard
                     $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' SET lastaccess=? WHERE sessid=?', [date('Y-m-d H:i:s'), $sessid]);
                 } catch (\Exception $e) {
+                    file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] WebGuard::check Exception during session check: " . $e->getMessage() . "\n", FILE_APPEND);
                     // Graceful fallback if SPPDB or loginrec table is not initialized
                     \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
                 }
@@ -219,7 +226,7 @@ class WebGuard implements GuardInterface
             try {
                 $this->user = new SPPUser($userId);
             } catch (\Exception $e) {
-                // If user doesn't exist anymore, log them out
+                file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] WebGuard::user SPPUser exception for $userId: " . $e->getMessage() . "\n", FILE_APPEND);
                 $this->logout();
                 $this->user = new AnonymousUser();
             }
@@ -355,7 +362,7 @@ class WebGuard implements GuardInterface
                 $db = new \SPPMod\SPPDB\SPPDB();
                 $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('loginrec') . ' WHERE sessid=?', [$sessid]);
             } catch (\Exception $e) {
-                // Ignore DB tracking if SPPDB or loginrec is missing
+                // Ignore gracefully if loginrec table is missing
             }
         }
 

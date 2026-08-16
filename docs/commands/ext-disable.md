@@ -1,6 +1,6 @@
 ## `ext:disable`
 
-**Description**: Disable a specific extension
+**Purpose**: Disable a specific extension
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php ext:disable <extension_name>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

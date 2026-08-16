@@ -1,6 +1,6 @@
 ## `make:entity`
 
-**Description**: Create a new SPPEntity definition
+**Purpose**: Create a new SPPEntity definition
 
 ### Synopsis
 ```bash
@@ -32,18 +32,18 @@ Examples:
     php spp.php make:entity Student --table=spp_students --fields="name:varchar(255),age:int" --extends="\App\Entities\User" --login=true --relations="\App\Entities\Profile:OneToOne:student_id"
 ```
 
-### Options
-- `--fields=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--app=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--table=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--extends=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--login=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--relations=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
-- `--api` : Boolean flag. Extracted via static analysis from MakeEntityCommand.php
-- `--resource` : Boolean flag. Extracted via static analysis from MakeEntityCommand.php
+### Options Available
+- `--fields=` : Expects a value. Extracted via static analysis.
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--table=` : Expects a value. Extracted via static analysis.
+- `--extends=` : Expects a value. Extracted via static analysis.
+- `--login=` : Expects a value. Extracted via static analysis.
+- `--relations=` : Expects a value. Extracted via static analysis.
+- `--api` : Boolean flag or option. Extracted via static analysis.
+- `--resource` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: SPPEntity.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: SPPEntity.
 

@@ -14,6 +14,12 @@ class GroupListCommand extends Command
     protected string $name = 'group:list';
     protected string $description = 'List all shared resource groups';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $gsPath = SPP_BASE_DIR . '/etc/global-settings.yml';

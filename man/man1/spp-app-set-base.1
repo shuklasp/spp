@@ -1,20 +1,24 @@
-.TH SPP-app-set-base 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-app-set-base 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-app-set-base \- Set an application as the primary/base application
-.SH SYNOPSIS
-.B php spp.php app:set-base
-[OPTIONS]
+app:set-base
+.PP
+ \- Set an application as the primary/base application
 .SH DESCRIPTION
 Set an application as the primary/base application
 .PP
+.SH SYNOPSIS
+php spp.php app:set-base [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php app:set-base <app_name>
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+No static options detected for this command.
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+.PP
+.PP

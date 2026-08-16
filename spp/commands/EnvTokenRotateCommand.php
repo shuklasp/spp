@@ -9,6 +9,12 @@ class EnvTokenRotateCommand extends Command
     protected string $name = 'env:token:rotate';
     protected string $description = 'Rotate the system deployment token';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

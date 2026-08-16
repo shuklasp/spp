@@ -1,25 +1,7 @@
-.TH CRYPTO:SHARD:GENERATE 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "crypto-shard-generate" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-crypto:shard:generate \- Generate Shamir Secret key shards across vault nodes and verify Zero-Knowledge MPC signing.
+crypto-shard-generate \- Generate Shamir Secret key shards across vault nodes and verify Zero-Knowledge MPC signing.
 .SH SYNOPSIS
-\fBphp spp.php crypto:shard:generate\fR [\fB\-\-shares=\fI<N>\fR] [\fB\-\-threshold=\fI<M>\fR] [\fB\-\-key=\fI<id>\fR]
+.B php spp.php crypto-shard-generate
 .SH DESCRIPTION
-The \fBcrypto:shard:generate\fR command implements enterprise vault security and eliminates single points of compromise for API secrets and database passwords. By leveraging Shamir's Secret Sharing polynomial mathematics and Multi-Party Computation (MPC), it splits master private keys across isolated vault nodes. Cryptographic signatures are generated collaboratively through partial share evaluations, ensuring the master private key is never assembled in plain text inside server memory.
-.SH OPTIONS
-.TP
-\fB\-\-shares=\fI<N>\fR
-Total number of mathematical polynomial key shares to generate across isolated vault nodes. Defaults to \fI5\fR.
-.TP
-\fB\-\-threshold=\fI<M>\fR
-Minimum threshold of participating vault nodes required to perform a valid cryptographic signing operation. Defaults to \fI3\fR.
-.TP
-\fB\-\-key=\fI<id>\fR
-Master key identifier string to shard. Defaults to \fIenterprise_master_secret\fR.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Validates secure CLI execution via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBPolynomial Generation\fR: Evaluates an \fIM-1\fR degree polynomial over finite fields to construct \fIN\fR unique mathematical share points (\fIx, f(x)\fR).
-.PP
-3. \fBVault Distribution\fR: Stores cryptographic share hashes securely within isolated simulated vault node structures.
-.PP
-4. \fBThreshold MPC Verification\fR: Simulates a Multi-Party Computation protocol where \fIM\fR participating nodes provide partial HMAC evaluations of a payload, aggregating them into a single valid master signature while preserving absolute zero-knowledge security.
+Generate Shamir Secret key shards across vault nodes and verify Zero-Knowledge MPC signing.

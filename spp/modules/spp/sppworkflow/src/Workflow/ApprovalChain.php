@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace SPP\Core\Workflow;
 
 use SPP\Core\Interfaces\ReviewableEntityInterface;
-use SPP\Core\WorkflowManager;
+use SPPMod\SPPWorkflow\SPPWorkflowManager;
 use SPP\Exceptions\SPPException;
 
 /**
@@ -136,7 +136,7 @@ class ApprovalChain
             throw new SPPException("ApprovalChain Error: User is not authorized to approve tier '{$currentTier}'.");
         }
 
-        return WorkflowManager::applyTransition($entity, $nextStatus, $user, "Approved tier {$currentTier}. " . $comment);
+        return SPPWorkflowManager::applyTransition($entity, $nextStatus, $user, "Approved tier {$currentTier}. " . $comment);
     }
 
     /**
@@ -164,7 +164,7 @@ class ApprovalChain
             $entity->rejection_reason = $reason;
         }
 
-        return WorkflowManager::applyTransition($entity, $rejectionStatus, $user, "Rejected tier {$currentTier}. Reason: " . $reason);
+        return SPPWorkflowManager::applyTransition($entity, $rejectionStatus, $user, "Rejected tier {$currentTier}. Reason: " . $reason);
     }
 
     /**
@@ -177,7 +177,7 @@ class ApprovalChain
      */
     public static function createFromWorkflow(string $entityType, string $bundle = 'default'): self
     {
-        $workflow = WorkflowManager::getWorkflow($entityType, $bundle);
+        $workflow = SPPWorkflowManager::getWorkflow($entityType, $bundle);
         if (!$workflow) {
             throw new SPPException("ApprovalChain Error: No workflow configuration found for {$entityType} ({$bundle}).");
         }

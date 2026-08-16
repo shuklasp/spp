@@ -6,9 +6,9 @@
 
 routes:
   - path: "login"
-    target: "\\App\\{{appName}}\\Serv\\AuthController@loginForm"
+    target: "\App\{{appName}}\Serv\AuthController@loginForm"
     type: "controller"
 
   - path: "logout"
-    target: "\\App\\{{appName}}\\Serv\\AuthController@logout"
+    target: "\App\{{appName}}\Serv\AuthController@logout"
     type: "controller"

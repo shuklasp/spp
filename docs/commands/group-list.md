@@ -1,16 +1,16 @@
 ## `group:list`
 
-**Description**: List all shared resource groups
+**Purpose**: List all shared resource groups
 
 ### Synopsis
 ```bash
 php spp.php group:list [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--entities` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

@@ -11,9 +11,15 @@ class MakeCommandCommand extends BaseMakeCommand
     protected string $name = 'make:command';
     protected string $description = 'Create a new CLI command class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:command <name> [--app=appname] [--command=cmd:name]\n";
             return;

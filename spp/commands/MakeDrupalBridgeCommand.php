@@ -13,9 +13,15 @@ class MakeDrupalBridgeCommand extends BaseMakeCommand
     protected string $name = 'make:drupal-bridge';
     protected string $description = 'Scaffold a Drupal module to bridge SPP into Drupal';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $drupalRootInput = $args[2] ?? null;
+        $drupalRootInput = $this->getArgument($args, 0) ?? null;
         if (!$drupalRootInput) {
             echo "Drupal Root Path (e.g. ../drupal): ";
             $drupalRootInput = trim(fgets(STDIN));

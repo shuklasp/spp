@@ -1,26 +1,31 @@
-.TH SPP-test-monkey 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-test-monkey 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-test-monkey \- Runs chaos monkey / fuzzing scenarios for an entity
-.SH SYNOPSIS
-.B php spp.php test:monkey
-[OPTIONS]
+test:monkey
+.PP
+ \- Runs chaos monkey / fuzzing scenarios for an entity
 .SH DESCRIPTION
 Runs chaos monkey / fuzzing scenarios for an entity
 .PP
+.SH SYNOPSIS
+php spp.php test:monkey [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php test:monkey <EntityClass>
-.br
-
+.PP
 .PP
 .SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from TestMonkeyCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+\(bu `--app=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--entities` : Boolean flag or option. Extracted via static analysis.
+.br
 .PP
-\(bu Dynamically loads kernel modules: parikshak.
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: parikshak.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+\(bu Bootstraps a full application execution context via Scheduler.
 .br
-\(bu Instantiates key components: \SPPMod\Parikshak\Parikshak.
+\(bu Instantiates internal components: \SPPMod\Parikshak\Parikshak.
 .br
+.PP
+.PP

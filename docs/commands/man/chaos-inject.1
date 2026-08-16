@@ -1,25 +1,7 @@
-.TH CHAOS:INJECT 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "chaos-inject" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-chaos:inject \- Configure ChaosMonkey parameters and trigger resilience testing fault injections in staging environments.
+chaos-inject \- Configure ChaosMonkey parameters and trigger resilience testing fault injections in staging environments.
 .SH SYNOPSIS
-\fBphp spp.php chaos:inject\fR [\fB\-\-enable=\fI<true|false>\fR] [\fB\-\-rate=\fI<percentage>\fR] [\fB\-\-test\fR]
+.B php spp.php chaos-inject
 .SH DESCRIPTION
-The \fBchaos:inject\fR command brings Chaos Engineering to the SPP framework. By enabling ChaosMonkey in staging or pre-production environments, systems architects can simulate real-world infrastructure instability (latency spikes, network jitter, cURL timeouts, and database connection drops) to empirically prove that fallback mechanisms, CQRS outbox retries, and DAG job failovers function flawlessly.
-.SH OPTIONS
-.TP
-\fB\-\-enable=\fI<true|false>\fR
-Explicitly enable or disable ChaosMonkey fault injection globally.
-.TP
-\fB\-\-rate=\fI<percentage>\fR
-Set the probability percentage (0-100) of injecting a fault during a request lifecycle. Defaults to \fI5\fR.
-.TP
-\fB\-\-test\fR
-Immediately simulate and trigger a random fault injection directly in the CLI console.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Ensures secure execution within a CLI context via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBState Configuration\fR: Updates the active runtime or persisted configuration inside \fIChaosMonkey\fR.
-.PP
-3. \fBProbabilistic Evaluation\fR: Uses cryptographically secure random number generation (\fIrandom_int\fR) to evaluate if a fault should be injected based on the configured rate.
-.PP
-4. \fBTelemetry Span Recording\fR: When a fault is selected, starts an OpenTelemetry span (\fIchaos_injection.<fault_type>\fR) to track the exact failure path across W3C Trace Context.
+Configure ChaosMonkey parameters and trigger resilience testing fault injections in staging environments.

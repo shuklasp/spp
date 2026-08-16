@@ -1,6 +1,6 @@
 ## `xdb:make:seeder`
 
-**Description**: Create a new SPP_XDB seeder file
+**Purpose**: Create a new SPP_XDB seeder file
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php xdb:make:seeder <name_of_seeder>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: SPP_XDB, SeederManager.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: SPP_XDB, SeederManager.
 

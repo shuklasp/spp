@@ -9,6 +9,12 @@ class OAuthClientDeleteCommand extends Command
     protected string $name = 'oauth:client:delete';
     protected string $description = 'Delete an OAuth 2.0 Client App';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $id = $args['id'] ?? null;

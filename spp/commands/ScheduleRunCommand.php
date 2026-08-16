@@ -20,6 +20,12 @@ class ScheduleRunCommand extends Command
         return 'Run all scheduled cron tasks declared by active modules';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Starting SPP Scheduler...\n";

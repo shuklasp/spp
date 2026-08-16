@@ -57,7 +57,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPP Admin | Developer Workbench</title>
+    <title>SPP Admin | Control Center</title>
     <meta name="description"
         content="SPP Framework Administration Portal — Manage modules, entities, forms and groups.">
     <meta name="robots" content="noindex, nofollow">
@@ -112,24 +112,11 @@ try {
                             pattern="[0-9]*">
                     </div>
                 </div>
-                <button type="submit" class="btn primary-btn shine-effect" style="width:100%; justify-content:center;">
+                <button type="submit" class="btn primary-btn shine-effect" style="width:100%; justify-content:center; margin-top: 1.5rem;">
                     <span>Initialize Access</span>
                 </button>
             </form>
 
-            <div id="magic-link-section"
-                style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--glass-border); text-align: center;">
-                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem;">Or sign in without a
-                    password</p>
-                <div class="input-group" style="display:none;" id="magic-email-group">
-                    <input type="email" id="magic_email" placeholder="Enter your email address...">
-                    <button class="btn secondary-btn" style="width:100%; margin-top:0.5rem;"
-                        onclick="app.sendMagicLink()">Send Magic Link</button>
-                </div>
-                <button class="btn secondary-btn" id="btn-show-magic" style="width:100%;"
-                    onclick="document.getElementById('magic-email-group').style.display='block'; this.style.display='none';">Use
-                    Magic Link</button>
-            </div>
 
             <footer>
                 <p>SPP Framework Enterprise Edition</p>
@@ -145,7 +132,7 @@ try {
         <aside class="sidebar">
             <div class="sidebar-header">
                 <span class="logo-text">SPP <span>Admin</span></span>
-                <span class="mode-badge">Dev Mode</span>
+                <span class="mode-badge">Admin Mode</span>
             </div>
             <div id="app-selector-container" style="margin-bottom: 1rem;"></div>
             <div class="sidebar-search" style="padding: 0 1rem; margin-bottom: 1rem;">
@@ -159,34 +146,7 @@ try {
                             <span class="icon">👋</span> Welcome Dashboard
                         </a></li>
 
-                    <!-- 1. CORE ARCHITECTURE -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #38bdf8; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Core Architecture</div>
-                    <li><a href="#apps" class="nav-item" data-view="apps"
-                            data-keywords="app studio applications modules registry scaffold scaffolding"
-                            title="Manage your SPP Applications, Modules, and Scaffolding">
-                            <span class="icon">📱</span> App Studio
-                        </a></li>
-                    <li><a href="#entities" class="nav-item" data-view="entities"
-                            data-keywords="database entities schema models tables sql"
-                            title="Manage DB Schema, Entities, and Magic DB Viewer">
-                            <span class="icon">🏗️</span> Database & Entities
-                        </a></li>
-                    <li><a href="#forms" class="nav-item" data-view="forms"
-                            data-keywords="forms html generator builder ui" title="Design and manage HTML forms">
-                            <span class="icon">📝</span> Forms
-                        </a></li>
-                    <li><a href="#routing" class="nav-item" data-view="routing"
-                            data-keywords="routing middleware url routes path dispatch"
-                            title="Configure URL routing rules and Middleware">
-                            <span class="icon">🔗</span> Routing & Middleware
-                        </a></li>
-                    <li><a href="#docs" class="nav-item" data-view="docs"
-                            data-keywords="code explorer docs documentation reflection classes methods"
-                            title="Explore SPP and App code via Reflection">
-                            <span class="icon">📚</span> Code Explorer
-                        </a></li>
+
 
 
                     <div class="sidebar-divider"
@@ -210,30 +170,7 @@ try {
                     <div class="sidebar-divider"
                         style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
 
-                    <!-- 3. DEVELOPER HEAVEN -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #f43f5e; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        SPP Studio (Heaven)</div>
-                    <li><a href="#ai" class="nav-item" data-view="ai"
-                            data-keywords="ai studio copilot chatgpt gemini anthropic playground llm models"
-                            title="AI Copilot, Playground, and Provider Management">
-                            <span class="icon">🧠</span> AI Studio
-                        </a></li>
-                    <li><a href="../index.php?__api=1&entity=docs" target="_blank" class="nav-item"
-                            data-keywords="api explorer swagger rest endpoints zero-touch documentation"
-                            title="Interactive zero-touch Swagger API documentation">
-                            <span class="icon">📚</span> API Explorer
-                        </a></li>
-                    <li><a href="#commands" class="nav-item" data-view="commands"
-                            data-keywords="command center cli terminal shell execute"
-                            title="Execute SPP CLI commands from the browser">
-                            <span class="icon">💻</span> Command Center
-                        </a></li>
-                    <li><a href="#mobile" class="nav-item" data-view="mobile"
-                            data-keywords="mobile studio emulator responsive preview tablet phone"
-                            title="Test views in mobile emulator modes">
-                            <span class="icon">📱</span> Mobile Studio
-                        </a></li>
+
 
                     <div class="sidebar-divider"
                         style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
@@ -242,46 +179,10 @@ try {
                     <div class="sidebar-section-title"
                         style="font-size: 0.65rem; color: #10b981; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
                         Advanced Engines</div>
-                    <!-- Polyglot moved to System Diagnostics tab -->
-                    <!-- <li><a href="#polyglot" class="nav-item" data-view="polyglot" title="Cross-language execution">
-                            <span class="icon">🌍</span> Polyglot Engine
-                        </a></li> -->
                     <li><a href="#reports" class="nav-item" data-view="reports"
                             data-keywords="report builder bi business intelligence analytics charts graphs"
                             title="Business Intelligence & Dynamic Reports">
                             <span class="icon">📊</span> Report Builder
-                        </a></li>
-                    <li><a href="#interdb" class="nav-item" data-view="interdb"
-                            data-keywords="interdb mesh external db database connections"
-                            title="Manage external database connections">
-                            <span class="icon">🕸️</span> InterDB Mesh
-                        </a></li>
-                    <li><a href="#xdb" class="nav-item" data-view="xdb"
-                            data-keywords="xml database xdb configs migrations seeders profiler"
-                            title="Manage XML-based configuration databases">
-                            <span class="icon">🗄️</span> XML Database
-                        </a></li>
-                    <!-- Queue moved to System Diagnostics tab -->
-                    <li><a href="#spplang" class="nav-item" data-view="spplang"
-                            data-keywords="translations spplang i18n locale languages multi-lingual"
-                            title="Manage application string translations">
-                            <span class="icon">🌐</span> Translations
-                        </a></li>
-                    <!-- Events merged into Trace (via System Diagnostics) -->
-                    <li><a href="#services" class="nav-item" data-view="services"
-                            data-keywords="services di dependency injection ajax live api backend"
-                            title="Dependency Injection services and LiveServices">
-                            <span class="icon">🔌</span> Services (DI & AJAX)
-                        </a></li>
-                    <li><a href="#parikshak" class="nav-item" data-view="parikshak"
-                            data-keywords="parikshak testing tests unit assertions qa"
-                            title="Run automated application tests">
-                            <span class="icon">🧪</span> Parikshak Testing
-                        </a></li>
-                    <li><a href="#lifecycle" class="nav-item" data-view="lifecycle"
-                            data-keywords="deployment lifecycle migrations environments deploy release"
-                            title="Manage deployment lifecycles and migrations">
-                            <span class="icon">🚀</span> Deployment
                         </a></li>
 
                     <div class="sidebar-divider"
@@ -304,7 +205,7 @@ try {
                     <div class="user-avatar" id="user-avatar">A</div>
                     <div>
                         <div class="user-name" id="user-display-name">Admin</div>
-                        <div class="user-role" id="user-display-role">Developer</div>
+                        <div class="user-role" id="user-display-role">Administrator</div>
                     </div>
                 </div>
 

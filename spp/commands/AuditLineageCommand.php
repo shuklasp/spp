@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 
 class AuditLineageCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $targetLog = SPP_APP_DIR . '/var/logs/merkle_lineage.log';

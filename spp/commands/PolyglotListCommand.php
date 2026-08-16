@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 class PolyglotListCommand extends Command {
     protected string $name = 'polyglot:list';
     protected string $description = 'Discovers and tabulates all registered polyglot services';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void {
         echo "Discovering polyglot services...\n";
         

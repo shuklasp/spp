@@ -1,19 +1,7 @@
-.TH CQRS:WEBHOOKS:DISPATCH 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "cqrs-webhooks-dispatch" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-cqrs:webhooks:dispatch \- Background worker daemon to reliably dispatch CQRS Transactional Outbox webhooks.
+cqrs-webhooks-dispatch \- Dispatch pending transactional outbox webhooks to subscribers with HMAC-SHA256 signature verification and exponential backoff retries.
 .SH SYNOPSIS
-\fBphp spp.php cqrs:webhooks:dispatch\fR [\fB\-\-batch=\fI<size>\fR]
+.B php spp.php cqrs-webhooks-dispatch
 .SH DESCRIPTION
-The \fBcqrs:webhooks:dispatch\fR command functions as a resilient background worker daemon that queries the memory-simulated or database transactional outbox table for pending domain events and delivers them to external subscriber endpoints. It isolates web request processing from network instability by utilizing exponential backoff retries and Dead Letter Queue (DLQ) escalation.
-.SH OPTIONS
-.TP
-\fB\-\-batch=\fI<size>\fR
-Number of pending outbox webhooks to process per dispatch cycle. Defaults to \fI50\fR.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Confirms execution is within a secure CLI environment via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBOutbox Querying\fR: Selects pending items from the outbox table whose \fInext_retry\fR timestamp has passed.
-.PP
-3. \fBCryptographic Signing\fR: Generates an HMAC-SHA256 signature of the payload using the application secret key and injects it into outgoing headers (\fIX-SPP-Signature: sha256=...\fR).
-.PP
-4. \fBResilient Delivery & DLQ\fR: Attempts non-blocking cURL delivery. Updates status to \fIdelivered\fR on 200 OK. On failure, calculates exponential backoff retry window (\fI2^attempts * 15s\fR). Escalates to \fIdlq\fR status after 5 failed attempts.
+Dispatch pending transactional outbox webhooks to subscribers with HMAC-SHA256 signature verification and exponential backoff retries.

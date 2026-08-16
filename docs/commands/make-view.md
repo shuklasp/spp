@@ -1,17 +1,17 @@
 ## `make:view`
 
-**Description**: Create a new view definition (equivalent to Drupal Views).
+**Purpose**: Create a new view definition (equivalent to Drupal Views).
 
 ### Synopsis
 ```bash
 php spp.php make:view [OPTIONS]
 ```
 
-### Options
-- `--table=` : Expects a value. Extracted via static analysis from MakeViewCommand.php
+### Options Available
+- `--table=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Instantiates key components: view, \SPPMod\SPPDB\SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Instantiates internal components: view, \SPPMod\SPPDB\SPPDB.
 

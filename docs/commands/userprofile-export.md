@@ -1,6 +1,6 @@
 ## `userprofile:export`
 
-**Description**: Export user profile data for compliance/GDPR
+**Purpose**: Export user profile data for compliance/GDPR
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php userprofile:export --user=<user_id>
 
 ```
 
-### Options
-- `--user=` : Expects a value. Extracted via static analysis from UserProfileExportCommand.php
+### Options Available
+- `--user=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

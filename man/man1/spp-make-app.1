@@ -1,32 +1,25 @@
-.TH SPP-make-app 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-app 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-app \- Create a new SPP application context
-.SH SYNOPSIS
-.B php spp.php make:app
-[OPTIONS]
+make:app
+.PP
+ \- Create a new SPP application context
 .SH DESCRIPTION
 Create a new SPP application context
 .PP
-.SH OPTIONS
-.TP
-.B --mode=
-Expects a value. Extracted via static analysis from MakeAppCommand.php
-.TP
-.B --ai-blueprint=
-Expects a value. Extracted via static analysis from MakeAppCommand.php
-.TP
-.B --enterprise
-Boolean flag. Extracted via static analysis from MakeAppCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php make:app [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--enterprise` : Boolean flag or option. Extracted via static analysis.
 .br
-\(bu Performs raw filesystem modifications (create/write/delete).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Dynamically loads kernel modules: name, parikshak, sppqueue.
+\(bu Instantiates internal components: SPP.
 .br
-\(bu Instantiates key components: SPP, \PDO, state, methods, Date.
-.br
+.PP
+.PP

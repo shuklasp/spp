@@ -5,111 +5,132 @@
 
 function live_Routing_ListPages($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $pages = \SPP\Scheduler::withContext($appname, function () {
-        return \SPPMod\SPPView\Pages::listPages();
-    });
-
-    $sources = [];
-    foreach ($pages as $p) {
-        $sourceKey = $p['source'] === 'db' ? ($p['db_summary'] ?? 'Database') : ($p['source_path'] ?? 'pages.yml');
-        if (!isset($sources[$sourceKey])) {
-            $sources[$sourceKey] = [
-                'label' => $sourceKey,
-                'type' => $p['source'],
-                'items' => []
-            ];
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['listpages', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-        $sources[$sourceKey]['items'][] = $p;
-    }
 
-    $la->setData(['sources' => array_values($sources)]);
 }
 
 function live_Routing_SavePage($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $name = $params['name'] ?? '';
-    $url = $params['url'] ?? '';
-    $source = $params['source'] ?? 'yaml';
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['savepage', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($name) || empty($url)) {
-        return $la->setStatus('error')->notify("Name and URL are required.");
-    }
-
-    \SPP\Scheduler::withContext($appname, function () use ($name, $url, $source) {
-        \SPPMod\SPPView\Pages::savePage($name, $url, $source);
-    });
-    $la->notify("Page route '$name' saved successfully.", "success");
 }
 
 function live_Routing_RemovePage($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $name = $params['name'] ?? '';
-    $source = $params['source'] ?? 'yaml';
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['removepage', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($name))
-        return $la->setStatus('error')->notify("Name required.");
-
-    \SPP\Scheduler::withContext($appname, function () use ($name, $source) {
-        \SPPMod\SPPView\Pages::removePage($name, $source);
-    });
-    $la->notify("Page route '$name' removed.");
 }
 
 function live_Routing_ListServices($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $services = \SPP\Scheduler::withContext($appname, function () {
-        return \SPPMod\SPPAPI\SPPAjax::listServices();
-    });
-
-    $sources = [];
-    foreach ($services as $s) {
-        $sourceKey = $s['source'] === 'db' ? ($s['db_summary'] ?? 'Database') : ($s['source_path'] ?? 'services.yml');
-        if (!isset($sources[$sourceKey])) {
-            $sources[$sourceKey] = [
-                'label' => $sourceKey,
-                'type' => $s['source'],
-                'items' => []
-            ];
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['listservices', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-        $sources[$sourceKey]['items'][] = $s;
-    }
 
-    $la->setData(['sources' => array_values($sources)]);
 }
 
 function live_Routing_SaveService($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $name = $params['name'] ?? '';
-    $script = $params['script'] ?? '';
-    $method = $params['method'] ?? 'POST';
-    $source = $params['source'] ?? 'yaml';
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['saveservice', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($name) || empty($script)) {
-        return $la->setStatus('error')->notify("Name and script are required.");
-    }
-
-    \SPP\Scheduler::withContext($appname, function () use ($name, $script, $method, $source) {
-        \SPPMod\SPPAPI\SPPAjax::registerService($name, $script, $method, $source);
-    });
-    $la->notify("Service '$name' registered successfully.", "success");
 }
 
 function live_Routing_RemoveService($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $name = $params['name'] ?? '';
-    $source = $params['source'] ?? 'yaml';
+        $res = \SPP\CLI\CommandManager::execute('admin:routing', ['removeservice', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($name))
-        return $la->setStatus('error')->notify("Name required.");
-
-    \SPP\Scheduler::withContext($appname, function () use ($name, $source) {
-        \SPPMod\SPPAPI\SPPAjax::unregisterService($name, $source);
-    });
-    $la->notify("Service '$name' removed.");
 }

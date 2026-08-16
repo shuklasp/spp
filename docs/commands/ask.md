@@ -1,6 +1,6 @@
 ## `ask`
 
-**Description**: Ask the SPP AI Mentor a question about the framework.
+**Purpose**: Ask the SPP AI Mentor a question about the framework.
 
 ### Synopsis
 ```bash
@@ -12,10 +12,10 @@ php spp.php ask [OPTIONS]
 Usage: php spp.php ask \
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--error` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: \Exception, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 

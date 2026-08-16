@@ -61,10 +61,19 @@ class XdbBinaryIndexer
             mkdir($dir, 0777, true);
         }
 
-        // In a true binary index, this would be pack() or a B-Tree structure.
-        // For this architectural implementation, we append to a JSONL log which
-        // simulates the sink storage capable of being ingested by ElasticSearch or ZincSearch.
-        $json = json_encode($record, JSON_UNESCAPED_SLASHES) . "\n";
-        file_put_contents(self::$indexFile, $json, FILE_APPEND | LOCK_EX);
+        $dbFile = $dir . '/spp_xdb_master.sqlite';
+        $pdo = new \PDO('sqlite:' . $dbFile);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        
+        $pdo->exec("CREATE TABLE IF NOT EXISTS xdb_index (id TEXT PRIMARY KEY, data TEXT)");
+        $pdo->exec("CREATE INDEX IF NOT EXISTS idx_data ON xdb_index(id)");
+        
+        $id = $record['data']['id'] ?? uniqid('idx_', true);
+        
+        $stmt = $pdo->prepare("INSERT INTO xdb_index (id, data) VALUES (:id, :data) ON CONFLICT(id) DO UPDATE SET data = excluded.data");
+        $stmt->execute([
+            ':id' => $id,
+            ':data' => json_encode($record, JSON_UNESCAPED_SLASHES)
+        ]);
     }
 }

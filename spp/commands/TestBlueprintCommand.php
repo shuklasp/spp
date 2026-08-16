@@ -9,6 +9,12 @@ class TestBlueprintCommand extends Command
     protected string $name = 'test:blueprint';
     protected string $description = 'Generate a structural blueprint for an entity';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

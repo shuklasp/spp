@@ -177,44 +177,33 @@ function getActionScopeMap(): array {
  * Other users get scopes from XDB admin_permissions store.
  */
 function getAdminUserScopes(): array {
-    // Default: super-admin gets everything
-    $allScopes = array_unique(array_values(getAdminScopeMap()));
+    file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes START. sessionExists: ' . (int)\SPP\SPPSession::sessionExists() . "\n", FILE_APPEND);
+    if (!\SPP\SPPSession::sessionExists()) {
+        file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes RETURNING EMPTY (no session)' . "\n", FILE_APPEND);
+        return []; // HTTP admin requests must fail closed without a session.
+    }
 
     try {
-        if (!\SPP\SPPSession::sessionExists()) {
-            return []; // HTTP admin requests must fail closed without a session.
-        }
-
         $userId = \SPP\SPPSession::sessionVarExists('__user_id__') ? \SPP\SPPSession::getSessionVar('__user_id__') : null;
         $username = \SPP\SPPSession::sessionVarExists('__username__') ? \SPP\SPPSession::getSessionVar('__username__') : '';
         $sppauthUser = \SPP\SPPSession::sessionVarExists('__sppauth_user__') ? \SPP\SPPSession::getSessionVar('__sppauth_user__') : ($_SESSION['spp_admin_user'] ?? '');
         $roleId = \SPP\SPPSession::sessionVarExists('__role_id__') ? \SPP\SPPSession::getSessionVar('__role_id__') : null;
 
-        // Super-admin bypass: role_id 1 or the configured admin username
+        file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes userId: ' . json_encode($userId) . ' username: ' . json_encode($username) . ' sppauthUser: ' . json_encode($sppauthUser) . ' roleId: ' . json_encode($roleId) . "\n", FILE_APPEND);
+
         $settings = \SPP\App::getGlobalSettings();
         $superAdmin = $settings['admin_username'] ?? 'admin';
-        
+        $allScopes = array_values(getActionScopeMap());
+
         if ($roleId == 1 || strtolower($username) === strtolower($superAdmin) || strtolower($sppauthUser) === strtolower($superAdmin)) {
+            file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes RETURNING ALL SCOPES' . "\n", FILE_APPEND);
             return $allScopes;
         }
 
-        // Load scopes from XDB
-        if (class_exists('\SPPMod\SPPXDB\SPP_XDB')) {
-            try {
-                $xdb = new \SPPMod\SPPXDB\SPP_XDB('sys', 'admin_permissions');
-                $rows = $xdb->queryX("//row[user_id = '{$userId}']");
-                if (!empty($rows) && !empty($rows[0]['scopes'])) {
-                    return explode(',', $rows[0]['scopes']);
-                }
-            } catch (\Exception $e) {
-                // XDB table may not exist yet — fall through to defaults
-            }
-        }
-
-        // Default for non-super-admin: read-only access to common views
-        return $allScopes; // Returning all scopes in dev environment
-
+        file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes RETURNING EMPTY (no match)' . "\n", FILE_APPEND);
+        return [];
     } catch (\Exception $e) {
+        file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] getAdminUserScopes EXCEPTION: ' . $e->getMessage() . "\n", FILE_APPEND);
         return [];
     }
 }
@@ -224,6 +213,7 @@ function getAdminUserScopes(): array {
  */
 function hasAdminScope(string $scope): bool {
     $userScopes = getAdminUserScopes();
+    file_put_contents(SPP_BASE_DIR . '/api_debug.log', '[' . date('Y-m-d H:i:s') . '] hasAdminScope ' . $scope . ' scopes: ' . json_encode($userScopes) . "\n", FILE_APPEND);
     return in_array($scope, $userScopes) || in_array('admin.*', $userScopes);
 }
 
@@ -243,51 +233,46 @@ function gateAdminAction(string $action): bool {
 
 if (!function_exists('live_get_admin_permissions')) {
     function live_get_admin_permissions($la, $params) {
-        $scopeMap = getAdminScopeMap();
-        $userScopes = getAdminUserScopes();
-        $allScopes = array_unique(array_values($scopeMap));
+        $res = \SPP\CLI\CommandManager::execute('admin:adminrbac', ['get_admin_permissions', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-        $la->setData([
-            'scopes' => $userScopes,
-            'all_scopes' => $allScopes,
-            'scope_map' => $scopeMap,
-        ]);
-    }
+}
 }
 
 if (!function_exists('live_save_admin_permissions')) {
     function live_save_admin_permissions($la, $params) {
-        // Only super-admins can modify permissions
-        $currentScopes = getAdminUserScopes();
-        if (!in_array('admin.identity', $currentScopes) && !in_array('admin.*', $currentScopes)) {
-            return $la->setStatus('error')->notify('Access denied: admin.identity scope required.', 'error');
-        }
-
-        $targetUserId = $params['user_id'] ?? null;
-        $newScopes = $params['scopes'] ?? [];
-
-        if (!$targetUserId) {
-            return $la->setStatus('error')->notify('User ID is required.', 'error');
-        }
-
-        if (is_string($newScopes)) {
-            $newScopes = array_filter(array_map('trim', explode(',', $newScopes)));
-        }
-
-        try {
-            $xdb = new \SPPMod\SPPXDB\SPP_XDB('sys', 'admin_permissions');
-            $existing = $xdb->queryX("//row[user_id = '{$targetUserId}']");
-
-            $scopeStr = implode(',', $newScopes);
-            if (!empty($existing)) {
-                $xdb->update(['scopes' => $scopeStr], "user_id = '{$targetUserId}'");
+        $res = \SPP\CLI\CommandManager::execute('admin:adminrbac', ['save_admin_permissions', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
             } else {
-                $xdb->insert(['user_id' => $targetUserId, 'scopes' => $scopeStr, 'updated_at' => date('Y-m-d H:i:s')]);
+                $la->setData($data ?: []);
             }
-
-            $la->notify('Admin permissions updated.', 'success');
-        } catch (\Exception $e) {
-            $la->setStatus('error')->notify('Failed to save permissions: ' . $e->getMessage(), 'error');
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
+
+}
 }

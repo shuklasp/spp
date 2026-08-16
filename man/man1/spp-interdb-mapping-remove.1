@@ -1,20 +1,24 @@
-.TH SPP-interdb-mapping-remove 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-interdb-mapping-remove 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-interdb-mapping-remove \- Remove an InterDB mapping
-.SH SYNOPSIS
-.B php spp.php interdb:mapping:remove
-[OPTIONS]
+interdb:mapping:remove
+.PP
+ \- Remove an InterDB mapping
 .SH DESCRIPTION
 Remove an InterDB mapping
 .PP
+.SH SYNOPSIS
+php spp.php interdb:mapping:remove [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php interdb:mapping:remove <alias>
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+No static options detected for this command.
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+.PP
+.PP

@@ -12,9 +12,15 @@ class MakePerlCommand extends BaseMakeCommand
     protected string $name = 'make:perl-service';
     protected string $description = 'Create a new Perl service script';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: spp make:perl-service <name> [--app=context]\n";
             return;

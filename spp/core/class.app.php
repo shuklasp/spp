@@ -72,10 +72,13 @@ class App extends \SPP\SPPObject
             $this->loadModules();
         }
         if ($init_level >= 3) {
+            $oldcontext = \SPP\Scheduler::getContext();
+            \SPP\Scheduler::setContext($appname);
             if (!SPPSession::sessionExists()) {
                 $ssn = new SPPSession();
                 $_SESSION['__' . $appname . '_sppsession'] = serialize($ssn);
             }
+            \SPP\Scheduler::setContext($oldcontext);
         }
 
         \SPP\SPPEvent::registerDirs();

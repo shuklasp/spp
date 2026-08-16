@@ -1,22 +1,16 @@
-## mesh:list
+## `mesh:list`
 
-**Purpose**: Lists all active Mesh passthrough routes.
+**Purpose**: Lists all active Mesh passthrough routes
 
 ### Synopsis
-
 ```bash
-php spp.php mesh:list
+php spp.php mesh:list [OPTIONS]
 ```
 
-### Extended Usage
-
-The `mesh:list` command queries the active Mesh routing registry and outputs a formatted table of all currently mounted legacy applications, including their absolute filesystem targets and any injected features. It is highly recommended to run this command after modifying the mesh to verify the exact integration parameters.
-
 ### Options Available
-
-None.
+No static options detected for this command.
 
 ### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 
-1. Reads the `etc/mesh.yml` file from the filesystem.
-2. Parses the configuration and prints a hierarchical tree detailing the routes, targets, and active features.

@@ -75,8 +75,9 @@ class DocGen
 
         $node = new LekhakNode();
         $node->title = $className;
-        $node->status = 'published';
         $node->langcode = 'en';
+        $node->save();
+        $node->applyTransition('published');
         
         $body = "<h2>Class: {$className}</h2>";
         $body .= "<div class='doc-comment'>" . nl2br(htmlspecialchars($docComment)) . "</div>";

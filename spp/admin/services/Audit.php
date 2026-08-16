@@ -10,57 +10,49 @@
 if (!function_exists('live_list_audit_logs')) {
     function live_list_audit_logs($la, $params)
     {
-        $limit = intval($params['limit'] ?? 50);
-        $offset = intval($params['offset'] ?? 0);
-        $limit = min($limit, 200); // Cap at 200
-
-        try {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $tableName = $db->sppTable('audit_logs');
-
-            // Check if table exists
-            $driver = 'sqlite';
-            try {
-                $pdo = $db->getPDO();
-                if ($pdo)
-                    $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-            } catch (\Exception $e) {
+        $res = \SPP\CLI\CommandManager::execute('admin:audit', ['list_audit_logs', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
             }
-
-            if ($driver === 'sqlite') {
-                $checkSql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
-                $result = $db->exec_squery($checkSql, '__raw', [$tableName]);
-                if (empty($result)) {
-                    return $la->setData(['logs' => [], 'total' => 0, 'message' => 'Audit table not yet created. Run SPPAudit::install().']);
-                }
-            }
-
-            $countSql = "SELECT COUNT(*) as total FROM {$tableName}";
-            $countResult = $db->exec_squery($countSql, $tableName);
-            $total = $countResult[0]['total'] ?? 0;
-
-            $sql = "SELECT * FROM {$tableName} ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}";
-            $logs = $db->exec_squery($sql, $tableName);
-
-            $la->setData(['logs' => $logs ?: [], 'total' => intval($total)]);
-        } catch (\Exception $e) {
-            $la->setData(['logs' => [], 'total' => 0, 'error' => $e->getMessage()]);
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
+
+}
 }
 
 if (!function_exists('live_clear_audit_logs')) {
     function live_clear_audit_logs($la, $params)
     {
-        try {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $tableName = $db->sppTable('audit_logs');
-            $db->exec_squery("DELETE FROM {$tableName}", $tableName);
-            $la->notify('Audit logs cleared.', 'success');
-        } catch (\Exception $e) {
-            $la->setStatus('error')->notify('Failed to clear audit logs: ' . $e->getMessage(), 'error');
+        $res = \SPP\CLI\CommandManager::execute('admin:audit', ['clear_audit_logs', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
+
+}
 }
 
 /**

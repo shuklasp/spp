@@ -1297,7 +1297,15 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     {
         $rules = static::getMetadata('validation', []);
         if (empty($rules)) {
+            if (!class_exists('\\SPPMod\\SPPView\\ValidationResult')) {
+                require_once SPP_MODULES_DIR . '/spp/sppview/sppvalidator/class.validationresult.php';
+            }
             return new \SPPMod\SPPView\ValidationResult();
+        }
+        
+        if (!class_exists('\\SPPMod\\SPPView\\ViewValidator')) {
+            require_once SPP_MODULES_DIR . '/spp/sppview/class.viewvalidator.php';
+            require_once SPP_MODULES_DIR . '/spp/sppview/sppvalidator/class.validationresult.php';
         }
 
         // Use modernized ViewValidator in silent mode
@@ -1860,10 +1868,11 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $db = new \SPPMod\SPPDB\SPPDB();
         if ($db->tableExists('spp_entity_workflow_history')) {
             return $db->execute_query(
-                "SELECT * FROM spp_entity_workflow_history WHERE entity_id = ? AND entity_type = ? ORDER BY transition_date DESC",
+                "SELECT * FROM spp_entity_workflow_history WHERE entity_id = ? AND entity_type = ? ORDER BY transition_timestamp DESC",
                 [$this->id, static::getEntityName(static::class)]
             );
         }
         return [];
     }
 }
+class_alias('\\SPPMod\\SPPDB\\SPPEntity', '\\SPPMod\\SPPEntity\\SPPEntity');

@@ -1,18 +1,18 @@
 ## `queue:list`
 
-**Description**: List all jobs currently in the queue
+**Purpose**: List all jobs currently in the queue
 
 ### Synopsis
 ```bash
 php spp.php queue:list [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from QueueListCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Bootstraps a full application execution context (Scheduler::withContext).
-- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Bootstraps a full application execution context via Scheduler.
+- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
 

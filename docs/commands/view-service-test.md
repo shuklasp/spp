@@ -1,6 +1,6 @@
 ## `view:service:test`
 
-**Description**: Test an AJAX service endpoint from the CLI
+**Purpose**: Test an AJAX service endpoint from the CLI
 
 ### Synopsis
 ```bash
@@ -12,12 +12,12 @@ php spp.php view:service:test [OPTIONS]
 Usage: php spp.php view:service:test --name=<service> [--app=default] [--payload=
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
-- `--name=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
-- `--payload=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--name=` : Expects a value. Extracted via static analysis.
+- `--payload=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
 

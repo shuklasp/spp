@@ -9,6 +9,22 @@ namespace SPPMod\Drishyam;
  */
 class TemplateMacros
 {
+    public static function toCssClasses(array|string $classes): string
+    {
+        if (is_string($classes)) {
+            return $classes;
+        }
+        $classList = [];
+        foreach ($classes as $key => $value) {
+            if (is_numeric($key)) {
+                $classList[] = $value;
+            } elseif ($value) {
+                $classList[] = $key;
+            }
+        }
+        return implode(' ', array_filter($classList));
+    }
+
     public static function module_component(string $viewStr, array $data = []): string
     {
         ob_start();

@@ -1,6 +1,6 @@
 ## `make:live-component`
 
-**Description**: Create a new Live Component class
+**Purpose**: Create a new Live Component class
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:live-component <name> [--app=appname]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: Live.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: Live.
 

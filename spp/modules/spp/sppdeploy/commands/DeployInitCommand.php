@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployInitCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $baseDir = SPP_BASE_DIR; // Should be spp/

@@ -11,9 +11,15 @@ class MakeScaffoldCommand extends BaseMakeCommand
     protected string $name = 'make:scaffold';
     protected string $description = 'Create a full stack scaffold (Entity, DB, Controller, View)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $entityName = $args[2] ?? null;
+        $entityName = $this->getArgument($args, 0) ?? null;
         if (!$entityName) {
             echo "Scaffold Entity Name (e.g. Product): ";
             $entityName = trim(fgets(STDIN));

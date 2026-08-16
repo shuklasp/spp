@@ -2,8 +2,8 @@
 namespace SPP\Tests\Core;
 
 use SPPMod\Parikshak\SPPTestCase;
-use SPPMod\SPPMigrate\Commands\MakeCommand;
-use SPPMod\SPPMigrate\Commands\MigrateCommand;
+use SPP\CLI\Commands\MakeMigrationCommand;
+use SPP\CLI\Commands\MigrateCommand;
 use SPPMod\SPPDB\Migration\SPPMigrationManager;
 use SPP\DB;
 
@@ -21,8 +21,8 @@ class SPPMigrateTest extends SPPTestCase
 
     public function testMakeCommand()
     {
-        $cmd = new MakeCommand();
-        $this->assertEquals('migrate:make', $cmd->getName());
+        $cmd = new MakeMigrationCommand();
+        $this->assertEquals('make:migration', $cmd->getName());
         $this->assertTrue(strlen($cmd->getDescription()) > 0, 'Description should not be empty');
     }
 

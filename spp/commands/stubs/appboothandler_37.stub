@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{appName}}\\Events;
+namespace App\{{appName}}\Events;
 
 /**
  * ============================================================================
@@ -10,15 +10,15 @@ namespace App\\{{appName}}\\Events;
  * The SPP event system follows a publish/subscribe pattern.
  *
  * REGISTER (in init.php):
- *   \\SPP\\SPPEvent::listen('event_name', [new AppBootHandler(), 'handle']);
+ *   \SPP\SPPEvent::listen('event_name', [new AppBootHandler(), 'handle']);
  *
  * OR REGISTER (in etc/events.yml):
  *   events:
  *     event_name:
- *       - \\App\\{{appName}}\\Events\\AppBootHandler
+ *       - \App\{{appName}}\Events\AppBootHandler
  *
  * FIRE CUSTOM EVENTS:
- *   \\SPP\\SPPEvent::fireEvent('my.custom.event', new \\SPP\\EventParams(\$data));
+ *   \SPP\SPPEvent::fireEvent('my.custom.event', new \SPP\EventParams($data));
  *
  * BUILT-IN EVENTS:
  *   PageNotFound              — No route matched
@@ -27,15 +27,15 @@ namespace App\\{{appName}}\\Events;
  *   DefaultNotFound            — Missing pages.yml default
  * ============================================================================
  */
-class AppBootHandler extends \\SPP\\EventHandler
+class AppBootHandler extends \SPP\EventHandler
 {
-    public function afterHandler(&\$params = [])
+    public function afterHandler(&$params = [])
     {
         // This runs when the registered event fires
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
             @file_put_contents(
                 SPP_APP_DIR . '/var/logs/{{appName}}_events.log',
-                '[' . date('Y-m-d H:i:s') . "] Event handled by AppBootHandler\\n",
+                '[' . date('Y-m-d H:i:s') . "] Event handled by AppBootHandler\n",
                 FILE_APPEND
             );
         }

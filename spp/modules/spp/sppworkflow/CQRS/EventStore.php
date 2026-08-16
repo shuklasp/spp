@@ -254,12 +254,20 @@ class EventStore
                 }
                 
                 // Upsert snapshot
-                $db->exec_squery("DELETE FROM %tab% WHERE entity_type = ? AND entity_id = ?", $table, [$entityType, (string)$entityId]);
-                $db->exec_squery(
-                    "INSERT INTO %tab% (entity_type, entity_id, state, last_event_index, created_at) VALUES (?, ?, ?, ?, ?)",
-                    $table,
-                    [$entityType, (string)$entityId, json_encode($state), $lastEventIndex, date('Y-m-d H:i:s')]
-                );
+                $driverName = $db->getPDO()->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                if ($driverName === 'pgsql' || $driverName === 'sqlite') {
+                    $db->exec_squery(
+                        "INSERT INTO %tab% (entity_type, entity_id, state, last_event_index, created_at) VALUES (?, ?, ?, ?, ?) ON CONFLICT(entity_type, entity_id) DO UPDATE SET state = excluded.state, last_event_index = excluded.last_event_index, created_at = excluded.created_at",
+                        $table,
+                        [$entityType, (string)$entityId, json_encode($state), $lastEventIndex, date('Y-m-d H:i:s')]
+                    );
+                } else {
+                    $db->exec_squery(
+                        "INSERT INTO %tab% (entity_type, entity_id, state, last_event_index, created_at) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE state = VALUES(state), last_event_index = VALUES(last_event_index), created_at = VALUES(created_at)",
+                        $table,
+                        [$entityType, (string)$entityId, json_encode($state), $lastEventIndex, date('Y-m-d H:i:s')]
+                    );
+                }
                 return;
             } catch (\Exception $e) {
                 error_log("EventStore Database Snapshot Failed: " . $e->getMessage());

@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 
 class ModuleListCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "🧩 Indexing SPP Framework Enterprise Modules...\n";

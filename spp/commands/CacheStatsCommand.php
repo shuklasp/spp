@@ -10,6 +10,12 @@ class CacheStatsCommand extends Command
     protected string $name = 'cache:stats';
     protected string $description = 'Display cache driver statistics';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

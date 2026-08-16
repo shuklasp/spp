@@ -9,6 +9,12 @@ class DrishyamThemeCheckCommand extends Command
     protected string $name = 'drishyam:theme:check';
     protected string $description = 'Validate Drishyam theme assets and structure';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

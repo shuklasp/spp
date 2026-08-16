@@ -35,17 +35,22 @@ class RedisSessionHandler implements \SessionHandlerInterface
     public function read($id): string
     {
         $data = $this->redis->get($this->prefix . $id);
+        file_put_contents(__DIR__ . '/redis_session.log', date('H:i:s') . " READ $id len=" . strlen((string)$data) . "\n", FILE_APPEND);
         return $data ?: '';
     }
 
     public function write($id, $data): bool
     {
-        return $this->redis->setex($this->prefix . $id, $this->ttl, $data);
+        $res = $this->redis->setex($this->prefix . $id, $this->ttl, $data);
+        file_put_contents(__DIR__ . '/redis_session.log', date('H:i:s') . " WRITE $id len=" . strlen($data) . " success=" . ($res ? 1 : 0) . " DATA=$data\n", FILE_APPEND);
+        return $res;
     }
 
     public function destroy($id): bool
     {
-        return (bool)$this->redis->del($this->prefix . $id);
+        $this->redis->del($this->prefix . $id);
+        file_put_contents(__DIR__ . '/redis_session.log', date('H:i:s') . " DESTROY $id\n", FILE_APPEND);
+        return true;
     }
 
     public function gc($max_lifetime): int|false

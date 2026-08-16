@@ -1,18 +1,22 @@
-.TH SPP-admin-bootstrap 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-admin-bootstrap 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-admin-bootstrap \- Initialize SPP Admin environment (XDB Provisioning)
-.SH SYNOPSIS
-.B php spp.php admin:bootstrap
-[OPTIONS]
+admin:bootstrap
+.PP
+ \- Initialize SPP Admin environment (XDB Provisioning)
 .SH DESCRIPTION
 Initialize SPP Admin environment (XDB Provisioning)
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php admin:bootstrap [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: SPPDB.
+\(bu Instantiates internal components: SPPDB.
 .br
+.PP
+.PP

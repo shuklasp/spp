@@ -10,9 +10,15 @@ class SeedCommand extends Command
     protected string $name = 'sys:seed';
     protected string $description = 'Run all database seeders for an application';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $appname = $args[2] ?? 'default';
+        $appname = $this->getArgument($args, 0) ?? 'default';
 
         $seederPath = SPP_APP_DIR . "/src/{$appname}/seeders";
 

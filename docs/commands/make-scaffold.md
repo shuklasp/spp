@@ -1,16 +1,16 @@
 ## `make:scaffold`
 
-**Description**: Create a full stack scaffold (Entity, DB, Controller, View)
+**Purpose**: Create a full stack scaffold (Entity, DB, Controller, View)
 
 ### Synopsis
 ```bash
 php spp.php make:scaffold [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
 

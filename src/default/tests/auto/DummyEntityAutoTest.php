@@ -5,7 +5,7 @@ use App\Default\Entities\Dummyentity;
 
 /**
  * Auto-generated Test for DummyEntity (Parikshak)
- * Generation Date: 2026-07-11 13:08:12
+ * Generation Date: 2026-07-18 08:36:43
  */
 class DummyEntityAutoTest
 {
@@ -15,8 +15,8 @@ class DummyEntityAutoTest
         try {
             $entity = new DummyEntity();
             $data = array (
-  'name' => 'PARIKSHAK_FUZZ_364e7',
-  'dob' => '2026-07-11 13:08:12',
+  'name' => 'PARIKSHAK_FUZZ_bdede',
+  'dob' => '2026-07-18 08:36:43',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{ns}}\\Serv;
+namespace App\{{ns}}\Serv;
 
 /**
  * ============================================================================
@@ -12,7 +12,7 @@ namespace App\\{{ns}}\\Serv;
  *
  * ROUTES (defined in pages.yml):
  *   GET  /api/v1/items      → index()     List all items
- *   GET  /api/v1/items/{id} → show(\$id)   Get single item
+ *   GET  /api/v1/items/{id} → show($id)   Get single item
  *   POST /api/v1/items      → create()    Create new item
  *
  * AUTHENTICATION:
@@ -23,7 +23,7 @@ namespace App\\{{ns}}\\Serv;
  *   1. Add method to this class
  *   2. Add route in pages.yml:
  *      api/v1/newroute:
- *        controller: \\App\\{{ns}}\\Serv\\ApiController@newMethod
+ *        controller: \App\{{ns}}\Serv\ApiController@newMethod
  * ============================================================================
  */
 class ApiController
@@ -36,20 +36,20 @@ class ApiController
         header('Content-Type: application/json');
 
         // Example: Query items from database
-        \$items = [
+        $items = [
             ['id' => 1, 'name' => 'Sample Item 1', 'status' => 'active', 'created_at' => date('Y-m-d H:i:s')],
             ['id' => 2, 'name' => 'Sample Item 2', 'status' => 'completed', 'created_at' => date('Y-m-d H:i:s')],
         ];
 
         // Uncomment for real database queries:
-        // \$db = new \\SPPMod\\SPPDB\\SPPDB();
-        // \$items = \$db->execute_query('SELECT * FROM {{ns}}_items ORDER BY id DESC');
+        // $db = new \SPPMod\SPPDB\SPPDB();
+        // $items = $db->execute_query('SELECT * FROM {{ns}}_items ORDER BY id DESC');
 
         echo json_encode([
             'status' => 'ok',
-            'data' => \$items,
+            'data' => $items,
             'meta' => [
-                'total' => count(\$items),
+                'total' => count($items),
                 'page' => 1,
                 'per_page' => 25,
             ]
@@ -64,10 +64,10 @@ class ApiController
         header('Content-Type: application/json');
 
         // Route parameters are available via the page data
-        \$pageData = \\SPPMod\\SPPView\\SPPGlobal::get('page');
-        \$id = \$pageData['params'][0] ?? null;
+        $pageData = \SPPMod\SPPView\SPPGlobal::get('page');
+        $id = $pageData['params'][0] ?? null;
 
-        if (!\$id) {
+        if (!$id) {
             http_response_code(400);
             echo json_encode(['status' => 'error', 'message' => 'Item ID required']);
             return;
@@ -77,8 +77,8 @@ class ApiController
         echo json_encode([
             'status' => 'ok',
             'data' => [
-                'id' => (int)\$id,
-                'name' => 'Item #' . \$id,
+                'id' => (int)$id,
+                'name' => 'Item #' . $id,
                 'status' => 'active',
                 'created_at' => date('Y-m-d H:i:s'),
             ]

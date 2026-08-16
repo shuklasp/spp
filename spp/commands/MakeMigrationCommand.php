@@ -11,9 +11,15 @@ class MakeMigrationCommand extends BaseMakeCommand
     protected string $name = 'make:migration';
     protected string $description = 'Create a new migration class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $migrationName = $args[2] ?? null;
+        $migrationName = $this->getArgument($args, 0) ?? null;
         if (!$migrationName) {
             echo "Usage: php spp.php make:migration <MigrationName> [--app=appname | --module=modulename]\n";
             return;

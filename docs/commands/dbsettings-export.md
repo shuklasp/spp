@@ -1,16 +1,16 @@
 ## `dbsettings:export`
 
-**Description**: Export SPP module DB settings to JSON
+**Purpose**: Export SPP module DB settings to JSON
 
 ### Synopsis
 ```bash
 php spp.php dbsettings:export [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from DBSettingsExportCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
 

@@ -1,6 +1,6 @@
 ## `test:blueprint`
 
-**Description**: Generate a structural blueprint for an entity
+**Purpose**: Generate a structural blueprint for an entity
 
 ### Synopsis
 ```bash
@@ -13,12 +13,12 @@ Usage: php spp.php test:blueprint <EntityClass>
 
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from TestBlueprintCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Dynamically loads kernel modules: parikshak.
-- Bootstraps a full application execution context (Scheduler::withContext).
-- Instantiates key components: \SPPMod\Parikshak\Parikshak.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Dynamically loads SPP kernel modules: parikshak.
+- Bootstraps a full application execution context via Scheduler.
+- Instantiates internal components: \SPPMod\Parikshak\Parikshak.
 

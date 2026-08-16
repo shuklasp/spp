@@ -4,6 +4,17 @@ namespace SPPMod\Drishyam;
 
 use eftec\bladeone\BladeOne;
 
+class SPPBladeEngine extends BladeOne
+{
+    public function runChild($view, $variables = []): string
+    {
+        if (is_array($variables) && !isset($variables['attributes'])) {
+            $variables['attributes'] = new \SPPMod\Drishyam\ComponentAttributeBag($variables);
+        }
+        return parent::runChild($view, $variables);
+    }
+}
+
 /**
  * Class SPPBlade
  * Wrapper for BladeOne engine in SPP.
@@ -33,7 +44,7 @@ class SPPBlade extends \SPP\SPPObject
 
         $mode = 5; // Force MODE_DEBUG compilation to guarantee live CSS/layout loading
 
-        $this->engine = new BladeOne($this->viewsPath, $this->cachePath, (int) $mode);
+        $this->engine = new SPPBladeEngine($this->viewsPath, $this->cachePath, (int) $mode);
 
         $this->registerDirectives();
     }
@@ -75,25 +86,106 @@ class SPPBlade extends \SPP\SPPObject
                 return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppelement($expression); ?>";
         });
-        // @sppauth
-        $this->engine->directive('sppauth', function () {
+        // @sppauth and @auth
+        $authDirective = function () {
             return "<?php if (\SPPMod\SPPAuth\SPPAuth::authSessionExists()): ?>";
-        });
+        };
+        $this->engine->directive('sppauth', $authDirective);
+        $this->engine->directive('auth', $authDirective);
 
-        // @sppendsppauth
-        $this->engine->directive('endsppauth', function () {
+        // @endsppauth and @endauth
+        $endAuthDirective = function () {
             return "<?php endif; ?>";
-        });
+        };
+        $this->engine->directive('endsppauth', $endAuthDirective);
+        $this->engine->directive('endauth', $endAuthDirective);
 
-        // @sppguest
-        $this->engine->directive('sppguest', function () {
+        // @sppguest and @guest
+        $guestDirective = function () {
             return "<?php if (!\SPPMod\SPPAuth\SPPAuth::authSessionExists()): ?>";
+        };
+        $this->engine->directive('sppguest', $guestDirective);
+        $this->engine->directive('guest', $guestDirective);
+
+        // @endsppguest and @endguest
+        $this->engine->directive('endsppguest', $endAuthDirective);
+        $this->engine->directive('endguest', $endAuthDirective);
+
+        // @csrf
+        $this->engine->directive('csrf', function () {
+            return '<?php echo \'<input type="hidden" name="csrf_token" value="\' . htmlspecialchars(\SPP\Core\Security::getCsrfToken() ?? \'\', ENT_QUOTES) . \'">\'; ?>';
         });
 
-        // @sppendsppguest
-        $this->engine->directive('endsppguest', function () {
+        // @method
+        $this->engine->directive('method', function ($expression) {
+            return '<?php echo \'<input type="hidden" name="_method" value="\' . htmlspecialchars(' . $expression . ', ENT_QUOTES) . \'">\'; ?>';
+        });
+
+        // @error
+        $this->engine->directive('error', function ($expression) {
+            return "<?php if (isset(\$errors) && \$errors->has($expression)): \$message = \$errors->first($expression); ?>";
+        });
+
+        // @enderror
+        $this->engine->directive('enderror', function () {
             return "<?php endif; ?>";
         });
+
+        // @class
+        $this->engine->directive('class', function ($expression) {
+            return 'class="<?php echo \SPPMod\Drishyam\TemplateMacros::toCssClasses(' . $expression . '); ?>"';
+        });
+
+        // @checked
+        $this->engine->directive('checked', function ($expression) {
+            return "<?php echo ($expression) ? 'checked=\"checked\"' : ''; ?>";
+        });
+
+        // @selected
+        $this->engine->directive('selected', function ($expression) {
+            return "<?php echo ($expression) ? 'selected=\"selected\"' : ''; ?>";
+        });
+
+        // @disabled
+        $this->engine->directive('disabled', function ($expression) {
+            return "<?php echo ($expression) ? 'disabled=\"disabled\"' : ''; ?>";
+        });
+
+        // @readonly
+        $this->engine->directive('readonly', function ($expression) {
+            return "<?php echo ($expression) ? 'readonly=\"readonly\"' : ''; ?>";
+        });
+
+        // @required
+        $this->engine->directive('required', function ($expression) {
+            return "<?php echo ($expression) ? 'required=\"required\"' : ''; ?>";
+        });
+
+        // @js
+        $this->engine->directive('js', function ($expression) {
+            return "<?php echo json_encode($expression, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT); ?>";
+        });
+
+        // @props(['type' => 'info', 'message'])
+        $this->engine->directive('props', function ($expression) {
+            return "<?php 
+                \$__props = $expression;
+                \$__keys = [];
+                foreach (\$__props as \$__k => \$__v) {
+                    \$__key = is_numeric(\$__k) ? \$__v : \$__k;
+                    \$__keys[] = \$__key;
+                    \$__default = is_numeric(\$__k) ? null : \$__v;
+                    if (!isset(\${\$__key})) {
+                        \${\$__key} = \$__default;
+                    }
+                }
+                if (!isset(\$attributes)) {
+                    \$attributes = new \SPPMod\Drishyam\ComponentAttributeBag();
+                }
+                \$attributes = \$attributes->exceptProps(\$__keys);
+            ?>";
+        });
+
         // @sppbind($entity)
         $this->engine->directive('sppbind', function ($expression) {
             if (empty($expression))
@@ -119,6 +211,22 @@ class SPPBlade extends \SPP\SPPObject
             if (empty($expression))
                 return "";
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::sppux($expression); ?>";
+        });
+
+        // @spppartial('view_name', ['prop' => 'value'])
+        $this->engine->directive('spppartial', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::spppartial($expression); ?>";
+        });
+
+        // @url('path/to/route')
+        $this->engine->directive('url', function ($expression) {
+            $expr = trim($expression);
+            if (empty($expr) || $expr === "''" || $expr === '""') {
+                return "<?php echo \\SPP\\App::getBaseUrl(\$app_name ?? \\SPP\\Scheduler::getContext()); ?>";
+            }
+            return "<?php echo rtrim(\\SPP\\App::getBaseUrl(\$app_name ?? \\SPP\\Scheduler::getContext()), '/') . '/' . ltrim($expr, '/'); ?>";
         });
 
         // @drupal_node(123)

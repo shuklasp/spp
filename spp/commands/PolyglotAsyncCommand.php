@@ -7,10 +7,17 @@ class PolyglotAsyncCommand extends Command
 {
     protected string $name = 'polyglot:async';
     protected string $description = 'Internal command to execute polyglot calls asynchronously';
+    protected bool $hidden = true;
+
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
 
     public function execute(array $args): void
     {
-        $payloadB64 = $args[2] ?? null;
+        $payloadB64 = $this->getArgument($args, 0) ?? null;
         if (!$payloadB64) return;
 
         $payload = json_decode(base64_decode($payloadB64), true);

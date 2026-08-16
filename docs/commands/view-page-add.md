@@ -1,6 +1,6 @@
 ## `view:page:add`
 
-**Description**: Add a new page route to an app
+**Purpose**: Add a new page route to an app
 
 ### Synopsis
 ```bash
@@ -13,14 +13,14 @@ Usage: php spp.php view:page:add --name=<route> --url=<target> [--app=default] [
 
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
-- `--name=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
-- `--url=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
-- `--source=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--name=` : Expects a value. Extracted via static analysis.
+- `--url=` : Expects a value. Extracted via static analysis.
+- `--source=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
-- Instantiates key components: page.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
+- Instantiates internal components: page.
 

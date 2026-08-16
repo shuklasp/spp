@@ -14,9 +14,15 @@ class GroupEditCommand extends Command
     protected string $name = 'group:edit';
     protected string $description = 'Edit an existing shared resource group';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $groupName = $args[2] ?? null;
+        $groupName = $this->getArgument($args, 0) ?? null;
 
         if (!$groupName) {
             echo "Usage: php spp.php group:edit <group_name> [--extends=...] [--prefix=...]\n";

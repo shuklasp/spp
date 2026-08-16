@@ -6,6 +6,8 @@ use SPPMod\SPPDeploy\Deployer\TargetConnection;
 
 class DeployRunCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -36,22 +38,27 @@ class DeployRunCommand extends Command
         echo "   Command: {$commandToRun}\n";
         echo str_repeat("-", 50) . "\n";
 
-        $resp = $conn->runCommand($commandToRun);
+        try {
+            TargetConnection::acquireDeploymentLock();
+            $resp = $conn->runCommand($commandToRun);
 
-        if (!isset($resp['status']) || $resp['status'] !== 'ok') {
-            echo "❌ Error executing command: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            return;
-        }
+            if (!isset($resp['status']) || $resp['status'] !== 'ok') {
+                echo "❌ Error executing command: " . ($resp['message'] ?? 'Unknown error') . "\n";
+                return;
+            }
 
-        if (!empty($resp['output'])) {
-            echo $resp['output'] . "\n";
-        }
+            if (!empty($resp['output'])) {
+                echo $resp['output'] . "\n";
+            }
 
-        echo str_repeat("-", 50) . "\n";
-        if (isset($resp['exit_code']) && $resp['exit_code'] !== 0) {
-            echo "⚠️  Command exited with non-zero code: {$resp['exit_code']}\n";
-        } else {
-            echo "✅ Command executed successfully.\n";
+            echo str_repeat("-", 50) . "\n";
+            if (isset($resp['exit_code']) && $resp['exit_code'] !== 0) {
+                echo "⚠️  Command exited with non-zero code: {$resp['exit_code']}\n";
+            } else {
+                echo "✅ Command executed successfully.\n";
+            }
+        } finally {
+            TargetConnection::releaseDeploymentLock();
         }
     }
 

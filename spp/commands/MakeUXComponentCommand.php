@@ -13,6 +13,12 @@ class MakeUXComponentCommand extends BaseMakeCommand
     protected string $name = 'make:ux-component';
     protected string $description = 'Scaffold a new SPP-UX reactive component';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

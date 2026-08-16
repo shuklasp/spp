@@ -22,6 +22,12 @@ class XdbMakeSeederCommand extends Command
         return 'Create a new SPP_XDB seeder file';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

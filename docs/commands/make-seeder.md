@@ -1,18 +1,18 @@
 ## `make:seeder`
 
-**Description**: Create a new Database Seeder class
+**Purpose**: Create a new Database Seeder class
 
 ### Synopsis
 ```bash
 php spp.php make:seeder [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from MakeSeederCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: Database.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: Database.
 

@@ -5,6 +5,12 @@ class UserProfileSchemaUpdateCommand extends Command
 {
     protected string $name = 'userprofile:schema:update';
     protected string $description = 'Sync extended user profile metadata schemas';
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Synchronizing user profile schemas...\n";

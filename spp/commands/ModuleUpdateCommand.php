@@ -20,9 +20,15 @@ class ModuleUpdateCommand extends Command
         return 'Execute the update hook for a specific module';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $moduleName = $args[2] ?? null;
+        $moduleName = $this->getArgument($args, 0) ?? null;
         if (!$moduleName) {
             echo "Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]\n";
             return;

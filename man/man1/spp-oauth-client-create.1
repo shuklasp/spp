@@ -1,22 +1,25 @@
-.TH SPP-oauth-client-create 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-oauth-client-create 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-oauth-client-create \- Create a new OAuth 2.0 Client App
-.SH SYNOPSIS
-.B php spp.php oauth:client:create
-[OPTIONS]
+oauth:client:create
+.PP
+ \- Create a new OAuth 2.0 Client App
 .SH DESCRIPTION
 Create a new OAuth 2.0 Client App
 .PP
-Usage: php spp.php oauth:client:create <name> <redirect_uri>
-.br
-
+.SH SYNOPSIS
+php spp.php oauth:client:create [OPTIONS]
+.PP
+.SH EXTENDED USAGE
+Usage: php spp.php oauth:client:create --name=\
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+No static options detected for this command.
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: OAuth, SPPDB.
+\(bu Instantiates internal components: OAuth, SPPDB.
 .br
+.PP
+.PP

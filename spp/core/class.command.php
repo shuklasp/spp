@@ -14,6 +14,9 @@ abstract class Command
     /** @var string Command description */
     protected string $description = '';
 
+    /** @var bool Hidden status */
+    protected bool $hidden = false;
+
     /**
      * Executes the command.
      *
@@ -27,6 +30,14 @@ abstract class Command
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * Indicates whether this command should be hidden from the public command list.
+     */
+    public function isHidden(): bool
+    {
+        return $this->hidden;
     }
 
     /**
@@ -75,6 +86,52 @@ abstract class Command
     {
         echo "\033[31mERROR: \033[0m" . $text . "\n";
     }
+
+    /**
+     * Helper to output JSON data for Admin UI proxying.
+     * Automatically sets proper header if not in CLI (though usually this output is caught by ob_start).
+     */
+    protected function json($data, array $args = []): void
+    {
+        // If the command wants to conditionally return JSON based on --json flag
+        if (!empty($args) && !$this->hasFlag($args, 'json')) {
+            // Not in json mode, could potentially just dump it or skip
+            // But usually if you call json(), you intend to output JSON.
+            // We just output JSON string.
+        }
+        
+        if (ob_get_level() > 0) {
+            ob_clean();
+        }
+        echo json_encode($data);
+    }
+
+    // --- Legacy UI Polyfills ($la -> $this) ---
+    protected string $_currentStatus = 'success';
+
+    public function setStatus(string $status): self {
+        $this->_currentStatus = $status;
+        return $this;
+    }
+    public function setData($data): self {
+        $this->json(is_array($data) ? $data : ['data' => $data]);
+        return $this;
+    }
+    public function notify(string $message, string $type = 'success'): self {
+        $this->json(['success' => ($this->_currentStatus !== 'error'), 'message' => $message]);
+        return $this;
+    }
+    public function modal(string $title, string $html, array $buttons = []): self {
+        $this->json(['success' => true, 'modal' => ['title' => $title, 'html' => $html, 'buttons' => $buttons]]);
+        return $this;
+    }
+    public function closeModal(): self { return $this; }
+    public function refresh(): self { return $this; }
+    public function redirect(string $url): self { return $this; }
+    public function executeClientCode(string $code): self { return $this; }
+    public function addInstruction(array $instruction): self { return $this; }
+    public function dispatch(string $event): self { return $this; }
+    // ------------------------------------------
 
     /**
      * Helper to prompt the user for input.

@@ -1,18 +1,22 @@
-.TH SPP-make-drupal-bridge 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-drupal-bridge 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-drupal-bridge \- Scaffold a Drupal module to bridge SPP into Drupal
-.SH SYNOPSIS
-.B php spp.php make:drupal-bridge
-[OPTIONS]
+make:drupal-bridge
+.PP
+ \- Scaffold a Drupal module to bridge SPP into Drupal
 .SH DESCRIPTION
 Scaffold a Drupal module to bridge SPP into Drupal
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php make:drupal-bridge [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
-\(bu Instantiates key components: TwigFunction.
+\(bu Instantiates internal components: TwigFunction.
 .br
+.PP
+.PP

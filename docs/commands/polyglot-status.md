@@ -1,16 +1,16 @@
 ## `polyglot:status`
 
-**Description**: Checks the runtime environment for polyglot language binaries
+**Purpose**: Checks the runtime environment for polyglot language binaries
 
 ### Synopsis
 ```bash
 php spp.php polyglot:status [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
 - Executes external system binaries or shell commands.
 

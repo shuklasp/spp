@@ -293,7 +293,11 @@ class CommandManager
                 if (is_numeric($k)) {
                     $cliArgs[] = $v;
                 } else {
-                    $cliArgs[] = "--{$k}={$v}";
+                    if (str_starts_with($k, '-')) {
+                        $cliArgs[] = "{$k}={$v}";
+                    } else {
+                        $cliArgs[] = "--{$k}={$v}";
+                    }
                 }
             }
 

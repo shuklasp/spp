@@ -12,6 +12,11 @@ class ListCommand extends Command
     protected string $name = 'list';
     protected string $description = 'Lists all discovered SPP CLI commands.';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "\nSPP Framework CLI Utility\n";
@@ -22,6 +27,9 @@ class ListCommand extends Command
         ksort($commands);
 
         foreach ($commands as $name => $cmd) {
+            if ($cmd->isHidden()) {
+                continue;
+            }
             echo "  " . str_pad($name, 25) . $cmd->getDescription() . "\n";
         }
         echo "\n";

@@ -43,7 +43,7 @@ class PolyglotBridge extends \SPP\SPPObject
         }
 
         if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
-            $sharedDir = SPP_BASE_DIR . SPP_DS . '..' . SPP_DS . $sharedDir;
+            $sharedDir = SPP_APP_DIR . SPP_DS . $sharedDir;
         }
 
         if (!is_dir($sharedDir)) {
@@ -282,7 +282,7 @@ class PolyglotBridge extends \SPP\SPPObject
         }
 
         if (!str_starts_with($sharedDir, '/') && !str_contains($sharedDir, ':')) {
-            $sharedDir = SPP_BASE_DIR . SPP_DS . '..' . SPP_DS . $sharedDir;
+            $sharedDir = SPP_APP_DIR . SPP_DS . $sharedDir;
         }
 
         if (!is_dir($sharedDir)) {

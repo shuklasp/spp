@@ -10,6 +10,11 @@ use SPP\CLI\Command;
  */
 abstract class BaseMakeCommand extends Command
 {
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     /**
      * Resolve the target directory based on context.
      */

@@ -9,6 +9,12 @@ class DrishyamClearCommand extends Command
     protected string $name = 'drishyam:clear';
     protected string $description = 'Clear the Drishyam rendering cache';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Clearing Drishyam view cache...\n";

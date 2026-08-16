@@ -1,6 +1,6 @@
 variables:
     dbtype: sqlite
-    sqlite_path: 'var/db/default.sqlite'
+    sqlite_path: var/db/lekhak.sqlite
     db_engine: pdo
     dbname: lekhak1
     dbhost: localhost

@@ -1,3 +1,3 @@
 variables:
     dbtype: sqlite
-    sqlite_path: ':memory:'
+    sqlite_path: var/db/default.sqlite

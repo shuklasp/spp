@@ -1,9 +1,9 @@
 <?php
-namespace App\\{{ns}}\\Serv;
+namespace App\{{ns}}\Serv;
 
-use SPPMod\\SPPView\\Attributes\\Route;
-use SPPMod\\SPPView\\Attributes\\Middleware;
-use SPPMod\\SPPView\\Attributes\\Title;
+use SPPMod\SPPView\Attributes\Route;
+use SPPMod\SPPView\Attributes\Middleware;
+use SPPMod\SPPView\Attributes\Title;
 
 /**
  * ============================================================================
@@ -93,11 +93,11 @@ public function hello() { ... }</pre>
     public function greet()
     {
         // Route parameters are available via SPPGlobal
-        \$pageData = \\SPPMod\\SPPView\\SPPGlobal::get('page');
-        \$name = \$pageData['named_params']['name'] ?? \$pageData['params'][0] ?? 'World';
+        $pageData = \SPPMod\SPPView\SPPGlobal::get('page');
+        $name = $pageData['named_params']['name'] ?? $pageData['params'][0] ?? 'World';
 
         return '<div style="max-width:700px;margin:2rem auto;padding:2rem;background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.04);border:1px solid #e2e8f0;font-family:Inter,sans-serif;">
-            <h1 style="margin:0 0 0.5rem;">Hello, ' . htmlspecialchars(\$name) . '!</h1>
+            <h1 style="margin:0 0 0.5rem;">Hello, ' . htmlspecialchars($name) . '!</h1>
             <p style="color:#64748b;">This is a parameterized route: <code>#[Route(\'/greet/{name}\')]</code></p>
             <p style="color:#64748b;">The <code>{name}</code> parameter was extracted automatically.</p>
         </div>';
@@ -114,7 +114,7 @@ public function hello() { ... }</pre>
         echo json_encode([
             'status' => 'ok',
             'source' => 'AttributeController',
-            'method' => \$_SERVER['REQUEST_METHOD'],
+            'method' => $_SERVER['REQUEST_METHOD'],
             'message' => 'This JSON endpoint uses #[Route] attribute routing.',
             'timestamp' => date('Y-m-d H:i:s'),
         ]);
@@ -125,7 +125,7 @@ public function hello() { ... }</pre>
      * Route with method-level middleware.
      */
     #[Route('/protected', method: 'GET', name: 'attr.protected')]
-    #[Middleware('\\App\\{{ns}}\\Middleware\\AuthGuard')]
+    #[Middleware('\App\{{ns}}\Middleware\AuthGuard')]
     public function protectedRoute()
     {
         return '<div style="max-width:700px;margin:2rem auto;padding:2rem;background:#fff;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.04);border:1px solid #e2e8f0;font-family:Inter,sans-serif;">
@@ -133,7 +133,7 @@ public function hello() { ... }</pre>
             <h1 style="margin:0.5rem 0;">Protected Route</h1>
             <p style="color:#64748b;">This route uses <code>#[Middleware]</code> attribute for auth protection.</p>
             <pre style="background:#f1f5f9;padding:1rem;border-radius:10px;font-size:0.85rem;">#[Route(\'/protected\')]
-#[Middleware(\'\\App\\{{ns}}\\Middleware\\AuthGuard\')]
+#[Middleware(\'\App\{{ns}}\Middleware\AuthGuard\')]
 public function protectedRoute() { ... }</pre>
         </div>';
     }

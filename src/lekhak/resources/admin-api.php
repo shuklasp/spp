@@ -226,14 +226,10 @@ try {
                         $node->delete();
                         $count++;
                     } elseif ($bulkOp === 'publish') {
-                        $node->status = 'published';
-                        $node->changed = date("Y-m-d H:i:s");
-                        $node->save();
+                        $node->applyTransition('published');
                         $count++;
                     } elseif ($bulkOp === 'unpublish') {
-                        $node->status = 'draft';
-                        $node->changed = date("Y-m-d H:i:s");
-                        $node->save();
+                        $node->applyTransition('draft');
                         $count++;
                     }
                 } catch (\Exception $e) { /* skip failed items */
@@ -296,7 +292,6 @@ try {
             $node = new \SPPMod\Lekhak\Core\LekhakNode($id);
             $node->title = $title;
             $node->body = $body;
-            $node->status = $status;
             if ($postedAlias !== '') {
                 $node->alias = _lekhak_slugify($postedAlias);
             }
@@ -312,9 +307,14 @@ try {
                     $slug = _lekhak_slugify($title) ?: 'untitled-document';
                     $node->alias = $slug . '-' . time();
                 }
+                $node->save(); // Save once to get ID, then apply transition
             }
             try {
-                $node->save();
+                if ($node->status !== $status) {
+                    $node->applyTransition($status);
+                } else {
+                    $node->save();
+                }
                 $baseUri = defined('APP_BASE_URI') ? APP_BASE_URI : '';
                 $publicUrl = rtrim($baseUri, '/') . '/lekhak/node/' . $node->alias;
                 sendResponse(

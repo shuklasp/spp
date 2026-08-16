@@ -126,11 +126,12 @@ export default class ParikshakView extends BaseComponent {
             const endTime = performance.now();
             const timeMs = Math.round(endTime - startTime);
 
+            const rawText = await res.text();
             let data;
             try {
-                data = await res.json();
+                data = JSON.parse(rawText);
             } catch (e) {
-                data = await res.text();
+                data = rawText;
             }
 
             const responseStr = `Status: ${res.status} ${res.statusText} (${timeMs}ms)\n\n` + 

@@ -32,8 +32,8 @@ abstract class BaseElementCommand extends Command
      */
     protected function handleCrud(string $type, array $args): void
     {
-        $action = $args[2] ?? 'list'; // list, create, edit, delete
-        $name = $args[3] ?? null;
+        $action = $this->getArgument($args, 0) ?? 'list'; // list, create, edit, delete
+        $name = $this->getArgument($args, 1) ?? null;
         
         $appname = 'default';
         $editor = null;

@@ -9,6 +9,12 @@ class SCIMProvisionCommand extends Command
     protected string $signature = 'scim:test:user {username} {email?}';
     protected string $description = 'Test SCIM User Provisioning locally';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $username = $args['username'] ?? null;

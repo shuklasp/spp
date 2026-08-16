@@ -1,17 +1,17 @@
 ## `oauth:client:list`
 
-**Description**: List all OAuth 2.0 Client Apps
+**Purpose**: List all OAuth 2.0 Client Apps
 
 ### Synopsis
 ```bash
 php spp.php oauth:client:list [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--json` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Instantiates key components: SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Instantiates internal components: SPPDB.
 

@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 
 class VerifySovereigntyCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "🛡️ Auditing Absolute Air-Gapped Sovereign Compliance Across Stack...\n";

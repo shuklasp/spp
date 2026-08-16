@@ -9,6 +9,12 @@ class StorageLinkCommand extends Command
     protected string $name = 'storage:link';
     protected string $description = 'Create symbolic links for public storage';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

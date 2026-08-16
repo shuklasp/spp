@@ -9,6 +9,12 @@ class ViewServiceAddCommand extends Command
     protected string $name = 'view:service:add';
     protected string $description = 'Register a new AJAX service endpoint';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

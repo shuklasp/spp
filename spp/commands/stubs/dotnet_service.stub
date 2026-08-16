@@ -20,7 +20,7 @@ namespace Service.{{CLASS_NAME}}
             }
 
             // Example of calling PHP natively:
-            // var phpResult = SppClient.CallPhp("App\\Services\\NativeService", "someMethod", new[] { "hello" });
+            // var phpResult = SppClient.CallPhp("App\Services\NativeService", "someMethod", new[] { "hello" });
 
             // Business Logic
             var resp = new

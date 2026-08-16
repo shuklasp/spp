@@ -21,25 +21,25 @@
  */
 
 // ── App-Specific Autoloader ─────────────────────────────────────────────
-// Maps the \\App\\{{appName}}\\ namespace to this app's directory.
-// This allows you to use classes like \\App\\{{appName}}\\Serv\\HomeController
-spl_autoload_register(function (\$className) {
+// Maps the \App\{{appName}}\ namespace to this app's directory.
+// This allows you to use classes like \App\{{appName}}\Serv\HomeController
+spl_autoload_register(function ($className) {
     // Only handle our app namespace
-    \$prefix = 'App\\\\{{appName}}\\\\';
-    if (strpos(\$className, \$prefix) !== 0) return;
+    $prefix = 'App\\{{appName}}\\';
+    if (strpos($className, $prefix) !== 0) return;
 
-    \$relative = substr(\$className, strlen(\$prefix));
-    \$parts = explode('\\\\', \$relative);
+    $relative = substr($className, strlen($prefix));
+    $parts = explode('\\', $relative);
 
     // Map namespace to directory (Serv → serv, Entities → entities, etc.)
-    \$file = __DIR__ . '/' . strtolower(\$parts[0]);
-    if (count(\$parts) > 1) {
-        \$file .= '/' . implode('/', array_slice(\$parts, 1));
+    $file = __DIR__ . '/' . strtolower($parts[0]);
+    if (count($parts) > 1) {
+        $file .= '/' . implode('/', array_slice($parts, 1));
     }
-    \$file .= '.php';
+    $file .= '.php';
 
-    if (file_exists(\$file)) {
-        require_once \$file;
+    if (file_exists($file)) {
+        require_once $file;
     }
 });
 
@@ -47,25 +47,25 @@ spl_autoload_register(function (\$className) {
 // Register event listeners for framework lifecycle events.
 // Uncomment to activate:
 //
-// \\SPP\\SPPEvent::listen('PageNotFound', function (\$params) {
+// \SPP\SPPEvent::listen('PageNotFound', function ($params) {
 //     // Custom 404 handling
 //     echo "<h1>Page not found in {{appName}}</h1>";
 // });
 //
-// \\SPP\\SPPEvent::listen('app.boot', function (\$params) {
+// \SPP\SPPEvent::listen('app.boot', function ($params) {
 //     // Runs when app context is set
 // });
 
 // ── SPP-UX Auto-Boot ────────────────────────────────────────────────────
 // Automatically register SPP-UX assets for all pages in this app.
 // This means @sppux directives and SPPUX::render() work on any page.
-if (php_sapi_name() !== 'cli' && class_exists('\\\\SPPMod\\\\Drishyam\\\\SPPUX')) {
-    \\SPPMod\\Drishyam\\SPPUX::boot('{{appName}}');
+if (php_sapi_name() !== 'cli' && class_exists('\\SPPMod\\Drishyam\\SPPUX')) {
+    \SPPMod\Drishyam\SPPUX::boot('{{appName}}');
 }
 
 // ── Dynamic Asset Inclusion ───────────────────────────────────
 // Automatically injects mapped CSS and JS assets from module.yml
 // configurations via the secure AssetRouter alias system.
 if (php_sapi_name() !== 'cli') {
-    \\\\SPP\\\\App::includeAssets();
+    \\SPP\\App::includeAssets();
 }

@@ -8,6 +8,12 @@ class ServiceCrudCommand extends BaseElementCommand
     protected string $name = 'service:crud';
     protected string $description = 'Manage SPP services (list, create, edit, delete)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $this->handleCrud('service', $args);

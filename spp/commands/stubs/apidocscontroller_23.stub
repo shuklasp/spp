@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{ns}}\\Serv;
+namespace App\{{ns}}\Serv;
 
 /**
  * ============================================================================
@@ -13,7 +13,7 @@ namespace App\\{{ns}}\\Serv;
  *   Returns JSON with endpoint descriptions, auth info, and examples.
  *
  * HOW TO EXTEND:
- *   Add new entries to the \\\$endpoints array as you build new API routes.
+ *   Add new entries to the \$endpoints array as you build new API routes.
  * ============================================================================
  */
 class ApiDocsController

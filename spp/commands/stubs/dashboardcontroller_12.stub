@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{ns}}\\Serv;
+namespace App\{{ns}}\Serv;
 
 /**
  * ============================================================================
@@ -18,29 +18,29 @@ class DashboardController
     public function index()
     {
         // Boot SPP-UX for @sppux directive
-        if (class_exists('\\SPPMod\\Drishyam\\SPPUX')) {
-            \\SPPMod\\Drishyam\\SPPUX::boot();
+        if (class_exists('\SPPMod\Drishyam\SPPUX')) {
+            \SPPMod\Drishyam\SPPUX::boot();
         }
 
         // Check authentication (optional — uncomment to require login)
-        // if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth') && !\\SPPMod\\SPPAuth\\SPPAuth::authSessionExists()) {
-        //     header('Location: ' . \\SPP\\App::getBaseUrl('{{ns}}') . '/login');
+        // if (class_exists('\SPPMod\SPPAuth\SPPAuth') && !\SPPMod\SPPAuth\SPPAuth::authSessionExists()) {
+        //     header('Location: ' . \SPP\App::getBaseUrl('{{ns}}') . '/login');
         //     exit;
         // }
 
         // Example: Query database entities
-        \$items = [];
+        $items = [];
         // Uncomment when SPPDB is configured:
-        // \$db = new \\SPPMod\\SPPDB\\SPPDB();
-        // \$items = \$db->execute_query('SELECT * FROM {{ns}}_items ORDER BY id DESC LIMIT 10');
+        // $db = new \SPPMod\SPPDB\SPPDB();
+        // $items = $db->execute_query('SELECT * FROM {{ns}}_items ORDER BY id DESC LIMIT 10');
 
-        \$blade = \\SPPMod\\Drishyam\\SPPBlade::getInstance();
-        return \$blade->run('dashboard', [
+        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
+        return $blade->renderInstance('dashboard', [
             'app_name' => '{{ns}}',
-            'base_url' => \\SPP\\App::getBaseUrl('{{ns}}'),
-            'items' => \$items,
+            'base_url' => \SPP\App::getBaseUrl('{{ns}}'),
+            'items' => $items,
             'stats' => [
-                'total_items' => count(\$items),
+                'total_items' => count($items),
                 'active' => 0,
                 'completed' => 0,
             ]

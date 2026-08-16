@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{appName}}\\Serv;
+namespace App\{{appName}}\Serv;
 
 /**
  * ============================================================================
@@ -11,7 +11,7 @@ namespace App\\{{appName}}\\Serv;
  * Guards define different auth strategies (web, api, etc.)
  *
  * KEY METHODS:
- *   SPPAuth::guard('web')->login(\$user)        — Create session
+ *   SPPAuth::guard('web')->login($user)        — Create session
  *   SPPAuth::guard('web')->logout()             — Destroy session
  *   SPPAuth::authSessionExists()                — Check if logged in
  *   SPPAuth::guard('web')->user()               — Get current user
@@ -25,52 +25,52 @@ class AuthController
 {
     public function loginForm()
     {
-        \$blade = \\SPPMod\\Drishyam\\SPPBlade::getInstance();
-        return \$blade->run('login', [
+        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
+        return $blade->renderInstance('login', [
             'app_name' => '{{appName}}',
-            'base_url' => \\SPP\\App::getBaseUrl('{{appName}}'),
+            'base_url' => \SPP\App::getBaseUrl('{{appName}}'),
             'error' => ''
         ]);
     }
 
     public function login()
     {
-        \$error = '';
-        if (\$_SERVER['REQUEST_METHOD'] === 'POST') {
-            \$username = trim(\$_POST['username'] ?? '');
-            \$password = \$_POST['password'] ?? '';
+        $error = '';
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $username = trim($_POST['username'] ?? '');
+            $password = $_POST['password'] ?? '';
 
-            if (!empty(\$username) && !empty(\$password)) {
+            if (!empty($username) && !empty($password)) {
                 try {
                     // Demo credential check — replace with real auth
-                    if (\$username === 'admin' && (\$password === 'admin' || \$password === 'password')) {
-                        \$user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
-                        \\SPPMod\\SPPAuth\\SPPAuth::guard('web')->login(\$user);
-                        header('Location: ' . \\SPP\\App::url('dashboard', '{{appName}}'));
+                    if ($username === 'admin' && ($password === 'admin' || $password === 'password')) {
+                        $user = (object)['id' => 'admin', 'username' => 'admin', 'email' => 'admin@localhost'];
+                        \SPPMod\SPPAuth\SPPAuth::guard('web')->login($user);
+                        header('Location: ' . \SPP\App::url('dashboard', '{{appName}}'));
                         exit;
                     } else {
-                        \$error = 'Invalid credentials.';
+                        $error = 'Invalid credentials.';
                     }
-                } catch (\\Exception \$e) {
-                    \$error = 'Auth error: ' . \$e->getMessage();
+                } catch (\Exception $e) {
+                    $error = 'Auth error: ' . $e->getMessage();
                 }
             }
         }
 
-        \$blade = \\SPPMod\\Drishyam\\SPPBlade::getInstance();
-        return \$blade->run('login', [
+        $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
+        return $blade->renderInstance('login', [
             'app_name' => '{{appName}}',
-            'base_url' => \\SPP\\App::getBaseUrl('{{appName}}'),
-            'error' => \$error
+            'base_url' => \SPP\App::getBaseUrl('{{appName}}'),
+            'error' => $error
         ]);
     }
 
     public function logout()
     {
-        if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
-            \\SPPMod\\SPPAuth\\SPPAuth::guard('web')->logout();
+        if (class_exists('\SPPMod\SPPAuth\SPPAuth')) {
+            \SPPMod\SPPAuth\SPPAuth::guard('web')->logout();
         }
-        header('Location: ' . \\SPP\\App::url('home', '{{appName}}'));
+        header('Location: ' . \SPP\App::url('home', '{{appName}}'));
         exit;
     }
 
@@ -80,17 +80,17 @@ class AuthController
     public function apiLogin()
     {
         header('Content-Type: application/json');
-        if (\$_SERVER['REQUEST_METHOD'] !== 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             http_response_code(405);
             echo json_encode(['status' => 'error', 'message' => 'POST required']);
             return;
         }
 
-        \$username = \$_POST['username'] ?? '';
-        \$password = \$_POST['password'] ?? '';
+        $username = $_POST['username'] ?? '';
+        $password = $_POST['password'] ?? '';
 
         // Demo auth — replace with real validation
-        if (\$username === 'admin' && \$password === 'admin') {
+        if ($username === 'admin' && $password === 'admin') {
             echo json_encode([
                 'status' => 'ok',
                 'token' => bin2hex(random_bytes(32)),

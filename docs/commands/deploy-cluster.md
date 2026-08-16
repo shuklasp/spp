@@ -1,6 +1,6 @@
 ## `deploy:cluster`
 
-**Description**: Deploy to a multi-server cluster sequentially
+**Purpose**: Deploy to a multi-server cluster sequentially
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php deploy:cluster <cluster_name>
 
 ```
 
-### Options
-- `--force` : Boolean flag. Extracted via static analysis from DeployClusterCommand.php
+### Options Available
+- `--force` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: DeployPushCommand.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: DeployPushCommand.
 

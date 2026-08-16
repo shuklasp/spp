@@ -311,18 +311,41 @@
         const subModal = document.createElement('div');
         subModal.className = 'glass-overlay active sub-modal';
         subModal.style.zIndex = '4000';
-        subModal.innerHTML = `
-            <div class="modal-content glass-panel sppux-sub-editor-animate" style="width: 80vw; max-width: 1000px; height: 80vh; background: var(--sppux-panel); display: flex; flex-direction: column;">
-                <div class="modal-header">
-                    <h3>${title}</h3>
-                    <button class="close-btn">✕</button>
-                </div>
-                <div class="modal-body" id="sub-editor-body" style="flex: 1; overflow-y: auto; padding: 1.5rem;"></div>
-                <div class="modal-footer">
-                    <button class="btn secondary-btn">Cancel</button>
-                    <button class="btn primary-btn" id="sub-modal-save">Apply Changes</button>
-                </div>
-            </div>`;
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'modal-content glass-panel sppux-sub-editor-animate';
+        contentDiv.style.cssText = 'width: 80vw; max-width: 1000px; height: 80vh; background: var(--sppux-panel); display: flex; flex-direction: column;';
+        
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'modal-header';
+        const h3 = document.createElement('h3');
+        h3.textContent = title;
+        const closeBtnEl = document.createElement('button');
+        closeBtnEl.className = 'close-btn';
+        closeBtnEl.textContent = '✕';
+        headerDiv.appendChild(h3);
+        headerDiv.appendChild(closeBtnEl);
+        
+        const bodyDiv = document.createElement('div');
+        bodyDiv.className = 'modal-body';
+        bodyDiv.id = 'sub-editor-body';
+        bodyDiv.style.cssText = 'flex: 1; overflow-y: auto; padding: 1.5rem;';
+        
+        const footerDiv = document.createElement('div');
+        footerDiv.className = 'modal-footer';
+        const cancelBtnEl = document.createElement('button');
+        cancelBtnEl.className = 'btn secondary-btn';
+        cancelBtnEl.textContent = 'Cancel';
+        const saveBtnEl = document.createElement('button');
+        saveBtnEl.className = 'btn primary-btn';
+        saveBtnEl.id = 'sub-modal-save';
+        saveBtnEl.textContent = 'Apply Changes';
+        footerDiv.appendChild(cancelBtnEl);
+        footerDiv.appendChild(saveBtnEl);
+        
+        contentDiv.appendChild(headerDiv);
+        contentDiv.appendChild(bodyDiv);
+        contentDiv.appendChild(footerDiv);
+        subModal.appendChild(contentDiv);
         document.body.appendChild(subModal);
 
         const escListener = (e) => {
@@ -336,18 +359,18 @@
         // Add cleanup to close button
         const closeBtn = subModal.querySelector('.close-btn');
         if (closeBtn) {
-            closeBtn.onclick = () => {
+            closeBtn.addEventListener('click', () => {
                 document.removeEventListener('keydown', escListener);
                 subModal.remove();
-            };
+            });
         }
         
         const cancelBtn = subModal.querySelector('.secondary-btn');
         if (cancelBtn) {
-            cancelBtn.onclick = () => {
+            cancelBtn.addEventListener('click', () => {
                 document.removeEventListener('keydown', escListener);
                 subModal.remove();
-            };
+            });
         }
 
         const body = subModal.querySelector('#sub-editor-body');
@@ -359,7 +382,7 @@
 
         const saveBtn = subModal.querySelector('#sub-modal-save');
         if (saveBtn) {
-            saveBtn.onclick = async () => {
+            saveBtn.addEventListener('click', async () => {
                 const form = body.querySelector('form');
                 let resultData = {};
                 if (form) {
@@ -405,7 +428,23 @@
             const existing = document.querySelector('.sppux-popover');
             if (existing) existing.remove();
             const pop = document.createElement('div'); pop.className = 'sppux-popover';
-            pop.innerHTML = `<div class="sppux-popover-header"><b>${title}</b></div><div class="sppux-popover-body">${content}</div>`;
+            const header = document.createElement('div');
+            header.className = 'sppux-popover-header';
+            const b = document.createElement('b');
+            b.textContent = title;
+            header.appendChild(b);
+            
+            const body = document.createElement('div');
+            body.className = 'sppux-popover-body';
+            // We use DOM methods if possible, but content might be complex string. We will append directly.
+            if (typeof content === 'string') {
+                body.innerHTML = content;
+            } else {
+                body.appendChild(content);
+            }
+            
+            pop.appendChild(header);
+            pop.appendChild(body);
             document.body.appendChild(pop);
             const rect = (triggerEl && typeof triggerEl.getBoundingClientRect === 'function') ? triggerEl.getBoundingClientRect() : { left: 100, bottom: 100 };
             pop.style.position = 'fixed'; pop.style.left = rect.left + 'px'; pop.style.top = rect.bottom + 8 + 'px';
@@ -492,7 +531,9 @@
             let container = document.getElementById('sppux-toast-root') || (document.body.appendChild(Object.assign(document.createElement('div'), {id:'sppux-toast-root'}))); 
             const toast = document.createElement('div'); 
             toast.className = `sppux-toast sppux-toast-${t}`; 
-            toast.innerHTML = `<span>${m}</span>`; 
+            const span = document.createElement('span');
+            span.textContent = m;
+            toast.appendChild(span); 
             container.appendChild(toast); 
             setTimeout(() => { 
                 toast.classList.add('sppux-toast-removing'); 
@@ -638,9 +679,9 @@
                 const input = document.createElement('input');
                 input.type = 'file';
                 input.multiple = true;
-                input.onchange = () => {
+                input.addEventListener('change', () => {
                     if (input.files && input.files.length > 0) onDrop(Array.from(input.files));
-                };
+                });
                 input.click();
             };
 
@@ -695,11 +736,17 @@
             items.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'sppux-context-item';
-                el.innerHTML = `<span>${item.icon || ''}</span> <span>${item.label}</span>`;
-                el.onclick = () => {
+                const iconSpan = document.createElement('span');
+                iconSpan.textContent = item.icon || '';
+                const labelSpan = document.createElement('span');
+                labelSpan.textContent = item.label;
+                el.appendChild(iconSpan);
+                el.appendChild(document.createTextNode(' '));
+                el.appendChild(labelSpan);
+                el.addEventListener('click', () => {
                     if (item.action) item.action();
                     menu.remove();
-                };
+                });
                 menu.appendChild(el);
             });
             
@@ -1069,13 +1116,17 @@
             const overlay = document.createElement('div');
             overlay.className = 'glass-overlay active';
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:100000;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;cursor:zoom-out;backdrop-filter:blur(10px);';
-            overlay.innerHTML = `<img src="${src}" alt="${alt}" style="max-width:90vw;max-height:90vh;border-radius:var(--sppux-radius-md);box-shadow:0 10px 40px rgba(0,0,0,0.5);transform:scale(0.9);animation:sppux-zoom-in 0.3s forwards cubic-bezier(0.34, 1.56, 0.64, 1);">`;
+            const img = document.createElement('img');
+            img.src = src;
+            img.alt = alt;
+            img.style.cssText = 'max-width:90vw;max-height:90vh;border-radius:var(--sppux-radius-md);box-shadow:0 10px 40px rgba(0,0,0,0.5);transform:scale(0.9);animation:sppux-zoom-in 0.3s forwards cubic-bezier(0.34, 1.56, 0.64, 1);';
+            overlay.appendChild(img);
             
             const close = () => {
                 overlay.style.opacity = '0';
                 setTimeout(() => overlay.remove(), 300);
             };
-            overlay.onclick = close;
+            overlay.addEventListener('click', close);
             document.body.appendChild(overlay);
             
             const escClose = (e) => { if (e.key === 'Escape') close(); document.removeEventListener('keydown', escClose); };

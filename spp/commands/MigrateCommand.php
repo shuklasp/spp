@@ -16,6 +16,11 @@ class MigrateCommand extends Command
         return 'migrate';
     }
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function getDescription(): string
     {
         return 'Run database migrations for the app and all active modules';
@@ -80,9 +85,22 @@ class MigrateCommand extends Command
             echo "Migrating: {$name}...\n";
             require_once $file;
 
-            $className = $name;
-            if (class_exists($className)) {
-                $migration = new $className();
+            // Extract namespace and class from the file content
+            $content = file_get_contents($file);
+            $namespace = '';
+            if (preg_match('/namespace\s+([^;]+);/i', $content, $matches)) {
+                $namespace = trim($matches[1]) . '\\';
+            }
+            
+            $className = '';
+            if (preg_match('/class\s+([a-zA-Z0-9_]+)\s+extends/i', $content, $matches)) {
+                $className = trim($matches[1]);
+            }
+            
+            $fullClassName = $namespace . $className;
+
+            if ($className && class_exists($fullClassName)) {
+                $migration = new $fullClassName();
                 try {
                     $migration->up($db);
                     $this->logMigration($db, $name);
@@ -92,16 +110,25 @@ class MigrateCommand extends Command
                     return; // Stop on first failure
                 }
             } else {
-                echo "  [WARNING] Class {$className} not found in file {$file}\n";
+                echo "  [WARNING] Class {$fullClassName} not found in file {$file}\n";
             }
         }
 
         echo "All migrations completed successfully.\n";
     }
 
+    protected function getContext(array $args): string
+    {
+        return $this->getOption($args, 'app', 'default');
+    }
+
     private function ensureMigrationTable(SPPDB $db): void
     {
         $table = \SPPMod\SPPDB\SPPDB::sppTable('migrations');
+        if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+            $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        }
+        
         $isSqlite = ($db->getDriver() === 'sqlite');
 
         if ($isSqlite) {
@@ -122,12 +149,13 @@ class MigrateCommand extends Command
     private function getExecutedMigrations(SPPDB $db): array
     {
         $table = \SPPMod\SPPDB\SPPDB::sppTable('migrations');
+        if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+            $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        }
         $rows = $db->execute_query("SELECT migration FROM {$table}");
         $executed = [];
-        if (is_array($rows)) {
-            foreach ($rows as $row) {
-                $executed[] = $row['migration'];
-            }
+        foreach ($rows as $r) {
+            $executed[] = $r['migration'];
         }
         return $executed;
     }
@@ -135,6 +163,9 @@ class MigrateCommand extends Command
     private function logMigration(SPPDB $db, string $name): void
     {
         $table = \SPPMod\SPPDB\SPPDB::sppTable('migrations');
-        $db->insertValues($table, ['migration' => $name]);
+        if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+            $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        }
+        $db->execute_query("INSERT INTO {$table} (migration) VALUES (?)", [$name]);
     }
 }

@@ -13,9 +13,15 @@ class FrontendDebugCommand extends Command
     protected string $name = 'frontend:debug';
     protected string $description = 'Toggle Frontend CDN development mode (on|off)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $state = $args[2] ?? 'on';
+        $state = $this->getArgument($args, 0) ?? 'on';
         $file = SPP_APP_DIR . '/spp/admin/js/spp-loader.js';
 
         if (!file_exists($file)) {

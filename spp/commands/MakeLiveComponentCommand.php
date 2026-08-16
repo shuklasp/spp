@@ -11,9 +11,15 @@ class MakeLiveComponentCommand extends BaseMakeCommand
     protected string $name = 'make:live-component';
     protected string $description = 'Create a new Live Component class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:live-component <name> [--app=appname]\n";
             return;
@@ -31,8 +37,18 @@ class MakeLiveComponentCommand extends BaseMakeCommand
             'className' => $className
         ]);
 
+        $viewDir = ($app === 'default') ? SPP_APP_DIR . '/resources/views/partials' : SPP_APP_DIR . "/resources/{$app}/views/partials";
+        $partialPath = "{$viewDir}/" . $className . ".html";
+        
+        $partialSuccess = $this->buildFromStub('livecomponent_partial', $partialPath, [
+            'className' => $className
+        ]);
+
         if ($success) {
             echo "Success: Live Component {$className} created at {$targetPath}\n";
+        }
+        if ($partialSuccess) {
+            echo "Success: Live Component partial created at {$partialPath}\n";
         }
     }
 

@@ -9,6 +9,12 @@ class DiffApplyCommand extends Command
     protected string $name = 'diff:apply';
     protected string $description = 'Apply a patch or delta file';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Applying delta patch...\n";

@@ -154,7 +154,7 @@ class HomeController
     {
         // SPPBlade::getInstance()->run() renders a Blade template
         $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('home', [
+        return $blade->renderInstance('home', [
             'title'    => 'Welcome',
             'items'    => $this->getItems(),
             'user'     => \SPPMod\SPPAuth\SPPAuth::getUser(),

@@ -10,10 +10,16 @@ use SPP\CLI\Command;
  */
 class CreateAppCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         // Add or ensure legacy mode is set for MakeAppCommand
-        $hasType = isset($args[3]) && !str_starts_with($args[3], '--');
+        $hasType = null !== $this->getArgument($args, 1) && !str_starts_with($this->getArgument($args, 1), '--');
         if (!$hasType) {
             // Insert 'legacy' as the app type argument (arg index 3)
             $newArgs = [];
@@ -23,7 +29,7 @@ class CreateAppCommand extends Command
                 }
                 $newArgs[] = $val;
             }
-            if (!isset($args[3])) {
+            if (!null !== $this->getArgument($args, 1)) {
                 $newArgs[3] = 'legacy';
             }
             $args = $newArgs;

@@ -1,6 +1,6 @@
 ## `view:page:remove`
 
-**Description**: Remove a page route from an app
+**Purpose**: Remove a page route from an app
 
 ### Synopsis
 ```bash
@@ -13,12 +13,12 @@ Usage: php spp.php view:page:remove --name=<route> [--app=default] [--source=yam
 
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
-- `--name=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
-- `--source=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
+- `--name=` : Expects a value. Extracted via static analysis.
+- `--source=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
 

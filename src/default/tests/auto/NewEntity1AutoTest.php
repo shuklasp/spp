@@ -5,7 +5,7 @@ use App\Default\Entities\Newentity1;
 
 /**
  * Auto-generated Test for NewEntity1 (Parikshak)
- * Generation Date: 2026-07-11 13:08:12
+ * Generation Date: 2026-07-18 08:36:45
  */
 class NewEntity1AutoTest
 {
@@ -15,9 +15,9 @@ class NewEntity1AutoTest
         try {
             $entity = new NewEntity1();
             $data = array (
-  'name' => 'PARIKSHAK_FUZZ_3f118',
-  'created_at' => '2026-07-11 13:08:12',
-  'new_column' => 'PARIKSHAK_FUZZ_5499c',
+  'name' => 'PARIKSHAK_FUZZ_6a3a0',
+  'created_at' => '2026-07-18 08:36:45',
+  'new_column' => 'PARIKSHAK_FUZZ_edc58',
 );
             foreach ($data as $k => $v) $entity->set($k, $v);
             $id = $entity->save();

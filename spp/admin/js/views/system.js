@@ -104,16 +104,25 @@ export default class SystemView extends BaseComponent {
 
     async fetchData() {
         try {
-            const [sysRes, bridgeRes, appsRes] = await Promise.all([
-                this.api('get_system_info'),
-                this.api('get_bridge_info'),
+            const [sysRes, appsRes] = await Promise.all([
+                this.apiPost('execute_command', { command: 'sys:status', args: '--json' }),
                 this.api('list_apps')
             ]);
 
             if (sysRes.success) {
+                let systemData = {};
+                let bridgeData = null;
+                try {
+                    const parsed = JSON.parse(sysRes.data.output || sysRes.data);
+                    systemData = parsed.system || {};
+                    bridgeData = parsed.bridge || null;
+                } catch (e) {
+                    console.error("Failed to parse sys:status output", e, sysRes.data.output);
+                }
+
                 this.setState({
-                    system: sysRes.data,
-                    bridge: bridgeRes.data || null,
+                    system: systemData,
+                    bridge: bridgeData,
                     apps: appsRes.data?.apps || [],
                     loading: false
                 });
@@ -433,7 +442,7 @@ export default class SystemView extends BaseComponent {
                         <div class="card-value">${system.orion.cache_size}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-top: auto;">
                             <span class="badge ${system.orion.cache_exists ? 'success' : 'danger'}" style="font-size: 0.6rem;">${system.orion.cache_exists ? 'OPTIMIZED' : 'LEGACY'}</span>
-                            <button class="btn ghost-btn btn-xs" @click=${() => this.apiPost('compile_registry').then(r => this.notify(r.message, r.success ? 'success' : 'error'))}>Rebuild</button>
+                            <button class="btn ghost-btn btn-xs" @click=${() => this.apiPost('execute_command', { command: 'cache:compile-registry', args: '--json' }).then(r => { try { const p = JSON.parse(r.data.output); this.notify(p.message, p.success ? 'success' : 'error'); } catch(e) { this.notify('Compiled', 'success'); } })}>Rebuild</button>
                         </div>
                     </div>
                     <div class="compact-card">

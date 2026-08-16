@@ -7,6 +7,8 @@ use SPP\App;
 
 class MakeCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function getName(): string
     {
         return 'migrate:make';

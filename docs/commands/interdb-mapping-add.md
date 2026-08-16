@@ -1,6 +1,6 @@
 ## `interdb:mapping:add`
 
-**Description**: Add a new InterDB mapping
+**Purpose**: Add a new InterDB mapping
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php interdb:mapping:add <alias> <engine> <table>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--mappings` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: InterDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: InterDB.
 

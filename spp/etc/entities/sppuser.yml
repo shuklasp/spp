@@ -9,6 +9,11 @@ attributes:
     password: varchar(255)
     role_id: int
     status: varchar(20)
+    mfa_enabled: int
+    two_factor_enabled: int
+    two_factor_secret: varchar(255)
+    password_updated_at: datetime
+    rights_updated_at: datetime
     created_at: datetime
     updated_at: datetime
 relations:

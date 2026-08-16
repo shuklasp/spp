@@ -34,7 +34,7 @@ class RefactorEnterpriseCommand extends Command
             }
         }
 
-        $absolutePath = \SPP\App::getApp()->getBasePath() . '/' . ltrim($targetPath, '/');
+        $absolutePath = SPP_APP_DIR . '/' . ltrim($targetPath, '/');
         if (!is_dir($absolutePath) && !is_file($absolutePath)) {
             echo "\033[33mWARNING:\033[0m Target path does not exist: {$targetPath}\n";
             return;
@@ -49,7 +49,7 @@ class RefactorEnterpriseCommand extends Command
         $count = 0;
 
         foreach ($files as $file) {
-            $relativePath = str_replace(\SPP\App::getApp()->getBasePath() . '/', '', $file);
+            $relativePath = str_replace(SPP_APP_DIR . '/', '', $file);
             $content = file_get_contents($file);
 
             // Check if file needs refactoring (e.g., contains inline HTML literals or lacks W3CTraceContext)

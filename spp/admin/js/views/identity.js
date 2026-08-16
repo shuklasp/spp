@@ -777,6 +777,11 @@ export default class IdentityView extends BaseComponent {
         })}
                     </tbody>
                 </table>
+            </div>
+            ${this.renderPagination(totalItems, totalPages)}
+        `;
+    }
+
     renderOAuthTable(items, totalItems, totalPages) {
         const { filters } = this.state;
         return html`

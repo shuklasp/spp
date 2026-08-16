@@ -32,11 +32,11 @@
                         el.src = src;
                     }
 
-                    el.onload = () => {
+                    el.addEventListener('load', () => {
                         this._loaded.add(src);
                         resolve();
-                    };
-                    el.onerror = () => reject(new Error(`Failed to load bridge asset: ${src}`));
+                    });
+                    el.addEventListener('error', () => reject(new Error(`Failed to load bridge asset: ${src}`)));
                     document.head.appendChild(el);
                 });
             });

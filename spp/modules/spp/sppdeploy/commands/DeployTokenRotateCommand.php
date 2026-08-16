@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployTokenRotateCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;

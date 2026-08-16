@@ -13,9 +13,15 @@ class UXDebugCommand extends Command
     protected string $name = 'ux:debug';
     protected string $description = 'Toggle SPP-UX verbose logging (on|off)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $state = $args[2] ?? 'on';
+        $state = $this->getArgument($args, 0) ?? 'on';
         $file = SPP_APP_DIR . '/spp/modules/spp/sppux/js/sppux.js';
 
         if (!file_exists($file)) {

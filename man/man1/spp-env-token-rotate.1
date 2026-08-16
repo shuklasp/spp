@@ -1,20 +1,23 @@
-.TH SPP-env-token-rotate 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-env-token-rotate 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-env-token-rotate \- Rotate the system deployment token
-.SH SYNOPSIS
-.B php spp.php env:token:rotate
-[OPTIONS]
+env:token:rotate
+.PP
+ \- Rotate the system deployment token
 .SH DESCRIPTION
 Rotate the system deployment token
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from EnvTokenRotateCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php env:token:rotate [OPTIONS]
 .PP
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
 .br
+\(bu Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+.br
+.PP
+.PP

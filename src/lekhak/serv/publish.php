@@ -35,14 +35,22 @@ try {
     $node->title = $title;
     $node->body = $body;
     $node->changed = date('Y-m-d H:i:s');
-    $node->status = ($action === 'publish') ? 'published' : 'draft';
 
     // Generate alias if not set
     if (!$node->alias) {
         $node->alias = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $title)));
     }
 
-    $node->save();
+    if (!$id) {
+        $node->save(); // Save once to get ID
+    }
+
+    $status = ($action === 'publish') ? 'published' : 'draft';
+    if ($node->status !== $status) {
+        $node->applyTransition($status);
+    } else {
+        $node->save();
+    }
 
     $response = [
         'success' => true,

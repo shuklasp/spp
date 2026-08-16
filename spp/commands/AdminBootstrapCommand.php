@@ -13,6 +13,7 @@ class AdminBootstrapCommand extends Command
 {
     protected string $name = 'admin:bootstrap';
     protected string $description = 'Initialize SPP Admin environment (XDB Provisioning)';
+    protected bool $hidden = true;
 
     public function execute(array $args): void
     {
@@ -25,11 +26,12 @@ class AdminBootstrapCommand extends Command
             // Ensure tables exist in XDB
             if (!$db->tableExists('users')) {
                 echo "Step: Provisioning 'users' table in XDB...\n";
-                $db->execute_query("CREATE TABLE users (id AUTO_INCREMENT, username STRING, password STRING, status STRING)");
-            }
-            if (!$db->tableExists('roles')) {
-                echo "Step: Provisioning 'roles' table in XDB...\n";
-                $db->execute_query("CREATE TABLE roles (id AUTO_INCREMENT, role_name STRING, description STRING)");
+                $autoInc = $db->getDriver() === 'sqlite' ? 'INTEGER PRIMARY KEY AUTOINCREMENT' : 'INT AUTO_INCREMENT PRIMARY KEY';
+                $db->execute_query("CREATE TABLE users (id {$autoInc}, username STRING, password STRING, status STRING)");
+                $db->execute_query("INSERT INTO users (username, password, status) VALUES (?, ?, ?)", 
+                    ['admin', password_hash('admin123', PASSWORD_DEFAULT), 'active']);
+                
+                $db->execute_query("CREATE TABLE roles (id {$autoInc}, role_name STRING, description STRING)");
             }
             if (!$db->tableExists('userroles')) {
                 echo "Step: Provisioning 'userroles' table in XDB...\n";

@@ -113,13 +113,8 @@ class Autoloader
     {
         // Safe PSR-4 Aliasing to Legacy class.*.php filenames
         $psr4LegacyMap = [
-            'SPP\App' => 'SPP\Core\App',
-            'SPP\Module' => 'SPP\Core\Module',
             'SPP\ResourceController' => 'SPP\Core\ResourceController',
-            'SPP\PolyglotBridge' => 'SPP\Core\PolyglotBridge',
-            'SPP\Command' => 'SPP\Core\Command',
-            'SPP\DB' => 'SPP\Core\DB',
-            'SPP\SPPConfig' => 'SPP\Core\SPPConfig',
+            'SPP\Command' => 'SPP\CLI\Command',
         ];
 
         if (isset($psr4LegacyMap[$className])) {
@@ -136,6 +131,10 @@ class Autoloader
             return true;
         }
         if (substr($className, -9) === 'Exception' && $className !== 'SPPException' && $className !== 'SPP\\SPPException') {
+            $isSppException = strpos($className, 'SPP\\') === 0 || strpos($className, 'SPPMod\\') === 0 || strpos($className, 'SPP_') === 0;
+            if (!$isSppException) {
+                return false;
+            }
             require_once SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'class.sppexception.php';
             $systemExceptions = SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'sppsystemexceptions.php';
             if (file_exists($systemExceptions)) {
@@ -174,6 +173,40 @@ class Autoloader
         return null;
     }
 
+    private static function resolveAppSrcPath(string $appName): string
+    {
+        $srcPath = '';
+        if (class_exists('\\SPP\\App', false)) {
+            $srcPath = (string)\SPP\App::getGlobalSettings("apps.{$appName}.src_path");
+        }
+        if (empty($srcPath)) {
+            return SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
+        }
+        if (str_starts_with($srcPath, '/') || (strlen($srcPath) > 1 && $srcPath[1] === ':')) {
+            return rtrim($srcPath, '/\\');
+        }
+        return SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
+    }
+
+    private static function resolveAppModPath(string $appName, string $baseSrc): string
+    {
+        $modPath = '';
+        if (class_exists('\\SPP\\App', false)) {
+            $modPath = (string)\SPP\App::getGlobalSettings("apps.{$appName}.modules_path");
+        }
+        if (empty($modPath)) {
+            return $baseSrc . DIRECTORY_SEPARATOR . 'modules';
+        }
+        if (str_starts_with($modPath, '/') || (strlen($modPath) > 1 && $modPath[1] === ':')) {
+            return rtrim($modPath, '/\\');
+        }
+        $normalized = str_replace('\\', '/', $modPath);
+        if (str_starts_with($normalized, 'src/') || str_starts_with($normalized, '/src/')) {
+            return SPP_APP_DIR . DIRECTORY_SEPARATOR . ltrim($modPath, '/\\');
+        }
+        return rtrim($baseSrc, '/\\') . DIRECTORY_SEPARATOR . ltrim($modPath, '/\\');
+    }
+
     private static function resolveModuleClass(string $className, array $path, string $class): ?string
     {
         $prefix = $path[0] ?? '';
@@ -198,16 +231,8 @@ class Autoloader
                 $appName = strtolower(array_shift($parts));
                 $mod = strtolower(array_shift($parts));
                 
-                $srcPath = '';
-                if (class_exists('\\SPP\\App', false)) {
-                    $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
-                }
-                if (!empty($srcPath)) {
-                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
-                } else {
-                    $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
-                }
-                $modDir = $baseSrc . DIRECTORY_SEPARATOR . 'modules' . DIRECTORY_SEPARATOR . $mod;
+                $baseSrc = self::resolveAppSrcPath($appName);
+                $modDir = self::resolveAppModPath($appName, $baseSrc) . DIRECTORY_SEPARATOR . $mod;
             }
 
             if ($modDir && is_dir($modDir)) {
@@ -244,15 +269,7 @@ class Autoloader
         
         if (count($fullPath) >= 3) {
             $appName = strtolower($fullPath[1]);
-            $srcPath = '';
-            if (class_exists('\\SPP\\App', false)) {
-                $srcPath = \SPP\App::getGlobalSettings("apps.{$appName}.src_path");
-            }
-            if ($srcPath !== null && $srcPath !== '') {
-                $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . rtrim($srcPath, '/\\');
-            } else {
-                $baseSrc = SPP_APP_DIR . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $appName;
-            }
+            $baseSrc = self::resolveAppSrcPath($appName);
 
             if (count($fullPath) >= 4) {
                 $type = strtolower($fullPath[2]);

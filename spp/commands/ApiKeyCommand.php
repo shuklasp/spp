@@ -8,9 +8,15 @@ class ApiKeyCommand extends Command
     protected string $name = 'api:key:generate';
     protected string $description = 'Generates a new permanent API Key.';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (empty($name)) {
             $this->error("API Key name is required. Usage: php spp.php api:key:generate \"Name\"");
             return;

@@ -13,10 +13,16 @@ class MakeEventCommand extends BaseMakeCommand
     protected string $name = 'make:event';
     protected string $description = 'Create a new event entry and scaffold its handler';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $eventName = $args[2] ?? null;
-        $handlerName = $args[3] ?? null;
+        $eventName = $this->getArgument($args, 0) ?? null;
+        $handlerName = $this->getArgument($args, 1) ?? null;
 
         if (!$eventName || !$handlerName) {
             echo "Usage: php spp.php make:event <EventName> <HandlerClassName> [--app=appname] [--overridable] [--default-handler]\n";

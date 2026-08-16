@@ -14,9 +14,15 @@ class GroupCreateCommand extends Command
     protected string $name = 'group:create';
     protected string $description = 'Create a new shared resource group';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $groupName = $args[2] ?? null;
+        $groupName = $this->getArgument($args, 0) ?? null;
 
         if (!$groupName) {
             echo "Usage: php spp.php group:create <group_name> [--extends=core] [--prefix=...]\n";

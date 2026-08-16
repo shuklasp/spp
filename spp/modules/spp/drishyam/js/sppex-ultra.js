@@ -36,24 +36,47 @@
         }
         render() {
             if (!this.container) return;
-            let html = '<table style="width:100%; border-collapse:collapse; text-align:left;"><thead><tr>';
+            this.container.innerHTML = '';
+            
+            const table = document.createElement('table');
+            table.style.width = '100%';
+            table.style.borderCollapse = 'collapse';
+            table.style.textAlign = 'left';
+
+            const thead = document.createElement('thead');
+            const trHead = document.createElement('tr');
+            
             this.columns.forEach(col => {
+                const th = document.createElement('th');
+                th.style.padding = '10px';
+                th.style.borderBottom = '2px solid #ccc';
+                th.style.cursor = 'pointer';
+                th.setAttribute('data-field', col.field);
+                
                 const arrow = this.sortCol === col.field ? (this.sortAsc ? ' ↑' : ' ↓') : '';
-                html += `<th style="padding:10px; border-bottom:2px solid #ccc; cursor:pointer;" data-field="${col.field}">${col.headerName}${arrow}</th>`;
+                th.textContent = col.headerName + arrow;
+                th.addEventListener('click', () => this.sortData(col.field));
+                trHead.appendChild(th);
             });
-            html += '</tr></thead><tbody>';
+            
+            thead.appendChild(trHead);
+            table.appendChild(thead);
+            
+            const tbody = document.createElement('tbody');
             this.data.forEach(row => {
-                html += '<tr>';
+                const tr = document.createElement('tr');
                 this.columns.forEach(col => {
-                    html += `<td style="padding:10px; border-bottom:1px solid #eee;">${row[col.field] || ''}</td>`;
+                    const td = document.createElement('td');
+                    td.style.padding = '10px';
+                    td.style.borderBottom = '1px solid #eee';
+                    td.textContent = row[col.field] || '';
+                    tr.appendChild(td);
                 });
-                html += '</tr>';
+                tbody.appendChild(tr);
             });
-            html += '</tbody></table>';
-            this.container.innerHTML = html;
-            this.container.querySelectorAll('th').forEach(th => {
-                th.onclick = () => this.sortData(th.getAttribute('data-field'));
-            });
+            
+            table.appendChild(tbody);
+            this.container.appendChild(table);
         }
     };
 
@@ -95,20 +118,39 @@
             this.render();
         }
         renderNode(node) {
-            let html = `<div style="margin-left: 15px;">`;
+            const wrapper = document.createElement('div');
+            wrapper.style.marginLeft = '15px';
+            
             if (node.children) {
-                html += `<div style="cursor:pointer; font-weight:bold;" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
-                            ▸ ${node.name}
-                         </div>`;
-                html += `<div style="display:none;">${node.children.map(c => this.renderNode(c)).join('')}</div>`;
+                const header = document.createElement('div');
+                header.style.cursor = 'pointer';
+                header.style.fontWeight = 'bold';
+                header.textContent = '▸ ' + node.name;
+                
+                const childrenContainer = document.createElement('div');
+                childrenContainer.style.display = 'none';
+                node.children.forEach(c => {
+                    childrenContainer.appendChild(this.renderNode(c));
+                });
+                
+                header.addEventListener('click', () => {
+                    childrenContainer.style.display = childrenContainer.style.display === 'none' ? 'block' : 'none';
+                });
+                
+                wrapper.appendChild(header);
+                wrapper.appendChild(childrenContainer);
             } else {
-                html += `<div>📄 ${node.name}</div>`;
+                const item = document.createElement('div');
+                item.textContent = '📄 ' + node.name;
+                wrapper.appendChild(item);
             }
-            html += `</div>`;
-            return html;
+            return wrapper;
         }
         render() {
-            if (this.container) this.container.innerHTML = this.renderNode(this.data);
+            if (this.container) {
+                this.container.innerHTML = '';
+                this.container.appendChild(this.renderNode(this.data));
+            }
         }
     };
 
@@ -163,9 +205,9 @@
                     btn.textContent = item.label;
                     btn.style.padding = '8px 15px';
                     btn.style.cursor = 'pointer';
-                    btn.onmouseover = () => btn.style.background = '#eee';
-                    btn.onmouseout = () => btn.style.background = 'transparent';
-                    btn.onclick = () => { item.onClick(target); menu.remove(); };
+                    btn.addEventListener('mouseover', () => btn.style.background = '#eee');
+                    btn.addEventListener('mouseout', () => btn.style.background = 'transparent');
+                    btn.addEventListener('click', () => { item.onClick(target); menu.remove(); });
                     menu.appendChild(btn);
                 });
                 
@@ -229,13 +271,13 @@
 
             for (let i = 1; i <= this.max; i++) {
                 const star = document.createElement('div');
-                star.innerHTML = '★';
+                star.textContent = '★';
                 star.style.color = i <= this.current ? '#fbbf24' : '#ccc';
-                star.onmouseover = () => {
+                star.addEventListener('mouseover', () => {
                     Array.from(this.container.children).forEach((s, idx) => s.style.color = idx < i ? '#fbbf24' : '#ccc');
-                };
-                star.onmouseout = () => this.render();
-                star.onclick = () => { this.current = i; this.render(); if (this.onSelect) this.onSelect(i); };
+                });
+                star.addEventListener('mouseout', () => this.render());
+                star.addEventListener('click', () => { this.current = i; this.render(); if (this.onSelect) this.onSelect(i); });
                 this.container.appendChild(star);
             }
         }
@@ -253,7 +295,7 @@
             if (!document.getElementById('sppex-skeleton-css')) {
                 const style = document.createElement('style');
                 style.id = 'sppex-skeleton-css';
-                style.innerHTML = `
+                style.textContent = `
                     @keyframes sppex-shimmer { 0% { background-position: -200px 0; } 100% { background-position: calc(200px + 100%) 0; } }
                     .sppex-skeleton { background: #eee; background-image: linear-gradient(90deg, #eee, #f5f5f5, #eee); background-size: 200px 100%; background-repeat: no-repeat; animation: sppex-shimmer 1.2s ease-in-out infinite; border-radius: 4px; margin-bottom: 8px; height: 20px; width: 100%; }
                 `;
@@ -275,11 +317,11 @@
                 const header = item.querySelector('.accordion-header');
                 const body = item.querySelector('.accordion-body');
                 header.style.cursor = 'pointer';
-                header.onclick = () => {
+                header.addEventListener('click', () => {
                     const isOpen = body.style.display === 'block';
                     items.forEach(i => i.querySelector('.accordion-body').style.display = 'none');
                     body.style.display = isOpen ? 'none' : 'block';
-                };
+                });
             });
         }
     };
@@ -299,17 +341,34 @@
             this.container.style.paddingLeft = '20px';
             this.container.style.marginLeft = '10px';
             
-            let html = '';
+            this.container.innerHTML = '';
+            
             this.events.forEach(ev => {
-                html += `
-                    <div style="position: relative; margin-bottom: 20px;">
-                        <div style="position: absolute; left: -27px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: #6366f1;"></div>
-                        <div style="font-weight: bold;">${ev.date}</div>
-                        <div>${ev.content}</div>
-                    </div>
-                `;
+                const item = document.createElement('div');
+                item.style.position = 'relative';
+                item.style.marginBottom = '20px';
+                
+                const dot = document.createElement('div');
+                dot.style.position = 'absolute';
+                dot.style.left = '-27px';
+                dot.style.top = '0';
+                dot.style.width = '12px';
+                dot.style.height = '12px';
+                dot.style.borderRadius = '50%';
+                dot.style.background = '#6366f1';
+                
+                const date = document.createElement('div');
+                date.style.fontWeight = 'bold';
+                date.textContent = ev.date;
+                
+                const content = document.createElement('div');
+                content.textContent = ev.content;
+                
+                item.appendChild(dot);
+                item.appendChild(date);
+                item.appendChild(content);
+                this.container.appendChild(item);
             });
-            this.container.innerHTML = html;
         }
     };
 
@@ -354,11 +413,23 @@
         linear(selector, percentage) {
             const el = document.querySelector(selector);
             if (!el) return;
-            el.innerHTML = `
-                <div style="width:100%; background:#e0e0e0; border-radius:4px; height:8px; overflow:hidden;">
-                    <div style="width:${percentage}%; background:#10b981; height:100%; transition: width 0.3s ease;"></div>
-                </div>
-            `;
+            el.innerHTML = '';
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.width = '100%';
+            wrapper.style.background = '#e0e0e0';
+            wrapper.style.borderRadius = '4px';
+            wrapper.style.height = '8px';
+            wrapper.style.overflow = 'hidden';
+            
+            const bar = document.createElement('div');
+            bar.style.width = `${percentage}%`;
+            bar.style.background = '#10b981';
+            bar.style.height = '100%';
+            bar.style.transition = 'width 0.3s ease';
+            
+            wrapper.appendChild(bar);
+            el.appendChild(wrapper);
         }
     };
 
@@ -394,19 +465,31 @@
         }
         render() {
             if (!this.container) return;
-            let html = `<div style="display:flex; gap:5px;">`;
+            this.container.innerHTML = '';
+            
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.gap = '5px';
+            
             for (let i = 1; i <= this.totalPages; i++) {
-                html += `<button style="padding:5px 10px; border:1px solid #ccc; background:${this.current === i ? '#6366f1' : '#fff'}; color:${this.current === i ? '#fff' : '#000'}; cursor:pointer;" data-page="${i}">${i}</button>`;
-            }
-            html += `</div>`;
-            this.container.innerHTML = html;
-            this.container.querySelectorAll('button').forEach(btn => {
-                btn.onclick = () => {
+                const btn = document.createElement('button');
+                btn.style.padding = '5px 10px';
+                btn.style.border = '1px solid #ccc';
+                btn.style.background = this.current === i ? '#6366f1' : '#fff';
+                btn.style.color = this.current === i ? '#fff' : '#000';
+                btn.style.cursor = 'pointer';
+                btn.setAttribute('data-page', i);
+                btn.textContent = i;
+                
+                btn.addEventListener('click', () => {
                     this.current = parseInt(btn.getAttribute('data-page'));
                     this.render();
                     if (this.onPageChange) this.onPageChange(this.current);
-                };
-            });
+                });
+                
+                wrapper.appendChild(btn);
+            }
+            this.container.appendChild(wrapper);
         }
     };
 
@@ -431,13 +514,13 @@
         attach(selector, textToCopy) {
             const el = document.querySelector(selector);
             if (!el) return;
-            el.onclick = () => {
+            el.addEventListener('click', () => {
                 navigator.clipboard.writeText(textToCopy).then(() => {
                     const orig = el.textContent;
                     el.textContent = 'Copied!';
                     setTimeout(() => el.textContent = orig, 1500);
                 });
-            };
+            });
         }
     };
 

@@ -1,18 +1,23 @@
-.TH SPP-deploy-history 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-history 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-history \- 
-.SH SYNOPSIS
-.B php spp.php deploy:history
-[OPTIONS]
+deploy:history
+.PP
+ \- 
 .SH DESCRIPTION
 
 .PP
-.SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployHistoryCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php deploy:history [OPTIONS]
 .PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+.SH OPTIONS
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

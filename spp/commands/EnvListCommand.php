@@ -10,6 +10,12 @@ class EnvListCommand extends Command
     protected string $name = 'env:list';
     protected string $description = 'List all environment and configuration variables for an app context';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

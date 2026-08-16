@@ -32,7 +32,7 @@ class VerifyZeroDowntimeCommand extends Command
         }
 
         try {
-            $migrationPath = \SPP\App::getApp()->getBasePath() . '/migrations';
+            $migrationPath = SPP_APP_DIR . '/migrations';
             foreach ($args as $arg) {
                 if (str_starts_with($arg, '--path=')) {
                     $migrationPath = substr($arg, 7);

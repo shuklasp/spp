@@ -1,18 +1,26 @@
-.TH SPP-iam-abac 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-iam-abac 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-iam-abac \- Manage Attribute-Based Access Control (ABAC) policies
-.SH SYNOPSIS
-.B php spp.php iam:abac
-[OPTIONS]
+iam:abac
+.PP
+ \- Manage Attribute-Based Access Control (ABAC) policies
 .SH DESCRIPTION
 Manage Attribute-Based Access Control (ABAC) policies
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php iam:abac [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH EXTENDED USAGE
+Usage: php spp.php iam:abac --action=create --param1=\
+.PP
+.SH OPTIONS
+\(bu `--json` : Boolean flag or option. Extracted via static analysis.
 .br
-\(bu Instantiates key components: SPPDB.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
+\(bu Instantiates internal components: SPPDB.
+.br
+.PP
+.PP

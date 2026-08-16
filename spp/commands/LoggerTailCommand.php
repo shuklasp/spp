@@ -9,6 +9,12 @@ class LoggerTailCommand extends Command
     protected string $name = 'logger:tail';
     protected string $description = 'Tail the SPP application log file';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $logFile = SPP_LOG_DIR . '/spp.log';

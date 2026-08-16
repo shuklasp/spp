@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{appName}}\\Entities;
+namespace App\{{appName}}\Entities;
 
 /**
  * ============================================================================
@@ -21,10 +21,10 @@ namespace App\\{{appName}}\\Entities;
  *   );
  *
  * USAGE:
- *   \$items = Item::findAll();
- *   \$item = Item::find_one(['id' => 1]);
- *   \$item = new Item(['name' => 'Test', 'status' => 'active']);
- *   \$item->save();
+ *   $items = Item::findAll();
+ *   $item = Item::find_one(['id' => 1]);
+ *   $item = new Item(['name' => 'Test', 'status' => 'active']);
+ *   $item->save();
  *
  * API EXPOSURE:
  *   Set 'enable_api' => true in getMetadata() to expose via SPPAPI.
@@ -37,9 +37,9 @@ class Item
         return '{{appName}}_items';
     }
 
-    public static function getMetadata(string \$key = '')
+    public static function getMetadata(string $key = '')
     {
-        \$meta = [
+        $meta = [
             'table' => self::getTableName(),
             'id_field' => 'id',
             'sequence' => self::getTableName() . '_seq',
@@ -48,6 +48,6 @@ class Item
             'fields' => ['id', 'name', 'status', 'created_at'],
             'searchable' => ['name'],
         ];
-        return \$key ? (\$meta[\$key] ?? null) : \$meta;
+        return $key ? ($meta[$key] ?? null) : $meta;
     }
 }

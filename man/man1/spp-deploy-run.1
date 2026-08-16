@@ -1,20 +1,28 @@
-.TH SPP-deploy-run 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-run 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-run \- Securely execute an arbitrary shell command on the remote server
-.SH SYNOPSIS
-.B php spp.php deploy:run
-[OPTIONS]
+deploy:run
+.PP
+ \- Securely execute an arbitrary shell command on the remote server
 .SH DESCRIPTION
 Securely execute an arbitrary shell command on the remote server
 .PP
+.SH SYNOPSIS
+php spp.php deploy:run [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php deploy:run [target_uri] \
 .PP
 .SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployRunCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--exit_code` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

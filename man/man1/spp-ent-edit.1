@@ -1,78 +1,56 @@
-.TH SPP-ent-edit 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ent-edit 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-ent-edit \- Edit an existing SPPEntity definition
-.SH SYNOPSIS
-.B php spp.php ent:edit
-[OPTIONS]
+ent:edit
+.PP
+ \- Edit an existing SPPEntity definition
 .SH DESCRIPTION
 Edit an existing SPPEntity definition
 .PP
+.SH SYNOPSIS
+php spp.php ent:edit [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Edits an existing SPPEntity definition. If run without flags, it will launch an interactive wizard.
-.br
 Passing any of the double-dash flags will bypass the wizard and execute a non-interactive edit.
-.br
-
-.br
+.PP
 Usage:
-.br
-  php spp.php ent:edit [EntityName] [OPTIONS]
-.br
-
-.br
+php spp.php ent:edit [EntityName] [OPTIONS]
+.PP
 Options:
-.br
-  --table=TableName            Update the database table name.
-.br
-  --extends=Class              Update the parent entity class (e.g. "\App\Entities\User").
-.br
-  --login=true|false           Enable or disable SPP Login Support for this entity.
-.br
-  --add-field="name:type"      Add or update attributes. Format: "name:type" (comma-separated).
-.br
-  --remove-field="name"        Remove attributes by name (comma-separated).
-.br
-  --add-relation="Target:..."  Add relationships. Format: "Target:Type:ForeignKey:PivotTable" (comma-separated).
-.br
-  --remove-relation=index      Remove a relationship by its integer index.
-.br
-
-.br
+--table=TableName            Update the database table name.
+--extends=Class              Update the parent entity class (e.g. "\App\Entities\User").
+--login=true|false           Enable or disable SPP Login Support for this entity.
+--add-field="name:type"      Add or update attributes. Format: "name:type" (comma-separated).
+--remove-field="name"        Remove attributes by name (comma-separated).
+--add-relation="Target:..."  Add relationships. Format: "Target:Type:ForeignKey:PivotTable" (comma-separated).
+--remove-relation=index      Remove a relationship by its integer index.
+.PP
 Examples:
-.br
-  Interactive Mode:
-.br
-    php spp.php ent:edit Student
-.br
-
-.br
-  Non-Interactive Edit:
-.br
-    php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
+Interactive Mode:
+php spp.php ent:edit Student
+.PP
+Non-Interactive Edit:
+php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
 .PP
 .SH OPTIONS
-.TP
-.B --table=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --extends=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --login=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --add-field=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --remove-field=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --add-relation=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.TP
-.B --remove-relation=
-Expects a value. Extracted via static analysis from EntEditCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+\(bu `--table=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--extends=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--login=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--add-field=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--remove-field=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--add-relation=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--remove-relation=` : Expects a value. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

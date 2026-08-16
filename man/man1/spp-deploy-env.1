@@ -1,28 +1,31 @@
-.TH SPP-deploy-env 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-env 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-env \- Manage remote environment variables securely
-.SH SYNOPSIS
-.B php spp.php deploy:env
-[OPTIONS]
+deploy:env
+.PP
+ \- Manage remote environment variables securely
 .SH DESCRIPTION
 Manage remote environment variables securely
 .PP
+.SH SYNOPSIS
+php spp.php deploy:env [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php deploy:env [target_uri] push --key=MY_KEY --value=MY_VALUE [--key_api=YOUR_API_KEY]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-.TP
-.B --key_api=
-Expects a value. Extracted via static analysis from DeployEnvCommand.php
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployEnvCommand.php
-.TP
-.B --value=
-Expects a value. Extracted via static analysis from DeployEnvCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+\(bu `--key_api=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--key=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--value=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

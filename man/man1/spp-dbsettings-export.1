@@ -1,18 +1,21 @@
-.TH SPP-dbsettings-export 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-dbsettings-export 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-dbsettings-export \- Export SPP module DB settings to JSON
-.SH SYNOPSIS
-.B php spp.php dbsettings:export
-[OPTIONS]
+dbsettings:export
+.PP
+ \- Export SPP module DB settings to JSON
 .SH DESCRIPTION
 Export SPP module DB settings to JSON
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from DBSettingsExportCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php dbsettings:export [OPTIONS]
 .PP
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

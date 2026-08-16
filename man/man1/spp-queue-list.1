@@ -1,22 +1,25 @@
-.TH SPP-queue-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-queue-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-queue-list \- List all jobs currently in the queue
-.SH SYNOPSIS
-.B php spp.php queue:list
-[OPTIONS]
+queue:list
+.PP
+ \- List all jobs currently in the queue
 .SH DESCRIPTION
 List all jobs currently in the queue
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from QueueListCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php queue:list [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
 .br
-\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
+\(bu Bootstraps a full application execution context via Scheduler.
 .br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

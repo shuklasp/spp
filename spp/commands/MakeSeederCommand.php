@@ -9,9 +9,15 @@ class MakeSeederCommand extends BaseMakeCommand
     protected string $name = 'make:seeder';
     protected string $description = 'Create a new Database Seeder class';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $seederName = $args[2] ?? null;
+        $seederName = $this->getArgument($args, 0) ?? null;
         $appname = "default";
 
         foreach ($args as $arg) {

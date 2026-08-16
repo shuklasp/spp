@@ -8,6 +8,12 @@ class ComponentCrudCommand extends BaseElementCommand
     protected string $name = 'component:crud';
     protected string $description = 'Manage SPP UI components (list, create, edit, delete)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $this->handleCrud('component', $args);

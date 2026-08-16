@@ -1,17 +1,17 @@
 ## `test`
 
-**Description**: Run Parikshak Unit and Feature Tests
+**Purpose**: Run Parikshak Unit and Feature Tests
 
 ### Synopsis
 ```bash
 php spp.php test [OPTIONS]
 ```
 
-### Options
-- `--coverage` : Boolean flag. Extracted via static analysis from TestCommand.php
+### Options Available
+- `--coverage` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Instantiates key components: \SPPMod\SPPDB\SPPDB, SPPTestRunner.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Instantiates internal components: \SPPMod\SPPDB\SPPDB, SPPTestRunner.
 

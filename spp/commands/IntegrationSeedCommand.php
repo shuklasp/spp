@@ -23,13 +23,13 @@ class IntegrationSeedCommand extends Command
 
     public function execute(array $args): void
     {
-        if (empty($args[0])) {
+        if (empty($this->getArgument($args, 0))) {
             echo "Usage: php spp.php integration:seed <app_name>\n";
             echo "Example: php spp.php integration:seed magento\n";
             return;
         }
 
-        $targetApp = strtolower($args[0]);
+        $targetApp = strtolower($this->getArgument($args, 0));
 
         try {
             $driver = IntegrationFactory::getDriver($targetApp);

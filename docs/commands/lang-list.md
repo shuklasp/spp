@@ -1,17 +1,17 @@
 ## `lang:list`
 
-**Description**: List all translations
+**Purpose**: List all translations
 
 ### Synopsis
 ```bash
 php spp.php lang:list [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from LangListCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Dynamically loads kernel modules: spplang.
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Dynamically loads SPP kernel modules: spplang.
+- Bootstraps a full application execution context via Scheduler.
 

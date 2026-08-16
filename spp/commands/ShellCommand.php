@@ -35,6 +35,7 @@ class ShellCommand extends Command
             $activeApp = $explicitApp;
         }
 
+        require_once SPP_CORE_DIR . '/class.interactiveshell.php';
         $shell = new \SPP\Core\InteractiveShell();
         $shell->run($activeApp);
     }

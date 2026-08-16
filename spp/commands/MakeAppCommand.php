@@ -29,9 +29,15 @@ class MakeAppCommand extends BaseMakeCommand
     protected string $name = 'make:app';
     protected string $description = 'Create a new SPP application context';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $appName = $args[2] ?? null;
+        $appName = $this->getArgument($args, 0) ?? null;
         if (!$appName) {
             $appName = $this->prompt("Enter application name");
             if (!$appName) {
@@ -40,7 +46,7 @@ class MakeAppCommand extends BaseMakeCommand
             }
         }
 
-        $appType = $args[3] ?? null;
+        $appType = $this->getArgument($args, 1) ?? null;
         if (!$appType) {
             $types = ['mixed', 'sppux', 'blade', 'native', 'api', 'dropin'];
             echo "Available app types:\n";
@@ -60,13 +66,13 @@ class MakeAppCommand extends BaseMakeCommand
             $appType = strtolower($appType);
         }
 
-        $baseUrl = $args[4] ?? null;
+        $baseUrl = $this->getArgument($args, 2) ?? null;
         if (!$baseUrl) {
             $baseUrlInput = $this->prompt("Enter base URL", "/" . $appName);
             $baseUrl = !empty($baseUrlInput) ? $baseUrlInput : "/" . $appName;
         }
 
-        $tablePrefix = $args[5] ?? null;
+        $tablePrefix = $this->getArgument($args, 3) ?? null;
         if (!$tablePrefix) {
             $tablePrefixInput = $this->prompt("Enter table prefix", $appName . "_");
             $tablePrefix = !empty($tablePrefixInput) ? $tablePrefixInput : $appName . "_";
@@ -84,6 +90,7 @@ class MakeAppCommand extends BaseMakeCommand
         $dirs = [
             SPP_APP_DIR . "/etc/apps/{$appName}",
             SPP_APP_DIR . "/etc/apps/{$appName}/forms",
+            SPP_APP_DIR . "/etc/apps/{$appName}/workflows",
             SPP_APP_DIR . "/src/{$appName}",
             SPP_APP_DIR . "/src/{$appName}/etc",
             SPP_APP_DIR . "/src/{$appName}/events",
@@ -99,6 +106,36 @@ class MakeAppCommand extends BaseMakeCommand
             }
         }
         echo "Created base directory structure.\n";
+
+        // Scaffold Workflow Definition & Tutorial Comments
+        $workflowContent = <<<WORKFLOW
+# =====================================================================================
+# SPP Framework - Default Application Workflow
+# =====================================================================================
+# Target Audience: Novice-First Tutorial
+#
+# Core Orchestration Concepts:
+# 1. States (Steps): The valid lifecycle stages of your entity.
+# 2. Transitions: The allowed movements between states.
+# 3. Parallel Markings: An entity can exist in multiple states at once.
+# 4. Saga Pattern: The 'compensations' callback lets you define rollback actions.
+# 5. SLA Timeouts: 'timeout' defines how long an entity can sit in a state before
+#    triggering an automatic daemon escalation ('spp workflow:process-timeouts').
+# =====================================================================================
+default:
+  description: "Default workflow for {$appName}"
+  states:
+    - initial
+    - active
+  timeout: ""
+  timeout_transition: ""
+  transitions:
+    activate:
+      from: initial
+      to: active
+WORKFLOW;
+        file_put_contents(SPP_APP_DIR . "/etc/apps/{$appName}/workflows/default.yml", $workflowContent);
+        echo "Generated default workflow configuration.\n";
 
         // 2. Update global-settings.yml
         $settingsPath = SPP_APP_DIR . "/spp/etc/global-settings.yml";

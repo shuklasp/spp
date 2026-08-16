@@ -11,6 +11,12 @@ class MakePolyglotPartialCommand extends BaseMakeCommand
     protected string $name = 'make:polyglot-partial';
     protected string $description = 'Scaffold a new external polyglot partial service file (Python/Node/Go)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

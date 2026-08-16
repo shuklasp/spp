@@ -2,9 +2,10 @@
 
 namespace SPPMod\Drishyam\Migrations;
 
-use SPP\Core\Migration;
+use SPPMod\SPPDB\SPPDB;
+use SPPMod\SPPDB\Migration\SPPMigration;
 
-class Migration_1_1_0 extends Migration
+class Migration_1_1_0 extends SPPMigration
 {
     public function getVersion(): string
     {

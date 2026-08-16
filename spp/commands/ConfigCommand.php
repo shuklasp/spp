@@ -15,13 +15,19 @@ class ConfigCommand extends \SPP\CLI\Command
         return 'Manage framework and application configuration';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $action = $args[0] ?? 'list';
+        $action = $this->getArgument($args, 0) ?? 'list';
         
         switch ($action) {
             case 'get':
-                $key = $args[1] ?? null;
+                $key = $this->getArgument($args, 1) ?? null;
                 if (!$key) {
                     echo "Error: Key required. Usage: spp config get <key>\n";
                     return;
@@ -31,8 +37,8 @@ class ConfigCommand extends \SPP\CLI\Command
                 break;
 
             case 'set':
-                $key = $args[1] ?? null;
-                $val = $args[2] ?? null;
+                $key = $this->getArgument($args, 1) ?? null;
+                $val = $this->getArgument($args, 2) ?? null;
                 if (!$key || $val === null) {
                     echo "Error: Key and value required. Usage: spp config set <key> <value>\n";
                     return;
@@ -42,19 +48,19 @@ class ConfigCommand extends \SPP\CLI\Command
                 break;
 
             case 'cache':
-                $appname = $args[1] ?? \SPP\Scheduler::getContext() ?: 'default';
+                $appname = $this->getArgument($args, 1) ?? \SPP\Scheduler::getContext() ?: 'default';
                 SPPConfig::compile($appname);
                 echo "Success: Configuration cached for app '{$appname}'\n";
                 break;
 
             case 'clear':
-                $appname = $args[1] ?? \SPP\Scheduler::getContext() ?: 'default';
+                $appname = $this->getArgument($args, 1) ?? \SPP\Scheduler::getContext() ?: 'default';
                 SPPConfig::clearCompiled($appname);
                 echo "Success: Configuration cache cleared for app '{$appname}'\n";
                 break;
 
             case 'delete':
-                $key = $args[1] ?? null;
+                $key = $this->getArgument($args, 1) ?? null;
                 if (!$key) {
                     echo "Error: Key required. Usage: spp config delete <key>\n";
                     return;
@@ -64,7 +70,7 @@ class ConfigCommand extends \SPP\CLI\Command
                 break;
 
             case 'list':
-                $appname = $args[1] ?? \SPP\Scheduler::getContext() ?: 'default';
+                $appname = $this->getArgument($args, 1) ?? \SPP\Scheduler::getContext() ?: 'default';
                 $all = SPPConfig::getAll($appname);
                 $rows = [];
                 foreach ($all as $k => $v) {

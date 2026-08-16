@@ -13,6 +13,12 @@ class MakeSPPViewCommand extends BaseMakeCommand
     protected string $name = 'make:sppview';
     protected string $description = 'Scaffold a new native AST SPPView template';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

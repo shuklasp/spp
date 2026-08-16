@@ -73,13 +73,13 @@ PROMPT;
                 if (($data['action'] ?? '') === 'alter' && !empty($data['columns'])) {
                     foreach ($data['columns'] as $col) {
                         $colName = SchemaValidator::escapeIdentifier($col['name']);
-                        $colType = $col['type'] ?? 'VARCHAR(255)';
-                        $upQueries .= "        \$this->execute(\"ALTER TABLE `{$tableName}` ADD COLUMN `{$colName}` {$colType}\");\n";
-                        $downQueries .= "        \$this->execute(\"ALTER TABLE `{$tableName}` DROP COLUMN `{$colName}`\");\n";
+                        $colType = preg_replace('/[^a-zA-Z0-9_\(\)\s\,]/', '', $col['type'] ?? 'VARCHAR(255)');
+                        $upQueries .= "        \$this->execute(\"ALTER TABLE {$tableName} ADD COLUMN {$colName} {$colType}\");\n";
+                        $downQueries .= "        \$this->execute(\"ALTER TABLE {$tableName} DROP COLUMN {$colName}\");\n";
                     }
                 } else {
                     $upQueries .= "        // Add table creation logic for {$tableName}\n";
-                    $downQueries .= "        \$this->execute(\"DROP TABLE IF EXISTS `{$tableName}`\");\n";
+                    $downQueries .= "        \$this->execute(\"DROP TABLE IF EXISTS {$tableName}\");\n";
                 }
 
                 $migrationContent = <<<MIGRATION

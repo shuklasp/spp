@@ -8,9 +8,15 @@ class ManCommand extends Command
     protected string $name = 'man';
     protected string $description = 'Format and display manual pages for SPP commands';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $targetCmdName = $args[2] ?? null;
+        $targetCmdName = $this->getArgument($args, 0) ?? null;
 
         if (empty($targetCmdName)) {
             echo "What manual page do you want?\n\n";

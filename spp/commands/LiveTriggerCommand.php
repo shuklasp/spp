@@ -9,6 +9,12 @@ class LiveTriggerCommand extends Command
     protected string $name = 'live:trigger';
     protected string $description = 'Push a live event to clients';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $channel = null;

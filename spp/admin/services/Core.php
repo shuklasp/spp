@@ -6,304 +6,167 @@
 if (!function_exists('live_Core_ListApps')) {
     function live_Core_ListApps($la, $params)
     {
-        // Helper to read global settings (copied logic from api.php helper)
-        $gsPath = SPP_BASE_DIR . '/etc/global-settings.yml';
-        $settings = file_exists($gsPath) ? \Symfony\Component\Yaml\Yaml::parseFile($gsPath) : [];
-
-        $registry = $settings['apps'] ?? [];
-        $apps = [];
-
-        $appsDir = SPP_APP_DIR . '/spp/etc/apps';
-        $allAppNames = array_keys($registry);
-
-        if (is_dir($appsDir)) {
-            $dirs = scandir($appsDir);
-            foreach ($dirs as $d) {
-                if ($d !== '.' && $d !== '..' && is_dir($appsDir . '/' . $d)) {
-                    if (!in_array($d, $allAppNames))
-                        $allAppNames[] = $d;
-                }
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['listapps', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
             }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        foreach ($allAppNames as $d) {
-            $meta = $registry[$d] ?? [];
-
-            // Look for app.yml in the app's directory to find app-specific admin_menu definitions
-            $appYmlPath = SPP_APP_DIR . '/' . $d . '/etc/app.yml';
-            $adminMenu = [];
-            if (file_exists($appYmlPath)) {
-                try {
-                    $appMeta = \Symfony\Component\Yaml\Yaml::parseFile($appYmlPath);
-                    if (!empty($appMeta['admin_menu']) && is_array($appMeta['admin_menu'])) {
-                        $adminMenu = $appMeta['admin_menu'];
-                    }
-                } catch (\Exception $e) {
-                }
-            }
-
-            $apps[] = [
-                'name' => $d,
-                'title' => $meta['admin_title'] ?? ucfirst($d),
-                'icon' => $meta['admin_icon'] ?? '🛠️',
-                'is_base' => ($d === ($settings['base_app'] ?? 'default')),
-                'db_config' => !empty($meta['db_config']),
-                'base_url' => $meta['base_url'] ?? '/' . $d,
-                'table_prefix' => $meta['table_prefix'] ?? '',
-                'shared_group' => $meta['shared_group'] ?? null,
-                'admin_menu' => $adminMenu
-            ];
-        }
-
-        $la->setData(['apps' => $apps]);
-    }
+}
 }
 
 if (!function_exists('live_Core_RunCommand')) {
     function live_Core_RunCommand($la, $params)
     {
-        $cmd = $params['command'] ?? '';
-        if (!$cmd)
-            return $la->error("No command provided.");
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['runcommand', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-        // In a real environment, this would execute via SPPShell or similar
-        $la->notify("Executing: $cmd", "info");
-        $la->setData(['output' => "Command executed successfully.\nStatus: 0"]);
-    }
+}
 }
 
 if (!function_exists('live_Core_GetSystemInfo')) {
     function live_Core_GetSystemInfo($la, $params)
     {
-        $dbStatus = 'Disconnected';
-        try {
-            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
-                $db = new \SPPMod\SPPDB\SPPDB();
-                $dbStatus = 'Connected';
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['getsysteminfo', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
             }
-        } catch (\Exception $e) {
-            $dbStatus = 'Disconnected (' . $e->getMessage() . ')';
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        $middleware = \SPP\Registry::get('__middleware=>global') ?: [];
-
-        $stats = [
-            'middleware_count' => count($middleware),
-            'queue_size' => method_exists('\SPP\Core\Queue', 'size') ? \SPP\Core\Queue::size() : 0,
-            'bundling_enabled' => defined('SPP_ASSET_BUNDLING') ? SPP_ASSET_BUNDLING : false,
-            'active_sessions' => count(glob(session_save_path() . '/sess_*')) ?: 1
-        ];
-
-        // Dynamic Health Report
-        $checks = [];
-        $checks[] = ['name' => 'Database', 'status' => $dbStatus === 'Connected' ? 'OK' : 'FAIL', 'detail' => $dbStatus === 'Connected' ? 'Pool responsive.' : 'Connection failed.'];
-        $checks[] = ['name' => 'Filesystem', 'status' => is_writable(SPP_BASE_DIR) ? 'OK' : 'WARN', 'detail' => is_writable(SPP_BASE_DIR) ? 'Write access confirmed.' : 'Restricted permissions.'];
-        $checks[] = ['name' => 'Memory Limit', 'status' => (int) ini_get('memory_limit') >= 128 ? 'OK' : 'WARN', 'detail' => ini_get('memory_limit') . ' allocated.'];
-
-        $score = 0;
-        foreach ($checks as $c)
-            if ($c['status'] === 'OK')
-                $score += 33;
-        if ($score > 100)
-            $score = 100;
-
-        $la->setData([
-            'spp_version' => '11.4.2-Core',
-            'php_version' => PHP_VERSION,
-            'os' => PHP_OS,
-            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'N/A',
-            'spp_base' => SPP_BASE_DIR,
-            'app_dir' => SPP_APP_DIR,
-            'db_status' => $dbStatus,
-            'stats' => $stats,
-            'health_report' => [
-                'score' => $score,
-                'checks' => $checks
-            ],
-            'orion' => [
-                'cache_exists' => file_exists(SPP_BASE_DIR . '/var/shared/registry.json'),
-                'cache_size' => file_exists(SPP_BASE_DIR . '/var/shared/registry.json') ? round(filesize(SPP_BASE_DIR . '/var/shared/registry.json') / 1024, 2) . ' KB' : 'N/A'
-            ]
-        ]);
-    }
+}
 }
 
 if (!function_exists('live_Core_GetBridgeInfo')) {
     function live_Core_GetBridgeInfo($la, $params)
     {
-        $sharedDir = SPP_BASE_DIR . '/var/shared';
-        $configPath = SPP_BASE_DIR . '/etc/bridge.json';
-
-        $runtimes = [
-            'java' => ['name' => 'Java VM', 'path' => null, 'version' => 'N/A'],
-            'python' => ['name' => 'Python 3', 'path' => null, 'version' => 'N/A'],
-            'node' => ['name' => 'Node.js', 'path' => null, 'version' => 'N/A'],
-            'dotnet' => ['name' => '.NET Core', 'path' => null, 'version' => 'N/A'],
-            'go' => ['name' => 'Go', 'path' => null, 'version' => 'N/A'],
-            'compiler' => ['name' => 'C++ Compiler', 'path' => null, 'version' => 'N/A']
-        ];
-
-        // OS detection (Server side)
-        $isWin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
-
-        if ($isWin) {
-            $fallbacks = [
-                'java' => ['C:\Program Files\Common Files\Oracle\Java\javapath\java.exe', 'C:\Program Files (x86)\Common Files\Oracle\Java\javapath\java.exe'],
-                'node' => ['C:\Program Files\nodejs\node.exe', 'C:\Program Files (x86)\nodejs\node.exe'],
-                'dotnet' => ['C:\Program Files\dotnet\dotnet.exe'],
-                'go' => ['C:\Program Files\Go\bin\go.exe'],
-                'python' => ['C:\Python312\python.exe', 'C:\Python311\python.exe', 'C:\Python310\python.exe'],
-                'compiler' => [
-                    'C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\bin\Hostx64\x64\cl.exe',
-                    'C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Tools\MSVC\14.34.31933\bin\Hostx64\x64\cl.exe'
-                ]
-            ];
-        } else {
-            $fallbacks = [
-                'java' => ['/usr/bin/java', '/usr/local/bin/java', '/usr/lib/jvm/default-java/bin/java'],
-                'node' => ['/usr/bin/node', '/usr/local/bin/node', '/usr/bin/nodejs'],
-                'dotnet' => ['/usr/bin/dotnet', '/usr/local/bin/dotnet', '/opt/dotnet/dotnet'],
-                'go' => ['/usr/bin/go', '/usr/local/bin/go', '/usr/local/go/bin/go'],
-                'python' => ['/usr/bin/python3', '/usr/bin/python', '/usr/local/bin/python3'],
-                'compiler' => ['/usr/bin/gcc', '/usr/bin/clang', '/usr/local/bin/gcc']
-            ];
-        }
-
-        // Ensure bridge is initialized
-        \SPP\PolyglotBridge::setup();
-
-        // Simple discovery
-        $isWin = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN');
-        foreach ($runtimes as $id => &$r) {
-            $found = false;
-            if ($id === 'python') {
-                $searchNames = ['python', 'python3'];
-            } elseif ($id === 'node') {
-                $searchNames = ['node', 'nodejs'];
-            } elseif ($id === 'compiler') {
-                $searchNames = ['cl', 'gcc', 'clang'];
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['getbridgeinfo', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
             } else {
-                $searchNames = [$id];
+                $la->setData($data ?: []);
             }
-
-            foreach ($searchNames as $name) {
-                $whereCmd = $isWin ? "where $name 2>&1" : "which $name 2>&1";
-                $out = [];
-                $res = null;
-                exec($whereCmd, $out, $res);
-                if ($res === 0 && !empty($out)) {
-                    $r['path'] = trim($out[0]);
-                    $found = true;
-                    break;
-                }
-            }
-
-            // Fallback 1: Common Paths (Windows)
-            if (!$found && $isWin && isset($fallbacks[$id])) {
-                foreach ($fallbacks[$id] as $fb) {
-                    if (file_exists($fb)) {
-                        $r['path'] = $fb;
-                        $found = true;
-                        break;
-                    }
-                }
-            }
-
-            // Fallback 2: PowerShell (Windows)
-            if (!$found && $isWin) {
-                foreach ($searchNames as $name) {
-                    $out = [];
-                    $res = null;
-                    exec("powershell -Command \"(Get-Command $name -ErrorAction SilentlyContinue).Source\"", $out, $res);
-                    if ($res === 0 && !empty($out) && !empty(trim($out[0]))) {
-                        $r['path'] = trim($out[0]);
-                        $found = true;
-                        break;
-                    }
-                }
-            }
-
-            if ($found) {
-                $exe = escapeshellarg($r['path']);
-                if ($id === 'java') {
-                    $cmd = "$exe -version 2>&1";
-                } elseif ($id === 'go') {
-                    $cmd = "$exe version 2>&1";
-                } else {
-                    $cmd = "$exe --version 2>&1";
-                }
-
-                $vOut = [];
-                $vRes = null;
-                exec($cmd, $vOut, $vRes);
-                if ($vRes === 0 && !empty($vOut)) {
-                    $r['version'] = trim($vOut[0]);
-                } else {
-                    $r['version'] = 'Detected';
-                }
-            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-        unset($r);
 
-        $la->setData([
-            'shared_dir' => $sharedDir,
-            'config_exists' => file_exists($configPath),
-            'last_sync' => file_exists($configPath) ? date('Y-m-d H:i:s', filemtime($configPath)) : 'Never',
-            'runtimes' => $runtimes
-        ]);
-    }
+}
 }
 
 if (!function_exists('live_Core_SetupBridge')) {
     function live_Core_SetupBridge($la, $params)
     {
-        try {
-            if (class_exists('\\SPP\\PolyglotBridge')) {
-                \SPP\PolyglotBridge::setup();
-                $la->setData(['message' => 'Bridge initialized successfully.']);
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['setupbridge', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
             } else {
-                $la->error("PolyglotBridge class not found.");
+                $la->setData($data ?: []);
             }
-        } catch (\Exception $e) {
-            $la->error("Setup failed: " . $e->getMessage());
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
+
+}
 }
 
 if (!function_exists('live_Core_TestBridge')) {
     function live_Core_TestBridge($la, $params)
     {
-        $lang = $params['lang'] ?? '';
-        if (!$lang) {
-            return $la->error("Language not specified for test.");
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['testbridge', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        try {
-            if (class_exists('\\SPP\\PolyglotBridge') && method_exists('\\SPP\\PolyglotBridge', 'testRuntime')) {
-                $status = \SPP\PolyglotBridge::testRuntime($lang);
-                if ($status) {
-                    $la->setData(['message' => "Bridge test for $lang passed."]);
-                } else {
-                    $la->error("Bridge test for $lang failed or returned false.");
-                }
-            } else {
-                $la->setData(['message' => "Bridge test for $lang invoked (simulated)."]);
-            }
-        } catch (\Exception $e) {
-            $la->setData(['message' => "Bridge test for $lang invoked (simulated)."]);
-        }
-    }
+}
 }
 
 if (!function_exists('live_Core_CompileRegistry')) {
     function live_Core_CompileRegistry($la, $params)
     {
-        try {
-            \SPP\Registry::forceSyncShared();
-            \SPP\SPPEvent::fireEvent('spp_registry_compiled', new \SPP\EventParams([]));
-            $la->setData(['message' => 'System Registry Compiled successfully.']);
-        } catch (\Exception $e) {
-            $la->error("Compile failed: " . $e->getMessage());
+        $res = \SPP\CLI\CommandManager::execute('admin:core', ['compileregistry', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
+
+}
 }

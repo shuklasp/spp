@@ -142,11 +142,11 @@ class ModuleCompiler
     private function discoverActiveModules(array &$meta): array
     {
         $active = [];
-        $manifests = [
-            ['file' => SPP_ETC_DIR . SPP_DS . 'modules.yml', 'type' => 'system'],
-            ['file' => SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $this->appContext . SPP_DS . 'modules.yml', 'type' => 'system'],
-            ['file' => APP_ETC_DIR . SPP_DS . $this->appContext . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml', 'type' => 'user']
-        ];
+        $registries = \SPP\Module::getRegistryFiles($this->appContext);
+        $manifests = [];
+        foreach ($registries as $r) {
+            $manifests[] = ['file' => $r['file'], 'type' => $r['type']];
+        }
 
         foreach ($manifests as $m) {
             if (!file_exists($m['file'])) {
@@ -158,8 +158,22 @@ class ModuleCompiler
                 $meta['manifest_mtime'] = $mtime;
             }
 
-            $data = Yaml::parseFile($m['file']);
-            $mods = $data['modules'] ?? [];
+            $mods = [];
+            if (str_ends_with($m['file'], '.xml')) {
+                libxml_use_internal_errors(true);
+                $xml = simplexml_load_file($m['file']);
+                if ($xml !== false && isset($xml->module)) {
+                    foreach ($xml->module as $modNode) {
+                        $mods[] = [
+                            'name' => (string) ($modNode->name ?? $modNode->modname ?? ''),
+                            'status' => (string) ($modNode->status ?? 'active')
+                        ];
+                    }
+                }
+            } else {
+                $data = Yaml::parseFile($m['file']);
+                $mods = $data['modules'] ?? [];
+            }
 
             foreach ($mods as $mod) {
                 $name = $mod['name'] ?? $mod['modname'] ?? null;

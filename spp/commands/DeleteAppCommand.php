@@ -34,10 +34,16 @@ class DeleteAppCommand extends Command
     /** @var bool Dry-run mode */
     private bool $dryRun = false;
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         // ── Parse arguments ──────────────────────────────────────────
-        $appName = $args['AppNameToConfirm'] ?? $args[2] ?? null;
+        $appName = $args['AppNameToConfirm'] ?? $this->getArgument($args, 0);
 
         if (!$appName) {
             $appName = $this->prompt("Enter application name to delete");
@@ -198,23 +204,26 @@ class DeleteAppCommand extends Command
                         }
 
                         if ($action === 'drop-db' || $action === '1') {
+                            $safeDbName = \SPP\Core\SchemaValidator::escapeIdentifier($dbname);
                             if ($dbtype === 'mysql') {
-                                $pdo->exec("DROP DATABASE IF EXISTS `{$dbname}`");
+                                $pdo->exec("DROP DATABASE IF EXISTS {$safeDbName}");
                             } else {
-                                $pdo->exec("DROP DATABASE {$dbname}");
+                                $pdo->exec("DROP DATABASE {$safeDbName}");
                             }
                             echo "  ✓ Dropped entire database '{$dbname}' on {$dbhost}\n";
                             $this->deletedCount++;
                             $dbHandled = true;
                         } elseif (($action === 'drop-tables' || $action === '2') && !empty($prefix)) {
-                            $pdo->exec("USE `{$dbname}`");
+                            $safeDbName = \SPP\Core\SchemaValidator::escapeIdentifier($dbname);
+                            $pdo->exec("USE {$safeDbName}");
                             if ($dbtype === 'mysql') {
                                 $stmt = $pdo->query("SHOW TABLES LIKE '{$prefix}%'");
                                 $tables = $stmt->fetchAll(\PDO::FETCH_COLUMN);
                                 if (!empty($tables)) {
                                     $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
                                     foreach ($tables as $table) {
-                                        $pdo->exec("DROP TABLE IF EXISTS `{$table}`");
+                                        $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+                                        $pdo->exec("DROP TABLE IF EXISTS {$safeTable}");
                                         echo "  ✓ Dropped table `{$table}`\n";
                                         $this->deletedCount++;
                                     }

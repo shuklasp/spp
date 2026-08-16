@@ -6,8 +6,8 @@
 # 2. Register it here with a unique name
 # 3. Call from JS: await spp_admin.callAppService('my.action', {param: 'value'})
 #
-# The PHP script receives POST data and should set \$response array:
-#   \$response = ['status' => 'success', 'data' => [...]]
+# The PHP script receives POST data and should set $response array:
+#   $response = ['status' => 'success', 'data' => [...]]
 ################################################################################
 
 services:

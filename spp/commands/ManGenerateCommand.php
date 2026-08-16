@@ -8,8 +8,16 @@ class ManGenerateCommand extends Command
     protected string $name = 'man:generate';
     protected string $description = 'Generate highly detailed man-pages in Markdown and UNIX roff formats';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
+        $force = in_array('--force', $args);
+
         $baseDir = dirname(SPP_BASE_DIR); // SPP_BASE_DIR is usually spp/
         $docsDir = $baseDir . '/docs/commands';
         $manDir = $baseDir . '/man/man1';
@@ -34,9 +42,9 @@ class ManGenerateCommand extends Command
             $fallbackMdFile = $docsDir . "/spp-{$safeName}.md"; // Subagents often prefix with spp-
             
             // Allow overrides via manually authored AI prose
-            if (file_exists($mdFile)) {
+            if (!$force && file_exists($mdFile)) {
                 $mdOut = file_get_contents($mdFile);
-            } elseif (file_exists($fallbackMdFile)) {
+            } elseif (!$force && file_exists($fallbackMdFile)) {
                 $mdOut = file_get_contents($fallbackMdFile);
             } else {
                 $details = $this->analyzeCommand($cmd);
@@ -69,10 +77,22 @@ class ManGenerateCommand extends Command
                 $roff .= ".PP\n";
                 continue;
             }
-            if (str_starts_with($line, '### ')) {
-                $roff .= ".SH " . strtoupper(substr($line, 4)) . "\n";
-            } elseif (str_starts_with($line, '## ')) {
-                $roff .= ".SH " . strtoupper(substr($line, 3)) . "\n";
+            if (str_starts_with($line, '## `')) {
+                $roff .= ".SH NAME\n{$name}\n";
+            } elseif (str_starts_with($line, '**Purpose**:')) {
+                $desc = trim(substr($line, 12));
+                $roff .= " \\- {$desc}\n.SH DESCRIPTION\n{$desc}\n";
+            } elseif (str_starts_with($line, '**Description**:')) {
+                $desc = trim(substr($line, 16));
+                $roff .= " \\- {$desc}\n.SH DESCRIPTION\n{$desc}\n";
+            } elseif (str_starts_with($line, '### Synopsis')) {
+                $roff .= ".SH SYNOPSIS\n";
+            } elseif (str_starts_with($line, '### Extended Usage')) {
+                $roff .= ".SH EXTENDED USAGE\n";
+            } elseif (str_starts_with($line, '### Options Available') || str_starts_with($line, '### Options')) {
+                $roff .= ".SH OPTIONS\n";
+            } elseif (str_starts_with($line, '### Under the Hood Activity') || str_starts_with($line, '### Under the Hood')) {
+                $roff .= ".SH UNDER THE HOOD\n";
             } elseif (str_starts_with($line, '- ')) {
                 $roff .= "\\(bu " . substr($line, 2) . "\n.br\n";
             } elseif (str_starts_with($line, '```')) {

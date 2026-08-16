@@ -35,7 +35,7 @@ class DashboardController
         // $items = $db->execute_query('SELECT * FROM TestApp2_items ORDER BY id DESC LIMIT 10');
 
         $blade = \SPPMod\Drishyam\SPPBlade::getInstance();
-        return $blade->run('dashboard', [
+        return $blade->renderInstance('dashboard', [
             'app_name' => 'TestApp2',
             'base_url' => \SPP\App::getBaseUrl('TestApp2'),
             'items' => $items,

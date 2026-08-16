@@ -834,7 +834,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             }
         } else {
             // User/App modules
-            $userDir = SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname . SPP_DS . $modname;
+            $userDir = \SPP\App::getApp($appname)->getModDir() . SPP_DS . $modname;
             if (is_dir($userDir)) {
                 foreach ($possible as $m) {
                     if (file_exists($userDir . SPP_DS . $m)) {
@@ -890,11 +890,11 @@ class Module extends \SPP\SPPObject implements ModuleInterface
 
                     // Verify cache validity by checking timestamps
                     $isValid = true;
-                    $manifests = [
-                        SPP_ETC_DIR . SPP_DS . 'modules.yml',
-                        SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $appname . SPP_DS . 'modules.yml',
-                        APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml'
-                    ];
+                    $registries = self::getRegistryFiles($appname);
+                    $manifests = [];
+                    foreach ($registries as $r) {
+                        $manifests[] = $r['file'];
+                    }
                     foreach ($manifests as $m) {
                         if (file_exists($m) && filemtime($m) > $meta['manifest_mtime']) {
                             $isValid = false; break;
@@ -1041,7 +1041,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
             // Primary parent directory based on type
             $primaryDir = ($type === 'system')
                 ? SPP_MODULES_DIR
-                : SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname;
+                : \SPP\App::getApp($appname)->getModDir();
 
             // Discovery logic for system modules (any-depth)
             if ($type === 'system') {
@@ -1284,7 +1284,8 @@ class Module extends \SPP\SPPObject implements ModuleInterface
                 }
             }
         } else {
-            $base = str_replace('\\', '/', realpath(SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname) ?: (SPP_APP_DIR . SPP_DS . 'modules' . SPP_DS . $appname));
+            $userBase = \SPP\App::getApp($appname)->getModDir();
+            $base = str_replace('\\', '/', realpath($userBase) ?: $userBase);
             $real = str_replace('\\', '/', realpath($modPath) ?: $modPath);
             if (str_starts_with($real, $base)) {
                 return trim(substr($real, strlen($base)), '/');

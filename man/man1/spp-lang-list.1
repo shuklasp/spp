@@ -1,20 +1,23 @@
-.TH SPP-lang-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-lang-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-lang-list \- List all translations
-.SH SYNOPSIS
-.B php spp.php lang:list
-[OPTIONS]
+lang:list
+.PP
+ \- List all translations
 .SH DESCRIPTION
 List all translations
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from LangListCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php lang:list [OPTIONS]
 .PP
-\(bu Dynamically loads kernel modules: spplang.
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: spplang.
 .br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

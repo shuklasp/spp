@@ -23,13 +23,9 @@ class UIMeshCompositor extends ViewController
         
         // Serve a fully rendered HTML page with the fragment pre-injected
         header('Content-Type: text/html');
-        echo '<!DOCTYPE html><html><head><title>SPP WebOS - ' . htmlspecialchars($appAlias) . '</title>';
-        echo '<script src="/sppuimesh.js" defer></script>';
-        echo '</head><body>';
-        echo '<div id="spp-uimesh-container" data-ssr-loaded="true">';
-        echo $fragment; // Pre-rendered for SEO crawlers!
-        echo '</div>';
-        echo '</body></html>';
+        ob_start();
+        include __DIR__ . '/uimesh_ssr.php';
+        echo ob_get_clean();
         exit;
     }
 
@@ -52,17 +48,39 @@ class UIMeshCompositor extends ViewController
 
     private function fetchAppHtml(string $appAlias, string $path): string
     {
-        // In reality, this would use local_path Bootstrapping or HTTP to the guest app.
         // Mocked for architectural demonstration.
-        return '<html><head><style>h1 { color: red; }</style></head><body><div id="content"><h1>Welcome to ' . htmlspecialchars($appAlias) . '</h1><p>Dynamic Content loaded from ' . htmlspecialchars($path) . '</p></div></body></html>';
+        ob_start();
+        include __DIR__ . '/uimesh_mock_app.php';
+        return ob_get_clean();
     }
 
     private function extractDomFragment(string $html, string $selector): string
     {
-        // Very basic mock extraction. In production, we'd use DOMDocument.
-        if (preg_match('/<div id="content">(.*?)<\/div>/s', $html, $matches)) {
-            return $matches[0];
+        if (extension_loaded('dom')) {
+            $dom = new \DOMDocument();
+            @$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+            $xpath = new \DOMXPath($dom);
+            
+            $xpathQuery = '//*';
+            if (strpos($selector, '#') === 0) {
+                $id = substr($selector, 1);
+                $xpathQuery = "//*[@id='{$id}']";
+            }
+            
+            $nodes = $xpath->query($xpathQuery);
+            if ($nodes->length > 0) {
+                return $dom->saveHTML($nodes->item(0));
+            }
+        } else {
+            // Fallback to strict regex parsing
+            $id = ltrim($selector, '#');
+            if (preg_match('/<div[^>]*id="' . preg_quote($id, '/') . '"[^>]*>(.*?)<\/div>/s', $html, $matches)) {
+                return $matches[0];
+            }
         }
-        return '<div>Error extracting DOM fragment</div>';
+        
+        ob_start();
+        include __DIR__ . '/uimesh_error.php';
+        return ob_get_clean();
     }
 }

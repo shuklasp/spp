@@ -5,826 +5,755 @@
 
 function live_IAM_ListUsers($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $users = $db->execute_query('SELECT id, username, email, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users'));
-    $la->setData([
-        'sources' => [
-            [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
-                'items' => $users
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listusers', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_ListRoles($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $roles = $db->execute_query('SELECT id, role_name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles'));
-    $la->setData([
-        'sources' => [
-            [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
-                'items' => $roles
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listroles', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_ListRights($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $rights = $db->execute_query('SELECT id, name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights'));
-    $la->setData([
-        'sources' => [
-            [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
-                'items' => $rights
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listrights', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_ListRBAC($la, $params)
 {
-    $path = SPP_BASE_DIR . '/etc/rbac.yml';
-    if (!file_exists($path)) {
-        return $la->setData(['sources' => []]);
-    }
-    $config = \Symfony\Component\Yaml\Yaml::parseFile($path);
-    $la->setData([
-        'sources' => [
-            [
-                'label' => 'etc/rbac.yml',
-                'type' => 'yaml',
-                'items' => $config['roles'] ?? []
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listrbac', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_ListABAC($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $policies = $db->execute_query('SELECT id, permission, condition_logic, status FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('abac_policies') . ' ORDER BY id DESC');
-    $la->setData([
-        'sources' => [
-            [
-                'label' => $db->getConnectionSummary(),
-                'type' => 'database',
-                'items' => $policies
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listabac', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_SaveABAC($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $id = $params['id'] ?? null;
-    $permission = $params['permission'] ?? '';
-    $logic = $params['condition_logic'] ?? '';
-    $status = $params['status'] ?? 'active';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['saveabac', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($permission) || empty($logic)) {
-        return $la->setStatus('error')->notify("Permission and Condition Logic are required.");
-    }
-
-    $table = \SPPMod\SPPDB\SPPDB::sppTable('abac_policies');
-
-    if ($id) {
-        $db->execute_query("UPDATE $table SET permission = ?, condition_logic = ?, status = ? WHERE id = ?", [$permission, $logic, $status, $id]);
-        $la->setStatus('success')->notify('ABAC Policy updated.');
-    } else {
-        $db->execute_query("INSERT INTO $table (permission, condition_logic, status) VALUES (?, ?, ?)", [$permission, $logic, $status]);
-        $la->setStatus('success')->notify('ABAC Policy created.');
-    }
 }
 
 function live_IAM_DeleteABAC($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $id = $params['id'] ?? null;
-    if (!$id)
-        return $la->setStatus('error')->notify("Policy ID required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['deleteabac', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $table = \SPPMod\SPPDB\SPPDB::sppTable('abac_policies');
-    $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
-    $la->setStatus('success')->notify('Policy deleted.');
 }
 
 function live_IAM_ListOAuthClients($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $clients = $db->execute_query('SELECT id, name, redirect_uri FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients') . ' ORDER BY name ASC');
-    $la->setData([
-        'sources' => [
-            [
-                'label' => 'OAuth Clients',
-                'type' => 'database',
-                'items' => $clients
-            ]
-        ]
-    ]);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listoauthclients', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_SaveOAuthClient($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $id = $params['id'] ?? null;
-    $name = $params['name'] ?? '';
-    $redirect_uri = $params['redirect_uri'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['saveoauthclient', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (empty($id) || empty($name) || empty($redirect_uri)) {
-        return $la->setStatus('error')->notify("ID, Name, and Redirect URI are required.");
-    }
-
-    $table = \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients');
-
-    // Check if client exists
-    $existing = $db->execute_query("SELECT id FROM $table WHERE id = ?", [$id]);
-
-    if (!empty($existing)) {
-        // Update
-        $db->execute_query("UPDATE $table SET name = ?, redirect_uri = ? WHERE id = ?", [$name, $redirect_uri, $id]);
-        $la->setStatus('success')->notify('OAuth Client updated.');
-    } else {
-        // Create
-        $client_secret = bin2hex(random_bytes(32));
-        $db->execute_query("INSERT INTO $table (id, secret, name, redirect_uri) VALUES (?, ?, ?, ?)", [$id, $client_secret, $name, $redirect_uri]);
-        $la->setStatus('success')->setData(['client_secret' => $client_secret])->notify('OAuth Client created.');
-    }
 }
 
 function live_IAM_DeleteOAuthClient($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $id = $params['id'] ?? null;
-    if (!$id)
-        return $la->setStatus('error')->notify("Client ID required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['deleteoauthclient', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $table = \SPPMod\SPPDB\SPPDB::sppTable('oauth_clients');
-    $db->execute_query("DELETE FROM $table WHERE id = ?", [$id]);
-    $la->setStatus('success')->notify('Client deleted.');
 }
 
 function live_IAM_ListEntityAssignments($la, $params)
 {
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $sql = 'SELECT er.target_class, er.target_id, er.role_id, r.role_name 
-            FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('entity_roles') . ' er
-            JOIN ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' r ON er.role_id = r.id';
-    $raw = $db->execute_query($sql);
-
-    // Group by target
-    $grouped = [];
-    foreach ($raw as $row) {
-        $key = $row['target_class'] . ':' . $row['target_id'];
-        if (!isset($grouped[$key])) {
-            $grouped[$key] = [
-                'target_class' => $row['target_class'],
-                'target_id' => $row['target_id'],
-                'roles' => []
-            ];
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listentityassignments', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-        $grouped[$key]['roles'][] = ['id' => $row['role_id'], 'name' => $row['role_name']];
-    }
 
-    $la->setData(array_values($grouped));
 }
 
 function live_IAM_GetDetails($la, $params)
 {
-    $type = $params['type'] ?? '';
-    $id = $params['id'] ?? null;
-    if (!$id)
-        return $la->setStatus('error')->notify("ID required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['getdetails', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $data = ['assigned_ids' => [], 'available' => []];
-
-    if ($type === 'users') {
-        $data['available'] = $db->execute_query('SELECT id, role_name FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles'));
-        $assigned = $db->execute_query('SELECT role_id FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('entity_roles') . ' WHERE target_class = ? AND target_id = ?', ['SPPMod\SPPAuth\SPPUser', $id]);
-        $data['assigned_ids'] = array_map('intval', array_column($assigned, 'role_id'));
-    } else if ($type === 'roles') {
-        $data['available'] = $db->execute_query('SELECT id, name, description FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights'));
-        $assigned = $db->execute_query('SELECT rightid FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roleright') . ' WHERE roleid = ?', [$id]);
-        $data['assigned_ids'] = array_map('intval', array_column($assigned, 'rightid'));
-    }
-
-    $la->setData($data);
 }
 
 function live_IAM_SearchEntities($la, $params)
 {
-    $type = $params['type'] ?? '';
-    $q = $params['q'] ?? '';
-    if (empty($q))
-        return $la->setData(['results' => []]);
-
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $results = [];
-
-    // 1. Specialized quick lookups for known types
-    if (str_contains($type, 'SPPUser')) {
-        $sql = 'SELECT id, username as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' WHERE username LIKE ? OR email LIKE ? LIMIT 10';
-        $rows = $db->execute_query($sql, ["%$q%", "%$q%"]);
-        foreach ($rows as $r) {
-            $results[] = ['id' => $r['username'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPUser', 'score' => 1.0];
-        }
-    } else if (str_contains($type, 'SPPGroup')) {
-        $sql = 'SELECT id, name as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppgroups') . ' WHERE name LIKE ? LIMIT 10';
-        $rows = $db->execute_query($sql, ["%$q%"]);
-        foreach ($rows as $r) {
-            $results[] = ['id' => $r['id'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPGroup', 'score' => 1.0];
-        }
-    }
-
-    // 2. Natural search fallback
-    if (empty($results)) {
-        $results = \SPPMod\SPPDB\SPPEntity::searchNatural($q);
-    }
-
-    // 3. Manual broad search fallback
-    if (empty($results)) {
-        $entities = \SPPMod\SPPDB\SPPEntity::listAvailableEntities();
-        foreach ($entities as $name => $meta) {
-            try {
-                $class = "App\\Default\\Entities\\" . ucfirst($name);
-                if (!class_exists($class))
-                    $class = $name;
-                if (!class_exists($class))
-                    continue;
-
-                $inst = new $class();
-                $table = $inst->getTable();
-
-                $sql = "SELECT * FROM $table WHERE name LIKE ? OR username LIKE ? LIMIT 5";
-                $dbRes = $db->execute_query($sql, ["%$q%", "%$q%"]);
-
-                foreach ($dbRes as $row) {
-                    $results[] = [
-                        'id' => $row['id'] ?? $row['username'] ?? '?',
-                        'name' => $row['name'] ?? ($row['username'] ?? $name),
-                        'entity' => $class,
-                        'score' => 0.8
-                    ];
-                }
-            } catch (\Exception $e) {
-                continue;
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['searchentities', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
             }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        // Also search SPPUser explicitly as it might not be in "AvailableEntities" (it's core)
-        try {
-            $userTable = \SPPMod\SPPDB\SPPDB::sppTable('users');
-            $users = $db->execute_query("SELECT * FROM $userTable WHERE username LIKE ? LIMIT 5", ["%$q%"]);
-            foreach ($users as $u) {
-                $results[] = [
-                    'id' => $u['username'],
-                    'name' => $u['username'],
-                    'entity' => 'SPPMod\\SPPAuth\\SPPUser',
-                    'score' => 0.9
-                ];
-            }
-        } catch (\Exception $e) {
-        }
-    }
-
-    $la->setData(['results' => $results]);
 }
 
 function live_IAM_AssignRole($la, $params)
 {
-    $targetClass = $params['target_class'] ?? '';
-    $targetId = $params['target_id'] ?? '';
-    $roleIds = (array) ($params['role_id'] ?? []);
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['assignrole', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    if (!$targetClass || !$targetId || empty($roleIds)) {
-        return $la->setStatus('error')->notify("Missing parameters.");
-    }
-
-    $db = new \SPPMod\SPPDB\SPPDB();
-    foreach ($roleIds as $roleId) {
-        $db->execute_query('REPLACE INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('entity_roles') . ' (target_class, target_id, role_id) VALUES (?, ?, ?)', [$targetClass, $targetId, $roleId]);
-    }
-    $la->notify("Roles assigned.");
 }
 
 function live_IAM_RemoveRole($la, $params)
 {
-    $targetClass = $params['target_class'] ?? '';
-    $targetId = $params['target_id'] ?? '';
-    $roleId = $params['role_id'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['removerole', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('entity_roles') . ' WHERE target_class=? AND target_id=? AND role_id=?', [$targetClass, $targetId, $roleId]);
-    $la->notify("Assignment removed.");
 }
 
 function live_IAM_AssignRight($la, $params)
 {
-    $roleId = $params['role_id'] ?? '';
-    $rightId = $params['right_id'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['assignright', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $db->execute_query('REPLACE INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('roleright') . ' (roleid, rightid) VALUES (?, ?)', [$roleId, $rightId]);
-    $la->notify("Right granted.");
 }
 
 function live_IAM_RemoveRight($la, $params)
 {
-    $roleId = $params['role_id'] ?? '';
-    $rightId = $params['right_id'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['removeright', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $db->execute_query('DELETE FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roleright') . ' WHERE roleid=? AND rightid=?', [$roleId, $rightId]);
-    $la->notify("Right revoked.");
 }
 
 function live_IAM_ToggleUserStatus($la, $params)
 {
-    $id = $params['id'] ?? '';
-    $status = $params['status'] ?? 'active';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['toggleuserstatus', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' SET status=? WHERE id=?', [$status, $id]);
-    $la->notify("User status updated to $status.");
 }
 
 function live_IAM_GetFormHTML($la, $params)
 {
-    $form = $params['form'] ?? '';
-    $id = $params['id'] ?? null;
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['getformhtml', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    // Simple mock forms for now
-    $html = '';
-    if ($form === 'user_edit') {
-        $username = '';
-        $email = '';
-        $status = 'active';
-        if ($id) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' WHERE id=?', [$id]);
-            if ($row) {
-                $username = $row[0]['username'];
-                $email = $row[0]['email'];
-                $status = $row[0]['status'];
-            }
-        }
-        $html = "
-            <div class='form-group'>
-                <label>Username</label>
-                <input type='text' name='username' class='spp-element' value='$username' required>
-            </div>
-            <div class='form-group'>
-                <label>Email</label>
-                <input type='email' name='email' class='spp-element' value='$email' required>
-            </div>
-            <div class='form-group'>
-                <label>Status</label>
-                <select name='status' class='spp-element'>
-                    <option value='active' " . ($status === 'active' ? 'selected' : '') . ">Active</option>
-                    <option value='inactive' " . ($status === 'inactive' ? 'selected' : '') . ">Inactive</option>
-                </select>
-            </div>
-            " . (!$id ? "
-            <div class='form-group'>
-                <label>Password</label>
-                <input type='password' name='password' class='spp-element' required>
-            </div>" : "");
-    } else if ($form === 'role_edit') {
-        $name = '';
-        $desc = '';
-        if ($id) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' WHERE id=?', [$id]);
-            if ($row) {
-                $name = $row[0]['role_name'];
-                $desc = $row[0]['description'];
-            }
-        }
-        $html = "
-            <div class='form-group'>
-                <label>Role Name</label>
-                <input type='text' name='role_name' class='spp-element' value='$name' required>
-            </div>
-            <div class='form-group'>
-                <label>Description</label>
-                <textarea name='description' class='spp-element'>$desc</textarea>
-            </div>";
-    } else if ($form === 'right_edit') {
-        $name = '';
-        $desc = '';
-        if ($id) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $row = $db->execute_query('SELECT * FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('rights') . ' WHERE id=?', [$id]);
-            if ($row) {
-                $name = $row[0]['name'];
-                $desc = $row[0]['description'];
-            }
-        }
-        $html = "
-            <div class='form-group'>
-                <label>Right Name</label>
-                <input type='text' name='name' class='spp-element' value='$name' required>
-            </div>
-            <div class='form-group'>
-                <label>Description</label>
-                <textarea name='description' class='spp-element'>$desc</textarea>
-            </div>";
-    } else if ($form === 'step_editor') {
-        $html = "
-            <div class='form-group'>
-                <label>Step Title</label>
-                <input type='text' name='title' class='spp-element' required>
-            </div>
-            <div class='form-group'>
-                <label>Step Description</label>
-                <textarea name='description' class='spp-element'></textarea>
-            </div>";
-    } else if ($form === 'field_editor') {
-        $html = "
-            <div class='form-group'>
-                <label>Field Name</label>
-                <input type='text' name='name' class='spp-element' required>
-            </div>
-            <div class='form-group'>
-                <label>Label</label>
-                <input type='text' name='label' class='spp-element'>
-            </div>
-            <div class='form-group'>
-                <label>Type</label>
-                <select name='type' class='spp-element'>
-                    <option value='text'>Text</option>
-                    <option value='email'>Email</option>
-                    <option value='password'>Password</option>
-                    <option value='textarea'>Textarea</option>
-                    <option value='select'>Dropdown (Select)</option>
-                    <option value='checkbox'>Checkbox</option>
-                    <option value='radio'>Radio</option>
-                    <option value='date'>Date</option>
-                    <option value='number'>Number</option>
-                </select>
-            </div>
-            <div class='form-group'>
-                <label>Placeholder</label>
-                <input type='text' name='placeholder' class='spp-element'>
-            </div>
-            <div style='display: flex; gap: 10px; margin-top: 10px;'>
-                <label style='display: flex; align-items: center; gap: 5px;'><input type='checkbox' name='required' class='spp-element'> Required</label>
-                <label style='display: flex; align-items: center; gap: 5px;'><input type='checkbox' name='voice' class='spp-element'> Voice-to-Text</label>
-                <label style='display: flex; align-items: center; gap: 5px;'><input type='checkbox' name='telemetry' class='spp-element'> Telemetry</label>
-            </div>";
-    }
-
-    $la->setData(['html' => $html]);
 }
 
 function live_IAM_SaveUser($la, $params)
 {
-    $id = $params['id'] ?? null;
-    $username = $params['username'] ?? '';
-    $email = $params['email'] ?? '';
-    $status = $params['status'] ?? 'active';
-    $password = $params['password'] ?? null;
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['saveuser', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    if ($id) {
-        $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' SET username=?, email=?, status=? WHERE id=?', [$username, $email, $status, $id]);
-        $la->notify("User updated.");
-    } else {
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $db->execute_query('INSERT INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' (username, email, password_hash, status, created_at) VALUES (?, ?, ?, ?, NOW())', [$username, $email, $hash, $status]);
-        $la->notify("User created.");
-    }
 }
 
 function live_IAM_SaveRole($la, $params)
 {
-    $id = $params['id'] ?? null;
-    $name = $params['role_name'] ?? '';
-    $desc = $params['description'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['saverole', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    if ($id) {
-        $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' SET role_name=?, description=? WHERE id=?', [$name, $desc, $id]);
-        $la->notify("Role updated.");
-    } else {
-        $db->execute_query('INSERT INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('roles') . ' (role_name, description) VALUES (?, ?)', [$name, $desc]);
-        $la->notify("Role created.");
-    }
 }
 
 function live_IAM_SaveRight($la, $params)
 {
-    $id = $params['id'] ?? null;
-    $name = $params['name'] ?? '';
-    $desc = $params['description'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['saveright', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $db = new \SPPMod\SPPDB\SPPDB();
-    if ($id) {
-        $db->execute_query('UPDATE ' . \SPPMod\SPPDB\SPPDB::sppTable('rights') . ' SET name=?, description=? WHERE id=?', [$name, $desc, $id]);
-        $la->notify("Right updated.");
-    } else {
-        $db->execute_query('INSERT INTO ' . \SPPMod\SPPDB\SPPDB::sppTable('rights') . ' (name, description) VALUES (?, ?)', [$name, $desc]);
-        $la->notify("Right created.");
-    }
 }
 
 function live_IAM_SaveModernRole($la, $params)
 {
-    $slug = $params['slug'] ?? '';
-    $permissions = $params['permissions'] ?? '';
-    if (empty($slug))
-        return $la->setStatus('error')->notify("Slug required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['savemodernrole', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $permList = array_filter(array_map('trim', explode("\n", $permissions)));
-
-    $path = SPP_BASE_DIR . '/etc/rbac.yml';
-    $config = file_exists($path) ? \Symfony\Component\Yaml\Yaml::parseFile($path) : ['roles' => []];
-
-    $config['roles'][$slug] = [
-        'permissions' => $permList
-    ];
-
-    file_put_contents($path, \Symfony\Component\Yaml\Yaml::dump($config, 4, 2));
-    $la->notify("Modern role '$slug' saved.");
 }
 
 // --- Group Management ---
 
 function live_IAM_ListGroups($la, $params)
 {
-    $appname = $params['appname'] ?? 'default';
-    $rawGroups = \SPPMod\SPPAuth\SPPGroupLoader::listAllGroups($appname);
-
-    $sources = [];
-
-    foreach ($rawGroups as $g) {
-        $group = new \SPPMod\SPPAuth\SPPGroup();
-        $group->load($g['name']);
-        if ($group->id) {
-            $sourceKey = $g['source'] === 'database' ? $g['db_summary'] : ($g['path'] ?? 'Unknown File');
-            if (!isset($sources[$sourceKey])) {
-                $sources[$sourceKey] = [
-                    'label' => $sourceKey,
-                    'type' => $g['source'],
-                    'items' => []
-                ];
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listgroups', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
             }
-
-            $sources[$sourceKey]['items'][] = [
-                'id' => $group->id,
-                'name' => $group->get('name'),
-                'description' => $group->get('description'),
-                'source' => $group->source
-            ];
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
-    }
 
-    $la->setData(['sources' => array_values($sources)]);
 }
 
 function live_IAM_ListGroupMembers($la, $params)
 {
-    $groupId = $params['group_id'] ?? null;
-    if (!$groupId)
-        return $la->setStatus('error')->notify("Group ID required.");
-
-    $group = new \SPPMod\SPPAuth\SPPGroup();
-    $group->load($groupId);
-    if (!$group->id)
-        return $la->setStatus('error')->notify("Group not found.");
-
-    $members = $group->getMembers(true); // Recursive
-    $formatted = [];
-    $db = new \SPPMod\SPPDB\SPPDB();
-
-    foreach ($members as $m) {
-        $name = $m['entity']->id;
-        try {
-            // Try to get name without full load if possible
-            if (method_exists($m['entity'], 'get') && ($n = $m['entity']->get('username') ?: $m['entity']->get('name'))) {
-                $name = $n;
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listgroupmembers', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
             } else {
-                // Fallback: Quick DB lookup for name/username
-                $table = $m['entity']->getTable();
-                $idField = 'id'; // Default
-                $res = $db->execute_query("SELECT username, name FROM $table WHERE $idField = ? LIMIT 1", [$m['entity']->id]);
-                if (!empty($res)) {
-                    $name = $res[0]['username'] ?? ($res[0]['name'] ?? $m['entity']->id);
-                }
+                $la->setData($data ?: []);
             }
-        } catch (\Exception $e) {
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        $formatted[] = [
-            'id' => $m['entity']->id,
-            'name' => $name,
-            'entity' => get_class($m['entity']),
-            'role' => $m['role'],
-            'direct' => $m['direct'],
-            'inherited_via' => $m['inherited_via'] ?? null
-        ];
-    }
-
-    $la->setData(['members' => $formatted]);
 }
 
 function live_IAM_AddGroupMember($la, $params)
 {
-    $groupId = $params['group_id'] ?? '';
-    $memberClass = $params['member_entity'] ?? '';
-    $memberId = $params['member_id'] ?? '';
-    $role = $params['role'] ?? 'member';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['addgroupmember', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    try {
-        \SPPMod\SPPAuth\SPPGroup::addMemberToGroup($groupId, $memberClass, $memberId, $role);
-        $la->notify("Member added to group.", "success");
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
 }
 
 function live_IAM_RemoveGroupMember($la, $params)
 {
-    $groupId = $params['group_id'] ?? '';
-    $memberClass = $params['member_entity'] ?? '';
-    $memberId = $params['member_id'] ?? '';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['removegroupmember', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    try {
-        \SPPMod\SPPAuth\SPPGroup::removeMemberFromGroup($groupId, $memberClass, $memberId);
-        $la->notify("Member removed from group.");
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
 }
 
 function live_IAM_SaveGroup($la, $params)
 {
-    try {
-        \SPPMod\SPPAuth\SPPGroup::saveGroupInfo($params);
-        $la->notify("Group saved successfully.", "success");
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify($e->getMessage());
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['savegroup', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
 }
 
 function live_IAM_DeleteGroup($la, $params)
 {
-    $id = $params['id'] ?? null;
-    if (!$id)
-        return $la->setStatus('error')->notify("Group ID required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['deletegroup', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-    $group = new \SPPMod\SPPAuth\SPPGroup();
-    $group->load($id);
-    if ($group->id) {
-        $group->delete();
-        $la->notify("Group '$id' deleted.");
-    } else {
-        $la->setStatus('error')->notify("Group not found.");
-    }
 }
 
 // --- API Keys Management ---
 
 function live_IAM_ListApiKeys($la, $params)
 {
-    try {
-        $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id)
-            return $la->setStatus('error')->notify("Unauthenticated.");
-
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $sql = "SELECT id, name, created_at, expires_at, 
-                CASE WHEN expires_at IS NULL OR expires_at > NOW() THEN 1 ELSE 0 END as status
-                FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . "
-                WHERE userid = ? ORDER BY created_at DESC";
-        $tokens = $db->execute_query($sql, [$user->id]);
-
-        // Add pseudo token masks
-        foreach ($tokens as &$t) {
-            $t['token'] = 'spp_' . substr(md5($t['id'] . $t['created_at']), 0, 8) . '...';
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['listapikeys', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        $la->setData($tokens);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Failed to list API keys: " . $e->getMessage());
-    }
 }
 
 function live_IAM_GenerateApiKey($la, $params)
 {
-    try {
-        $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id)
-            return $la->setStatus('error')->notify("Unauthenticated.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['generateapikey', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-        $name = $params['name'] ?? 'API Key';
-        $token = \SPPMod\SPPAuth\TokenGuard::createToken($user, $name);
-
-        $la->notify("API Key generated successfully! Please copy it now, it won't be shown again: $token", "success");
-        // Instruct frontend to reload keys
-        $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Failed to generate API key: " . $e->getMessage());
-    }
 }
 
 function live_IAM_RevokeApiKey($la, $params)
 {
-    try {
-        $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id)
-            return $la->setStatus('error')->notify("Unauthenticated.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['revokeapikey', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-        $id = $params['id'] ?? null;
-        if (!$id)
-            return $la->setStatus('error')->notify("Token ID required.");
-
-        $db = new \SPPMod\SPPDB\SPPDB();
-        $db->execute_query("DELETE FROM " . \SPPMod\SPPDB\SPPDB::sppTable('personal_access_tokens') . " WHERE id = ? AND userid = ?", [$id, $user->id]);
-
-        $la->notify("API Key revoked.", "success");
-        $la->addInstruction(['action' => 'execute', 'code' => 'app.apiKeys.loadKeys()']);
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Failed to revoke API key: " . $e->getMessage());
-    }
 }
 
 // --- MFA Management ---
 
 function live_IAM_GenerateMFASecret($la, $params)
 {
-    try {
-        $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id)
-            return $la->setStatus('error')->notify("Unauthenticated.");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['generatemfasecret', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
 
-        require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
-
-        // Generate new secret
-        $secret = \SPPMod\SPPAuth\MFA::generateSecret();
-
-        // Temporarily store in session to prevent DB save until verified
-        \SPP\SPPSession::setSessionVar('mfa_setup_secret', $secret);
-
-        // Create an otpauth URI
-        $issuer = urlencode('SPP Enterprise');
-        $accountName = urlencode($user->username);
-        $otpauthUrl = "otpauth://totp/$issuer:$accountName?secret=$secret&issuer=$issuer";
-
-        // Use Google Charts API to generate a QR Code image URL
-        $qrCodeUrl = "https://chart.googleapis.com/chart?chs=200x200&chld=M|0&cht=qr&chl=" . urlencode($otpauthUrl);
-
-        $la->setData([
-            'secret' => $secret,
-            'qr_code_url' => $qrCodeUrl,
-            'manual_code' => trim(chunk_split($secret, 4, ' '))
-        ]);
-
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Failed to generate MFA secret: " . $e->getMessage());
-    }
 }
 
 function live_IAM_EnableMFA($la, $params)
 {
-    try {
-        $user = \SPP\Scheduler::getActiveUser();
-        if (!$user || !$user->id)
-            return $la->setStatus('error')->notify("Unauthenticated.");
-
-        $code = $params['code'] ?? '';
-        if (empty($code))
-            return $la->setStatus('error')->notify("Please provide the 6-digit verification code.");
-
-        $secret = \SPP\SPPSession::getSessionVar('mfa_setup_secret');
-        if (empty($secret))
-            return $la->setStatus('error')->notify("MFA setup session expired. Please restart the process.");
-
-        require_once SPP_MODULES_DIR . '/spp/sppauth/class.mfa.php';
-
-        if (\SPPMod\SPPAuth\MFA::verifyCode($secret, $code)) {
-            $db = new \SPPMod\SPPDB\SPPDB();
-            $db->execute_query(
-                "UPDATE " . \SPPMod\SPPDB\SPPDB::sppTable('users') . " SET mfa_secret = ?, mfa_enabled = 1 WHERE id = ?",
-                [$secret, $user->id]
-            );
-
-            \SPP\SPPSession::unsetSessionVar('mfa_setup_secret');
-            $la->notify("Multi-Factor Authentication is now enabled!", "success");
+        $res = \SPP\CLI\CommandManager::execute('admin:iam', ['enablemfa', '--payload' => json_encode($params), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
         } else {
-            $la->setStatus('error')->notify("Invalid Authenticator code. Try again.");
+            $la->setStatus('error')->notify($res['error']);
         }
 
-    } catch (\Exception $e) {
-        $la->setStatus('error')->notify("Failed to enable MFA: " . $e->getMessage());
-    }
 }
 

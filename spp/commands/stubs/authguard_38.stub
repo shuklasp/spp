@@ -1,5 +1,5 @@
 <?php
-namespace App\\{{appName}}\\Middleware;
+namespace App\{{appName}}\Middleware;
 
 /**
  * ============================================================================
@@ -20,17 +20,17 @@ class AuthGuard
 {
     public static function check(): bool
     {
-        if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
-            return \\SPPMod\\SPPAuth\\SPPAuth::authSessionExists();
+        if (class_exists('\SPPMod\SPPAuth\SPPAuth')) {
+            return \SPPMod\SPPAuth\SPPAuth::authSessionExists();
         }
         return false;
     }
 
-    public static function requireAuth(string \$appName = ''): void
+    public static function requireAuth(string $appName = ''): void
     {
         if (!self::check()) {
-            \$baseUrl = \\SPP\\App::getBaseUrl(\$appName ?: '{{appName}}');
-            header('Location: ' . \$baseUrl . '/login');
+            $baseUrl = \SPP\App::getBaseUrl($appName ?: '{{appName}}');
+            header('Location: ' . $baseUrl . '/login');
             exit;
         }
     }

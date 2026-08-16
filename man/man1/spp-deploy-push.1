@@ -1,39 +1,53 @@
-.TH SPP-deploy-push 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-push 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-push \- Push the local project state to a remote SPP target server
-.SH SYNOPSIS
-.B php spp.php deploy:push
-[OPTIONS]
+deploy:push
+.PP
+ \- Push the local project state to a remote SPP target server
 .SH DESCRIPTION
 Push the local project state to a remote SPP target server
 .PP
-.SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployPushCommand.php
-.TP
-.B --artifact=
-Expects a value. Extracted via static analysis from DeployPushCommand.php
-.TP
-.B --dry-run
-Boolean flag. Extracted via static analysis from DeployPushCommand.php
-.TP
-.B --no-db
-Boolean flag. Extracted via static analysis from DeployPushCommand.php
-.TP
-.B --no-files
-Boolean flag. Extracted via static analysis from DeployPushCommand.php
-.TP
-.B --force
-Boolean flag. Extracted via static analysis from DeployPushCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php deploy:push [OPTIONS]
 .PP
-\(bu Interacts with the SPP database layer directly.
+.SH OPTIONS
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Performs raw filesystem modifications (create/write/delete).
+\(bu `--artifact=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--dry-run` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--no-db` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--no-files` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--force` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--pre_deploy` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--message` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--keys` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--debug` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--sql` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--Create Table` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--webhooks` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates key components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
+\(bu Instantiates internal components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \SPPMod\SPPDB\SPPDB.
 .br
+.PP
+.PP

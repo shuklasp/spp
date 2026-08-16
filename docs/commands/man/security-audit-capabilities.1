@@ -1,19 +1,7 @@
-.TH SECURITY:AUDIT:CAPABILITIES 1 "June 2026" "SPP Framework" "SPP CLI Manual"
+.TH "security-audit-capabilities" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-security:audit:capabilities \- Audit codebase for zero-trust security compliance, CLI SAPI guarding, CSP nonces, and external partial rendering rules.
+security-audit-capabilities \- Audit codebase for zero-trust security compliance, CLI SAPI guarding, CSP nonces, and external partial rendering rules.
 .SH SYNOPSIS
-\fBphp spp.php security:audit:capabilities\fR [\fB\-\-path=\fI<path/to/audit>\fR]
+.B php spp.php security-audit-capabilities
 .SH DESCRIPTION
-The \fBsecurity:audit:capabilities\fR command functions as an automated compliance and governance scanner. It ensures that all enterprise team members and automated AI coding assistants continuously obey strict workspace architectural rules, preventing security vulnerabilities and maintaining zero-trust standards across the framework.
-.SH OPTIONS
-.TP
-\fB\-\-path=\fI<path>\fR
-Absolute or relative path to the directory or module to inspect. Defaults to the primary application base path.
-.SH UNDER THE HOOD
-1. \fBStrict SAPI Guarding\fR: Validates that the command itself is executing in a secure CLI environment via \fIisCLIOnly(): bool\fR.
-.PP
-2. \fBAST & File Traversal\fR: Inspects PHP files within the target path to verify that high-privilege CLI commands properly implement \fIisCLIOnly()\fR.
-.PP
-3. \fBHTML Literal Verification\fR: Scans controller actions and services to guarantee zero inline HTML string literals, validating that external partials (\fIrenderPartial()\fR, \fIrenderStaticPartial()\fR, \fIstream()\fR) are exclusively used.
-.PP
-4. \fBMiddleware & CSP Check\fR: Confirms that public endpoints implement proper middleware routing guards and Content Security Policy (CSP) nonce generation.
+Audit codebase for zero-trust security compliance, CLI SAPI guarding, CSP nonces, and external partial rendering rules.

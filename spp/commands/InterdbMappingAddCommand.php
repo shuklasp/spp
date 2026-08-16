@@ -10,6 +10,12 @@ class InterdbMappingAddCommand extends Command
     protected string $name = 'interdb:mapping:add';
     protected string $description = 'Add a new InterDB mapping';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $alias = null;

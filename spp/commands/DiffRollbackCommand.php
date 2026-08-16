@@ -9,6 +9,12 @@ class DiffRollbackCommand extends Command
     protected string $name = 'diff:rollback';
     protected string $description = 'Rollback an entity to a previous state';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $entityType = null;

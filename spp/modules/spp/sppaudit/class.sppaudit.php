@@ -26,7 +26,7 @@ class SPPAudit extends \SPP\SPPObject
                 if (\SPP\SPPSession::sessionExists()) {
                     $userId = \SPP\SPPSession::getSessionVar('__user_id__');
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
             }
 
             $data = [
@@ -59,10 +59,10 @@ class SPPAudit extends \SPP\SPPObject
                 }
             }
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // Enterprise rule: Don't let an audit failure crash the main transaction
             // But link it to the system error log
-            error_log("Audit Logging Failed: " . $e->getMessage());
+            echo "AUDIT ERROR: " . $e->getMessage() . "\n";
         }
     }
 
@@ -81,7 +81,7 @@ class SPPAudit extends \SPP\SPPObject
             if ($pdo) {
                 $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
             }
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
         if ($driver === 'sqlite') {

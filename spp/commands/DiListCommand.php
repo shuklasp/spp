@@ -9,6 +9,12 @@ class DiListCommand extends Command
     protected string $name = 'di:list';
     protected string $description = 'List the Dependency Injection container bindings';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

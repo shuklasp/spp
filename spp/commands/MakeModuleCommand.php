@@ -11,9 +11,15 @@ class MakeModuleCommand extends BaseMakeCommand
     protected string $name = 'make:module';
     protected string $description = 'Create a new SPP module';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
         if (!$name) {
             echo "Usage: php spp.php make:module <name> [--scope=spp|contrib|app]\n";
             return;

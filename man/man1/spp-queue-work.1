@@ -1,16 +1,20 @@
-.TH SPP-queue-work 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-queue-work 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-queue-work \- Starts a worker loop to process background jobs from the queue.
-.SH SYNOPSIS
-.B php spp.php queue:work
-[OPTIONS]
+queue:work
+.PP
+ \- Starts a worker loop to process background jobs from the queue.
 .SH DESCRIPTION
 Starts a worker loop to process background jobs from the queue.
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php queue:work [OPTIONS]
 .PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
 .br
+.PP
+.PP

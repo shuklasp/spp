@@ -10,6 +10,12 @@ class XdbListDbsCommand extends \SPP\CLI\Command
     protected string $name = 'xdb:list-dbs';
     protected string $description = 'List all available XDB databases';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         try {

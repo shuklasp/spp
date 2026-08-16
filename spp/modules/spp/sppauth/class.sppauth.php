@@ -153,7 +153,9 @@ class SPPAuth extends \SPP\SPPObject
      */
     public static function check(): bool
     {
-        return self::guard()->check();
+        $guard = self::guard();
+        file_put_contents(SPP_BASE_DIR . '/api_debug.log', "[" . date('Y-m-d H:i:s') . "] SPPAuth::check called, guard is " . get_class($guard) . "\n", FILE_APPEND);
+        return $guard->check();
     }
 
     /**

@@ -9,6 +9,12 @@ class QueueListCommand extends Command
     protected string $name = 'queue:list';
     protected string $description = 'List all jobs currently in the queue';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

@@ -1,33 +1,7 @@
-.TH ENV:MODE 1 "June 2026" "SPP CLI 0.5" "SPP Framework Manual"
+.TH "env:mode" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-env:mode \- Switch the global environment error reporting mode between dev (Ignition errors) and prod (500 pages)
+env:mode \- Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
 .SH SYNOPSIS
-.B php spp/spp.php env:mode
-.RI [ dev | prod ]
+.B php spp.php env:mode
 .SH DESCRIPTION
-The
-.B env:mode
-command provides developers and system administrators with a seamless, high-speed mechanism to toggle the active error reporting behavior of the SPP framework.
-.PP
-When running an application locally in
-.B dev
-mode, developers need complete transparency into fatal exceptions, stack traces, and variable states. In staging or production environments,
-.B prod
-mode ensures that exposing stack traces is strictly blocked, presenting clean, secure 500 error pages instead.
-.SH OPTIONS
-.TP
-.B dev
-Sets debug: true in the global configuration. Activates the highly expressive, premium Ignition-style developer dashboard featuring interactive stack traces, dynamic code snippets, request context inspection, and AI-powered actionable solutions.
-.TP
-.B prod
-Sets debug: false in the global configuration. Deactivates debug view and activates clean, secure, user-friendly 500 Internal Server Error pages.
-.SH UNDER THE HOOD
-1. Inspects spp/etc/global-settings.yml to confirm existence and write permissions.
-.br
-2. Enforces strict CLI-only execution via isCLIOnly() to guarantee the command cannot be executed or exploited via web requests.
-.br
-3. Uses robust regular expressions to dynamically update or append the debug directive inside the YAML configuration file.
-.br
-4. Changes take effect immediately across all active applications without requiring web server restarts.
-.SH AUTHOR
-Satya Prakash Shukla <shuklasp@gmail.com> & SPP Core Architecture Team
+Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)

@@ -1,16 +1,20 @@
-.TH SPP-bridge-call 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-bridge-call 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-bridge-call \- Internal RPC bridge to invoke PHP methods from Polyglot clients
-.SH SYNOPSIS
-.B php spp.php bridge:call
-[OPTIONS]
+bridge:call
+.PP
+ \- Internal RPC bridge to invoke PHP methods from Polyglot clients
 .SH DESCRIPTION
 Internal RPC bridge to invoke PHP methods from Polyglot clients
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php bridge:call [OPTIONS]
 .PP
-\(bu Instantiates key components: \ReflectionMethod.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Instantiates internal components: \ReflectionMethod.
 .br
+.PP
+.PP

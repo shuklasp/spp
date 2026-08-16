@@ -9,6 +9,12 @@ class DBSettingsExportCommand extends Command
     protected string $name = 'dbsettings:export';
     protected string $description = 'Export SPP module DB settings to JSON';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

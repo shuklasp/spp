@@ -1,16 +1,17 @@
 ## `deploy:history`
 
-**Description**: 
+**Purpose**: 
 
 ### Synopsis
 ```bash
 php spp.php deploy:history [OPTIONS]
 ```
 
-### Options
-- `--key=` : Expects a value. Extracted via static analysis from DeployHistoryCommand.php
+### Options Available
+- `--key=` : Expects a value. Extracted via static analysis.
+- `--status` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

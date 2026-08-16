@@ -16,6 +16,12 @@ class ModuleInstallCommand extends Command
         return 'Install or upgrade a specific module or all active modules';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $all = in_array('--all', $args);

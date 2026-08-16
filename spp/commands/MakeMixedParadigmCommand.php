@@ -13,6 +13,12 @@ class MakeMixedParadigmCommand extends BaseMakeCommand
     protected string $name = 'make:mixed-paradigm';
     protected string $description = 'Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

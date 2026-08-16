@@ -1,16 +1,16 @@
 ## `module:setting:update`
 
-**Description**: Update a configuration setting for a specific module
+**Purpose**: Update a configuration setting for a specific module
 
 ### Synopsis
 ```bash
 php spp.php module:setting:update [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Executes native PHP logic without major side-effects or external dependencies.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Executes native PHP logic without major side-effects.
 

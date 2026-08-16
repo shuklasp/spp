@@ -22,6 +22,12 @@ class XdbMakeMigrationCommand extends Command
         return 'Create a new SPP_XDB migration file';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;

@@ -8,6 +8,12 @@ class FormCrudCommand extends BaseElementCommand
     protected string $name = 'form:crud';
     protected string $description = 'Manage SPP forms (list, create, edit, delete)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $this->handleCrud('form', $args);

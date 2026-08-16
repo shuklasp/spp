@@ -22,7 +22,7 @@ module.exports = {
     async handle(args) {
         // Example: Native back-communication to PHP
         // const setting = spp.getConfig('app_name');
-        // const phpResult = spp.callPhp('App\\Services\\NativeService', 'someMethod', ['hello']);
+        // const phpResult = spp.callPhp('App\Services\NativeService', 'someMethod', ['hello']);
 
         return {
             status: "success",

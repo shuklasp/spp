@@ -1,17 +1,17 @@
 ## `middleware:list`
 
-**Description**: List the middleware pipeline for an app
+**Purpose**: List the middleware pipeline for an app
 
 ### Synopsis
 ```bash
 php spp.php middleware:list [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from MiddlewareListCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
-- Instantiates key components: \ReflectionClass.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
+- Instantiates internal components: \ReflectionClass.
 

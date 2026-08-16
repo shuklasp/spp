@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployPlanCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -38,72 +40,77 @@ class DeployPlanCommand extends Command
             $localDbHashes = $dbScanner->scan();
         }
 
-        echo "📡 Fetching remote diff from {$target}...\n";
-        $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
+        try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
+            echo "📡 Fetching remote diff from {$target}...\n";
+            $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
 
-        if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
-            echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
-            return;
-        }
+            if (!isset($diffResp['status']) || $diffResp['status'] !== 'ok') {
+                echo "❌ Error computing diff: " . ($diffResp['message'] ?? 'Unknown error') . "\n";
+                return;
+            }
 
-        $diff = $diffResp['diff'];
-        $fileCount = count($diff['files']['create']) + count($diff['files']['update']) + count($diff['files']['delete']);
-        $dbCount = count($diff['db']['create']) + count($diff['db']['update']) + count($diff['db']['delete']);
+            $diff = $diffResp['diff'];
+            $fileCount = count($diff['files']['create']) + count($diff['files']['update']) + count($diff['files']['delete']);
+            $dbCount = count($diff['db']['create']) + count($diff['db']['update']) + count($diff['db']['delete']);
 
-        if ($fileCount === 0 && $dbCount === 0) {
-            echo "✅ Everything is up to date. No deployment necessary.\n";
-            return;
-        }
+            if ($fileCount === 0 && $dbCount === 0) {
+                echo "✅ Everything is up to date. No deployment necessary.\n";
+                return;
+            }
 
-        echo "\n==================== PRE-FLIGHT PLAN ====================\n";
-        echo "FILES:\n";
-        echo "  Created : " . count($diff['files']['create']) . "\n";
-        echo "  Updated : " . count($diff['files']['update']) . "\n";
-        echo "  Deleted : " . count($diff['files']['delete']) . "\n";
-        if (count($diff['files']['delete']) > 0) {
-            echo "  Files to be removed: \n    - " . implode("\n    - ", $diff['files']['delete']) . "\n";
-        }
+            echo "\n==================== PRE-FLIGHT PLAN ====================\n";
+            echo "FILES:\n";
+            echo "  Created : " . count($diff['files']['create']) . "\n";
+            echo "  Updated : " . count($diff['files']['update']) . "\n";
+            echo "  Deleted : " . count($diff['files']['delete']) . "\n";
+            if (count($diff['files']['delete']) > 0) {
+                echo "  Files to be removed: \n    - " . implode("\n    - ", $diff['files']['delete']) . "\n";
+            }
 
-        echo "\nDATABASE:\n";
-        echo "  Created : " . count($diff['db']['create']) . "\n";
-        echo "  Updated : " . count($diff['db']['update']) . "\n";
-        echo "  Deleted : " . count($diff['db']['delete']) . "\n";
+            echo "\nDATABASE:\n";
+            echo "  Created : " . count($diff['db']['create']) . "\n";
+            echo "  Updated : " . count($diff['db']['update']) . "\n";
+            echo "  Deleted : " . count($diff['db']['delete']) . "\n";
 
-        if ($dbCount > 0) {
-            echo "\n⚠️  PROPOSED SQL STATEMENTS (To be executed on target):\n";
-            echo str_repeat("-", 50) . "\n";
+            if ($dbCount > 0) {
+                echo "\n⚠️  PROPOSED SQL STATEMENTS (To be executed on target):\n";
+                echo str_repeat("-", 50) . "\n";
 
-            if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
-                $db = new \SPPMod\SPPDB\SPPDB();
-                $pdo = $db->getPDO();
-                if ($pdo) {
-                    $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
-                    foreach (['create', 'update'] as $action) {
-                        foreach ($diff['db'][$action] as $table) {
-                            if ($driver === 'sqlite') {
-                                $stmt = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'")->fetch(\PDO::FETCH_ASSOC);
-                                if ($stmt && isset($stmt['sql'])) {
-                                    echo "DROP TABLE IF EXISTS `{$table}`;\n";
-                                    echo $stmt['sql'] . ";\n\n";
-                                }
-                            } elseif ($driver === 'mysql') {
-                                $stmt = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
-                                if ($stmt && isset($stmt['Create Table'])) {
-                                    echo "DROP TABLE IF EXISTS `{$table}`;\n";
-                                    echo $stmt['Create Table'] . ";\n\n";
+                if (class_exists('\\SPPMod\\SPPDB\\SPPDB')) {
+                    $db = new \SPPMod\SPPDB\SPPDB();
+                    $pdo = $db->getPDO();
+                    if ($pdo) {
+                        $driver = $pdo->getAttribute(\PDO::ATTR_DRIVER_NAME);
+                        foreach (['create', 'update'] as $action) {
+                            foreach ($diff['db'][$action] as $table) {
+                                if ($driver === 'sqlite') {
+                                    $stmt = $pdo->query("SELECT sql FROM sqlite_master WHERE type='table' AND name='{$table}'")->fetch(\PDO::FETCH_ASSOC);
+                                    if ($stmt && isset($stmt['sql'])) {
+                                        echo "DROP TABLE IF EXISTS `{$table}`;\n";
+                                        echo $stmt['sql'] . ";\n\n";
+                                    }
+                                } elseif ($driver === 'mysql') {
+                                    $stmt = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
+                                    if ($stmt && isset($stmt['Create Table'])) {
+                                        echo "DROP TABLE IF EXISTS `{$table}`;\n";
+                                        echo $stmt['Create Table'] . ";\n\n";
+                                    }
                                 }
                             }
                         }
-                    }
-                    foreach ($diff['db']['delete'] as $table) {
-                        echo "DROP TABLE IF EXISTS `{$table}`;\n\n";
+                        foreach ($diff['db']['delete'] as $table) {
+                            echo "DROP TABLE IF EXISTS `{$table}`;\n\n";
+                        }
                     }
                 }
+                echo str_repeat("-", 50) . "\n";
             }
-            echo str_repeat("-", 50) . "\n";
-        }
 
-        echo "\n💡 This is a dry run. Nothing has been deployed.\n";
+            echo "\n💡 This is a dry run. Nothing has been deployed.\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
+        }
     }
 
     public function getName(): string

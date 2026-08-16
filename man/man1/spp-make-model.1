@@ -1,20 +1,24 @@
-.TH SPP-make-model 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-model 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-make-model \- Create a new model class (Fluent-ready)
-.SH SYNOPSIS
-.B php spp.php make:model
-[OPTIONS]
+make:model
+.PP
+ \- Create a new model class (Fluent-ready)
 .SH DESCRIPTION
 Create a new model class (Fluent-ready)
 .PP
+.SH SYNOPSIS
+php spp.php make:model [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php make:model <name> [--app=appname] [--table=tablename]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+No static options detected for this command.
 .PP
-\(bu Instantiates key components: model.
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Instantiates internal components: model.
 .br
+.PP
+.PP

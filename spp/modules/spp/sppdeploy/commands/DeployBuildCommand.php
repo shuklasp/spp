@@ -5,6 +5,8 @@ use SPP\CLI\Command;
 
 class DeployBuildCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -44,6 +46,7 @@ class DeployBuildCommand extends Command
         }
 
         try {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::acquireDeploymentLock();
             echo "📡 Fetching remote diff from {$target}...\n";
             $diffResp = $conn->getDiff(['files' => $localHashes, 'db' => $localDbHashes]);
 
@@ -132,6 +135,8 @@ class DeployBuildCommand extends Command
 
         } catch (\Exception $e) {
             echo "❌ Fatal Error: " . $e->getMessage() . "\n";
+        } finally {
+            \SPPMod\SPPDeploy\Deployer\TargetConnection::releaseDeploymentLock();
         }
     }
 

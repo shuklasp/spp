@@ -1,16 +1,16 @@
 ## `interdb:config`
 
-**Description**: Get or set the interdb operating mode
+**Purpose**: Get or set the interdb operating mode
 
 ### Synopsis
 ```bash
 php spp.php interdb:config [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+- `--mappings` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
 

@@ -14,9 +14,15 @@ class ForgeCommand extends Command
     protected string $name = 'forge';
     protected string $description = 'Unified automation and LiveSync engine';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $sub = $args[2] ?? 'help';
+        $sub = $this->getArgument($args, 0) ?? 'help';
 
         switch ($sub) {
             case 'module':
@@ -45,8 +51,8 @@ class ForgeCommand extends Command
 
     private function forgeMigration(array $args): void
     {
-        $mod = $args[3] ?? null;
-        $ver = $args[4] ?? null;
+        $mod = $this->getArgument($args, 1) ?? null;
+        $ver = $this->getArgument($args, 2) ?? null;
 
         if (!$mod || !$ver) {
             echo "Error: Module name and version required. Usage: php spp forge migration <module> <version>\n";
@@ -73,7 +79,7 @@ class ForgeCommand extends Command
 
     private function compileModules(array $args): void
     {
-        $app = $args[3] ?? \SPP\Scheduler::getContext() ?: 'default';
+        $app = $this->getArgument($args, 1) ?? \SPP\Scheduler::getContext() ?: 'default';
         echo "📦 Compiling module manifests for context [{$app}]...\n";
 
         $compiler = new \SPP\Core\ModuleCompiler($app);
@@ -151,7 +157,7 @@ class ForgeCommand extends Command
 
     private function forgeModule(array $args): void
     {
-        $name = $args[3] ?? null;
+        $name = $this->getArgument($args, 1) ?? null;
         if (!$name) {
             echo "Error: Module name required. Usage: php spp forge module <name>\n";
             return;
@@ -178,7 +184,7 @@ class ForgeCommand extends Command
     private function forgeComponent(array $args): void
     {
         // Reuse MakeUXComponentCommand logic but modernized
-        $name = $args[3] ?? null;
+        $name = $this->getArgument($args, 1) ?? null;
         if (!$name) {
             echo "Error: Component name required. Usage: php spp forge component <name>\n";
             return;

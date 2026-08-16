@@ -39,7 +39,16 @@ class FeatureManager
 
         // 1. Evaluate Automated Telemetry Kill Switch
         if (class_exists('\\SPPMod\\SPPReport\\Services\\OpenTelemetryExporter')) {
-            $recentErrors = OpenTelemetryExporter::getErrorCount($flagName);
+            static $errorCache = [];
+            $currentTime = time();
+            if (!isset($errorCache[$flagName]) || ($currentTime - $errorCache[$flagName]['time']) > 10) {
+                $errorCache[$flagName] = [
+                    'count' => OpenTelemetryExporter::getErrorCount($flagName),
+                    'time' => $currentTime
+                ];
+            }
+            $recentErrors = $errorCache[$flagName]['count'];
+            
             if ($recentErrors >= $flag['kill_switch_threshold_errors']) {
                 // Telemetry Kill Switch Triggered! Automatically disable feature to protect production
                 self::$flags[$flagName]['enabled'] = false;

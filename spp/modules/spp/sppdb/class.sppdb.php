@@ -685,7 +685,9 @@ class SPPDB
                 if (
                     stripos($message, 'Duplicate column') !== false ||
                     stripos($message, 'already exists') !== false ||
-                    stripos($message, 'Multiple primary key defined') !== false
+                    stripos($message, 'Multiple primary key defined') !== false ||
+                    stripos($message, 'UNIQUE') !== false ||
+                    stripos($message, 'NOT NULL') !== false
                 ) {
                     continue;
                 }

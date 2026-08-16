@@ -1,7 +1,7 @@
 <?php
 namespace SPP\CLI\Commands;
 
-use SPP\Core\WorkflowManager;
+use SPPMod\SPPWorkflow\SPPWorkflowManager;
 
 class WorkflowDumpCommand extends \SPP\CLI\Command
 {
@@ -22,26 +22,54 @@ class WorkflowDumpCommand extends \SPP\CLI\Command
 
     public function execute(array $args): void
     {
-        $workflowKey = $args[0] ?? null;
-        if (!$workflowKey) {
-            echo "Error: Please specify a workflow key (e.g. node.article or expense).\n";
-            return;
-        }
+        require_once SPP_MODULES_DIR . '/spp/sppworkflow/src/WorkflowManager.php';
+        $workflowKey = $this->getArgument($args, 0) ?? null;
+
 
         $format = 'mermaid';
+        $filePath = null;
         foreach ($args as $arg) {
             if (str_starts_with($arg, '--format=')) {
                 $format = substr($arg, 9);
             }
+            if (str_starts_with($arg, '--file=')) {
+                $filePath = substr($arg, 7);
+            }
         }
 
-        $parts = explode('.', $workflowKey);
-        $entityType = $parts[0];
-        $bundle = $parts[1] ?? 'default';
+        $workflow = null;
+        
+        if ($filePath) {
+            if (!file_exists($filePath)) {
+                echo "Error: File not found '{$filePath}'.\n";
+                return;
+            }
+            if (!class_exists('\Symfony\Component\Yaml\Yaml')) {
+                require_once SPP_APP_DIR . '/vendor/autoload.php';
+            }
+            $parsed = \Symfony\Component\Yaml\Yaml::parseFile($filePath);
+            
+            // If the user provided a key, find it inside the file
+            if ($workflowKey && isset($parsed[$workflowKey])) {
+                $workflow = $parsed[$workflowKey];
+            } else {
+                // Just grab the first workflow in the file
+                $workflow = reset($parsed);
+            }
+        } else {
+            if (!$workflowKey) {
+                echo "Error: Please specify a workflow key (e.g. node.article or expense) or a --file.\n";
+                return;
+            }
+            $parts = explode('.', $workflowKey);
+            $entityType = $parts[0];
+            $bundle = $parts[1] ?? 'default';
 
-        $workflow = WorkflowManager::getWorkflow($entityType, $bundle);
+            $workflow = SPPWorkflowManager::getWorkflow($entityType, $bundle);
+        }
+
         if (!$workflow) {
-            echo "Error: Workflow definition not found for '{$workflowKey}'.\n";
+            echo "Error: Workflow definition not found.\n";
             return;
         }
 

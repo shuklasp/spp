@@ -23,6 +23,12 @@ class ParikshakCommand extends Command
         return 'Runs Automated Evolutionary Testing (Parikshak) for the current application.';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         // Guard check for module activity

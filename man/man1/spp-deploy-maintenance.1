@@ -1,24 +1,27 @@
-.TH SPP-deploy-maintenance 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-maintenance 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-maintenance \- Toggle manual maintenance mode on a remote target or local environment
-.SH SYNOPSIS
-.B php spp.php deploy:maintenance
-[OPTIONS]
+deploy:maintenance
+.PP
+ \- Toggle manual maintenance mode on a remote target or local environment
 .SH DESCRIPTION
 Toggle manual maintenance mode on a remote target or local environment
 .PP
-.SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployMaintenanceCommand.php
-.TP
-.B --on
-Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
-.TP
-.B --off
-Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php deploy:maintenance [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--on` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--off` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP

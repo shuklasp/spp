@@ -1,6 +1,6 @@
 ## `xdb:make:migration`
 
-**Description**: Create a new SPP_XDB migration file
+**Purpose**: Create a new SPP_XDB migration file
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php xdb:make:migration <name_of_table>
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: SPP_XDB, MigrationManager.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: SPP_XDB, MigrationManager.
 

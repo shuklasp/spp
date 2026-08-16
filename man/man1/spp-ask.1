@@ -1,18 +1,24 @@
-.TH SPP-ask 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ask 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-ask \- Ask the SPP AI Mentor a question about the framework.
-.SH SYNOPSIS
-.B php spp.php ask
-[OPTIONS]
+ask
+.PP
+ \- Ask the SPP AI Mentor a question about the framework.
 .SH DESCRIPTION
 Ask the SPP AI Mentor a question about the framework.
 .PP
+.SH SYNOPSIS
+php spp.php ask [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php ask \
 .PP
 .SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Instantiates key components: \Exception, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+\(bu `--error` : Boolean flag or option. Extracted via static analysis.
 .br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+.br
+.PP
+.PP

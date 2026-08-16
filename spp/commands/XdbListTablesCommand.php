@@ -10,6 +10,12 @@ class XdbListTablesCommand extends \SPP\CLI\Command
     protected string $name = 'xdb:list-tables';
     protected string $description = 'List all tables in an XDB database';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $db = 'default';

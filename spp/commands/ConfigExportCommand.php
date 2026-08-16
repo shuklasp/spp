@@ -23,6 +23,11 @@ class ConfigExportCommand extends \SPP\CLI\Command
         return 'config:export';
     }
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function getDescription(): string
     {
         return 'Export database tables and global settings to SQL, SQLite, or XDB format';
@@ -102,14 +107,19 @@ class ConfigExportCommand extends \SPP\CLI\Command
         $sql .= "-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
 
         foreach ($tables as $table) {
-            $sql .= "-- Table: {$table}\n";
+            if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+                $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+            } else {
+                $safeTable = $table;
+            }
+            $sql .= "-- Table: {$safeTable}\n";
 
             // Get CREATE TABLE
-            $createResult = $db->execute_query("SHOW CREATE TABLE {$table}");
+            $createResult = $db->execute_query("SHOW CREATE TABLE {$safeTable}");
             if (!empty($createResult)) {
                 $createSql = $createResult[0]['Create Table'] ?? '';
                 if ($createSql) {
-                    $sql .= "DROP TABLE IF EXISTS {$table};\n";
+                    $sql .= "DROP TABLE IF EXISTS {$safeTable};\n";
                     $sql .= $createSql . ";\n\n";
                 }
             }
@@ -228,7 +238,8 @@ class ConfigExportCommand extends \SPP\CLI\Command
         // SQLite: settings stored in a special _spp_settings table
         elseif ($format === 'sqlite') {
             $sqlite = new \PDO('sqlite:' . $outFile);
-            $sqlite->exec("CREATE TABLE IF NOT EXISTS _spp_settings (key TEXT PRIMARY KEY, value TEXT)");
+            $settingsTable = \SPP\Core\SchemaValidator::escapeIdentifier('_spp_settings');
+            $sqlite->exec("CREATE TABLE IF NOT EXISTS {$settingsTable} (key TEXT PRIMARY KEY, value TEXT)");
             $sqlite->prepare("INSERT OR REPLACE INTO _spp_settings (key, value) VALUES (?, ?)")
                 ->execute(['global_settings_yml', $content]);
         }
@@ -287,8 +298,14 @@ class ConfigExportCommand extends \SPP\CLI\Command
             $cols[] = "id INTEGER PRIMARY KEY";
         }
 
+        if (class_exists('\\SPP\\Core\\SchemaValidator')) {
+            $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
+        } else {
+            $safeTable = $table;
+        }
+
         return [
-            'sqlite_create' => "CREATE TABLE IF NOT EXISTS {$table} (" . implode(', ', $cols) . ")"
+            'sqlite_create' => "CREATE TABLE IF NOT EXISTS {$safeTable} (" . implode(', ', $cols) . ")"
         ];
     }
 

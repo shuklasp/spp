@@ -6,6 +6,8 @@ use SPPMod\SPPDeploy\Deployer\TargetConnection;
 
 class DeployLogsCommand extends Command
 {
+    public function isCLIOnly(): bool { return true; }
+
     public function execute(array $args): void
     {
         $target = $args[2] ?? null;
@@ -31,42 +33,47 @@ class DeployLogsCommand extends Command
 
         $conn = TargetConnection::resolve($target, $apiKey);
 
-        echo "📡 Fetching remote logs from {$target}...\n";
+        try {
+            TargetConnection::acquireDeploymentLock();
+            echo "📡 Fetching remote logs from {$target}...\n";
 
-        // Initial fetch
-        $resp = $conn->getLogs(-1, $lines);
+            // Initial fetch
+            $resp = $conn->getLogs(-1, $lines);
 
-        if (!isset($resp['status']) || $resp['status'] !== 'ok') {
-            echo "❌ Error fetching logs: " . ($resp['message'] ?? 'Unknown error') . "\n";
-            return;
-        }
-
-        echo "📄 File: " . $resp['file'] . "\n";
-        echo str_repeat("-", 50) . "\n";
-
-        if (!empty($resp['content'])) {
-            echo $resp['content'];
-        }
-
-        if (!$tail) {
-            return;
-        }
-
-        $offset = (int) $resp['offset'];
-        echo "\n👀 Tailing log file (Press Ctrl+C to stop)...\n";
-        echo str_repeat("-", 50) . "\n";
-
-        while (true) {
-            sleep(2); // Poll every 2 seconds
-
-            $resp = $conn->getLogs($offset, 0);
-
-            if (isset($resp['status']) && $resp['status'] === 'ok') {
-                if (!empty($resp['content'])) {
-                    echo $resp['content'];
-                }
-                $offset = (int) $resp['offset'];
+            if (!isset($resp['status']) || $resp['status'] !== 'ok') {
+                echo "❌ Error fetching logs: " . ($resp['message'] ?? 'Unknown error') . "\n";
+                return;
             }
+
+            echo "📄 File: " . $resp['file'] . "\n";
+            echo str_repeat("-", 50) . "\n";
+
+            if (!empty($resp['content'])) {
+                echo $resp['content'];
+            }
+
+            if (!$tail) {
+                return;
+            }
+
+            $offset = (int) $resp['offset'];
+            echo "\n👀 Tailing log file (Press Ctrl+C to stop)...\n";
+            echo str_repeat("-", 50) . "\n";
+
+            while (true) {
+                sleep(2); // Poll every 2 seconds
+
+                $resp = $conn->getLogs($offset, 0);
+
+                if (isset($resp['status']) && $resp['status'] === 'ok') {
+                    if (!empty($resp['content'])) {
+                        echo $resp['content'];
+                    }
+                    $offset = (int) $resp['offset'];
+                }
+            }
+        } finally {
+            TargetConnection::releaseDeploymentLock();
         }
     }
 

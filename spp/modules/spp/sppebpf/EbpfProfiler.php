@@ -49,24 +49,33 @@ class EbpfProfiler
             throw new \InvalidArgumentException("eBPF Map '{$mapName}' does not exist.");
         }
 
-        // Simulate reading real-time kernel metrics
         if ($this->isRunning) {
+            $isLinux = php_uname('s') === 'Linux';
+            $hasBpf = extension_loaded('bpf') || (is_callable('shell_exec') && shell_exec('which bpftool'));
+
+            if ($isLinux && $hasBpf) {
+                // Real eBPF reading logic would go here in the future.
+                return [];
+            }
+
+            // Fallback to standard PHP metrics
             switch ($mapName) {
                 case 'syscall_latency_ns':
+                    $latencyNs = (int) ((microtime(true) - $_SERVER['REQUEST_TIME_FLOAT']) * 1000000000);
                     return [
-                        'p50' => random_int(1200, 2500),
-                        'p99' => random_int(8500, 15400),
-                        'sample_count' => random_int(50000, 120000)
+                        'p50' => $latencyNs,
+                        'p99' => $latencyNs,
+                        'sample_count' => 1
                     ];
                 case 'memory_alloc_bytes':
                     return [
-                        'total_allocated' => random_int(1024 * 1024 * 50, 1024 * 1024 * 500), // 50MB - 500MB
-                        'active_arenas' => random_int(2, 8)
+                        'total_allocated' => memory_get_usage(),
+                        'active_arenas' => 1
                     ];
                 case 'network_packet_drops':
                     return [
-                        'dropped_packets' => random_int(0, 3),
-                        'interface' => 'eth0'
+                        'dropped_packets' => 0,
+                        'interface' => 'lo'
                     ];
             }
         }

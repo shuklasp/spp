@@ -8,6 +8,9 @@ module:
   config: config.yml
   dependencies:
     - sppdb
+    - sppauth
+    - sppview
+    - drishyam
   settings:
     active:
       type: boolean

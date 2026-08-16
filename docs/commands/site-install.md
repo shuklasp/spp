@@ -1,18 +1,18 @@
 ## `site:install`
 
-**Description**: Initialize the database and load default configurations for a specific profile.
+**Purpose**: Initialize the database and load default configurations for a specific profile.
 
 ### Synopsis
 ```bash
 php spp.php site:install [OPTIONS]
 ```
 
-### Options
-- `--profile=` : Expects a value. Extracted via static analysis from SiteInstallCommand.php
+### Options Available
+- `--profile=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Interacts with the SPP database layer directly.
-- Performs raw filesystem modifications (create/write/delete).
-- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Interacts with the SPP relational database layer.
+- Performs direct filesystem modifications (create/write/delete).
+- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
 

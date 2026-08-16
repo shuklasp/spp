@@ -249,27 +249,7 @@ class SPPAdmin {
     // =============================================
 
     async checkAuth() {
-        // Auto-consume magic link if present
-        const urlParams = new URLSearchParams(window.location.search);
-        const magicToken = urlParams.get('magic_token');
-        if (magicToken) {
-            try {
-                const formData = new FormData();
-                formData.append('action', 'ConsumeMagicLink');
-                formData.append('token', magicToken);
-                const res = await this.apiPost(formData);
-                if (res.success) {
-                    window.history.replaceState({}, document.title, window.location.pathname); // clear token from URL
-                    this.notify('Magic link login successful', 'success');
-                    // proceed to normal checkAuth logic
-                } else {
-                    this.notify(res.message || 'Invalid magic link', 'error');
-                }
-            } catch (e) {
-                console.error("Magic link error:", e);
-            }
-        }
-
+        // Magic link removed
         try {
             const res = await this.api('check_auth');
             if (res.success) {
@@ -290,30 +270,6 @@ class SPPAdmin {
         }
     }
 
-    async sendMagicLink() {
-        const email = document.getElementById('magic_email').value.trim();
-        if (!email) {
-            this.notify('Please enter your email address.', 'error');
-            return;
-        }
-
-        try {
-            const formData = new FormData();
-            formData.append('action', 'SendMagicLink');
-            formData.append('email', email);
-            const res = await this.apiPost(formData);
-            if (res.success) {
-                this.notify('Magic link sent if the account exists.', 'success');
-                document.getElementById('magic_email').value = '';
-                document.getElementById('magic-email-group').style.display = 'none';
-                document.getElementById('btn-show-magic').style.display = 'block';
-            } else {
-                this.notify(res.message || 'Failed to send link', 'error');
-            }
-        } catch (e) {
-            this.notify('Connection error', 'error');
-        }
-    }
 
     updateUserDisplay(profile) {
         const nameDisplay = document.getElementById('user-display-name');

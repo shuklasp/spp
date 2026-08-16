@@ -1,20 +1,23 @@
-.TH SPP-storage-clean 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-storage-clean 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-storage-clean \- Clean up temporary files in storage
-.SH SYNOPSIS
-.B php spp.php storage:clean
-[OPTIONS]
+storage:clean
+.PP
+ \- Clean up temporary files in storage
 .SH DESCRIPTION
 Clean up temporary files in storage
 .PP
-.SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from StorageCleanCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php storage:clean [OPTIONS]
 .PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
 .br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

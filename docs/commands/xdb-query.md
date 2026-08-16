@@ -1,6 +1,6 @@
 ## `xdb:query`
 
-**Description**: Execute a SQL or XPath query on the XML database
+**Purpose**: Execute a SQL or XPath query on the XML database
 
 ### Synopsis
 ```bash
@@ -12,10 +12,10 @@ php spp.php xdb:query [OPTIONS]
 Usage: php spp xdb:query \
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: \Exception, \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
 

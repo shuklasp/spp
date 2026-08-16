@@ -29,9 +29,14 @@ class MakeAppCommand extends BaseMakeCommand
     protected string $name = 'make:app';
     protected string $description = 'Create a new SPP application context';
 
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $appName = $args[2] ?? null;
+        $appName = $this->getArgument($args, 0) ?? null;
         if (!$appName) {
             $appName = $this->prompt("Enter application name");
             if (!$appName) {
@@ -40,7 +45,7 @@ class MakeAppCommand extends BaseMakeCommand
             }
         }
 
-        $appType = $args[3] ?? null;
+        $appType = $this->getArgument($args, 1) ?? null;
         if (!$appType) {
             $types = ['mixed', 'sppux', 'blade', 'native', 'api', 'dropin'];
             echo "Available app types:\n";
@@ -60,13 +65,13 @@ class MakeAppCommand extends BaseMakeCommand
             $appType = strtolower($appType);
         }
 
-        $baseUrl = $args[4] ?? null;
+        $baseUrl = $this->getArgument($args, 2) ?? null;
         if (!$baseUrl) {
             $baseUrlInput = $this->prompt("Enter base URL", "/" . $appName);
             $baseUrl = !empty($baseUrlInput) ? $baseUrlInput : "/" . $appName;
         }
 
-        $tablePrefix = $args[5] ?? null;
+        $tablePrefix = $this->getArgument($args, 3) ?? null;
         if (!$tablePrefix) {
             $tablePrefixInput = $this->prompt("Enter table prefix", $appName . "_");
             $tablePrefix = !empty($tablePrefixInput) ? $tablePrefixInput : $appName . "_";

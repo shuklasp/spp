@@ -1,16 +1,20 @@
-.TH SPP-polyglot-list 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-polyglot-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-polyglot-list \- Discovers and tabulates all registered polyglot services
-.SH SYNOPSIS
-.B php spp.php polyglot:list
-[OPTIONS]
+polyglot:list
+.PP
+ \- Discovers and tabulates all registered polyglot services
 .SH DESCRIPTION
 Discovers and tabulates all registered polyglot services
 .PP
-.SH OPTIONS
-No explicit options statically detected.
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php polyglot:list [OPTIONS]
 .PP
-\(bu Instantiates key components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 .br
+.PP
+.PP

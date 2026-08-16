@@ -9,6 +9,12 @@ class AiProvidersCommand extends Command
     protected string $name = 'ai:providers';
     protected string $description = 'List all registered AI providers';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

@@ -9,6 +9,12 @@ class ViewPageListCommand extends Command
     protected string $name = 'view:page:list';
     protected string $description = 'List all registered pages/routes for an app';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

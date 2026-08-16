@@ -9,6 +9,12 @@ class ExtInstallCommand extends Command
     protected string $name = 'ext:install';
     protected string $description = 'Install an extension from a zip or directory';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $source = null;

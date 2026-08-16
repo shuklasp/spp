@@ -5,6 +5,12 @@ use SPP\CLI\Command;
 
 class DbVerifyCommand extends Command
 {
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "🗄️ Initializing SPP XDB MySQL Compatibility Verification Suite...\n";

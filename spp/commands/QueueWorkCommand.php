@@ -10,6 +10,12 @@ class QueueWorkCommand extends Command
     protected string $name = 'queue:work';
     protected string $description = 'Starts a worker loop to process background jobs from the queue.';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         echo "Starting SPP Queue Worker Daemon...\n";

@@ -9,6 +9,12 @@ class ViewServiceTestCommand extends Command
     protected string $name = 'view:service:test';
     protected string $description = 'Test an AJAX service endpoint from the CLI';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

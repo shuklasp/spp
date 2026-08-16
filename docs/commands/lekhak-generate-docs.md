@@ -1,16 +1,16 @@
 ## `lekhak:generate-docs`
 
-**Description**: Generates documentation nodes for SPP Core and Modules.
+**Purpose**: Generates documentation nodes for SPP Core and Modules.
 
 ### Synopsis
 ```bash
 php spp.php lekhak:generate-docs [OPTIONS]
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Instantiates key components: DocGen, LekhakNode.
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Instantiates internal components: DocGen, LekhakNode.
 

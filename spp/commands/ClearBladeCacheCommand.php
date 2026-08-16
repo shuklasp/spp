@@ -13,6 +13,12 @@ class ClearBladeCacheCommand extends Command
     protected string $name = 'blade:clear';
     protected string $description = 'Clear the compiled Blade view cache';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $cacheDir = SPP_APP_DIR . '/var/cache';

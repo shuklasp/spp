@@ -8,6 +8,12 @@ class EntityCrudCommand extends BaseElementCommand
     protected string $name = 'entity:crud';
     protected string $description = 'Manage SPP entities (list, create, edit, delete)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $this->handleCrud('entity', $args);

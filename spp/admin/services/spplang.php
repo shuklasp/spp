@@ -6,40 +6,69 @@
 
 if (!function_exists('live_spplang_get')) {
     function live_spplang_get($la, $p) {
-        $filters = [
-            'locale' => $p['locale'] ?? null,
-            'status' => $p['status'] ?? null,
-            'search' => $p['search'] ?? null
-        ];
-        $translations = \SPPMod\SPPLang\SPPLang::getTranslations($filters);
-        $la->setData(['translations' => $translations]);
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:spplang', ['get', '--payload' => json_encode($p), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
+}
 }
 
 if (!function_exists('live_spplang_save')) {
     function live_spplang_save($la, $p) {
-        $key = $p['key_code'] ?? '';
-        $locale = $p['locale'] ?? '';
-        $translation = $p['translation'] ?? '';
-        $status = $p['status'] ?? 'active';
-
-        if ($key === '' || $locale === '') {
-            return $la->setStatus('error')->notify("Key and locale are required.");
+        $res = \SPP\CLI\CommandManager::execute('admin:spplang', ['save', '--payload' => json_encode($p), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
         }
 
-        \SPPMod\SPPLang\SPPLang::saveTranslation($key, $locale, $translation, $status);
-        $la->notify("Translation saved successfully.");
-    }
+}
 }
 
 if (!function_exists('live_spplang_scan')) {
     function live_spplang_scan($la, $p) {
-        $locale = $p['locale'] ?? 'en';
-        $dir = dirname(SPP_BASE_DIR) . '/src';
-        $newlyAdded = \SPPMod\SPPLang\SPPLang::scanDirectory($dir, $locale);
-        
-        $count = count($newlyAdded);
-        $la->notify("Scan complete! Discovered {$count} new translation keys.", 'success');
-        $la->setData(['new_keys' => $newlyAdded]);
-    }
+        $res = \SPP\CLI\CommandManager::execute('admin:spplang', ['scan', '--payload' => json_encode($p), '--json' => '1']);
+        if ($res['success']) {
+            $data = json_decode($res['output'], true);
+            if (isset($data['success']) && !$data['success']) {
+                $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
+            } elseif (isset($data['modal'])) {
+                $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
+            } elseif (isset($data['message'])) {
+                $la->notify($data['message']);
+                if (!empty($data['closeModal'])) $la->closeModal();
+                if (!empty($data['refresh'])) $la->refresh();
+            } else {
+                $la->setData($data ?: []);
+            }
+        } else {
+            $la->setStatus('error')->notify($res['error']);
+        }
+
+}
 }

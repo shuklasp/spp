@@ -1,6 +1,6 @@
 ## `polyglot:worker`
 
-**Description**: Manage Polyglot persistent workers
+**Purpose**: Manage Polyglot persistent workers
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: spp polyglot:worker [start|stop|restart|status] <module> [<lang>]
 
 ```
 
-### Options
-No static options detected.
+### Options Available
+No static options detected for this command.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
 

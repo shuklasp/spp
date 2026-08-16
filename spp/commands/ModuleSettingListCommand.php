@@ -15,9 +15,15 @@ class ModuleSettingListCommand extends \SPP\CLI\Command
         return 'List all settings for a given module';
     }
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $modname = $args[2] ?? null;
+        $modname = $this->getArgument($args, 0) ?? null;
         if (!$modname) {
             echo "\033[31m[ERROR]\033[0m Module name required. Usage: spp module:setting:list <modname>\n";
             return;

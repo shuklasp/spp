@@ -3,9 +3,9 @@
 namespace SPPMod\SPPMigrate\Migrations;
 
 use SPPMod\SPPDB\SPPDB;
-use SPPMod\SPPMigrate\Migration;
+use SPPMod\SPPDB\Migration\SPPMigration;
 
-class CreateSppRouterTables extends Migration
+class CreateSppRouterTables extends SPPMigration
 {
     public function up(): void
     {

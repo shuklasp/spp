@@ -10,6 +10,12 @@ class CacheWarmupCommand extends Command
     protected string $name = 'cache:warmup';
     protected string $description = 'Warm up common application caches';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $appname = 'default';

@@ -1,28 +1,30 @@
-.TH SPP-ai-prompt 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ai-prompt 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-ai-prompt \- Send a prompt to the AI provider
-.SH SYNOPSIS
-.B php spp.php ai:prompt
-[OPTIONS]
+ai:prompt
+.PP
+ \- Send a prompt to the AI provider
 .SH DESCRIPTION
 Send a prompt to the AI provider
 .PP
+.SH SYNOPSIS
+php spp.php ai:prompt [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php ai:prompt \
 .PP
 .SH OPTIONS
-.TP
-.B --app=
-Expects a value. Extracted via static analysis from AiPromptCommand.php
-.TP
-.B --provider=
-Expects a value. Extracted via static analysis from AiPromptCommand.php
-.TP
-.B --model=
-Expects a value. Extracted via static analysis from AiPromptCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+\(bu `--app=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--provider=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--model=` : Expects a value. Extracted via static analysis.
+.br
 .PP
-\(bu Dynamically loads kernel modules: sppai.
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Dynamically loads SPP kernel modules: sppai.
 .br
-\(bu Bootstraps a full application execution context (Scheduler::withContext).
+\(bu Bootstraps a full application execution context via Scheduler.
 .br
+.PP
+.PP

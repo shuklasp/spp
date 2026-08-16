@@ -10,6 +10,12 @@ class InterdbConfigCommand extends Command
     protected string $name = 'interdb:config';
     protected string $description = 'Get or set the interdb operating mode';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $mode = null;

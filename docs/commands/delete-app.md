@@ -1,6 +1,6 @@
 ## `delete:app`
 
-**Description**: Delete an SPP application context and all its data (files, config, caches, views)
+**Purpose**: Delete an SPP application context and all its data (files, config, caches, views)
 
 ### Synopsis
 ```bash
@@ -13,14 +13,17 @@ Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]
 
 ```
 
-### Options
-- `--force` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
-- `--keep-db` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
-- `--dry-run` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+### Options Available
+- `--force` : Boolean flag or option. Extracted via static analysis.
+- `--keep-db` : Boolean flag or option. Extracted via static analysis.
+- `--dry-run` : Boolean flag or option. Extracted via static analysis.
+- `----force` : Boolean flag or option. Extracted via static analysis.
+- `----keep-db` : Boolean flag or option. Extracted via static analysis.
+- `----dry-run` : Boolean flag or option. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Performs raw filesystem modifications (create/write/delete).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Performs direct filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates key components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+- Instantiates internal components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 

@@ -1,18 +1,23 @@
-.TH SPP-deploy-backups 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-backups 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-backups \- List available snapshot backups on a remote target for rollback
-.SH SYNOPSIS
-.B php spp.php deploy:backups
-[OPTIONS]
+deploy:backups
+.PP
+ \- List available snapshot backups on a remote target for rollback
 .SH DESCRIPTION
 List available snapshot backups on a remote target for rollback
 .PP
-.SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployBackupsCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
+.SH SYNOPSIS
+php spp.php deploy:backups [OPTIONS]
 .PP
-\(bu Executes native PHP logic without major side-effects or external dependencies.
+.SH OPTIONS
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP

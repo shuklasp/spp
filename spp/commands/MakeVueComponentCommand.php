@@ -13,9 +13,15 @@ class MakeVueComponentCommand extends BaseMakeCommand
     protected string $name = 'make:vue-component';
     protected string $description = 'Scaffold a new Vue 3 component (ESM/No-build)';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $name = $args[2] ?? null;
+        $name = $this->getArgument($args, 0) ?? null;
 
         // Robust argument resolution
         foreach ($args as $arg) {

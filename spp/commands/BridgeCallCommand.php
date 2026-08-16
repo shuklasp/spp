@@ -12,11 +12,17 @@ class BridgeCallCommand extends Command
     protected string $name = 'bridge:call';
     protected string $description = 'Internal RPC bridge to invoke PHP methods from Polyglot clients';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
-        $class = $args[2] ?? null;
-        $method = $args[3] ?? null;
-        $argsJson = $args[4] ?? '[]';
+        $class = $this->getArgument($args, 0) ?? null;
+        $method = $this->getArgument($args, 1) ?? null;
+        $argsJson = $this->getArgument($args, 2) ?? '[]';
 
         if (!$class || !$method) {
             echo json_encode(['success' => false, 'error' => 'Class or method not provided']);

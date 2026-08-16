@@ -1,16 +1,17 @@
 ## `cache:stats`
 
-**Description**: Display cache driver statistics
+**Purpose**: Display cache driver statistics
 
 ### Synopsis
 ```bash
 php spp.php cache:stats [OPTIONS]
 ```
 
-### Options
-- `--app=` : Expects a value. Extracted via static analysis from CacheStatsCommand.php
+### Options Available
+- `--app=` : Expects a value. Extracted via static analysis.
 
-### Under the Hood
-Based on static analysis of the command's source code:
-- Bootstraps a full application execution context (Scheduler::withContext).
+### Under the Hood Activity
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+- Bootstraps a full application execution context via Scheduler.
+- Interacts with the application cache layer (Redis/Memcached).
 

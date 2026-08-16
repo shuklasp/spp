@@ -11,6 +11,12 @@ class MakeStreamCommand extends BaseMakeCommand
     protected string $name = 'make:stream';
     protected string $description = 'Scaffold a new external Turbo Stream template';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $name = null;
@@ -29,7 +35,7 @@ class MakeStreamCommand extends BaseMakeCommand
         }
 
         $context = $this->getContext($args);
-        $targetDir = $this->getTargetDir('pages/streams', $context);
+        $targetDir = SPP_APP_DIR . '/resources/views/partials';
         
         $fileName = $name;
         if (!preg_match('/\.(php|html|blade\.php)$/i', $fileName)) {

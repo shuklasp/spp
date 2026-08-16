@@ -9,6 +9,12 @@ class EnvBackupCommand extends Command
     protected string $name = 'env:backup';
     protected string $description = 'Backup all environment configurations';
 
+    
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
     public function execute(array $args): void
     {
         $backupDir = SPP_BASE_DIR . '/var/backups';

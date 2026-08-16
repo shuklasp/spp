@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace SPP\Core\Workflow;
 
 use SPP\Core\ResourceController;
-use SPP\Core\WorkflowManager;
+use SPPMod\SPPWorkflow\SPPWorkflowManager;
 use SPP\Core\Interfaces\WorkflowableInterface;
 use SPP\Exceptions\SPPException;
 
@@ -42,12 +42,11 @@ abstract class WizardController extends ResourceController
         $entity = $this->getWizardEntity();
         $initialState = $this->getInitialState();
 
-        if ($entity instanceof WorkflowableInterface) {
-            $entity->setWorkflowStatus($initialState);
-        } elseif (method_exists($entity, 'set')) {
-            $entity->set('status', $initialState);
-        } elseif (property_exists($entity, 'status') || isset($entity->status)) {
-            $entity->status = $initialState;
+        $contextData = ['comment' => 'Wizard started'];
+        if ($entity instanceof \SPPMod\SPPDB\SPPEntity || (class_exists('\\SPPMod\\SPPDB\\SPPEntity') && is_subclass_of($entity, '\\SPPMod\\SPPDB\\SPPEntity'))) {
+            $entity->applyTransition($initialState, null, 'Wizard started', $contextData);
+        } else {
+            \SPPMod\SPPWorkflow\SPPWorkflowManager::applyTransition($entity, $initialState, null, 'Wizard started', $contextData);
         }
         $this->saveWizardEntity($entity);
 
@@ -55,7 +54,7 @@ abstract class WizardController extends ResourceController
             return $this->renderPartial("partials/wizard_{$initialState}.html", [
                 'item' => $entity,
                 'current_step' => $initialState,
-                'next_steps' => WorkflowManager::getNextStates($this->entityType, $initialState, $this->bundle)
+                'next_steps' => SPPWorkflowManager::getNextStates($this->entityType, $initialState, $this->bundle)
             ]);
         }
 
@@ -64,7 +63,7 @@ abstract class WizardController extends ResourceController
             'data' => [
                 'item' => $entity,
                 'current_step' => $initialState,
-                'next_steps' => WorkflowManager::getNextStates($this->entityType, $initialState, $this->bundle)
+                'next_steps' => SPPWorkflowManager::getNextStates($this->entityType, $initialState, $this->bundle)
             ]
         ];
     }
@@ -81,7 +80,7 @@ abstract class WizardController extends ResourceController
             return $this->renderPartial("partials/wizard_{$stepName}.html", [
                 'item' => $entity,
                 'current_step' => $stepName,
-                'next_steps' => WorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle)
+                'next_steps' => SPPWorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle)
             ]);
         }
 
@@ -90,7 +89,7 @@ abstract class WizardController extends ResourceController
             'data' => [
                 'item' => $entity,
                 'current_step' => $stepName,
-                'next_steps' => WorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle)
+                'next_steps' => SPPWorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle)
             ]
         ];
     }
@@ -118,7 +117,7 @@ abstract class WizardController extends ResourceController
 
         $nextState = $data['next_state'] ?? null;
         if (!$nextState) {
-            $validNexts = WorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle);
+            $validNexts = SPPWorkflowManager::getNextStates($this->entityType, $stepName, $this->bundle);
             $nextState = $validNexts[0] ?? null;
         }
 
@@ -126,23 +125,17 @@ abstract class WizardController extends ResourceController
             throw new SPPException("WizardController Error: No valid next state determined from step '{$stepName}'.");
         }
 
-        // Apply transition (triggers guards, events, audit history)
-        WorkflowManager::applyTransition($entity, $nextState, null, "Completed wizard step {$stepName}. Moving to {$nextState}.");
+        $contextData = [
+            'item' => $entity,
+            'current_step' => $nextState,
+            'next_steps' => SPPWorkflowManager::getNextStates($this->entityType, $nextState, $this->bundle),
+            'comment' => "Completed wizard step {$stepName}. Moving to {$nextState}."
+        ];
+
+        $response = $this->transitionEntity($entity, $nextState, $contextData, "partials/wizard_{$nextState}.html", "partials/wizard_{$stepName}.html");
         $this->saveWizardEntity($entity);
 
-        if ($this->isHtmx() || (isset($_SERVER['HTTP_TURBO_FRAME']) && $_SERVER['HTTP_TURBO_FRAME'])) {
-            return $this->renderPartial("partials/wizard_{$nextState}.html", [
-                'item' => $entity,
-                'current_step' => $nextState,
-                'next_steps' => WorkflowManager::getNextStates($this->entityType, $nextState, $this->bundle)
-            ]);
-        }
-
-        return [
-            'success' => true,
-            'current_step' => $nextState,
-            'message' => "Step {$stepName} completed successfully."
-        ];
+        return $response;
     }
 
     /**
@@ -153,28 +146,26 @@ abstract class WizardController extends ResourceController
         $entity = $this->getWizardEntity();
         $finalState = $this->getFinalState();
 
-        WorkflowManager::applyTransition($entity, $finalState, null, "Finished wizard.");
+        $contextData = [
+            'item' => $entity,
+            'comment' => "Finished wizard."
+        ];
+
+        $response = $this->transitionEntity($entity, $finalState, $contextData, "partials/wizard_complete.html", "partials/wizard_error.html");
         $this->saveWizardEntity($entity);
 
-        if ($this->isHtmx() || (isset($_SERVER['HTTP_TURBO_FRAME']) && $_SERVER['HTTP_TURBO_FRAME'])) {
-            return $this->renderPartial("partials/wizard_complete.html", ['item' => $entity]);
-        }
-
-        return [
-            'view' => 'wizard_complete',
-            'data' => ['item' => $entity]
-        ];
+        return $response;
     }
 
     protected function getInitialState(): string
     {
-        $workflow = WorkflowManager::getWorkflow($this->entityType, $this->bundle);
+        $workflow = SPPWorkflowManager::getWorkflow($this->entityType, $this->bundle);
         return $workflow['states'][0] ?? 'step_1';
     }
 
     protected function getFinalState(): string
     {
-        $workflow = WorkflowManager::getWorkflow($this->entityType, $this->bundle);
+        $workflow = SPPWorkflowManager::getWorkflow($this->entityType, $this->bundle);
         $states = $workflow['states'] ?? ['completed'];
         return end($states);
     }

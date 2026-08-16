@@ -1,25 +1,29 @@
-.TH SPP-deploy-rollback 1 "27 June 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-rollback 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-spp-deploy-rollback \- Roll back a remote target to a specific snapshot backup ID
-.SH SYNOPSIS
-.B php spp.php deploy:rollback
-[OPTIONS]
+deploy:rollback
+.PP
+ \- Roll back a remote target to a specific snapshot backup ID
 .SH DESCRIPTION
 Roll back a remote target to a specific snapshot backup ID
 .PP
+.SH SYNOPSIS
+php spp.php deploy:rollback [OPTIONS]
+.PP
+.SH EXTENDED USAGE
 Usage: php spp.php deploy:rollback [target_uri] <backup_id> [--key=YOUR_API_KEY] [--force]
-.br
-
+.PP
 .PP
 .SH OPTIONS
-.TP
-.B --key=
-Expects a value. Extracted via static analysis from DeployRollbackCommand.php
-.TP
-.B --force
-Boolean flag. Extracted via static analysis from DeployRollbackCommand.php
-.SH UNDER THE HOOD
-Static analysis reveals the following runtime behaviors:
-.PP
-\(bu Performs raw filesystem modifications (create/write/delete).
+\(bu `--key=` : Expects a value. Extracted via static analysis.
 .br
+\(bu `--force` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+.PP
+.PP
