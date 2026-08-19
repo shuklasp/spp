@@ -2,45 +2,93 @@
 
 ## Chapter 12 — Your First SPP Application
 
-**Evidence:** `documentation/framework/application-development.md`, `documentation/framework/booting-and-app-loading.md`, `spp/commands/MakeAppCommand.php`, `spp/core/class.app.php`, `spp/core/class.scheduler.php`.
+**Evidence:** `documentation/framework/application-development.md`, `documentation/framework/booting-and-app-loading.md`, `spp/commands/MakeAppCommand.php`, `spp/core/class.app.php`, `spp/core/class.scheduler.php`, `spp/core/class.container.php`.
 
-This chapter is for a developer who has **never used SPP before**.
+This chapter assumes something unusual:
 
-The goal is not to teach a fictional "Hello World" API. It is to teach the real SPP mental model and then build an application using the same concepts that production SPP applications use.
+> **You know programming, but you have never used a software framework.**
 
----
-
-## 12.1 First, forget the usual framework mental model
-
-In many PHP frameworks, the first idea is:
-
-> "I have one application, and a request enters that application."
-
-SPP starts from a slightly different model:
-
-> "The runtime can host multiple named applications, and the Scheduler selects the active application context."
-
-That distinction explains several SPP concepts that otherwise look unusual.
-
-| SPP concept | What it means | Beginner interpretation |
-|---|---|---|
-| Scheduler | Chooses the active application context | "Which application am I running?" |
-| App | Runtime representation of one application | "My application object" |
-| Registry | Runtime data + service-container access | "Framework-wide runtime toolbox" |
-| Module | Reusable feature unit | "A framework-recognized feature package" |
-| Event system | Hook/dispatch mechanism | "Tell other code that something happened" |
-| SPPView | Presentation layer | "How my application produces UI" |
-| LiveComponent | Server-side reactive component | "A stateful PHP UI component" |
-| SPP Live | Live transport/runtime engines | "How the browser talks to live components" |
-| SPPUX | Client-side reactive runtime | "JavaScript-side state and UI runtime" |
-
-You do not need to understand all of these on day one. The handbook introduces them in layers.
+That means we will not start with an SPP command and tell you to trust it. First we will explain what the framework is doing for you, then we will build the smallest useful application, and then we will connect each file to the runtime architecture you have already learned.
 
 ---
 
-## 12.2 What an SPP application looks like on disk
+## 12.1 What is an application?
 
-The repository documentation supports a self-contained application layout such as:
+At the programming-language level, an application can be as simple as a PHP file:
+
+```php
+<?php
+
+echo 'Hello';
+```
+
+But a real web application needs much more than one script:
+
+- configuration;
+- URL handling;
+- reusable code;
+- input validation;
+- security checks;
+- database access;
+- templates;
+- logging;
+- tests; and
+- a way to organize growing features.
+
+An **application framework** supplies infrastructure for those recurring problems so your application code can concentrate more on what the system actually does.
+
+SPP adds another important idea: one runtime can contain multiple named `App` objects, with the Scheduler selecting the active application context.
+
+---
+
+## 12.2 What makes an SPP application different?
+
+Think about a deployment like this:
+
+```text
+One SPP runtime
+   ├── school application
+   ├── reporting application
+   └── administration application
+```
+
+Each application can have its own configuration, modules, services, views, and runtime directories.
+
+The Scheduler answers:
+
+> **Which application is active right now?**
+
+The application object answers:
+
+> **What configuration and services belong to that application?**
+
+That is the first SPP concept you should understand before building anything.
+
+---
+
+## 12.3 The SPP building blocks you will use
+
+| Building block | Beginner meaning |
+|---|---|
+| `App` | Runtime object representing one application |
+| Scheduler | Chooses the active application context |
+| Registry | Framework runtime data and metadata store |
+| Container | Resolves services and dependencies |
+| Module | Framework-recognized feature boundary |
+| Middleware | Logic wrapped around request processing |
+| Event | Extension point or runtime occurrence |
+| SPPView | Server-side presentation layer |
+| LiveComponent | Stateful PHP UI component |
+| SPP Live | Live transport/runtime |
+| SPPUX | Browser-side reactive runtime |
+
+You do not have to use all of them in the first application. In fact, good architecture often means **not** using a subsystem until it solves a real problem.
+
+---
+
+## 12.4 Where an SPP application lives on disk
+
+The repository's application-development guide supports a self-contained application structure such as:
 
 ```text
 src/myapp/
@@ -72,17 +120,31 @@ src/myapp/
   var/
 ```
 
-There is also a supported split-layout style in which application configuration lives under `etc/apps/myapp` while application source lives under `src/myapp`.
+A split layout is also supported, where configuration is kept under something like:
 
-For a new project, the self-contained layout is easier to understand because the application is visibly one unit.
+```text
+etc/apps/myapp
+```
+
+while source remains under:
+
+```text
+src/myapp
+```
+
+For a first project, the self-contained layout is usually easier to understand because application code and configuration are visibly grouped together.
 
 ---
 
-## 12.3 The file that makes the application discoverable
+## 12.5 `app.yml`: telling SPP that the application exists
 
-The central application definition is `etc/app.yml` inside the application source tree for the self-contained layout.
+The most important file for application discovery is:
 
-A minimal example from the repository's application-development guidance is:
+```text
+src/myapp/etc/app.yml
+```
+
+A minimal configuration from the repository's application-development documentation looks like:
 
 ```yaml
 base_url: /myapp
@@ -95,99 +157,76 @@ var_path: var
 app_init: init.php
 ```
 
-The exact meaning of the important fields is:
+Think of the file as the application's identity card.
 
-| Field | Meaning |
+It tells SPP things such as:
+
+| Key | Meaning |
 |---|---|
-| `base_url` | URL prefix used to identify the application context |
-| `etc_path` | Application configuration directory |
-| `src_path` | Application source directory |
-| `modules_path` | Application-local module directory |
-| `var_path` | Application runtime data/cache area |
-| `app_init` | Application initialization file |
+| `base_url` | URL prefix associated with the application |
+| `etc_path` | Configuration location |
+| `src_path` | Source-code location |
+| `modules_path` | Application-local modules |
+| `var_path` | Runtime data/cache area |
+| `app_init` | Application initialization script |
 
-You do not have to specify every possible path key when starting. SPP resolves the application paths from its configuration model.
+Not every possible application-path setting has to be written for a minimal application. The `App` class supplies path-resolution logic and defaults.
 
 ---
 
-## 12.4 How SPP discovers the application
+## 12.6 How the framework discovers your application
 
-At startup, `App::getGlobalSettings()` can discover applications by scanning application definitions under the configured application source tree. The application-development guide documents the `src/*/etc/app.yml` convention.
+At startup, SPP loads application settings and can discover applications by looking under the application source tree for definitions such as:
 
-At a high level:
+```text
+src/myapp/etc/app.yml
+```
+
+The high-level discovery model is:
 
 ```mermaid
 flowchart TD
-    A[SPP startup] --> B[Read application settings]
+    A[SPP startup] --> B[Load application settings]
     B --> C[Discover application definitions]
     C --> D[Create App objects]
-    D --> E[Register with Scheduler]
-    E --> F[Select active context]
+    D --> E[Register applications with Scheduler]
+    E --> F[Choose active context]
 ```
 
-The important beginner takeaway is that **`app.yml` describes the application to the runtime**. It is not merely documentation.
+The important point is that `app.yml` is executable configuration. It is not just documentation for humans.
 
 ---
 
-## 12.5 The Scheduler: answering "which app am I in?"
+## 12.7 Step one: create the directory structure
 
-Once an application exists, SPP needs a current application context.
-
-The Scheduler provides that boundary.
-
-```php
-$context = \SPP\Scheduler::getContext();
-```
-
-The active application object can be obtained with:
-
-```php
-$app = \SPP\App::getApp();
-```
-
-This pair of calls is useful when learning SPP because they answer two different questions:
-
-- **What is the active application name?** → `Scheduler::getContext()`
-- **What is the active application object?** → `App::getApp()`
-
-The distinction becomes important once one SPP runtime hosts more than one application.
-
----
-
-## 12.6 Why application context matters
-
-Imagine one SPP deployment hosting:
-
-```text
-/myapp
-/admin
-/reporting
-```
-
-These can represent different SPP applications or application contexts rather than three unrelated installations.
-
-The Scheduler can switch context explicitly through `setContext()` and can temporarily execute work in another context through `withContext()`.
-
-That does **not** mean the applications are operating-system processes. The term "process" in SPP's Scheduler refers to registered `App` runtime objects.
-
----
-
-## 12.7 Create the smallest useful application
-
-For the first tutorial, use this structure:
+Create the smallest useful application structure:
 
 ```text
 src/myapp/
   etc/app.yml
   init.php
   resources/views/
-  serv/
   services/
+  serv/
   tests/
   var/
 ```
 
-Create `src/myapp/etc/app.yml`:
+You can add forms, modules, commands, entities, events, and other directories as the application grows.
+
+Do not create twenty empty directories on day one merely because a framework can support them.
+
+---
+
+## 12.8 Step two: create `app.yml`
+
+Create:
+
+```text
+src/myapp/etc/app.yml
+```
+
+Use the documented minimal configuration:
 
 ```yaml
 base_url: /myapp
@@ -200,22 +239,68 @@ var_path: var
 app_init: init.php
 ```
 
-Create `src/myapp/init.php`:
+Now the framework has enough information to understand the application's identity and path model.
+
+---
+
+## 12.9 Step three: create `init.php`
+
+Create:
+
+```text
+src/myapp/init.php
+```
+
+Start with:
 
 ```php
 <?php
 // Application-specific lightweight bootstrap code.
 ```
 
-At this point the application has an identity and a place in the SPP runtime model, even though it contains no business feature yet.
+The application-development guide recommends keeping this initialization lightweight.
+
+Use it for small application-specific initialization tasks, not as a giant replacement for services/modules/events.
+
+A practical rule is:
+
+> **If `init.php` keeps growing, the code probably belongs in a dedicated framework/application subsystem.**
 
 ---
 
-## 12.8 Add application business logic as a service
+## 12.10 Step four: understand the active application
 
-Do not put all business logic into the application class.
+Once SPP has discovered applications, the Scheduler selects one active context.
 
-The repository's application-development guide recommends using services for reusable business logic, orchestration, integrations, and workflows.
+You can inspect it with:
+
+```php
+$context = \SPP\Scheduler::getContext();
+```
+
+And obtain the active application object with:
+
+```php
+$app = \SPP\App::getApp();
+```
+
+These are deliberately different APIs.
+
+`Scheduler::getContext()` answers:
+
+> What application name is active?
+
+`App::getApp()` answers:
+
+> Give me the runtime `App` object for that context.
+
+---
+
+## 12.11 Step five: add business logic as a service
+
+Do not put all application behavior directly in controllers or the `App` subclass.
+
+The repository's application-development guidance recommends services for reusable business logic, orchestration, integrations, and workflows.
 
 Create:
 
@@ -239,21 +324,21 @@ class SiteService
 }
 ```
 
-The important architectural lesson is not the method itself. It is the separation:
+This is intentionally simple. The architectural point is more important than the method:
 
 ```text
-Application
-    └── Service
-         └── Business behavior
+Application runtime
+        ↓
+Application service
+        ↓
+Business behavior
 ```
-
-The application class is a runtime boundary; the service is a business-code boundary.
 
 ---
 
-## 12.9 Resolve the service through SPP
+## 12.12 Step six: resolve the service through the application runtime
 
-The application-development guide demonstrates resolving services through the application container:
+The application-development guide demonstrates application-level service resolution through the application container:
 
 ```php
 $service = \SPP\App::getApp()->make(
@@ -263,17 +348,15 @@ $service = \SPP\App::getApp()->make(
 echo $service->title();
 ```
 
-This is where the Registry/IoC architecture becomes useful to an application developer.
+This is where the dependency-injection concepts from Chapter 3 become practical.
 
-You do not manually construct every dependency everywhere. You ask the application's runtime to resolve a service.
-
-The deeper container mechanics are documented in [Chapter 3 — Registry and IoC Container](03-registry-and-container.md).
+Instead of every caller deciding how to construct `SiteService`, the application runtime can resolve it.
 
 ---
 
-## 12.10 Add a request-facing class
+## 12.13 Step seven: add a request-facing class
 
-The repository commonly uses `serv/` for request-facing handlers/controllers.
+The repository commonly uses `serv/` for request-facing classes.
 
 For example:
 
@@ -281,7 +364,7 @@ For example:
 src/myapp/serv/HomeController.php
 ```
 
-A simple class can call the service layer:
+A simple handler can depend on the application service:
 
 ```php
 <?php
@@ -303,7 +386,7 @@ class HomeController
 }
 ```
 
-The application container can resolve class-typed parameters when the method is invoked through the app's `call()` helper:
+The application container can resolve class-typed parameters when the method is called through the app's `call()` helper:
 
 ```php
 $app = \SPP\App::getApp();
@@ -314,31 +397,19 @@ $html = $app->call([
 ]);
 ```
 
-This is a useful SPP pattern:
-
-```text
-Request-facing class
-        ↓
-Application service
-        ↓
-Business logic
-```
-
-The layers are not mandatory for a tiny script, but the separation becomes valuable as the application grows.
+This gives the application a clean separation between request-facing code and reusable business logic.
 
 ---
 
-## 12.11 Add a view
+## 12.14 Step eight: add the first view
 
-SPP's presentation subsystem is larger than one template engine. SPPView includes view compilation/rendering, ViewTags, PHP components, forms, validation, assets, and LiveComponent integration.
-
-For the first tutorial, keep the view simple:
+Create:
 
 ```text
 src/myapp/resources/views/home.blade.php
 ```
 
-For example:
+For a simple first page:
 
 ```blade
 <!doctype html>
@@ -353,175 +424,267 @@ For example:
 </html>
 ```
 
-At this point it is useful to remember that Blade syntax is only one layer of the SPP presentation stack. The framework-facing layer is documented in [Chapter 6 — SPPView, Extended BladeOne, and Drishyam](06-sppview-and-bladeone.md).
+This is where many developers first meet Blade syntax.
+
+Remember that Chapter 6 already explained an important distinction:
+
+> **Blade syntax is one part of SPPView, not the entire SPP presentation subsystem.**
 
 ---
 
-## 12.12 Plain PHP first, framework second
+## 12.15 What you have built so far
 
-For learning purposes, implement the same behavior once without SPP.
+At this point, the application has four logical layers:
 
-### Plain PHP version
+```mermaid
+flowchart TB
+    A[Application context] --> B[Request-facing class]
+    B --> C[Application service]
+    C --> D[Business behavior]
+    B --> E[Presentation]
+```
+
+This is still a tiny application. That is intentional.
+
+The goal is to understand what each layer is responsible for before adding modules, events, middleware, reactive state, and external integrations.
+
+---
+
+## 12.16 The same page in plain PHP
+
+Before moving further, compare the framework version with plain PHP:
 
 ```php
 <?php
 
 $title = 'My App';
 
-echo '<h1>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>';
+echo '<!doctype html>';
+echo '<html lang="en">';
+echo '<head><title>'
+    . htmlspecialchars($title, ENT_QUOTES, 'UTF-8')
+    . '</title></head>';
+echo '<body><h1>'
+    . htmlspecialchars($title, ENT_QUOTES, 'UTF-8')
+    . '</h1></body></html>';
 ```
 
-The point of this exercise is not to prove that SPP is always shorter. It is to make the framework responsibilities visible.
+Neither version is “wrong”.
 
-In plain PHP, you must decide yourself:
-
-- where configuration is stored;
-- how application context is selected;
-- how services are constructed;
-- how routing is organized;
-- how templates are located;
-- how middleware is applied;
-- how events are discovered;
-- how reusable modules are loaded; and
-- how live UI behavior is transported.
-
-SPP provides infrastructure for those concerns.
+The framework becomes valuable when the application contains enough infrastructure that repeatedly building and maintaining all of that plumbing becomes expensive.
 
 ---
 
-## 12.13 Then use the SPP runtime
+## 12.17 What SPP gives you as the application grows
 
-The same simple page now has explicit framework roles:
-
-| Responsibility | SPP layer |
+| Problem that appears later | SPP subsystem |
 |---|---|
-| Application identity | `App` + `app.yml` |
-| Active context | `Scheduler` |
-| Service resolution | Application/Registry container |
-| Feature packaging | Modules |
-| Cross-cutting hooks | Events + middleware |
-| Rendering | SPPView / rendering modules |
-| Reactive server UI | LiveComponent |
+| Many application contexts | Scheduler |
+| Runtime metadata | Registry |
+| Object construction/dependencies | Container |
+| Cross-cutting request logic | Middleware |
+| Decoupled extension points | Events |
+| Feature ownership and dependencies | Modules |
+| Structured presentation | SPPView |
+| Server-reactive state | LiveComponent |
 | Live transport | SPP Live |
-| Client reactive UI | SPPUX |
+| Browser-local reactivity | SPPUX |
+| Other runtimes/apps | Integration/polyglot subsystem |
 
-The benefit is not that every application needs every subsystem. The benefit is that the same architectural pieces are available when the application grows.
-
----
-
-## 12.14 Where modules enter the picture
-
-Once the application has real features, feature boundaries should not all become giant application folders.
-
-SPP modules provide a framework-recognized unit containing things such as:
-
-- manifest metadata;
-- dependencies;
-- configuration;
-- included files;
-- services;
-- events; and
-- other module contributions.
-
-Application-local modules can live under the application's `modules` directory. Reusable framework modules live in the framework module tree.
-
-Read [Chapter 5 — Module Discovery, Manifests, and Compiled Registry](05-modules-and-manifests.md) before building a large module.
+This is the real reason to learn framework architecture: each subsystem exists because some category of problem eventually appears.
 
 ---
 
-## 12.15 When LiveComponent should enter the application
+## 12.18 Add middleware only when you need cross-cutting request behavior
 
-Do **not** make every page a LiveComponent.
+Suppose every request in an application must verify a condition.
 
-Start with normal server rendering and introduce LiveComponent where the UI contains a meaningful interactive stateful region, such as:
+Putting that check into every controller is repetitive and easy to forget.
 
-- a filterable table;
-- a multi-step form;
-- a progress display;
-- a live search box;
-- an interactive dashboard widget.
+That is where middleware becomes appropriate.
 
-The implementation provides explicit lifecycle methods, public state hydration/dehydration, computed values, event dispatch, lazy/isolated rendering, streaming, and validation support.
+SPP's middleware system can combine global framework middleware, global YAML-configured middleware, application middleware, and route/component-specific middleware depending on the dispatch path.
 
-That makes LiveComponent an evolutionary step rather than a replacement for the entire SPPView stack.
+Do not add middleware merely because “enterprise applications have middleware”. Add it when a concern genuinely wraps request processing.
+
+See Chapter 14 for the detailed middleware path.
 
 ---
 
-## 12.16 When SPPUX should enter the application
+## 12.19 Add events when a feature should announce an occurrence
 
-SPPUX is a **client-side runtime**. It is not the same thing as LiveComponent.
-
-Use SPPUX when a region benefits from local browser-side reactivity, scheduling, templates, event delegation, or DOM reconciliation.
-
-The distinction is fundamental:
+Suppose `StudentService` creates a student and several independent features should react:
 
 ```text
-LiveComponent
-    PHP / server state
-
-SPPUX
-    JavaScript / client state
+student created
+   ├── audit
+   ├── notification
+   └── search indexing
 ```
 
-The two can be integrated through the SPPUX bridge/live environment, but they remain separate runtimes.
+Calling all three services directly couples the creator to every consumer.
+
+An SPP event can provide a cleaner extension point.
+
+This is why events belong after you understand services and before you start building complex module interactions.
 
 ---
 
-## 12.17 The application you will build through this handbook
+## 12.20 Add a module when a feature becomes a real boundary
 
-The full tutorial will use one realistic application and evolve it in stages:
+A module is useful when a feature has its own:
+
+- manifest;
+- dependencies;
+- configuration;
+- services;
+- events;
+- views/assets; or
+- lifecycle/installation requirements.
+
+Do not turn every class into a module.
+
+A service is often enough for a small piece of application behavior.
+
+A module becomes valuable when the feature needs a **framework-recognized boundary**.
+
+---
+
+## 12.21 When the normal page is no longer enough
+
+Eventually the application might need an interactive region:
+
+```text
+Student search
+
+Type: “Anita”
+
+Results update without rebuilding the entire page.
+```
+
+That is a good place to introduce LiveComponent.
+
+The application does not need to become “100% LiveComponent”.
+
+Keep ordinary SPPView rendering for ordinary pages and use LiveComponent for the parts that genuinely benefit from server-driven interactivity.
+
+---
+
+## 12.22 When browser-side state becomes useful
+
+Now imagine a dashboard widget where the user changes local display options many times without needing a server decision.
+
+That can be a good place for SPPUX.
+
+The architecture becomes:
 
 ```mermaid
 flowchart LR
-    A[Plain PHP] --> B[SPP application]
-    B --> C[SPP modules and services]
-    C --> D[LiveComponent]
-    D --> E[SPP Live transport]
-    E --> F[SPPUX client runtime]
+    A[SPPView page] --> B[LiveComponent where server authority is needed]
+    A --> C[SPPUX where browser-local reactivity is useful]
+    B <--> D[SPP Live]
+    D <--> C
 ```
 
-The purpose is not to turn the final application into the most complicated architecture possible. At every stage, the handbook will ask:
-
-> What problem does this layer solve, and do we actually need it?
-
-That question is especially important in enterprise systems, where architecture should reduce operational risk rather than increase abstraction for its own sake.
+The important point is not “use both”. The important point is **choose the boundary intentionally**.
 
 ---
 
-## 12.18 What to learn next
+## 12.23 A practical development order
 
-After understanding this chapter, read the chapters in this order:
+For a new SPP application, a sensible learning/development sequence is:
 
-1. [Scheduler and application contexts](02-kernel-scheduler.md)
-2. [Registry and IoC container](03-registry-and-container.md)
-3. [Events and EventHandler](04-events-and-event-handlers.md)
-4. [Modules and manifests](05-modules-and-manifests.md)
-5. [SPPView and BladeOne integration](06-sppview-and-bladeone.md)
-6. [LiveComponent](07-livecomponent.md)
-7. [SPP Live transports](08-spp-live-transports.md)
-8. [SPPUX](09-sppux-runtime.md)
+1. Understand the application context.
+2. Create the application configuration.
+3. Add a small service.
+4. Add request-facing code.
+5. Render a simple view.
+6. Add middleware when a cross-cutting request concern appears.
+7. Add events when decoupled extension points appear.
+8. Introduce modules when feature ownership justifies them.
+9. Introduce LiveComponent for stateful interactive regions.
+10. Introduce SPP Live transport according to the deployment needs.
+11. Introduce SPPUX for client-side reactive behavior where it helps.
+12. Add polyglot/external integration only at an explicit system boundary.
 
-After those, the enterprise integration and total-nerd tracks become much easier to follow.
+This progression keeps the architecture understandable.
 
 ---
 
-## Kernel Hacker note
+## 12.24 Debugging your first application
 
-The important architectural lesson from the first application is the **direction of dependency**:
+When your first page does not work, do not immediately inspect the entire framework.
 
-```text
-Application context
-       ↓
-Framework runtime services
-       ↓
-Application services
-       ↓
-Request-facing code / components
-       ↓
-Presentation
-```
+Use the architecture as a checklist.
 
-The application should consume framework facilities; framework internals should not become accidental business-logic repositories.
+### Application not discovered
+
+Check `src/myapp/etc/app.yml` and application settings.
+
+### Wrong application selected
+
+Inspect `base_url` and the Scheduler context.
+
+### Service not resolved
+
+Inspect the application/Registry container and constructor dependencies.
+
+### Handler not reached
+
+Inspect routing/request dispatch and middleware.
+
+### View not found or renders incorrectly
+
+Inspect SPPView/compiler/locator behavior.
+
+### Live interaction fails
+
+Inspect LiveComponent first, then SPP Live transport.
+
+### Browser-side UI fails
+
+Inspect SPPUX rather than continuing to debug PHP rendering.
+
+That is what architectural boundaries are for: they narrow the search area when something breaks.
+
+---
+
+## 12.25 Coming from another framework
+
+### Laravel
+
+Map the SPP `App`, Scheduler, container, middleware, events, modules, SPPView, and LiveComponent concepts gradually rather than trying to find a one-to-one replacement for every Laravel class.
+
+### Symfony
+
+The application/container/middleware/event concepts will feel familiar, but SPP's multi-application Scheduler context is a distinctive part of the runtime.
+
+### Django
+
+Think in terms of an application/project architecture, but pay particular attention to SPP's explicit application objects and Scheduler context.
+
+### React/Vue
+
+Treat LiveComponent and SPPUX as separate server/client responsibilities. Do not bring a client-first architecture into PHP by default.
+
+---
+
+## 12.26 Kernel Hacker: from configuration to runtime
+
+For a self-contained application, the implementation path can involve:
+
+1. global settings discovery;
+2. dynamic `app.yml` discovery;
+3. application configuration merge;
+4. path normalization;
+5. custom application-class selection where applicable;
+6. `App` object creation;
+7. container creation;
+8. application registration with Scheduler;
+9. module initialization at the configured initialization level; and
+10. later request dispatch through the selected entry point.
+
+The beginner model intentionally compresses these details into “SPP discovers and initializes the application”. The advanced chapters unpack them when you need to understand exact execution order.
 
 ### Source map
 
