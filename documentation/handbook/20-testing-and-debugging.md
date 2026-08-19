@@ -2,84 +2,84 @@
 
 ## Chapter 20 — Testing, Debugging, and Source-Driven Diagnosis
 
-**Evidence:** `spp/tests/`, module tests, `docs/spp-cli-manual.md`, debugging utilities under `spp/core/`, and the framework/runtime classes referenced by the handbook.
+**Evidence:** `spp/tests/`, module tests, `docs/spp-cli-manual.md`, debugging utilities under `spp/core/`, and subsystem implementations.
 
-A framework can make an application easier to build, but it also makes the runtime larger. When something fails, the number of possible layers increases.
+A framework gives an application many useful layers. That also means a failure may come from several places.
 
-The answer is not to memorize every class.
+The solution is not to memorize the entire framework.
 
-The answer is to learn how to **reduce the problem to one subsystem at a time**.
+The solution is to learn how to reduce a problem to the smallest subsystem that can explain it.
 
 ---
 
 ## 20.1 What is a test?
 
-A test is a repeatable program that checks whether a piece of behavior gives the expected result.
+A test is a repeatable program that checks expected behavior.
 
-For example:
+For a simple function:
 
 ```php
 assert(2 + 2 === 4);
 ```
 
-Real application tests are more useful because they verify application behavior:
+A useful application test is closer to:
 
 ```text
 Given a logged-in user
-When the user submits a valid request
-Then the service returns the expected result
+When the user creates a valid task
+Then the task is persisted
+And the expected event is triggered
 ```
 
-SPP's repository contains framework and module test suites. Those tests are important documentation because executable tests show what the code is expected to do.
+SPP contains framework and module tests. Those tests are also valuable documentation because they record behaviors the project actively checks.
 
 ---
 
-## 20.2 Why source and tests both matter
+## 20.2 Source versus tests versus documentation
 
-The source tells us **what the program currently does**.
+Use three kinds of evidence differently:
 
-Tests tell us **what behavior the project is actively asserting**.
+| Evidence | What it tells you |
+|---|---|
+| Source | What the current implementation does |
+| Tests | What behavior is actively asserted |
+| Documentation | How the project explains or intends the feature to be used |
 
-When documenting a framework feature, use both.
+When they disagree, executable source and tests deserve priority for claims about current behavior.
 
 ```mermaid
 flowchart LR
-    A[Framework behavior] --> B[Source code]
-    A --> C[Tests and fixtures]
-    B --> D[Handbook explanation]
-    C --> D
+    A[Current framework behavior] --> B[Source]
+    A --> C[Tests]
+    A --> D[Project documentation]
+    B --> E[Canonical handbook]
+    C --> E
+    D --> E
 ```
-
-A repository document can still be useful, but when an old document conflicts with executable behavior, the source/tests should win.
 
 ---
 
-## 20.3 Start debugging from the symptom
+## 20.3 Do not debug the whole framework
 
-Do not begin by reading the entire framework.
-
-Suppose the symptom is:
-
-```text
-The browser shows a 403 response.
-```
+Suppose the browser returns `403 Forbidden`.
 
 Possible causes include:
 
-- authentication middleware;
-- route middleware;
+- authentication;
 - authorization;
-- an application event;
-- a controller/service decision; or
-- an external integration response.
+- global middleware;
+- route middleware;
+- application logic;
+- an event listener; or
+- an external integration.
 
-The correct first move is to identify the earliest layer that could produce the symptom.
+The first task is to identify the earliest layer capable of producing that symptom.
 
 ---
 
 ## 20.4 The SPP debugging ladder
 
-A useful debugging order is:
+Use the runtime boundaries as a diagnostic ladder:
 
 ```mermaid
 flowchart TD
@@ -87,55 +87,58 @@ flowchart TD
     B --> C[Configuration and modules]
     C --> D[Middleware and events]
     D --> E[Route and handler]
-    E --> F[Service and database]
+    E --> F[Service and storage]
     F --> G[Rendering or live runtime]
-    G --> H[Browser-side SPPUX]
+    G --> H[Browser runtime]
     H --> I[External integration]
 ```
 
-Do not jump to the bottom of the stack when the failure is caused near the top.
+If the wrong application is selected, debugging the template is premature.
+
+If the PHP service is correct but the browser DOM is wrong, debugging the database is probably premature.
 
 ---
 
-## 20.5 Example: the wrong application is handling the request
+## 20.5 Wrong application context
 
-If `/reports` is displaying the wrong site's output, do not begin debugging the template.
-
-First check:
+If `/reports` shows output from the wrong application, start with:
 
 ```php
 \SPP\Scheduler::getContext();
 ```
 
-Then inspect the application's `base_url` configuration and the Scheduler context-detection path.
+Then inspect:
 
-Only after the correct application context is confirmed should route and rendering debugging begin.
+- application `base_url` configuration;
+- application discovery;
+- context detection; and
+- context-enforcement/route-resolution events.
+
+Only after the correct application is selected should route debugging begin.
 
 ---
 
-## 20.6 Example: the service cannot be resolved
+## 20.6 Service resolution failures
 
-If an exception says that a service cannot be created, inspect the dependency-injection layer before debugging the controller.
-
-Ask:
+If the container cannot construct a service, ask:
 
 1. Does the class exist?
-2. Is the class instantiable?
-3. Are constructor parameters class-typed and resolvable?
+2. Is it instantiable?
+3. Are constructor dependencies typed and resolvable?
 4. Is an explicit binding required?
-5. Is the application container the one you expected?
+5. Are you resolving through the intended application/container?
 
-Chapter 3 explains the actual `Container::resolve()` behavior in detail.
+Chapter 3 traces the actual SPP resolution path, including reflection and recursive typed-dependency resolution.
 
 ---
 
-## 20.7 Example: a middleware stops the request
+## 20.7 Middleware short-circuiting
 
-A middleware can intentionally short-circuit a request.
+A middleware can return a response instead of calling `$next()`.
 
-Therefore a missing controller log does not necessarily mean routing failed.
+Therefore, if a controller never logs anything, the controller may be innocent.
 
-Add temporary diagnostics before and after `$next()` in the relevant middleware:
+A temporary diagnostic wrapper can be useful:
 
 ```php
 error_log('before middleware');
@@ -144,194 +147,195 @@ error_log('after middleware');
 return $response;
 ```
 
-If `before` appears but `after` does not, the nested pipeline did not return normally. That immediately narrows the search.
+If the first message appears and the second does not, the nested pipeline did not return normally.
 
 ---
 
-## 20.8 Example: an event does not run
+## 20.8 Event listener failures
 
-When an event listener fails to execute, check these layers in order:
+Use this checklist:
 
 | Question | Layer |
 |---|---|
 | Is the event defined? | Event definition/configuration |
-| Was the event system booted? | `SPPEvent::boot()` |
+| Was `SPPEvent::boot()` completed? | Event runtime |
 | Was the listener discovered? | YAML/attribute discovery |
-| Is the listener registered? | Listener registry |
+| Was it registered? | Listener registry |
 | Was propagation stopped? | `EventParams` |
-| Did the listener throw? | Listener execution |
+| Did listener execution throw? | Listener body |
 
-This is more effective than repeatedly changing the listener code itself.
+This narrows the search much faster than repeatedly changing listener code.
 
 ---
 
-## 20.9 Example: a view is missing
+## 20.9 View failures
 
-A view problem can exist at several levels:
+A missing or broken view can fail at several distinct stages:
 
 ```text
-Wrong application source directory
-        ↓
-Wrong configured view path
-        ↓
-View router/locator failure
-        ↓
-Compiler failure
-        ↓
-Template execution failure
+Application path
+    ↓
+View location
+    ↓
+View compilation
+    ↓
+Template execution
+    ↓
+Final response
 ```
 
-First determine which level failed.
+SPPView treats location, compilation, and rendering as related but distinct responsibilities.
 
-The SPPView chapter explains the distinction between locating a view, compiling a view, and executing a view.
+That distinction also matters for LiveComponent, whose render result can pass through SPPView compilation/execution paths.
 
 ---
 
-## 20.10 Example: LiveComponent works initially but not later
+## 20.10 LiveComponent initial render versus later interaction
 
-That symptom is highly diagnostic.
+A useful diagnostic clue is:
 
-If the initial page renders but a later component action fails, the server-side initial rendering path is probably working.
+> The component renders initially, but clicking a button later fails.
 
-The next suspects are:
+The initial render has already demonstrated that the PHP component and render path can execute.
 
-1. browser live request generation;
+Focus next on:
+
+1. browser request generation;
 2. SPP Live transport;
-3. component state hydration/signature validation;
-4. component action execution; and
-5. response/update handling.
+3. state hydration/signature validation;
+4. action execution; and
+5. update response handling.
 
-This is why the LiveComponent and SPP Live layers are documented separately.
+This is why LiveComponent and SPP Live are separate handbook chapters.
 
 ---
 
-## 20.11 Example: SPPUX state is wrong
+## 20.11 SPPUX failures
 
-If PHP and LiveComponent state appear correct but the browser UI is wrong, move the investigation into SPPUX.
+If the server-side state is correct but the browser shows the wrong UI, move into the SPPUX layers:
 
-The relevant runtime areas include:
-
-- reactive signals/computed state;
+- signals/computed state;
 - scheduler/batching;
 - event delegation;
-- templates; and
+- template creation; and
 - DOM reconciliation.
 
-Do not automatically debug the PHP controller for a client-side reconciliation bug.
+A client-side reconciliation problem should not automatically send you back to the PHP controller.
 
 ---
 
-## 20.12 Query logging and performance diagnosis
+## 20.12 Database/query diagnosis
 
-Where the framework provides query logging, enable it during controlled diagnostics.
+When query logging is available, use it during controlled performance investigation.
 
-SPP XDB, for example, has query logging support through `SPP_XDB::enableQueryLog()` and `getQueryLog()`.
+For example, `SPP_XDB` exposes:
 
-The useful question is not simply:
-
-> “Is the database slow?”
-
-It is:
-
-> “Which query took how long, with which parameters, and how often was it executed?”
-
-That turns a vague performance complaint into measurable evidence.
-
----
-
-## 20.13 Cache-related debugging
-
-Caching introduces another diagnostic possibility: the application may be correct but displaying an old cached value.
-
-When debugging stale output, ask:
-
-1. Is the data source correct?
-2. Is cache enabled?
-3. What cache key is used?
-4. How long is the cache valid?
-5. Is the relevant tag invalidated after a mutation?
-
-Never rewrite business logic simply to hide a caching bug.
-
----
-
-## 20.14 Testing at the right layer
-
-A healthy SPP project uses different tests for different responsibilities.
-
-| Test type | What it should prove |
-|---|---|
-| Unit test | One class/rule behaves correctly |
-| Service test | Application behavior works with dependencies |
-| Integration test | Framework/database/module boundaries work together |
-| Route test | Request dispatch reaches expected behavior |
-| UI/live test | Rendering and live interaction behave correctly |
-| End-to-end test | A complete user journey works |
-
-Not every feature needs every test type.
-
-The goal is to put a failure near the smallest layer that can explain it.
-
----
-
-## 20.15 Test data and fixtures
-
-A test should not depend on uncontrolled production data.
-
-Use deterministic fixtures or controlled setup so that:
-
-```text
-same input + same environment
-        ↓
-repeatable result
+```php
+SPP_XDB::enableQueryLog();
+$log = SPP_XDB::getQueryLog();
 ```
 
-This is especially important for:
+The useful question is not “Is the database slow?” but:
 
-- permissions;
-- workflows;
-- database queries;
-- module configuration; and
-- LiveComponent state.
+> Which query executed, how long did it take, and how often did it run?
+
+Measured evidence is far more useful than guessing.
 
 ---
 
-## 20.16 Debug mode
+## 20.13 Cache debugging
 
-The SPP bootstrap has explicit debug behavior and runtime log facilities. Debug output is useful during development but should be reviewed before being enabled in a public production environment.
+When output is stale, distinguish:
 
-A production debugging system should avoid exposing:
+```text
+Wrong source data
+```
+
+from:
+
+```text
+Correct source data + stale cached result
+```
+
+Check:
+
+1. whether caching is enabled;
+2. which key is used;
+3. lifetime/expiration;
+4. relevant invalidation tags; and
+5. whether a mutation invalidated the affected entries.
+
+Do not rewrite business logic to compensate for an unexamined caching problem.
+
+---
+
+## 20.14 Test at the smallest useful layer
+
+A healthy test strategy uses different scopes for different questions:
+
+| Test | What it should prove |
+|---|---|
+| Unit | One class or rule behaves correctly |
+| Service/integration | Application logic and dependencies cooperate |
+| Route | Request dispatch reaches the expected destination |
+| Live/UI | Rendering and interaction work |
+| End-to-end | A complete user journey succeeds |
+|
+
+Not every feature needs every test type. The goal is diagnostic precision: a failing test should tell you which boundary failed.
+
+---
+
+## 20.15 Deterministic test data
+
+A test should not depend on uncontrolled production state.
+
+Prefer controlled fixtures and explicit setup so that the same input gives the same expected result.
+
+This matters particularly for:
+
+- roles and permissions;
+- workflows;
+- database records;
+- module configuration; and
+- component state.
+
+---
+
+## 20.16 Debug mode and production safety
+
+Debug behavior can expose useful diagnostic information during development.
+
+Before enabling broad debug output in production, review whether it can reveal:
 
 - passwords;
 - authentication tokens;
-- cookies;
-- internal secrets; and
-- sensitive user data.
+- cookies/session state;
+- internal service information; or
+- personal data.
 
-The SPP source itself contains debug logging in several security/runtime classes, so deployment logging configuration deserves deliberate review.
+The repository contains debug logging inside runtime/security components, so logging configuration must be treated as an operational concern, not merely a developer convenience.
 
 ---
 
-## 20.17 The “one layer at a time” rule
+## 20.17 The one-layer-at-a-time rule
 
-When debugging a complex SPP application, use this discipline:
+When debugging a difficult application, use this sequence:
 
 ```text
 Confirm context
-→ confirm config
-→ confirm module
-→ confirm middleware/event
+→ confirm configuration
+→ confirm modules
+→ confirm middleware/events
 → confirm route
 → confirm handler
 → confirm service
 → confirm storage
 → confirm rendering/live runtime
-→ confirm browser/runtime integration
+→ confirm browser integration
 ```
 
-Do not change five layers at once.
-
-Otherwise, when the problem disappears you will not know which change actually solved it.
+Change one layer at a time. Otherwise, when the problem disappears you may not know which change solved it.
 
 ---
 
@@ -339,25 +343,25 @@ Otherwise, when the problem disappears you will not know which change actually s
 
 ### Laravel / Symfony
 
-The debugging strategy is similar: identify the first framework layer that can explain the symptom, then inspect the next layer only after the first is known-good.
+The diagnostic strategy is similar: find the first framework layer that can explain the symptom, then move downward only after it is known-good.
 
 ### Django
 
-Think in the same way: URL dispatch, middleware, view, service/data layer, template, and browser behavior are separate debugging surfaces.
+Think in terms of application selection, middleware, URL dispatch, view/service, data access, template, and browser behavior.
 
-### React/Vue
+### React / Vue
 
-The important extra distinction in SPP is that client-side SPPUX and server-side LiveComponent are different runtimes. A browser symptom does not automatically imply a PHP problem.
+SPP adds a crucial server/client distinction: LiveComponent runs server-side PHP, while SPPUX runs in the browser. A browser symptom does not automatically imply a PHP bug.
 
 ---
 
 ## Kernel Hacker note
 
-The most valuable debugging skill in SPP is **boundary recognition**.
+SPP debugging becomes tractable when the runtime is treated as a set of boundaries rather than one framework object.
 
-The runtime is deliberately modular: Scheduler, App, Registry, Module, SPPEvent, MiddlewareKernel, SPPView, LiveComponent, SPP Live, SPPUX, database adapters, and integration bridges each own different responsibilities.
+Scheduler, App, Registry, Module, SPPEvent, MiddlewareKernel, SPPView, LiveComponent, SPP Live, SPPUX, database adapters, and integration bridges each have a different responsibility.
 
-When a failure is classified into the correct boundary, the source search becomes dramatically smaller.
+When the symptom is assigned to the correct boundary, source search becomes dramatically smaller.
 
 ### Source map
 
@@ -365,4 +369,4 @@ When a failure is classified into the correct boundary, the source search become
 - `spp/core/`
 - `spp/modules/spp/`
 - `docs/spp-cli-manual.md`
-- subsystem-specific test suites and diagnostics
+- subsystem-specific tests and diagnostics
