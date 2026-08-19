@@ -45,6 +45,7 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 
 - [00 — Research status and learning order](00-handbook-status.md)
 - [50 — Frameworks 101: from plain PHP to SPP](50-frameworks-101-and-how-spp-builds-on-them.md)
+- [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [04 — Framework Concept → SPP Feature Map](04-framework-to-spp-concept-map.md)
 - [01 — Introduction to SPP](01-getting-started.md)
 - [02 — Scheduler and application contexts](02-kernel-scheduler.md)
@@ -123,6 +124,10 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [47 — SPPUX: Browser Runtime](47-sppux-browser-runtime-from-zero.md)
 - [48 — Polyglot, IPC, and External Applications](48-polyglot-ipc-and-external-application-architecture.md)
 - [49 — Multi-Application Enterprise Architecture and Deployment](49-multi-application-enterprise-deployment.md)
+- [66 — Same Problem, Multiple SPP Solutions](66-same-problem-multiple-spp-solutions.md)
+- [67 — SPP Architecture Anti-Patterns and Common Mistakes](67-architecture-antipatterns-and-mistakes.md)
+- [68 — How to Read the SPP Source](68-reading-the-spp-source.md)
+- [69 — Enterprise Reference Case Study](69-enterprise-reference-case-study.md)
 
 ### Learning, lab, and coverage maps
 
@@ -152,31 +157,33 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 ```mermaid
 flowchart TD
     A[Frameworks 101] --> B[Framework Concept Map]
-    B --> C[30-minute SPP]
-    C --> D[Plain PHP and MVC]
-    D --> E[SPP application and context]
-    E --> F[Middleware]
-    F --> G[Events]
-    G --> H[Registry and dependency injection]
-    H --> I[Configuration]
-    I --> J[Routing paradigms]
-    J --> K[Modules and scaffolding]
-    K --> L[SPPView, BladeOne, Drishyam, forms]
-    L --> M[Entities, SPPDB, XDB]
-    M --> N[Identity, authentication, and web security]
-    N --> O[Parikshak]
-    O --> P[API]
-    P --> Q[Workflow]
-    Q --> R[Storage and transfer]
-    R --> S[Reporting, logging, and observability]
-    S --> T[Queue and Cron]
-    T --> U[SPPAI]
-    U --> V[LiveComponent]
-    V --> W[SPP Live]
-    W --> X[SPPUX]
-    X --> Y[Polyglot and IPC]
-    Y --> Z[Multiple applications]
-    Z --> AA[Production and enterprise capstone]
+    B --> C[SPP Mental Model]
+    C --> D[30-minute SPP]
+    D --> E[Plain PHP and MVC]
+    E --> F[SPP application and context]
+    F --> G[Middleware]
+    G --> H[Events]
+    H --> I[Registry and dependency injection]
+    I --> J[Configuration]
+    J --> K[Routing paradigms]
+    K --> L[Modules and scaffolding]
+    L --> M[SPPView, BladeOne, Drishyam, forms]
+    M --> N[Entities, SPPDB, XDB]
+    N --> O[Identity, authentication, and web security]
+    O --> P[Parikshak]
+    P --> Q[API]
+    Q --> R[Workflow]
+    R --> S[Storage and transfer]
+    S --> T[Reporting, logging, and observability]
+    T --> U[Queue and Cron]
+    U --> V[SPPAI]
+    V --> W[LiveComponent]
+    W --> X[SPP Live]
+    X --> Y[SPPUX]
+    Y --> Z[Polyglot and IPC]
+    Z --> AA[Multiple applications]
+    AA --> AB[Anti-patterns and architecture choices]
+    AB --> AC[Production and enterprise case study]
 ```
 
 ## Mandatory learning rule
