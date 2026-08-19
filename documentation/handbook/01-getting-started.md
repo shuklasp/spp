@@ -13,12 +13,13 @@ The framework has several collaborating runtime centers rather than one monolith
 ```mermaid
 flowchart TB
     R[SPP Runtime]
-    S[Scheduler\nApplication processes\nActive context\nContext switching]
-    G[Registry\nHierarchical registry\nContainer adapter\nShared storage]
-    M[Module Runtime\nDiscovery\nManifest parsing\nDependency resolution\nCompiled registry]
-    X[Runtime Services\nEvents\nMiddleware\nService providers\nRouter\nSecurity / storage / async]
-    P[Presentation & Reactive Runtime\nSPPView / Blade integration\nViewTags / components / forms\nLiveComponent\nSPP Live\nSPPUX]
-    Y[Polyglot / External Integration\nBridge factory\nLanguage bridges\nDaemons\nExternal-app integrations]
+    S[Scheduler]
+    G[Registry]
+    M[Module Runtime]
+    X[Runtime Services]
+    P[Presentation & Reactive Runtime]
+    Y[Polyglot / External Integration]
+
     R --> S
     R --> G
     R --> M
@@ -27,7 +28,16 @@ flowchart TB
     R --> Y
 ```
 
-The diagram is intentionally high-level: it shows the major runtime areas without pretending they form a strict linear pipeline.
+The major responsibilities are deliberately kept separate:
+
+| Area | Main responsibility |
+|---|---|
+| Scheduler | application-process registry, active context, context switching |
+| Registry | hierarchical registry state and IoC/container access |
+| Module Runtime | module discovery, manifest processing, dependency resolution |
+| Runtime Services | events, middleware, providers, routing, security and related services |
+| Presentation | SPPView, ViewTags, LiveComponent, SPP Live and SPPUX |
+| Polyglot Integration | bridge factory, language bridges, daemons and external-app integration |
 
 **Source anchors:** `spp/core/class.scheduler.php`, `spp/core/class.registry.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.modulecompiler.php`, `spp/modules/spp/sppview/class.livecomponent.php`, `spp/modules/spp/spplive/`, `spp/modules/spp/drishyam/`, `spp/core/Polyglot/`.
 
@@ -127,15 +137,15 @@ flowchart TD
     A[fireEvent(event, params)] --> B[before_<event>]
     B --> C{Propagation stopped?}
     C -- Yes --> Z[Finish]
-    C -- No --> D[Override handler or inline/default handler]
+    C -- No --> D[Override or inline/default handler]
     D --> E[Event listeners]
     E --> F{Propagation stopped?}
-    F -- No --> G[after_<event>]
     F -- Yes --> Z
+    F -- No --> G[after_<event>]
     G --> Z
 ```
 
-The exact implementation is in `spp/core/class.sppevent.php`. Earlier handbook drafts that described a generic publish/subscribe bus should be read as simplified terminology; the actual runtime has explicit **before**, **main/override**, and **after** hook stages.
+The exact implementation is in `spp/core/class.sppevent.php`. Earlier handbook drafts that described a generic publish/subscribe bus should be read as simplified terminology; the actual runtime has explicit **before**, **main/override**, and **after** stages.
 
 ## 1.7 Middleware
 
@@ -182,7 +192,7 @@ The current SPPUX source describes a modular client runtime with separate module
 - keyed DOM reconciliation; and
 - error boundaries.
 
-The primary facade `spp/modules/spp/drishyam/js/sppux.js` imports these modules and re-exports the public runtime primitives, including `Signal`, `Computed`, `effect`, `batch`, `createStore`, `html`, `Fragment`, and `BaseComponent`.
+The primary facade `spp/modules/spp/drishyam/js/sppux.js` imports these modules and re-exports public runtime primitives, including `Signal`, `Computed`, `effect`, `batch`, `createStore`, `html`, `Fragment`, and `BaseComponent`.
 
 This is materially different from treating SPPUX as a collection of UI widgets.
 
