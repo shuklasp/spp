@@ -48,22 +48,16 @@ flowchart LR
 
 ## 15.2 Where routing sits in the request lifecycle
 
-The request lifecycle can be simplified to:
+The request lifecycle can be understood as a sequence of runtime stages:
 
-```text
-Browser
-  ↓
-SPP bootstrap
-  ↓
-Scheduler selects application
-  ↓
-Middleware pipeline
-  ↓
-Route or page dispatch
-  ↓
-Controller / service / renderer / API / LiveComponent
-  ↓
-Response
+```mermaid
+flowchart TD
+    A[Browser request] --> B[SPP bootstrap]
+    B --> C[Scheduler selects application]
+    C --> D[Middleware pipeline]
+    D --> E[Route or page dispatch]
+    E --> F[Handler or renderer]
+    F --> G[Response]
 ```
 
 The middleware documentation explicitly describes the destination of the middleware pipeline as the application routing/dispatch layer.
@@ -143,14 +137,11 @@ public function getData()
 
 This is a useful example of SPP's subsystems composing:
 
-```text
-Route metadata
-   ↓
-Route selection
-   ↓
-Route middleware
-   ↓
-Handler
+```mermaid
+flowchart TD
+    A[Route metadata] --> B[Route selection]
+    B --> C[Route middleware]
+    C --> D[Handler]
 ```
 
 The actual ordering is determined by the route/middleware implementation and should be checked there when building security-sensitive stacks.
@@ -235,7 +226,7 @@ flowchart LR
     B --> C[Application handler]
     C --> D{Rendering needed}
     D -- Yes --> E[SPPView]
-    D -- No --> F[Direct/API response]
+    D -- No --> F[Direct or API response]
     E --> G[Response]
     F --> G
 ```
@@ -260,16 +251,15 @@ The browser sends a live action through an SPP Live engine, and the LiveComponen
 
 Therefore:
 
-```text
-Initial navigation
-    → application routing
-    → page/view rendering
-    → LiveComponent markup
+```mermaid
+flowchart TD
+    A[Initial navigation] --> B[Application routing]
+    B --> C[Page and view rendering]
+    C --> D[LiveComponent markup]
 
-Later interaction
-    → SPP Live transport
-    → LiveComponent execution
-    → component response
+    E[Later component interaction] --> F[SPP Live transport]
+    F --> G[LiveComponent execution]
+    G --> H[Component response]
 ```
 
 The route that produced the original page and the transport request that updates the component are related, but they are not necessarily the same dispatch path.
