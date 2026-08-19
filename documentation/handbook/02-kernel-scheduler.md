@@ -4,25 +4,28 @@
 
 **Evidence:** `spp/core/class.scheduler.php`, `spp/core/class.app.php`
 
-The SPP Scheduler is a context and application-process manager. The implementation keeps a static map of registered `SPP\App` objects and a current application context name.
+The SPP Scheduler is a context and application-process manager. The implementation keeps a static map of registered `SPP\\App` objects and a current application context name.
 
 ## 2.1 Scheduler state
 
-```text
-                         SPP\Scheduler
-                              │
-             ┌────────────────┴────────────────┐
-             │                                 │
-      Active context                      Process registry
-      `$AppContext`                       `$procs`
-             │                                 │
-             │                     ┌───────────┼───────────┐
-             │                     │           │           │
-             ▼                     ▼           ▼           ▼
-          `default`              App A       App B       App C
+```mermaid
+flowchart TB
+    S[SPP\\Scheduler]
+    A[Active context\n$AppContext]
+    P[Process registry\n$procs]
+    D[default]
+    B[App A]
+    C[App B]
+    E[App C]
+    S --> A
+    S --> P
+    A --> D
+    P --> B
+    P --> C
+    P --> E
 ```
 
-The important point is that an application is represented by an `SPP\App` object and registered through `Scheduler::regProc()`.
+The important point is that an application is represented by an `SPP\\App` object and registered through `Scheduler::regProc()`.
 
 ## 2.2 Registering an application process
 
@@ -38,27 +41,24 @@ Registration is idempotent with respect to an existing process name: an already-
 
 `Scheduler::setContext()` performs validation and context switching.
 
-```text
-setContext("finance")
-        │
-        ├── trim / default empty string to `default`
-        │
-        ├── is process registered?
-        │       └── no → SPPException
-        │
-        ├── first context?
-        │       └── yes → make it active
-        │
-        ├── current App → APP_WAITING
-        ├── target App  → APP_EXEC
-        └── update `$AppContext`
+```mermaid
+flowchart TD
+    A[setContext("finance")] --> B[Trim / normalize context]
+    B --> C{Registered process?}
+    C -- No --> X[Throw SPPException]
+    C -- Yes --> D{First active context?}
+    D -- Yes --> G[Make target active]
+    D -- No --> E[Current App -> APP_WAITING]
+    E --> F[Target App -> APP_EXEC]
+    F --> G
+    G --> H[Update $AppContext]
 ```
 
 The implementation writes an optional debug trace to `SPP_LOG_DIR/spp_context.log` when `SPP_DEBUG` is enabled.
 
 ## 2.4 Application status model
 
-`SPP\App` defines four status constants:
+`SPP\\App` defines four status constants:
 
 | Constant | Meaning |
 |---|---|
@@ -73,7 +73,7 @@ The implementation writes an optional debug trace to `SPP_LOG_DIR/spp_context.lo
 
 The Scheduler exposes two complementary APIs:
 
-- `getActiveProc()` — the current `SPP\App` object.
+- `getActiveProc()` — the current `SPP\\App` object.
 - `getProcObj($name)` — a registered application by name.
 
 Convenience methods such as `getModsConfDir()` delegate into the active `App` object.
@@ -84,16 +84,13 @@ Convenience methods such as `getModsConfDir()` delegate into the active `App` ob
 
 This pattern is useful for code that needs to inspect or operate on another registered application without permanently changing the caller's context.
 
-```text
-Current context A
-       │
-       ├── withContext(B, callback)
-       │        │
-       │        ├── activate B
-       │        ├── callback()
-       │        └── restore A
-       │
-       └── continue in A
+```mermaid
+flowchart LR
+    A[Current context A] --> B[withContext(B, callback)]
+    B --> C[Activate B]
+    C --> D[Execute callback]
+    D --> E[Restore A]
+    E --> F[Continue in A]
 ```
 
 ## 2.7 URI-driven context detection
@@ -115,7 +112,7 @@ This is a concrete example of SPP's event system influencing scheduler behavior.
 
 ## 2.8 Application discovery and App instances
 
-`SPP\App::getApp()` resolves the requested application name from the explicit parameter or the active Scheduler context. `App` maintains its own static instance map.
+`SPP\\App::getApp()` resolves the requested application name from the explicit parameter or the active Scheduler context. `App` maintains its own static instance map.
 
 `App::getGlobalSettings()` loads the system configuration cache when available. Otherwise it parses `global-settings.yml` and performs dynamic application discovery by scanning `src/*/etc/app.yml`.
 
