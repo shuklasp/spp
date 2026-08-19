@@ -1,35 +1,48 @@
 # SPP Core Modules: Overview
 
-The SPP Framework is powered by a suite of high-performance core modules. These modules provide the essential building blocks for any modern web application.
+The SPP Framework is powered by a suite of framework and application modules. The handbook distinguishes **implemented**, **partially implemented / source-present**, and **planned or not yet verified** features instead of treating every module name as an equal runtime guarantee.
 
-## 📦 Core Modules Wiki
+## Core module catalogue
+
 *   [**Full SPP API Reference**](../spp-full-api-reference.md): Runtime APIs, utility APIs, module catalog, and usage patterns across core, contrib, and app modules.
-*   [**SppView**](sppview.md): Advanced rendering, resource management, and **Asset Orchestration**.
-*   [**SppAPI**](sppapi.md): The native **Headless REST** framework and dynamic CRUD routing engine.
-*   [**SppEntity**](sppentity.md): The high-performance ORM and database relationship manager.
-*   [**SppDb**](sppdb.md): The core database abstraction and query execution engine.
-*   [**SppAjax**](sppajax.md): The standardized asynchronous request and JSON API handler.
-*   [**SppLogger**](spplogger.md): The PSR-3 compliant diagnostic and auditing system.
-*   [**SppUx**](sppux.md): The UI component framework and Admin design system.
-*   [**SppAuth**](sppauth.md) (Modernized): **Guard-based** security and **RBAC**.
-*   [**SppQueue**](sppqueue.md): **Distributed task management** and background jobs.
-*   [**Parikshak**](parikshak.md): Automated evolutionary testing and system scanning.
-*   [**Identity & Profiles**](identity-profiles.md): SppGroup, SppProfile, and user identity metadata.
-*   [**State & Config**](state-config.md): SppConfig, SppSetting, and persistent runtime settings.
-*   [**Orion Cache**](orion-cache.md): High-performance module registry and zero-I/O bootstrapping.
-*   [**Lekhni Editor**](lekhni.md): The Ultimate Contrib Block, Dual-Mode VSCode IDE & Rich Document Workspace Suite.
-*   [**SppWorkflow**](sppworkflow.md): High-performance enterprise workflow engine, parallel state machines, and Saga compensations.
-*   **SppBlade**: (Coming Soon) The advanced templating engine integration.
-*   **SppAi**: (Coming Soon) The AI and Large Language Model integration layer.
-*   **SppAudit**: (Coming Soon) System-wide auditing and action logging.
-*   **SppDrupal**: (Coming Soon) The legacy Drupal bridge and data migration module.
-*   **SppPwa**: (Coming Soon) Progressive Web App support and service workers.
-*   **SppWizard**: (Coming Soon) Multi-step form and workflow management.
+*   [**SppView**](sppview.md): Rendering, resource management, page/view infrastructure, and asset orchestration.
+*   [**SppAPI**](sppapi.md): Native API infrastructure, resources/responses, routing support, documentation, and API-oriented helpers.
+*   [**SppEntity**](sppentity.md): Entity and database relationship infrastructure.
+*   [**SppDb**](sppdb.md): Database abstraction and query execution infrastructure.
+*   [**SppAjax**](sppajax.md): Asynchronous request and JSON/API helpers.
+*   [**SppLogger**](spplogger.md): Diagnostic and logging infrastructure.
+*   [**SppUx / SPPUX**](sppux.md): UI/client runtime and browser-side reactive capabilities.
+*   [**SppAuth**](sppauth.md): Authentication/authorization and RBAC-related infrastructure.
+*   [**SppQueue**](sppqueue.md): Queue/background-job infrastructure present in the repository.
+*   [**Parikshak**](parikshak.md): Framework-aware testing and system-scanning infrastructure.
+*   [**Identity & Profiles**](identity-profiles.md): Group/profile/user identity metadata.
+*   [**State & Config**](state-config.md): `SppConfig`, `SppSetting`, and persistent runtime settings.
+*   [**Orion Cache**](orion-cache.md): Cache/registry/bootstrapping infrastructure documented in the repository.
+*   [**Lekhni Editor**](lekhni.md): Contributed editor/document-workspace functionality.
+*   [**SppWorkflow**](sppworkflow.md): Workflow/state-machine/approval infrastructure documented in the repository.
+*   [**SppAI**]: AI integration layer with provider-driver abstractions and multiple provider implementations present in the repository. See the handbook AI branch before treating provider support as a uniform production guarantee.
+*   [**SppAudit**]: Audit/revision/delta infrastructure is present in the repository. See the handbook audit/revision/content-promotion material for verified capabilities.
+*   [**SppWizard**]: Wizard-related implementation exists in the workflow/tutorial surface; exact capabilities should be taken from the current source before treating the module as a universal framework contract.
+*   [**SppBlade**]: Blade integration is part of the broader rendering stack; exact module boundaries and status should be read from current source rather than relying on the older "Coming Soon" label.
+*   [**SppDrupal**]: A Drupal bridge/data-migration implementation may exist in contributed/application areas; treat it as an integration branch rather than assuming it is part of every core installation.
+*   [**SppPwa**]: Do not treat this as universally implemented core behavior without verifying the current module/source tree.
+
+## Status-reading rule
+
+The presence of a class, directory, or documentation page does **not** by itself prove a production-wide guarantee. For advanced claims, the handbook uses this order of evidence:
+
+1. executable source;
+2. tests and fixtures;
+3. consumed manifests/configuration;
+4. repository documentation;
+5. architectural interpretation.
+
+This is especially important for distributed behavior, consensus, transaction semantics, transport guarantees, provider availability, and deployment guarantees.
+
+## What is a core module?
+
+A core module is a framework-level component located under `spp/modules/spp/` or otherwise explicitly integrated into the framework runtime. Application and contributed modules may use the same infrastructure without being mandatory to every SPP installation.
 
 ---
 
-## What is a "Core Module"?
-A core module is a framework-level component located in `spp/modules/spp/`. Unlike application modules, core modules provide foundational services that are typically shared across all applications running on the same framework core.
-
----
 [Back to Framework Wiki](../index.md)
