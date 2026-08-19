@@ -17,9 +17,8 @@ flowchart TB
     G[Registry]
     M[Module Runtime]
     X[Runtime Services]
-    P[Presentation & Reactive Runtime]
-    Y[Polyglot / External Integration]
-
+    P[Presentation and Reactive Runtime]
+    Y[Polyglot and External Integration]
     R --> S
     R --> G
     R --> M
@@ -28,22 +27,11 @@ flowchart TB
     R --> Y
 ```
 
-The major responsibilities are deliberately kept separate:
-
-| Area | Main responsibility |
-|---|---|
-| Scheduler | application-process registry, active context, context switching |
-| Registry | hierarchical registry state and IoC/container access |
-| Module Runtime | module discovery, manifest processing, dependency resolution |
-| Runtime Services | events, middleware, providers, routing, security and related services |
-| Presentation | SPPView, ViewTags, LiveComponent, SPP Live and SPPUX |
-| Polyglot Integration | bridge factory, language bridges, daemons and external-app integration |
-
 **Source anchors:** `spp/core/class.scheduler.php`, `spp/core/class.registry.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.modulecompiler.php`, `spp/modules/spp/sppview/class.livecomponent.php`, `spp/modules/spp/spplive/`, `spp/modules/spp/drishyam/`, `spp/core/Polyglot/`.
 
 ## 1.2 Applications Are Runtime Processes
 
-`SPP\\Scheduler` maintains a registry of `SPP\\App` objects in a static `$procs` map. The active application is represented by `$AppContext`.
+`SPP\Scheduler` maintains a registry of `SPP\App` objects in a static `$procs` map. The active application is represented by `$AppContext`.
 
 The scheduler exposes:
 
@@ -65,7 +53,7 @@ This is the key primitive for code that needs to cross application boundaries in
 
 ## 1.3 Application Discovery
 
-`SPP\\App::getGlobalSettings()` loads global settings and can dynamically discover application definitions by inspecting `src/*/etc/app.yml` under the configured SPP application directory. Discovered application settings are merged with existing application configuration and cached into the application's system configuration cache.
+`SPP\App::getGlobalSettings()` loads global settings and can dynamically discover application definitions by inspecting `src/*/etc/app.yml` under the configured SPP application directory. Discovered application settings are merged with existing application configuration and cached into the application's system configuration cache.
 
 The application object also resolves application-specific paths including:
 
@@ -80,7 +68,7 @@ The application object also resolves application-specific paths including:
 
 ## 1.4 The Registry Is Two Things
 
-The class `SPP\\Registry` contains two distinct mechanisms that should not be conflated.
+The class `SPP\Registry` contains two distinct mechanisms that should not be conflated.
 
 ### 1.4.1 Hierarchical registry
 
@@ -95,7 +83,7 @@ Examples of capabilities visible in the implementation include:
 
 ### 1.4.2 IoC service container
 
-`Registry::container()` lazily creates an `SPP\\Core\\Container`. The Registry exposes:
+`Registry::container()` lazily creates an `SPP\Core\Container`. The Registry exposes:
 
 - `bind()`;
 - `singleton()`; and
@@ -111,7 +99,7 @@ This is an important enterprise feature because it allows selected registry stat
 
 ## 1.6 Event Architecture
 
-SPP has an event system centered on `SPP\\SPPEvent` plus the older/compatibility-facing `SPP\\EventHandler` abstraction.
+SPP has an event system centered on `SPP\SPPEvent` plus the older/compatibility-facing `SPP\EventHandler` abstraction.
 
 `SPPEvent` maintains:
 
@@ -124,7 +112,7 @@ The runtime supports:
 
 1. explicit listener registration through `listen()`;
 2. YAML event definitions;
-3. attribute-based discovery for methods carrying `#[SPP\\Attributes\\On]`;
+3. attribute-based discovery for methods carrying `#[SPP\Attributes\On]`;
 4. listener priorities;
 5. overridable events;
 6. propagation stopping through `EventParams`;
@@ -134,14 +122,14 @@ The runtime supports:
 
 ```mermaid
 flowchart TD
-    A[fireEvent(event, params)] --> B[before_<event>]
+    A[Fire event] --> B[Before event]
     B --> C{Propagation stopped?}
     C -- Yes --> Z[Finish]
-    C -- No --> D[Override or inline/default handler]
+    C -- No --> D[Main or override handler]
     D --> E[Event listeners]
     E --> F{Propagation stopped?}
     F -- Yes --> Z
-    F -- No --> G[after_<event>]
+    F -- No --> G[After event]
     G --> Z
 ```
 
@@ -192,13 +180,13 @@ The current SPPUX source describes a modular client runtime with separate module
 - keyed DOM reconciliation; and
 - error boundaries.
 
-The primary facade `spp/modules/spp/drishyam/js/sppux.js` imports these modules and re-exports public runtime primitives, including `Signal`, `Computed`, `effect`, `batch`, `createStore`, `html`, `Fragment`, and `BaseComponent`.
+The primary facade `spp/modules/spp/drishyam/js/sppux.js` imports these modules and re-exports the public runtime primitives, including `Signal`, `Computed`, `effect`, `batch`, `createStore`, `html`, `Fragment`, and `BaseComponent`.
 
 This is materially different from treating SPPUX as a collection of UI widgets.
 
 ## 1.11 Polyglot Architecture Is Implemented
 
-The framework contains a `SPP\\Core\\Polyglot` bridge family, including a bridge interface, factory, compiler/default bridge, and language-specific bridges for .NET, Go, and Java. The tree also contains runtime assets and daemon services for C++, .NET, Go, Java, Node.js, Perl, and Python.
+The framework contains a `SPP\Core\Polyglot` bridge family, including a bridge interface, factory, compiler/default bridge, and language-specific bridges for .NET, Go, and Java. The tree also contains runtime assets and daemon services for C++, .NET, Go, Java, Node.js, Perl, and Python.
 
 Existing documentation also covers polyglot commands and external-application integration. These facilities will be documented as **implemented integration capabilities** only where source and tests support the claim.
 
