@@ -34,31 +34,30 @@ The module compiler obtains registry files from `Module::getRegistryFiles($appCo
 
 The compiler also discovers application-specific modules under directories returned by `Module::getAppModuleDirs($appContext)`. A user module can therefore be discovered from its local `module.yml` without first being inserted into a central registry file, subject to the surrounding module rules.
 
-```text
-Application context
-       │
-       ├── registry files
-       │      ├── XML
-       │      └── YAML
-       │
-       └── application module directories
-              └── module.yml / module.yaml
-                       │
-                       ▼
-                 active module map
+**Active-module discovery**
+
+```mermaid
+flowchart TD
+    A[Application context] --> B[Registry files]
+    A --> C[Application module directories]
+    B --> D[Read XML or YAML]
+    C --> E[Read local module manifest]
+    D --> F[Build active module map]
+    E --> F
 ```
 
 ## 5.4 Dependency resolution
 
 `ModuleCompiler::topologicalSort()` performs a depth-first dependency traversal. Dependencies are read from the module manifest (`deps` or `dependencies`).
 
-```text
-module A
-  └── depends on B
-          └── depends on C
-                  └── depends on D
+A simple dependency chain is loaded from the dependency toward the dependent:
 
-Load order: D → C → B → A
+```text
+A depends on B
+B depends on C
+C depends on D
+
+Load order: D -> C -> B -> A
 ```
 
 The algorithm uses a temporary-set cycle guard. A module encountered while already in the temporary set produces a circular-dependency exception. A referenced dependency that is absent from the discovered module map produces `MissingDependencyException`.
@@ -115,25 +114,14 @@ The handbook therefore documents **YAML-first project conventions where they are
 
 ## 5.10 Dependency graph illustration
 
-```text
-                 ┌──────────────┐
-                 │     core     │
-                 └──────┬───────┘
-                        │
-              ┌─────────┴─────────┐
-              ▼                   ▼
-        ┌──────────┐        ┌──────────┐
-        │  dbconfig │        │   user   │
-        └────┬─────┘        └────┬─────┘
-             │                    │
-             └─────────┬──────────┘
-                       ▼
-                ┌────────────┐
-                │  sppview   │
-                └────────────┘
-```
+| Layer | Role |
+|---|---|
+| Core | Base framework dependency |
+| Database configuration | Depends on core |
+| User module | Depends on core |
+| SPPView | Can depend on lower-level runtime modules |
 
-The exact graph varies with application/module configuration; the diagram is illustrative of the dependency mechanism, not a claim about every SPP installation.
+The exact graph varies with application/module configuration. This table illustrates the dependency mechanism rather than claiming a fixed graph for every SPP installation.
 
 ## 5.11 Architectural distinction
 
