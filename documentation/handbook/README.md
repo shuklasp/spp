@@ -10,9 +10,9 @@ The handbook is a **learning book plus an implementation reference**. It assumes
 
 **Explorer** — learn what a framework is, what an SPP application is, and how a request travels through the runtime.
 
-**Builder** — build applications using services, modules, events, middleware, routing, SPPView, authentication, storage, LiveComponent, SPP Live, SPPUX, APIs, workflow, and testing.
+**Builder** — build applications using services, modules, events, middleware, routing, SPPView, authentication, storage, LiveComponent, SPP Live, SPPUX, APIs, workflow, queues, and testing.
 
-**Architect** — design application boundaries, multi-application systems, external integrations, polyglot runtimes, trust boundaries, migration/promotion, workers, and deployment topology.
+**Architect** — design application boundaries, multi-application systems, external integrations, polyglot runtimes, trust boundaries, migration/promotion, workers, observability, and deployment topology.
 
 **Kernel Hacker** — trace the implementation, caches, compilers, adapters, lifecycle rules, and runtime contracts in source.
 
@@ -74,7 +74,7 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 
 ### Hands-on core tutorial — mandatory sequence
 
-The following is the new **zero-level main tutorial**. Complete it in order.
+Complete these chapters in order if you are learning SPP from zero.
 
 1. [31 — From Plain PHP to Frameworks and MVC](31-tutorial-core-01-framework-mvc.md)
 2. [32 — Middleware Pipeline](32-tutorial-core-02-middleware-pipeline.md)
@@ -85,17 +85,19 @@ The following is the new **zero-level main tutorial**. Complete it in order.
 7. [37 — Modules](37-tutorial-core-07-modules.md)
 8. [38 — SPPView, Forms, Validation](38-tutorial-core-08-sppview-views-forms.md)
 
-The core tutorial is intentionally ordered this way: a beginner first understands what a framework and MVC are, then learns the request pipeline, events, dependency management, configuration, routing, feature packaging, and presentation.
+The core tutorial teaches the framework itself before specialized subsystems.
 
-### Specialized tutorial branches
+### Deep tutorial branches
 
-- [39 — SPPDB/XDB Part 1: Data from Zero](39-tutorial-branch-sppdb-xdb-01.md)
-- [40 — SPP XDB Part 2: Advanced Database Architecture](40-tutorial-branch-sppdb-xdb-02-advanced.md)
-- [41 — Parikshak Testing Framework](41-tutorial-branch-parikshak.md)
+These are the current source-oriented branches. They deliberately overlap with the reference chapters because they are intended to be **built and tested**, not simply read.
+
+- [39 — SPPDB/XDB: data from zero](39-tutorial-branch-sppdb-xdb-01.md)
+- [40 — SPP XDB: advanced database architecture](40-tutorial-branch-sppdb-xdb-02-advanced.md)
+- [41 — Parikshak testing framework](41-tutorial-branch-parikshak.md)
 - [42 — SPPAPI](42-tutorial-branch-api.md)
 - [43 — Web Security Stack](43-tutorial-branch-web-security.md)
-- [44 — Workflow, Approval Chains, Wizards](44-tutorial-branch-workflow.md)
-- [45 — Storage, Internationalization, Reporting](45-tutorial-branch-storage-i18n-reporting.md)
+- [44 — Workflow, Approval Chains, and Wizards](44-tutorial-branch-workflow.md)
+- [45 — Storage, Internationalization, and Reporting](45-tutorial-branch-storage-i18n-reporting.md)
 - [46 — SPPAI](46-tutorial-branch-ai.md)
 - [47 — Migration, Transfer, and Offline-to-Live Promotion](47-tutorial-branch-migration-transfer-promotion.md)
 - [48 — LiveComponent](48-tutorial-branch-livecomponent.md)
@@ -104,6 +106,21 @@ The core tutorial is intentionally ordered this way: a beginner first understand
 - [51 — Polyglot and External Applications](51-tutorial-branch-polyglot-external.md)
 - [52 — Multiple Applications, Cron, and Workers](52-tutorial-branch-multiapp-cron-workers.md)
 - [53 — Enterprise Capstone](53-tutorial-enterprise-capstone.md)
+
+### Current expanded handbook tutorials
+
+These chapters are the newer, deeper source-oriented expansions of the same branches:
+
+- [40 — Data and Persistence: Entities, SPPDB, and XDB](40-data-entities-sppdb-and-xdb.md)
+- [41 — Storage, Transfer, and Live-Content Promotion](41-storage-transfer-and-content-promotion.md)
+- [42 — Reporting, Observability, and Diagnostics](42-reporting-observability-and-diagnostics.md)
+- [43 — Queue, Cron, and Background Execution](43-queue-cron-and-background-execution.md)
+- [44 — SPPAI: AI Integration](44-spai-and-ai-integration.md)
+- [45 — LiveComponent: Server-Side Reactive UI](45-livecomponent-from-zero-to-kernel.md)
+- [46 — SPP Live: Transport Architecture](46-spp-live-transport-architecture.md)
+- [47 — SPPUX: Browser Runtime](47-sppux-browser-runtime-from-zero.md)
+- [48 — Polyglot, IPC, and External Applications](48-polyglot-ipc-and-external-application-architecture.md)
+- [49 — Multi-Application Enterprise Architecture and Deployment](49-multi-application-enterprise-deployment.md)
 
 ### Learning and coverage maps
 
@@ -124,24 +141,24 @@ flowchart TD
     C --> D[Events]
     D --> E[Registry and dependency injection]
     E --> F[Configuration]
-    F --> G[Routing]
-    G --> H[Modules]
-    H --> I[SPPView and forms]
-    I --> J[SPPDB and XDB]
-    J --> K[Authentication and web security]
+    F --> G[Routing paradigms]
+    G --> H[Modules and scaffolding]
+    H --> I[SPPView, BladeOne, Drishyam, forms]
+    I --> J[Entities, SPPDB, XDB]
+    J --> K[Identity, authentication, and web security]
     K --> L[Parikshak]
     L --> M[API]
-    M --> N[Workflow and operations]
-    N --> O[LiveComponent]
-    O --> P[SPP Live]
-    P --> Q[SPPUX]
-    Q --> R[Storage and i18n]
-    R --> S[Reporting and Cron]
-    S --> T[SPPAI]
-    T --> U[Migration and content promotion]
-    U --> V[Polyglot and external systems]
-    V --> W[Multi-application architecture]
-    W --> X[Enterprise capstone]
+    M --> N[Workflow]
+    N --> O[Storage and transfer]
+    O --> P[Reporting, logging, and observability]
+    P --> Q[Queue and Cron]
+    Q --> R[SPPAI]
+    R --> S[LiveComponent]
+    S --> T[SPP Live]
+    T --> U[SPPUX]
+    U --> V[Polyglot and IPC]
+    V --> W[Multiple applications]
+    W --> X[Enterprise deployment and capstone]
 ```
 
 ## Mandatory learning rule
