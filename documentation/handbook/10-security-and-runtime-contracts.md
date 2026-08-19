@@ -25,23 +25,17 @@ The important engineering rule is to document the contract actually implemented 
 
 ## 10.3 Trust boundaries
 
-An enterprise SPP deployment can contain multiple trust boundaries:
+An enterprise SPP deployment can contain multiple trust boundaries. The diagram below shows the major architectural layers without implying that every edge is a distinct network protocol.
 
-```text
-Browser
-   |
-   v
-HTTP / Live transport
-   |
-   v
-SPP application context
-   |
-   +--> Registry/services
-   +--> Event system
-   +--> Modules
-   +--> Rendering
-   |
-   +--> IPC / external services
+```mermaid
+flowchart TD
+    B[Browser] --> T[HTTP or Live transport]
+    T --> A[SPP application context]
+    A --> R[Registry and services]
+    A --> E[Event system]
+    A --> M[Modules]
+    A --> V[Rendering]
+    A --> X[IPC or external services]
 ```
 
 Each transition should be treated as an explicit boundary. Data crossing a boundary should be validated and normalized by the receiving layer.
