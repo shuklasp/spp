@@ -12,6 +12,8 @@ The handbook is a **learning book plus an implementation reference**. It assumes
 
 **Builder** — build applications using services, modules, events, middleware, routing, SPPView, authentication, storage, LiveComponent, SPP Live, SPPUX, APIs, workflow, queues, and testing.
 
+**Migrator** — port an existing Laravel, Symfony, Django, Rails, Spring, ASP.NET Core, Node/Express/NestJS, or other framework application into SPP without mechanically reproducing the old framework architecture.
+
 **Architect** — design application boundaries, multi-application systems, external integrations, polyglot runtimes, trust boundaries, migration/promotion, workers, observability, and deployment topology.
 
 **Kernel Hacker** — trace the implementation, caches, compilers, adapters, lifecycle rules, and runtime contracts in source.
@@ -38,6 +40,18 @@ When older documentation is stronger than the implementation establishes, the ca
 - **Prose/lists** are used for explanations and procedures.
 
 Every diagram must be useful, source-accurate, simple enough to understand, and valid for GitHub rendering. Decorative or redundant diagrams are removed.
+
+## Canonical-vs-reference rule
+
+A concept has **one canonical learning chapter**. Older or alternate documents remain available as reference material, but they must not compete with the canonical beginner-to-advanced explanation.
+
+For each major subsystem:
+
+- the **teaching chapter** explains the concept from zero, builds it, tests it, breaks it, and traces the source;
+- the **reference chapter** documents APIs, classes, configuration, and implementation details;
+- the **source map** points to the authoritative repository implementation.
+
+When two documents cover the same feature, the teaching chapter is the entry point and the reference material is supporting evidence.
 
 ## Current handbook chapters
 
@@ -112,7 +126,7 @@ These are the source-oriented branches. They deliberately overlap with the refer
 
 ### Current expanded handbook tutorials
 
-These chapters are the newer, deeper source-oriented expansions of the same branches:
+These are the newer, deeper source-oriented teaching branches. Use them as the canonical branch lessons; the older branch documents above remain supporting references.
 
 - [40 — Data and Persistence: Entities, SPPDB, and XDB](40-data-entities-sppdb-and-xdb.md)
 - [41 — Storage, Transfer, and Live-Content Promotion](41-storage-transfer-and-content-promotion.md)
@@ -128,6 +142,11 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [67 — SPP Architecture Anti-Patterns and Common Mistakes](67-architecture-antipatterns-and-mistakes.md)
 - [68 — How to Read the SPP Source](68-reading-the-spp-source.md)
 - [69 — Enterprise Reference Case Study](69-enterprise-reference-case-study.md)
+
+### Migration and porting
+
+- [70A — Framework Porting Playbooks](70a-framework-porting-playbooks.md)
+- [70 — Porting to SPP from Other Frameworks](70-porting-to-spp-from-other-frameworks.md)
 
 ### Learning, lab, and coverage maps
 
@@ -201,6 +220,10 @@ Use [60 — Handbook Completion Plan](60-handbook-completion-plan.md) as the rel
 ## Runnable lab rule
 
 Use [56A — Runnable lab orchestration](56-runnable-lab-orchestration.md) and [57A — Runnable tutorial lab repository layout](57-runnable-tutorial-lab-repository-layout.md) when creating or updating executable tutorial material. Do not invent CLI syntax, test commands, file layouts, or runtime guarantees that cannot be verified from the repository.
+
+## Migration rule
+
+Use [70 — Porting to SPP from Other Frameworks](70-porting-to-spp-from-other-frameworks.md) when moving an existing application into SPP. Treat migration as an architecture translation exercise rather than a mechanical class-for-class rewrite.
 
 ## Source-first rule
 
