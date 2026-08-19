@@ -47,16 +47,14 @@ The exact directive set is implementation-defined and must be read from the curr
 
 ## 6.3 BladeOne is an implementation dependency, not the public architecture name
 
-The code demonstrates that SPP extends a BladeOne-compatible engine with framework-specific directives and resolution behavior. The handbook should therefore distinguish:
+The code demonstrates that SPP extends a BladeOne-compatible engine with framework-specific directives and resolution behavior. The important relationship is:
 
-```text
-SPPView / rendering API
-        │
-        ├── view compiler / renderer
-        ├── ViewTag and component facilities
-        └── Drishyam SPPBlade integration
-                 │
-                 └── BladeOne-compatible compilation engine
+```mermaid
+flowchart TD
+    A[SPPView rendering API] --> B[View compiler and renderer]
+    A --> C[ViewTag and component facilities]
+    A --> D[Drishyam Blade integration]
+    D --> E[BladeOne compatible engine]
 ```
 
 This is why describing SPP as "just BladeOne" is incomplete.
@@ -98,20 +96,14 @@ The source contains `class.viewassetmanager.php` and `class.assetorchestrator.ph
 
 That creates a direct bridge:
 
-```text
-LiveComponent
-      │
-      ▼
-render()
-      │
-      ▼
-resolveRenderedHtml()
-      │
-      ├── file path → compiler/include
-      └── raw HTML → use directly
-      │
-      ▼
-SPP LiveComponent wrapper
+```mermaid
+flowchart TD
+    A[LiveComponent] --> B[Render method]
+    B --> C[Resolve rendered HTML]
+    C --> D[Compiled or included view]
+    C --> E[Raw HTML result]
+    D --> F[LiveComponent wrapper]
+    E --> F
 ```
 
 ## 6.9 What this means architecturally
