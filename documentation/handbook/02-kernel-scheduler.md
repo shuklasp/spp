@@ -8,22 +8,19 @@ The SPP Scheduler is a context and application-process manager. The implementati
 
 ## 2.1 Scheduler state
 
+The scheduler tracks two things that matter for normal application code: the active context and the registered application objects.
+
 ```mermaid
 flowchart TB
-    S[SPP\\Scheduler]
-    A[Active context\n$AppContext]
-    P[Process registry\n$procs]
-    D[default]
-    B[App A]
-    C[App B]
-    E[App C]
-    S --> A
-    S --> P
-    A --> D
-    P --> B
-    P --> C
-    P --> E
+    S[SPP\\Scheduler] --> A[Active context\n$AppContext]
+    S --> P[Registered applications\n$procs]
+    P --> D[default]
+    P --> B[App A]
+    P --> C[App B]
+    P --> E[App C]
 ```
+
+The diagram is deliberately small: it shows the relationship that developers need without implying ownership of every subsystem by `Scheduler`.
 
 The important point is that an application is represented by an `SPP\\App` object and registered through `Scheduler::regProc()`.
 
@@ -43,15 +40,15 @@ Registration is idempotent with respect to an existing process name: an already-
 
 ```mermaid
 flowchart TD
-    A[setContext("finance")] --> B[Trim / normalize context]
+    A[setContext("finance")] --> B[Normalize context]
     B --> C{Registered process?}
     C -- No --> X[Throw SPPException]
-    C -- Yes --> D{First active context?}
-    D -- Yes --> G[Make target active]
+    C -- Yes --> D{Already active?}
+    D -- Yes --> H[Keep active context]
     D -- No --> E[Current App -> APP_WAITING]
     E --> F[Target App -> APP_EXEC]
-    F --> G
-    G --> H[Update $AppContext]
+    F --> G[Update $AppContext]
+    G --> H
 ```
 
 The implementation writes an optional debug trace to `SPP_LOG_DIR/spp_context.log` when `SPP_DEBUG` is enabled.
@@ -82,16 +79,19 @@ Convenience methods such as `getModsConfDir()` delegate into the active `App` ob
 
 `Scheduler::withContext()` is a higher-level context-switching primitive. When the requested context is already active, the callback is invoked directly. Otherwise, SPP switches context, executes the callback, and restores the previous context.
 
-This pattern is useful for code that needs to inspect or operate on another registered application without permanently changing the caller's context.
-
 ```mermaid
-flowchart LR
-    A[Current context A] --> B[withContext(B, callback)]
-    B --> C[Activate B]
-    C --> D[Execute callback]
-    D --> E[Restore A]
-    E --> F[Continue in A]
+sequenceDiagram
+    participant A as Current context A
+    participant S as Scheduler
+    participant B as Context B
+    A->>S: withContext(B, callback)
+    S->>B: Activate B
+    S->>B: Execute callback
+    B-->>S: Return result
+    S->>A: Restore A
 ```
+
+This pattern is useful for code that needs to inspect or operate on another registered application without permanently changing the caller's context.
 
 ## 2.7 URI-driven context detection
 
@@ -136,4 +136,9 @@ What the source **does not** by itself prove is a general-purpose process isolat
 
 ## Kernel Hacker note
 
-The Scheduler is intentionally small. It does not contain the module loader, the view compiler, or the event listener implementation. Instead, it provides the **context boundary** through which those systems locate the active application. This low-responsibility design is one reason the Scheduler can serve as an integration point for multi-application execution.
+The Scheduler is intentionally small. It does not contain the module loader, the view compiler, or the event listener implementation. Instead, it provides the **context boundary** through which those systems locate the active application.
+
+### Source map
+
+- `spp/core/class.scheduler.php`
+- `spp/core/class.app.php`
