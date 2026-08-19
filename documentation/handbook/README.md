@@ -45,6 +45,7 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 
 - [00 — Research status and learning order](00-handbook-status.md)
 - [50 — Frameworks 101: from plain PHP to SPP](50-frameworks-101-and-how-spp-builds-on-them.md)
+- [04 — Framework Concept → SPP Feature Map](04-framework-to-spp-concept-map.md)
 - [01 — Introduction to SPP](01-getting-started.md)
 - [02 — Scheduler and application contexts](02-kernel-scheduler.md)
 - [03 — Registry and IoC container](03-registry-and-container.md)
@@ -137,30 +138,31 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 
 ```mermaid
 flowchart TD
-    A[Frameworks 101] --> B[Plain PHP and MVC]
-    B --> C[SPP application and context]
-    C --> D[Middleware]
-    D --> E[Events]
-    E --> F[Registry and dependency injection]
-    F --> G[Configuration]
-    G --> H[Routing paradigms]
-    H --> I[Modules and scaffolding]
-    I --> J[SPPView, BladeOne, Drishyam, forms]
-    J --> K[Entities, SPPDB, XDB]
-    K --> L[Identity, authentication, and web security]
-    L --> M[Parikshak]
-    M --> N[API]
-    N --> O[Workflow]
-    O --> P[Storage and transfer]
-    P --> Q[Reporting, logging, and observability]
-    Q --> R[Queue and Cron]
-    R --> S[SPPAI]
-    S --> T[LiveComponent]
-    T --> U[SPP Live]
-    U --> V[SPPUX]
-    V --> W[Polyglot and IPC]
-    W --> X[Multiple applications]
-    X --> Y[Enterprise deployment and capstone]
+    A[Frameworks 101] --> B[Framework Concept Map]
+    B --> C[Plain PHP and MVC]
+    C --> D[SPP application and context]
+    D --> E[Middleware]
+    E --> F[Events]
+    F --> G[Registry and dependency injection]
+    G --> H[Configuration]
+    H --> I[Routing paradigms]
+    I --> J[Modules and scaffolding]
+    J --> K[SPPView, BladeOne, Drishyam, forms]
+    K --> L[Entities, SPPDB, XDB]
+    L --> M[Identity, authentication, and web security]
+    M --> N[Parikshak]
+    N --> O[API]
+    O --> P[Workflow]
+    P --> Q[Storage and transfer]
+    Q --> R[Reporting, logging, and observability]
+    R --> S[Queue and Cron]
+    S --> T[SPPAI]
+    T --> U[LiveComponent]
+    U --> V[SPP Live]
+    V --> W[SPPUX]
+    W --> X[Polyglot and IPC]
+    X --> Y[Multiple applications]
+    Y --> Z[Enterprise deployment and capstone]
 ```
 
 ## Mandatory learning rule
