@@ -366,7 +366,7 @@ For learning purposes, implement the same behavior once without SPP.
 ```php
 <?php
 
-title = 'My App';
+$title = 'My App';
 
 echo '<h1>' . htmlspecialchars($title, ENT_QUOTES, 'UTF-8') . '</h1>';
 ```
