@@ -12,12 +12,12 @@ The scheduler tracks two things that matter for normal application code: the act
 
 ```mermaid
 flowchart TB
-    S[SPP\\Scheduler] --> A[Active context\n$AppContext]
-    S --> P[Registered applications\n$procs]
-    P --> D[default]
-    P --> B[App A]
-    P --> C[App B]
-    P --> E[App C]
+    S[Scheduler] --> A[Active context]
+    S --> P[Registered applications]
+    P --> D[Default]
+    P --> B[Application A]
+    P --> C[Application B]
+    P --> E[Application C]
 ```
 
 The diagram is deliberately small: it shows the relationship that developers need without implying ownership of every subsystem by `Scheduler`.
@@ -40,14 +40,14 @@ Registration is idempotent with respect to an existing process name: an already-
 
 ```mermaid
 flowchart TD
-    A[setContext("finance")] --> B[Normalize context]
-    B --> C{Registered process?}
-    C -- No --> X[Throw SPPException]
-    C -- Yes --> D{Already active?}
-    D -- Yes --> H[Keep active context]
-    D -- No --> E[Current App -> APP_WAITING]
-    E --> F[Target App -> APP_EXEC]
-    F --> G[Update $AppContext]
+    A[Select target context] --> B[Normalize context]
+    B --> C{Registered process}
+    C -- No --> X[Throw exception]
+    C -- Yes --> D{Already active}
+    D -- Yes --> H[Keep current context]
+    D -- No --> E[Current application waits]
+    E --> F[Target application executes]
+    F --> G[Update active context]
     G --> H
 ```
 
@@ -81,14 +81,14 @@ Convenience methods such as `getModsConfDir()` delegate into the active `App` ob
 
 ```mermaid
 sequenceDiagram
-    participant A as Current context A
+    participant A as Current context
     participant S as Scheduler
-    participant B as Context B
-    A->>S: withContext(B, callback)
-    S->>B: Activate B
+    participant B as Target context
+    A->>S: Run work in target context
+    S->>B: Activate target
     S->>B: Execute callback
     B-->>S: Return result
-    S->>A: Restore A
+    S->>A: Restore previous context
 ```
 
 This pattern is useful for code that needs to inspect or operate on another registered application without permanently changing the caller's context.
