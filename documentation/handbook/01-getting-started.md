@@ -27,6 +27,8 @@ flowchart TB
     R --> Y
 ```
 
+The diagram is intentionally high-level: it shows the major runtime areas without pretending they form a strict linear pipeline.
+
 **Source anchors:** `spp/core/class.scheduler.php`, `spp/core/class.registry.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.modulecompiler.php`, `spp/modules/spp/sppview/class.livecomponent.php`, `spp/modules/spp/spplive/`, `spp/modules/spp/drishyam/`, `spp/core/Polyglot/`.
 
 ## 1.2 Applications Are Runtime Processes
@@ -122,14 +124,14 @@ The runtime supports:
 
 ```mermaid
 flowchart TD
-    A[fireEvent event, params] --> B[before_event]
+    A[fireEvent(event, params)] --> B[before_<event>]
     B --> C{Propagation stopped?}
     C -- Yes --> Z[Finish]
     C -- No --> D[Override handler or inline/default handler]
-    D --> E[event listeners]
+    D --> E[Event listeners]
     E --> F{Propagation stopped?}
-    F -- Yes --> G[after_event]
-    F -- No --> G
+    F -- No --> G[after_<event>]
+    F -- Yes --> Z
     G --> Z
 ```
 
