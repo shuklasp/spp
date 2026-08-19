@@ -2,23 +2,17 @@
 
 ## Chapter 15 — Routing and Request Dispatch
 
-**Evidence:** `documentation/framework/booting-and-app-loading.md`, `documentation/framework/application-development.md`, `documentation/framework/middleware.md`, and the routing/rendering classes and route attributes present in the SPP source tree.
+**Evidence:** `documentation/framework/booting-and-app-loading.md`, `documentation/framework/application-development.md`, `documentation/framework/middleware.md`, SPPView route/view-router classes and route attributes in the source tree.
 
-Routing answers a simple question:
+If you have never used a framework, **routing** is simply the mechanism that answers this question:
 
-> **A request has reached the correct SPP application. What code should handle it?**
+> **A web request has reached the correct application. Which piece of application code should handle it?**
 
-For a beginner, it helps to separate three decisions that often get mixed together:
-
-1. **Application selection** — which SPP application owns this URL?
-2. **Route selection** — which endpoint/page/controller owns this request?
-3. **Execution** — which method/service/renderer actually runs?
-
-SPP has infrastructure for all three, but they are not the same subsystem.
+That sounds simple, but SPP separates the problem into several layers. Understanding those layers is essential in a multi-application framework.
 
 ---
 
-## 15.1 Application selection is not routing
+## 15.1 First learn the difference between application selection and routing
 
 Suppose the browser requests:
 
@@ -26,74 +20,88 @@ Suppose the browser requests:
 /myapp/admin/users
 ```
 
-The Scheduler may first decide:
+Before SPP can decide which endpoint handles `/admin/users`, it needs to know which application owns `/myapp`.
 
-```text
-Application context = myapp
-```
+So there are at least two decisions:
 
-Only after the application context is established does route/request dispatch determine which part of `myapp` handles `/admin/users`.
+1. **Application selection** — choose the SPP application context.
+2. **Route selection** — choose the endpoint/page/handler inside that application.
 
-This distinction is central to SPP's multi-application architecture.
+The relationship is:
 
 ```mermaid
 flowchart LR
     A[Request URI] --> B[Application context]
     B --> C[Route or page selection]
-    C --> D[Handler or renderer]
-    D --> E[Response]
+    C --> D[Request handler]
 ```
+
+This is one of the most important differences between SPP's Scheduler and ordinary routing terminology.
 
 ---
 
-## 15.2 Where routing sits in the request lifecycle
+## 15.2 What is a route?
 
-The request lifecycle can be understood as a sequence of runtime stages:
+A route is a mapping between an incoming request and application behavior.
 
-```mermaid
-flowchart TD
-    A[Browser request] --> B[SPP bootstrap]
-    B --> C[Scheduler selects application]
-    C --> D[Middleware pipeline]
-    D --> E[Route or page dispatch]
-    E --> F[Handler or renderer]
-    F --> G[Response]
-```
-
-The middleware documentation explicitly describes the destination of the middleware pipeline as the application routing/dispatch layer.
-
-That means middleware and routing are related but not interchangeable:
-
-- middleware prepares/protects the request;
-- routing decides where the request goes.
-
----
-
-## 15.3 A route is a mapping
-
-Conceptually, a route maps an HTTP request to executable application behavior.
-
-For example:
+A conceptual route might say:
 
 ```text
 GET /admin/users
         ↓
-Users controller
-        ↓
-index()
+UsersController::index()
 ```
 
-The exact SPP route declaration can vary with the routing/rendering subsystem in use, so this handbook does not assume that every SPP application uses one universal route-file format.
+The browser does not call `UsersController::index()` directly. It calls a URL.
 
-That is deliberate. The repository supports multiple application and rendering conventions.
+The routing infrastructure turns that URL into an executable destination.
 
 ---
 
-## 15.4 Attribute-based routes
+## 15.3 Why the framework needs routing
 
-SPP's middleware documentation shows route declarations using PHP attributes such as `#[Route(...)]` from the SPP View subsystem.
+Without a routing system, every public PHP file would need to understand its own URL and manually decide what to do.
 
-A simple conceptual example is:
+A router centralizes that mapping.
+
+As the application grows, you get relationships such as:
+
+```text
+/admin/users       → user management
+/admin/reports     → report management
+/api/students      → API handler
+/dashboard         → dashboard page
+```
+
+Routing turns those URLs into application behavior in a predictable way.
+
+---
+
+## 15.4 SPP does not have to use one universal route file
+
+This is an important SPP-specific documentation rule.
+
+The repository contains different application and rendering mechanisms. Depending on the enabled modules and application architecture, request dispatch can involve:
+
+- route attributes;
+- page definitions;
+- view routing;
+- API routing;
+- controller methods;
+- service handlers; or
+- LiveComponent paths.
+
+Therefore this handbook does **not** invent one universal `routes.php` format and claim that every SPP application uses it.
+
+The actual route mechanism must be learned from the active routing/view module and its source.
+
+---
+
+## 15.5 Attribute-based routes
+
+The SPP middleware documentation shows route declarations using the SPP View attribute system.
+
+A simple example is:
 
 ```php
 use SPPMod\SPPView\Attributes\Route;
@@ -108,24 +116,58 @@ class UsersController
 }
 ```
 
-The attribute tells the routing layer that the method participates in route discovery.
+The route attribute tells the framework that the method participates in route discovery.
 
-Do not confuse this with the Scheduler's application `base_url`.
+The exact constructor/options supported by `Route` are defined by the current attribute implementation.
 
-| Mechanism | Example | Meaning |
-|---|---|---|
-| Application context | `/myapp` | Which application is active |
-| Route | `/admin/users` | Which endpoint handles the request |
-
-A route normally exists **inside** an application context.
+Do not copy a route attribute signature from Laravel or Symfony and assume it is valid in SPP.
 
 ---
 
-## 15.5 Route-level middleware
+## 15.6 Application URL versus route URL
 
-The same route attribute model can carry middleware declarations.
+Beginners often confuse these two:
 
-For example, the framework middleware guide documents:
+| Concept | Example | Question answered |
+|---|---|---|
+| Application `base_url` | `/myapp` | Which application is active? |
+| Route | `/admin/users` | Which endpoint inside the application handles the request? |
+
+So the complete public path can conceptually be:
+
+```text
+/myapp + /admin/users
+```
+
+The Scheduler is concerned with the first decision. The routing layer is concerned with the second.
+
+---
+
+## 15.7 Where routing sits in the request pipeline
+
+Routing happens after earlier framework stages have prepared the application/runtime.
+
+A useful learning model is:
+
+```mermaid
+flowchart LR
+    A[Browser request] --> B[SPP bootstrap]
+    B --> C[Scheduler selects application]
+    C --> D[Middleware pipeline]
+    D --> E[Route or page dispatch]
+    E --> F[Handler or renderer]
+    F --> G[Response]
+```
+
+Middleware can reject the request before routing completes, which is why a route that “looks correct” may still never execute.
+
+---
+
+## 15.8 Route-level middleware
+
+SPP's route metadata can also carry middleware.
+
+For example, the framework documentation shows a route-specific declaration such as:
 
 ```php
 #[Route('/api/data', middleware: [RateLimiterMiddleware::class])]
@@ -135,7 +177,7 @@ public function getData()
 }
 ```
 
-This is a useful example of SPP's subsystems composing:
+The important composition is:
 
 ```mermaid
 flowchart TD
@@ -144,117 +186,141 @@ flowchart TD
     C --> D[Handler]
 ```
 
-The actual ordering is determined by the route/middleware implementation and should be checked there when building security-sensitive stacks.
+This lets a route declare additional request-processing requirements without making those requirements global to every URL.
 
 ---
 
-## 15.6 Controller classes are optional architecture, not a rule of nature
+## 15.9 Controllers are common, but they are not the whole model
 
-New developers often assume:
+A controller is simply a class containing request-facing methods.
 
-> Every URL must map to a controller class.
+SPP applications can use controllers, but request dispatch may also target other kinds of application behavior depending on the active architecture.
 
-SPP is broader than that.
-
-Depending on the application and enabled modules, request dispatch can involve:
+Possible destinations include:
 
 - controller methods;
 - page definitions;
-- service methods;
 - API handlers;
-- view/rendering pages; or
-- LiveComponent paths.
+- service methods;
+- rendering pages; and
+- LiveComponent-related paths.
 
-The architecture therefore describes **request-facing behavior**, not one compulsory controller pattern.
+The framework is therefore more general than “every route must instantiate a controller”.
 
 ---
 
-## 15.7 Calling a handler through the application container
+## 15.10 Routing and dependency injection work together
 
-The application-development guide shows that application code can use the app container's `call()` helper to invoke a method with class-typed dependencies resolved by the container.
+Routing answers:
 
-Example:
+> **Which handler should run?**
+
+Dependency injection answers:
+
+> **How should that handler receive its dependencies?**
+
+For example:
 
 ```php
-$app = \SPP\App::getApp();
-
-$result = $app->call([
-    \App\Myapp\Serv\HomeController::class,
-    'index',
-]);
+class HomeController
+{
+    public function index(SiteService $site): string
+    {
+        return $site->title();
+    }
+}
 ```
 
-This is useful because route dispatch can remain focused on **which handler should run**, while the application container handles **how its dependencies are supplied**.
+The route selects `HomeController::index()`.
 
----
+The application container can supply the `SiteService` dependency when the method is invoked through the app's `call()` mechanism.
 
-## 15.8 What happens when no route matches?
-
-The exact fallback/error path is application and router dependent.
-
-The important debugging distinction is:
-
-```text
-Correct application + wrong route
-```
-
-is different from:
-
-```text
-Wrong application context
-```
-
-For the first case, inspect route/page discovery.
-
-For the second case, inspect `Scheduler::detectAndEnforceContext()` and the application's `base_url` configuration.
-
-This distinction saves a lot of debugging time in multi-app SPP deployments.
-
----
-
-## 15.9 Routing and SPPView
-
-The SPPView subsystem contains dedicated view-location and routing/page classes as well as rendering infrastructure.
-
-That does not mean "routing equals view rendering."
-
-A useful mental model is:
+This is a useful architecture boundary:
 
 ```mermaid
 flowchart LR
+    A[Route] --> B[Handler method]
+    C[Application container] --> B
+    B --> D[Service logic]
+```
+
+The router does not need to know how the `SiteService` object is constructed.
+
+---
+
+## 15.11 What if no route matches?
+
+The exact fallback/error behavior depends on the routing/page subsystem in use.
+
+For debugging, first separate two different failures:
+
+### Case A — Correct application, wrong route
+
+The Scheduler selected the expected application, but that application does not expose the requested endpoint.
+
+### Case B — Wrong application, correct route
+
+The route exists, but the Scheduler selected a different application context.
+
+Those are very different problems.
+
+For Case A, investigate route/page discovery.
+
+For Case B, investigate:
+
+```php
+\SPP\Scheduler::getContext();
+```
+
+and the application's `base_url` configuration.
+
+---
+
+## 15.12 Routing and SPPView
+
+SPPView contains view location/routing/page infrastructure as well as rendering components.
+
+But routing and rendering are still different responsibilities.
+
+A request may route to something that returns an API response and never renders HTML.
+
+Or it may route to a page that renders through SPPView.
+
+A useful model is:
+
+```mermaid
+flowchart TD
     A[Request] --> B[Route or page selection]
     B --> C[Application handler]
-    C --> D{Rendering needed}
+    C --> D{Rendering required}
     D -- Yes --> E[SPPView]
     D -- No --> F[Direct or API response]
     E --> G[Response]
     F --> G
 ```
 
-A route may eventually lead to a rendered view, but API handlers and other direct-response paths are also possible.
+This distinction becomes especially useful when an application contains both browser pages and APIs.
 
 ---
 
-## 15.10 Routing and LiveComponent
+## 15.13 Routing and LiveComponent
 
-A LiveComponent is not simply another static page template.
+A LiveComponent can participate in a page without being the same thing as the page's route.
 
-There are two common situations:
+### Initial navigation
 
-### Initial page request
+The browser may request a normal application URL, which goes through ordinary application routing/page rendering.
 
-The application may render a normal page containing a LiveComponent.
+### Later interaction
 
-### Later component interaction
+The browser can then send a live action through SPP Live to update the component.
 
-The browser sends a live action through an SPP Live engine, and the LiveComponent runtime reconstructs and executes the component.
-
-Therefore:
+So there are two related flows:
 
 ```mermaid
 flowchart TD
-    A[Initial navigation] --> B[Application routing]
-    B --> C[Page and view rendering]
+    A[Initial browser navigation] --> B[Application routing]
+    B --> C[Page and SPPView rendering]
     C --> D[LiveComponent markup]
 
     E[Later component interaction] --> F[SPP Live transport]
@@ -262,55 +328,74 @@ flowchart TD
     G --> H[Component response]
 ```
 
-The route that produced the original page and the transport request that updates the component are related, but they are not necessarily the same dispatch path.
+The later live request is not necessarily the same route dispatch that produced the original page.
 
 ---
 
-## 15.11 API requests
+## 15.14 API routing
 
-SPP's middleware documentation identifies `SPPAPI` and `AutoApiRouter` as possible destinations in the request pipeline.
+The SPP middleware documentation identifies API routing infrastructure such as `SPPAPI` and `AutoApiRouter` as possible destinations after middleware processing.
 
-This illustrates another important point:
-
-> **The request pipeline can dispatch to different application subsystems after middleware has completed.**
-
-A practical application can therefore have both:
+That means one SPP application can support multiple request styles:
 
 ```text
-HTML/browser routes
-
-and
-
-API routes
+Browser HTML requests
+API requests
+LiveComponent interactions
 ```
 
-without requiring a completely separate framework runtime.
+The framework can route each into its appropriate subsystem without requiring separate framework installations.
 
 ---
 
-## 15.12 Route design for enterprise applications
+## 15.15 Enterprise route ownership
 
-For large applications, keep route declarations close to the feature that owns them, while keeping application-level context in the application's configuration.
+Large applications become easier to maintain when routes have a clear owner.
 
 A useful ownership model is:
 
 | Concern | Owner |
 |---|---|
-| Application URL prefix | App configuration |
+| Application URL prefix | Application configuration |
 | Feature route | Module/application feature |
 | Authentication | Middleware/auth subsystem |
-| Business authorization | Application/domain policy |
-| Business logic | Services/domain layer |
-| Rendering | SPPView or LiveComponent |
-| Client reactivity | SPPUX |
+| Resource authorization | Application/domain policy |
+| Business behavior | Service/domain layer |
+| HTML rendering | SPPView |
+| Server-reactive interaction | LiveComponent + SPP Live |
+| Browser-local reactivity | SPPUX |
 
-This prevents the route table from becoming a giant place where all application logic is embedded.
+This avoids the common anti-pattern where a giant central route file contains business decisions for the entire application.
 
 ---
 
-## 15.13 Debugging route problems
+## 15.16 A route should not become a business workflow
 
-When a URL fails, inspect it in this order:
+A route should identify the entry point.
+
+A controller/handler should coordinate request-specific work.
+
+A service should contain reusable business behavior.
+
+A view/component should present the result.
+
+For example:
+
+```mermaid
+flowchart LR
+    A[Route] --> B[Request handler]
+    B --> C[Application service]
+    C --> D[Business rules]
+    B --> E[Presentation]
+```
+
+This separation makes the same business service reusable from a web page, API, scheduled task, or other application entry point.
+
+---
+
+## 15.17 Debugging route problems systematically
+
+When a URL fails, use this order.
 
 ### Step 1 — Confirm the application context
 
@@ -318,64 +403,83 @@ When a URL fails, inspect it in this order:
 \SPP\Scheduler::getContext();
 ```
 
-Is the expected application active?
+### Step 2 — Check middleware
 
-### Step 2 — Confirm middleware
+Could global or route-level middleware be rejecting the request before the handler?
 
-Could a global or route-level middleware be stopping the request?
+### Step 3 — Check route/page discovery
 
-### Step 3 — Confirm route discovery
+Does the selected application actually define this endpoint?
 
-Does the selected application actually expose the route?
+### Step 4 — Check handler resolution
 
-### Step 4 — Confirm handler resolution
+Does the handler exist, and can the application container resolve its dependencies?
 
-Does the controller/service/page exist and can the application container resolve it?
+### Step 5 — Check rendering
 
-### Step 5 — Confirm rendering
+If the handler executes but HTML is wrong, move your investigation to SPPView.
 
-If the handler runs but the page is wrong, move your investigation into SPPView rather than continuing to debug routing.
+### Step 6 — Check Live/UX transport separately
 
-This layered debugging method follows SPP's actual architecture.
+If the initial page works but later component interaction fails, investigate SPP Live or SPPUX rather than continuing to debug the original route.
 
 ---
 
-## 15.14 Coming from other frameworks
+## 15.18 Coming from other frameworks
 
 ### Laravel
 
-Think of:
-
-```text
-routes → controller → middleware → Blade
-```
-
-but add SPP's separate **application-context selection** before route handling.
+The mapping to `routes → controller → middleware → Blade` is useful, but SPP adds an explicit Scheduler/application-context stage before ordinary route handling.
 
 ### Symfony
 
-Think of Symfony's routing/controller model, but remember that SPP applications can share one runtime and Scheduler context.
+Think of SPP routing as a routing/dispatch concern layered inside an application context, with SPP's own route attributes and view integration.
 
 ### Django
 
-Think of URL dispatch → view, but separate application-context selection from endpoint routing.
+Think URL pattern → view, but distinguish application-context selection from URL endpoint selection.
 
 ### React/Vue
 
-Do not map client-side component routing directly onto SPP server routing. SPPUX is a client runtime; server routing remains a PHP/application concern.
+Client-side routing and SPP server routing are different problems. SPPUX can manage browser-side UI behavior, but PHP routing remains a server-side application concern.
 
 ---
 
-## Kernel Hacker note
+## 15.19 Common beginner mistakes
 
-The key architectural distinction is that the SPP request path has **multiple selectors**:
+### Mistake 1 — Confusing `base_url` with route path
+
+`base_url` helps select the application. A route selects an endpoint inside that application.
+
+### Mistake 2 — Assuming middleware runs after routing
+
+Global middleware can prevent the request from ever reaching the route destination.
+
+### Mistake 3 — Assuming every endpoint must be a controller
+
+SPP supports broader request/dispatch patterns.
+
+### Mistake 4 — Putting business rules into route definitions
+
+Keep business logic in application/domain services.
+
+### Mistake 5 — Debugging Live interactions as normal routing failures
+
+Initial navigation and later LiveComponent interactions can use different runtime paths.
+
+---
+
+## 15.20 Kernel Hacker: multiple selectors
+
+The most useful expert mental model is that SPP request handling contains **multiple selectors**.
 
 1. Scheduler selects the application context.
 2. Middleware determines whether request processing may continue.
 3. Route/page/API infrastructure selects the request destination.
-4. The selected destination invokes services, rendering, or another runtime subsystem.
+4. The destination resolves services and executes application behavior.
+5. The result enters the appropriate presentation/response subsystem.
 
-When documentation collapses these into one generic "router," it becomes much harder to reason about SPP's multi-application runtime.
+This explains why the phrase “the router handles the request” is too vague for SPP architecture documentation.
 
 ### Source map
 
