@@ -2,42 +2,83 @@
 
 ## Chapter 14 — Middleware and the Request Pipeline
 
-**Evidence:** `documentation/framework/middleware.md`, `spp/core/class.middlewarekernel.php`, `spp/core/class.pipeline.php`, middleware implementations, route/middleware attributes.
+**Evidence:** `documentation/framework/middleware.md`, `docs/tut/15_middleware.md`, `spp/core/class.middlewarekernel.php`, `spp/core/class.pipeline.php`, concrete middleware implementations, route/middleware attributes.
 
-If you are new to SPP, middleware is easiest to understand as a set of **layers around request processing**.
+If you have never used a web framework, middleware is one of those features that can seem completely unnecessary until you build a real application.
 
-A middleware can inspect a request before the application runs, stop the request, or inspect/change the result after the application runs.
+Imagine ten pages in an application all need to perform the same security check.
+
+Without middleware, you might write the same check ten times.
+
+With middleware, the framework can put one reusable layer **around the request-processing path**.
+
+That is the basic idea.
 
 ---
 
 ## 14.1 The simplest mental model
 
-Imagine a visitor entering an office building:
+Imagine entering an office building:
 
-1. security checks the visitor;
-2. reception checks the appointment;
-3. the visitor reaches the office;
-4. on the way out, the system records the visit.
+```text
+You arrive
+   ↓
+Security check
+   ↓
+Reception check
+   ↓
+Office
+```
 
-SPP middleware follows the same broad idea.
+And when leaving:
+
+```text
+Office
+   ↓
+Reception records departure
+   ↓
+Security processes exit
+   ↓
+You leave
+```
+
+SPP middleware follows the same broad “in and out” idea.
 
 ```mermaid
 flowchart LR
-    A[Request] --> B[Middleware 1]
-    B --> C[Middleware 2]
-    C --> D[Application logic]
-    D --> C
-    C --> B
-    B --> E[Response]
+    A[Request] --> B[Security middleware]
+    B --> C[Other middleware]
+    C --> D[Application destination]
+    D --> E[Other middleware]
+    E --> F[Security middleware]
+    F --> G[Response]
 ```
 
-The same layers surround the application on the way back out.
+The same middleware layer can therefore have logic both before and after the application destination.
 
 ---
 
-## 14.2 The middleware contract
+## 14.2 Why middleware exists
 
-Every normal SPP middleware implements:
+Middleware is useful when a concern applies to a **request boundary**, rather than to one specific business method.
+
+Typical examples include:
+
+- authentication checks;
+- CSRF protection;
+- request logging;
+- rate limiting;
+- throttling;
+- security response headers;
+- tenant/context resolution.
+
+A controller should not have to remember every one of these responsibilities individually.
+
+---
+
+## 14.3 The middleware contract
+
+The core interface is:
 
 ```php
 namespace SPP\Core;
@@ -48,54 +89,62 @@ interface MiddlewareInterface
 }
 ```
 
-There are only two things to understand initially:
+There are two important values:
 
-- `$request` is the value being passed through the pipeline;
-- `$next` represents the rest of the pipeline.
+### `$request`
 
-A middleware that wants processing to continue calls:
+The value being passed through the pipeline.
+
+### `$next`
+
+The next stage in the pipeline.
+
+A middleware that wants normal processing to continue calls:
 
 ```php
 return $next($request);
 ```
 
-A middleware can also return a response immediately. That is the mechanism used for short-circuit behavior such as rejecting unauthorized or rate-limited requests.
+The middleware can do work before that call and after that call returns.
 
 ---
 
-## 14.3 A very small middleware
+## 14.4 A very small middleware
+
+Here is the basic shape:
 
 ```php
-<?php
-
-namespace App\Myapp\Middleware;
-
 class RequestMarker implements \SPP\Core\MiddlewareInterface
 {
     public function handle($request, \Closure $next)
     {
-        // Before the application.
-        $request['myapp_checked'] = true;
+        // Inbound work.
+        $request['checked'] = true;
 
         $response = $next($request);
 
-        // After the application.
+        // Outbound work.
         return $response;
     }
 }
 ```
 
-The important idea is the position of `$next()`.
+Read it literally:
 
-Everything before `$next()` is **inbound processing**.
+1. the request enters;
+2. this middleware does something;
+3. `$next()` passes control onward;
+4. later stages execute;
+5. control returns here;
+6. this middleware can now do something with the result.
 
-Everything after `$next()` is **outbound processing**.
+That is the onion model.
 
 ---
 
-## 14.4 Short-circuiting a request
+## 14.5 Short-circuiting the request
 
-A middleware can decide that the request must not continue.
+Middleware can also decide that the request must not continue.
 
 For example:
 
@@ -111,55 +160,116 @@ public function handle($request, \Closure $next)
 }
 ```
 
-The next middleware and the application destination never run.
+When the condition fails, `$next()` is never called.
 
-This is why middleware is a better home for broad request-level access rules than repeating the same check in every controller.
+So the next middleware and the application destination do not run.
+
+This is one of the most useful properties of middleware for security and traffic-control concerns.
 
 ---
 
-## 14.5 How the Pipeline works
+## 14.6 Middleware is not a controller
 
-SPP's `Pipeline` builds the middleware chain by reducing the middleware list in reverse order.
+A controller answers:
 
-Conceptually:
+> “What should this particular endpoint do?”
 
-```text
-Destination
-   ↑
-Middleware C
-   ↑
-Middleware B
-   ↑
-Middleware A
-   ↑
-Request
+Middleware answers:
+
+> “What condition or processing should surround a request before/after the endpoint executes?”
+
+For example:
+
+| Concern | Better place |
+|---|---|
+| Load a student's profile | Service/controller |
+| Check global API authentication | Middleware |
+| Calculate a student's fees | Service/domain code |
+| Add security headers | Middleware |
+| Render a template | SPPView |
+| Record a domain occurrence | Event/service as appropriate |
+
+The distinction becomes very important in larger applications.
+
+---
+
+## 14.7 The Pipeline
+
+SPP has a separate `Pipeline` class.
+
+The pipeline's job is to take the middleware list and turn it into the nested execution structure needed for the onion model.
+
+The framework implementation uses a reverse reduction of the middleware list to create nested closures.
+
+You can visualize the result like this:
+
+```mermaid
+flowchart TD
+    A[Request] --> B[Middleware A]
+    B --> C[Middleware B]
+    C --> D[Middleware C]
+    D --> E[Destination]
+    E --> F[Return through C]
+    F --> G[Return through B]
+    G --> H[Return through A]
+    H --> I[Response]
 ```
 
-The implementation supports three kinds of pipeline entries:
-
-| Entry | Resolution |
-|---|---|
-| String class name | Resolved through `Registry::make()` |
-| Middleware object | Calls `handle()` |
-| Callable | Invoked directly with passable value and next stack |
-
-This is important because SPP middleware is not limited to classes that implement one interface.
+The Pipeline is therefore concerned primarily with **execution mechanics**.
 
 ---
 
-## 14.6 The Middleware Kernel
+## 14.8 What can appear in the pipeline?
 
-`MiddlewareKernel` is the application-facing coordinator for the global middleware stack.
+The implementation supports three important forms:
 
-Its boot process combines middleware from three main sources.
+| Pipeline entry | What SPP does |
+|---|---|
+| String class name | Resolve through `Registry::make()` |
+| Middleware object | Call its `handle()` method |
+| Callable | Invoke it directly as a pipeline stage |
+
+This is useful because framework integration is not limited to one rigid middleware class style.
+
+---
+
+## 14.9 The Middleware Kernel
+
+If `Pipeline` knows how to **execute** middleware, something else must decide **which middleware belongs in the stack**.
+
+That is `MiddlewareKernel`.
+
+The kernel is the request-facing assembly/orchestration layer.
+
+The simplified relationship is:
+
+```mermaid
+flowchart LR
+    A[MiddlewareKernel] --> B[Build middleware stack]
+    B --> C[Pipeline]
+    C --> D[Execute middleware]
+    D --> E[Request destination]
+```
+
+That separation is important enough to memorize:
+
+> **MiddlewareKernel assembles; Pipeline executes.**
+
+---
+
+## 14.10 Where global middleware comes from
+
+The framework documentation identifies several sources for the global stack.
+
+A simplified priority model is:
 
 | Priority | Source |
 |---|---|
-| 1 | Hardcoded/Registry entries |
+| 1 | Hardcoded/Registry middleware |
 | 2 | Framework `spp/etc/middleware.yml` |
 | 3 | Active application's `middleware.yml` |
 
-The framework documentation gives this example:
+For example, framework-level YAML can contain:
 
 ```yaml
 global:
@@ -167,7 +277,7 @@ global:
   - SPPMod\SPPLogger\RequestLogger
 ```
 
-An application can add its own global middleware:
+An application can contribute its own:
 
 ```yaml
 global:
@@ -176,9 +286,9 @@ global:
 
 ---
 
-## 14.7 Programmatic registration
+## 14.11 Programmatic registration
 
-Global middleware can also be added programmatically:
+Middleware can also be added from PHP:
 
 ```php
 \SPP\Core\MiddlewareKernel::addGlobalMiddleware(
@@ -186,44 +296,47 @@ Global middleware can also be added programmatically:
 );
 ```
 
-That is useful when middleware registration depends on runtime configuration rather than static YAML alone.
+This is useful when the middleware stack depends on runtime decisions or application initialization.
+
+The actual precedence/merge behavior belongs to `MiddlewareKernel` and should be verified before building ordering-sensitive security rules.
 
 ---
 
-## 14.8 Starting the middleware pipeline
+## 14.12 Starting the pipeline
 
-The framework documentation shows the kernel wrapping the request destination:
+The framework documentation demonstrates wrapping the application destination with:
 
 ```php
 \SPP\Core\MiddlewareKernel::run(function ($request) {
-    // Routing and request dispatch.
+    // Application routing and dispatch.
 });
 ```
 
-The kernel:
+The kernel performs the broad sequence:
 
-1. boots the middleware stack;
-2. fires `event_spp_kernel_boot`;
-3. sends the request through the pipeline; and
-4. invokes the destination.
+1. assemble/boot middleware;
+2. fire `event_spp_kernel_boot`;
+3. pass the request into the pipeline;
+4. invoke the destination;
+5. return the resulting response through the pipeline.
 
-This makes `MiddlewareKernel` a request-processing boundary, not a replacement for routing or rendering.
+This is why routing and middleware are related but not identical.
 
 ---
 
-## 14.9 Global middleware versus route middleware
+## 14.13 Global versus route-level middleware
 
-SPP supports both global and route-scoped middleware.
+SPP supports more than one scope.
 
 ### Global middleware
 
-Runs for every request that enters the relevant kernel pipeline.
+Applies to the request-processing path broadly.
 
-### Route middleware
+### Route/controller middleware
 
-Runs only when the selected route/controller carries the middleware declaration.
+Applies only to selected request destinations.
 
-SPP uses PHP attributes for route-scoped middleware.
+The route subsystem uses PHP attributes for route-level middleware.
 
 Example:
 
@@ -243,137 +356,271 @@ class AdminController
 }
 ```
 
-There is also route-level declaration through the `middleware` argument of `#[Route]`.
+The framework also supports route-level middleware through the `middleware` argument of `#[Route]`.
 
 ---
 
-## 14.10 Middleware merging
+## 14.14 How route middleware is combined
 
-For a route/controller, SPP combines middleware declared at different levels.
-
-The framework guide describes the merge sources as:
+The framework guide describes three possible sources for route middleware:
 
 ```text
-class-level Middleware
-        +
-method-level Middleware
-        +
+Class-level middleware
+       +
+Method-level middleware
+       +
 Route middleware parameter
 ```
 
-The precise execution ordering should be read from the current route/middleware implementation when building security-sensitive stacks.
+The exact execution order depends on the route/middleware implementation.
+
+For security-sensitive applications, do not infer ordering from the declaration order alone. Verify the implementation that assembles the stack.
 
 ---
 
-## 14.11 Middleware already supplied by SPP
+## 14.15 SPP's built-in middleware
 
-The repository includes several concrete middleware implementations.
+The repository contains several concrete middleware types.
 
-| Middleware | Role |
+| Middleware | Typical responsibility |
 |---|---|
 | `ApiAuthMiddleware` | API authentication path |
 | `CSRFMiddleware` | CSRF validation |
 | `RequestLogger` | Request logging |
 | `RateLimiterMiddleware` | Rate limiting |
 | `ThrottleMiddleware` | Throttling |
-| `SecurityHeadersMiddleware` | Response security headers |
+| `SecurityHeadersMiddleware` | Security response headers |
 
-The exact configuration and scope belong to each implementation.
+These names provide useful orientation, but each middleware's exact behavior remains implementation-specific.
 
 ---
 
-## 14.12 A beginner's security rule
+## 14.16 Authentication versus authorization
 
-Do not ask a controller to reinvent security for every request.
+This distinction matters especially when designing middleware.
 
-Prefer:
+### Authentication
 
-```text
-HTTP request
-   ↓
-Middleware
-   ↓
-Authentication / security checks
-   ↓
-Route/controller/component
+Answers:
+
+> “Who is this caller?”
+
+### Authorization
+
+Answers:
+
+> “Is this caller allowed to perform this particular operation?”
+
+A global authentication middleware can establish identity.
+
+A business service may still need to enforce resource-level authorization.
+
+Do not assume that because authentication middleware has run, every business operation is automatically permitted.
+
+---
+
+## 14.17 CSRF protection
+
+CSRF protection is a good example of a request-boundary concern.
+
+A CSRF middleware can inspect the request and reject a state-changing operation before it reaches business logic when required validation is missing.
+
+This is exactly the kind of concern that should not be duplicated manually across dozens of controllers.
+
+---
+
+## 14.18 Rate limiting and throttling
+
+Rate limiting and throttling also belong naturally at a request boundary.
+
+A middleware can reject excessive requests before the expensive business operation runs.
+
+That saves:
+
+- application CPU;
+- database work;
+- external API calls; and
+- downstream resources.
+
+The repository contains both rate-limiter and throttle-style middleware, but their exact algorithms should be learned from their respective implementations.
+
+---
+
+## 14.19 Post-processing middleware
+
+A middleware does not have to modify only the incoming request.
+
+It can inspect the response after the destination completes.
+
+For example:
+
+```php
+$response = $next($request);
+
+// Add or adjust response-level behavior.
+
+return $response;
 ```
 
-That gives your security controls a consistent entry point.
-
-However, middleware is not a universal authorization substitute. Business authorization may still belong in application/domain services or other policy mechanisms.
+This makes middleware useful for response headers, logging, metrics, or normalization tasks.
 
 ---
 
-## 14.13 Middleware and events are different
+## 14.20 Events versus middleware
 
-This distinction matters in SPP.
-
-**Middleware** wraps request processing.
-
-**Events** dispatch lifecycle/business/framework hooks.
+A beginner should keep these two concepts separate.
 
 | Question | Middleware | Event system |
 |---|---|---|
-| Does this code wrap the request? | Yes | Not necessarily |
-| Can it stop request processing? | Yes | Event propagation can stop listener execution |
-| Does it naturally model before/after request behavior? | Yes | Only when implemented as event stages |
-| Is it selected by route/context middleware rules? | Yes | No |
-| Is it a request pipeline layer? | Yes | No |
+| Wraps request processing | Yes | Not inherently |
+| Natural before/after request behavior | Yes | Only at defined event stages |
+| Can short-circuit request pipeline | Yes | Event propagation can stop listener execution |
+| Selected through middleware configuration | Yes | No |
+| Best for request security boundary | Often | Sometimes, but usually not the primary mechanism |
+| Best for decoupled runtime extension point | Not primarily | Yes |
 
-Keeping those concepts separate prevents architecture from becoming a collection of interchangeable hooks.
+If the requirement is “every request must pass this check”, middleware is often the natural boundary.
 
----
-
-## 14.14 Debugging middleware
-
-When a request suddenly stops working, inspect the pipeline in this order:
-
-1. Did the global middleware kernel run?
-2. Which global middleware was loaded?
-3. Did one of them return early?
-4. Did route-level middleware add another check?
-5. Did the destination run at all?
-6. Did an outbound middleware modify the response afterward?
-
-A useful temporary technique is to add logging before and after `$next()` in one middleware layer.
+If the requirement is “announce that a student was created so optional subscribers can react”, an event is often the better abstraction.
 
 ---
 
-## 14.15 Enterprise architecture
+## 14.21 Middleware versus services
 
-Middleware is especially valuable for cross-cutting concerns that affect many endpoints:
+Another common beginner mistake is to put business logic directly into middleware.
+
+For example, avoid turning a `TenantResolver` middleware into a 1,000-line business workflow.
+
+A cleaner shape is:
+
+```mermaid
+flowchart LR
+    A[Middleware] --> B[Resolve request context]
+    B --> C[Application service]
+    C --> D[Business decision]
+    D --> E[Request destination]
+```
+
+Middleware owns the request boundary. Services own reusable business behavior.
+
+---
+
+## 14.22 Debugging middleware
+
+When a request unexpectedly returns an error, use this sequence:
+
+### Step 1 — Did the MiddlewareKernel run?
+
+If not, investigate the entry point.
+
+### Step 2 — What middleware was assembled?
+
+Inspect global framework/application configuration and programmatic registrations.
+
+### Step 3 — Which middleware ran before the destination?
+
+Add temporary logging if necessary.
+
+### Step 4 — Did a middleware short-circuit?
+
+Look for early returns or equivalent termination behavior.
+
+### Step 5 — Did the destination run?
+
+If not, the problem is probably before routing/handler execution.
+
+### Step 6 — Did an outbound middleware modify the response?
+
+A response can be changed after the application destination returns.
+
+This approach is much faster than debugging the entire request at once.
+
+---
+
+## 14.23 Enterprise middleware architecture
+
+For a production SPP application, middleware is an especially useful home for cross-cutting request concerns such as:
 
 - authentication;
 - CSRF protection;
-- rate limiting;
 - request tracing;
-- tenant resolution;
 - security headers;
-- audit context; and
-- API policy enforcement.
+- tenant/application context resolution;
+- throttling;
+- rate limiting;
+- API policy enforcement;
+- request logging.
 
-The goal is not to put business workflows into middleware. Keep middleware focused on the request boundary.
+The guiding principle is:
+
+> **Keep middleware focused on the request boundary.**
+
+Business workflows should remain in services/domain/application layers unless there is a concrete reason the middleware itself must own them.
 
 ---
 
-## Kernel Hacker note
+## 14.24 Coming from other frameworks
 
-The key implementation detail is that `Pipeline` composes nested closures from the middleware list. This gives the familiar onion behavior without requiring a special runtime object for every layer.
+### Laravel
 
-The `MiddlewareKernel` then becomes a configuration/assembly layer: it determines **which** middleware belongs in the request stack, while `Pipeline` determines **how** those middleware execute.
+The onion/pipeline model will look familiar. SPP's distinctive details are its own `MiddlewareKernel`, Registry-based resolution, application-aware configuration, and integration with SPP's route attributes.
 
-That separation is worth remembering when debugging or extending SPP:
+### Symfony
 
-```text
-MiddlewareKernel
-     │
-     └── assembles stack
-              │
-              ▼
-           Pipeline
-              │
-              └── executes stack
+The request/response middleware idea is similar, but SPP's pipeline implementation and configuration sources are framework-specific.
+
+### Django
+
+Think of middleware as request/response wrappers around the view path. SPP has an explicit `Pipeline` object underneath its middleware kernel.
+
+### Spring Boot
+
+Filter/interceptor concepts may feel familiar. SPP middleware is its own request-pipeline contract and should be learned directly from `MiddlewareInterface` and `Pipeline`.
+
+---
+
+## 14.25 Common beginner mistakes
+
+### Mistake 1 — Calling `$next()` twice
+
+That can execute the downstream pipeline twice and produce unpredictable results.
+
+### Mistake 2 — Never calling `$next()` accidentally
+
+That silently turns normal middleware into a short-circuiting middleware.
+
+### Mistake 3 — Putting business workflows into middleware
+
+Keep reusable business logic in services.
+
+### Mistake 4 — Assuming global middleware and route middleware are identical
+
+They are different scopes and are assembled through different configuration/discovery paths.
+
+### Mistake 5 — Assuming middleware is authorization for everything
+
+Authentication and broad request checks do not eliminate resource-level business authorization.
+
+---
+
+## 14.26 Kernel Hacker: MiddlewareKernel versus Pipeline
+
+The source-backed boundary is:
+
+```mermaid
+flowchart TB
+    A[Middleware configuration and registration] --> B[MiddlewareKernel]
+    B --> C[Assembled middleware list]
+    C --> D[Pipeline]
+    D --> E[Destination]
+    E --> F[Response unwinds through Pipeline]
 ```
+
+The `Pipeline` composes nested closures from the middleware list. Middleware class names can be resolved through `Registry::make()`, while already-created middleware objects and plain callables can also participate.
+
+The `MiddlewareKernel` is therefore best understood as the **stack assembly/orchestration layer**, while `Pipeline` is the **execution engine**.
+
+That separation becomes important when implementing custom middleware infrastructure or diagnosing ordering/registration problems.
 
 ### Source map
 
@@ -381,3 +628,5 @@ MiddlewareKernel
 - `spp/core/class.pipeline.php`
 - `documentation/framework/middleware.md`
 - `docs/tut/15_middleware.md`
+- concrete middleware implementations
+- route/middleware attribute implementations
