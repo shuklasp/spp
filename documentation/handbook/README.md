@@ -124,7 +124,7 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [48 — Polyglot, IPC, and External Applications](48-polyglot-ipc-and-external-application-architecture.md)
 - [49 — Multi-Application Enterprise Architecture and Deployment](49-multi-application-enterprise-deployment.md)
 
-### Learning and coverage maps
+### Learning, lab, and coverage maps
 
 - [24 — Complete branched tutorial curriculum](24-tutorial-curriculum.md)
 - [25 — Mandatory framework feature labs](25-framework-feature-labs.md)
@@ -144,6 +144,8 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [62 — Versioning, compatibility, and upgrade guidance](62-versioning-compatibility-and-upgrades.md)
 - [63 — Framework feature evidence and status model](63-feature-evidence-and-status-model.md)
 - [64 — Handbook documentation quality gate](64-handbook-documentation-quality-gate.md)
+- [56A — Runnable lab orchestration](56-runnable-lab-orchestration.md)
+- [57A — Runnable tutorial lab repository layout](57-runnable-tutorial-lab-repository-layout.md)
 
 ## The canonical learning path
 
@@ -188,6 +190,10 @@ A subsystem is not considered fully learned because the reader has read its refe
 ## Completion rule
 
 Use [60 — Handbook Completion Plan](60-handbook-completion-plan.md) as the release checklist. A major subsystem is complete only when the handbook provides its concept, general framework model, SPP mapping, hands-on build, test, failure/debugging exercise, source map, trade-offs, and evidence status.
+
+## Runnable lab rule
+
+Use [56A — Runnable lab orchestration](56-runnable-lab-orchestration.md) and [57A — Runnable tutorial lab repository layout](57-runnable-tutorial-lab-repository-layout.md) when creating or updating executable tutorial material. Do not invent CLI syntax, test commands, file layouts, or runtime guarantees that cannot be verified from the repository.
 
 ## Source-first rule
 
