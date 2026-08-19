@@ -2,133 +2,247 @@
 
 ## Chapter 13 — What Happens to a Request?
 
-**Evidence:** `documentation/framework/booting-and-app-loading.md`, `spp/sppinit.php`, `spp/core/class.scheduler.php`, `spp/core/class.app.php`, `spp/core/class.module.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.pipeline.php`, and the corresponding application/runtime tests.
+**Evidence:** `documentation/framework/booting-and-app-loading.md`, `spp/sppinit.php`, `spp/core/class.scheduler.php`, `spp/core/class.app.php`, `spp/core/class.module.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.pipeline.php`, and related application/runtime tests.
 
 This chapter answers the question every new SPP developer eventually asks:
 
-> **"I opened a URL. What exactly happened inside SPP?"**
+> **“I typed a URL into the browser. What exactly happened inside SPP?”**
 
-The answer matters because SPP is not a single controller function. A request passes through bootstrap, application-context selection, application initialization, modules, middleware, routing/rendering code, and finally the response path.
+If you have never used a framework, the most important thing to understand is that your PHP method is **not the beginning of the application**.
 
-The exact path can vary by entry point and application, but the major runtime stages are consistent.
+A web request starts outside your application code and moves through several framework stages before it reaches the code you wrote.
+
+Likewise, returning from your PHP method does not necessarily mean the framework has finished working.
+
+The SPP runtime performs several responsibilities around your application code.
 
 ---
 
-## 13.1 The mental model
+## 13.1 Start with the simplest possible web request
 
-Think of an SPP request as a series of gates:
+Imagine a browser requests:
+
+```text
+https://example.com/myapp/users
+```
+
+The browser does not know anything about SPP, `App`, `Scheduler`, modules, or LiveComponent.
+
+It sends an HTTP request.
+
+The server then has to decide:
+
+1. Which PHP entry point receives the request?
+2. Has the SPP framework been initialized?
+3. Which SPP application owns `/myapp`?
+4. Which application/runtime features are active?
+5. Which middleware should run?
+6. Which route/page/handler should execute?
+7. Does the handler need a service?
+8. Does it return HTML, API data, or a live component result?
+9. What response should be sent to the browser?
+
+That is what the framework is doing around your application code.
+
+---
+
+## 13.2 The big picture
+
+For learning purposes, keep this simplified architecture in your head:
 
 ```mermaid
 flowchart LR
-    A[Entry point] --> B[Framework bootstrap]
-    B --> C[Detect application context]
-    C --> D[Initialize application]
-    D --> E[Load runtime features]
-    E --> F[Run request pipeline]
-    F --> G[Produce response]
+    A[Browser request] --> B[SPP bootstrap]
+    B --> C[Application context]
+    C --> D[Application runtime]
+    D --> E[Request processing]
+    E --> F[Response]
 ```
 
-Each gate prepares information required by the next one.
-
-A beginner should **not** interpret this as one PHP function with seven lines. It is a conceptual map of several cooperating classes.
+The boxes are intentionally broad. Each one expands into several concrete classes and operations.
 
 ---
 
-## 13.2 Stage 1 — The entry file
+## 13.3 Stage 1 — The entry point
 
-An HTTP request normally begins in a PHP entry point such as an `index.php`, an API entry point, or an application-specific entry file.
+An SPP request normally begins at a PHP entry file such as an `index.php`, an API entry point, or an application-specific public entry file.
 
-The entry file eventually includes:
+The entry file eventually loads the common framework bootstrap:
 
 ```text
 spp/sppinit.php
 ```
 
-The important architectural fact is that the entry file is **not** responsible for rebuilding the entire framework itself. It delegates framework initialization to the common bootstrap.
+The key idea is:
+
+> **The entry point starts the framework. It is not the framework itself.**
+
+This distinction becomes important when debugging because a problem may occur before your application code is ever reached.
 
 ---
 
-## 13.3 Stage 2 — Framework bootstrap
+## 13.4 Stage 2 — `sppinit.php` prepares the runtime
 
-`spp/sppinit.php` performs early runtime setup.
+The repository's boot documentation and `spp/sppinit.php` show that the bootstrap performs early framework work such as:
 
-The repository's boot documentation identifies responsibilities including:
+- defining framework/application constants;
+- loading Composer;
+- registering SPP autoloaders;
+- registering compatibility aliases;
+- preparing debug/error handling;
+- preparing sessions where appropriate;
+- detecting the application context; and
+- creating/initializing the active application.
 
-- framework constants;
-- Composer autoloading;
-- SPP autoloaders and compatibility aliases;
-- debug/error handling;
-- session preparation;
-- application-context detection;
-- application creation; and
-- runtime helper/event setup.
+Conceptually:
 
-This explains why application code can use framework classes without every entry file manually requiring each class.
-
----
-
-## 13.4 Stage 3 — Choose the application context
-
-The Scheduler must know which application should handle the request.
-
-A simplified example:
-
-```text
-Request URI: /myapp/admin/users
-
-Configured apps:
-  myapp       base_url = /myapp
-  reporting   base_url = /reports
-
-Selected context:
-  myapp
+```mermaid
+flowchart TD
+    A[Entry file] --> B[SPP bootstrap]
+    B --> C[Framework constants]
+    B --> D[Autoloading]
+    B --> E[Debug and error handling]
+    B --> F[Session preparation]
+    B --> G[Application context detection]
 ```
 
-The actual scheduler logic is more involved: it normalizes the URI, loads application configuration, can use the context-enforcement and route-resolution events, and stores the resulting context in the Scheduler.
+These operations happen because later application code relies on them.
 
-The public API is:
+---
+
+## 13.5 Why autoloading happens so early
+
+PHP classes are usually loaded only when PHP knows where their files are.
+
+A framework such as SPP has many classes spread across directories:
+
+```text
+spp/core
+spp/modules
+src/myapp
+vendor
+```
+
+Autoloading tells PHP how to find a class when code references it.
+
+Without it, application developers would constantly need to write manual `require` statements.
+
+SPP layers its own class/module/application autoloading around Composer's third-party autoloading.
+
+This is one of the first reasons a framework feels “magical” to a beginner: classes appear available because the framework has already prepared the runtime's autoloading rules.
+
+---
+
+## 13.6 Stage 3 — choose the application context
+
+After the runtime can load classes, SPP needs to answer:
+
+> **Which application should handle this request?**
+
+That is the Scheduler's job.
+
+For example, imagine two configured applications:
+
+```text
+myapp       base_url = /myapp
+reports     base_url = /reports
+```
+
+A request for:
+
+```text
+/myapp/admin/users
+```
+
+should select `myapp` rather than `reports`.
+
+The public API for the current context is:
 
 ```php
 $context = \SPP\Scheduler::getContext();
 ```
 
-and the active application object is:
+The active application object can then be obtained through:
 
 ```php
 $app = \SPP\App::getApp();
 ```
 
-See [Chapter 2 — Scheduler and Application Contexts](02-kernel-scheduler.md) for the complete context model.
+---
+
+## 13.7 Context selection is not normal route selection
+
+This distinction is one of the most important ideas in SPP.
+
+### Application context
+
+Answers:
+
+> Which application owns this request?
+
+### Route selection
+
+Answers:
+
+> Which endpoint/page/handler inside that application should process it?
+
+Therefore:
+
+```mermaid
+flowchart LR
+    A[Request URI] --> B[Application context]
+    B --> C[Route or page selection]
+    C --> D[Request handler]
+```
+
+A URL can fail because the wrong application was selected, even when its route definition is perfectly correct.
 
 ---
 
-## 13.5 Stage 4 — Create the application object
+## 13.8 How the Scheduler detects context
 
-Once the context is known, SPP chooses the application class.
+`Scheduler::detectAndEnforceContext()` performs several steps around the request URI and application configuration.
 
-The boot documentation describes the following principle:
+The implementation:
 
-1. a specialized application type may select a specialized class;
-2. a custom application class may be used when one exists; otherwise
-3. the base `SPP\App` class is used.
+1. normalizes the request URI;
+2. obtains application settings;
+3. compares applications and their `base_url` values;
+4. fires context-enforcement and route-resolution events;
+5. selects the matching application or configured fallback; and
+6. stores the final application context.
 
-This lets an application remain simple while still allowing advanced applications to provide their own `App` subclass.
+This is one of the most interesting SPP design choices because the Scheduler's decision can itself be influenced by the framework's event system.
 
-For a beginner, the important point is:
-
-> **The application object is the runtime representation of the selected application.**
-
-It holds application configuration, paths, container access, status, and initialization behavior.
+That means the event system is not merely an application-level notification mechanism; it also serves as an extension mechanism around framework runtime behavior.
 
 ---
 
-## 13.6 Stage 5 — Initialize application paths and services
+## 13.9 Stage 4 — create or obtain the application object
 
-The application resolves paths such as:
+Once the context is known, SPP needs the runtime representation of that application.
+
+The boot process can choose between:
+
+- a specialized application type;
+- a custom application class; or
+- the standard `SPP\App` class.
+
+For beginners, the important sentence is:
+
+> **The `App` object is the runtime representation of the selected application.**
+
+It knows about application configuration, paths, service resolution, status, and initialization behavior.
+
+---
+
+## 13.10 Application paths are resolved before application code runs
+
+An application needs locations for things such as:
 
 ```text
 configuration
-source
+source code
 modules
 runtime data
 logs
@@ -136,110 +250,194 @@ cache
 temporary files
 ```
 
-It also creates the application container and registers the application with the Scheduler at the appropriate initialization level.
+The `App` object resolves these paths from the application configuration.
 
-That means this code:
+That is why application code can ask for methods such as:
 
 ```php
-$app = \SPP\App::getApp();
+$app->getAppSrcDir();
+$app->getAppConfDir();
+$app->getModDir();
+$app->getCacheDir();
+$app->getLogDir();
 ```
 
-is not merely returning a global configuration array. It returns a runtime object whose directories and service-resolution facilities have already been prepared according to the application lifecycle.
+The framework already knows the application filesystem model.
 
 ---
 
-## 13.7 Stage 6 — Application initialization events
+## 13.11 Stage 5 — application registration
 
-SPP's event system participates in application startup.
+The application is registered with framework runtime structures.
 
-The boot documentation identifies `event_spp_app_init` as part of application initialization.
+The `App` class maintains application instances, and the Scheduler can register the app as a runtime process using `Scheduler::regProc()`.
 
-This is an important design point:
+The application status system includes values such as:
 
-> SPP can extend framework lifecycle stages without editing the core bootstrap path directly.
+- `APP_EXEC`;
+- `APP_WAITING`;
+- `APP_STOPPED`; and
+- `APP_ERROR`.
 
-A module can therefore observe a lifecycle event rather than patching `sppinit.php`.
+These statuses describe the SPP application runtime object; they are **not operating-system process states**.
 
-The complete mechanics of listener discovery, priority, event definitions, overrides, and propagation are documented in [Chapter 4 — Events, EventHandler, and SPPEvent](04-events-and-event-handlers.md).
-
----
-
-## 13.8 Stage 7 — Module loading
-
-The application then enters the module layer.
-
-A module can contribute framework functionality, configuration, services, event listeners, views, and other runtime metadata depending on the module implementation.
-
-SPP's module system is not simply "include every PHP file in a directory". The framework reads module metadata, discovers active modules, resolves dependencies, and builds a compiled module registry.
-
-See [Chapter 5 — Module Discovery, Manifests, and Compiled Registry](05-modules-and-manifests.md).
+That distinction matters when reading the source.
 
 ---
 
-## 13.9 Stage 8 — Middleware and request processing
+## 13.12 Stage 6 — the application container becomes available
 
-The repository contains a `MiddlewareKernel`, middleware contracts, and concrete middleware implementations.
+During application initialization, the `App` object creates its application container.
 
-Middleware belongs to the request-processing layer. It is useful for concerns that should happen around many requests, such as:
+That means later application code can use the framework's dependency-resolution mechanisms.
 
-- authentication-related checks;
-- CSRF protection;
-- throttling/rate limiting;
-- security headers; and
-- request/audit context.
+For example, when a handler has:
 
-The important distinction is:
+```php
+public function index(ReportService $report)
+```
 
-| Concern | Typical SPP layer |
-|---|---|
-| Application selection | Scheduler |
-| Application lifecycle | App |
-| Feature activation | Modules |
-| Request cross-cutting behavior | Middleware |
-| Event interception | SPPEvent / EventHandler |
-| View rendering | SPPView and related modules |
+the application runtime can resolve the typed dependency when the handler is invoked through its container-aware call path.
 
-This prevents developers from putting middleware responsibilities into controllers or view code.
+This is why dependency injection appears to “just happen” in framework code: the application was initialized before your handler executed.
 
 ---
 
-## 13.10 Stage 9 — Route/page/rendering work
+## 13.13 Stage 7 — application initialization events
 
-The exact next stage depends on the entry point and application architecture.
+Application startup participates in the SPP event architecture.
 
-An HTTP request may reach a route, page configuration, service, controller, renderer, API handler, or a LiveComponent path.
+The boot documentation identifies:
 
-This is why the handbook does not present one universal controller pipeline for all SPP applications.
+```text
+event_spp_app_init
+```
 
-For normal server rendering, SPPView-related classes handle view location, compilation, and rendering.
+as an application-initialization event.
 
-For LiveComponent requests, the LiveComponent and SPP Live subsystems become involved.
+This gives modules and framework extensions a way to observe or participate in initialization without editing the central bootstrap file.
 
-For SPPUX interactions, client-side runtime code may participate after the initial page has been delivered.
+This is a major architectural principle:
+
+> **Framework lifecycle stages are extension points.**
+
+The detailed listener/priority/override behavior is explained in Chapter 4.
 
 ---
 
-## 13.11 A normal server-rendered page
+## 13.14 Stage 8 — modules enter the runtime
 
-A simplified request path is:
+Once the application exists, its active module configuration becomes important.
+
+The module system can:
+
+- discover module manifests;
+- read activation registries;
+- determine active modules;
+- resolve dependencies;
+- detect cycles/missing dependencies; and
+- build/use the compiled module registry.
+
+This is much more structured than “include every PHP file in `modules/`”.
+
+The module system determines what the application actually has available as framework-recognized features.
+
+---
+
+## 13.15 Stage 9 — middleware wraps request processing
+
+The middleware system sits around request execution.
+
+An SPP middleware can:
+
+- allow processing to continue;
+- reject a request early; or
+- observe/modify processing on the way back out.
+
+At the application level, middleware is therefore ideal for cross-cutting concerns such as authentication checks, CSRF protection, throttling, logging, and security headers.
+
+The concrete pipeline is implemented by `Pipeline` and `MiddlewareKernel`.
+
+A simplified model is:
+
+```mermaid
+flowchart LR
+    A[Request] --> B[Middleware 1]
+    B --> C[Middleware 2]
+    C --> D[Application dispatch]
+    D --> E[Middleware 2 response processing]
+    E --> F[Middleware 1 response processing]
+    F --> G[Response]
+```
+
+This “go in / come back out” shape is the onion model implemented by the pipeline.
+
+---
+
+## 13.16 Stage 10 — request dispatch
+
+After the middleware destination is reached, the application can dispatch the request into the appropriate subsystem.
+
+Depending on the application and entry point, that can involve:
+
+- route/page infrastructure;
+- a controller/request handler;
+- an API handler;
+- an SPPView page;
+- a LiveComponent path; or
+- another application subsystem.
+
+This is why SPP documentation should not pretend there is exactly one universal controller pipeline for every application.
+
+---
+
+## 13.17 A normal server-rendered request
+
+A useful simplified model is:
 
 ```mermaid
 flowchart TD
-    A[Browser request] --> B[SPP bootstrap]
-    B --> C[Active application]
-    C --> D[Application services]
-    D --> E[Request or route handler]
-    E --> F[SPPView rendering]
-    F --> G[HTTP response]
+    A[Browser request] --> B[Framework bootstrap]
+    B --> C[Select application]
+    C --> D[Run middleware]
+    D --> E[Route or page dispatch]
+    E --> F[Service or handler]
+    F --> G[SPPView rendering]
+    G --> H[HTTP response]
 ```
 
-This is intentionally simpler than the complete boot sequence. It is the mental model to keep in your head while learning the framework.
+A real request may contain more stages, but this model is sufficiently accurate for a beginner to predict where each class of problem belongs.
 
 ---
 
-## 13.12 A LiveComponent interaction
+## 13.18 What if the request is an API request?
 
-Once a page contains a LiveComponent, the interaction path changes.
+The path can differ after middleware.
+
+For example, the middleware documentation identifies API routing infrastructure such as `SPPAPI` and `AutoApiRouter`.
+
+Conceptually:
+
+```mermaid
+flowchart TD
+    A[Browser or API client] --> B[SPP bootstrap]
+    B --> C[Application context]
+    C --> D[Middleware]
+    D --> E[API dispatch]
+    E --> F[API response]
+```
+
+The application can therefore support both normal HTML-facing requests and API-facing requests inside the same framework runtime.
+
+---
+
+## 13.19 What if the request involves LiveComponent?
+
+A LiveComponent changes the later part of the interaction path.
+
+An initial navigation may still be a normal application page request.
+
+A later component interaction can instead travel through SPP Live.
 
 Conceptually:
 
@@ -251,126 +449,154 @@ sequenceDiagram
     participant V as SPPView
 
     B->>L: Component action
-    L->>C: Reconstruct and run component
-    C->>V: Render component output
+    L->>C: Reconstruct component
+    C->>C: Run action and lifecycle
+    C->>V: Resolve component output
     V-->>C: Rendered HTML
-    C-->>L: Live response
+    C-->>L: Live result
     L-->>B: Component update
 ```
 
-The exact transport can vary because SPP Live has multiple engine implementations.
-
-The important architectural boundary is that **LiveComponent remains a PHP component model while the transport is handled separately by SPP Live**.
+The exact network/engine behavior depends on the selected SPP Live implementation.
 
 ---
 
-## 13.13 Why the separation exists
+## 13.20 What happens after your PHP method returns?
 
-Without a transport abstraction, component code would have to know whether the deployment uses AJAX, SSE, WebSocket, or another live engine.
+Your method returning is only one event in the framework lifecycle.
 
-Instead:
+After the method returns, SPP may still need to:
+
+- run hooks;
+- render a view;
+- serialize component state;
+- create a live response;
+- stream content; or
+- complete transport/output processing.
+
+Therefore, when debugging, do not stop at:
+
+> “My method definitely ran.”
+
+The better question is:
+
+> **“What subsystem ran immediately after my method?”**
+
+That question narrows the problem dramatically.
+
+---
+
+## 13.21 Request debugging: start with the boundary that owns the symptom
+
+| Symptom | First subsystem to inspect |
+|---|---|
+| Wrong application selected | Scheduler/context detection |
+| Application configuration missing | `App` path/config resolution |
+| Module feature unavailable | Module discovery/compiler/activation |
+| Service cannot be constructed | Container |
+| Event handler not called | `SPPEvent` discovery/registration/propagation |
+| Request blocked before handler | Middleware |
+| URL reaches wrong endpoint | Routing/page dispatch |
+| View cannot be found/compiled | SPPView |
+| Live action does not reach PHP | SPP Live transport |
+| Component state is wrong | LiveComponent hydration/dehydration |
+| Browser reactive behavior fails | SPPUX |
+
+This table is more useful to a new developer than memorizing framework class names.
+
+---
+
+## 13.22 The most important debugging habit
+
+When a framework feels mysterious, ask:
+
+> **“Which boundary am I currently standing in?”**
+
+For example:
 
 ```text
-LiveComponent
-     |
-     v
-SPP Live abstraction
-     |
-     +--> AJAX fallback
-     +--> SSE path
-     +--> WebSocket path
-     +--> Redis/SQLite-backed engines
+Browser
+  ↓
+HTTP transport
+  ↓
+SPP bootstrap
+  ↓
+Application context
+  ↓
+Middleware
+  ↓
+Route/page/handler
+  ↓
+Service
+  ↓
+Presentation
 ```
 
-This is one of SPP's most important runtime boundaries.
+Once you know the failed boundary, you no longer need to understand the entire framework to find the bug.
 
 ---
 
-## 13.14 What happens after your PHP method returns?
+## 13.23 Coming from other frameworks
 
-The request is not complete merely because a controller or component method returned a value.
+### Laravel
 
-Depending on the path, SPP may still need to:
+Think of the request as passing through bootstrap → middleware → routing/controller → Blade, but add the SPP Scheduler application-context stage before ordinary route handling.
 
-- render a view;
-- serialize LiveComponent state;
-- produce a live response;
-- execute response-related hooks;
-- flush streamed information; or
-- finish output handling.
+### Symfony
 
-Therefore, a good debugging question is not merely:
+The routing and container ideas will feel familiar, but SPP's Scheduler explicitly manages multiple application contexts inside the runtime.
 
-> "Did my method run?"
+### Django
 
-Ask instead:
+Think URL → application selection → middleware → view, but remember that SPP separates application-context selection from endpoint routing.
 
-> "Which runtime stage ran after my method returned?"
+### React/Vue
 
-That question frequently leads directly to the responsible subsystem.
+Those frameworks focus heavily on the browser runtime. SPP's request lifecycle explains what happens on the PHP/server side before any SPPUX behavior matters.
 
 ---
 
-## 13.15 A practical debugging map
+## 13.24 Kernel Hacker: the real boot path
 
-When something goes wrong, start with the layer that owns the behavior.
+The conceptual diagrams intentionally compress many implementation details.
 
-| Symptom | First place to inspect |
-|---|---|
-| Wrong application handles URL | Scheduler/context detection |
-| App configuration not found | App path/config resolution |
-| Module not active | Module registry/compiler |
-| Service cannot be resolved | App/Registry container |
-| Event handler never runs | SPPEvent boot/discovery/listener registration |
-| Request denied | Middleware/auth/security layer |
-| View not found | SPPView locator/router/compiler |
-| LiveComponent initial render fails | LiveComponent render path + SPPView |
-| Live action does not reach PHP | SPP Live transport |
-| Browser-side reactive state fails | SPPUX runtime |
+The source-level boot sequence includes things such as:
 
-This table is intentionally operational: it tells a new developer where to start looking rather than requiring knowledge of the entire framework.
+- debug/version resolution;
+- framework constants;
+- Composer autoloading;
+- SPP autoloaders;
+- compatibility aliases;
+- exception handling;
+- session preparation;
+- Scheduler context detection;
+- application-class selection;
+- application constructor/init levels;
+- directory resolution;
+- application registration;
+- module initialization;
+- application initialization events; and
+- later request dispatch/middleware execution.
 
----
+The correct way to debug exact order is therefore to trace:
 
-## 13.16 The key architecture lesson
-
-The SPP request lifecycle is easier to understand when you stop thinking of the framework as one large class.
-
-Think in boundaries:
-
-```mermaid
-flowchart LR
-    A[Bootstrap] --> B[Scheduler]
-    B --> C[App]
-    C --> D[Modules and services]
-    D --> E[Request processing]
-    E --> F[Presentation or Live runtime]
-    F --> G[Response]
+```text
+spp/sppinit.php
+→ spp/core/class.scheduler.php
+→ spp/core/class.app.php
+→ module initialization
+→ middleware/dispatch entry point
 ```
 
-Each box has a smaller responsibility than "the framework".
-
-That is the mental model the rest of the handbook will use.
-
----
-
-## Kernel Hacker note
-
-The supplied boot documentation is deliberately more detailed than the conceptual flow shown here. The source-level boot sequence includes autoloader selection, compatibility aliases, debug/error initialization, session behavior, application-class selection, initialization levels, directory resolution, app registration, module initialization, and event registration.
-
-The expert rule is therefore:
-
-> **Use the conceptual diagram to understand the architecture; use `sppinit.php`, `class.app.php`, and `class.scheduler.php` to debug exact execution order.**
+The diagrams in this chapter are the **learning model**. The source files are the **execution specification**.
 
 ### Source map
 
 - `spp/sppinit.php`
 - `spp/core/class.scheduler.php`
 - `spp/core/class.app.php`
-- `spp/core/class.middlewarekernel.php`
-- `spp/core/class.pipeline.php`
 - `spp/core/class.module.php`
 - `spp/core/class.sppevent.php`
-- `spp/core/class.registry.php`
-- `spp/core/class.container.php`
+- `spp/core/class.middlewarekernel.php`
+- `spp/core/class.pipeline.php`
 - `documentation/framework/booting-and-app-loading.md`
