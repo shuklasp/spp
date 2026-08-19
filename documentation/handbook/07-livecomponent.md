@@ -14,42 +14,21 @@ A LiveComponent instance has an `id`, supplied by the constructor or generated w
 
 The implementation of `LiveComponent::renderComponent()` executes this sequence:
 
-```text
-new Component
-    │
-    ▼
-boot()
-    │
-    ▼
-booted()
-    │
-    ▼
-mount($params)
-    │
-    ▼
-snapshotInitialState()
-    │
-    ▼
-de­hydrate()
-    │
-    ▼
-signState()
-    │
-    ├── #[Lazy]? ── yes ──► placeholder + wire:init
-    │
-    └── no
-         │
-         ▼
-      rendering()
-         │
-         ▼
-      resolveRenderedHtml()
-         │
-         ▼
-       rendered($html)
-         │
-         ▼
-       wrapper HTML
+```mermaid
+flowchart TD
+    A[Create component] --> B[Boot]
+    B --> C[Booted]
+    C --> D[Mount parameters]
+    D --> E[Snapshot initial state]
+    E --> F[Dehydrate state]
+    F --> G[Sign state]
+    G --> H{Lazy component}
+    H -- Yes --> I[Render placeholder and init action]
+    H -- No --> J[Run rendering hook]
+    J --> K[Resolve rendered HTML]
+    K --> L[Run rendered hook]
+    I --> M[Build wrapper HTML]
+    L --> M
 ```
 
 This is the source-backed lifecycle for the initial render path. Earlier generic descriptions of methods such as `hydrate()` or `dehydrate()` should not be assumed to imply a different lifecycle order without checking the current implementation.
