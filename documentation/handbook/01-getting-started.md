@@ -2,7 +2,7 @@
 
 ## Chapter 1 — Introduction to SPP
 
-SPP (Satya Portal Pack) is a modular PHP application framework whose current source tree combines a kernel/runtime (`spp/core`), module packages (`spp/modules`), application sources (`src` and app-specific trees), rendering infrastructure, LiveComponent support, SPPUX, CLI tooling, event handling, middleware, and polyglot bridges.
+SPP (Satya Portal Pack) is a modular PHP application framework whose current source tree combines a kernel/runtime (`spp/core`), module packages (`spp/modules`), application sources, rendering infrastructure, LiveComponent support, SPPUX, CLI tooling, event handling, middleware, and polyglot bridges.
 
 This handbook is source-driven. Statements marked **Implemented** are based on the supplied SPP source tree. Statements marked **Architecture** describe relationships directly visible in the implementation. Proposed extensions are explicitly labeled and are not presented as current functionality.
 
@@ -10,54 +10,28 @@ This handbook is source-driven. Statements marked **Implemented** are based on t
 
 The framework has several collaborating runtime centers rather than one monolithic kernel class.
 
-```text
-┌──────────────────────────────────────────────────────────────────────┐
-│                           SPP RUNTIME                                │
-├──────────────────────────────────────────────────────────────────────┤
-│ Scheduler                                                            │
-│  ├─ application-process registry                                    │
-│  ├─ active application context                                      │
-│  └─ context switching / context execution                           │
-├──────────────────────────────────────────────────────────────────────┤
-│ Registry                                                             │
-│  ├─ hierarchical key/value registry                                 │
-│  ├─ service container adapter                                       │
-│  ├─ shared registry storage                                         │
-│  └─ directory/class/function registration                           │
-├──────────────────────────────────────────────────────────────────────┤
-│ Module Runtime                                                       │
-│  ├─ module discovery                                                 │
-│  ├─ manifest parsing                                                 │
-│  ├─ dependency resolution                                            │
-│  └─ compiled module registry                                        │
-├──────────────────────────────────────────────────────────────────────┤
-│ Runtime Services                                                     │
-│  ├─ Events / EventHandler / SPPEvent                                 │
-│  ├─ MiddlewareKernel                                                 │
-│  ├─ Service Providers                                                │
-│  ├─ Router                                                            │
-│  └─ Security / storage / async services                             │
-├──────────────────────────────────────────────────────────────────────┤
-│ Presentation & Reactive Runtime                                     │
-│  ├─ SPPView / extended Blade integration                            │
-│  ├─ ViewTags / components / forms                                   │
-│  ├─ LiveComponent                                                    │
-│  ├─ SPP Live transport engines                                      │
-│  └─ SPPUX JavaScript runtime                                        │
-├──────────────────────────────────────────────────────────────────────┤
-│ Polyglot / External Integration                                      │
-│  ├─ Polyglot bridge factory                                          │
-│  ├─ language-specific bridge implementations                        │
-│  ├─ daemon services                                                  │
-│  └─ external-application integration modules                        │
-└──────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    R[SPP Runtime]
+    S[Scheduler\nApplication processes\nActive context\nContext switching]
+    G[Registry\nHierarchical registry\nContainer adapter\nShared storage]
+    M[Module Runtime\nDiscovery\nManifest parsing\nDependency resolution\nCompiled registry]
+    X[Runtime Services\nEvents\nMiddleware\nService providers\nRouter\nSecurity / storage / async]
+    P[Presentation & Reactive Runtime\nSPPView / Blade integration\nViewTags / components / forms\nLiveComponent\nSPP Live\nSPPUX]
+    Y[Polyglot / External Integration\nBridge factory\nLanguage bridges\nDaemons\nExternal-app integrations]
+    R --> S
+    R --> G
+    R --> M
+    R --> X
+    R --> P
+    R --> Y
 ```
 
 **Source anchors:** `spp/core/class.scheduler.php`, `spp/core/class.registry.php`, `spp/core/class.sppevent.php`, `spp/core/class.middlewarekernel.php`, `spp/core/class.modulecompiler.php`, `spp/modules/spp/sppview/class.livecomponent.php`, `spp/modules/spp/spplive/`, `spp/modules/spp/drishyam/`, `spp/core/Polyglot/`.
 
 ## 1.2 Applications Are Runtime Processes
 
-`SPP\Scheduler` maintains a registry of `SPP\App` objects in a static `$procs` map. The active application is represented by `$AppContext`.
+`SPP\\Scheduler` maintains a registry of `SPP\\App` objects in a static `$procs` map. The active application is represented by `$AppContext`.
 
 The scheduler exposes:
 
@@ -79,7 +53,7 @@ This is the key primitive for code that needs to cross application boundaries in
 
 ## 1.3 Application Discovery
 
-`SPP\App::getGlobalSettings()` loads global settings and can dynamically discover application definitions by inspecting `src/*/etc/app.yml` under the configured SPP application directory. Discovered application settings are merged with existing application configuration and cached into the application's system configuration cache.
+`SPP\\App::getGlobalSettings()` loads global settings and can dynamically discover application definitions by inspecting `src/*/etc/app.yml` under the configured SPP application directory. Discovered application settings are merged with existing application configuration and cached into the application's system configuration cache.
 
 The application object also resolves application-specific paths including:
 
@@ -94,7 +68,7 @@ The application object also resolves application-specific paths including:
 
 ## 1.4 The Registry Is Two Things
 
-The class `SPP\Registry` contains two distinct mechanisms that should not be conflated.
+The class `SPP\\Registry` contains two distinct mechanisms that should not be conflated.
 
 ### 1.4.1 Hierarchical registry
 
@@ -109,7 +83,7 @@ Examples of capabilities visible in the implementation include:
 
 ### 1.4.2 IoC service container
 
-`Registry::container()` lazily creates an `SPP\Core\Container`. The Registry exposes:
+`Registry::container()` lazily creates an `SPP\\Core\\Container`. The Registry exposes:
 
 - `bind()`;
 - `singleton()`; and
@@ -125,7 +99,7 @@ This is an important enterprise feature because it allows selected registry stat
 
 ## 1.6 Event Architecture
 
-SPP has an event system centered on `SPP\SPPEvent` plus the older/compatibility-facing `SPP\EventHandler` abstraction.
+SPP has an event system centered on `SPP\\SPPEvent` plus the older/compatibility-facing `SPP\\EventHandler` abstraction.
 
 `SPPEvent` maintains:
 
@@ -138,7 +112,7 @@ The runtime supports:
 
 1. explicit listener registration through `listen()`;
 2. YAML event definitions;
-3. attribute-based discovery for methods carrying `#[SPP\Attributes\On]`;
+3. attribute-based discovery for methods carrying `#[SPP\\Attributes\\On]`;
 4. listener priorities;
 5. overridable events;
 6. propagation stopping through `EventParams`;
@@ -146,25 +120,17 @@ The runtime supports:
 
 ### 1.6.1 Event execution shape
 
-```text
-fireEvent(event, params)
-        │
-        ▼
- before_<event>
-        │
-        ├── propagation stopped? ── yes ──► finish
-        │
-        ▼
- override handler OR inline handler/default handler
-        │
-        ▼
- <event> listeners
-        │
-        ▼
- propagation stopped?
-        │
-        ▼
- after_<event>
+```mermaid
+flowchart TD
+    A[fireEvent event, params] --> B[before_event]
+    B --> C{Propagation stopped?}
+    C -- Yes --> Z[Finish]
+    C -- No --> D[Override handler or inline/default handler]
+    D --> E[event listeners]
+    E --> F{Propagation stopped?}
+    F -- Yes --> G[after_event]
+    F -- No --> G
+    G --> Z
 ```
 
 The exact implementation is in `spp/core/class.sppevent.php`. Earlier handbook drafts that described a generic publish/subscribe bus should be read as simplified terminology; the actual runtime has explicit **before**, **main/override**, and **after** hook stages.
@@ -220,7 +186,7 @@ This is materially different from treating SPPUX as a collection of UI widgets.
 
 ## 1.11 Polyglot Architecture Is Implemented
 
-The framework contains a `SPP\Core\Polyglot` bridge family, including a bridge interface, factory, compiler/default bridge, and language-specific bridges for .NET, Go, and Java. The tree also contains runtime assets and daemon services for C++, .NET, Go, Java, Node.js, Perl, and Python.
+The framework contains a `SPP\\Core\\Polyglot` bridge family, including a bridge interface, factory, compiler/default bridge, and language-specific bridges for .NET, Go, and Java. The tree also contains runtime assets and daemon services for C++, .NET, Go, Java, Node.js, Perl, and Python.
 
 Existing documentation also covers polyglot commands and external-application integration. These facilities will be documented as **implemented integration capabilities** only where source and tests support the claim.
 
