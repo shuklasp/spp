@@ -17,18 +17,16 @@ SPP separates the server-side LiveComponent model from its transport/runtime eng
 
 The module also contains dedicated `SSEHandler` and `UploadHandler` components.
 
-This gives SPP a transport-selection architecture:
+A compact view of the implemented boundary is:
 
-```text
-                   LiveComponent
-                         │
-                         ▼
-                   SPP Live layer
-                         │
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-       AJAX/Safe       SSE/WebSocket   shared/live state
-       fallback        real-time       Redis/SQLite
+```mermaid
+flowchart TD
+    A[LiveComponent] --> B[SPP Live]
+    B --> C[Ajax fallback]
+    B --> D[SQLite engine]
+    B --> E[Redis engine]
+    B --> F[WebSocket engine]
+    B --> G[SSE handler]
 ```
 
 The exact mapping between engine selection and deployment environment is implementation-specific and belongs in the transport reference pages.
@@ -57,18 +55,13 @@ The handbook will document the precise data structures and coordination semantic
 
 ## 8.7 Why transport separation matters
 
-```text
-Component code
-      │
-      ▼
-SPP Live API
-      │
-      ├── AJAX fallback
-      ├── SSE
-      ├── WebSocket
-      ├── SQLite-backed coordination
-      └── Redis-backed coordination
-```
+The practical relationship is:
+
+| Layer | Responsibility |
+|---|---|
+| LiveComponent | Component state and UI behavior |
+| SPP Live | Live execution and transport abstraction |
+| Engine or handler | AJAX, SQLite, Redis, WebSocket, or SSE behavior |
 
 The component model remains focused on application state and UI behavior, while transport concerns are delegated to the live engine layer.
 
