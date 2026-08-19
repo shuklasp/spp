@@ -7,30 +7,24 @@ This is the **canonical, source-driven handbook for SPP**.
 It is written for two readers at the same time:
 
 1. someone who has never used a software framework and needs every concept explained from the beginning; and
-2. an experienced developer/architect who wants the implementation details, source paths, lifecycle rules, and architectural boundaries.
+2. an experienced developer/architect who wants implementation details, source paths, lifecycle rules, and architectural boundaries.
 
-The chapters therefore progress from:
+Every chapter follows the same teaching pattern:
 
 ```text
-What is a framework?
-        ↓
-What is an SPP application?
-        ↓
-How does an SPP request work?
-        ↓
-How do services, modules, events and middleware work?
-        ↓
-How does SPP render pages?
-        ↓
-How does LiveComponent work?
-        ↓
-How does SPP Live transport live interactions?
-        ↓
-How does SPPUX run in the browser?
-        ↓
-How does SPP integrate other runtimes and applications?
-        ↓
-How do we design and operate an enterprise SPP system?
+Problem
+  ↓
+Plain-language concept
+  ↓
+SPP feature
+  ↓
+Practical use
+  ↓
+Internal implementation
+  ↓
+When to use / not use
+  ↓
+Framework comparison
 ```
 
 ## Evidence levels
@@ -47,7 +41,7 @@ A class existing in the repository is not by itself proof of every behavior one 
 
 ## Canonical source policy
 
-For behavioral claims, the evidence order is:
+For behavioral claims, use this order of authority:
 
 1. executable source;
 2. tests and fixtures;
@@ -55,97 +49,99 @@ For behavioral claims, the evidence order is:
 4. existing repository documentation;
 5. architectural interpretation.
 
-When older documentation and current source disagree, the current executable implementation wins.
+When older documentation and current code disagree, the current executable implementation wins.
 
 ## Diagram policy
 
-The handbook uses a simple visual rule:
+The handbook uses a strict visual rule:
 
-- **Mermaid** — architecture, lifecycle, request flow, dependency flow, event flow, and other genuine diagrams.
-- **Code blocks** — PHP/JavaScript/YAML/XML/CLI commands, directory examples, and literal output.
-- **Tables** — simple comparisons or relationships that do not need a graphic.
+- **Mermaid** — genuine architecture, lifecycle, request flow, dependency flow, event flow, decision flow, and deployment topology.
+- **Code blocks** — PHP/JavaScript/YAML/XML/CLI commands, literal directory layouts, configuration, and actual output.
+- **Tables** — simple comparisons and relationships that do not need a graphic.
 - **Prose/lists** — explanations and procedures.
 
-Diagrams are included only when they improve understanding. A diagram must be source-accurate and valid for GitHub Markdown rendering.
+A diagram must be useful, source-accurate, simple enough to understand, and valid for GitHub rendering. Decorative or redundant diagrams are removed.
 
-## Current handbook learning order
+## Current learning order
 
 ### Foundations
 
-- `01-getting-started.md` — What SPP is and the framework mental model.
+- `01-getting-started.md` — What SPP is and what a framework does.
 - `02-kernel-scheduler.md` — Applications, contexts, and the Scheduler.
-- `03-registry-and-container.md` — Registry data and dependency injection.
-- `04-events-and-event-handlers.md` — Events, handlers, listeners, priorities, overrides.
-- `05-modules-and-manifests.md` — Modules, activation, dependencies, compiled registry.
+- `03-registry-and-container.md` — Runtime values and dependency injection.
+- `04-events-and-event-handlers.md` — Events, listeners, priorities, overrides, and propagation.
+- `05-modules-and-manifests.md` — Modules, activation, dependencies, and compiled metadata.
 
 ### Presentation and reactive architecture
 
-- `06-sppview-and-bladeone.md` — SPPView, extended BladeOne, ViewTags, Drishyam.
-- `07-livecomponent.md` — Server-side reactive components.
-- `08-spp-live-transports.md` — AJAX, SSE, WebSocket, Redis/SQLite engines and live runtime.
-- `09-sppux-runtime.md` — Client-side reactive runtime and DOM reconciliation.
+- `06-sppview-and-bladeone.md` — SPPView, ViewTags, Drishyam, and extended BladeOne.
+- `07-livecomponent.md` — Server-side reactive components and state lifecycle.
+- `08-spp-live-transports.md` — Live transport/runtime engines and handlers.
+- `09-sppux-runtime.md` — Client-side reactivity, scheduling, events, reconciliation, and error boundaries.
 
-### Integration and enterprise boundaries
+### Integration and security
 
-- `10-polyglot-and-external-applications.md` — Other runtimes and independent applications.
-- `10-security-and-runtime-contracts.md` — Trust boundaries and security responsibilities.
+- `10-polyglot-and-external-applications.md` — Polyglot bridges and independent external applications.
+- `10-security-and-runtime-contracts.md` — Authentication/authorization boundaries, state integrity, rendering safety, and trust boundaries.
 
-### Hands-on learning
+### Building applications
 
-- `11-nerd-tutorial-roadmap.md` — The complete tutorial progression.
-- `12-first-spp-application.md` — Build the first application from zero knowledge.
-- `13-request-lifecycle.md` — Follow one request through the runtime.
-- `14-middleware-and-request-pipeline.md` — Build request-boundary middleware.
-- `15-routing-and-request-dispatch.md` — Understand route/page/API dispatch.
+- `11-nerd-tutorial-roadmap.md` — How the hands-on tutorial is structured.
+- `12-first-spp-application.md` — First application from zero framework knowledge.
+- `13-request-lifecycle.md` — What happens after a browser sends a request.
+- `14-middleware-and-request-pipeline.md` — Request-boundary processing.
+- `15-routing-and-request-dispatch.md` — Application selection, routing, and handler dispatch.
+- `16-database-and-storage.md` — SPPDB, adapters, XDB, caching, and storage boundaries.
+- `17-authentication-and-authorization.md` — Guards, sessions, rights, roles, and authorization.
+- `18-cache-logging-workflow.md` — Operational supporting systems.
+- `19-cli-and-developer-tooling.md` — CLI architecture and development workflow.
+- `20-testing-and-debugging.md` — Tests and systematic runtime diagnosis.
 
-## What is still being expanded
+### Enterprise and migration
 
-The handbook is intentionally not considered complete yet.
+- `21-enterprise-architecture-and-deployment.md` — Multiple applications, processes, protocols, polyglot services, and deployment topology.
+- `22-total-nerd-tutorial.md` — The same application evolved from plain PHP to SPP, LiveComponent, and SPPUX.
+- `23-coming-from-other-frameworks.md` — Conceptual migration guides for Laravel, Symfony, Django, Spring, ASP.NET, React, Vue, and Flutter readers.
 
-The next major areas are the detailed reference/tutorial chapters for:
+## What remains for future deep-dive reference work
 
-- application configuration and environments;
-- service providers/provider-like registration mechanisms where implemented;
-- forms and validation;
-- ViewTags and component internals;
-- LiveComponent attributes and state/serialization internals;
-- each concrete SPP Live engine;
-- SPPUX reactive internals and reconciliation algorithms;
-- CLI commands and generators;
-- database/XDB and storage architecture;
-- authentication/authorization modules;
-- workflow/audit/logging/cache subsystems;
-- testing and fixtures;
-- deployment and production topology; and
-- the full plain-PHP → SPP → LiveComponent → SPPUX tutorial.
+The current handbook is the complete learning path. Further additions should deepen existing chapters rather than create unsupported parallel architecture. Candidates for deeper reference appendices include:
 
-Those chapters will be added only after their source paths have been traced.
+- complete ViewTag grammar and parser internals;
+- concrete SPP Live engine source-level references;
+- full SPPUX reconciliation and reactive implementation analysis;
+- complete CLI command catalog with per-command options;
+- detailed language-specific bridge references;
+- workflow/audit internals;
+- testing patterns for each major subsystem; and
+- detailed deployment runbooks for concrete environments.
+
+These should only be added when their implementation has been traced sufficiently to support normative documentation.
 
 ## Important research corrections
 
-Earlier chat-only drafts contained assumptions that were stronger than the source evidence. Those drafts are **not canonical**.
+Earlier drafts contained assumptions stronger than the available source evidence. Those drafts are **not canonical**.
 
-In particular, the handbook does not present the following as universal implemented SPP behavior unless a concrete source path proves it:
+The handbook does not present the following as universal implemented SPP behavior unless concrete source/test evidence proves it:
 
 - a generic distributed event bus across arbitrary applications;
 - an arbitrary server-side DOM-diff protocol;
 - lifecycle methods imported from another framework without matching SPP source;
-- automatic dependency graphs for computed properties that the inspected implementation does not establish; or
-- a universal IPC/security protocol covering every external integration.
+- automatic computed-property dependency graphs not established by the implementation;
+- universal IPC semantics across every bridge; or
+- universal database guarantees merely because similarly named methods exist.
 
 ## Research source roots
 
-The primary repository roots used for research are:
+The primary repository roots are:
 
 - `spp/core/` — kernel/runtime infrastructure.
-- `spp/modules/spp/` — first-party modules, including SPPView, SPP Live, Drishyam, SPPUX, database, auth, API, workflow and related subsystems.
+- `spp/modules/spp/` — first-party modules, including SPPView, SPP Live, Drishyam, SPPUX, database, authentication, API, workflow, cache, and related subsystems.
 - `spp/modules/contrib/` — contributed modules and external integrations.
 - `spp/tests/` and module tests — executable evidence.
 - `spp/docs/` and `documentation/` — supporting project documentation and tutorials.
 
 ## Editorial rule
-
-The handbook should be **detailed without becoming unnecessarily complicated**.
 
 Every chapter should answer, in order:
 
@@ -157,4 +153,4 @@ Every chapter should answer, in order:
 6. When should I not use it?
 7. How does it compare conceptually with frameworks the reader may already know?
 
-The objective is not to make the documentation sound sophisticated. The objective is to make SPP understandable.
+The objective is not to make SPP documentation sound complicated. The objective is to make SPP understandable without sacrificing technical accuracy.
