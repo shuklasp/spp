@@ -20,20 +20,15 @@ The core PHP layer contains:
 
 This is an adapter/factory architecture:
 
-```text
-                 SPP PHP application
-                         │
-                         ▼
-              PolyglotBridgeFactory
-                         │
-          ┌──────────────┼──────────────┐
-          ▼              ▼              ▼
-       Go bridge      Java bridge    .NET bridge
-          │              │              │
-          └─────── language/runtime ────┘
-                         │
-                         ▼
-                 external process/runtime
+```mermaid
+flowchart TD
+    A[SPP PHP application] --> B[Polyglot bridge factory]
+    B --> C[Go bridge]
+    B --> D[Java bridge]
+    B --> E[DotNet bridge]
+    C --> F[External runtime]
+    D --> F
+    E --> F
 ```
 
 The factory allows application code to work through a common bridge abstraction while the concrete runtime differs by language.
@@ -66,16 +61,17 @@ The repository also contains an integration tutorial and contributed modules for
 
 The supported architectural concept is therefore:
 
-```text
-                       SPP Router / Integration layer
-                                  │
-                 ┌────────────────┴────────────────┐
-                 ▼                                 ▼
-           native SPP app                    external app
-                 │                                 │
-          SPP modules/views                  native runtime
-                 │                                 │
-                 └──────────── integration ────────┘
+```mermaid
+flowchart LR
+    R[SPP router and integration layer]
+    A[Native SPP application]
+    X[External application]
+    R --> A
+    R --> X
+    A --> M[SPP modules and views]
+    X --> N[External runtime]
+    A --- I[Integration boundary]
+    X --- I
 ```
 
 The external application can retain its own runtime rather than being rewritten as an SPP module.
@@ -112,24 +108,23 @@ These are separate layers:
 | Other language runtime | Polyglot bridges/services |
 | External application runtime | Integration/router adapters |
 
-This distinction prevents a common architectural error: treating every external service as if it were an SPP module.
+This distinction prevents a common architectural error: treating every external service as an SPP module.
 
 ## 10.7 Enterprise architecture pattern
 
 The implemented building blocks can be composed like this:
 
-```text
-                         SPP host
-                            │
-        ┌───────────────────┼────────────────────┐
-        ▼                   ▼                    ▼
-   SPP App A            SPP App B          integration layer
-        │                   │                    │
-      modules             modules          external systems
-        │                                        │
-        │                             ┌──────────┼───────────┐
-        │                             ▼          ▼           ▼
-        └───────────────────────── Python     Node.js     .NET/Go/Java
+```mermaid
+flowchart TD
+    H[SPP host] --> A[SPP App A]
+    H --> B[SPP App B]
+    H --> I[Integration layer]
+    A --> M1[Modules]
+    B --> M2[Modules]
+    I --> X[External systems]
+    X --> P[Python]
+    X --> N[Node.js]
+    X --> G[.NET or Go or Java]
 ```
 
 The diagram is a composition of verified building blocks; it is not a claim that every transport between every node already exists.
