@@ -41,26 +41,27 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 
 ## Current handbook chapters
 
-### Foundations
+### Foundations and learning aids
 
 - [00 — Research status and learning order](00-handbook-status.md)
 - [50 — Frameworks 101: from plain PHP to SPP](50-frameworks-101-and-how-spp-builds-on-them.md)
 - [04 — Framework Concept → SPP Feature Map](04-framework-to-spp-concept-map.md)
+- [56 — Choose Your SPP Learning Journey](56-choose-your-spp-learning-journey.md)
+- [57 — SPP in 30 Minutes](57-spp-in-30-minutes.md)
+- [59 — SPP Runtime: One Picture](59-spp-runtime-one-picture.md)
+- [54 — Beginner Glossary and Prerequisite Ladder](54-beginner-glossary-and-prerequisite-ladder.md)
+
+### Core framework reference
+
 - [01 — Introduction to SPP](01-getting-started.md)
 - [02 — Scheduler and application contexts](02-kernel-scheduler.md)
 - [03 — Registry and IoC container](03-registry-and-container.md)
 - [04 — Events, EventHandler, and SPPEvent](04-events-and-event-handlers.md)
 - [05 — Module discovery, manifests, and compiled registry](05-modules-and-manifests.md)
-
-### Presentation and reactive architecture
-
 - [06 — SPPView, extended BladeOne, and Drishyam](06-sppview-and-bladeone.md)
 - [07 — LiveComponent](07-livecomponent.md)
 - [08 — SPP Live transport engines](08-spp-live-transports.md)
 - [09 — SPPUX runtime](09-sppux-runtime.md)
-
-### Integration and security
-
 - [10 — Polyglot bridges and external applications](10-polyglot-and-external-applications.md)
 - [10A — Security and runtime contracts](10-security-and-runtime-contracts.md)
 
@@ -73,6 +74,8 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 - [20 — Testing, debugging, and source-driven diagnosis](20-testing-and-debugging.md)
 - [21 — Enterprise architecture and deployment](21-enterprise-architecture-and-deployment.md)
 - [23 — Coming to SPP from other frameworks](23-coming-from-other-frameworks.md)
+- [60 — Production Readiness and Architecture Decisions](60-production-readiness-and-architecture-decisions.md)
+- [61 — Versioning, Upgrades, and Compatibility](61-versioning-upgrades-and-compatibility.md)
 
 ### Hands-on core tutorial — mandatory sequence
 
@@ -113,7 +116,7 @@ These are the source-oriented branches. They deliberately overlap with the refer
 
 These chapters are the newer, deeper source-oriented expansions of the same branches:
 
-- [39 — Data and Persistence: Entities, SPPDB, and XDB](40-data-entities-sppdb-and-xdb.md)
+- [40 — Data and Persistence: Entities, SPPDB, and XDB](40-data-entities-sppdb-and-xdb.md)
 - [41 — Storage, Transfer, and Live-Content Promotion](41-storage-transfer-and-content-promotion.md)
 - [42 — Reporting, Observability, and Diagnostics](42-reporting-observability-and-diagnostics.md)
 - [43 — Queue, Cron, and Background Execution](43-queue-cron-and-background-execution.md)
@@ -124,7 +127,7 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [48 — Polyglot, IPC, and External Applications](48-polyglot-ipc-and-external-application-architecture.md)
 - [49 — Multi-Application Enterprise Architecture and Deployment](49-multi-application-enterprise-deployment.md)
 
-### Learning and coverage maps
+### Learning and capability infrastructure
 
 - [24 — Complete branched tutorial curriculum](24-tutorial-curriculum.md)
 - [25 — Mandatory framework feature labs](25-framework-feature-labs.md)
@@ -133,36 +136,44 @@ These chapters are the newer, deeper source-oriented expansions of the same bran
 - [28 — Framework feature inventory](28-framework-feature-inventory.md)
 - [29 — Feature coverage roadmap](29-feature-coverage-roadmap.md)
 - [30 — Scaffold and code-generation coverage](30-scaffold-generator-coverage.md)
+- [51 — Continuous Task Desk Course](51-continuous-task-desk-course.md)
+- [52 — Plain PHP → Framework → SPP Comparison Method](52-plain-php-framework-spp-comparison.md)
+- [53 — Deliberate Failure and Debugging Labs](53-deliberate-failure-and-debugging-labs.md)
+- [55 — Feature-to-Tutorial Coverage Matrix](55-feature-to-tutorial-coverage-matrix.md)
+- [58 — Chapter Quality Gate](58-chapter-quality-gate.md)
 
 ## The canonical learning path
 
 ```mermaid
 flowchart TD
     A[Frameworks 101] --> B[Framework Concept Map]
-    B --> C[Plain PHP and MVC]
-    C --> D[SPP application and context]
-    D --> E[Middleware]
-    E --> F[Events]
-    F --> G[Registry and dependency injection]
-    G --> H[Configuration]
-    H --> I[Routing paradigms]
-    I --> J[Modules and scaffolding]
-    J --> K[SPPView, BladeOne, Drishyam, forms]
-    K --> L[Entities, SPPDB, XDB]
-    L --> M[Identity, authentication, and web security]
-    M --> N[Parikshak]
-    N --> O[API]
-    O --> P[Workflow]
-    P --> Q[Storage and transfer]
-    Q --> R[Reporting, logging, and observability]
-    R --> S[Queue and Cron]
-    S --> T[SPPAI]
-    T --> U[LiveComponent]
-    U --> V[SPP Live]
-    V --> W[SPPUX]
-    W --> X[Polyglot and IPC]
-    X --> Y[Multiple applications]
-    Y --> Z[Enterprise deployment and capstone]
+    B --> C[Choose learning journey]
+    C --> D[Plain PHP and MVC]
+    D --> E[SPP application and context]
+    E --> F[Middleware]
+    F --> G[Events]
+    G --> H[Registry and dependency injection]
+    H --> I[Configuration]
+    I --> J[Routing paradigms]
+    J --> K[Modules and scaffolding]
+    K --> L[SPPView, BladeOne, Drishyam, forms]
+    L --> M[Entities, SPPDB, XDB]
+    M --> N[Identity, authentication, and web security]
+    N --> O[Parikshak]
+    O --> P[API]
+    P --> Q[Workflow]
+    Q --> R[Storage and transfer]
+    R --> S[Reporting, logging, and observability]
+    S --> T[Queue and Cron]
+    T --> U[SPPAI]
+    U --> V[LiveComponent]
+    V --> W[SPP Live]
+    W --> X[SPPUX]
+    X --> Y[Polyglot and IPC]
+    Y --> Z[Multiple applications]
+    Z --> AA[Production readiness]
+    AA --> AB[Versioning / upgrade]
+    AB --> AC[Enterprise deployment and capstone]
 ```
 
 ## Mandatory learning rule
