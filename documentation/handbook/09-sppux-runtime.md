@@ -17,20 +17,31 @@ The primary `sppux.js` facade imports these core modules:
 - `core/reconciler.js` — DOM reconciliation and attribute patching;
 - `core/error-boundary.js` — error-boundary support.
 
-```text
-                    SPPUX Facade
-                         │
-       ┌─────────┬───────┼────────┬──────────┐
-       ▼         ▼       ▼        ▼          ▼
-   Reactive   Scheduler Template Events  Reconciler
-       │         │       │        │          │
-       └─────────┴───────┴────────┴──────────┘
-                         │
-                         ▼
-                  Component runtime
-                         │
-                         ▼
-                 DOM / browser UI
+```mermaid
+flowchart TB
+    F[SPPUX facade]
+    R[Reactive state]
+    S[Scheduler]
+    T[Template runtime]
+    E[Event runtime]
+    D[DOM reconciler]
+    X[Error boundaries]
+    C[Client component runtime]
+    U[Browser UI]
+
+    F --> R
+    F --> S
+    F --> T
+    F --> E
+    F --> D
+    F --> X
+    R --> C
+    S --> C
+    T --> C
+    E --> C
+    D --> C
+    X --> C
+    C --> U
 ```
 
 ## 9.2 Reactive primitives
