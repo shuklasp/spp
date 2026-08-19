@@ -10,9 +10,9 @@ The handbook is a **learning book plus an implementation reference**. It assumes
 
 **Explorer** — learn what a framework is, what an SPP application is, and how a request travels through the runtime.
 
-**Builder** — build applications using services, modules, events, middleware, routing, SPPView, authentication, storage, LiveComponent, SPP Live, and SPPUX.
+**Builder** — build applications using services, modules, events, middleware, routing, SPPView, authentication, storage, LiveComponent, SPP Live, SPPUX, APIs, workflow, and testing.
 
-**Architect** — design application boundaries, multi-application systems, external integrations, polyglot runtimes, trust boundaries, and deployment topology.
+**Architect** — design application boundaries, multi-application systems, external integrations, polyglot runtimes, trust boundaries, migration/promotion, workers, and deployment topology.
 
 **Kernel Hacker** — trace the implementation, caches, compilers, adapters, lifecycle rules, and runtime contracts in source.
 
@@ -62,67 +62,96 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 - [10 — Polyglot bridges and external applications](10-polyglot-and-external-applications.md)
 - [10A — Security and runtime contracts](10-security-and-runtime-contracts.md)
 
-### Hands-on application development
+### Reference and architecture
 
-- [11 — Total-nerd tutorial roadmap](11-nerd-tutorial-roadmap.md)
-- [12 — Your first SPP application](12-first-spp-application.md)
-- [13 — What happens to a request?](13-request-lifecycle.md)
-- [14 — Middleware and request pipeline](14-middleware-and-request-pipeline.md)
-- [15 — Routing and request dispatch](15-routing-and-request-dispatch.md)
 - [16 — Database, SPPDB, and SPP XDB](16-database-and-storage.md)
 - [17 — Authentication and authorization](17-authentication-and-authorization.md)
 - [18 — Cache, logging, workflow, and operations](18-cache-logging-workflow.md)
 - [19 — CLI and developer tooling](19-cli-and-developer-tooling.md)
 - [20 — Testing, debugging, and source-driven diagnosis](20-testing-and-debugging.md)
-
-### Enterprise and migration
-
 - [21 — Enterprise architecture and deployment](21-enterprise-architecture-and-deployment.md)
-- [22 — Complete plain PHP → SPP → LiveComponent → SPPUX tutorial](22-total-nerd-tutorial.md)
 - [23 — Coming to SPP from other frameworks](23-coming-from-other-frameworks.md)
+
+### Hands-on core tutorial — mandatory sequence
+
+The following is the new **zero-level main tutorial**. Complete it in order.
+
+1. [31 — From Plain PHP to Frameworks and MVC](31-tutorial-core-01-framework-mvc.md)
+2. [32 — Middleware Pipeline](32-tutorial-core-02-middleware-pipeline.md)
+3. [33 — Events and Event Handling](33-tutorial-core-03-events.md)
+4. [34 — Registry and Dependency Injection](34-tutorial-core-04-registry-and-di.md)
+5. [35 — Configuration and Settings](35-tutorial-core-05-configuration-settings.md)
+6. [36 — Routing and MVC Dispatch](36-tutorial-core-06-routing-and-dispatch.md)
+7. [37 — Modules](37-tutorial-core-07-modules.md)
+8. [38 — SPPView, Forms, Validation](38-tutorial-core-08-sppview-views-forms.md)
+
+The core tutorial is intentionally ordered this way: a beginner first understands what a framework and MVC are, then learns the request pipeline, events, dependency management, configuration, routing, feature packaging, and presentation.
+
+### Specialized tutorial branches
+
+- [39 — SPPDB/XDB Part 1: Data from Zero](39-tutorial-branch-sppdb-xdb-01.md)
+- [40 — SPP XDB Part 2: Advanced Database Architecture](40-tutorial-branch-sppdb-xdb-02-advanced.md)
+- [41 — Parikshak Testing Framework](41-tutorial-branch-parikshak.md)
+- [42 — SPPAPI](42-tutorial-branch-api.md)
+- [43 — Web Security Stack](43-tutorial-branch-web-security.md)
+- [44 — Workflow, Approval Chains, Wizards](44-tutorial-branch-workflow.md)
+- [45 — Storage, Internationalization, Reporting](45-tutorial-branch-storage-i18n-reporting.md)
+- [46 — SPPAI](46-tutorial-branch-ai.md)
+- [47 — Migration, Transfer, and Offline-to-Live Promotion](47-tutorial-branch-migration-transfer-promotion.md)
+- [48 — LiveComponent](48-tutorial-branch-livecomponent.md)
+- [49 — SPP Live Transports](49-tutorial-branch-spplive-transports.md)
+- [50 — SPPUX](50-tutorial-branch-sppux.md)
+- [51 — Polyglot and External Applications](51-tutorial-branch-polyglot-external.md)
+- [52 — Multiple Applications, Cron, and Workers](52-tutorial-branch-multiapp-cron-workers.md)
+- [53 — Enterprise Capstone](53-tutorial-enterprise-capstone.md)
+
+### Learning and coverage maps
+
 - [24 — Complete branched tutorial curriculum](24-tutorial-curriculum.md)
+- [25 — Mandatory framework feature labs](25-framework-feature-labs.md)
+- [26 — Parikshak testing reference/branch](26-parikshak-testing.md)
+- [27 — Migration and transfer architecture](27-migration-transfer-promotion.md)
+- [28 — Framework feature inventory](28-framework-feature-inventory.md)
+- [29 — Feature coverage roadmap](29-feature-coverage-roadmap.md)
+- [30 — Scaffold and code-generation coverage](30-scaffold-generator-coverage.md)
 
 ## The canonical learning path
 
 ```mermaid
 flowchart TD
-    A[What is a framework] --> B[SPP application and context]
-    B --> C[Request lifecycle]
-    C --> D[Services and Registry]
-    D --> E[Events and middleware]
-    E --> F[Modules and configuration]
-    F --> G[Routing and rendering]
-    G --> H[Authentication and storage]
-    H --> I[LiveComponent]
-    I --> J[SPP Live]
-    J --> K[SPPUX]
-    K --> L[Polyglot and external systems]
-    L --> M[Enterprise architecture]
-    M --> N[Testing and operations]
+    A[What is a framework] --> B[Plain PHP and MVC]
+    B --> C[Middleware]
+    C --> D[Events]
+    D --> E[Registry and dependency injection]
+    E --> F[Configuration]
+    F --> G[Routing]
+    G --> H[Modules]
+    H --> I[SPPView and forms]
+    I --> J[SPPDB and XDB]
+    J --> K[Authentication and web security]
+    K --> L[Parikshak]
+    L --> M[API]
+    M --> N[Workflow and operations]
+    N --> O[LiveComponent]
+    O --> P[SPP Live]
+    P --> Q[SPPUX]
+    Q --> R[Storage and i18n]
+    R --> S[Reporting and Cron]
+    S --> T[SPPAI]
+    T --> U[Migration and content promotion]
+    U --> V[Polyglot and external systems]
+    V --> W[Multi-application architecture]
+    W --> X[Enterprise capstone]
 ```
 
-## Tutorial tracks
+## Mandatory learning rule
 
-### Track A — PHP fundamentals
+Every major framework subsystem follows the same learning loop:
 
-Build the same Task Desk application in plain PHP, then migrate it into the SPP runtime and add services, persistence, middleware, events, validation, authentication, modules, views, and tests.
+**Learn → Build → Test with Parikshak → Deliberately break → Diagnose → Trace source → Learn when not to use it.**
 
-### Track B — LiveComponent
-
-Upgrade only the genuinely interactive parts to LiveComponent, learning server-side component state, lifecycle, hydration/dehydration, validation, dispatch, streaming, lazy/isolated rendering, and transport separation.
-
-### Track C — SPPUX
-
-Add browser-side reactive islands using the actual SPPUX runtime: signals, computed state, batching, tagged templates, event delegation, scheduling, reconciliation, and error boundaries.
-
-### Track D — Enterprise integration
-
-Use multiple SPP application contexts where justified, then integrate selected capabilities with external or polyglot runtimes using explicit protocol and trust boundaries.
-
-### Track E — Full capability curriculum
-
-Use [Chapter 24](24-tutorial-curriculum.md) when the objective is not merely to learn SPP, but to **exercise the framework broadly**. It branches the learning path into data/forms, security, events/modules, workflow, SPPView, LiveComponent, SPP Live, SPPUX, polyglot integration, external applications, background work, operations, and enterprise multi-application deployment before bringing them together in a capstone.
+A subsystem is not considered fully learned because the reader has read its reference chapter.
 
 ## Source-first rule
 
-The handbook never treats the existence of a class, method, or documentation paragraph as proof of a broad enterprise guarantee. Features such as distributed consensus, transaction semantics, correlation propagation, protocol security, or transport behavior must be tied to concrete implementation evidence before they are described as current SPP behavior.
+The handbook never treats the existence of a class, method, scaffold, or documentation paragraph as proof of a broad enterprise guarantee. Features such as distributed consensus, transaction semantics, correlation propagation, protocol security, transport behavior, AI recovery, or content-promotion guarantees must be tied to concrete implementation evidence before they are described as current SPP behavior.
