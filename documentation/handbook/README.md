@@ -80,6 +80,7 @@ Every diagram must be useful, source-accurate, simple enough to understand, and 
 - [21 — Enterprise architecture and deployment](21-enterprise-architecture-and-deployment.md)
 - [22 — Complete plain PHP → SPP → LiveComponent → SPPUX tutorial](22-total-nerd-tutorial.md)
 - [23 — Coming to SPP from other frameworks](23-coming-from-other-frameworks.md)
+- [24 — Complete branched tutorial curriculum](24-tutorial-curriculum.md)
 
 ## The canonical learning path
 
@@ -117,6 +118,10 @@ Add browser-side reactive islands using the actual SPPUX runtime: signals, compu
 ### Track D — Enterprise integration
 
 Use multiple SPP application contexts where justified, then integrate selected capabilities with external or polyglot runtimes using explicit protocol and trust boundaries.
+
+### Track E — Full capability curriculum
+
+Use [Chapter 24](24-tutorial-curriculum.md) when the objective is not merely to learn SPP, but to **exercise the framework broadly**. It branches the learning path into data/forms, security, events/modules, workflow, SPPView, LiveComponent, SPP Live, SPPUX, polyglot integration, external applications, background work, operations, and enterprise multi-application deployment before bringing them together in a capstone.
 
 ## Source-first rule
 
