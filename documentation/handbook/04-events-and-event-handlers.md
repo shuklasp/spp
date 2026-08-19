@@ -21,16 +21,17 @@ Listeners carry a priority. The listener arrays are sorted descending, so a high
 
 The source intentionally avoids a blanket class-file scan for YAML registration; attribute discovery is a separate scan of application and module PHP trees.
 
-```text
-SPPEvent::boot()
-      │
-      ├── compiled cache exists? ── yes ──► load listeners/definitions
-      │
-      └── no
-           ├── parse known events.yml files
-           ├── parse active application/module event definitions
-           ├── scan #[On] attributes
-           └── write compiled event cache
+**Event boot sequence**
+
+```mermaid
+flowchart TD
+    A[Boot event system] --> B{Compiled cache available}
+    B -- Yes --> C[Load cache]
+    B -- No --> D[Read event definitions]
+    D --> E[Scan On attributes]
+    E --> F[Build listener and definition cache]
+    C --> G[Event system ready]
+    F --> G
 ```
 
 ## 4.3 Attribute-based listeners
@@ -67,30 +68,19 @@ The legacy `beforeHandler()`, `overrideHandler()`, and `afterHandler()` methods 
 
 `SPPEvent::fireEvent()` implements a concrete multi-stage flow.
 
-```text
-fireEvent(event, params)
-        │
-        ▼
- before_<event>
-        │
-        ├── stopped? ─────────────► after_<event>
-        │
-        ▼
- override_<event> exists?
-        │
-      yes ──► execute override
-        │
-       no
-        │
-        ├── execute inline handler, if supplied
-        ├── execute configured default handler, if defined
-        └── execute listeners registered on <event>
-        │
-        ▼
- propagation stopped?
-        │
-        ▼
- after_<event>
+```mermaid
+flowchart TD
+    A[Fire event] --> B[Run before stage]
+    B --> C{Propagation stopped}
+    C -- Yes --> D[Run after stage]
+    C -- No --> E{Override exists}
+    E -- Yes --> F[Run override]
+    E -- No --> G[Run inline or default handler]
+    G --> H[Run registered listeners]
+    F --> I{Propagation stopped}
+    H --> I
+    I -- Yes --> D
+    I -- No --> D
 ```
 
 The implementation stops listener execution when `EventParams::isPropagationStopped()` becomes true.
