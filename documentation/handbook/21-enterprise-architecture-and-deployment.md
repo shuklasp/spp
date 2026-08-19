@@ -2,221 +2,233 @@
 
 ## Chapter 21 — Multi-Application, Polyglot, IPC, and Deployment Architecture
 
-**Evidence:** Scheduler/application source, polyglot bridge classes, external-application integration documentation, SPP Live/Drishyam runtime, deployment-related commands and configuration present in the repository.
+**Evidence:** Scheduler/application source, Polyglot bridge classes, external-application integration material, SPP Live/Drishyam runtime, and deployment-related tooling in the repository.
 
-Enterprise architecture begins with a simple question:
+Enterprise architecture is not a synonym for “add more servers”. It means deciding where responsibilities live, which boundaries are real, and what happens when a dependency is unavailable.
 
-> **What happens when one application is no longer enough?**
-
-A growing system may need multiple applications, different languages, separate services, background workers, external legacy systems, or browser-side runtimes.
-
-SPP contains several mechanisms that can participate in such systems. The important task is to choose the correct boundary for each problem.
+This chapter assumes the reader already understands the basic SPP application model from the previous chapters.
 
 ---
 
-## 21.1 One application versus many applications
+## 21.1 When one application is enough
 
-A small system can begin with one SPP application.
+Start with one application when one team can own the domain, one configuration boundary is sufficient, and separate deployment or failure isolation is not yet justified.
 
-As it grows, teams may separate concerns into multiple applications:
+SPP does not require every feature to become a separate application or service.
+
+A modular application is often the simplest place to begin.
+
+---
+
+## 21.2 When multiple SPP applications become useful
+
+A larger system may contain applications such as:
 
 ```mermaid
 flowchart LR
-    A[SPP runtime] --> B[Application A]
-    A --> C[Application B]
-    A --> D[Application C]
+    R[SPP runtime] --> A[Task Desk application]
+    R --> B[Reporting application]
+    R --> C[Administration application]
 ```
 
-These applications can share one runtime while retaining separate application contexts.
+The Scheduler can register multiple `App` objects and maintain one active application context.
 
-The Scheduler is the central mechanism for selecting the active application.
+This gives an **in-process application boundary**.
 
-This is different from deploying three completely independent servers.
+It does not provide operating-system process isolation.
 
----
+That distinction must remain explicit:
 
-## 21.2 Why split applications?
-
-Separate applications can provide useful boundaries when:
-
-- different teams own different domains;
-- configuration needs to be isolated by application;
-- modules differ significantly;
-- one application has a different lifecycle or URL space; or
-- a legacy subsystem needs to coexist with a new SPP application.
-
-Do not split applications merely because multiple folders exist. A boundary should solve an actual ownership or operational problem.
-
----
-
-## 21.3 In-process application switching
-
-SPP's `Scheduler::withContext()` allows code to run within another registered application context and then restore the caller's context.
-
-This is useful when applications participate in one PHP runtime.
-
-It should **not** be described as process isolation in the operating-system sense.
-
-The distinction is:
-
-| Boundary | Meaning |
+| Boundary | What it provides |
 |---|---|
-| SPP application context | Runtime/application boundary inside the SPP process |
-| Operating-system process | Separate executable process with its own memory space |
-| Network service | Separate runtime reached through a protocol |
-
-This distinction matters greatly when designing security and failure isolation.
+| SPP application context | Application/runtime separation inside the SPP runtime |
+| OS process | Separate memory/process failure boundary |
+| Network service | Independent runtime reached through a protocol |
 
 ---
 
-## 21.4 When to use IPC
+## 21.3 Why split applications?
 
-IPC means **inter-process communication**: one process communicating with another.
+Good reasons include:
 
-The protocol can be many things:
+- different domain ownership;
+- substantially different module sets;
+- separate URL spaces and application configuration;
+- independent operational lifecycle; or
+- coexistence with a legacy or externally owned application.
+
+Bad reasons include:
+
+- “microservices are fashionable”;
+- two directories happen to exist; or
+- one class has become large.
+
+Use modules and normal application boundaries before introducing additional network/process complexity.
+
+---
+
+## 21.4 In-process context switching
+
+`Scheduler::withContext()` is useful when one SPP runtime needs to execute code using another registered application's context and then return to the previous context.
+
+Conceptually:
+
+```mermaid
+sequenceDiagram
+    participant A as Current application
+    participant S as Scheduler
+    participant B as Target application
+    A->>S: Execute work in target context
+    S->>B: Activate target
+    B-->>S: Execute callback
+    S->>A: Restore previous context
+```
+
+The expert rule is simple:
+
+> Context switching is not the same thing as process isolation.
+
+Do not use it as a substitute for a real process/network boundary when fault or security isolation is required.
+
+---
+
+## 21.5 What is IPC?
+
+**Inter-process communication (IPC)** simply means one process communicating with another.
+
+IPC is a category, not one specific protocol.
+
+A deployment could use:
 
 - HTTP;
 - WebSocket;
 - a local socket;
 - a queue;
-- Redis-backed coordination;
-- a language bridge;
-- or another explicit transport.
+- Redis-backed coordination; or
+- a language-specific bridge.
 
-Therefore “IPC” is not a protocol name.
-
-A good architecture names the actual boundary:
-
-```text
-PHP process
-   ↓ HTTP
-Python service
-```
-
-or:
-
-```text
-PHP process
-   ↓ WebSocket
-Node service
-```
-
-This is more precise than writing “SPP uses IPC”.
-
----
-
-## 21.5 Native SPP integration versus external runtime integration
-
-A useful distinction is:
-
-```mermaid
-flowchart TD
-    A[Business capability] --> B{Where should it run?}
-    B -- Same SPP runtime --> C[SPP module/application]
-    B -- Separate process --> D[External service]
-    B -- Different language --> E[Polyglot bridge/service]
-    B -- Existing legacy system --> F[External application adapter]
-```
-
-Use the smallest boundary that solves the real problem.
-
----
-
-## 21.6 Polyglot architecture
-
-SPP includes an explicit Polyglot bridge family with a common bridge interface and factory plus concrete bridge implementations.
-
-This provides an abstraction for invoking another runtime without forcing application code to know every implementation-specific detail.
-
-A generic architecture is:
-
-```mermaid
-flowchart LR
-    A[SPP application] --> B[Polyglot bridge factory]
-    B --> C[Language-specific bridge]
-    C --> D[External runtime]
-```
-
-The external runtime may be written in Go, Java, .NET, or another supported integration language.
-
-The source tree also contains runtime/helper libraries and daemon-service directories for additional languages.
-
----
-
-## 21.7 What a polyglot boundary should contain
-
-A production boundary normally needs explicit contracts for:
-
-| Contract | Question |
-|---|---|
-| Input schema | What data may cross the boundary? |
-| Output schema | What data comes back? |
-| Authentication | Who may call the service? |
-| Authorization | What may the caller request? |
-| Timeout | How long should the caller wait? |
-| Retry | Which failures are safe to repeat? |
-| Idempotency | Can the same operation be executed twice safely? |
-| Error format | How are failures represented? |
-| Observability | How is one operation traced across runtimes? |
-
-The exact implementation of each item depends on the transport and bridge.
-
----
-
-## 21.8 External non-SPP applications
-
-SPP can coexist with an external application without turning that application into an SPP module.
-
-This is important for legacy modernization.
+Therefore the architecture should say **which protocol is used**, not merely “IPC”.
 
 For example:
 
 ```mermaid
 flowchart LR
-    A[Browser] --> B[SPP integration layer]
-    B --> C[SPP application]
-    B --> D[External application]
-    D --> E[External runtime]
+    A[SPP PHP process] -->|HTTP| B[Python service]
 ```
 
-The external application can retain ownership of its own runtime while SPP manages the surrounding integration boundary.
+is far more precise than:
 
-The repository contains external-application integration material and contributed adapters, including Drupal-related integration.
+```text
+SPP → IPC → Python
+```
 
 ---
 
-## 21.9 Choosing the integration boundary
+## 21.6 Polyglot architecture
 
-Use this decision table:
+SPP contains a polyglot bridge abstraction and language-specific bridge classes. The purpose is to give PHP application code a common integration boundary while the actual external runtime may differ.
 
-| Situation | Prefer |
+```mermaid
+flowchart TD
+    A[SPP application] --> B[Polyglot bridge factory]
+    B --> C[Language specific bridge]
+    C --> D[External runtime]
+```
+
+The repository contains bridge/runtime assets for several languages. The exact protocol, serialization, worker model, and failure behavior must be taken from each concrete bridge implementation.
+
+Do not infer those details merely from the bridge class name.
+
+---
+
+## 21.7 External non-SPP applications
+
+An external application does not have to be converted into an SPP module.
+
+This matters when integrating an existing platform such as a legacy CMS or another independently maintained system.
+
+The boundary can look like:
+
+```mermaid
+flowchart LR
+    U[Browser] --> I[SPP integration boundary]
+    I --> S[SPP application]
+    I --> X[External application]
+```
+
+The external application remains the owner of its own runtime and business rules.
+
+An adapter can provide SPP-specific routing, service, or protocol integration without pretending the external system is native SPP code.
+
+---
+
+## 21.8 Choosing the right boundary
+
+| Situation | Prefer first |
 |---|---|
-| Reusable SPP feature | SPP module |
-| Separate SPP domain/application | SPP application context |
-| Different language runtime | Polyglot/service boundary |
-| Legacy external platform | Adapter/integration boundary |
-| Browser-only interaction | SPPUX |
-| Server-driven live interaction | LiveComponent + SPP Live |
+| Reusable SPP feature | Module |
+| Separate SPP domain/application | Application context |
+| Different language | Polyglot/service boundary |
+| Legacy external platform | Integration adapter |
+| Interactive server-side PHP UI | LiveComponent + SPP Live |
+| Browser-local state | SPPUX |
 
-This table is architectural guidance. It does not mean every combination is automatically implemented by SPP.
+This is architectural guidance, not a claim that SPP automatically creates every listed integration.
 
 ---
 
-## 21.10 Deployment topology
+## 21.9 Cross-boundary contracts
 
-A deployment topology describes where runtime pieces actually execute.
+Every external boundary needs an explicit contract.
 
-A simple SPP deployment could be:
+| Contract | Question |
+|---|---|
+| Input schema | What is allowed to cross the boundary? |
+| Output schema | What comes back? |
+| Authentication | Who may call it? |
+| Authorization | What may the caller do? |
+| Timeout | How long may the caller wait? |
+| Retry | Which failures are safe to repeat? |
+| Idempotency | Can the same operation safely execute twice? |
+| Error representation | How are failures communicated? |
+| Observability | How can one request be traced across the boundary? |
+
+These contracts belong to the integration implementation, not to the word “polyglot” itself.
+
+---
+
+## 21.10 Data ownership
+
+A common enterprise anti-pattern is allowing multiple applications to write the same domain tables without agreeing on ownership.
+
+Prefer one clear owner:
+
+```mermaid
+flowchart LR
+    A[Domain owner] --> B[Authoritative data]
+    C[Other application] --> D[API or integration contract]
+    D --> B
+```
+
+The consuming application uses the owning domain's contract rather than bypassing business rules through direct database writes.
+
+This is recommended architecture, not a hard SPP rule.
+
+---
+
+## 21.11 Deployment topology
+
+A simple deployment can look like:
 
 ```mermaid
 flowchart TD
     B[Browser] --> W[Web server]
-    W --> P[PHP and SPP runtime]
+    W --> P[SPP PHP runtime]
     P --> DB[Database]
     P --> C[Cache]
 ```
 
-A larger system can add:
+A larger deployment can add live transport and external runtimes:
 
 ```mermaid
 flowchart TD
@@ -226,128 +238,117 @@ flowchart TD
     P --> C[Cache]
     P --> L[Live transport]
     P --> X[External services]
-    P --> Y[Polyglot runtimes]
+    P --> Y[Polyglot runtime]
 ```
 
-The exact topology should be chosen from the operational requirements rather than inferred from the fact that SPP contains a feature.
+These are topology examples, not a mandatory SPP deployment diagram.
 
 ---
 
-## 21.11 Failure isolation
+## 21.12 Failure isolation
 
-The more boundaries a system has, the more failure modes it has.
+Every added boundary introduces new failure modes.
 
 For example:
 
 ```text
-Browser
-  ↓
-SPP
-  ↓
-External service
+Browser → SPP → external service
 ```
 
-Now there are at least three failure locations.
+Now the external service can be slow, unavailable, or return invalid data.
 
-An enterprise design should define what happens when the external service is unavailable:
+For each dependency, decide what happens when it fails:
 
-- immediate error;
-- cached response;
+- immediate failure;
+- cached/degraded response;
 - queued retry;
-- degraded feature;
 - fallback implementation; or
-- explicit maintenance response.
+- maintenance response.
 
-Failure handling is part of architecture, not an afterthought.
+A reliable enterprise design makes that decision intentionally.
 
 ---
 
-## 21.12 Security boundaries
+## 21.13 Security boundaries
 
-Every cross-process or cross-runtime boundary should be treated as a trust boundary.
+Cross-process and cross-runtime communication should be treated as a trust boundary even when all components run inside the same company network.
 
-Do not rely on:
-
-> “Both services are inside the same company network.”
-
-The receiving side should validate the request according to the actual protocol.
-
-This includes:
+The receiving side should validate according to the actual transport, including where appropriate:
 
 - authentication;
 - authorization;
-- payload validation;
-- replay protection where required;
-- rate limiting where appropriate; and
+- input/schema validation;
+- replay protection;
+- rate limiting; and
 - audit/observability.
+
+The security chapter explains the distinction between framework mechanisms and general enterprise security guidance.
 
 ---
 
-## 21.13 Data ownership
+## 21.14 Live architecture in an enterprise system
 
-A common enterprise mistake is allowing multiple applications to write the same business tables without a clear owner.
-
-Prefer a clear ownership model:
+LiveComponent and SPPUX solve different problems.
 
 ```mermaid
 flowchart LR
-    A[Domain owner] --> B[Authoritative data store]
-    C[Other application] --> D[API or integration contract]
-    D --> B
+    A[Browser] --> B[SPPUX client runtime]
+    B --> C[SPP Live transport]
+    C --> D[LiveComponent on server]
+    D --> E[Application services]
 ```
 
-The other application consumes the owning domain's contract rather than bypassing its business rules through direct table writes.
+A deployment can use normal server-rendered pages for most of the application and use reactive runtimes only where interaction benefits from them.
 
-This is architectural guidance rather than a hard SPP runtime rule.
-
----
-
-## 21.14 Enterprise observability
-
-Cross-application systems need a way to answer:
-
-> “Which request caused this external operation?”
-
-A production design can use correlation/request identifiers and propagate them across integration boundaries where the protocol supports it.
-
-The handbook will only describe correlation mechanisms as implemented SPP behavior when a concrete source path establishes them. Otherwise they remain enterprise guidance.
+That is usually simpler than making every page live.
 
 ---
 
-## 21.15 Coming from other architectural styles
+## 21.15 Observability across boundaries
+
+A distributed operation should be diagnosable from the originating request to the final dependency.
+
+A practical enterprise design uses a correlation/request identifier and propagates it when the actual protocol permits this.
+
+The handbook does **not** claim a universal built-in SPP correlation protocol unless the source proves one. Where no framework-specific mechanism is established, treat this as deployment guidance.
+
+---
+
+## 21.16 Coming from other architectures
 
 ### Monolith
 
-Think of a large SPP application as one deployable runtime, then introduce additional SPP application contexts when a real boundary is needed.
-
-### Microservices
-
-SPP does not require every feature to become a separate network service. Use module/application boundaries first and introduce network boundaries only when they solve a real operational or ownership problem.
+Start with one SPP application and introduce modules for feature boundaries.
 
 ### Modular monolith
 
-SPP's module system and multi-application context model can support a modular-monolith style particularly well.
+This maps naturally to SPP modules plus application context boundaries where required.
+
+### Microservices
+
+SPP does not require every feature to become a network service. Introduce network/process boundaries only when ownership, scaling, language, or fault isolation justifies them.
 
 ### Service-oriented architecture
 
-SPP's polyglot and external integration facilities provide building blocks for explicit service boundaries, but the actual protocol and operational contract must be defined per integration.
+Use explicit protocol contracts and adapters at service boundaries. Polyglot support is an implementation tool, not an architecture by itself.
 
 ---
 
 ## Kernel Hacker note
 
-The strongest architectural insight is that SPP contains **multiple composable boundaries rather than one mandatory deployment style**:
+The most useful SPP architectural distinction is between **composition boundaries** and **failure boundaries**.
 
-```text
-Application context
-Module
-Process
-Protocol
-External runtime
-Browser runtime
-```
+A module is primarily a composition mechanism.
 
-An expert SPP architecture chooses the smallest boundary that provides the required isolation, ownership, scalability, or language interoperability.
+An application context is a runtime/application boundary.
+
+A separate process provides stronger failure and resource isolation.
+
+A protocol boundary provides explicit interoperability.
+
+A browser runtime is a different execution environment entirely.
+
+Good architecture chooses the smallest boundary that provides the property actually required.
 
 ### Source map
 
@@ -357,4 +358,4 @@ An expert SPP architecture chooses the smallest boundary that provides the requi
 - `spp/modules/contrib/`
 - `spp/modules/spp/spplive/`
 - external application integration documentation
-- deployment and CLI tooling under `spp/commands/`
+- deployment-related commands/configuration
