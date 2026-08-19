@@ -15,17 +15,17 @@ They share the same access point but have different semantics.
 
 The Registry stores values in a nested array. `register()` converts dotted names to the internal `=>` path form and walks the tree until it reaches the target leaf.
 
-```text
-register("app.database.driver", "mysql")
-             │
-             ▼
-       normalize dots
-             │
-             ▼
- app => database => driver
-             │
-             ▼
-          "mysql"
+```php
+register("app.database.driver", "mysql");
+```
+
+Conceptually, that path resolves as:
+
+```mermaid
+flowchart TD
+    A[Register value] --> B[Normalize dotted name]
+    B --> C[Walk nested registry path]
+    C --> D[Store value at target leaf]
 ```
 
 `get()` performs the inverse traversal and returns `false` when a path is not present. Typed convenience methods such as `getString()`, `getInt()`, `getBool()`, and `getArray()` provide default-aware casting at the boundary.
@@ -51,17 +51,15 @@ These are not generic examples; they are part of the Registry's actual API surfa
 
 Keys beginning with `__shared=>` activate shared-state synchronization. The Registry lazily chooses a `SharedStorageInterface` implementation.
 
-The current source supports:
+The current source supports Redis and file-backed shared storage:
 
-```text
-                 Shared Registry
-                       │
-          ┌────────────┴────────────┐
-          │                         │
-     Redis available           Redis unavailable
-          │                         │
-          ▼                         ▼
- RedisSharedStorage          FileSharedStorage
+```mermaid
+flowchart TD
+    A[Shared Registry key] --> B{Redis available}
+    B -- Yes --> C[Redis shared storage]
+    B -- No --> D[File shared storage]
+    C --> E[Shared state synchronization]
+    D --> E
 ```
 
 If Redis storage is selected but fails, the implementation can downgrade to file storage during execution. The shared state is synchronized during shutdown rather than on every single write.
@@ -80,14 +78,15 @@ These are separate from `Registry::register()` and `Registry::get()`. The handbo
 
 ## 3.6 Why the separation matters
 
-```text
-                   SPP\Registry
-                        │
-          ┌─────────────┴─────────────┐
-          │                           │
-  Configuration/state tree       IoC service container
-          │                           │
-  register() / get()           bind() / singleton() / make()
+```mermaid
+flowchart TB
+    R[SPP Registry]
+    D[Registry data and configuration]
+    I[IoC service container]
+    R --> D
+    R --> I
+    D --> D1[register and get]
+    I --> I1[bind singleton and make]
 ```
 
 A developer can therefore store runtime metadata without turning every value into a dependency-injection service.
@@ -102,18 +101,14 @@ This distinction is important for multi-application and multi-process architectu
 
 The Scheduler determines the active `App`. The Registry provides runtime metadata and service-resolution mechanisms consumed by the active application and its modules.
 
-The relationship is therefore better represented as:
+The relationship is therefore:
 
-```text
-Scheduler
-   │
-   ├── active application context
-   │
-   ▼
-Application / Module runtime
-   │
-   ├── Registry key/value state
-   └── Registry IoC services
+```mermaid
+flowchart TD
+    S[Scheduler] --> A[Active application context]
+    A --> R[Registry]
+    R --> K[Registry data and metadata]
+    R --> I[IoC services]
 ```
 
 The source does not show the Registry being a per-`App` object. The Registry is implemented as a static runtime facility with selective shared storage, so the handbook should not describe it as a separate isolated container automatically created for every application.
