@@ -66,6 +66,7 @@ When two documents cover the same feature, the teaching chapter is the entry poi
 - [03 — Registry and IoC container](03-registry-and-container.md)
 - [04 — Events, EventHandler, and SPPEvent](04-events-and-event-handlers.md)
 - [05 — Module discovery, manifests, and compiled registry](05-modules-and-manifests.md)
+- [71 — What Makes SPP Different?](71-what-makes-spp-different.md)
 
 ### Presentation and reactive architecture
 
@@ -177,32 +178,33 @@ These are the newer, deeper source-oriented teaching branches. Use them as the c
 flowchart TD
     A[Frameworks 101] --> B[Framework Concept Map]
     B --> C[SPP Mental Model]
-    C --> D[30-minute SPP]
-    D --> E[Plain PHP and MVC]
-    E --> F[SPP application and context]
-    F --> G[Middleware]
-    G --> H[Events]
-    H --> I[Registry and dependency injection]
-    I --> J[Configuration]
-    J --> K[Routing paradigms]
-    K --> L[Modules and scaffolding]
-    L --> M[SPPView, BladeOne, Drishyam, forms]
-    M --> N[Entities, SPPDB, XDB]
-    N --> O[Identity, authentication, and web security]
-    O --> P[Parikshak]
-    P --> Q[API]
-    Q --> R[Workflow]
-    R --> S[Storage and transfer]
-    S --> T[Reporting, logging, and observability]
-    T --> U[Queue and Cron]
-    U --> V[SPPAI]
-    V --> W[LiveComponent]
-    W --> X[SPP Live]
-    X --> Y[SPPUX]
-    Y --> Z[Polyglot and IPC]
-    Z --> AA[Multiple applications]
-    AA --> AB[Anti-patterns and architecture choices]
-    AB --> AC[Production and enterprise case study]
+    C --> D[What Makes SPP Different?]
+    D --> E[30-minute SPP]
+    E --> F[Plain PHP and MVC]
+    F --> G[SPP application and context]
+    G --> H[Middleware]
+    H --> I[Events]
+    I --> J[Registry and dependency injection]
+    J --> K[Configuration]
+    K --> L[Routing paradigms]
+    L --> M[Modules and scaffolding]
+    M --> N[SPPView, BladeOne, Drishyam, forms]
+    N --> O[Entities, SPPDB, XDB]
+    O --> P[Identity, authentication, and web security]
+    P --> Q[Parikshak]
+    Q --> R[API]
+    R --> S[Workflow]
+    S --> T[Storage and transfer]
+    T --> U[Reporting, logging, and observability]
+    U --> V[Queue and Cron]
+    V --> W[SPPAI]
+    W --> X[LiveComponent]
+    X --> Y[SPP Live]
+    Y --> Z[SPPUX]
+    Z --> AA[Polyglot and IPC]
+    AA --> AB[Multiple applications]
+    AB --> AC[Anti-patterns and architecture choices]
+    AC --> AD[Production and enterprise case study]
 ```
 
 ## Mandatory learning rule
@@ -224,6 +226,10 @@ Use [56A — Runnable lab orchestration](56-runnable-lab-orchestration.md) and [
 ## Migration rule
 
 Use [70 — Porting to SPP from Other Frameworks](70-porting-to-spp-from-other-frameworks.md) when moving an existing application into SPP. Treat migration as an architecture translation exercise rather than a mechanical class-for-class rewrite.
+
+## Positioning rule
+
+Use [71 — What Makes SPP Different?](71-what-makes-spp-different.md) when explaining SPP to experienced framework developers or evaluating SPP against another framework. The handbook's positioning is **breadth + integration + multiple application paradigms + explicit runtime architecture**, not a feature-count or unsupported superiority claim.
 
 ## Source-first rule
 
