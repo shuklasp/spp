@@ -94,6 +94,18 @@ flowchart LR
 
 This is why the handbook does not equate "SPP application" with "MVC website".
 
+## Why the runtime matters
+
+Most individual framework mechanisms are not unique. Other mature frameworks also have routing, middleware, dependency injection, events, persistence, authentication, testing, queues, and views.
+
+The more useful SPP question is:
+
+> **How many of these concerns participate in the same application/runtime model, and how can they be combined?**
+
+SPP's positioning should therefore be understood as **breadth plus integration plus multiple application paradigms**, rather than as a claim that one isolated feature is unique.
+
+The handbook's [71 — What Makes SPP Different?](71-what-makes-spp-different.md) chapter explains this comparison in detail and deliberately separates implementation evidence from architectural interpretation.
+
 ## The most useful mental model
 
 Think of a request as moving through layers of responsibility:
@@ -165,4 +177,5 @@ Before moving on, you should be able to explain, without using framework jargon:
 - why dependency injection exists;
 - why modules exist;
 - why a framework has a runtime at all;
-- and why SPP is larger than MVC.
+- why SPP is larger than MVC;
+- and why SPP's differentiator should be evaluated as an integrated architecture rather than a feature-count contest.
