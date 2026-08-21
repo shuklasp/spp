@@ -345,7 +345,27 @@ class SPPDB
                 }
             }
 
-            $this->adapter = new \SPPMod\SPPDB\PDOAdapter($pdo, $readPdo);
+            $createConnection = function($u, $user, $pass, $opts) {
+                 if ($user == null && $pass == null && empty($opts)) return new \PDO($u);
+                 if (empty($opts)) return new \PDO($u, $user, $pass);
+                 return new \PDO($u, $user, $pass, $opts);
+            };
+
+            $reconnector = function (\SPPMod\SPPDB\PDOAdapter $adapter) use ($url, $dbuser, $dbpasswd, $options, $read_url, $read_dbuser, $read_dbpasswd, $shared, $key, &$readKey, $createConnection) {
+                 $newPdo = $createConnection($url, $dbuser, $dbpasswd, $options);
+                 $newPdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                 if ($shared && $key) self::$sharedConnections[$key] = $newPdo;
+
+                 $newReadPdo = null;
+                 if (isset($read_url)) {
+                     $newReadPdo = $createConnection($read_url, $read_dbuser, $read_dbpasswd, $options ?? []);
+                     $newReadPdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+                     if ($shared && $readKey) self::$sharedConnections[$readKey] = $newReadPdo;
+                 }
+                 $adapter->updatePDO($newPdo, $newReadPdo);
+            };
+
+            $this->adapter = new \SPPMod\SPPDB\PDOAdapter($pdo, $readPdo, $reconnector);
 
         } catch (\Exception $e) {
             // error_log("Database Connection Error: " . $e->getMessage());
@@ -446,7 +466,8 @@ class SPPDB
      */
     private function getAdapterForQuery(string $sql): \SPPMod\SPPDB\DBAdapter
     {
-        if ($this->forcePrimary || preg_match('/^\s*(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|TRUNCATE)/i', $sql)) {
+        $cleanSql = preg_replace('/^\s*\/\*.*?\*\/\s*/', '', $sql);
+        if ($this->forcePrimary || preg_match('/^\s*(?:WITH\s+.*?\s+)?(INSERT|UPDATE|DELETE|REPLACE|CREATE|ALTER|DROP|TRUNCATE)/is', $cleanSql)) {
             $this->forcePrimary = true; // Stick to primary for rest of request to avoid replication lag
             return $this->adapter;
         }
@@ -564,12 +585,21 @@ class SPPDB
         return $this->adapter->insert($table, $data);
     }
 
-    public function insertMany(string $table, array $records)
+    public function insertMany(string $table, array $records, int $chunkSize = 500)
     {
         if (empty($records)) {
             return 0;
         }
 
+        $totalInserted = 0;
+        foreach (array_chunk($records, $chunkSize) as $chunk) {
+            $totalInserted += $this->_performInsertMany($table, $chunk);
+        }
+        return $totalInserted;
+    }
+
+    private function _performInsertMany(string $table, array $records)
+    {
         $columns = array_keys(reset($records));
         $safeCols = [];
         foreach ($columns as $col) {
@@ -595,12 +625,21 @@ class SPPDB
         return count($records);
     }
 
-    public function updateMany(string $table, array $records, string $index)
+    public function updateMany(string $table, array $records, string $index, int $chunkSize = 500)
     {
         if (empty($records)) {
             return 0;
         }
-        
+
+        $totalUpdated = 0;
+        foreach (array_chunk($records, $chunkSize) as $chunk) {
+            $totalUpdated += $this->_performUpdateMany($table, $chunk, $index);
+        }
+        return $totalUpdated;
+    }
+
+    private function _performUpdateMany(string $table, array $records, string $index)
+    {
         $table = \SPP\Core\SchemaValidator::escapeIdentifier($table);
         $index = \SPP\Core\SchemaValidator::escapeIdentifier($index);
 
@@ -666,8 +705,45 @@ class SPPDB
 
     public function add_columns($table, $cols = [])
     {
+        $compiler = $this->getCompiler();
+        if (method_exists($compiler, 'compileAddColumns')) {
+            // Filter out existing columns before compiling
+            $missingCols = [];
+            foreach ($cols as $col => $type) {
+                if (strtoupper($col) === 'PRIMARY KEY' || strtoupper($col) === 'UNIQUE') {
+                    continue;
+                }
+                if (!$this->columnExists($table, $col)) {
+                    $missingCols[$col] = $type;
+                }
+            }
+            if (empty($missingCols)) {
+                return;
+            }
+
+            $statements = $compiler->compileAddColumns($table, $missingCols);
+            foreach ($statements as $sql) {
+                try {
+                    $this->exec($sql);
+                } catch (\Exception $e) {
+                    $message = $e->getMessage();
+                    if (
+                        stripos($message, 'Duplicate column') !== false ||
+                        stripos($message, 'already exists') !== false ||
+                        stripos($message, 'Multiple primary key defined') !== false ||
+                        stripos($message, 'UNIQUE') !== false ||
+                        stripos($message, 'NOT NULL') !== false
+                    ) {
+                        continue;
+                    }
+                    throw $e;
+                }
+            }
+            return;
+        }
+
+        // Fallback for custom compilers that don't implement the new interface methods
         $safeTable = \SPP\Core\SchemaValidator::escapeIdentifier($table);
-        // This is engine specific (DDL), so we pass to execute
         foreach ($cols as $col => $type) {
             if (strtoupper($col) === 'PRIMARY KEY' || strtoupper($col) === 'UNIQUE') {
                 continue;
@@ -699,21 +775,28 @@ class SPPDB
     public function createTableIncremental(string $tableName, array $columns)
     {
         if (!$this->tableExists($tableName)) {
-            $defs = [];
-            $constraints = [];
-            foreach ($columns as $colName => $colDef) {
-                if (strtoupper($colName) === 'PRIMARY KEY') {
-                    $constraints[] = "PRIMARY KEY $colDef";
-                } elseif (strtoupper($colName) === 'UNIQUE') {
-                    $constraints[] = "UNIQUE $colDef";
-                } else {
-                    $safeColName = \SPP\Core\SchemaValidator::escapeIdentifier($colName);
-                    $defs[] = "$safeColName $colDef";
+            $compiler = $this->getCompiler();
+            if (method_exists($compiler, 'compileCreateTable')) {
+                $query = $compiler->compileCreateTable($tableName, $columns);
+            } else {
+                // Fallback
+                $defs = [];
+                $constraints = [];
+                foreach ($columns as $colName => $colDef) {
+                    if (strtoupper($colName) === 'PRIMARY KEY') {
+                        $constraints[] = "PRIMARY KEY $colDef";
+                    } elseif (strtoupper($colName) === 'UNIQUE') {
+                        $constraints[] = "UNIQUE $colDef";
+                    } else {
+                        $safeColName = \SPP\Core\SchemaValidator::escapeIdentifier($colName);
+                        $defs[] = "$safeColName $colDef";
+                    }
                 }
+                $allDefs = array_merge($defs, $constraints);
+                $safeTableName = \SPP\Core\SchemaValidator::escapeIdentifier($tableName);
+                $query = "CREATE TABLE {$safeTableName} (" . implode(', ', $allDefs) . ")";
             }
-            $allDefs = array_merge($defs, $constraints);
-            $safeTableName = \SPP\Core\SchemaValidator::escapeIdentifier($tableName);
-            $query = "CREATE TABLE {$safeTableName} (" . implode(', ', $allDefs) . ")";
+            
             $this->adapter->execute($query);
         } else {
             $this->add_columns($tableName, $columns);
@@ -760,17 +843,39 @@ class SPPDB
     /**
      * Executes a Closure within a database transaction.
      */
-    public function transaction(\Closure $callback)
+    public function transaction(\Closure $callback, int $attempts = 1)
     {
-        $this->beginTransaction();
-        try {
-            $result = $callback($this);
-            $this->commit();
-            return $result;
-        } catch (\Throwable $e) {
-            $this->rollBack();
-            throw $e;
+        for ($currentAttempt = 1; $currentAttempt <= $attempts; $currentAttempt++) {
+            $this->beginTransaction();
+            try {
+                $result = $callback($this);
+                $this->commit();
+                return $result;
+            } catch (\Throwable $e) {
+                $this->rollBack();
+
+                if ($currentAttempt < $attempts && $this->causedByDeadlock($e)) {
+                    usleep(mt_rand(10000, 50000)); // Sleep for 10-50ms before retrying
+                    continue;
+                }
+
+                throw $e;
+            }
         }
+    }
+
+    protected function causedByDeadlock(\Throwable $e): bool
+    {
+        $message = $e->getMessage();
+        return strpos($message, 'Deadlock found when trying to get lock') !== false ||
+               strpos($message, 'deadlock detected') !== false ||
+               strpos($message, 'The database file is locked') !== false ||
+               strpos($message, 'database is locked') !== false ||
+               strpos($message, 'database table is locked') !== false ||
+               strpos($message, 'A shared lock could not be acquired') !== false ||
+               strpos($message, 'Update locks cannot be acquired') !== false ||
+               strpos($message, 'Table is locked') !== false ||
+               strpos($message, 'Lock wait timeout exceeded') !== false;
     }
 }
 //\SPP\Module::endWS();

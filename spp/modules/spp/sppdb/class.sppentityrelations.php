@@ -187,6 +187,23 @@ class SPPEntityRelations
     }
 
     /**
+     * Checks if a relation name is registered for the given entity class.
+     */
+    public static function hasRelation($entityClass, string $name): bool
+    {
+        $rels = \SPP\Registry::get('EntityRelations');
+        if (!is_array($rels)) {
+            return false;
+        }
+        foreach ($rels as $rel) {
+            if ($rel['name'] === $name && ($rel['parent_entity'] === $entityClass || $rel['child_entity'] === $entityClass)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Resolves and fetches related entities for a given instance and relation name.
      */
     public static function getRelated($entity, string $name)

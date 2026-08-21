@@ -18,6 +18,15 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     protected $id = null;
     protected ?string $shardKey = null;               /** Simple sharding support */
     protected static $_metadata = [];                 /** Static registry for entity configuration */
+    protected static bool $strictLazyLoading = false; /** Toggles N+1 prevention mode */
+
+    /**
+     * Prevents lazy loading on all entities when set to true.
+     */
+    public static function preventLazyLoading(bool $strict = true): void
+    {
+        self::$strictLazyLoading = $strict;
+    }
 
     protected $_values = [];                          /** attribute-value pairs */
     protected $_dynamic_values = [];                  /** dynamic polymorphic field values */
@@ -127,9 +136,9 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     }
 
     /**
-     * public function __construct($id, $name)
+     * @deprecated Passing an ID to the constructor is deprecated. Use static::find($id) or static::findOrFail($id) instead.
      * Constructor
-     * @param int $id
+     * @param int|null $id
      */
     public function __construct($id = null)
     {
@@ -146,6 +155,41 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         if ($id != null) {
             $this->load($id);
         }
+    }
+
+    /**
+     * Find an entity by its primary key.
+     *
+     * @param mixed $id
+     * @return static|null
+     */
+    public static function find($id): ?self
+    {
+        $instance = new static();
+        try {
+            if ($instance->load($id)) {
+                return $instance;
+            }
+        } catch (EntityNotFoundException $e) {
+            return null;
+        }
+        return null;
+    }
+
+    /**
+     * Find an entity by its primary key or throw an exception.
+     *
+     * @param mixed $id
+     * @return static
+     * @throws EntityNotFoundException
+     */
+    public static function findOrFail($id): self
+    {
+        $instance = self::find($id);
+        if (!$instance) {
+            throw new EntityNotFoundException("Entity " . static::class . " with ID {$id} not found.");
+        }
+        return $instance;
     }
 
     /**
@@ -493,6 +537,10 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
 
             if (isset($this->_relatedCaches[$attribute])) {
                 return $this->_relatedCaches[$attribute];
+            }
+
+            if (self::$strictLazyLoading && \SPPMod\SPPDB\SPPEntityRelations::hasRelation(static::class, $attribute)) {
+                throw new \SPPMod\SPPDB\LazyLoadingViolationException($this, $attribute);
             }
 
             $related = \SPPMod\SPPDB\SPPEntityRelations::getRelated($this, $attribute);

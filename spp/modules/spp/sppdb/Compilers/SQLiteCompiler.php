@@ -103,9 +103,53 @@ class SQLiteCompiler implements CompilerInterface
 
     public function compileLock(SppEntityQuery $query): string
     {
-        $mode = $query->getLockMode();
-        // SQLite does not support row-level locking.
+        // SQLite does not support row-level locking natively in the same way.
         return '';
-        return '';
+    }
+
+    public function escapeIdentifier(string $identifier): string
+    {
+        if ($identifier === '*') {
+            return '*';
+        }
+        $parts = explode('.', $identifier);
+        $escaped = array_map(function($part) {
+            return $part === '*' ? '*' : '"' . str_replace('"', '""', $part) . '"';
+        }, $parts);
+        return implode('.', $escaped);
+    }
+
+    public function compileCreateTable(string $table, array $columns): string
+    {
+        $defs = [];
+        $constraints = [];
+        foreach ($columns as $colName => $colDef) {
+            if (strtoupper($colName) === 'PRIMARY KEY') {
+                $constraints[] = "PRIMARY KEY $colDef";
+            } elseif (strtoupper($colName) === 'UNIQUE') {
+                $constraints[] = "UNIQUE $colDef";
+            } else {
+                $safeColName = '"' . str_replace('"', '""', $colName) . '"';
+                $defs[] = "$safeColName $colDef";
+            }
+        }
+        $allDefs = array_merge($defs, $constraints);
+        $safeTableName = '"' . str_replace('"', '""', $table) . '"';
+        return "CREATE TABLE {$safeTableName} (" . implode(', ', $allDefs) . ")";
+    }
+
+    public function compileAddColumns(string $table, array $columns): array
+    {
+        $safeTableName = '"' . str_replace('"', '""', $table) . '"';
+        $statements = [];
+        // SQLite only supports adding one column per ALTER TABLE statement
+        foreach ($columns as $col => $type) {
+            if (strtoupper($col) === 'PRIMARY KEY' || strtoupper($col) === 'UNIQUE') {
+                continue; // Cannot add primary key or unique constraint via ALTER in SQLite easily
+            }
+            $safeCol = '"' . str_replace('"', '""', $col) . '"';
+            $statements[] = "ALTER TABLE {$safeTableName} ADD COLUMN {$safeCol} {$type}";
+        }
+        return $statements;
     }
 }

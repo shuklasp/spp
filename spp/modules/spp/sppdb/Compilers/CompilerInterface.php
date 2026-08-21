@@ -24,4 +24,19 @@ interface CompilerInterface
      * Compile the lock string (e.g. FOR UPDATE) based on the query lock mode.
      */
     public function compileLock(SppEntityQuery $query): string;
+
+    /**
+     * Safely escapes a column or table identifier for the specific dialect.
+     */
+    public function escapeIdentifier(string $identifier): string;
+
+    /**
+     * Compile a CREATE TABLE DDL statement.
+     */
+    public function compileCreateTable(string $table, array $columns): string;
+
+    /**
+     * Compile an ADD COLUMN DDL statement.
+     */
+    public function compileAddColumns(string $table, array $columns): array;
 }

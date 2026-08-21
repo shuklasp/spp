@@ -48,6 +48,20 @@ class ReportSchedulerService
                 $config['limit'] = 0; // Export everything
                 $result = $reportEngine->runReport($config);
 
+                // --- Materialized Snapshots ---
+                if (!empty($config['materialized'])) {
+                    if (!class_exists('\\SPPMod\\SPPReport\\Services\\SnapshotService')) {
+                        require_once __DIR__ . '/services/SnapshotService.php';
+                    }
+                    $snapshotSvc = new \SPPMod\SPPReport\Services\SnapshotService();
+                    // Pass an array iterator as a generator fallback
+                    $dataStream = (function() use ($result) {
+                        foreach ($result['data'] as $r) yield $r;
+                    })();
+                    $snapshotSvc->createSnapshot(basename($file, '.yml'), $dataStream);
+                    echo "Materialized snapshot updated for " . basename($file) . "\n";
+                }
+
                 // --- Webhook Logic ---
                 if (!empty($webhookUrl) && !empty($webhookCondition) && !empty($result['data'])) {
                     $ops = ['>=', '<=', '!=', '=', '>', '<'];
@@ -92,6 +106,21 @@ class ReportSchedulerService
 
                 if (empty($cronEmail)) {
                     continue;
+                }
+
+                // --- AI-Driven Anomaly Detection ---
+                if (!empty($config['alert_condition']) && !empty($result['data'])) {
+                    if (!class_exists('\\SPPMod\\SPPReport\\Services\\AiReportService')) {
+                        require_once __DIR__ . '/services/AiReportService.php';
+                    }
+                    $aiSvc = new \SPPMod\SPPReport\Services\AiReportService();
+                    $isAnomaly = $aiSvc->evaluateAnomaly($config['alert_condition'], array_slice($result['data'], 0, 100));
+                    if (!$isAnomaly) {
+                        echo "AI determined anomaly condition NOT met. Silencing email.\n";
+                        continue;
+                    } else {
+                        echo "AI detected anomaly! Firing email alert.\n";
+                    }
                 }
 
                 $subject = "Scheduled Report: " . pathinfo($file, PATHINFO_FILENAME);

@@ -407,15 +407,38 @@ class SppEntityQuery
      */
     protected function hydrateFromRaw(array $result): array
     {
+        if (empty($result)) {
+            return [];
+        }
+
         /** @var \SPPMod\SPPDB\SPPEntity $entityInstance */
         $entityInstance = new $this->entityClass();
+        $idField = $entityInstance::getMetadata('id_field');
+        $schemaAttributes = $entityInstance::getMetadata('attributes') ?? [];
+        
         $entities = [];
         foreach ($result as $row) {
             /** @var \SPPMod\SPPDB\SPPEntity $entity */
             $entity = new $this->entityClass();
-            $entity->setId($row[$entityInstance::getMetadata('id_field')]);
+            $entity->setId($row[$idField] ?? null);
+            
             foreach ($row as $attribute => $value) {
                 if (!is_numeric($attribute)) {
+                    if ($value !== null && isset($schemaAttributes[$attribute])) {
+                        $type = strtolower($schemaAttributes[$attribute]['type'] ?? '');
+                        if (strpos($type, 'int') !== false && strpos($type, 'tinyint(1)') === false) {
+                            $value = (int) $value;
+                        } elseif (strpos($type, 'tinyint(1)') !== false || $type === 'boolean' || $type === 'bool') {
+                            $value = (bool) $value;
+                        } elseif (strpos($type, 'float') !== false || strpos($type, 'decimal') !== false || strpos($type, 'double') !== false) {
+                            $value = (float) $value;
+                        } elseif ($type === 'json' && is_string($value)) {
+                            $decoded = json_decode($value, true);
+                            if (json_last_error() === JSON_ERROR_NONE) {
+                                $value = $decoded;
+                            }
+                        }
+                    }
                     $entity->set($attribute, $value);
                 }
             }

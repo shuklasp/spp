@@ -126,7 +126,7 @@ class ReportController extends \SPP\Core\ResourceController
         }
         $isAdmin = $isSppAdmin || in_array('admin', $roleNames);
 
-        $adminActions = ['save', 'list_versions', 'restore_version', 'save_template'];
+        $adminActions = ['save', 'list_versions', 'restore_version', 'save_template', 'schema', 'ai_build', 'ai_analyze'];
         if (in_array($action, $adminActions) && !$isAdmin) {
             http_response_code(403);
             if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
@@ -134,7 +134,32 @@ class ReportController extends \SPP\Core\ResourceController
             exit;
         }
 
-        $config = json_decode($payload, true);
+        $payloadObj = json_decode($payload, true) ?: [];
+        $reportName = $_GET['report_name'] ?? $_POST['report_name'] ?? $payloadObj['report_name'] ?? '';
+        $config = $payloadObj;
+
+        $requiresSecureLoad = in_array($action, ['preview', 'export_csv', 'export_xls', 'export_pdf', 'export_json', 'export_xml', 'render_template']);
+        
+        if ($requiresSecureLoad) {
+            if (!$reportName) {
+                throw new \Exception("A valid 'report_name' is required to load the configuration. Client-dictated payloads are no longer permitted for security.");
+            }
+            if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                require_once __DIR__ . '/Repositories/ReportRepository.php';
+            }
+            $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+            $config = $repo->load($reportName);
+            
+            // Safe filter injection
+            if (!empty($payloadObj['filters']['conditions'])) {
+                if (!isset($config['filters']['conditions'])) {
+                    $config['filters'] = ['logic' => 'AND', 'conditions' => []];
+                }
+                foreach ($payloadObj['filters']['conditions'] as $cond) {
+                    $config['filters']['conditions'][] = $cond;
+                }
+            }
+        }
 
         $externalConfig = null;
         $hasExternalDsn = (!empty($config['external_dsn']) || !empty($_GET['external_dsn']));
@@ -198,34 +223,38 @@ class ReportController extends \SPP\Core\ResourceController
                     break;
 
                 case 'preview':
-                    if (!$config && isset($_POST['table'])) {
-                        $config = [
-                            'table' => $_POST['table'],
-                            'columns' => $_POST['columns'] ?? [],
-                            'order_by' => (!empty($_POST['order_by']) ? ['field' => $_POST['order_by'], 'direction' => $_POST['order_direction'] ?? 'ASC'] : null),
-                            'limit' => 100
-                        ];
-                        if (!empty($_POST['filter_field'])) {
-                            $conditions = [];
-                            foreach ($_POST['filter_field'] as $idx => $field) {
-                                if ($field !== '' && isset($_POST['filter_value'][$idx]) && $_POST['filter_value'][$idx] !== '') {
-                                    $conditions[] = [
-                                        'field' => $field,
-                                        'operator' => $_POST['filter_operator'][$idx] ?? '=',
-                                        'value' => $_POST['filter_value'][$idx]
-                                    ];
-                                }
-                            }
-                            if (!empty($conditions)) {
-                                $config['filters'] = ['logic' => 'AND', 'conditions' => $conditions];
-                            }
-                        }
-                    }
-                    if (!$config) {
-                        throw new \Exception("Invalid JSON payload or form data.");
-                    }
                     $enforceRBAC($config);
-                    $result = $report->runReport($config);
+                    
+                    $cost = $report->estimateCost($config);
+                    if (isset($cost['severity']) && in_array($cost['severity'], ['high', 'critical'])) {
+                        if ($isHtmx || $isTurboStream) {
+                            echo "<div class='spp-alert spp-alert-warning p-4 bg-yellow-50 border-l-4 border-yellow-400'>
+                                    <h4 class='text-yellow-800 font-bold'>Query Too Expensive</h4>
+                                    <p class='text-yellow-700 mt-2'>This query is estimated to scan approximately " . number_format($cost['total_rows_scanned']) . " rows" . ($cost['missing_index'] ? " without an optimal index" : "") . ". Synchronous execution is blocked to prevent database instability.</p>
+                                    <button class='mt-3 bg-yellow-600 text-white px-4 py-2 rounded' hx-post='?action=export_async' hx-vals='{\"report_name\":\"" . htmlspecialchars($reportName) . "\"}'>Schedule Background Export (DagJobOrchestrator)</button>
+                                  </div>";
+                        } else {
+                            http_response_code(429);
+                            echo json_encode(['status' => 'error', 'message' => 'Query cost too high. Schedule as a background job.']);
+                        }
+                        break;
+                    }
+
+                    $isMaterialized = !empty($config['materialized']);
+                    if ($isMaterialized) {
+                        if (!class_exists('\\SPPMod\\SPPReport\\Services\\SnapshotService')) {
+                            require_once __DIR__ . '/services/SnapshotService.php';
+                        }
+                        $snapshotSvc = new \SPPMod\SPPReport\Services\SnapshotService();
+                        if ($snapshotSvc->hasValidSnapshot($reportName)) {
+                            $data = iterator_to_array($snapshotSvc->streamSnapshot($reportName));
+                            $result = ['data' => $data, 'sql' => '/* Served from O(log N) Materialized Snapshot */'];
+                        } else {
+                            $result = $report->runReport($config);
+                        }
+                    } else {
+                        $result = $report->runReport($config);
+                    }
 
                     if ($isTurboStream) {
                         $this->stream('streams/report_update.php', [
@@ -238,7 +267,9 @@ class ReportController extends \SPP\Core\ResourceController
                         ]);
                         break;
                     } elseif ($isHtmx) {
-                        $templateName = $_POST['template_name'] ?? $_GET['template_name'] ?? 'partials/report_preview.php';
+                        $rawTemplate = $_POST['template_name'] ?? $_GET['template_name'] ?? 'report_preview.php';
+                        $templateName = 'partials/' . basename($rawTemplate);
+                        
                         echo $this->renderExternalPartial($templateName, [
                             'data' => $result['data'],
                             'sql' => $result['sql'],
@@ -257,13 +288,9 @@ class ReportController extends \SPP\Core\ResourceController
                     break;
 
                 case 'render_template':
-                    $templateName = $_POST['template_name'] ?? $_GET['template_name'] ?? 'partials/report_template_dual_mode.php';
-                    if (!$config && isset($_GET['payload'])) {
-                        $config = json_decode($_GET['payload'], true);
-                    }
-                    if (!$config) {
-                        $config = ['limit' => 100];
-                    }
+                    $rawTemplate = $_POST['template_name'] ?? $_GET['template_name'] ?? 'report_template_dual_mode.php';
+                    $templateName = 'partials/' . basename($rawTemplate);
+                    $config['limit'] = 100;
                     $enforceRBAC($config);
                     $result = $report->runReport($config);
                     echo $this->renderExternalPartial($templateName, [
@@ -276,99 +303,97 @@ class ReportController extends \SPP\Core\ResourceController
                     break;
 
                 case 'export_csv':
-                    if (!$config && isset($_GET['payload'])) {
-                        $config = json_decode($_GET['payload'], true);
-                    }
-                    if (!$config) {
-                        throw new \Exception("Invalid JSON payload.");
-                    }
                     $enforceRBAC($config);
                     $config['limit'] = 0;
                     (new CsvExportDriver())->export($report, $config);
                     break;
 
                 case 'export_xls':
-                    if (!$config && isset($_GET['payload'])) {
-                        $config = json_decode($_GET['payload'], true);
-                    }
-                    if (!$config) {
-                        throw new \Exception("Invalid JSON payload.");
-                    }
                     $enforceRBAC($config);
                     $config['limit'] = 0;
-                    (new ExcelExportDriver())->export($report, $config, $this);
+                    if (file_exists(__DIR__ . '/services/PhpSpreadsheetDriver.php')) {
+                        require_once __DIR__ . '/services/PhpSpreadsheetDriver.php';
+                        (new \SPPMod\SPPReport\Services\PhpSpreadsheetDriver())->export($report, $config, $this);
+                    } else {
+                        (new ExcelExportDriver())->export($report, $config, $this);
+                    }
                     break;
 
                 case 'export_pdf':
-                    if (!$config && isset($_GET['payload'])) {
-                        $config = json_decode($_GET['payload'], true);
-                    }
-                    if (!$config) {
-                        throw new \Exception("Invalid JSON payload.");
-                    }
                     $enforceRBAC($config);
                     $config['limit'] = 0;
-                    (new PdfExportDriver())->export($report, $config, $this);
+                    if (file_exists(__DIR__ . '/services/ModernPdfDriver.php')) {
+                        require_once __DIR__ . '/services/ModernPdfDriver.php';
+                        (new \SPPMod\SPPReport\Services\ModernPdfDriver())->export($report, $config, $this);
+                    } else {
+                        (new PdfExportDriver())->export($report, $config, $this);
+                    }
+                    break;
+
+                case 'export_json':
+                    $enforceRBAC($config);
+                    $config['limit'] = 0;
+                    header('Content-Type: application/json');
+                    echo '{"data":[';
+                    $first = true;
+                    foreach ($report->streamReport($config) as $row) {
+                        if (!$first) echo ",";
+                        echo json_encode($row);
+                        $first = false;
+                    }
+                    echo "]}";
+                    break;
+
+                case 'export_xml':
+                    $enforceRBAC($config);
+                    $config['limit'] = 0;
+                    header('Content-Type: application/xml');
+                    $xml = new \XMLWriter();
+                    $xml->openURI('php://output');
+                    $xml->startDocument('1.0', 'UTF-8');
+                    $xml->startElement('report');
+                    foreach ($report->streamReport($config) as $row) {
+                        $xml->startElement('row');
+                        foreach ($row as $k => $v) {
+                            $safeKey = is_numeric($k[0]) ? 'col_' . preg_replace('/[^a-zA-Z0-9_]/', '', $k) : preg_replace('/[^a-zA-Z0-9_]/', '', $k);
+                            if (empty($safeKey)) $safeKey = 'column';
+                            $xml->writeElement($safeKey, (string)$v);
+                        }
+                        $xml->endElement(); // row
+                    }
+                    $xml->endElement(); // report
+                    $xml->endDocument();
+                    $xml->flush();
                     break;
 
                 case 'list':
-                    $dir = __DIR__ . '/../../../../etc/sppreports';
-                    if (!is_dir($dir)) {
-                        if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
-                        echo json_encode(['status' => 'success', 'reports' => []]);
-                        break;
+                    if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                        require_once __DIR__ . '/Repositories/ReportRepository.php';
                     }
-                    $files = array_merge(glob($dir . '/*.yml'), glob($dir . '/*.json'));
-                    $reports = array_unique(array_map(function ($f) {
-                        return pathinfo($f, PATHINFO_FILENAME);
-                    }, $files));
+                    $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+                    $reports = array_column($repo->listAll(), 'name');
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
-                    echo json_encode(['status' => 'success', 'reports' => array_values($reports)]);
+                    echo json_encode(['status' => 'success', 'reports' => $reports]);
                     break;
 
                 case 'load':
-                    $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['name'] ?? '');
-                    if (!$name) {
-                        throw new \Exception("Invalid report name.");
+                    if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                        require_once __DIR__ . '/Repositories/ReportRepository.php';
                     }
-                    $dir = __DIR__ . '/../../../../etc/sppreports';
-                    $jsonFile = $dir . '/' . $name . '.json';
-                    $ymlFile = $dir . '/' . $name . '.yml';
-
-                    $data = null;
-                    if (file_exists($jsonFile)) {
-                        $data = json_decode(file_get_contents($jsonFile), true);
-                    } elseif (file_exists($ymlFile)) {
-                        $data = $this->parseLegacyYaml($ymlFile);
-                    } else {
-                        throw new \Exception("Report not found.");
-                    }
-
+                    $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+                    $data = $repo->load($_GET['name'] ?? '');
                     $enforceRBAC($data);
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'config' => $data]);
                     break;
 
                 case 'ai_analyze':
-                    if (!$config) {
-                        throw new \Exception("Invalid JSON payload.");
-                    }
                     $enforceRBAC($config);
-                    if (!class_exists('\\SPPMod\\SPPAI\\SPPAI')) {
-                        throw new \Exception("SPPAI module is required for automated insights.");
+                    if (!class_exists('\\SPPMod\\SPPReport\\Services\\AiReportService')) {
+                        require_once __DIR__ . '/Services/AiReportService.php';
                     }
-
-                    $config['limit'] = 100;
-                    $result = $report->runReport($config);
-
-                    if (empty($result['data'])) {
-                        throw new \Exception("No data to analyze.");
-                    }
-
-                    $prompt = "You are an expert Data Analyst. Analyze the following report data and provide a concise, 3-bullet-point executive summary of the key insights, trends, or anomalies.\n\nData (first 100 rows max):\n";
-                    $prompt .= json_encode($result['data']);
-
-                    $analysis = \SPPMod\SPPAI\SPPAI::generate($prompt);
+                    $service = new \SPPMod\SPPReport\Services\AiReportService();
+                    $analysis = $service->analyze($report, $config);
 
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'analysis' => $analysis]);
@@ -378,71 +403,31 @@ class ReportController extends \SPP\Core\ResourceController
                     if (!$config) {
                         throw new \Exception("Invalid JSON payload.");
                     }
-                    $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $config['report_name'] ?? '');
+                    $name = $config['report_name'] ?? '';
                     if (!$name) {
                         throw new \Exception("Report name is required.");
                     }
-
-                    $dir = __DIR__ . '/../../../../etc/sppreports';
-                    if (!is_dir($dir)) {
-                        mkdir($dir, 0777, true);
+                    if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                        require_once __DIR__ . '/Repositories/ReportRepository.php';
                     }
-
-                    $jsonFile = "$dir/$name.json";
-                    $ymlFile = "$dir/$name.yml";
-
-                    if (file_exists($jsonFile)) {
-                        $bakDir = "$dir/history";
-                        if (!is_dir($bakDir)) {
-                            mkdir($bakDir, 0777, true);
-                        }
-                        $timestamp = date('Ymd_His');
-                        copy($jsonFile, "$bakDir/{$name}_{$timestamp}.json.bak");
-                    } elseif (file_exists($ymlFile)) {
-                        $bakDir = "$dir/history";
-                        if (!is_dir($bakDir)) {
-                            mkdir($bakDir, 0777, true);
-                        }
-                        $timestamp = date('Ymd_His');
-                        copy($ymlFile, "$bakDir/{$name}_{$timestamp}.yml.bak");
-                    }
-
-                    file_put_contents($jsonFile, json_encode($config, JSON_PRETTY_PRINT));
-                    
-                    if (function_exists('yaml_emit')) {
-                        @file_put_contents($ymlFile, yaml_emit($config));
-                    } else {
-                        $yaml = "cron_schedule: '" . ($config['cron_schedule'] ?? '') . "'\n";
-                        $yaml .= "cron_email: '" . ($config['cron_email'] ?? '') . "'\n";
-                        $yaml .= "cron_format: '" . ($config['cron_format'] ?? 'html') . "'\n";
-                        $yaml .= "webhook_url: '" . ($config['webhook_url'] ?? '') . "'\n";
-                        $yaml .= "webhook_condition: '" . ($config['webhook_condition'] ?? '') . "'\n";
-                        $yaml .= "json_dump: '" . json_encode($config) . "'\n";
-                        @file_put_contents($ymlFile, $yaml);
-                    }
+                    $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+                    $repo->save($name, $config);
 
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'message' => 'Report saved successfully.']);
                     break;
 
                 case 'list_versions':
-                    $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['name'] ?? '');
+                    $name = $_GET['name'] ?? '';
                     if (!$name) {
                         throw new \Exception("Report name is required.");
                     }
-                    $dir = __DIR__ . '/../../../../etc/sppreports/history';
-                    $versions = [];
-                    if (is_dir($dir)) {
-                        $files = array_merge(glob("$dir/{$name}_*.json.bak"), glob("$dir/{$name}_*.yml.bak"));
-                        foreach ($files as $f) {
-                            if (preg_match('/_(\d{8}_\d{6})\.(json|yml)\.bak$/', $f, $m)) {
-                                $versions[] = ['file' => basename($f), 'timestamp' => $m[1]];
-                            }
-                        }
+                    if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                        require_once __DIR__ . '/Repositories/ReportRepository.php';
                     }
-                    usort($versions, function ($a, $b) {
-                        return strcmp($b['timestamp'], $a['timestamp']);
-                    });
+                    $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+                    $versions = $repo->listVersions($name);
+
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'versions' => $versions]);
                     break;
@@ -451,27 +436,18 @@ class ReportController extends \SPP\Core\ResourceController
                     if (!$config) {
                         throw new \Exception("Invalid JSON payload.");
                     }
-                    $name = preg_replace('/[^a-zA-Z0-9_-]/', '', $config['report_name'] ?? '');
-                    $versionFile = preg_replace('/[^a-zA-Z0-9_.-]/', '', $config['version_file'] ?? '');
+                    $name = $config['report_name'] ?? '';
+                    $versionFile = $config['version_file'] ?? '';
                     if (!$name || !$versionFile) {
                         throw new \Exception("Name and version_file required.");
                     }
-
-                    $dir = __DIR__ . '/../../../../etc/sppreports';
-                    $source = "$dir/history/$versionFile";
-
-                    if (!file_exists($source)) {
-                        throw new \Exception("Version not found.");
+                    
+                    if (!class_exists('\\SPPMod\\SPPReport\\Repositories\\ReportRepository')) {
+                        require_once __DIR__ . '/Repositories/ReportRepository.php';
                     }
+                    $repo = new \SPPMod\SPPReport\Repositories\ReportRepository();
+                    $repo->restoreVersion($name, $versionFile);
 
-                    $ext = str_ends_with($versionFile, '.json.bak') ? '.json' : '.yml';
-                    $target = "$dir/$name$ext";
-
-                    if (file_exists($target)) {
-                        copy($target, "$dir/history/{$name}_" . date('Ymd_His') . "$ext.bak");
-                    }
-
-                    copy($source, $target);
                     if (!$isHtmx && !$isTurboStream) header('Content-Type: application/json');
                     echo json_encode(['status' => 'success', 'message' => 'Version restored.']);
                     break;
@@ -528,62 +504,13 @@ class ReportController extends \SPP\Core\ResourceController
                     break;
 
                 case 'ai_build':
-                    if (!class_exists('\\SPPMod\\SPPAI\\SPPAI')) {
-                        throw new \Exception("SPPAI module is not installed or enabled. Cannot generate AI reports.");
+                    $query = $_POST['query'] ?? $payloadObj['query'] ?? '';
+                    
+                    if (!class_exists('\\SPPMod\\SPPReport\\Services\\AiReportService')) {
+                        require_once __DIR__ . '/Services/AiReportService.php';
                     }
-
-                    $query = $_POST['query'] ?? '';
-                    if (empty($query)) {
-                        $post = json_decode($payload, true);
-                        $query = $post['query'] ?? '';
-                    }
-                    if (empty($query)) {
-                        throw new \Exception("Natural language query is required.");
-                    }
-
-                    $schema = $report->getSchema();
-                    $schemaJson = json_encode($schema);
-
-                    $prompt = "You are an AI that converts natural language to a JSON report configuration for SPPReport BI.\n";
-                    $prompt .= "Database Schema: $schemaJson\n";
-                    $prompt .= "User Request: $query\n";
-                    $prompt .= "You must generate a strictly valid JSON configuration with the following structure. Do NOT include markdown blocks.\n";
-
-                    $jsonSchema = [
-                        'type' => 'object',
-                        'properties' => [
-                            'table' => ['type' => 'string', 'description' => 'The base table name'],
-                            'columns' => [
-                                'type' => 'array',
-                                'items' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'field' => ['type' => 'string'],
-                                        'aggregate' => ['type' => 'string', 'enum' => ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'CUSTOM', '']],
-                                        'alias' => ['type' => 'string']
-                                    ]
-                                ]
-                            ],
-                            'joins' => [
-                                'type' => 'array',
-                                'items' => [
-                                    'type' => 'object',
-                                    'properties' => [
-                                        'table' => ['type' => 'string'],
-                                        'type' => ['type' => 'string', 'enum' => ['LEFT JOIN', 'INNER JOIN']],
-                                        'on' => ['type' => 'string']
-                                    ]
-                                ]
-                            ]
-                        ],
-                        'required' => ['table', 'columns']
-                    ];
-
-                    $response = \SPPMod\SPPAI\SPPAI::structured($prompt, $jsonSchema);
-                    $configObj = is_string($response) ? json_decode($response, true) : $response;
-                    if (!$configObj) {
-                        throw new \Exception("AI failed to generate a valid report configuration.");
-                    }
+                    $service = new \SPPMod\SPPReport\Services\AiReportService();
+                    $configObj = $service->build($report, $query);
 
                     if ($isHtmx) {
                         echo $this->renderExternalPartial('partials/report_configurator.php', [

@@ -19,15 +19,17 @@
 
 import { Signal, Computed, effect, batch, createStore, SPPStore } from './core/reactive.js';
 import { enqueue, flush, forceFlush, startBatch, endBatch } from './core/scheduler.js';
-import { TrustedHTML, html, Fragment, consumePendingHandlers, _pendingHandlers } from './core/template.js';
+import { TrustedHTML, html, Fragment, consumePendingHandlers, _pendingHandlers, render, repeat, until, portal, ref, bind, action } from './core/template.js';
 import { registerHandler, removeHandler, removeAllHandlers, initDelegation, _handlerRegistry } from './core/events.js';
 import { reconcileDOM, patchAttributes, longestIncreasingSubsequence } from './core/reconciler.js';
 import { ErrorBoundaryMixin, findNearestErrorBoundary } from './core/error-boundary.js';
+import { bootSPPLive } from './spplive.js';
 
 // ─── Re-exports for ES Module consumers ───────────────────────────
 
-export { TrustedHTML, html, Fragment, Signal, Computed, SPPStore };
+export { TrustedHTML, html, Fragment, Signal, Computed, SPPStore, repeat, until, portal, ref, bind, action };
 export { effect, batch, createStore };
+export { defineElement, bootSPPLive };
 
 // ─── Debug Mode ───────────────────────────────────────────────────
 
@@ -36,6 +38,56 @@ let _debug = false;
 
 function _log(...args) {
     if (_debug) console.log('[SPPUX]', ...args);
+}
+
+// ─── Web Components API ─────────────────────────────────────────────
+
+/**
+ * Defines an SPPUX component as a native Custom Element (Web Component).
+ * @param {string} tagName 
+ * @param {typeof BaseComponent} ComponentClass 
+ * @param {string[]} observedAttributes 
+ */
+function defineElement(tagName, ComponentClass, observedAttributes = []) {
+    if (customElements.get(tagName)) return;
+    
+    class SPPCustomElement extends HTMLElement {
+        static get observedAttributes() {
+            return observedAttributes;
+        }
+        
+        constructor() {
+            super();
+            this._componentInstance = null;
+        }
+        
+        connectedCallback() {
+            if (!this._componentInstance) {
+                const props = {};
+                for (const attr of this.attributes) {
+                    props[attr.name] = attr.value;
+                }
+                
+                this._componentInstance = new ComponentClass(window.app || window.admin, this, props);
+            }
+        }
+        
+        disconnectedCallback() {
+            if (this._componentInstance) {
+                this._componentInstance.dispose();
+                this._componentInstance = null;
+            }
+        }
+        
+        attributeChangedCallback(name, oldValue, newValue) {
+            if (this._componentInstance && oldValue !== newValue) {
+                this._componentInstance.props[name] = newValue;
+                this._componentInstance._queueUpdate();
+            }
+        }
+    }
+    
+    customElements.define(tagName, SPPCustomElement);
 }
 
 // ─── BaseComponent (v13) ──────────────────────────────────────────
@@ -61,6 +113,11 @@ export class BaseComponent {
         this._signalUnsubscribes = new Set();
         this._hasMounted = false;
         this._pendingUpdate = false;
+        this._provided = new Map();
+        
+        if (this.container) {
+            this.container.__spp_component = this;
+        }
 
         this._initHelpers();
 
@@ -196,6 +253,39 @@ export class BaseComponent {
     }
 
     /**
+     * Provides a value (or Signal) to all descendant components.
+     * @param {string} key 
+     * @param {any} value 
+     */
+    provide(key, value) {
+        this._provided.set(key, value);
+    }
+
+    /**
+     * Consumes a value provided by an ancestor component.
+     * @param {string} key 
+     * @returns {any}
+     */
+    consume(key) {
+        let current = this.container;
+        while (current) {
+            if (current.__spp_component && current.__spp_component._provided.has(key)) {
+                return current.__spp_component._provided.get(key);
+            }
+            current = current.parentElement || current.parentNode;
+            if (current instanceof ShadowRoot) {
+                current = current.host;
+            }
+        }
+        return undefined;
+    }
+
+    _queueUpdate() {
+        this._pendingUpdate = false;
+        this._doUpdate();
+    }
+
+    /**
      * Called by the scheduler to perform the actual DOM update.
      * This is the v13 replacement for the v11 update() method.
      */
@@ -241,7 +331,6 @@ export class BaseComponent {
             } catch (renderError) {
                 console.error(`[SPPUX] Render Error in ${this.constructor.name}:`, renderError);
 
-                // ── New: Error boundary support ──
                 if (typeof this.onError === 'function') {
                     try { this.onError(renderError, { componentName: this.constructor.name, phase: 'render' }); } catch (e) { /* swallow */ }
                 }
@@ -270,64 +359,60 @@ export class BaseComponent {
                 }
             }
 
-            if (!template || template.content === undefined || (template.content === '' && !template.__isTrusted)) {
+            if (!template || (template.content === undefined && !(template.strings && template.values)) || (template.content === '' && !template.__isTrusted)) {
                 this._isRendering = false;
                 return;
             }
 
-            const temp = document.createElement('div');
-            temp.innerHTML = template.toString();
-
-            // ── Consume pending handlers from template.js (v13 path) ──
-            const newHandlers = consumePendingHandlers();
-
-            // ── Register event handlers from the rendered template ──
-            temp.querySelectorAll('*').forEach(el => {
-                // Automagic Two-Way Data Binding (spp-model)
-                if (el.hasAttribute('spp-model')) {
-                    const key = el.getAttribute('spp-model');
-                    if (el.type === 'checkbox') {
-                        el.checked = !!this.state[key];
-                        const eventId = `evt_model_${++_modelIdCounter}`;
-                        this._handlers.set(eventId, (e) => this.setState({ [key]: e.target.checked }));
-                        el.setAttribute('data-spp-evt-change', eventId);
-                    } else {
-                        el.value = this.state[key] !== undefined ? this.state[key] : '';
-                        const eventId = `evt_model_${++_modelIdCounter}`;
-                        this._handlers.set(eventId, (e) => this.setState({ [key]: e.target.value }));
-                        el.setAttribute('data-spp-evt-input', eventId);
-                    }
-                }
-
-                // Claim handlers from the template's _pendingHandlers (v13)
-                for (const attr of el.attributes) {
-                    if (attr.name.startsWith('data-spp-evt')) {
-                        const id = attr.value;
-                        if (newHandlers.has(id)) {
-                            this._handlers.set(id, newHandlers.get(id));
-                        }
-                        // Backward compat: also check window.__spp_handlers (v11)
-                        else if (window.__spp_handlers && window.__spp_handlers[id]) {
-                            this._handlers.set(id, window.__spp_handlers[id]);
-                        }
-                    }
-                }
-            });
-
-            // Also scan global containers (modals, header) for handlers
-            this._registerGlobalHandlers(null);
-
-            // ── Register handlers in the new O(1) event system ──
-            this._syncEventDelegation(temp);
-
-            // ── Reconcile: use the new keyed reconciler ──
+            // ── Render: use the new fine-grained template renderer (v14) ──
             if (this.container) {
                 _log(`↻ ${this.constructor.name}`);
+                
+                // Track snapshots for rollback if needed
                 this._snapshots.push(this.container.innerHTML);
                 if (this._snapshots.length > 10) this._snapshots.shift();
-                reconcileDOM(this.container, temp);
-                // After reconciliation, re-sync event handlers on live DOM nodes
-                this._syncEventDelegation(this.container);
+
+                let renderTarget = this.container;
+                if (this.shadow || this.constructor.shadow) {
+                    if (!this.container.shadowRoot) {
+                        this.container.attachShadow({ mode: 'open' });
+                    }
+                    renderTarget = this.container.shadowRoot;
+                }
+
+                const performRender = () => {
+                    // Call the new template.js render function
+                    render(template, renderTarget);
+
+                    // ── Backward Compat: spp-model Two-Way Binding ──
+                    renderTarget.querySelectorAll('[spp-model]').forEach(el => {
+                        const key = el.getAttribute('spp-model');
+                        if (el.type === 'checkbox') {
+                            el.checked = !!this.state[key];
+                            if (!el.hasAttribute('data-spp-bound-change')) {
+                                el.setAttribute('data-spp-bound-change', '1');
+                                el.addEventListener('change', (e) => this.setState({ [key]: e.target.checked }));
+                            }
+                        } else {
+                            el.value = this.state[key] !== undefined ? this.state[key] : '';
+                            if (!el.hasAttribute('data-spp-bound-input')) {
+                                el.setAttribute('data-spp-bound-input', '1');
+                                el.addEventListener('input', (e) => this.setState({ [key]: e.target.value }));
+                            }
+                        }
+                    });
+
+                    // Re-sync global legacy handlers just in case
+                    this._registerGlobalHandlers(null);
+                    this._syncEventDelegation(this.container);
+                };
+
+                // Apply View Transitions if opted in
+                if ((this.transitions || this.constructor.transitions) && document.startViewTransition) {
+                    document.startViewTransition(() => performRender());
+                } else {
+                    performRender();
+                }
             }
 
             try {

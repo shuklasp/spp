@@ -46,6 +46,20 @@ class QueryBuilder
         $this->table = SPPDB::sppTable($table);
     }
 
+    protected function getCompiler(): ?\SPPMod\SPPDB\Compilers\CompilerInterface
+    {
+        return method_exists($this->db, 'getCompiler') ? $this->db->getCompiler() : null;
+    }
+
+    protected function escapeIdentifier(string $identifier): string
+    {
+        $compiler = $this->getCompiler();
+        if ($compiler && method_exists($compiler, 'escapeIdentifier')) {
+            return $compiler->escapeIdentifier($identifier);
+        }
+        return preg_replace('/[^a-zA-Z0-9_\.]/', '', $identifier);
+    }
+
     /**
      * Specify columns to select.
      */
@@ -89,7 +103,7 @@ class QueryBuilder
 
         $this->wheres[] = [
             'type' => 'basic',
-            'column' => preg_replace('/[^a-zA-Z0-9_\.]/', '', $column),
+            'column' => $this->escapeIdentifier($column),
             'operator' => $operator,
             'value' => $value,
             'boolean' => preg_replace('/[^a-zA-Z]/', '', $boolean)
@@ -123,6 +137,72 @@ class QueryBuilder
     }
 
     /**
+     * Add a WHERE IN clause.
+     */
+    public function whereIn(string $column, array $values, string $boolean = 'AND'): self
+    {
+        if (empty($values)) {
+            return $this->whereRaw('1 = 0', [], $boolean);
+        }
+        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        $column = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'type' => 'raw',
+            'sql' => "{$column} IN ({$placeholders})",
+            'boolean' => $boolean
+        ];
+        $this->addBindings(array_values($values));
+        return $this;
+    }
+
+    /**
+     * Add a WHERE NOT IN clause.
+     */
+    public function whereNotIn(string $column, array $values, string $boolean = 'AND'): self
+    {
+        if (empty($values)) {
+            return $this->whereRaw('1 = 1', [], $boolean);
+        }
+        $placeholders = implode(', ', array_fill(0, count($values), '?'));
+        $column = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'type' => 'raw',
+            'sql' => "{$column} NOT IN ({$placeholders})",
+            'boolean' => $boolean
+        ];
+        $this->addBindings(array_values($values));
+        return $this;
+    }
+
+    /**
+     * Add a WHERE NULL clause.
+     */
+    public function whereNull(string $column, string $boolean = 'AND'): self
+    {
+        $column = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'type' => 'raw',
+            'sql' => "{$column} IS NULL",
+            'boolean' => $boolean
+        ];
+        return $this;
+    }
+
+    /**
+     * Add a WHERE NOT NULL clause.
+     */
+    public function whereNotNull(string $column, string $boolean = 'AND'): self
+    {
+        $column = $this->escapeIdentifier($column);
+        $this->wheres[] = [
+            'type' => 'raw',
+            'sql' => "{$column} IS NOT NULL",
+            'boolean' => $boolean
+        ];
+        return $this;
+    }
+
+    /**
      * Handle nested groupings.
      */
     protected function whereNested(\Closure $callback, $boolean = 'AND'): self
@@ -147,9 +227,9 @@ class QueryBuilder
      */
     public function join(string $table, string $first, string $operator, string $second, string $type = 'INNER'): self
     {
-        $table = SPPDB::sppTable(preg_replace('/[^a-zA-Z0-9_\.]/', '', $table));
-        $first = preg_replace('/[^a-zA-Z0-9_\.]/', '', $first);
-        $second = preg_replace('/[^a-zA-Z0-9_\.]/', '', $second);
+        $table = SPPDB::sppTable($this->escapeIdentifier($table));
+        $first = $this->escapeIdentifier($first);
+        $second = $this->escapeIdentifier($second);
 
         $validOperators = ['=', '<', '>', '<=', '>=', '<>', '!='];
         $operator = strtoupper(trim($operator));
@@ -169,7 +249,7 @@ class QueryBuilder
     public function orderBy(string $column, string $direction = 'ASC'): self
     {
         $direction = strtoupper($direction) === 'DESC' ? 'DESC' : 'ASC';
-        $column = preg_replace('/[^a-zA-Z0-9_\.]/', '', $column);
+        $column = $this->escapeIdentifier($column);
         $this->orders[] = compact('column', 'direction');
         return $this;
     }
@@ -237,10 +317,15 @@ class QueryBuilder
      */
     public function count(): int
     {
-        $originalColumns = $this->columns;
-        $this->columns = ['COUNT(*) as aggregate'];
-        $result = $this->first();
-        $this->columns = $originalColumns;
+        $query = clone $this;
+        $query->columns = ['COUNT(*) as aggregate'];
+        $query->limit = 1; // Limit 1 is usually not needed for count, but matches previous behavior
+
+        $sql = $query->toSql();
+        $bindings = $query->getBindings();
+        
+        $results = $query->db->execute_query($sql, $bindings);
+        $result = $results[0] ?? null;
 
         return (int) ($result['aggregate'] ?? 0);
     }
@@ -256,7 +341,7 @@ class QueryBuilder
 
         $safeCols = [];
         foreach (array_keys($values) as $col) {
-            $safeCols[] = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
+            $safeCols[] = $this->escapeIdentifier($col);
         }
         $placeholders = array_fill(0, count($values), '?');
 
@@ -281,7 +366,7 @@ class QueryBuilder
 
         $set = [];
         foreach ($values as $column => $value) {
-            $safeCol = preg_replace('/[^a-zA-Z0-9_]/', '', $column);
+            $safeCol = $this->escapeIdentifier($column);
             $set[] = "{$safeCol} = ?";
         }
 
@@ -385,3 +470,4 @@ class QueryBuilder
         return $this->bindings;
     }
 }
+

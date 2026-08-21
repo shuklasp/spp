@@ -61,15 +61,56 @@ class LiveDispatcher
             throw new \Exception('Invalid or missing component class.');
         }
 
-        $refClass = new ReflectionClass($compClass);
-        $isPublic = !empty($refClass->getAttributes('SPPMod\SPPView\Attributes\AllowGuest'));
-
-        if (!$isPublic) {
-            if (!\SPPMod\SPPAPI\SPPAPI::checkAuth()) {
-                throw new \Exception('Unauthorized component execution.', 401);
+        // --- BACKEND HARDENING: Idempotency Engine ---
+        // Prevent concurrent execution of mutations (methods) via malicious curl or rapid race conditions.
+        // We do NOT block sync-only requests ($method === null).
+        $lockAcquired = false;
+        $lockKey = null;
+        
+        if ($method !== null) {
+            // Generate a unique fingerprint for this specific mutation attempt
+            $payloadHash = md5(json_encode([$compClass, $checksum, $method, $params]));
+            $lockKey = 'spp_live_mutex_' . $payloadHash;
+            
+            // Fast in-memory APcU lock (or fallback to basic session/file lock)
+            if (function_exists('apcu_add')) {
+                if (!apcu_add($lockKey, 1, 5)) { // 5-second lock
+                    throw new \Exception('Mutation blocked. Duplicate request currently executing.', 409);
+                }
+                $lockAcquired = true;
+            } else {
+                // Fallback lock for shared hosting (Session based)
+                if (session_status() === PHP_SESSION_NONE) {
+                    @session_start();
+                }
+                if (isset($_SESSION[$lockKey]) && $_SESSION[$lockKey] > (time() - 5)) {
+                    throw new \Exception('Mutation blocked. Duplicate request currently executing.', 409);
+                }
+                $_SESSION[$lockKey] = time();
+                $lockAcquired = true;
             }
         }
 
-        return LiveComponent::handleRequest($compClass, $state, $updates, $checksum, $method, $params, ['global']);
+        try {
+            $refClass = new ReflectionClass($compClass);
+            $isPublic = !empty($refClass->getAttributes('SPPMod\SPPView\Attributes\AllowGuest'));
+
+            if (!$isPublic) {
+                if (!\SPPMod\SPPAPI\SPPAPI::checkAuth()) {
+                    throw new \Exception('Unauthorized component execution.', 401);
+                }
+            }
+
+            return LiveComponent::handleRequest($compClass, $state, $updates, $checksum, $method, $params, ['global']);
+        } finally {
+            // Release the idempotency lock
+            if ($lockAcquired && $lockKey !== null) {
+                if (function_exists('apcu_delete')) {
+                    apcu_delete($lockKey);
+                } else {
+                    unset($_SESSION[$lockKey]);
+                }
+            }
+        }
     }
 }

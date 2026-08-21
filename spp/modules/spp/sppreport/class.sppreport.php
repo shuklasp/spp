@@ -93,22 +93,31 @@ class ReportQueryBuilder
             // Safe alias using SchemaValidator if available, or fallback backticks/quotes
             $aliasSql = "";
             if ($alias) {
-                $aliasSql = " AS \"" . str_replace('"', '\"', $alias) . "\"";
+                try {
+                    $escapedAlias = SchemaValidator::escapeIdentifier($alias);
+                    $aliasSql = " AS " . $escapedAlias;
+                } catch (\Exception $e) {
+                    $aliasSql = " AS \"" . str_replace('"', '""', $alias) . "\"";
+                }
             }
 
             if ($aggregate === 'CUSTOM') {
-                if (!preg_match('/^[a-zA-Z0-9_\.\(\)\+\-\*\/\,]+$/', $field)) {
+                if (!preg_match('/^[a-zA-Z0-9_\.\(\)\+\-\*\/\,\s]+$/', $field)) {
+                    continue;
+                }
+                // Disallow subqueries and dangerous DML/DDL keywords
+                if (preg_match('/(?i)\b(SELECT|FROM|JOIN|WHERE|UNION|UPDATE|DELETE|INSERT|DROP|EXEC|ALTER)\b/', $field)) {
                     continue;
                 }
                 $selects[] = $field . $aliasSql;
                 continue;
             }
 
-            if (!preg_match('/^[a-zA-Z0-9_\.\*]+$/', $field)) {
+            if (!preg_match('/^[a-zA-Z0-9_\.\*\->]+$/', $field)) {
                 continue;
             }
 
-            if ($aggregate && in_array(strtoupper($aggregate), ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX'])) {
+            if ($aggregate && in_array(strtoupper($aggregate), ['COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'YEAR', 'MONTH', 'DATE', 'DAY', 'HOUR'])) {
                 $selects[] = strtoupper($aggregate) . "(" . $field . ")" . $aliasSql;
             } else {
                 $selects[] = $field . $aliasSql;
@@ -144,11 +153,32 @@ class ReportQueryBuilder
 
         // 3. Build WHERE
         $whereSql = "";
-        if (!empty($config['filters']) && !empty($config['filters']['conditions'])) {
+        $parsedFilters = "";
+        if (!empty($config['filters'])) {
             $parsedFilters = $this->parseFilters($config['filters'], $params);
-            if (!empty($parsedFilters)) {
-                $whereSql = " WHERE " . $parsedFilters;
+        }
+
+        // Apply Global Scopes unconditionally
+        $globalScopes = [];
+        if (class_exists('\\SPPMod\\SPPReport\\GlobalScopeRegistry')) {
+            foreach (\SPPMod\SPPReport\GlobalScopeRegistry::getScopes() as $field => $val) {
+                // Ensure field is a safe identifier
+                if (preg_match('/^[a-zA-Z0-9_\.\->]+$/', $field)) {
+                    $globalScopes[] = $field . " = ?";
+                    $params[] = $val;
+                }
             }
+        }
+
+        if (!empty($globalScopes)) {
+            $scopeSql = implode(' AND ', $globalScopes);
+            if ($parsedFilters) {
+                $whereSql = " WHERE (" . $scopeSql . ") AND (" . $parsedFilters . ")";
+            } else {
+                $whereSql = " WHERE " . $scopeSql;
+            }
+        } else if ($parsedFilters) {
+            $whereSql = " WHERE " . $parsedFilters;
         }
 
         // 4. Build GROUP BY
@@ -156,8 +186,17 @@ class ReportQueryBuilder
         if (!empty($config['group_by'])) {
             $safeGroups = [];
             foreach ($config['group_by'] as $g) {
-                if (preg_match('/^[a-zA-Z0-9_\.]+$/', $g)) {
-                    $safeGroups[] = $g;
+                if (preg_match('/^([a-zA-Z0-9_]+\()?([a-zA-Z0-9_\.\->]+)\)?$/', $g, $m)) {
+                    $func = strtoupper($m[1] ?? '');
+                    $innerField = $m[2];
+                    if ($func) {
+                        $allowedFuncs = ['YEAR(', 'MONTH(', 'DATE(', 'DAY(', 'HOUR('];
+                        if (in_array($func, $allowedFuncs)) {
+                            $safeGroups[] = $func . $innerField . ")";
+                        }
+                    } else {
+                        $safeGroups[] = $innerField;
+                    }
                 }
             }
             if (!empty($safeGroups)) {
@@ -169,7 +208,12 @@ class ReportQueryBuilder
         $orderBySql = "";
         if (!empty($config['order_by']) && !empty($config['order_by']['field'])) {
             $dir = strtoupper($config['order_by']['direction'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
-            $orderBySql = " ORDER BY \"" . str_replace('"', '\"', $config['order_by']['field']) . "\" " . $dir;
+            try {
+                $escapedOrderBy = SchemaValidator::escapeIdentifier($config['order_by']['field']);
+            } catch (\Exception $e) {
+                $escapedOrderBy = "\"" . str_replace('"', '""', $config['order_by']['field']) . "\"";
+            }
+            $orderBySql = " ORDER BY " . $escapedOrderBy . " " . $dir;
         }
 
         // 6. Build LIMIT
@@ -210,29 +254,36 @@ class ReportQueryBuilder
                 }
             } else {
                 $field = $cond['field'] ?? '';
-                if (!preg_match('/^[a-zA-Z0-9_\.]+$/', $field)) {
+                if (!preg_match('/^[a-zA-Z0-9_\.\->]+$/', $field)) {
                     continue;
                 }
 
                 $op = strtoupper($cond['operator'] ?? '=');
-                $allowedOps = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL'];
+                $allowedOps = ['=', '!=', '<', '<=', '>', '>=', 'LIKE', 'IN', 'NOT IN', 'IS NULL', 'IS NOT NULL', 'BETWEEN', 'NOT BETWEEN', 'REGEXP', 'NOT REGEXP'];
                 if (!in_array($op, $allowedOps)) {
                     $op = '=';
                 }
 
                 $val = $cond['value'] ?? null;
 
-                if ($val === '{{CURRENT_USER_ID}}') {
-                    if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
-                        $currentUser = \SPPMod\SPPAuth\SPPAuth::getCurrentUser();
-                        $val = $currentUser['id'] ?? 0;
+                if (is_string($val) && str_starts_with($val, '{{') && str_ends_with($val, '}}')) {
+                    $resolved = \SPPMod\SPPReport\MacroRegistry::resolve($val);
+                    if ($resolved !== null) {
+                        $val = $resolved;
                     } else {
+                        // Unrecognized macro, fallback to 0 for safety to prevent breaking SQL
                         $val = 0;
                     }
                 }
 
                 if ($op === 'IS NULL' || $op === 'IS NOT NULL') {
                     $parts[] = $field . " " . $op;
+                } else if ($op === 'BETWEEN' || $op === 'NOT BETWEEN') {
+                    if (is_array($val) && count($val) === 2) {
+                        $parts[] = $field . " " . $op . " ? AND ?";
+                        $params[] = $val[0];
+                        $params[] = $val[1];
+                    }
                 } else if ($op === 'IN' || $op === 'NOT IN') {
                     if (is_array($val) && !empty($val)) {
                         $placeholders = [];
@@ -293,7 +344,12 @@ class SPPReport
                 $tables = $this->db->execute_query("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
                 foreach ($tables as $t) {
                     $tableName = $t['name'];
-                    $columns = $this->db->execute_query("PRAGMA table_info(" . $tableName . ")");
+                    try {
+                        $escapedTableName = SchemaValidator::escapeIdentifier($tableName);
+                    } catch (\Exception $e) {
+                        $escapedTableName = '"' . str_replace('"', '""', $tableName) . '"';
+                    }
+                    $columns = $this->db->execute_query("PRAGMA table_info(" . $escapedTableName . ")");
                     $cols = array_map(function ($c) {
                         return $c['name'];
                     }, $columns);
@@ -303,7 +359,12 @@ class SPPReport
                 $tables = $this->db->execute_query("SHOW TABLES");
                 foreach ($tables as $t) {
                     $tableName = array_values($t)[0];
-                    $columns = $this->db->execute_query("SHOW COLUMNS FROM " . $tableName);
+                    try {
+                        $escapedTableName = SchemaValidator::escapeIdentifier($tableName);
+                    } catch (\Exception $e) {
+                        $escapedTableName = '`' . str_replace('`', '``', $tableName) . '`';
+                    }
+                    $columns = $this->db->execute_query("SHOW COLUMNS FROM " . $escapedTableName);
                     $cols = array_map(function ($c) {
                         return $c['Field'];
                     }, $columns);
@@ -323,7 +384,12 @@ class SPPReport
                 $tables = $this->db->execute_query("SHOW TABLES");
                 foreach ($tables as $t) {
                     $tableName = array_values($t)[0];
-                    $columns = $this->db->execute_query("DESCRIBE " . $tableName);
+                    try {
+                        $escapedTableName = SchemaValidator::escapeIdentifier($tableName);
+                    } catch (\Exception $e) {
+                        $escapedTableName = '"' . str_replace('"', '""', $tableName) . '"';
+                    }
+                    $columns = $this->db->execute_query("DESCRIBE " . $escapedTableName);
                     $cols = array_map(function ($c) {
                         return $c['Field'];
                     }, $columns);
@@ -337,16 +403,108 @@ class SPPReport
         return $schema;
     }
 
-    public function runReport(array $config): array
+    public function estimateCost(array $config): array
     {
         $build = $this->queryBuilder->build($config);
         $sql = $build['sql'];
         $params = $build['params'];
+        
+        // Only run EXPLAIN if we are on MySQL or PostgreSQL
+        $driver = $this->db->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if (!in_array($driver, ['mysql', 'pgsql'])) {
+            return ['status' => 'unknown', 'cost' => 0];
+        }
+
+        try {
+            $stmt = $this->db->prepare("EXPLAIN " . $sql);
+            $stmt->execute($params);
+            $explanation = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            
+            $totalRows = 0;
+            $missingIndex = false;
+            
+            foreach ($explanation as $row) {
+                // MySQL parsing
+                if (isset($row['rows'])) {
+                    $totalRows += (int)$row['rows'];
+                }
+                if (isset($row['type']) && strtolower($row['type']) === 'all') {
+                    $missingIndex = true;
+                }
+                
+                // PostgreSQL parsing (typically returns a single string like "Seq Scan on table (cost=0.00..12.34 rows=123 width=4)")
+                if (isset($row['QUERY PLAN'])) {
+                    if (preg_match('/rows=(\d+)/', $row['QUERY PLAN'], $m)) {
+                        $totalRows += (int)$m[1];
+                    }
+                    if (stripos($row['QUERY PLAN'], 'Seq Scan') !== false) {
+                        $missingIndex = true;
+                    }
+                }
+            }
+
+            // Arbitrary heuristic: if it scans > 1 million rows without an index, it's a critical cost
+            $severity = 'low';
+            if ($totalRows > 100000) $severity = 'medium';
+            if ($totalRows > 1000000 && $missingIndex) $severity = 'high';
+            if ($totalRows > 5000000) $severity = 'critical';
+
+            return [
+                'status' => 'success',
+                'total_rows_scanned' => $totalRows,
+                'missing_index' => $missingIndex,
+                'severity' => $severity
+            ];
+        } catch (\Exception $e) {
+            return ['status' => 'error', 'message' => $e->getMessage()];
+        }
+    }
+
+    private function getUserRoles(): array
+    {
+        $roleNames = [];
+        if (class_exists('\\SPPMod\\SPPAuth\\SPPAuth')) {
+            $user = \SPPMod\SPPAuth\SPPAuth::user();
+            if ($user && method_exists($user, 'getRoles')) {
+                $roleIds = $user->getRoles();
+                if (!empty($roleIds)) {
+                    $placeholders = implode(',', array_fill(0, count($roleIds), '?'));
+                    $roles = $this->db->execute_query("SELECT name FROM " . \SPPMod\SPPDB\SPPDB::sppTable('roles') . " WHERE id IN ($placeholders)", $roleIds);
+                    $roleNames = array_column($roles, 'name');
+                }
+            }
+        }
+        return $roleNames;
+    }
+
+    public function runReport(array $config): array
+    {
+        if (class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
+            \SPPMod\SPPReport\W3CTraceContext::startSpan('report_run', ['table' => $config['table'] ?? 'unknown']);
+        }
+
+        $build = $this->queryBuilder->build($config);
+        $sql = $build['sql'];
+        $params = $build['params'];
+        
+        $data = $this->db->execute_query($sql, $params);
+
+        if (!empty($config['masking_rules'])) {
+            if (!class_exists('\\SPPMod\\SPPReport\\Services\\DataMasker')) {
+                require_once __DIR__ . '/services/DataMasker.php';
+            }
+            $masker = new \SPPMod\SPPReport\Services\DataMasker($config, $this->getUserRoles());
+            if ($masker->isMaskingActive()) {
+                foreach ($data as &$row) {
+                    $row = $masker->maskRow($row);
+                }
+            }
+        }
 
         return [
             'sql' => $sql,
             'params' => $params,
-            'data' => $this->db->execute_query($sql, $params)
+            'data' => $data
         ];
     }
 
@@ -355,6 +513,10 @@ class SPPReport
      */
     public function streamReport(array $config): \Generator
     {
+        if (class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
+            \SPPMod\SPPReport\W3CTraceContext::startSpan('report_stream', ['table' => $config['table'] ?? 'unknown']);
+        }
+
         $build = $this->queryBuilder->build($config);
         $sql = $build['sql'];
         $params = $build['params'];
@@ -362,7 +524,18 @@ class SPPReport
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
 
+        $masker = null;
+        if (!empty($config['masking_rules'])) {
+            if (!class_exists('\\SPPMod\\SPPReport\\Services\\DataMasker')) {
+                require_once __DIR__ . '/services/DataMasker.php';
+            }
+            $masker = new \SPPMod\SPPReport\Services\DataMasker($config, $this->getUserRoles());
+        }
+
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            if ($masker && $masker->isMaskingActive()) {
+                $row = $masker->maskRow($row);
+            }
             yield $row;
         }
     }
@@ -370,4 +543,12 @@ class SPPReport
 
 if (!class_exists('\\SPPMod\\SPPReport\\W3CTraceContext')) {
     require_once __DIR__ . '/W3CTraceContext.php';
+}
+
+if (!class_exists('\\SPPMod\\SPPReport\\MacroRegistry')) {
+    require_once __DIR__ . '/MacroRegistry.php';
+}
+
+if (!class_exists('\\SPPMod\\SPPReport\\GlobalScopeRegistry')) {
+    require_once __DIR__ . '/GlobalScopeRegistry.php';
 }
