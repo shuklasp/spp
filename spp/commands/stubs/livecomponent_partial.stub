@@ -1,0 +1,5 @@
+<div>
+    <h2>{{ $title }}</h2>
+    <p>Counter: {{ $counter }}</p>
+    <button wire:click="increment">Increment</button>
+</div>

@@ -1,0 +1,117 @@
+166060
+  -OEChem-08152604232D
+
+ 11  0  0     0  0  0  0  0  0999 V2000
+    3.3660    3.3660    0.0000 Ta  0  0  0  0  0  0  0  0  0  0  0  0
+    5.0981    3.3660    0.0000 Ta  0  0  0  0  0  0  0  0  0  0  0  0
+    4.2321    0.5000    0.0000 Sr  0  2  0  0  0  0  0  0  0  0  0  0
+    2.5000    0.5000    0.0000 Sr  0  2  0  0  0  0  0  0  0  0  0  0
+    3.3660    0.0000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    5.0981    0.0000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    4.2321    3.8660    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    2.5000    2.8660    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    2.8660    4.2321    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    3.8660    2.5000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    0.0000    1.8660    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+M  CHG  8   1   5   2   5   3   2   4   2   5  -2   6  -2   7  -2   8  -2
+M  CHG  3   9  -2  10  -2  11  -2
+M  END
+> <PUBCHEM_COMPOUND_CID>
+166060
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+0
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+7
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQAAOAAAAAAABAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_NAME>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+distrontium;heptakis(oxygen(2-));bis(tantalum(5+))
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/7O.2Sr.2Ta/q7*-2;2*+2;2*+5
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+IVUXZQJWTQMSQN-UHFFFAOYSA-N
+
+> <PUBCHEM_EXACT_MASS>
+649.67162
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+O7Sr2Ta2
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+649.1
+
+> <PUBCHEM_SMILES>
+[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[Sr+2].[Sr+2].[Ta+5].[Ta+5]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[Sr+2].[Sr+2].[Ta+5].[Ta+5]
+
+> <PUBCHEM_CACTVS_TPSA>
+7
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+649.67162
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+11
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+11
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

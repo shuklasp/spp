@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SPPUX v13 Test Suite</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: #0a0b0f; color: #e2e8f0; padding: 2rem; }
+        h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: #f1f5f9; letter-spacing: -0.02em; }
+        .suite { margin-bottom: 2rem; background: rgba(255,255,255,0.03); border-radius: 12px; padding: 1.5rem; border: 1px solid rgba(255,255,255,0.06); }
+        .suite h2 { font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: #94a3b8; }
+        .suite iframe { width: 100%; border: none; min-height: 200px; background: rgba(0,0,0,0.3); border-radius: 8px; }
+        #output { white-space: pre-wrap; font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; line-height: 1.6; padding: 1rem; background: rgba(0,0,0,0.4); border-radius: 8px; margin-top: 1rem; max-height: 70vh; overflow-y: auto; }
+        .pass { color: #22c55e; }
+        .fail { color: #ef4444; }
+        .info { color: #3b82f6; }
+        .summary { margin-top: 2rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); }
+        .summary h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <h1>🧪 SPPUX v13 — Test Suite</h1>
+    <p style="color: #64748b; margin-bottom: 2rem; font-size: 0.85rem;">
+        Running all test suites in browser environment with full DOM access.
+    </p>
+
+    <div id="output"></div>
+    <div class="summary" id="summary"></div>
+
+    <!-- Load the framework first -->
+    <script type="module">
+        // Import the framework to set up globals
+        import './sppux.js';
+
+        const output = document.getElementById('output');
+        const summaryEl = document.getElementById('summary');
+        let totalPassed = 0;
+        let totalFailed = 0;
+
+        // Intercept console to capture test output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function log(text, cls = '') {
+            const line = document.createElement('div');
+            line.className = cls;
+            line.textContent = text;
+            output.appendChild(line);
+        }
+
+        // Lightweight test harness that works in the browser
+        window._testSuiteResults = { passed: 0, failed: 0, errors: [] };
+
+        function assert(condition, message) {
+            if (condition) {
+                totalPassed++;
+            } else {
+                totalFailed++;
+                log(`  ✗ ${message}`, 'fail');
+            }
+        }
+
+        function assertEqual(actual, expected, message) {
+            if (JSON.stringify(actual) === JSON.stringify(expected)) {
+                totalPassed++;
+            } else {
+                totalFailed++;
+                log(`  ✗ ${message} — Expected: ${JSON.stringify(expected)}, Got: ${JSON.stringify(actual)}`, 'fail');
+            }
+        }
+
+        function describe(name, fn) {
+            log(`\n● ${name}`, 'info');
+            fn();
+        }
+
+        function it(name, fn) {
+            try {
+                fn();
+                log(`  ✓ ${name}`, 'pass');
+            } catch (e) {
+                totalFailed++;
+                log(`  ✗ ${name}: ${e.message}`, 'fail');
+            }
+        }
+
+        // ─── Run Tests ─────────────────────────────────────────
+
+        log('Loading SPPUX v13 framework...', 'info');
+        log(`window.SPPUX: ${typeof window.SPPUX}`, 'info');
+        log(`window.BaseComponent: ${typeof window.BaseComponent}`, 'info');
+        log(`window.html: ${typeof window.html}`, 'info');
+        log('');
+
+        // == Backward Compatibility ==
+        describe('Window Globals', () => {
+            it('window.BaseComponent is defined', () => assert(typeof window.BaseComponent === 'function', 'BaseComponent'));
+            it('window.html is defined', () => assert(typeof window.html === 'function', 'html'));
+            it('window.Fragment is defined', () => assert(window.Fragment && window.Fragment.__isTrusted === true, 'Fragment'));
+            it('window.TrustedHTML is defined', () => assert(typeof window.TrustedHTML === 'function', 'TrustedHTML'));
+            it('window.SPPStore is defined', () => assert(typeof window.SPPStore === 'function', 'SPPStore'));
+            it('window.SPPUX is defined', () => assert(typeof window.SPPUX === 'object', 'SPPUX'));
+            it('window.__spp_handlers exists (legacy)', () => assert(typeof window.__spp_handlers === 'object', '__spp_handlers'));
+        });
+
+        describe('SPPUX API Surface', () => {
+            it('SPPUX.api', () => assert(typeof SPPUX.api === 'function', 'api'));
+            it('SPPUX.createStore', () => assert(typeof SPPUX.createStore === 'function', 'createStore'));
+            it('SPPUX.signal', () => assert(typeof SPPUX.signal === 'function', 'signal'));
+            it('SPPUX.computed', () => assert(typeof SPPUX.computed === 'function', 'computed'));
+            it('SPPUX.effect', () => assert(typeof SPPUX.effect === 'function', 'effect'));
+            it('SPPUX.batch', () => assert(typeof SPPUX.batch === 'function', 'batch'));
+            it('SPPUX.render', () => assert(typeof SPPUX.render === 'function', 'render'));
+            it('SPPUX.defineElement', () => assert(typeof SPPUX.defineElement === 'function', 'defineElement'));
+            it('SPPUX.Busy', () => assert(typeof SPPUX.Busy.start === 'function', 'Busy.start'));
+            it('SPPUX.Router', () => assert(typeof SPPUX.Router.init === 'function', 'Router.init'));
+            it('SPPUX.utils.debounce', () => assert(typeof SPPUX.utils.debounce === 'function', 'debounce'));
+            it('SPPUX.utils.escapeHtml', () => assert(typeof SPPUX.utils.escapeHtml === 'function', 'escapeHtml'));
+        });
+
+        // == html Template ==
+        describe('html Tagged Template', () => {
+            it('returns TrustedHTML', () => {
+                const r = html`<div>Hello</div>`;
+                assert(r.__isTrusted === true, 'TrustedHTML');
+            });
+            it('escapes XSS', () => {
+                const r = html`<div>${'<script>alert(1)</script>'}</div>`;
+                assert(!r.content.includes('<script>'), 'XSS escaped');
+            });
+            it('passes TrustedHTML through', () => {
+                const inner = new TrustedHTML('<b>Bold</b>');
+                const r = html`<div>${inner}</div>`;
+                assert(r.content.includes('<b>Bold</b>'), 'TrustedHTML passed through');
+            });
+            it('handles arrays', () => {
+                const items = [1,2,3].map(n => html`<li>${n}</li>`);
+                const r = html`<ul>${items}</ul>`;
+                assert(r.content.includes('<li>2</li>'), 'Array handling');
+            });
+            it('handles boolean attrs', () => {
+                const r1 = html`<input ?disabled=${true}>`;
+                assert(r1.content.includes('disabled'), 'Boolean true');
+                const r2 = html`<input ?disabled=${false}>`;
+                assert(!r2.content.includes('disabled'), 'Boolean false');
+            });
+            it('handles event handlers', () => {
+                const r = html`<button @click=${() => {}}>Click</button>`;
+                assert(r.content.includes('data-spp-evt-click'), 'Event handler converted');
+                assert(!r.content.includes('@click'), '@click removed');
+            });
+        });
+
+        // == Reactivity ==
+        describe('Signal', () => {
+            it('holds value', () => assertEqual(SPPUX.signal(42).value, 42, 'Signal value'));
+            it('updates value', () => {
+                const s = SPPUX.signal(1);
+                s.value = 2;
+                assertEqual(s.value, 2, 'Updated');
+            });
+            it('peek does not track', () => {
+                const s = SPPUX.signal(10);
+                assertEqual(s.peek(), 10, 'Peek');
+            });
+        });
+
+        describe('Computed', () => {
+            it('derives value', () => {
+                const s = SPPUX.signal(3);
+                const c = SPPUX.computed(() => s.value * 2);
+                assertEqual(c.value, 6, 'Computed');
+            });
+            it('updates on dependency change', () => {
+                const s = SPPUX.signal(5);
+                const c = SPPUX.computed(() => s.value + 1);
+                s.value = 10;
+                assertEqual(c.value, 11, 'Updated computed');
+            });
+        });
+
+        describe('batch()', () => {
+            it('coalesces writes', () => {
+                const a = SPPUX.signal(1);
+                const b = SPPUX.signal(2);
+                let runs = 0;
+                const dispose = SPPUX.effect(() => { a.value; b.value; runs++; });
+                runs = 0;
+                SPPUX.batch(() => { a.value = 10; b.value = 20; });
+                assertEqual(runs, 1, 'Batch coalesced');
+                dispose();
+            });
+        });
+
+        // == BaseComponent ==
+        describe('BaseComponent Lifecycle', () => {
+            it('instantiates', () => {
+                const c = new BaseComponent(null, document.createElement('div'), {x: 1});
+                assertEqual(c.props.x, 1, 'Props');
+                c.dispose();
+            });
+            it('setState updates state', () => {
+                const c = new BaseComponent(null, document.createElement('div'));
+                c.setState({ count: 5 });
+                assertEqual(c.state.count, 5, 'State');
+                c.dispose();
+            });
+            it('setState with function', () => {
+                const c = new BaseComponent(null, document.createElement('div'));
+                c.state = { n: 1 };
+                c.setState(prev => ({ n: prev.n + 1 }));
+                assertEqual(c.state.n, 2, 'Fn updater');
+                c.dispose();
+            });
+            it('dispose cleans up', () => {
+                const c = new BaseComponent(null, document.createElement('div'));
+                c.dispose();
+                assert(c.isDisposed === true, 'isDisposed');
+            });
+            it('has _reconcile (backward compat)', () => {
+                const c = new BaseComponent(null, document.createElement('div'));
+                assert(typeof c._reconcile === 'function', '_reconcile');
+                c.dispose();
+            });
+            it('has forceUpdate (v13)', () => {
+                const c = new BaseComponent(null, document.createElement('div'));
+                assert(typeof c.forceUpdate === 'function', 'forceUpdate');
+                c.dispose();
+            });
+        });
+
+        // == SPPStore ==
+        describe('SPPStore', () => {
+            it('get/set/subscribe', () => {
+                const s = new SPPStore({ v: 'a' });
+                let got = null;
+                s.subscribe(st => got = st.v);
+                s.set({ v: 'b' });
+                assertEqual(got, 'b', 'Subscriber');
+                assertEqual(s.get().v, 'b', 'get()');
+            });
+        });
+
+        describe('SPPUX.createStore', () => {
+            it('proxy store', () => {
+                const s = SPPUX.createStore({ x: 1 });
+                let n = false;
+                s.subscribe(() => n = true);
+                s.x = 2;
+                assert(n, 'Notified');
+                assertEqual(s.x, 2, 'Value');
+            });
+        });
+
+        // == Reconciler ==
+        describe('Reconciler (DOM)', () => {
+            it('adds new nodes', () => {
+                const p = document.createElement('div');
+                p.innerHTML = '<p>A</p>';
+                const n = document.createElement('div');
+                n.innerHTML = '<p>A</p><p>B</p>';
+                // Access _reconcile via BaseComponent for backward compat
+                const c = new BaseComponent(null, p);
+                c._reconcile(p, n);
+                assertEqual(p.children.length, 2, '2 children');
+                c.dispose();
+            });
+            it('removes excess nodes', () => {
+                const p = document.createElement('div');
+                p.innerHTML = '<p>A</p><p>B</p><p>C</p>';
+                const n = document.createElement('div');
+                n.innerHTML = '<p>A</p>';
+                const c = new BaseComponent(null, p);
+                c._reconcile(p, n);
+                assertEqual(p.children.length, 1, '1 child');
+                c.dispose();
+            });
+            it('keyed reorder reuses nodes', () => {
+                const p = document.createElement('div');
+                p.innerHTML = '<div data-key="a">A</div><div data-key="b">B</div><div data-key="c">C</div>';
+                const refA = p.children[0];
+                const n = document.createElement('div');
+                n.innerHTML = '<div data-key="c">C</div><div data-key="a">A</div><div data-key="b">B</div>';
+                const c = new BaseComponent(null, p);
+                c._reconcile(p, n);
+                assertEqual(p.children.length, 3, '3 keyed children');
+                assertEqual(p.children[1], refA, 'Node A reused');
+                c.dispose();
+            });
+        });
+
+        // == LIS ==
+        describe('LIS Algorithm', () => {
+            // Import directly since we need the function
+            import('./core/reconciler.js').then(mod => {
+                it('empty', () => assertEqual(mod.longestIncreasingSubsequence([]), [], 'empty'));
+                it('sorted', () => assertEqual(mod.longestIncreasingSubsequence([0,1,2,3,4]).length, 5, 'sorted'));
+                it('reverse', () => assertEqual(mod.longestIncreasingSubsequence([4,3,2,1,0]).length, 1, 'reverse'));
+                it('mixed', () => assertEqual(mod.longestIncreasingSubsequence([2,0,1,3]).length, 3, 'mixed'));
+                
+                // Final summary
+                log('');
+                log('═'.repeat(50));
+                log(`Tests: ${totalPassed} passed, ${totalFailed} failed`);
+                log('═'.repeat(50));
+
+                summaryEl.innerHTML = `
+                    <h2>${totalFailed === 0 ? '✅' : '❌'} ${totalPassed} passed, ${totalFailed} failed</h2>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.5rem;">
+                        SPPUX v13 ${totalFailed === 0 ? 'is fully backward compatible.' : 'has failing tests — see output above.'}
+                    </p>
+                `;
+                summaryEl.style.borderColor = totalFailed === 0 ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)';
+            });
+        });
+    </script>
+</body>
+</html>

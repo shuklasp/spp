@@ -1,0 +1,8 @@
+<!-- SPP External Partial: test wizard step_3 -->
+<div class="spp-wizard-step" id="wizard-step-step_3">
+    <h2>Wizard Step: Step 3</h2>
+    <p>Context Entity Data: {{ item|json_encode }}</p>
+    <form @submit.prevent="$store.workflow.submitStep('test', 'step_3')">
+        <button type="submit" class="spp-btn">Continue</button>
+    </form>
+</div>

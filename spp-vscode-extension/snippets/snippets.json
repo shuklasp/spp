@@ -1,0 +1,176 @@
+{
+  "SPP Render Partial": {
+    "prefix": "spp-render-partial",
+    "body": [
+      "\\$this->renderPartial('partials/${1:name}.html', \\$data);"
+    ],
+    "description": "Render an SPP partial (Dynamic HTMX/AJAX)"
+  },
+  "SPP Render Static Partial": {
+    "prefix": "spp-render-static",
+    "body": [
+      "\\$this->renderStaticPartial('partials/${1:name}.html');"
+    ],
+    "description": "Render a static SPP partial (ETag & Cache-Control)"
+  },
+  "SPP Stream": {
+    "prefix": "spp-stream",
+    "body": [
+      "\\$this->stream('streams/${1:update}.php', \\$data);"
+    ],
+    "description": "Render an SPP Turbo Stream"
+  },
+  "SPP Blade Partial": {
+    "prefix": "spp-blade-partial",
+    "body": [
+      "@spppartial('partials/${1:file}.html', ['${2:key}' => '${3:val}'])"
+    ],
+    "description": "Include a partial using SPP Blade directive"
+  },
+  "SPP Distributed Lock": {
+    "prefix": "spp-lock",
+    "body": [
+      "try {",
+      "    \\SPPMod\\SPPDeploy\\Deployer\\TargetConnection::acquireDeploymentLock();",
+      "    $0",
+      "} finally {",
+      "    \\SPPMod\\SPPDeploy\\Deployer\\TargetConnection::releaseDeploymentLock();",
+      "}"
+    ],
+    "description": "SPP Deployer Distributed Mutex Lock Block"
+  },
+  "SPP Transition Entity": {
+    "prefix": "spp-transition",
+    "body": [
+      "\\$this->transitionEntity(\\$entity, '${1:transitionName}', \\$contextData, '${2:successView}', '${3:errorView}');"
+    ],
+    "description": "SPP Controller Entity Transition Helper"
+  },
+  "SPP AI Tool Call": {
+    "prefix": "spp-ai-tool",
+    "body": [
+      "\\SPPMod\\SPPAI\\SPPAI::callTool(\\$prompt, \\$tools);"
+    ],
+    "description": "SPP AI Tool Calling Helper"
+  },
+  "SPP CQRS Snapshot": {
+    "prefix": "spp-cqrs-snapshot",
+    "body": [
+      "\\SPPMod\\SPPWorkflow\\CQRS\\EventStore::getSnapshot('${1:entityId}', '${2:timestamp}');"
+    ],
+    "description": "SPP CQRS Event Store Snapshot Retrieval"
+  },
+  "SPP DAG Job Dispatch": {
+    "prefix": "spp-dag-job",
+    "body": [
+      "\\SPPMod\\SPPQueue\\DagJobOrchestrator::dispatch('${1:jobName}', \\$payload);"
+    ],
+    "description": "SPP DAG Job Orchestration Dispatch"
+  },
+  "SPP W3C Trace Context": {
+    "prefix": "spp-w3c-trace",
+    "body": [
+      "\\SPPMod\\SPPReport\\W3CTraceContext::startSpan('${1:spanName}');"
+    ],
+    "description": "SPP W3C Trace Context Telemetry Span"
+  },
+  "SPP Binary Indexer": {
+    "prefix": "spp-binary-indexer",
+    "body": [
+      "\\SPPMod\\SPPStorage\\XdbBinaryIndexer::index('${1:indexName}', \\$data);"
+    ],
+    "description": "SPP High-Performance O(log N) Binary Indexing"
+  },
+  "SPP CLI Guard": {
+    "prefix": "spp-cli-guard",
+    "body": [
+      "public function isCLIOnly(): bool { return true; }"
+    ],
+    "description": "SPP CLI-Only SAPI Guard (blocks web execution)"
+  },
+  "SPP Escape Identifier": {
+    "prefix": "spp-escape-id",
+    "body": [
+      "\\$this->escapeIdentifier(\\$${1:name})"
+    ],
+    "description": "SPP DDL Identifier Sanitization"
+  },
+  "SPP Dual Event Bus": {
+    "prefix": "spp-dual-event",
+    "body": [
+      "\\SPP\\SPPEvent::fireEvent('${1:workflow.after_transition}', \\$data);",
+      "\\SPP\\SPPEvent::triggerHook('${2:workflow:after_transition}', \\$data);"
+    ],
+    "description": "SPP Dual Event Bus (fireEvent + triggerHook pair)"
+  },
+  "SPP Workflow Guard Validator": {
+    "prefix": "spp-workflow-guard",
+    "body": [
+      "'workflow_guard' => 'SPPWorkflowGuardValidator'"
+    ],
+    "description": "SPP Workflow Form Guard Validator rule"
+  },
+  "SPP Entity Class": {
+    "prefix": "spp-entity-class",
+    "body": [
+      "<?php",
+      "",
+      "namespace ${1:App}\\\\Entities;",
+      "",
+      "use SPP\\\\SPPEntity;",
+      "",
+      "class ${2:EntityName} extends SPPEntity",
+      "{",
+      "    protected \\$table = '${3:table_name}';",
+      "",
+      "    protected \\$fillable = [",
+      "        '${4:column1}',",
+      "        '${5:column2}',",
+      "    ];",
+      "",
+      "    public function getWorkflowName(): string",
+      "    {",
+      "        return '${6:default}';",
+      "    }",
+      "}"
+    ],
+    "description": "SPP Entity class boilerplate with workflow support"
+  },
+  "SPP Controller Class": {
+    "prefix": "spp-controller-class",
+    "body": [
+      "<?php",
+      "",
+      "namespace ${1:App}\\\\Controllers;",
+      "",
+      "use SPP\\\\ViewController;",
+      "",
+      "class ${2:ControllerName} extends ViewController",
+      "{",
+      "    public function index()",
+      "    {",
+      "        return \\$this->renderPartial('partials/${3:index}.html', []);",
+      "    }",
+      "}"
+    ],
+    "description": "SPP Controller class boilerplate with renderPartial"
+  },
+  "SPP Service Class": {
+    "prefix": "spp-service-class",
+    "body": [
+      "<?php",
+      "",
+      "namespace ${1:App}\\\\Services;",
+      "",
+      "class ${2:ServiceName}",
+      "{",
+      "    public function execute(array \\$params): array",
+      "    {",
+      "        $0",
+      "        return ['status' => 'success'];",
+      "    }",
+      "}"
+    ],
+    "description": "SPP Service class boilerplate"
+  }
+}

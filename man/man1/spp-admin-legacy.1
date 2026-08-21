@@ -1,0 +1,41 @@
+.TH SPP-admin-legacy 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+admin:legacy
+.PP
+ \- Manage Admin Legacy operations. Usage: admin:legacy <action> [--payload=...] [--json]
+.SH DESCRIPTION
+Manage Admin Legacy operations. Usage: admin:legacy <action> [--payload=...] [--json]
+.PP
+.SH SYNOPSIS
+php spp.php admin:legacy [OPTIONS]
+.PP
+.SH OPTIONS
+\(bu `--apps` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--enable_api` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--columns` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--fields` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--modules` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--name` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--status` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates internal components: \\Exception, record, \SPPMod\SPPDB\SPPDB, RecursiveIteratorIterator, RecursiveDirectoryIterator, \ReflectionClass, \SPP\Module.
+.br
+\(bu Makes outbound HTTP requests to external APIs or services.
+.br
+.PP
+.PP

@@ -1,0 +1,258 @@
+-- SPP Config Export (SQL)
+-- Generated: 2026-07-16 15:01:07
+
+
+-- SETTINGS --
+profile: dev
+shared_groups:
+  core:
+    table_prefix: spp_
+    entities:
+      - users
+      - roles
+      - rights
+      - userroles
+      - roleright
+      - loginrec
+      - remember_tokens
+      - migrations
+  academic:
+    extends: core
+    table_prefix: sch_
+    entities:
+      - Student
+      - Teacher
+      - Class
+  example_shared:
+    extends: core
+    table_prefix: example_
+    entities:
+      - User
+      - Right
+  test_reactivity:
+    extends: core
+    table_prefix: test_
+    entities: {  }
+admin_auth:
+  username: admin
+  password: admin123
+apps:
+  default:
+    base_url: /default
+    table_prefix: ''
+    shared_group: academic
+    etc_path: ''
+    src_path: ''
+    app_init: ''
+  sppadmin:
+    base_url: /spp/admin
+    table_prefix: ''
+    shared_group: core
+    etc_path: etc
+    src_path: spp/admin
+    app_init: init.php
+  autodemo:
+    base_url: /autodemo
+    table_prefix: autodemo_
+    shared_group: core
+    etc_path: etc/apps/autodemo
+    src_path: src/autodemo
+    app_init: init.php
+  cms:
+    base_url: /cms
+    type: drupal
+    drupal_root: vshiksha_theme/..
+    table_prefix: drupal_
+    shared_group: core
+    app_init: init.php
+  test1:
+    base_url: /test1
+    table_prefix: test1_
+    type: sppux
+    shared_group: core
+    etc_path: etc/apps/test1
+    src_path: src/test1
+    app_init: init.php
+  MyBladeApp:
+    base_url: /MyBladeApp
+    table_prefix: mba_
+    shared_group: core
+    etc_path: etc/apps/MyBladeApp
+    src_path: src/MyBladeApp
+    app_init: init.php
+  IntegratedApp:
+    base_url: /IntegratedApp
+    table_prefix: ia_
+    shared_group: academic
+    etc_path: etc/apps/IntegratedApp
+    src_path: src/IntegratedApp
+    app_init: init.php
+  PremiumApp:
+    base_url: /PremiumApp
+    table_prefix: pre_
+    shared_group: core
+    etc_path: etc/apps/PremiumApp
+    src_path: src/PremiumApp
+    app_init: init.php
+  SppUxApp:
+    base_url: /SppUxApp
+    table_prefix: SppUxApp_
+    type: sppux
+    shared_group: core
+    etc_path: etc/apps/SppUxApp
+    src_path: src/SppUxApp
+    app_init: init.php
+  PremiumBlade:
+    base_url: /PremiumBlade
+    table_prefix: PremiumBlade_
+    type: blade
+    shared_group: core
+    etc_path: etc/apps/PremiumBlade
+    src_path: src/PremiumBlade
+    app_init: init.php
+  PremiumDropIn:
+    base_url: /PremiumDropIn
+    table_prefix: PremiumDropIn_
+    shared_group: core
+    etc_path: etc/apps/PremiumDropIn
+    src_path: src/PremiumDropIn
+    app_init: init.php
+  PremiumSppUx:
+    base_url: /PremiumSppUx
+    table_prefix: PremiumSppUx_
+    type: sppux
+    shared_group: core
+    etc_path: etc/apps/PremiumSppUx
+    src_path: src/PremiumSppUx
+    app_init: init.php
+  lekhak:
+    base_url: /lekhak
+    table_prefix: lek_
+    shared_group: core
+    etc_path: src/lekhak/etc
+    src_path: src/lekhak
+    app_init: init.php
+    admin_icon: 🖋️
+    admin_title: Lekhak
+    assets:
+      theme-assets: resources/themes
+      comp-assets: comp
+  sppmobile:
+    base_url: /sppmobile
+    table_prefix: ''
+    shared_group: core
+    etc_path: src/sppmobile/etc
+    src_path: src/sppmobile
+    app_init: ''
+  '--help':
+    base_url: /--help
+    table_prefix: '--help_'
+    type: native
+    shared_group: core
+    etc_path: etc/apps/--help
+    src_path: src/--help
+  MyReactApp:
+    base_url: /MyReactApp
+    table_prefix: MyReactApp_
+    type: react
+    shared_group: core
+    etc_path: etc/apps/MyReactApp
+    src_path: src/MyReactApp
+  MyNativeApp:
+    base_url: /MyNativeApp
+    table_prefix: MyNativeApp_
+    type: native
+    shared_group: core
+    etc_path: etc/apps/MyNativeApp
+    src_path: src/MyNativeApp
+  MyDrupalApp:
+    base_url: /MyDrupalApp
+    table_prefix: MyDrupalApp_
+    type: drupal
+    shared_group: core
+    etc_path: etc/apps/MyDrupalApp
+    src_path: src/MyDrupalApp
+  events_test:
+    base_url: /events_test
+    table_prefix: events_test_
+    type: native
+    shared_group: core
+    etc_path: etc/apps/events_test
+    src_path: src/events_test
+  crm_app:
+    type: user
+    base_url: /crm
+    table_prefix: crm_
+    options_yaml: "template: crm\ncreated_at: 1780656744"
+  Samvaad:
+    base_url: /samvaad
+    table_prefix: Samvaad_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/Samvaad
+    src_path: src/Samvaad
+  TestApp:
+    base_url: /TestApp
+    table_prefix: TestApp_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/TestApp
+    src_path: src/TestApp
+  TestApp2:
+    base_url: /TestApp2
+    table_prefix: TestApp2_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/TestApp2
+    src_path: src/TestApp2
+  FinalTest:
+    base_url: /FinalTest
+    table_prefix: FinalTest_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/FinalTest
+    src_path: src/FinalTest
+  test_api_app:
+    base_url: /test_api_app
+    table_prefix: test_api_app_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/test_api_app
+    src_path: src/test_api_app
+  testapp:
+    base_url: /testapp
+    table_prefix: testapp_
+    type: mixed
+    shared_group: core
+    etc_path: etc/apps/testapp
+    src_path: src/testapp
+base_app: lekhak
+prototyping:
+  auto_evolution: manual
+  view_generation: php_html
+bridge:
+  shared_dir: var/shared
+dev:
+  testing:
+    storage_strategy: same_db
+    table_prefix: spptest__
+    auto_generate_tests: true
+    fuzz_intensity: 10
+settings:
+  site_name: 'Lekhak Portal'
+  debug: true
+  compulsory_modules:
+    - sppauth
+    - sppdb
+    - sppconfig
+    - sppview
+    - drishyam
+  ui:
+    branding:
+      color: '#00ff00'
+test_key: test_val
+assets:
+  admin_js: spp/admin/js
+  admin_css: spp/admin/css
+
+-- /SETTINGS --

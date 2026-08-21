@@ -1,0 +1,23 @@
+import json
+import os
+
+input_file = 'c:/projects/apache/school1/src/ptable/data/drafts/Helium_orig.json'
+output_file = 'c:/projects/apache/school1/src/ptable/data/drafts/Helium.json'
+
+with open(input_file, 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+data['extract_html'] = "<p><b>Helium</b> (symbol <b>He</b>, atomic number 2) is a fascinating, colorless, and odorless gas that belongs to the noble gas family. Known for being the second-lightest and second-most abundant element in the entire universe (right after hydrogen), it makes up about 24% of all elemental mass. Despite being rare on Earth, helium is constantly created in stars like our Sun through nuclear fusion. Here on Earth, it is mostly formed by the slow radioactive decay of heavy elements deep underground. One of its most amazing features is its extreme resistance to cold: it has the lowest boiling point of any known element and is the only element that refuses to freeze into a solid under normal atmospheric pressure, no matter how cold it gets.</p>"
+
+data['sections']['History'] = "<p>Helium has a truly out-of-this-world origin story: it was actually discovered in space before it was found on Earth! In 1868, astronomers observing a total solar eclipse in India noticed a mysterious bright yellow line in the Sun's light spectrum. They realized it belonged to an unknown element and named it after <i>Helios</i>, the Greek god of the sun. It wasn't until 1895 - nearly thirty years later - that Scottish chemist Sir William Ramsay finally isolated helium on Earth by treating a uranium-bearing mineral called cleveite with acid. Later, in 1905, massive amounts of helium were unexpectedly discovered in natural gas fields in Kansas, USA, which remains the primary way we harvest this precious gas today.</p>"
+
+data['sections']['Characteristics'] = "<p>Helium is a true rule-breaker in the world of physics and chemistry. It is the only element that cannot be solidified by simply lowering the temperature at standard pressure; it requires extreme pressure to freeze. It remains a liquid down to absolute zero! When cooled to temperatures near absolute zero, liquid helium transforms into a bizarre 'superfluid' - a state of matter with absolutely zero friction or viscosity. In this state, it can practically defy gravity, spontaneously creeping up and over the walls of its container. Because helium is an inert noble gas, it almost never reacts or bonds with other elements, making it incredibly stable, non-toxic, and safe to handle.</p>"
+
+data['sections']['Isotopes'] = "<p>Helium comes primarily in two stable forms, or isotopes: helium-4 and helium-3. Helium-4 is by far the most common, possessing an incredibly stable nucleus. The vast majority of the universe's helium-4 was forged in the fiery crucible of the Big Bang, while on Earth, it continues to bubble up from the radioactive decay of heavy elements like uranium. Helium-3, on the other hand, is extremely rare on our planet but much more abundant out in space, particularly in solar winds. Interestingly, because the Moon has been bombarded by these solar winds for billions of years, its surface is rich in helium-3. Scientists are actively exploring the possibility of one day mining the Moon for helium-3, as it could be the perfect clean fuel for future nuclear fusion reactors!</p>"
+
+data['sections']['Applications'] = "<p>While most people immediately think of party balloons and blimps, helium's modern uses go far beyond floating decorations. Because of its unmatched cooling abilities, the largest single use of liquid helium is in the medical field, where it is used to supercool the powerful superconducting magnets inside MRI scanners. Without helium, modern life-saving medical imaging would be nearly impossible. It is also critical for high-tech manufacturing, such as producing semiconductor chips for our electronics and optical fibers for high-speed internet. In space exploration, helium is used to purge and pressurize the fuel tanks of massive rockets. Deep-sea divers even rely on a mixture of helium and oxygen to breathe safely at crushing depths, avoiding the dangerous condition known as 'the bends'. Helium is truly an irreplaceable resource that powers advanced technology.</p>"
+
+with open(output_file, 'w', encoding='utf-8') as f:
+    json.dump(data, f, indent=2)
+
+print('Done')

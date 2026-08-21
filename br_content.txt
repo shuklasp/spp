@@ -1,0 +1,439 @@
+---EXTRACT---
+<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><p class="mw-empty-elt">
+
+
+
+</p>
+<div class="shortdescription nomobile noexcerpt noprint searchaux" style="display:none">Chemical element with atomic number 35 (Br)</div><style data-mw-deduplicate="TemplateStyles:r1358620234">@media(min-width:640px){.mw-parser-output .infobox{margin-left:1em;float:right;clear:right;width:22em}}.mw-parser-output .infobox-subbox{padding:0;border:none;margin:-3px;width:auto;min-width:100%;font-size:100%;clear:none;float:none;background-color:transparent;color:inherit}.mw-parser-output .infobox-3cols-child{margin:-3px}.mw-parser-output .infobox .navbar{font-size:100%}.mw-parser-output .infobox-hiddenrow,body.skin--responsive.skin--responsive .mw-parser-output .infobox .infobox-hiddenrow{display:none}@media screen{html.skin-theme-clientpref-night .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media screen and (prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media(min-width:640px){body.skin--responsive .mw-parser-output .infobox-table{display:table!important}body.skin--responsive .mw-parser-output .infobox-table>caption{display:table-caption!important}body.skin--responsive .mw-parser-output .infobox-table>tbody{display:table-row-group}body.skin--responsive .mw-parser-output .infobox-table th,body.skin--responsive .mw-parser-output .infobox-table td{padding-left:inherit;padding-right:inherit}}</style><style data-mw-deduplicate="TemplateStyles:r1307324566">.mw-parser-output .ib-element-periodic-table{background-color:var(--background-color-neutral-subtle,#f8f9fa);border:1px solid var(--border-color-base,#a2a9b1);text-align:center;padding:0.4em;display:grid;justify-content:center;align-items:center;grid-template-columns:min-content min-content;gap:0.2em}.mw-parser-output .ib-element-periodic-table-symbol,.mw-parser-output .ib-element-periodic-table-name{font-size:90%;line-height:100%}.mw-parser-output .ib-element-periodic-table-name{grid-column:1/3}.mw-parser-output .ib-element .isotopes-table{display:table}.mw-parser-output .ib-element-vapor-pressure{display:table;text-align:center;font-size:90%;border-collapse:collapse;margin:0 auto}body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure th,body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure td{padding:0.2em}</style><table class="infobox ib-element"><caption class="infobox-title"><span class="nowrap"><a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a>,&#160;<sub>35</sub>Br</span></caption><tbody><tr><td colspan="2" class="infobox-image"><span class="mw-default-size" typeof="mw:File/Frameless"><img src="/school1/ptable/theme-assets/default/images/inline/086fc3789498ac034593c6f359584cc7.jpg" decoding="async" width="250" height="248" style="--mw-file-upright: 1" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/3/35/Bromine_vial_in_acrylic_cube.jpg/500px-Bromine_vial_in_acrylic_cube.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="3421" data-file-height="3387" /></span><div class="infobox-caption">Liquid and gas <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a> inside transparent cube</div></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c"><a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a></th></tr><tr><th scope="row" class="infobox-label">Pronunciation</th><td class="infobox-data"><span class="rt-commentedText nowrap"><span class="IPA nopopups noexcerpt" lang="en-fonipa">/<span style="border-bottom:1px dotted"><span title="/ˈ/: primary stress follows">ˈ</span><span title="&#39;b&#39; in &#39;buy&#39;">b</span><span title="&#39;r&#39; in &#39;rye&#39;">r</span><span title="/oʊ/: &#39;o&#39; in &#39;code&#39;">oʊ</span><span title="&#39;m&#39; in &#39;my&#39;">m</span><span title="/iː/: &#39;ee&#39; in &#39;fleece&#39;">iː</span><span title="&#39;n&#39; in &#39;nigh&#39;">n</span></span>,<span class="wrap"> </span>-<span style="border-bottom:1px dotted"><span title="&#39;m&#39; in &#39;my&#39;">m</span><span title="/ɪ/: &#39;i&#39; in &#39;kit&#39;">ɪ</span><span title="&#39;n&#39; in &#39;nigh&#39;">n</span></span>,<span class="wrap"> </span>-<span style="border-bottom:1px dotted"><span title="&#39;m&#39; in &#39;my&#39;">m</span><span title="/aɪ/: &#39;i&#39; in &#39;tide&#39;">aɪ</span><span title="&#39;n&#39; in &#39;nigh&#39;">n</span></span>/</span>&#32;<span class="ext-phonos"><span data-nosnippet="" id="ooui-php-1" class="noexcerpt ext-phonos-PhonosButton ext-phonos-PhonosButton-emptylabel oo-ui-widget oo-ui-widget-enabled oo-ui-buttonElement oo-ui-buttonElement-frameless oo-ui-buttonElement-size-medium oo-ui-iconElement oo-ui-buttonWidget" data-ooui="{&quot;_&quot;:&quot;mw.Phonos.PhonosButton&quot;,&quot;href&quot;:&quot;\/\/upload.wikimedia.org\/wikipedia\/commons\/transcoded\/6\/6b\/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-bromine.wav\/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-bromine.wav.mp3&quot;,&quot;rel&quot;:[&quot;nofollow&quot;],&quot;framed&quot;:false,&quot;icon&quot;:&quot;volumeUp&quot;,&quot;data&quot;:{&quot;ipa&quot;:&quot;&quot;,&quot;text&quot;:&quot;&quot;,&quot;lang&quot;:&quot;en&quot;,&quot;wikibase&quot;:&quot;&quot;,&quot;file&quot;:&quot;LL-Q1860 (eng)-Naomi Persephone Amethyst (NaomiAmethyst)-bromine.wav&quot;},&quot;classes&quot;:[&quot;noexcerpt&quot;,&quot;ext-phonos-PhonosButton&quot;,&quot;ext-phonos-PhonosButton-emptylabel&quot;]}"><a role="button" tabindex="0" href="//upload.wikimedia.org/wikipedia/commons/transcoded/6/6b/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-bromine.wav/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-bromine.wav.mp3" rel="nofollow" aria-label="Play audio" title="Play audio" class="oo-ui-buttonElement-button"><span class="oo-ui-iconElement-icon oo-ui-icon-volumeUp"></span><span class="oo-ui-labelElement-label"></span><span class="oo-ui-indicatorElement-indicator oo-ui-indicatorElement-noIndicator"></span></a></span><sup class="ext-phonos-attribution noexcerpt navigation-not-searchable">ⓘ</sup></span></span>&#x20;<wbr />&#8203;<span class="nowrap">(<i title="English pronunciation respelling"><span style="font-size:90%">BROH</span>-meen, -&#8288;min, -&#8288;myne</i>)</span></td></tr><tr><th scope="row" class="infobox-label">Appearance</th><td class="infobox-data">reddish-brown liquid</td></tr><tr class="infobox-hiddenrow"><td colspan="2" class="infobox-full-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1358620234" /></td></tr><tr><th colspan="2" class="infobox-header" style="text-align: left; color:inherit; background: transparent;">Standard atomic weight <style data-mw-deduplicate="TemplateStyles:r886047488">.mw-parser-output .nobold{font-weight:normal}</style><span class="nobold"><i>A</i><sub>r</sub>&#176;(Br)</span></th></tr><tr><th scope="row" class="infobox-label"></th><td class="infobox-data"><style data-mw-deduplicate="TemplateStyles:r1126788409">.mw-parser-output .plainlist ol,.mw-parser-output .plainlist ul{line-height:inherit;list-style:none;margin:0;padding:0}.mw-parser-output .plainlist ol li,.mw-parser-output .plainlist ul li{margin-bottom:0}</style><div class="plainlist"><ul><li>[<span class="nowrap"><span data-sort-value="7001799010000000000♠"></span>79.901</span>,&#160;<span class="nowrap"><span data-sort-value="7001799070000000000♠"></span>79.907</span>]</li><li><span class="nowrap"><span data-sort-value="7001799040000000000♠"></span>79.904<span style="margin-left:0.225em;margin-right:0.225em;">±</span>0.003</span>&#160;(abridged)</li></ul></div></td></tr><tr style="display:none"><td colspan="2">
+</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">Bromine in the periodic table</th></tr><tr><td colspan="2" class="infobox-full-data"><div class="ib-element-periodic-table">
+<div class="ib-element-periodic-table-pt-container"><style data-mw-deduplicate="TemplateStyles:r1307011204">.mw-parser-output .periodic-table-32-micro,.mw-parser-output .periodic-table-32-micro-119{margin:0;padding:0;empty-cells:hide;border-spacing:1px;text-align:center}.mw-parser-output .periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro td,.mw-parser-output .periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119 td{border:none;padding:0}.mw-parser-output .periodic-table-32-micro-insert-cell-gt118{width:6px;min-width:6px}.mw-parser-output .periodic-table-32-micro-no-insert-cell-gt118{width:0}.mw-parser-output .periodic-table-32-micro-119-dot{float:left;margin:3px 2px;background:var(--color-emphasized,black);width:2px;height:2px}.mw-parser-output .periodic-table-32-micro-119-spacer{width:1px;height:4px}</style>
+<table class="periodic-table-32-micro">
+<tbody><tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/H" class="wiki-link" title="Hydrogen (H)">Hydrogen</a></span>
+</td>
+<td colspan="30">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/He" class="wiki-link" title="Helium (He)">Helium</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Li" class="wiki-link" title="Lithium (Li)">Lithium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Be" class="wiki-link" title="Beryllium (Be)">Beryllium</a></span>
+</td>
+<td colspan="24">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/B" class="wiki-link" title="Boron (B)">Boron</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/C" class="wiki-link" title="Carbon (C)">Carbon</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/N" class="wiki-link" title="Nitrogen (N)">Nitrogen</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/O" class="wiki-link" title="Oxygen (O)">Oxygen</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/F" class="wiki-link" title="Fluorine (F)">Fluorine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ne" class="wiki-link" title="Neon (Ne)">Neon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Na" class="wiki-link" title="Sodium (Na)">Sodium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Mg" class="wiki-link" title="Magnesium (Mg)">Magnesium</a></span>
+</td>
+<td colspan="24">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;">Aluminium</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Si" class="wiki-link" title="Silicon (Si)">Silicon</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/P" class="wiki-link" title="Phosphorus (P)">Phosphorus</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/S" class="wiki-link" title="Sulfur (S)">Sulfur</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">Chlorine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ar" class="wiki-link" title="Argon (Ar)">Argon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/K" class="wiki-link" title="Potassium (K)">Potassium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ca" class="wiki-link" title="Calcium (Ca)">Calcium</a></span>
+</td>
+<td colspan="14">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Sc" class="wiki-link" title="Scandium (Sc)">Scandium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ti" class="wiki-link" title="Titanium (Ti)">Titanium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/V" class="wiki-link" title="Vanadium (V)">Vanadium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cr" class="wiki-link" title="Chromium (Cr)">Chromium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mn" class="wiki-link" title="Manganese (Mn)">Manganese</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Fe" class="wiki-link" title="Iron (Fe)">Iron</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Co" class="wiki-link" title="Cobalt (Co)">Cobalt</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ni" class="wiki-link" title="Nickel (Ni)">Nickel</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cu" class="wiki-link" title="Copper (Cu)">Copper</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Zn" class="wiki-link" title="Zinc (Zn)">Zinc</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ga" class="wiki-link" title="Gallium (Ga)">Gallium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ge" class="wiki-link" title="Germanium (Ge)">Germanium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/As" class="wiki-link" title="Arsenic (As)">Arsenic</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Se" class="wiki-link" title="Selenium (Se)">Selenium</a></span>
+</td>
+<td><a class="mw-selflink selflink"><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c; border:1px solid var(--color-base,#202122); box-sizing: border-box;">Bromine</span></a>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Kr" class="wiki-link" title="Krypton (Kr)">Krypton</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Rb" class="wiki-link" title="Rubidium (Rb)">Rubidium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Sr" class="wiki-link" title="Strontium (Sr)">Strontium</a></span>
+</td>
+<td class="periodic-table-32-micro-no-insert-cell-gt118">
+</td>
+<td colspan="13">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Y" class="wiki-link" title="Yttrium (Y)">Yttrium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Zr" class="wiki-link" title="Zirconium (Zr)">Zirconium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Nb" class="wiki-link" title="Niobium (Nb)">Niobium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mo" class="wiki-link" title="Molybdenum (Mo)">Molybdenum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Tc" class="wiki-link" title="Technetium (Tc)">Technetium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ru" class="wiki-link" title="Ruthenium (Ru)">Ruthenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rh" class="wiki-link" title="Rhodium (Rh)">Rhodium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Pd" class="wiki-link" title="Palladium (Pd)">Palladium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ag" class="wiki-link" title="Silver (Ag)">Silver</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cd" class="wiki-link" title="Cadmium (Cd)">Cadmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/In" class="wiki-link" title="Indium (In)">Indium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Sn" class="wiki-link" title="Tin (Sn)">Tin</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Sb" class="wiki-link" title="Antimony (Sb)">Antimony</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Te" class="wiki-link" title="Tellurium (Te)">Tellurium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">Iodine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Xe" class="wiki-link" title="Xenon (Xe)">Xenon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;">Caesium</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ba" class="wiki-link" title="Barium (Ba)">Barium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/La" class="wiki-link" title="Lanthanum (La)">Lanthanum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ce" class="wiki-link" title="Cerium (Ce)">Cerium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pr" class="wiki-link" title="Praseodymium (Pr)">Praseodymium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Nd" class="wiki-link" title="Neodymium (Nd)">Neodymium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pm" class="wiki-link" title="Promethium (Pm)">Promethium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Sm" class="wiki-link" title="Samarium (Sm)">Samarium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">Europium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Gd" class="wiki-link" title="Gadolinium (Gd)">Gadolinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Tb" class="wiki-link" title="Terbium (Tb)">Terbium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Dy" class="wiki-link" title="Dysprosium (Dy)">Dysprosium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ho" class="wiki-link" title="Holmium (Ho)">Holmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Er" class="wiki-link" title="Erbium (Er)">Erbium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Tm" class="wiki-link" title="Thulium (Tm)">Thulium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Yb" class="wiki-link" title="Ytterbium (Yb)">Ytterbium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Lu" class="wiki-link" title="Lutetium (Lu)">Lutetium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hf" class="wiki-link" title="Hafnium (Hf)">Hafnium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ta" class="wiki-link" title="Tantalum (Ta)">Tantalum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/W" class="wiki-link" title="Tungsten (W)">Tungsten</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Re" class="wiki-link" title="Rhenium (Re)">Rhenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Os" class="wiki-link" title="Osmium (Os)">Osmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ir" class="wiki-link" title="Iridium (Ir)">Iridium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Pt" class="wiki-link" title="Platinum (Pt)">Platinum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Au" class="wiki-link" title="Gold (Au)">Gold</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hg" class="wiki-link" title="Mercury (Hg)">Mercury</a> (element)</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Tl" class="wiki-link" title="Thallium (Tl)">Thallium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Pb" class="wiki-link" title="Lead (Pb)">Lead</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Bi" class="wiki-link" title="Bismuth (Bi)">Bismuth</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">Polonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">Astatine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Rn" class="wiki-link" title="Radon (Rn)">Radon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Fr" class="wiki-link" title="Francium (Fr)">Francium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ra" class="wiki-link" title="Radium (Ra)">Radium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ac" class="wiki-link" title="Actinium (Ac)">Actinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Th" class="wiki-link" title="Thorium (Th)">Thorium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pa" class="wiki-link" title="Protactinium (Pa)">Protactinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/U" class="wiki-link" title="Uranium (U)">Uranium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Np" class="wiki-link" title="Neptunium (Np)">Neptunium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pu" class="wiki-link" title="Plutonium (Pu)">Plutonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Am" class="wiki-link" title="Americium (Am)">Americium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Cm" class="wiki-link" title="Curium (Cm)">Curium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Bk" class="wiki-link" title="Berkelium (Bk)">Berkelium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Cf" class="wiki-link" title="Californium (Cf)">Californium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Es" class="wiki-link" title="Einsteinium (Es)">Einsteinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Fm" class="wiki-link" title="Fermium (Fm)">Fermium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Md" class="wiki-link" title="Mendelevium (Md)">Mendelevium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/No" class="wiki-link" title="Nobelium (No)">Nobelium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Lr" class="wiki-link" title="Lawrencium (Lr)">Lawrencium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rf" class="wiki-link" title="Rutherfordium (Rf)">Rutherfordium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Db" class="wiki-link" title="Dubnium (Db)">Dubnium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Sg" class="wiki-link" title="Seaborgium (Sg)">Seaborgium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Bh" class="wiki-link" title="Bohrium (Bh)">Bohrium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hs" class="wiki-link" title="Hassium (Hs)">Hassium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mt" class="wiki-link" title="Meitnerium (Mt)">Meitnerium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ds" class="wiki-link" title="Darmstadtium (Ds)">Darmstadtium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rg" class="wiki-link" title="Roentgenium (Rg)">Roentgenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cn" class="wiki-link" title="Copernicium (Cn)">Copernicium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Nh" class="wiki-link" title="Nihonium (Nh)">Nihonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Fl" class="wiki-link" title="Flerovium (Fl)">Flerovium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Mc" class="wiki-link" title="Moscovium (Mc)">Moscovium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Lv" class="wiki-link" title="Livermorium (Lv)">Livermorium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ts" class="wiki-link" title="Tennessine (Ts)">Tennessine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Og" class="wiki-link" title="Oganesson (Og)">Oganesson</a></span>
+</td></tr></tbody></table>
+</div>
+<div class="ib-element-periodic-table-symbol">Cl<br />↑<br /><strong>Br</strong><br />↓<br />&#160;I&#160;</div>
+<div class="ib-element-periodic-table-name nowrap"><a href="/school1/ptable/element/Se" class="wiki-link" title="Selenium (Se)">selenium</a> ← <strong>bromine</strong> → <a href="/school1/ptable/element/Kr" class="wiki-link" title="Krypton (Kr)">krypton</a></div>
+</div></td></tr><tr><th scope="row" class="infobox-label"><span class="nowrap">Atomic number <span style="font-weight:normal;">(<span style="padding-right:0.15em;"><i>Z</i></span>)</span></span></th><td class="infobox-data">35</td></tr><tr><th scope="row" class="infobox-label">Group</th><td class="infobox-data">group&#160;17 (halogens)</td></tr><tr><th scope="row" class="infobox-label">Period</th><td class="infobox-data">period&#160;4</td></tr><tr><th scope="row" class="infobox-label">Block</th><td class="infobox-data"><span title="color legend: p-block" style="display:inline-block; vertical-align:middle; width:6px; height:8px; border:1px solid black; background:#fdff8c; color:black;">&#160;</span> p-block</td></tr><tr><th scope="row" class="infobox-label">Electron configuration</th><td class="infobox-data">&#91;Ar&#93; 3d<sup>10</sup> 4s<sup>2</sup> 4p<sup>5</sup></td></tr><tr><th scope="row" class="infobox-label">Electrons per shell</th><td class="infobox-data">2, 8, 18, 7</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">Physical properties</th></tr><tr><th scope="row" class="infobox-label">Phase <link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">at&#160;<span title="STP: standard temperature and pressure: 0&#160;°C and 101.325&#160;kPa">STP</span></span></th><td class="infobox-data">liquid</td></tr><tr><th scope="row" class="infobox-label">Melting point</th><td class="infobox-data">(Br<sub>2</sub>) 265.8&#160;K&#x20;&#x200b;(−7.2&#160;°C,&#x20;&#x200b;19&#160;°F)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Boiling point</th><td class="infobox-data">(Br<sub>2</sub>) 332.0&#160;K&#x20;&#x200b;(58.8&#160;°C,&#x20;&#x200b;137.8&#160;°F)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Density&#x20;<span style="font-weight:normal;">(near&#160;r.t.)</span></th><td class="infobox-data">Br<sub>2</sub>, liquid: 3.1028&#160;g/cm<sup>3</sup></td></tr><tr><th scope="row" class="infobox-label">Triple point</th><td class="infobox-data">265.90&#160;K,&#x20;&#x200b;5.8&#160;kPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Critical point</th><td class="infobox-data">588&#160;K, 10.34&#160;MPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Heat of fusion</th><td class="infobox-data">(Br<sub>2</sub>) 10.571&#160;kJ/mol&#x20;</td></tr><tr><th scope="row" class="infobox-label">Heat of vaporisation</th><td class="infobox-data">(Br<sub>2</sub>) 29.96&#160;kJ/mol&#x20;</td></tr><tr><th scope="row" class="infobox-label">Molar heat capacity</th><td class="infobox-data">37.845&#160;J/(mol·K)&#x20;(Br)<br />75.69&#160;J/(mol·K)&#x20;(Br<sub>2</sub>)</td></tr><tr><th scope="row" class="infobox-label">Specific heat capacity</th><td class="infobox-data">473.631&#160;J/(kg·K)&#x20;(Br)</td></tr><tr><td colspan="2" class="infobox-full-data"><b>Vapour&#160;pressure</b>
+<table class="ib-element-vapor-pressure wikitable">
+
+<tbody><tr>
+<th scope="row"><abbr title="Pressure"><i>P</i></abbr>&#160;<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(Pa)</span>
+</th>
+<th scope="col">1
+</th>
+<th scope="col">10
+</th>
+<th scope="col">100
+</th>
+<th scope="col">1&#160;k
+</th>
+<th scope="col">10&#160;k
+</th>
+<th scope="col">100&#160;k
+</th></tr>
+<tr>
+<th scope="row">at&#160;<abbr title="Temperature"><i>T</i></abbr>&#160;<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(K)</span>
+</th>
+<td>185
+</td>
+<td>201
+</td>
+<td>220
+</td>
+<td>244
+</td>
+<td>276
+</td>
+<td>332
+</td></tr></tbody></table></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">Atomic properties</th></tr><tr><th scope="row" class="infobox-label">Oxidation states</th><td class="infobox-data">common: <span style="font-size:112%;">−1, +1, +3, +5</span><br />
++2, +4, +7</td></tr><tr><th scope="row" class="infobox-label">Electronegativity</th><td class="infobox-data">Pauling&#160;scale: 2.96&#x20;</td></tr><tr><th scope="row" class="infobox-label">Ionisation energies</th><td class="infobox-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1126788409" /><div class="plainlist"><ul><li>1st:&#160;1139.9&#160;kJ/mol&#x20;</li><li>2nd:&#160;2103&#160;kJ/mol&#x20;</li><li>3rd:&#160;3470&#160;kJ/mol&#x20;</li><li>&#x20;</li></ul></div></td></tr><tr><th scope="row" class="infobox-label">Atomic radius</th><td class="infobox-data">empirical:&#x20;120&#160;pm&#x20;</td></tr><tr><th scope="row" class="infobox-label">Covalent radius</th><td class="infobox-data">120±3&#160;pm&#x20;</td></tr><tr><th scope="row" class="infobox-label">Van der Waals radius</th><td class="infobox-data">185&#160;pm&#x20;</td></tr><tr><td colspan="2" class="infobox-full-data"><figure class="mw-default-size mw-halign-center" typeof="mw:File/Frameless"><img alt="Color lines in a spectral range" src="/school1/ptable/theme-assets/default/images/inline/160c6ab6cc713ba9ed860ab914623ee5.png" decoding="async" width="280" height="34" style="--mw-file-upright: 1.1" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/4/45/35_%28Br_I%29_NIST_ASD_emission_spectrum.png/960px-35_%28Br_I%29_NIST_ASD_emission_spectrum.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="4000" data-file-height="480" /><figcaption></figcaption></figure><strong>Spectral lines of bromine</strong></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">Other properties</th></tr><tr><th scope="row" class="infobox-label">Natural occurrence</th><td class="infobox-data">primordial</td></tr><tr><th scope="row" class="infobox-label">Crystal structure</th><td class="infobox-data">&#x20;&#x200b;orthorhombic&#x20;(oS8)</td></tr><tr><th scope="row" class="infobox-label">Lattice constants</th><td class="infobox-data"><div style="float:right;"><span class="mw-default-size notpageimage skin-invert" typeof="mw:File/Frameless"><img alt="Orthorhombic crystal structure for bromine" src="/school1/ptable/theme-assets/default/images/inline/5fc97c798ad77baee8d67561f380fa3e.png" decoding="async" width="60" height="78" style="--mw-file-upright: 0.23" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Orthorhombic.svg/120px-Orthorhombic.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="824" data-file-height="1073" /></span></div><i>a</i>&#160;=&#160;674.30&#160;pm<br /><i>b</i>&#160;=&#160;466.85&#160;pm<br /><i>c</i>&#160;=&#160;870.02&#160;pm (at&#160;triple&#160;point: 269.60&#160;K)</td></tr><tr><th scope="row" class="infobox-label">Thermal conductivity</th><td class="infobox-data">0.122&#160;W/(m⋅K)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Electrical resistivity</th><td class="infobox-data">7.8&#215;10<sup>10</sup>&#160;Ω⋅m&#x20;(at&#160;20&#160;°C)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Magnetic ordering</th><td class="infobox-data">diamagnetic&#x20;</td></tr><tr><th scope="row" class="infobox-label">Molar magnetic susceptibility</th><td class="infobox-data"><span class="nowrap"><span data-sort-value="3004436000000000000♠"></span>−56.4<span style="margin-left:0.25em;margin-right:0.15em;">×</span>10<sup>−6</sup></span>&#160;cm<sup>3</sup>/mol</td></tr><tr><th scope="row" class="infobox-label">Speed of sound</th><td class="infobox-data">206 m/s&#x20;(at&#160;20&#160;°C)</td></tr><tr><th scope="row" class="infobox-label">CAS Number</th><td class="infobox-data">7726-95-6&#x20;</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">History</th></tr><tr><th scope="row" class="infobox-label">Naming</th><td class="infobox-data">from Ancient Greek <i>βρῶμος</i>, 'stench', for its sharp and pungent smell</td></tr><tr><th scope="row" class="infobox-label">Discovery and first isolation</th><td class="infobox-data">Antoine Jérôme Balard and Carl Jacob Löwig&#x20;(1825)</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#fdff8c">Isotopes of bromine<div style="float:right; padding-right: 0.2em;"><style data-mw-deduplicate="TemplateStyles:r1333133064">.mw-parser-output .hlist dl,.mw-parser-output .hlist ol,.mw-parser-output .hlist ul{margin:0;padding:0}.mw-parser-output .hlist dd,.mw-parser-output .hlist dt,.mw-parser-output .hlist li{margin:0;display:inline}.mw-parser-output .hlist.inline,.mw-parser-output .hlist.inline dl,.mw-parser-output .hlist.inline ol,.mw-parser-output .hlist.inline ul,.mw-parser-output .hlist dl dl,.mw-parser-output .hlist dl ol,.mw-parser-output .hlist dl ul,.mw-parser-output .hlist ol dl,.mw-parser-output .hlist ol ol,.mw-parser-output .hlist ol ul,.mw-parser-output .hlist ul dl,.mw-parser-output .hlist ul ol,.mw-parser-output .hlist ul ul{display:inline}.mw-parser-output .hlist .mw-empty-li{display:none}.mw-parser-output .hlist dt::after{content:": "}.mw-parser-output .hlist dd::after,.mw-parser-output .hlist li::after{content:"\a0 · ";font-weight:bold}.mw-parser-output .hlist dd:last-child::after,.mw-parser-output .hlist dt:last-child::after,.mw-parser-output .hlist li:last-child::after{content:none}.mw-parser-output .hlist dd dd:first-child::before,.mw-parser-output .hlist dd dt:first-child::before,.mw-parser-output .hlist dd li:first-child::before,.mw-parser-output .hlist dt dd:first-child::before,.mw-parser-output .hlist dt dt:first-child::before,.mw-parser-output .hlist dt li:first-child::before,.mw-parser-output .hlist li dd:first-child::before,.mw-parser-output .hlist li dt:first-child::before,.mw-parser-output .hlist li li:first-child::before{content:" (";font-weight:normal}.mw-parser-output .hlist dd dd:last-child::after,.mw-parser-output .hlist dd dt:last-child::after,.mw-parser-output .hlist dd li:last-child::after,.mw-parser-output .hlist dt dd:last-child::after,.mw-parser-output .hlist dt dt:last-child::after,.mw-parser-output .hlist dt li:last-child::after,.mw-parser-output .hlist li dd:last-child::after,.mw-parser-output .hlist li dt:last-child::after,.mw-parser-output .hlist li li:last-child::after{content:")";font-weight:normal}.mw-parser-output .hlist ol{counter-reset:listitem}.mw-parser-output .hlist ol>li{counter-increment:listitem}.mw-parser-output .hlist ol>li::before{content:" "counter(listitem)"\a0 "}.mw-parser-output .hlist dd ol>li:first-child::before,.mw-parser-output .hlist dt ol>li:first-child::before,.mw-parser-output .hlist li ol>li:first-child::before{content:" ("counter(listitem)"\a0 "}</style><style data-mw-deduplicate="TemplateStyles:r1239400231">.mw-parser-output .navbar{display:inline;font-size:88%;font-weight:normal}.mw-parser-output .navbar-collapse{float:left;text-align:left}.mw-parser-output .navbar-boxtext{word-spacing:0}.mw-parser-output .navbar ul{display:inline-block;white-space:nowrap;line-height:inherit}.mw-parser-output .navbar-brackets::before{margin-right:-0.125em;content:"[ "}.mw-parser-output .navbar-brackets::after{margin-left:-0.125em;content:" ]"}.mw-parser-output .navbar li{word-spacing:-0.125em}.mw-parser-output .navbar a>span,.mw-parser-output .navbar a>abbr{text-decoration:inherit}.mw-parser-output .navbar-mini abbr{font-variant:small-caps;border-bottom:none;text-decoration:none;cursor:inherit}.mw-parser-output .navbar-ct-full{font-size:114%;margin:0 7em}.mw-parser-output .navbar-ct-mini{font-size:114%;margin:0 4em}html.skin-theme-clientpref-night .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}@media(prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}}@media print{.mw-parser-output .navbar{display:none!important}}</style><div class="navbar plainlinks hlist navbar-mini"><ul><li class="nv-view"><abbr title="View this template">v</abbr></li><li class="nv-edit"><abbr title="Edit this template">e</abbr></li></ul></div></div></th></tr><tr><td colspan="2" class="infobox-full-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1358620234" /><style data-mw-deduplicate="TemplateStyles:r1314746008">.mw-parser-output .ib-isotopes .infobox-header{background:#e0e0e0;color:inherit}.mw-parser-output .ib-isotopes .infobox-below{background:#e8e8e8;color:inherit}.mw-parser-output .ib-isotopes .isotopes-table{display:table}</style></td></tr><tr><td colspan="2" class="infobox-full-data"><style data-mw-deduplicate="TemplateStyles:r1314746202">.mw-parser-output .isotopes-table{text-align:center;width:100%;border-collapse:collapse;margin:0;padding:0}.mw-parser-output .isotopes-table-headers>:not(:first-child){padding:0.1em}.mw-parser-output .isotopes-table-footnote{text-align:left;padding-left:0.5em;background:var(--background-color-neutral-subtle,#f8f9fa);color:inherit}body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table th,body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table td{padding:0.1em}</style>
+<table class="isotopes-table wikitable">
+
+<tbody><tr>
+<th scope="colgroup" colspan="3">Main isotopes
+</th>
+<th scope="colgroup" colspan="2">Decay
+</th></tr>
+<tr class="isotopes-table-headers">
+<th scope="col"><style data-mw-deduplicate="TemplateStyles:r1152813436">.mw-parser-output .sr-only{border:0;clip:rect(0,0,0,0);clip-path:polygon(0px 0px,0px 0px,0px 0px);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap}</style><span class="sr-only">Isotope</span>
+</th>
+<th scope="col">abun&#173;dance
+</th>
+<th scope="col">half-life <link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(<i>t</i><sub>1/2</sub>)</span>
+</th>
+<th scope="col">mode
+</th>
+<th scope="col">pro&#173;duct
+</th></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>75</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7003582000000000000♠"></span>97&#160;min</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>+</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>75</sup>Se
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>76</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7004583200000000000♠"></span>16.2&#160;h</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>+</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>76</sup>Se
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>77</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7005205344000000000♠"></span>57.04&#160;h</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>+</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>77</sup>Se
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>79</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;">50.6%
+</td>
+<td rowspan="1" colspan="3" style="vertical-align: top; text-align: left;">stable
+</td></tr>
+<tr>
+<th rowspan="2" style="vertical-align: top;"><sup>80</sup>Br
+</th>
+<td rowspan="2" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="2" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7003106080000000000♠"></span>17.68&#160;min</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>−</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>80</sup>Kr
+</td></tr>
+<tr>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>+</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>80</sup>Se
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>80m</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7004159138000000000♠"></span>4.4205&#160;h</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">IT</span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>80</sup>Br
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>81</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;">49.4%
+</td>
+<td rowspan="1" colspan="3" style="vertical-align: top; text-align: left;">stable
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>82</sup>Br
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7005127015199999999♠"></span>35.282&#160;h</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>−</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>82</sup>Kr
+</td></tr></tbody></table></td></tr><tr style="display:none"><td colspan="2">
+</td></tr><tr><td colspan="2" class="infobox-below noprint" style="color:inherit; background:#fdff8c"><span class="noviewer" typeof="mw:File"><span title="Category"><img alt="" src="/school1/ptable/theme-assets/default/images/inline/e6322621eff497bfe271d93121ae7642.png" decoding="async" width="16" height="16" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/en/thumb/9/96/Symbol_category_class.svg/40px-Symbol_category_class.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="180" data-file-height="185" /></span></span>&#160;Category: Bromine<br /><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1333133064" /><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1239400231" /><div class="navbar plainlinks hlist"><ul><li class="nv-view"><span title="View this template">view</span></li><li class="nv-talk"><span title="Discuss this template">talk</span></li><li class="nv-edit"><span title="Edit this template">edit</span></li></ul></div>&#x20;|&#x20;references</td></tr></tbody></table>
+<p><b>Bromine</b> is a chemical element; it has symbol <b>Br</b> and atomic number 35. It is a volatile red-brown liquid at room temperature that evaporates readily to form a similarly coloured vapour. Its properties are intermediate between those of <a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">chlorine</a> and <a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a>. Isolated independently by two chemists, Carl Jacob Löwig (in 1825) and Antoine Jérôme Balard (in 1826), its name was derived from&#32;Ancient Greek&#32;<i> </i>βρῶμος<i> (bromos)</i>&#160;<span class="gloss-quot">'</span><span class="gloss-text">stench</span><span class="gloss-quot">'</span>, referring to its sharp and pungent smell.
+</p><p>Elemental bromine is very reactive and thus does not occur as a free element in nature. Instead, it can be isolated from colourless soluble crystalline mineral halide salts analogous to table salt, a property it shares with the other halogens. While it is rather rare in the Earth's crust, the high solubility of the bromide ion (Br<sup>−</sup>) has caused its accumulation in the oceans. Commercially the element is easily extracted from brine evaporation ponds, mostly in the United States and Israel. The mass of bromine in the oceans is about one three-hundredth that of <a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">chlorine</a>.
+</p><p>At standard conditions for temperature and pressure it is a liquid; the only other element that is liquid under these conditions is <a href="/school1/ptable/element/Hg" class="wiki-link" title="Mercury (Hg)">mercury</a>. At high temperatures, organobromine compounds readily dissociate to yield free bromine atoms, a process that stops free radical chemical chain reactions. This effect makes organobromine compounds useful as fire retardants, with more than half the bromine produced worldwide each year put to this purpose. The same property causes ultraviolet sunlight to dissociate volatile organobromine compounds in the atmosphere to yield free bromine atoms, causing ozone depletion. As a result, some organobromine compounds—such as the pesticide methyl bromide—are no longer used. Bromine compounds are still used in well drilling fluids, in photographic film, and as an intermediate in the manufacture of organic chemicals.
+</p><p>Large amounts of bromide salts are toxic from the action of soluble bromide ions, causing bromism. However, bromine is beneficial for human eosinophils, and is an essential trace element for collagen development in all animals. Hundreds of known organobromine compounds are generated by terrestrial and marine plants and animals, and some serve important biological roles. As a pharmaceutical, the simple bromide ion (Br<sup>−</sup>) has inhibitory effects on the central nervous system, and bromide salts were once a major medical sedative, before replacement by shorter-acting drugs. They retain niche uses as antiepileptics.
+</p>
+<meta property="mw:PageProp/toc" />
+<div class="mw-heading mw-heading2">
+
+---SECTIONS---
+History:
+<figure class="mw-default-size mw-halign-left" typeof="mw:File/Thumb"><img src="/school1/ptable/theme-assets/default/images/inline/864cf7241b77caabb4f2be714bf6c257.jpg" decoding="async" width="190" height="256" style="--mw-file-upright: 0.75" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Antoine_J%C3%A9r%C3%B4me_Balard_1870s.jpg/500px-Antoine_J%C3%A9r%C3%B4me_Balard_1870s.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="741" data-file-height="997" /><figcaption>Antoine Balard, one of the discoverers of <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a></figcaption></figure>
+<p><a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a> was discovered independently by two chemists, Carl Jacob Löwig and Antoine Balard, in 1825 and 1826, respectively.
+</p><p>Justus von Liebig discovered <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a> in 1825, however, he did not recognize that he was looking at an unknown element and mistook it for <a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a> chloride.
+</p><p>Löwig isolated bromine from a mineral water spring from his hometown Bad Kreuznach in 1825. Löwig used a solution of the mineral salt saturated with <a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">chlorine</a> and extracted the bromine with diethyl ether. After evaporation of the ether, a brown liquid remained. With this liquid as a sample of his work he applied for a position in the laboratory of Leopold Gmelin in Heidelberg. The publication of the results was delayed and Balard published his results first.
+</p><p>Balard found bromine chemicals in the ash of seaweed from the salt marshes of Montpellier. The seaweed was used to produce <a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a>, but also contained bromine. Balard distilled the bromine from a solution of seaweed ash saturated with <a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">chlorine</a>. The properties of the resulting substance were intermediate between those of <a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">chlorine</a> and <a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a>; thus he tried to prove that the substance was iodine monochloride (ICl), but after failing to do so he was sure that he had found a new element and named it muride, derived from the Latin word <span title="Latin-language text"><i lang="la">muria</i></span> ("brine").
+</p><p>After the French chemists Louis Nicolas Vauquelin, Louis Jacques Thénard, and Joseph-Louis Gay-Lussac approved the experiments of the young pharmacist Balard, the results were presented at a lecture of the Académie des Sciences and published in <i>Annales de Chimie et Physique</i>. In his publication, Balard stated that he changed the name from <i>muride</i> to <i>brôme</i> on the proposal of <a href="/w/index.php?title=Joseph_Anglada&amp;action=edit&amp;redlink=1" class="new" title="Joseph Anglada (page does not exist)">M. Anglada</a><span class="noprint" style="font-size:85%; font-style: normal;">&#160;&#91;<a href="https://fr.wikipedia.org/wiki/Joseph_Anglada" class="extiw" title="fr:Joseph Anglada">fr</a>&#93;</span>. The name <i>brôme</i> (bromine) derives from the Greek <span title="Ancient Greek (to 1453)-language text"><span lang="grc">βρῶμος</span></span> (<span title="Ancient Greek (to 1453)-language romanization"><i lang="grc-Latn">brômos</i></span>, "stench"). Other sources claim that the French chemist and physicist Joseph-Louis Gay-Lussac suggested the name <i>brôme</i> for the characteristic smell of the vapours. Bromine was not produced in large quantities until 1858, when the discovery of salt deposits in Stassfurt enabled its production as a by-product of potash.
+</p><p>Apart from some minor medical applications, the first commercial use was the daguerreotype. In 1840, bromine was discovered to have some advantages over the previously used iodine vapour to create the light sensitive <a href="/school1/ptable/element/Ag" class="wiki-link" title="Silver (Ag)">silver</a> halide layer in daguerreotypy.
+</p><p>By 1864, a 25% solution of liquid bromine in .75 molar aqueous <a href="/school1/ptable/element/K" class="wiki-link" title="Potassium (K)">potassium</a> bromide was widely used to treat gangrene during the American Civil War, before the publications of Joseph Lister and Pasteur.
+</p><p><a href="/school1/ptable/element/K" class="wiki-link" title="Potassium (K)">Potassium</a> bromide and <a href="/school1/ptable/element/Na" class="wiki-link" title="Sodium (Na)">sodium</a> bromide were used as anticonvulsants and sedatives in the late 19th and early 20th centuries, but were gradually superseded by chloral hydrate and then by the barbiturates. In the early years of the First World War, bromine compounds such as xylyl bromide were used as poison gas.
+</p>
+<div class="mw-heading mw-heading2">
+
+Isotopes:
+<style data-mw-deduplicate="TemplateStyles:r1368532237">.mw-parser-output .hatnote{font-style:italic}.mw-parser-output div.hatnote{padding-left:1.6em;margin-bottom:0.5em}.mw-parser-output .hatnote i{font-style:normal}.mw-parser-output .hatnote+.mw-empty-elt+.hatnote{margin-top:-0.5em}@media print{body.ns-0 .mw-parser-output .hatnote{display:none!important}}</style><div role="note" class="hatnote navigation-not-searchable">Main article: Isotopes of <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a></div>
+<p><a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a> has two stable isotopes, <sup>79</sup>Br and <sup>81</sup>Br. These are its only two natural isotopes, with <sup>79</sup>Br making up 51% of natural <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a> and <sup>81</sup>Br making up the remaining 49%. Both have nuclear spin 3/2− and thus may be used for nuclear magnetic resonance, although <sup>81</sup>Br is more favourable. The relatively 1:1 distribution of the two isotopes in nature is helpful in identification of bromine containing compounds using mass spectroscopy. Other bromine isotopes are all radioactive, with half-lives too short to occur in nature. Of these, the most important are <sup>80</sup>Br (<i>t</i><sub>1/2</sub> = 17.7&#160;min), <sup>80m</sup>Br (<i>t</i><sub>1/2</sub> = 4.421&#160;h), and <sup>82</sup>Br (<i>t</i><sub>1/2</sub> = 35.28&#160;h), which may be produced from the neutron activation of natural bromine. The most stable bromine radioisotope is <sup>77</sup>Br (<i>t</i><sub>1/2</sub> = 57.04&#160;h). The primary decay mode of isotopes lighter than <sup>79</sup>Br is electron capture to isotopes of <a href="/school1/ptable/element/Se" class="wiki-link" title="Selenium (Se)">selenium</a>; that of isotopes heavier than <sup>81</sup>Br is beta decay to isotopes of <a href="/school1/ptable/element/Kr" class="wiki-link" title="Krypton (Kr)">krypton</a>; and <sup>80</sup>Br may decay by either mode to stable <sup>80</sup>Se or <sup>80</sup>Kr. Br isotopes from <sup>87</sup>Br and heavier undergo beta decay with neutron emission and are of practical importance because they are fission products.
+</p>
+<div class="mw-heading mw-heading2">
+
+Applications:
+<p>A wide variety of organobromine compounds are used in industry. Some are prepared from <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a> and others are prepared from <a href="/school1/ptable/element/H" class="wiki-link" title="Hydrogen (H)">hydrogen</a> bromide, which is obtained by burning <a href="/school1/ptable/element/H" class="wiki-link" title="Hydrogen (H)">hydrogen</a> in <a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">bromine</a>.
+</p>
+<div class="mw-heading mw-heading3">
+

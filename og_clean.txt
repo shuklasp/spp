@@ -1,0 +1,12 @@
+EXTRACT: 
+
+
+
+
+Chemical element with atomic number 118 (Og)@media(min-width:640px){.mw-parser-output .infobox{margin-left:1em;float:right;clear:right;width:22em}}.mw-parser-output .infobox-subbox{padding:0;border:none;margin:-3px;width:auto;min-width:100%;font-size:100%;clear:none;float:none;background-color:transparent;color:inherit}.mw-parser-output .infobox-3cols-child{margin:-3px}.mw-parser-output .infobox .navbar{font-size:100%}.mw-parser-output .infobox-hiddenrow,body.skin--responsive.skin--responsi
+SECTIONS: ['History', 'Characteristics']
+History : See also: Timeline of chemical element discoveries
+
+Characteristics : Other than nuclear properties, no properties of oganesson or its compounds have been measured; this is due to its extremely limited and expensive production and the fact that it decays very quickly. Thus only predictions are available.
+
+

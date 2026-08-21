@@ -1,0 +1,17 @@
+{
+    "mobile": {
+        "title": "Mobile Studio",
+        "icon": "📱",
+        "component": "views/mobile.js"
+    },
+    "api_keys": {
+        "title": "API Keys",
+        "icon": "🔑",
+        "component": "views/api_keys.js"
+    },
+    "docs": {
+        "title": "Code Explorer",
+        "icon": "📚",
+        "component": "views/docs.js"
+    }
+}

@@ -1,0 +1,39 @@
+--- EXTRACT ---
+.mw-parser-output .hatnote{font-style:italic}.mw-parser-output div.hatnote{padding-left:1.6em;margin-bottom:0.5em}.mw-parser-output .hatnote i{font-style:normal}.mw-parser-output .hatnote+.mw-empty-elt+.hatnote{margin-top:-0.5em}@media print{body.ns-0 .mw-parser-output .hatnote{display:none!important}}Not to be confused with Thulium.
+Chemical element with atomic number 81 (Tl)tbody{display:table-row-group}body.skin--responsive .mw-parser-output .infobox-table th,body.skin--responsive .mw-parser-output .infobox-table td{padding-left:inherit;padding-right:inherit}}.mw-parser-output .ib-element-periodic-table{background-color:var(--background-color-neutral-subtle,#f8f9fa);border:1px solid var(--border-color-base,#a2a9b1);text-align:center;padding:0.4em;display:grid;justify-content:center;align-items:center;grid-template-columns:min-content min-content;gap:0.2em}.mw-parser-output .ib-element-periodic-table-symbol,.mw-parser-output .ib-element-periodic-table-name{font-size:90%;line-height:1
+
+--- Characteristics ---
+A thallium atom has 81 electrons, arranged in the electron configuration [Xe]4f145d106s26p1; of these, the three outermost electrons in the sixth shell are valence electrons. Due to the inert pair effect, the 6s electron pair is relativistically stabilised and it is more difficult to get these involved in chemical bonding than it is for the heavier elements. Thus, very few electrons are available for metallic bonding, similar to the neighboring elements mercury and lead. Thallium, then, like its congeners, is a soft, highly electrically conducting metal with a low melting point, of 304&#160;°C.
+A number of standard electrode potentials, depending on the reaction under study, are reported for thallium, reflecting the greatly decreased stability of the +3 oxidation state:
+
+  
+    
+      
+        
+          
+            
+              
+                +
+                0.73
+                &#xA0;
+              
+              
+                
+                  
+                    Tl
+    
+
+--- Isotopes ---
+Main article: Isotopes of thallium
+Thallium has 41 known isotopes with atomic masses from 176 to 216. 203Tl and 205Tl are the only stable isotopes and make up all natural thallium. The five short-lived isotopes 206Tl through 210Tl inclusive occur in nature, but only as part of the natural decay chains of heavier elements. 204Tl is the most stable radioisotope, with a half-life of 3.78 years; the next most stable are 202Tl (half-life 12.31 days) and 201Tl (half-life 3.0421 days). It is made by the neutron activation of stable thallium in a nuclear reactor.
+The isotope 201Tl is useful in nuclear medicine; it decays by electron capture, emitting X-rays (~70–80&#160;keV), and gamma rays of 135 and 167&#160;keV; therefore, it has good imaging characteristics without an excessive patient-radiation dose. It is the most popular isotope used for thallium nuclear cardiac stress tests.
+
+
+
+--- History ---
+Thallium (Greek θαλλός, thallos, meaning "a green shoot or twig") was discovered by William Crookes and Claude Auguste Lamy, working independently, both using flame spectroscopy (Crookes was first to publish his findings, on March 30, 1861). The name comes from thallium's bright green spectral emission lines.
+After the publication of the improved method of flame spectroscopy by Robert Bunsen and Gustav Kirchhoff and the discovery of caesium and rubidium in the years 1859 to 1860, flame spectroscopy became an approved&#91;by whom?&#93; method to determine the composition of minerals and chemical products. Crookes and Lamy both started to use the new method. Crookes used it to make spectroscopic determinations for tellurium on selenium compounds deposited in the lead chamber of a sulfuric acid production plant near Tilkerode in the Harz mountains. He had obtained the samples for his research on selenium cyanide from August Hofmann years earlier. By 1862, Crookes was able to isolate small
+
+--- Applications ---
+
+

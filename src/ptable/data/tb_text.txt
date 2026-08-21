@@ -1,0 +1,393 @@
+EXTRACT HTML:
+<div class="mw-content-ltr mw-parser-output" lang="en" dir="ltr"><p class="mw-empty-elt">
+</p>
+<style data-mw-deduplicate="TemplateStyles:r1368532237">.mw-parser-output .hatnote{font-style:italic}.mw-parser-output div.hatnote{padding-left:1.6em;margin-bottom:0.5em}.mw-parser-output .hatnote i{font-style:normal}.mw-parser-output .hatnote+.mw-empty-elt+.hatnote{margin-top:-0.5em}@media print{body.ns-0 .mw-parser-output .hatnote{display:none!important}}</style><div role="note" class="hatnote navigation-not-searchable">This article is about element 65. For element 68, see <a href="/school1/ptable/element/Er" class="wiki-link" title="Erbium (Er)">Erbium</a>.</div>
+<div class="shortdescription nomobile noexcerpt noprint searchaux" style="display:none">Chemical element with atomic number 65 (Tb)</div><style data-mw-deduplicate="TemplateStyles:r1358620234">@media(min-width:640px){.mw-parser-output .infobox{margin-left:1em;float:right;clear:right;width:22em}}.mw-parser-output .infobox-subbox{padding:0;border:none;margin:-3px;width:auto;min-width:100%;font-size:100%;clear:none;float:none;background-color:transparent;color:inherit}.mw-parser-output .infobox-3cols-child{margin:-3px}.mw-parser-output .infobox .navbar{font-size:100%}.mw-parser-output .infobox-hiddenrow,body.skin--responsive.skin--responsive .mw-parser-output .infobox .infobox-hiddenrow{display:none}@media screen{html.skin-theme-clientpref-night .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media screen and (prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media(min-width:640px){body.skin--responsive .mw-parser-output .infobox-table{display:table!important}body.skin--responsive .mw-parser-output .infobox-table>caption{display:table-caption!important}body.skin--responsive .mw-parser-output .infobox-table>tbody{display:table-row-group}body.skin--responsive .mw-parser-output .infobox-table th,body.skin--responsive .mw-parser-output .infobox-table td{padding-left:inherit;padding-right:inherit}}</style><style data-mw-deduplicate="TemplateStyles:r1307324566">.mw-parser-output .ib-element-periodic-table{background-color:var(--background-color-neutral-subtle,#f8f9fa);border:1px solid var(--border-color-base,#a2a9b1);text-align:center;padding:0.4em;display:grid;justify-content:center;align-items:center;grid-template-columns:min-content min-content;gap:0.2em}.mw-parser-output .ib-element-periodic-table-symbol,.mw-parser-output .ib-element-periodic-table-name{font-size:90%;line-height:100%}.mw-parser-output .ib-element-periodic-table-name{grid-column:1/3}.mw-parser-output .ib-element .isotopes-table{display:table}.mw-parser-output .ib-element-vapor-pressure{display:table;text-align:center;font-size:90%;border-collapse:collapse;margin:0 auto}body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure th,body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure td{padding:0.2em}</style><table class="infobox ib-element"><caption class="infobox-title"><span class="nowrap"><a href="/school1/ptable/element/Tb" class="wiki-link" title="Terbium (Tb)">Terbium</a>,&#160;<sub>65</sub>Tb</span></caption><tbody><tr><td colspan="2" class="infobox-image"><span class="mw-default-size" typeof="mw:File/Frameless"><img src="/school1/ptable/theme-assets/default/images/inline/f46a948991ce6d47457dbab0f7c7255d.jpg" decoding="async" width="250" height="197" style="--mw-file-upright: 1" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Terbium-2.jpg/500px-Terbium-2.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="626" data-file-height="493" /></span></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad"><a href="/school1/ptable/element/Tb" class="wiki-link" title="Terbium (Tb)">Terbium</a></th></tr><tr><th scope="row" class="infobox-label">Pronunciation</th><td class="infobox-data"><span class="rt-commentedText nowrap"><span class="IPA nopopups noexcerpt" lang="en-fonipa">/<span style="border-bottom:1px dotted"><span title="/ˈ/: primary stress follows">ˈ</span><span title="&#39;t&#39; in &#39;tie&#39;">t</span><span title="/ɜːr/: &#39;ur&#39; in &#39;fur&#39;">ɜːr</span><span title="&#39;b&#39; in &#39;buy&#39;">b</span><span title="/i/: &#39;y&#39; in &#39;happy&#39;">i</span><span title="/ə/: &#39;a&#39; in &#39;about&#39;">ə</span><span title="&#39;m&#39; in &#39;my&#39;">m</span></span>/</span>&#32;<span class="ext-phonos"><span data-nosnippet="" id="ooui-php-1" class="noexcerpt ext-phonos-PhonosButton ext-phonos-PhonosButton-emptylabel oo-ui-widget oo-ui-widget-enabled oo-ui-buttonElement oo-ui-buttonElement-frameless oo-ui-buttonElement-size-medium oo-ui-iconElement oo-ui-buttonWidget" data-ooui="{&quot;_&quot;:&quot;mw.Phonos.PhonosButton&quot;,&quot;href&quot;:&quot;\/\/upload.wikimedia.org\/wikipedia\/commons\/transcoded\/8\/80\/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-terbium.wav\/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-terbium.wav.mp3&quot;,&quot;rel&quot;:[&quot;nofollow&quot;],&quot;framed&quot;:false,&quot;icon&quot;:&quot;volumeUp&quot;,&quot;data&quot;:{&quot;ipa&quot;:&quot;&quot;,&quot;text&quot;:&quot;&quot;,&quot;lang&quot;:&quot;en&quot;,&quot;wikibase&quot;:&quot;&quot;,&quot;file&quot;:&quot;LL-Q1860 (eng)-Naomi Persephone Amethyst (NaomiAmethyst)-terbium.wav&quot;},&quot;classes&quot;:[&quot;noexcerpt&quot;,&quot;ext-phonos-PhonosButton&quot;,&quot;ext-phonos-PhonosButton-emptylabel&quot;]}"><a role="button" tabindex="0" href="//upload.wikimedia.org/wikipedia/commons/transcoded/8/80/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-terbium.wav/LL-Q1860_%28eng%29-Naomi_Persephone_Amethyst_%28NaomiAmethyst%29-terbium.wav.mp3" rel="nofollow" aria-label="Play audio" title="Play audio" class="oo-ui-buttonElement-button"><span class="oo-ui-iconElement-icon oo-ui-icon-volumeUp"></span><span class="oo-ui-labelElement-label"></span><span class="oo-ui-indicatorElement-indicator oo-ui-indicatorElement-noIndicator"></span></a></span><sup class="ext-phonos-attribution noexcerpt navigation-not-searchable">ⓘ</sup></span></span>&#x20;<wbr />&#8203;<span class="nowrap">(<i title="English pronunciation respelling"><span style="font-size:90%">TUR</span>-bee-əm</i>)</span></td></tr><tr><th scope="row" class="infobox-label">Appearance</th><td class="infobox-data">silvery white</td></tr><tr class="infobox-hiddenrow"><td colspan="2" class="infobox-full-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1358620234" /></td></tr><tr><th colspan="2" class="infobox-header" style="text-align: left; color:inherit; background: transparent;">Standard atomic weight <style data-mw-deduplicate="TemplateStyles:r886047488">.mw-parser-output .nobold{font-weight:normal}</style><span class="nobold"><i>A</i><sub>r</sub>&#176;(Tb)</span></th></tr><tr><th scope="row" class="infobox-label"></th><td class="infobox-data"><style data-mw-deduplicate="TemplateStyles:r1126788409">.mw-parser-output .plainlist ol,.mw-parser-output .plainlist ul{line-height:inherit;list-style:none;margin:0;padding:0}.mw-parser-output .plainlist ol li,.mw-parser-output .plainlist ul li{margin-bottom:0}</style><div class="plainlist"><ul><li><span class="nowrap"><span data-sort-value="7002158925354000000♠"></span>158.925<span style="margin-left:.25em;">354</span><span style="margin-left:0.225em;margin-right:0.225em;">±</span>0.000<span style="margin-left:.25em;">007</span></span></li><li><span class="nowrap"><span data-sort-value="7002158930000000000♠"></span>158.93<span style="margin-left:0.225em;margin-right:0.225em;">±</span>0.01</span>&#160;(abridged)</li></ul></div></td></tr><tr style="display:none"><td colspan="2">
+</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad"><a href="/school1/ptable/element/Tb" class="wiki-link" title="Terbium (Tb)">Terbium</a> in the periodic table</th></tr><tr><td colspan="2" class="infobox-full-data"><div class="ib-element-periodic-table">
+<div class="ib-element-periodic-table-pt-container"><style data-mw-deduplicate="TemplateStyles:r1307011204">.mw-parser-output .periodic-table-32-micro,.mw-parser-output .periodic-table-32-micro-119{margin:0;padding:0;empty-cells:hide;border-spacing:1px;text-align:center}.mw-parser-output .periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro td,.mw-parser-output .periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119 td{border:none;padding:0}.mw-parser-output .periodic-table-32-micro-insert-cell-gt118{width:6px;min-width:6px}.mw-parser-output .periodic-table-32-micro-no-insert-cell-gt118{width:0}.mw-parser-output .periodic-table-32-micro-119-dot{float:left;margin:3px 2px;background:var(--color-emphasized,black);width:2px;height:2px}.mw-parser-output .periodic-table-32-micro-119-spacer{width:1px;height:4px}</style>
+<table class="periodic-table-32-micro">
+<tbody><tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/H" class="wiki-link" title="Hydrogen (H)">Hydrogen</a></span>
+</td>
+<td colspan="30">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/He" class="wiki-link" title="Helium (He)">Helium</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Li" class="wiki-link" title="Lithium (Li)">Lithium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Be" class="wiki-link" title="Beryllium (Be)">Beryllium</a></span>
+</td>
+<td colspan="24">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/B" class="wiki-link" title="Boron (B)">Boron</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/C" class="wiki-link" title="Carbon (C)">Carbon</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/N" class="wiki-link" title="Nitrogen (N)">Nitrogen</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/O" class="wiki-link" title="Oxygen (O)">Oxygen</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/F" class="wiki-link" title="Fluorine (F)">Fluorine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ne" class="wiki-link" title="Neon (Ne)">Neon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Na" class="wiki-link" title="Sodium (Na)">Sodium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Mg" class="wiki-link" title="Magnesium (Mg)">Magnesium</a></span>
+</td>
+<td colspan="24">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;">Aluminium</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Si" class="wiki-link" title="Silicon (Si)">Silicon</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/P" class="wiki-link" title="Phosphorus (P)">Phosphorus</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/S" class="wiki-link" title="Sulfur (S)">Sulfur</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Cl" class="wiki-link" title="Chlorine (Cl)">Chlorine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ar" class="wiki-link" title="Argon (Ar)">Argon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/K" class="wiki-link" title="Potassium (K)">Potassium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ca" class="wiki-link" title="Calcium (Ca)">Calcium</a></span>
+</td>
+<td colspan="14">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Sc" class="wiki-link" title="Scandium (Sc)">Scandium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ti" class="wiki-link" title="Titanium (Ti)">Titanium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/V" class="wiki-link" title="Vanadium (V)">Vanadium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cr" class="wiki-link" title="Chromium (Cr)">Chromium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mn" class="wiki-link" title="Manganese (Mn)">Manganese</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Fe" class="wiki-link" title="Iron (Fe)">Iron</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Co" class="wiki-link" title="Cobalt (Co)">Cobalt</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ni" class="wiki-link" title="Nickel (Ni)">Nickel</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cu" class="wiki-link" title="Copper (Cu)">Copper</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Zn" class="wiki-link" title="Zinc (Zn)">Zinc</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ga" class="wiki-link" title="Gallium (Ga)">Gallium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ge" class="wiki-link" title="Germanium (Ge)">Germanium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/As" class="wiki-link" title="Arsenic (As)">Arsenic</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Se" class="wiki-link" title="Selenium (Se)">Selenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Br" class="wiki-link" title="Bromine (Br)">Bromine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Kr" class="wiki-link" title="Krypton (Kr)">Krypton</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Rb" class="wiki-link" title="Rubidium (Rb)">Rubidium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Sr" class="wiki-link" title="Strontium (Sr)">Strontium</a></span>
+</td>
+<td class="periodic-table-32-micro-no-insert-cell-gt118">
+</td>
+<td colspan="13">
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Y" class="wiki-link" title="Yttrium (Y)">Yttrium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Zr" class="wiki-link" title="Zirconium (Zr)">Zirconium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Nb" class="wiki-link" title="Niobium (Nb)">Niobium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mo" class="wiki-link" title="Molybdenum (Mo)">Molybdenum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Tc" class="wiki-link" title="Technetium (Tc)">Technetium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ru" class="wiki-link" title="Ruthenium (Ru)">Ruthenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rh" class="wiki-link" title="Rhodium (Rh)">Rhodium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Pd" class="wiki-link" title="Palladium (Pd)">Palladium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ag" class="wiki-link" title="Silver (Ag)">Silver</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cd" class="wiki-link" title="Cadmium (Cd)">Cadmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/In" class="wiki-link" title="Indium (In)">Indium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Sn" class="wiki-link" title="Tin (Sn)">Tin</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Sb" class="wiki-link" title="Antimony (Sb)">Antimony</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Te" class="wiki-link" title="Tellurium (Te)">Tellurium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">Iodine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Xe" class="wiki-link" title="Xenon (Xe)">Xenon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;">Caesium</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ba" class="wiki-link" title="Barium (Ba)">Barium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/La" class="wiki-link" title="Lanthanum (La)">Lanthanum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ce" class="wiki-link" title="Cerium (Ce)">Cerium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pr" class="wiki-link" title="Praseodymium (Pr)">Praseodymium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Nd" class="wiki-link" title="Neodymium (Nd)">Neodymium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pm" class="wiki-link" title="Promethium (Pm)">Promethium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Sm" class="wiki-link" title="Samarium (Sm)">Samarium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">Europium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Gd" class="wiki-link" title="Gadolinium (Gd)">Gadolinium</a></span>
+</td>
+<td><a class="mw-selflink selflink"><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99; border:1px solid var(--color-base,#202122); box-sizing: border-box;">Terbium</span></a>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Dy" class="wiki-link" title="Dysprosium (Dy)">Dysprosium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ho" class="wiki-link" title="Holmium (Ho)">Holmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Er" class="wiki-link" title="Erbium (Er)">Erbium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Tm" class="wiki-link" title="Thulium (Tm)">Thulium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Yb" class="wiki-link" title="Ytterbium (Yb)">Ytterbium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Lu" class="wiki-link" title="Lutetium (Lu)">Lutetium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hf" class="wiki-link" title="Hafnium (Hf)">Hafnium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ta" class="wiki-link" title="Tantalum (Ta)">Tantalum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/W" class="wiki-link" title="Tungsten (W)">Tungsten</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Re" class="wiki-link" title="Rhenium (Re)">Rhenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Os" class="wiki-link" title="Osmium (Os)">Osmium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ir" class="wiki-link" title="Iridium (Ir)">Iridium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Pt" class="wiki-link" title="Platinum (Pt)">Platinum</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Au" class="wiki-link" title="Gold (Au)">Gold</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hg" class="wiki-link" title="Mercury (Hg)">Mercury</a> (element)</span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Tl" class="wiki-link" title="Thallium (Tl)">Thallium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Pb" class="wiki-link" title="Lead (Pb)">Lead</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Bi" class="wiki-link" title="Bismuth (Bi)">Bismuth</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">Polonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">Astatine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Rn" class="wiki-link" title="Radon (Rn)">Radon</a></span>
+</td></tr>
+<tr>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Fr" class="wiki-link" title="Francium (Fr)">Francium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#ff9999;"><a href="/school1/ptable/element/Ra" class="wiki-link" title="Radium (Ra)">Radium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Ac" class="wiki-link" title="Actinium (Ac)">Actinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Th" class="wiki-link" title="Thorium (Th)">Thorium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pa" class="wiki-link" title="Protactinium (Pa)">Protactinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/U" class="wiki-link" title="Uranium (U)">Uranium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Np" class="wiki-link" title="Neptunium (Np)">Neptunium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Pu" class="wiki-link" title="Plutonium (Pu)">Plutonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Am" class="wiki-link" title="Americium (Am)">Americium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Cm" class="wiki-link" title="Curium (Cm)">Curium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Bk" class="wiki-link" title="Berkelium (Bk)">Berkelium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Cf" class="wiki-link" title="Californium (Cf)">Californium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Es" class="wiki-link" title="Einsteinium (Es)">Einsteinium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Fm" class="wiki-link" title="Fermium (Fm)">Fermium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/Md" class="wiki-link" title="Mendelevium (Md)">Mendelevium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#9bff99;"><a href="/school1/ptable/element/No" class="wiki-link" title="Nobelium (No)">Nobelium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Lr" class="wiki-link" title="Lawrencium (Lr)">Lawrencium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rf" class="wiki-link" title="Rutherfordium (Rf)">Rutherfordium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Db" class="wiki-link" title="Dubnium (Db)">Dubnium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Sg" class="wiki-link" title="Seaborgium (Sg)">Seaborgium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Bh" class="wiki-link" title="Bohrium (Bh)">Bohrium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Hs" class="wiki-link" title="Hassium (Hs)">Hassium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Mt" class="wiki-link" title="Meitnerium (Mt)">Meitnerium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Ds" class="wiki-link" title="Darmstadtium (Ds)">Darmstadtium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Rg" class="wiki-link" title="Roentgenium (Rg)">Roentgenium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#99ccff;"><a href="/school1/ptable/element/Cn" class="wiki-link" title="Copernicium (Cn)">Copernicium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Nh" class="wiki-link" title="Nihonium (Nh)">Nihonium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Fl" class="wiki-link" title="Flerovium (Fl)">Flerovium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Mc" class="wiki-link" title="Moscovium (Mc)">Moscovium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Lv" class="wiki-link" title="Livermorium (Lv)">Livermorium</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Ts" class="wiki-link" title="Tennessine (Ts)">Tennessine</a></span>
+</td>
+<td><span style="display:block;width:6px;height:8px;overflow:hidden;padding:0;color:transparent;background-color:#fdff8c;"><a href="/school1/ptable/element/Og" class="wiki-link" title="Oganesson (Og)">Oganesson</a></span>
+</td></tr></tbody></table>
+</div>
+<div class="ib-element-periodic-table-symbol">–<br />↑<br /><strong>Tb</strong><br />↓<br />Bk</div>
+<div class="ib-element-periodic-table-name nowrap"><a href="/school1/ptable/element/Gd" class="wiki-link" title="Gadolinium (Gd)">gadolinium</a> ← <strong>terbium</strong> → <a href="/school1/ptable/element/Dy" class="wiki-link" title="Dysprosium (Dy)">dysprosium</a></div>
+</div></td></tr><tr><th scope="row" class="infobox-label"><span class="nowrap">Atomic number <span style="font-weight:normal;">(<span style="padding-right:0.15em;"><i>Z</i></span>)</span></span></th><td class="infobox-data">65</td></tr><tr><th scope="row" class="infobox-label">Group</th><td class="infobox-data">f-block groups (no&#160;number)</td></tr><tr><th scope="row" class="infobox-label">Period</th><td class="infobox-data">period&#160;6</td></tr><tr><th scope="row" class="infobox-label">Block</th><td class="infobox-data"><span title="color legend: f-block" style="display:inline-block; vertical-align:middle; width:6px; height:8px; border:1px solid black; background:#aaffad; color:black;">&#160;</span> f-block</td></tr><tr><th scope="row" class="infobox-label">Electron configuration</th><td class="infobox-data">&#91;Xe&#93; 4f<sup>9</sup> 6s<sup>2</sup></td></tr><tr><th scope="row" class="infobox-label">Electrons per shell</th><td class="infobox-data">2, 8, 18, 27, 8, 2</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad">Physical properties</th></tr><tr><th scope="row" class="infobox-label">Phase <link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">at&#160;<span title="STP: standard temperature and pressure: 0&#160;°C and 101.325&#160;kPa">STP</span></span></th><td class="infobox-data">solid</td></tr><tr><th scope="row" class="infobox-label">Melting point</th><td class="infobox-data">1629&#160;K&#x20;&#x200b;(1356&#160;°C,&#x20;&#x200b;2473&#160;°F)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Boiling point</th><td class="infobox-data">3396&#160;K&#x20;&#x200b;(3123&#160;°C,&#x20;&#x200b;5653&#160;°F)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Density<span style="font-weight:normal;"> (at&#160;20°&#160;C)</span></th><td class="infobox-data">8.229&#160;g/cm<sup>3</sup>&#8201;</td></tr><tr><th scope="row" class="infobox-label"><span style="font-weight:normal;">when&#160;liquid (at&#160;m.p.)</span></th><td class="infobox-data">7.65&#160;g/cm<sup>3</sup>&#x20;</td></tr><tr><th scope="row" class="infobox-label">Heat of fusion</th><td class="infobox-data">10.15&#160;kJ/mol&#x20;</td></tr><tr><th scope="row" class="infobox-label">Heat of vaporization</th><td class="infobox-data">391&#160;kJ/mol&#x20;</td></tr><tr><th scope="row" class="infobox-label">Molar heat capacity</th><td class="infobox-data">28.91&#160;J/(mol·K)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Specific heat capacity</th><td class="infobox-data">181.904&#160;J/(kg·K)&#x20;</td></tr><tr><td colspan="2" class="infobox-full-data"><b>Vapor&#160;pressure</b>
+<table class="ib-element-vapor-pressure wikitable">
+
+<tbody><tr>
+<th scope="row"><abbr title="Pressure"><i>P</i></abbr>&#160;<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(Pa)</span>
+</th>
+<th scope="col">1
+</th>
+<th scope="col">10
+</th>
+<th scope="col">100
+</th>
+<th scope="col">1&#160;k
+</th>
+<th scope="col">10&#160;k
+</th>
+<th scope="col">100&#160;k
+</th></tr>
+<tr>
+<th scope="row">at&#160;<abbr title="Temperature"><i>T</i></abbr>&#160;<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(K)</span>
+</th>
+<td>1789
+</td>
+<td>1979
+</td>
+<td>(2201)
+</td>
+<td>(2505)
+</td>
+<td>(2913)
+</td>
+<td>(3491)
+</td></tr></tbody></table></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad">Atomic properties</th></tr><tr><th scope="row" class="infobox-label">Oxidation states</th><td class="infobox-data">common: <span style="font-size:112%;">+3</span><br />
+0, +1, +2, +4</td></tr><tr><th scope="row" class="infobox-label">Electronegativity</th><td class="infobox-data">Pauling&#160;scale: 1.2&#x20;(?)</td></tr><tr><th scope="row" class="infobox-label">Ionization energies</th><td class="infobox-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1126788409" /><div class="plainlist"><ul><li>1st:&#160;565.8&#160;kJ/mol&#x20;</li><li>2nd:&#160;1110&#160;kJ/mol&#x20;</li><li>3rd:&#160;2114&#160;kJ/mol&#x20;</li><li>&#x20;</li></ul></div></td></tr><tr><th scope="row" class="infobox-label">Atomic radius</th><td class="infobox-data">empirical:&#x20;177&#160;pm&#x20;</td></tr><tr><th scope="row" class="infobox-label">Covalent radius</th><td class="infobox-data">194±5&#160;pm&#x20;</td></tr><tr><td colspan="2" class="infobox-full-data"><figure class="mw-default-size mw-halign-center" typeof="mw:File/Frameless"><img alt="Color lines in a spectral range" src="/school1/ptable/theme-assets/default/images/inline/0a0e7950f15464c8db5b6a064ca91ac7.png" decoding="async" width="280" height="34" style="--mw-file-upright: 1.1" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/9/9b/65_%28Tb_I%29_NIST_ASD_emission_spectrum.png/960px-65_%28Tb_I%29_NIST_ASD_emission_spectrum.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="4000" data-file-height="480" /><figcaption></figcaption></figure><strong>Spectral lines of terbium</strong></td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad">Other properties</th></tr><tr><th scope="row" class="infobox-label">Natural occurrence</th><td class="infobox-data">primordial</td></tr><tr><th scope="row" class="infobox-label">Crystal structure</th><td class="infobox-data">&#x20;&#x200b;hexagonal&#160;close-packed (hcp)&#x20;(hP2)</td></tr><tr><th scope="row" class="infobox-label">Lattice constants</th><td class="infobox-data"><div style="float:right;"><span class="mw-default-size notpageimage skin-invert" typeof="mw:File/Frameless"><img alt="Hexagonal close packed crystal structure for terbium" src="/school1/ptable/theme-assets/default/images/inline/62169e6694aff1a7d668be72cd730985.png" decoding="async" width="60" height="59" style="--mw-file-upright: 0.23" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Hexagonal_close_packed.svg/120px-Hexagonal_close_packed.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="311" data-file-height="307" /></span></div><i>a</i>&#160;=&#160;360.56&#160;pm<br /><i>c</i>&#160;=&#160;569.66&#160;pm (at&#160;20&#160;°C)</td></tr><tr><th scope="row" class="infobox-label">Thermal expansion</th><td class="infobox-data">at&#160;r.t. poly: 10.3&#160;µm/(m⋅K)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Thermal conductivity</th><td class="infobox-data">11.1&#160;W/(m⋅K)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Electrical resistivity</th><td class="infobox-data">α, poly: 1.150&#160;µΩ⋅m&#x20;(at r.t.)</td></tr><tr><th scope="row" class="infobox-label">Magnetic ordering</th><td class="infobox-data">paramagnetic at 300 K&#x20;</td></tr><tr><th scope="row" class="infobox-label">Molar magnetic susceptibility</th><td class="infobox-data"><span class="nowrap"><span data-sort-value="6999146000000000000♠"></span>+146<span style="margin-left:.25em;">000</span><span style="margin-left:0.25em;margin-right:0.15em;">×</span>10<sup>−6</sup></span>&#160;cm<sup>3</sup>/mol&#x20;(273&#160;K)</td></tr><tr><th scope="row" class="infobox-label">Young's modulus</th><td class="infobox-data">55.7&#160;GPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Shear modulus</th><td class="infobox-data">22.1&#160;GPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Bulk modulus</th><td class="infobox-data">38.7&#160;GPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Speed of sound&#x20; <span style="font-weight:normal;">thin&#160;rod</span></th><td class="infobox-data">2620&#160;m/s&#x20;(at&#160;20&#160;°C)&#x20;</td></tr><tr><th scope="row" class="infobox-label">Poisson ratio</th><td class="infobox-data">0.261&#x20;</td></tr><tr><th scope="row" class="infobox-label">Vickers hardness</th><td class="infobox-data">450–865&#160;MPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">Brinell hardness</th><td class="infobox-data">675–1200&#160;MPa&#x20;</td></tr><tr><th scope="row" class="infobox-label">CAS Number</th><td class="infobox-data">7440-27-9&#x20;</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad">History</th></tr><tr><th scope="row" class="infobox-label">Naming</th><td class="infobox-data">after Ytterby (Sweden), where it was mined</td></tr><tr><th scope="row" class="infobox-label">Discovery and first isolation</th><td class="infobox-data">Carl Gustaf Mosander&#x20;(1843)</td></tr><tr><th colspan="2" class="infobox-header" style="color:inherit; background:#aaffad">Isotopes of terbium<div style="float:right; padding-right: 0.2em;"><style data-mw-deduplicate="TemplateStyles:r1333133064">.mw-parser-output .hlist dl,.mw-parser-output .hlist ol,.mw-parser-output .hlist ul{margin:0;padding:0}.mw-parser-output .hlist dd,.mw-parser-output .hlist dt,.mw-parser-output .hlist li{margin:0;display:inline}.mw-parser-output .hlist.inline,.mw-parser-output .hlist.inline dl,.mw-parser-output .hlist.inline ol,.mw-parser-output .hlist.inline ul,.mw-parser-output .hlist dl dl,.mw-parser-output .hlist dl ol,.mw-parser-output .hlist dl ul,.mw-parser-output .hlist ol dl,.mw-parser-output .hlist ol ol,.mw-parser-output .hlist ol ul,.mw-parser-output .hlist ul dl,.mw-parser-output .hlist ul ol,.mw-parser-output .hlist ul ul{display:inline}.mw-parser-output .hlist .mw-empty-li{display:none}.mw-parser-output .hlist dt::after{content:": "}.mw-parser-output .hlist dd::after,.mw-parser-output .hlist li::after{content:"\a0 · ";font-weight:bold}.mw-parser-output .hlist dd:last-child::after,.mw-parser-output .hlist dt:last-child::after,.mw-parser-output .hlist li:last-child::after{content:none}.mw-parser-output .hlist dd dd:first-child::before,.mw-parser-output .hlist dd dt:first-child::before,.mw-parser-output .hlist dd li:first-child::before,.mw-parser-output .hlist dt dd:first-child::before,.mw-parser-output .hlist dt dt:first-child::before,.mw-parser-output .hlist dt li:first-child::before,.mw-parser-output .hlist li dd:first-child::before,.mw-parser-output .hlist li dt:first-child::before,.mw-parser-output .hlist li li:first-child::before{content:" (";font-weight:normal}.mw-parser-output .hlist dd dd:last-child::after,.mw-parser-output .hlist dd dt:last-child::after,.mw-parser-output .hlist dd li:last-child::after,.mw-parser-output .hlist dt dd:last-child::after,.mw-parser-output .hlist dt dt:last-child::after,.mw-parser-output .hlist dt li:last-child::after,.mw-parser-output .hlist li dd:last-child::after,.mw-parser-output .hlist li dt:last-child::after,.mw-parser-output .hlist li li:last-child::after{content:")";font-weight:normal}.mw-parser-output .hlist ol{counter-reset:listitem}.mw-parser-output .hlist ol>li{counter-increment:listitem}.mw-parser-output .hlist ol>li::before{content:" "counter(listitem)"\a0 "}.mw-parser-output .hlist dd ol>li:first-child::before,.mw-parser-output .hlist dt ol>li:first-child::before,.mw-parser-output .hlist li ol>li:first-child::before{content:" ("counter(listitem)"\a0 "}</style><style data-mw-deduplicate="TemplateStyles:r1239400231">.mw-parser-output .navbar{display:inline;font-size:88%;font-weight:normal}.mw-parser-output .navbar-collapse{float:left;text-align:left}.mw-parser-output .navbar-boxtext{word-spacing:0}.mw-parser-output .navbar ul{display:inline-block;white-space:nowrap;line-height:inherit}.mw-parser-output .navbar-brackets::before{margin-right:-0.125em;content:"[ "}.mw-parser-output .navbar-brackets::after{margin-left:-0.125em;content:" ]"}.mw-parser-output .navbar li{word-spacing:-0.125em}.mw-parser-output .navbar a>span,.mw-parser-output .navbar a>abbr{text-decoration:inherit}.mw-parser-output .navbar-mini abbr{font-variant:small-caps;border-bottom:none;text-decoration:none;cursor:inherit}.mw-parser-output .navbar-ct-full{font-size:114%;margin:0 7em}.mw-parser-output .navbar-ct-mini{font-size:114%;margin:0 4em}html.skin-theme-clientpref-night .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}@media(prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}}@media print{.mw-parser-output .navbar{display:none!important}}</style><div class="navbar plainlinks hlist navbar-mini"><ul><li class="nv-view"><abbr title="View this template">v</abbr></li><li class="nv-edit"><abbr title="Edit this template">e</abbr></li></ul></div></div></th></tr><tr><td colspan="2" class="infobox-full-data"><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1358620234" /><style data-mw-deduplicate="TemplateStyles:r1314746008">.mw-parser-output .ib-isotopes .infobox-header{background:#e0e0e0;color:inherit}.mw-parser-output .ib-isotopes .infobox-below{background:#e8e8e8;color:inherit}.mw-parser-output .ib-isotopes .isotopes-table{display:table}</style></td></tr><tr><td colspan="2" class="infobox-full-data"><style data-mw-deduplicate="TemplateStyles:r1314746202">.mw-parser-output .isotopes-table{text-align:center;width:100%;border-collapse:collapse;margin:0;padding:0}.mw-parser-output .isotopes-table-headers>:not(:first-child){padding:0.1em}.mw-parser-output .isotopes-table-footnote{text-align:left;padding-left:0.5em;background:var(--background-color-neutral-subtle,#f8f9fa);color:inherit}body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table th,body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table td{padding:0.1em}</style>
+<table class="isotopes-table wikitable">
+
+<tbody><tr>
+<th scope="colgroup" colspan="3">Main isotopes
+</th>
+<th scope="colgroup" colspan="2">Decay
+</th></tr>
+<tr class="isotopes-table-headers">
+<th scope="col"><style data-mw-deduplicate="TemplateStyles:r1152813436">.mw-parser-output .sr-only{border:0;clip:rect(0,0,0,0);clip-path:polygon(0px 0px,0px 0px,0px 0px);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap}</style><span class="sr-only">Isotope</span>
+</th>
+<th scope="col">abun&#173;dance
+</th>
+<th scope="col">half-life <link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r886047488" /><span class="nobold">(<i>t</i><sub>1/2</sub>)</span>
+</th>
+<th scope="col">mode
+</th>
+<th scope="col">pro&#173;duct
+</th></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>157</sup>Tb
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7009224058960000000♠"></span>71&#160;y</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">ε</span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>157</sup>Gd
+</td></tr>
+<tr>
+<th rowspan="2" style="vertical-align: top;"><sup>158</sup>Tb
+</th>
+<td rowspan="2" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="2" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7009568036800000000♠"></span>180&#160;y</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">ε</span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>158</sup>Gd
+</td></tr>
+<tr>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>−</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>158</sup>Dy
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>159</sup>Tb
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;">100%
+</td>
+<td rowspan="1" colspan="3" style="vertical-align: top; text-align: left;">stable
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>160</sup>Tb
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7006624672000000000♠"></span>72.3&#160;d</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>−</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>160</sup>Dy
+</td></tr>
+<tr>
+<th rowspan="1" style="vertical-align: top;"><sup>161</sup>Tb
+</th>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: center;">synth
+</td>
+<td rowspan="1" colspan="1" style="vertical-align: top; text-align: right;"><span class="nowrap"><span data-sort-value="7005600307200000000♠"></span>6.948&#160;d</span>
+</td>
+<td style="text-align: left; vertical-align: top;"><span style="float: left; font-size: 115%; padding: 0;">β<sup>−</sup></span><span style="float: right; padding-left: 0.2em;"></span>
+</td>
+<td style="text-align: right; vertical-align: middle;"><sup>161</sup>Dy
+</td></tr></tbody></table></td></tr><tr style="display:none"><td colspan="2">
+</td></tr><tr><td colspan="2" class="infobox-below noprint" style="color:inherit; background:#aaffad"><span class="noviewer" typeof="mw:File"><span title="Category"><img alt="" src="/school1/ptable/theme-assets/default/images/inline/e6322621eff497bfe271d93121ae7642.png" decoding="async" width="16" height="16" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/en/thumb/9/96/Symbol_category_class.svg/40px-Symbol_category_class.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="180" data-file-height="185" /></span></span>&#160;Category: Terbium<br /><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1333133064" /><link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1239400231" /><div class="navbar plainlinks hlist"><ul><li class="nv-view"><span title="View this template">view</span></li><li class="nv-talk"><span title="Discuss this template">talk</span></li><li class="nv-edit"><span title="Edit this template">edit</span></li></ul></div>&#x20;|&#x20;references</td></tr></tbody></table>
+<p><b>Terbium</b> is a chemical element; it has symbol <b>Tb</b> and atomic number 65. It is a silvery-white, rare earth metal that is malleable and ductile. The ninth member of the lanthanide series, terbium is a fairly electropositive metal that reacts with water, evolving <a href="/school1/ptable/element/H" class="wiki-link" title="Hydrogen (H)">hydrogen</a> gas. Terbium is never found in nature as a free element, but it is contained in many minerals, including cerite, gadolinite, monazite, xenotime and euxenite.
+</p><p>Swedish chemist Carl Gustaf Mosander discovered terbium as a chemical element in 1843. He detected it as an impurity in <a href="/school1/ptable/element/Y" class="wiki-link" title="Yttrium (Y)">yttrium</a> oxide (<style data-mw-deduplicate="TemplateStyles:r1123817410">.mw-parser-output .template-chem2-su{display:inline-block;font-size:80%;line-height:1;vertical-align:-0.35em}.mw-parser-output .template-chem2-su>span{display:block;text-align:left}.mw-parser-output sub.template-chem2-sub{font-size:80%;vertical-align:-0.35em}.mw-parser-output sup.template-chem2-sup{font-size:80%;vertical-align:0.65em}</style><span class="chemf nowrap">Y<sub class="template-chem2-sub">2</sub>O<sub class="template-chem2-sub">3</sub></span>). <a href="/school1/ptable/element/Y" class="wiki-link" title="Yttrium (Y)">Yttrium</a> and terbium, as well as <a href="/school1/ptable/element/Er" class="wiki-link" title="Erbium (Er)">erbium</a> and <a href="/school1/ptable/element/Yb" class="wiki-link" title="Ytterbium (Yb)">ytterbium</a>, are named after the village of Ytterby in Sweden. Terbium was not isolated in pure form until the advent of ion exchange techniques.
+</p><p>Terbium is used to dope <a href="/school1/ptable/element/Ca" class="wiki-link" title="Calcium (Ca)">calcium</a> fluoride, <a href="/school1/ptable/element/Ca" class="wiki-link" title="Calcium (Ca)">calcium</a> tungstate and <a href="/school1/ptable/element/Sr" class="wiki-link" title="Strontium (Sr)">strontium</a> molybdate in solid-state devices, and as a crystal stabilizer of fuel cells that operate at elevated temperatures. As a component of Terfenol-D (an alloy that expands and contracts when exposed to magnetic fields more than any other alloy), terbium is of use in actuators, in naval sonar systems and in sensors. Terbium is considered non-hazardous, though its biological role and toxicity have not been researched in depth.
+</p><p>Most of the world's terbium supply is used in green phosphors. Terbium oxide is used in fluorescent lamps and television and monitor cathode-ray tubes (CRTs). Terbium green phosphors are combined with divalent <a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">europium</a> blue phosphors and trivalent <a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">europium</a> red phosphors to provide trichromatic lighting technology, a high-efficiency white light used in indoor lighting.
+</p>
+<meta property="mw:PageProp/toc" />
+<div class="mw-heading mw-heading2">
+
+SECTIONS:
+{
+  "Characteristics": "<div class=\"mw-heading mw-heading3\">",
+  "Physical properties": "<p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> is a silvery-white rare earth metal that is malleable, ductile and soft enough to be cut with a knife. It is relatively stable in air compared to the more reactive lanthanides in the first half of the lanthanide series. <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> exists in two crystal allotropes with a transformation temperature of 1289&#160;\u00b0C between them. The 65 electrons of a <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a> atom are arranged in the electron configuration [Xe]4f<sup>9</sup>6s<sup>2</sup>. The eleven 4f and 6s electrons are valence. Only three electrons can be removed before the nuclear charge becomes too great to allow further ionization, but in the case of terbium, the stability of the half-filled [Xe]4f<sup>7</sup> configuration allows further ionization of a fourth electron in the presence of very strong oxidizing agents such as <a href=\"/school1/ptable/element/F\" class=\"wiki-link\" title=\"Fluorine (F)\">fluorine</a> gas.\n</p><p>The terbium(III) cation (Tb<sup>3+</sup>) is brilliantly fluorescent, in a bright lemon-yellow color that is the result of a strong green emission line in combination with other lines in the orange and red. The yttrofluorite variety of the mineral fluorite owes its creamy-yellow fluorescence in part to terbium. Terbium easily oxidizes, and is therefore used in its elemental form specifically for research. Single terbium atoms have been isolated by implanting them into fullerene molecules. Trivalent <a href=\"/school1/ptable/element/Eu\" class=\"wiki-link\" title=\"Europium (Eu)\">europium</a> (Eu<sup>3+</sup>) and Tb<sup>3+</sup> ions are among the lanthanide ions that have garnered the most attention because of their strong luminosity and great color purity.\n</p><p>Terbium has a simple ferromagnetic ordering at temperatures below 219&#160;K. Above 219&#160;K, it turns into a helical antiferromagnetic state in which all of the atomic moments in a particular basal plane layer are parallel and oriented at a fixed angle to the moments of adjacent layers. This antiferromagnetism transforms into a disordered paramagnetic state at 230&#160;K.\n</p>\n<div class=\"mw-heading mw-heading3\">",
+  "Chemical properties": "<p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> metal is an electropositive element and oxidizes in the presence of most acids (such as sulfuric acid), all of the halogens, and water.\n</p>\n<dl><dd><link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">2 Tb (s) + 3 H<sub class=\"template-chem2-sub\">2</sub>SO<sub class=\"template-chem2-sub\">4</sub> \u2192 2 Tb<sup>3+</sup> + 3 SO<span class=\"template-chem2-su\"><span>2\u2212</span><span>4</span></span> + 3 H<sub class=\"template-chem2-sub\">2</sub>\u2191</span></dd>\n<dd><link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">2 Tb + 3 X<sub class=\"template-chem2-sub\">2</sub> \u2192 2 TbX<sub class=\"template-chem2-sub\">3</sub> (X = F, Cl, Br, I)</span></dd>\n<dd><link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">2 Tb (s) + 6 H<sub class=\"template-chem2-sub\">2</sub>O \u2192 2 Tb(OH)<sub class=\"template-chem2-sub\">3</sub> + 3 H<sub class=\"template-chem2-sub\">2</sub>\u2191</span></dd></dl>\n<p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> oxidizes readily in air to form a mixed <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a>(III,IV) oxide:\n</p>\n<dl><dd><link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">8 Tb + 7 O<sub class=\"template-chem2-sub\">2</sub> \u2192 2 Tb<sub class=\"template-chem2-sub\">4</sub>O<sub class=\"template-chem2-sub\">7</sub></span></dd></dl>\n<p>The most common oxidation state of terbium is +3 (trivalent), such as in <span class=\"chemf nowrap\">TbCl<span class=\"nowrap\"><span style=\"display:inline-block;margin-bottom:-0.3em;vertical-align:-0.4em;line-height:1em;font-size:80%;text-align:left\"><sup style=\"font-size:inherit;line-height:inherit;vertical-align:baseline\"></sup><br /><sub style=\"font-size:inherit;line-height:inherit;vertical-align:baseline\">3</sub></span></span></span>. In the solid state, tetravalent terbium is also known, in compounds such as terbium oxide (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">TbO<sub class=\"template-chem2-sub\">2</sub></span>) and terbium tetrafluoride. In solution, terbium typically forms trivalent species, but can be oxidized to the tetravalent state with ozone in highly basic aqueous conditions.\n</p><p>The coordination and organometallic chemistry of terbium is similar to other lanthanides. In aqueous conditions, terbium can be coordinated by nine water molecules, which are arranged in a tricapped trigonal prismatic molecular geometry. Complexes of terbium with lower coordination number are also known, typically with bulky ligands like bis(trimethylsilyl)amide, which forms the three-coordinate tris[N,N-bis(trimethylsilyl)amide]terbium(III) (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">Tb&#91;N(SiMe<sub class=\"template-chem2-sub\">3</sub>)<sub class=\"template-chem2-sub\">2</sub>]<sub class=\"template-chem2-sub\">3</sub></span>) complex.\n</p><p>Most coordination and organometallic complexes contain terbium in the trivalent oxidation state. Divalent Tb<sup>2+</sup> complexes are also known, usually with bulky cyclopentadienyl-type ligands. A few coordination compounds containing terbium in its tetravalent state are also known.\n</p>\n<div class=\"mw-heading mw-heading4\">",
+  "Isotopes": "<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1368532237\" /><div role=\"note\" class=\"hatnote navigation-not-searchable\">Main article: Isotopes of <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a></div>\n<p>Naturally occurring <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a> is composed of its only stable isotope, <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a>-159; the element is thus mononuclidic and monoisotopic. Thirty-nine radioisotopes have been characterized from <sup>135</sup>Tb to <sup>174</sup>Tb. The most stable synthetic radioisotopes of terbium are <sup>158</sup>Tb, with a half-life of 180 years, and <sup>157</sup>Tb, with a half-life of 71 years. All of the remaining radioactive isotopes have half-lives that are less than three months, and the majority of these have half-lives that are less than half a minute. The primary decay mode before the most abundant stable isotope, <sup>159</sup>Tb, is electron capture, which results in production of <a href=\"/school1/ptable/element/Gd\" class=\"wiki-link\" title=\"Gadolinium (Gd)\">gadolinium</a> isotopes, and the primary mode after is beta minus decay, resulting in <a href=\"/school1/ptable/element/Dy\" class=\"wiki-link\" title=\"Dysprosium (Dy)\">dysprosium</a> isotopes.\n</p><p>The element also has 31 nuclear isomers, with masses of 141\u2013154, 156, 158, 162, and 164\u2013168 (not every mass number corresponds to only one isomer). The most stable of them are terbium-156m2, with a half-life of 24.4 hours, and terbium-154m2, with a half-life of 22.7 hours; this is more stable than ground states of terbium isotopes, except outside the mass range 155\u2013161.\n</p><p>Terbium-149, with its half-life of 4.1 hours, is a promising candidate in targeted alpha therapy and positron emission tomography.\n</p>\n<div class=\"mw-heading mw-heading2\">",
+  "History": "<figure class=\"mw-default-size mw-halign-right\" typeof=\"mw:File/Thumb\"><img src=\"/school1/ptable/theme-assets/default/images/inline/53292799e0d52fb166ed9101ecdc3f32.jpg\" decoding=\"async\" width=\"250\" height=\"305\" class=\"mw-file-element\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Mosander_Carl_Gustav_bw.jpg/500px-Mosander_Carl_Gustav_bw.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"1560\" data-file-height=\"1902\" /><figcaption>Carl Gustaf Mosander, the scientist who discovered <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a>, <a href=\"/school1/ptable/element/La\" class=\"wiki-link\" title=\"Lanthanum (La)\">lanthanum</a> and <a href=\"/school1/ptable/element/Er\" class=\"wiki-link\" title=\"Erbium (Er)\">erbium</a></figcaption></figure>\n<p>Swedish chemist Carl Gustaf Mosander discovered <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a> in 1843. He detected it as an impurity in <a href=\"/school1/ptable/element/Y\" class=\"wiki-link\" title=\"Yttrium (Y)\">yttrium</a> oxide, <link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">Y<sub class=\"template-chem2-sub\">2</sub>O<sub class=\"template-chem2-sub\">3</sub></span>, then known as yttria. <a href=\"/school1/ptable/element/Y\" class=\"wiki-link\" title=\"Yttrium (Y)\">Yttrium</a>, <a href=\"/school1/ptable/element/Er\" class=\"wiki-link\" title=\"Erbium (Er)\">erbium</a>, and <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a> are all named after the village of Ytterby in Sweden. Terbium was not isolated in pure form until the advent of ion exchange techniques.\n</p><p>Mosander first separated yttria into three fractions, all named for the ore: yttria, erbia, and terbia. \"Terbia\" was originally the fraction that contained the pink color, due to the element now known as <a href=\"/school1/ptable/element/Er\" class=\"wiki-link\" title=\"Erbium (Er)\">erbium</a>. \"Erbia\", the oxide containing what is now known as terbium, originally was the fraction that was yellow or dark orange in solution. The insoluble oxide of this element was noted to be tinged brown, and soluble oxides after combustion were noted to be colorless. Until the advent of spectral analysis, arguments went back and forth as to whether erbia even existed. Spectral analysis by Marc Delafontaine allowed the separate elements and their oxides to be identified, but in his publications, the names of erbium and terbium were switched, following a brief period where terbium was renamed \"mosandrum\", after Mosander. The names have remained switched ever since.\n</p><p>The early years of preparing terbium (as terbium oxide) were difficult. Metal oxides from gadolinite and samarskite were dissolved in nitric acid, and the solution was further separated using oxalic acid and <a href=\"/school1/ptable/element/K\" class=\"wiki-link\" title=\"Potassium (K)\">potassium</a> sulfate. There was great difficulty in separating erbia from terbia; in 1881, it was noted that there was no satisfactory method to separate the two. By 1914, different solvents had been used to separate terbium from its host minerals, but the process of separating terbium from its neighbor elements - <a href=\"/school1/ptable/element/Gd\" class=\"wiki-link\" title=\"Gadolinium (Gd)\">gadolinium</a> and <a href=\"/school1/ptable/element/Dy\" class=\"wiki-link\" title=\"Dysprosium (Dy)\">dysprosium</a> - was described as \"tedious\" but possible. Modern terbium extraction methods are based on the liquid\u2013liquid extraction process developed by Werner Fischer et al., in 1937.\n</p>\n<div class=\"mw-heading mw-heading2\">",
+  "Occurrence": "<figure class=\"mw-default-size\" typeof=\"mw:File/Thumb\"><img alt=\"A sample of the mineral xenotime at the Mineralogical Museum, Bonn, Germany\" src=\"/school1/ptable/theme-assets/default/images/inline/73cbb39f0017bedc6cc70ba058963447.jpg\" decoding=\"async\" width=\"250\" height=\"207\" class=\"mw-file-element\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Xenotim_mineralogisches_museum_bonn.jpg/500px-Xenotim_mineralogisches_museum_bonn.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"2000\" data-file-height=\"1656\" /><figcaption>Xenotime, a mineral source of rare earth elements including <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a></figcaption></figure>\n<p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> occurs with other rare earth elements in many minerals, including monazite (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">(Ce,La,Th,Nd,Y)PO<sub class=\"template-chem2-sub\">4</sub></span> with up to 0.03% <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a>), xenotime (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">YPO<sub class=\"template-chem2-sub\">4</sub></span>) and euxenite (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">(Y,Ca,Er,La,Ce,U,Th)(Nb,Ta,Ti)<sub class=\"template-chem2-sub\">2</sub>O<sub class=\"template-chem2-sub\">6</sub></span> with 1% or more terbium). The crust abundance of terbium is estimated as 1.2&#160;mg/kg. No terbium-dominant mineral has yet been found.\n</p><p>Terbium (as the species Tb II) has been detected in the atmosphere of KELT-9b, a hot-Jupiter planet outside the Solar System.\n</p><p>Currently, the richest commercial sources of terbium are the ion-adsorption clays of southern China; the concentrates with about two-thirds <a href=\"/school1/ptable/element/Y\" class=\"wiki-link\" title=\"Yttrium (Y)\">yttrium</a> oxide by weight have about 1% terbia. Small amounts of terbium occur in bastn\u00e4site and monazite; when these are processed by solvent extraction to recover the valuable heavy lanthanides as <a href=\"/school1/ptable/element/Sm\" class=\"wiki-link\" title=\"Samarium (Sm)\">samarium</a>-<a href=\"/school1/ptable/element/Eu\" class=\"wiki-link\" title=\"Europium (Eu)\">europium</a>-<a href=\"/school1/ptable/element/Gd\" class=\"wiki-link\" title=\"Gadolinium (Gd)\">gadolinium</a> concentrate, terbium is recovered therein. Due to the large volumes of bastn\u00e4site processed relative to the ion-adsorption clays, a significant proportion of the world's terbium supply comes from bastn\u00e4site.\n</p><p>In 2018, a rich terbium supply was discovered off the coast of Japan's Minamitori Island, with the stated supply being \"enough to meet the global demand for 420 years\".\n</p>\n<div class=\"mw-heading mw-heading2\">",
+  "Applications": "<p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> is used as a dopant in <a href=\"/school1/ptable/element/Ca\" class=\"wiki-link\" title=\"Calcium (Ca)\">calcium</a> fluoride, <a href=\"/school1/ptable/element/Ca\" class=\"wiki-link\" title=\"Calcium (Ca)\">calcium</a> tungstate, and <a href=\"/school1/ptable/element/Sr\" class=\"wiki-link\" title=\"Strontium (Sr)\">strontium</a> molybdate, materials that are used in solid-state devices, and as a crystal stabilizer of fuel cells which operate at elevated temperatures, together with <a href=\"/school1/ptable/element/Zr\" class=\"wiki-link\" title=\"Zirconium (Zr)\">zirconium</a> dioxide (<link rel=\"mw-deduplicated-inline-style\" href=\"mw-data:TemplateStyles:r1123817410\" /><span class=\"chemf nowrap\">ZrO<sub class=\"template-chem2-sub\">2</sub></span>).\n</p><p><a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">Terbium</a> is also used in alloys and in the production of electronic devices. As a component of Terfenol-D, <a href=\"/school1/ptable/element/Tb\" class=\"wiki-link\" title=\"Terbium (Tb)\">terbium</a> is used in actuators, in naval sonar systems, sensors, and other magnetomechanical devices. Terfenol-D is a terbium alloy that expands or contracts in the presence of a magnetic field. It has the highest magnetostriction of any alloy. It is used to increase verdet constant in long-distance fiber optic communication. Terbium-doped garnets are also used in optical isolators, which prevents reflected light from traveling back along the optical fiber.\n</p><p>Terbium oxides are used in green phosphors in fluorescent lamps, color TV tubes, and flat screen monitors. Terbium, along with all other lanthanides except <a href=\"/school1/ptable/element/La\" class=\"wiki-link\" title=\"Lanthanum (La)\">lanthanum</a> and <a href=\"/school1/ptable/element/Lu\" class=\"wiki-link\" title=\"Lutetium (Lu)\">lutetium</a>, is luminescent in the 3+ oxidation state. The brilliant fluorescence allows terbium to be used as a probe in biochemistry, where it somewhat resembles <a href=\"/school1/ptable/element/Ca\" class=\"wiki-link\" title=\"Calcium (Ca)\">calcium</a> in its behavior. Terbium \"green\" phosphors (which fluoresce a brilliant lemon-yellow) are combined with divalent <a href=\"/school1/ptable/element/Eu\" class=\"wiki-link\" title=\"Europium (Eu)\">europium</a> blue phosphors and trivalent <a href=\"/school1/ptable/element/Eu\" class=\"wiki-link\" title=\"Europium (Eu)\">europium</a> red phosphors to provide trichromatic lighting, which is by far the largest consumer of the world's terbium supply. Trichromatic lighting provides much higher light output for a given amount of electrical energy than does incandescent lighting.\n</p><p>In 2023, terbium compounds were used to create a lattice with a single <a href=\"/school1/ptable/element/Fe\" class=\"wiki-link\" title=\"Iron (Fe)\">iron</a> atom that was then examined by synchrotron x-ray beam. This was the first successful attempt to characterize a single atom at sub-atomic levels.\n</p>\n<div class=\"mw-heading mw-heading2\">"
+}

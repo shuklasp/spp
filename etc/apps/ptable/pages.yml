@@ -1,0 +1,51 @@
+defaults:
+  home: home
+  pagedir: /src/ptable
+specials:
+  -
+    name: resources
+    method: serveResource
+pages:
+  app:
+    url: index.php
+    special: 1
+  home:
+    controller: \App\ptable\Serv\HomeController@index
+  'element/{symbol}':
+    controller: \App\ptable\Serv\HomeController@element
+  'element/{symbol}/study':
+    controller: \App\ptable\Serv\HomeController@study
+  'element/{symbol}/compounds':
+    controller: \App\ptable\Serv\CompoundController@explore
+  compounds:
+    controller: \App\ptable\Serv\CompoundController@index
+  'compound/{id}':
+    controller: \App\ptable\Serv\CompoundController@show
+  about:
+    controller: \App\ptable\Serv\HomeController@about
+  guide:
+    url: pages/guide.php
+  dashboard:
+    controller: \App\ptable\Serv\DashboardController@index
+  login:
+    controller: \App\ptable\Serv\AuthController@loginForm
+  auth/login:
+    controller: \App\ptable\Serv\AuthController@login
+  auth/logout:
+    controller: \App\ptable\Serv\AuthController@logout
+  api/v1/items:
+    controller: \App\ptable\Serv\ApiController@index
+  'api/v1/items/{id}':
+    controller: \App\ptable\Serv\ApiController@show
+  contact:
+    url: pages/contact.php
+  error/404:
+    url: pages/errors/404.php
+  error/500:
+    url: pages/errors/500.php
+  assets:
+    assets: assets
+  theme-assets:
+    assets: resources/themes
+  comp-assets:
+    assets: comp

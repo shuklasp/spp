@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "target": "ESNext",
+        "module": "ESNext",
+        "checkJs": false,
+        "allowJs": true,
+        "plugins": [
+            {
+                "name": "ts-lit-plugin",
+                "tags": [
+                    "html",
+                    "TrustedHTML"
+                ]
+            }
+        ]
+    },
+    "include": [
+        "**/*.js"
+    ],
+    "exclude": [
+        "node_modules",
+        "vendor"
+    ]
+}

@@ -1,0 +1,13 @@
+<?php
+declare(strict_types=1);
+
+namespace {{namespace}};
+
+use SPPMod\SPPView\LiveForm;
+use SPP\Attributes\Validate;
+
+class {{className}} extends LiveForm
+{
+    // #[Validate('required')]
+    // public string $name = '';
+}

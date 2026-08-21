@@ -1,0 +1,140 @@
+164654
+  -OEChem-08152606392D
+
+ 20 15  0     0  0  0  0  0  0999 V2000
+    5.4641    1.8261    0.0000 La  0  1  0  0  0  0  0  0  0  0  0  0
+    3.7321   -2.1739    0.0000 La  0  1  0  0  0  0  0  0  0  0  0  0
+    5.4641    0.8261    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    3.7321   -1.1739    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    4.5981   -2.6739    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    2.8660   -2.6739    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    4.6551    2.4139    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    6.2731    2.4139    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    3.7321    0.8261    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641   -1.1739    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641   -4.1739    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000   -4.1739    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.3763    4.1739    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    6.5519    4.1739    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981    0.3261    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981   -0.6739    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981   -3.6739    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8660   -3.6739    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.9641    3.3649    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.9641    3.3649    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+  3 15  1  0  0  0  0
+  4 16  1  0  0  0  0
+  5 17  1  0  0  0  0
+  6 18  1  0  0  0  0
+  7 19  1  0  0  0  0
+  8 20  1  0  0  0  0
+  9 15  2  0  0  0  0
+ 10 16  2  0  0  0  0
+ 11 17  2  0  0  0  0
+ 12 18  2  0  0  0  0
+ 13 19  2  0  0  0  0
+ 14 20  2  0  0  0  0
+ 15 16  1  0  0  0  0
+ 17 18  1  0  0  0  0
+ 19 20  1  0  0  0  0
+M  CHG  8   1   3   2   3   3  -1   4  -1   5  -1   6  -1   7  -1   8  -1
+M  END
+> <PUBCHEM_COMPOUND_CID>
+164654
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+60.5
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+12
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQBgPAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACgAAAAAAAAAAgAAACAAAAAAIAACQCAIAAAAAAAAAAABAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+bis(lanthanum(3+));oxalate
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+bis(lanthanum(3+));oxalate
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+bis(lanthanum(3+));oxalate
+
+> <PUBCHEM_IUPAC_NAME>
+bis(lanthanum(3+));oxalate
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+tris(ethanedioate);bis(lanthanum(3+))
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+bis(lanthanum(3+));oxalate
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/3C2H2O4.2La/c3*3-1(4)2(5)6;;/h3*(H,3,4)(H,5,6);;/q;;;2*+3/p-6
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+OXHNIMPTBAKYRS-UHFFFAOYSA-H
+
+> <PUBCHEM_EXACT_MASS>
+541.75170
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+C6La2O12
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+541.87
+
+> <PUBCHEM_SMILES>
+C(=O)(C(=O)[O-])[O-].C(=O)(C(=O)[O-])[O-].C(=O)(C(=O)[O-])[O-].[La+3].[La+3]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+C(=O)(C(=O)[O-])[O-].C(=O)(C(=O)[O-])[O-].C(=O)(C(=O)[O-])[O-].[La+3].[La+3]
+
+> <PUBCHEM_CACTVS_TPSA>
+241
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+541.75170
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+20
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+5
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

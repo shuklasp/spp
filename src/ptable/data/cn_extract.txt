@@ -1,0 +1,4 @@
+Symbol: Cn
+Name: Copernicium
+History: <div class="mw-heading mw-heading3">
+Extract: 

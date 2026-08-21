@@ -1,0 +1,27 @@
+.TH SPP-admin-auth 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+admin:auth
+.PP
+ \- Manage Admin Auth operations. Usage: admin:auth <action> [--payload=...] [--json]
+.SH DESCRIPTION
+Manage Admin Auth operations. Usage: admin:auth <action> [--payload=...] [--json]
+.PP
+.SH SYNOPSIS
+php spp.php admin:auth [OPTIONS]
+.PP
+.SH OPTIONS
+\(bu `--spp_admin_fallback` : Boolean flag or option. Extracted via static analysis.
+.br
+\(bu `--spp_admin_user` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates internal components: \SPPMod\SPPAuth\SPPUser, \SPPMod\SPPDB\SPPDB.
+.br
+.PP
+.PP

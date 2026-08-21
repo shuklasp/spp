@@ -1,0 +1,20 @@
+.TH OPTIMIZE:UX 1 "August 2026" "SPP CLI" "SPP Commands Manual"
+.SH NAME
+optimize:ux \- Pre-compile SPP-UX templates Ahead-Of-Time (AOT)
+.SH SYNOPSIS
+.B php spp.php optimize:ux
+[\fI--app=AppName\fR]
+.SH DESCRIPTION
+SPP-UX operates in a zero-build-step environment. By default, SPP-UX parses tagged template literals (html`...`) using Regex and document.createTreeWalker directly in the browser on the first mount. 
+The \fBoptimize:ux\fR command statically analyzes .js files, extracts the template strings, and computes fine-grained PartDescriptor metadata on the server. It writes this to a globally available JS cache, allowing the client browser to skip the JIT parsing phase entirely, achieving boot speeds comparable to Vue 3.
+.SH OPTIONS
+.TP
+\fB\-\-app=\fR\fIAppName\fR
+Specify the application directory to scan in addition to the core framework components. Defaults to 'default'.
+.SH UNDER THE HOOD
+- Scans spp/modules/spp/drishyam/js/ and src/<AppName>/ for .js files.
+- Employs Regex to extract html template strings.
+- Leverages PHP's DOMDocument and DOMXPath to compute accurate TreeWalker path metadata.
+- Writes the compiled cache to public/sppux-cache.js.
+.SH AUTHOR
+SPP Framework Team

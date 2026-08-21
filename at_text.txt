@@ -1,0 +1,516 @@
+--- EXTRACT ---
+
+
+
+Chemical element with atomic number 85 (At)@media(min-width:640px){.mw-parser-output .infobox{margin-left:1em;float:right;clear:right;width:22em}}.mw-parser-output .infobox-subbox{padding:0;border:none;margin:-3px;width:auto;min-width:100%;font-size:100%;clear:none;float:none;background-color:transparent;color:inherit}.mw-parser-output .infobox-3cols-child{margin:-3px}.mw-parser-output .infobox .navbar{font-size:100%}.mw-parser-output .infobox-hiddenrow,body.skin--responsive.skin--responsive .mw-parser-output .infobox .infobox-hiddenrow{display:none}@media screen{html.skin-theme-clientpref-night .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media screen and (prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media(min-width:640px){body.skin--responsive .mw-parser-output .infobox-table{display:table!important}body.skin--responsive .mw-parser-output .infobox-table>caption{display:table-caption!important}body.skin--responsive .mw-parser-output .infobox-table>tbody{display:table-row-group}body.skin--responsive .mw-parser-output .infobox-table th,body.skin--responsive .mw-parser-output .infobox-table td{padding-left:inherit;padding-right:inherit}}.mw-parser-output .ib-element-periodic-table{background-color:var(--background-color-neutral-subtle,#f8f9fa);border:1px solid var(--border-color-base,#a2a9b1);text-align:center;padding:0.4em;display:grid;justify-content:center;align-items:center;grid-template-columns:min-content min-content;gap:0.2em}.mw-parser-output .ib-element-periodic-table-symbol,.mw-parser-output .ib-element-periodic-table-name{font-size:90%;line-height:100%}.mw-parser-output .ib-element-periodic-table-name{grid-column:1/3}.mw-parser-output .ib-element .isotopes-table{display:table}.mw-parser-output .ib-element-vapor-pressure{display:table;text-align:center;font-size:90%;border-collapse:collapse;margin:0 auto}body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure th,body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure td{padding:0.2em}Astatine,&#160;85AtAstatinePronunciation/ˈæstətiːn, -tɪn/&#32;ⓘ&#x20;&#8203;(AS-tə-teen, -&#8288;tin)Appearanceunknown, probably metallicMass number[210]Astatine in the periodic table
+.mw-parser-output .periodic-table-32-micro,.mw-parser-output .periodic-table-32-micro-119{margin:0;padding:0;empty-cells:hide;border-spacing:1px;text-align:center}.mw-parser-output .periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro td,.mw-parser-output .periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119 td{border:none;padding:0}.mw-parser-output .periodic-table-32-micro-insert-cell-gt118{width:6px;min-width:6px}.mw-parser-output .periodic-table-32-micro-no-insert-cell-gt118{width:0}.mw-parser-output .periodic-table-32-micro-119-dot{float:left;margin:3px 2px;background:var(--color-emphasized,black);width:2px;height:2px}.mw-parser-output .periodic-table-32-micro-119-spacer{width:1px;height:4px}
+
+
+Hydrogen
+
+
+
+Helium
+
+
+Lithium
+
+Beryllium
+
+
+
+Boron
+
+Carbon
+
+Nitrogen
+
+Oxygen
+
+Fluorine
+
+Neon
+
+
+Sodium
+
+Magnesium
+
+
+
+Aluminium
+
+Silicon
+
+Phosphorus
+
+Sulfur
+
+Chlorine
+
+Argon
+
+
+Potassium
+
+Calcium
+
+
+
+Scandium
+
+Titanium
+
+Vanadium
+
+Chromium
+
+Manganese
+
+Iron
+
+Cobalt
+
+Nickel
+
+Copper
+
+Zinc
+
+Gallium
+
+Germanium
+
+Arsenic
+
+Selenium
+
+Bromine
+
+Krypton
+
+
+Rubidium
+
+Strontium
+
+
+
+
+
+Yttrium
+
+Zirconium
+
+Niobium
+
+Molybdenum
+
+Technetium
+
+Ruthenium
+
+Rhodium
+
+Palladium
+
+Silver
+
+Cadmium
+
+Indium
+
+Tin
+
+Antimony
+
+Tellurium
+
+Iodine
+
+Xenon
+
+
+Caesium
+
+Barium
+
+Lanthanum
+
+Cerium
+
+Praseodymium
+
+Neodymium
+
+Promethium
+
+Samarium
+
+Europium
+
+Gadolinium
+
+Terbium
+
+Dysprosium
+
+Holmium
+
+Erbium
+
+Thulium
+
+Ytterbium
+
+Lutetium
+
+Hafnium
+
+Tantalum
+
+Tungsten
+
+Rhenium
+
+Osmium
+
+Iridium
+
+Platinum
+
+Gold
+
+Mercury (element)
+
+Thallium
+
+Lead
+
+Bismuth
+
+Polonium
+
+Astatine
+
+Radon
+
+
+Francium
+
+Radium
+
+Actinium
+
+Thorium
+
+Protactinium
+
+Uranium
+
+Neptunium
+
+Plutonium
+
+Americium
+
+Curium
+
+Berkelium
+
+Californium
+
+Einsteinium
+
+Fermium
+
+Mendelevium
+
+Nobelium
+
+Lawrencium
+
+Rutherfordium
+
+Dubnium
+
+Seaborgium
+
+Bohrium
+
+Hassium
+
+Meitnerium
+
+Darmstadtium
+
+Roentgenium
+
+Copernicium
+
+Nihonium
+
+Flerovium
+
+Moscovium
+
+Livermorium
+
+Tennessine
+
+Oganesson
+
+
+&#160;I&#160;↑At↓Ts
+polonium ← astatine → radon
+Atomic number (Z)85Groupgroup&#160;17 (halogens)Periodperiod&#160;6Block&#160; p-blockElectron configuration&#91;Xe&#93; 4f14 5d10 6s2 6p5Electrons per shell2, 8, 18, 32, 18, 7Physical propertiesPhase .mw-parser-output .nobold{font-weight:normal}at&#160;STPsolid (predicted)Density&#x20;(near&#160;r.t.)8.91–8.95&#160;g/cm3&#x20;(estimated)Molar volume23.6&#160;cm3/mol&#x20;(estimated)Atomic propertiesOxidation statescommon: −1, +1
++3, +5, +7Ionization energies.mw-parser-output .plainlist ol,.mw-parser-output .plainlist ul{line-height:inherit;list-style:none;margin:0;padding:0}.mw-parser-output .plainlist ol li,.mw-parser-output .plainlist ul li{margin-bottom:0}1st:&#160;899.003&#160;kJ/mol&#x20;&#x20;Other propertiesNatural occurrencefrom decayCrystal structure&#x20;&#x200b;face-centered cubic (fcc)(predicted)CAS Number7440-68-8&#x20;HistoryNamingAncient Greek ástatos (ἄστατος) 'unstable'DiscoveryDale R. Corson, Kenneth Ross MacKenzie, Emilio Segrè&#x20;(1940)Isotopes of astatine.mw-parser-output .hlist dl,.mw-parser-output .hlist ol,.mw-parser-output .hlist ul{margin:0;padding:0}.mw-parser-output .hlist dd,.mw-parser-output .hlist dt,.mw-parser-output .hlist li{margin:0;display:inline}.mw-parser-output .hlist.inline,.mw-parser-output .hlist.inline dl,.mw-parser-output .hlist.inline ol,.mw-parser-output .hlist.inline ul,.mw-parser-output .hlist dl dl,.mw-parser-output .hlist dl ol,.mw-parser-output .hlist dl ul,.mw-parser-output .hlist ol dl,.mw-parser-output .hlist ol ol,.mw-parser-output .hlist ol ul,.mw-parser-output .hlist ul dl,.mw-parser-output .hlist ul ol,.mw-parser-output .hlist ul ul{display:inline}.mw-parser-output .hlist .mw-empty-li{display:none}.mw-parser-output .hlist dt::after{content:": "}.mw-parser-output .hlist dd::after,.mw-parser-output .hlist li::after{content:"\a0 · ";font-weight:bold}.mw-parser-output .hlist dd:last-child::after,.mw-parser-output .hlist dt:last-child::after,.mw-parser-output .hlist li:last-child::after{content:none}.mw-parser-output .hlist dd dd:first-child::before,.mw-parser-output .hlist dd dt:first-child::before,.mw-parser-output .hlist dd li:first-child::before,.mw-parser-output .hlist dt dd:first-child::before,.mw-parser-output .hlist dt dt:first-child::before,.mw-parser-output .hlist dt li:first-child::before,.mw-parser-output .hlist li dd:first-child::before,.mw-parser-output .hlist li dt:first-child::before,.mw-parser-output .hlist li li:first-child::before{content:" (";font-weight:normal}.mw-parser-output .hlist dd dd:last-child::after,.mw-parser-output .hlist dd dt:last-child::after,.mw-parser-output .hlist dd li:last-child::after,.mw-parser-output .hlist dt dd:last-child::after,.mw-parser-output .hlist dt dt:last-child::after,.mw-parser-output .hlist dt li:last-child::after,.mw-parser-output .hlist li dd:last-child::after,.mw-parser-output .hlist li dt:last-child::after,.mw-parser-output .hlist li li:last-child::after{content:")";font-weight:normal}.mw-parser-output .hlist ol{counter-reset:listitem}.mw-parser-output .hlist ol>li{counter-increment:listitem}.mw-parser-output .hlist ol>li::before{content:" "counter(listitem)"\a0 "}.mw-parser-output .hlist dd ol>li:first-child::before,.mw-parser-output .hlist dt ol>li:first-child::before,.mw-parser-output .hlist li ol>li:first-child::before{content:" ("counter(listitem)"\a0 "}.mw-parser-output .navbar{display:inline;font-size:88%;font-weight:normal}.mw-parser-output .navbar-collapse{float:left;text-align:left}.mw-parser-output .navbar-boxtext{word-spacing:0}.mw-parser-output .navbar ul{display:inline-block;white-space:nowrap;line-height:inherit}.mw-parser-output .navbar-brackets::before{margin-right:-0.125em;content:"[ "}.mw-parser-output .navbar-brackets::after{margin-left:-0.125em;content:" ]"}.mw-parser-output .navbar li{word-spacing:-0.125em}.mw-parser-output .navbar a>span,.mw-parser-output .navbar a>abbr{text-decoration:inherit}.mw-parser-output .navbar-mini abbr{font-variant:small-caps;border-bottom:none;text-decoration:none;cursor:inherit}.mw-parser-output .navbar-ct-full{font-size:114%;margin:0 7em}.mw-parser-output .navbar-ct-mini{font-size:114%;margin:0 4em}html.skin-theme-clientpref-night .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}@media(prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}}@media print{.mw-parser-output .navbar{display:none!important}}ve.mw-parser-output .ib-isotopes .infobox-header{background:#e0e0e0;color:inherit}.mw-parser-output .ib-isotopes .infobox-below{background:#e8e8e8;color:inherit}.mw-parser-output .ib-isotopes .isotopes-table{display:table}.mw-parser-output .isotopes-table{text-align:center;width:100%;border-collapse:collapse;margin:0;padding:0}.mw-parser-output .isotopes-table-headers>:not(:first-child){padding:0.1em}.mw-parser-output .isotopes-table-footnote{text-align:left;padding-left:0.5em;background:var(--background-color-neutral-subtle,#f8f9fa);color:inherit}body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table th,body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table td{padding:0.1em}
+
+
+
+Main isotopes
+
+Decay
+
+
+.mw-parser-output .sr-only{border:0;clip:rect(0,0,0,0);clip-path:polygon(0px 0px,0px 0px,0px 0px);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap}Isotope
+
+abun&#173;dance
+
+half-life (t1/2)
+
+mode
+
+pro&#173;duct
+
+
+207At
+
+synth
+
+1.81&#160;h
+
+β+90%
+
+207Po
+
+
+α10%
+
+203Bi
+
+
+208At
+
+synth
+
+1.63&#160;h
+
+β+99.5%
+
+208Po
+
+
+α0.55%
+
+204Bi
+
+
+209At
+
+synth
+
+5.41&#160;h
+
+β+96.1%
+
+209Po
+
+
+α3.9%
+
+205Bi
+
+
+210At
+
+synth
+
+8.1&#160;h
+
+β+99.8%
+
+210Po
+
+
+α0.175%
+
+206Bi
+
+
+211At
+
+synth
+
+7.214&#160;h
+
+ε58.2%
+
+211Po
+
+
+α41.8%
+
+207Bi
+
+&#160;Category: Astatineviewtalkedit&#x20;|&#x20;references
+Astatine is a chemical element; it has symbol At and atomic number 85. It is the rarest naturally occurring element in the Earth's crust, occurring only as the decay product of various heavier elements. All of astatine's isotopes are short-lived; the most stable is astatine-210, with a half-life of 8.1 hours. Consequently, a solid sample of the element has never been seen, because any macroscopic specimen would be immediately vaporized by the heat of its radioactivity.
+The bulk properties of astatine are not known with certainty. Many of them have been estimated from its position on the periodic table as a heavier analog of fluorine, chlorine, bromine, and iodine, the four stable halogens. However, astatine also falls roughly along the dividing line between metals and nonmetals, and some metallic behavior has also been observed and predicted for it. Astatine is likely to have a dark or lustrous appearance and may be a semiconductor or possibly a metal. Chemically, several anionic species of astatine are known and most of its compounds resemble those of iodine, but it also sometimes displays metallic characteristics and shows some similarities to silver.
+The first synthesis of astatine was in 1940 by Dale R. Corson, Kenneth Ross MacKenzie, and Emilio G. Segrè at the University of California, Berkeley. They named it from the Ancient Greek ástatos (ἄστατος) 'unstable'. Four isotopes of astatine were subsequently found to be naturally occurring, although much less than one gram is present at any given time in the Earth's crust. Neither the most stable isotope, astatine-210, nor the medically useful astatine-211 occur naturally; they are usually produced by bombarding bismuth-209 with alpha particles.
+
+
+
+
+--- SECTIONS ---
+Sections type: <class 'dict'>
+
+[Characteristics]
+<p><a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">Astatine</a> is an extremely radioactive element; all its isotopes have half-lives of 8.1 hours or less, decaying into other <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a> isotopes, <a href="/school1/ptable/element/Bi" class="wiki-link" title="Bismuth (Bi)">bismuth</a>, <a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">polonium</a>, or <a href="/school1/ptable/element/Rn" class="wiki-link" title="Radon (Rn)">radon</a>. Most of its isotopes are very unstable, with half-lives of seconds or less. Of the first 101 elements in the periodic table, only <a href="/school1/ptable/element/Fr" class="wiki-link" title="Francium (Fr)">francium</a> is less stable, and all the <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a> isotopes more stable than the longest-lived <a href="/school1/ptable/element/Fr" class="wiki-link" title="Francium (Fr)">francium</a> isotopes (<sup>205–211</sup>At) are synthetic and do not occur in nature.
+</p><p>The bulk properties of astatine are not known with any certainty. Research is limited by its short half-life, which prevents the creation of weighable quantities. A visible piece of astatine would immediately vaporize itself because of the heat generated by its intense radioactivity. It remains to be seen if, with sufficient cooling, a macroscopic quantity of astatine could be deposited as a thin film. Astatine is usually classified as either a nonmetal or a metalloid; metal formation has also been predicted.
+</p>
+<div class="mw-heading mw-heading3">
+
+[History]
+<div class="thumb floatleft" style=""><div class="thumbinner" style="width: 302px;"><div class="thumbimage noresize" style="width: 300px;">
+<div class="floatnone noresize" style="position: relative; width: 300px;"><div style="position: absolute; left: 226px; top: 104px; padding: 0;"><span typeof="mw:File"><span title="6989"><img alt="" src="/school1/ptable/theme-assets/default/images/inline/f7eada4ee066564c6f3ab86b3aa02725.png" decoding="async" width="22" height="22" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Cercle_rouge_100%25.svg/60px-Cercle_rouge_100%25.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="200" data-file-height="200" /></span></span></div><span typeof="mw:File"><img alt="Periodic table by Mendeleev (1871), with astatine missing below chlorine, bromine and iodine (&quot;J&quot;)" src="/school1/ptable/theme-assets/default/images/inline/6d61d4adb835edbf3026f29c8e06b08c.png" decoding="async" width="300" height="163" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Periodic_table_by_Mendeleev%2C_1871.svg/960px-Periodic_table_by_Mendeleev%2C_1871.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="700" data-file-height="380" /></span></div> </div><div class="thumbcaption"><div style="display: inline-block; line-height: 1.2em; padding: .1em 0;">Dmitri Mendeleev's table of 1871, with an empty space at the eka-<a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a> position</div></div></div></div>
+<p>In 1869, when Dmitri Mendeleev published his periodic table, the space under <a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a> was empty; after Niels Bohr established the physical basis of the classification of chemical elements, it was suggested that the fifth halogen belonged there. Before its officially recognized discovery, it was called "eka-<a href="/school1/ptable/element/I" class="wiki-link" title="Iodine (I)">iodine</a>" (from Sanskrit <span title="Sanskrit-language romanization"><i lang="sa-Latn">eka</i></span> 'one') to imply it was one space under iodine (in the same manner as eka-<a href="/school1/ptable/element/Si" class="wiki-link" title="Silicon (Si)">silicon</a>, eka-<a href="/school1/ptable/element/B" class="wiki-link" title="Boron (B)">boron</a>, and others). Scientists tried to find it in nature; given its extreme rarity, these attempts resulted in several false discoveries.
+</p><p>The first claimed discovery of eka-iodine was made by Fred Allison and his associates at the Alabama Polytechnic Institute (now Auburn University) in 1931. The discoverers named element 85 "alabamine", and assigned it the symbol Ab, designations that were used for a few years. In 1934, H. G. MacPherson of University of California, Berkeley disproved Allison's method and the validity of his discovery. There was another claim in 1937, by the chemist Rajendralal De. Working in Dacca in British India (now Dhaka in Bangladesh), he chose the name "dakin" for element 85, which he claimed to have isolated as the <a href="/school1/ptable/element/Th" class="wiki-link" title="Thorium (Th)">thorium</a> series equivalent of <a href="/school1/ptable/element/Ra" class="wiki-link" title="Radium (Ra)">radium</a> F (<a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">polonium</a>-210) in the <a href="/school1/ptable/element/Ra" class="wiki-link" title="Radium (Ra)">radium</a> series. The properties he reported for dakin do not correspond to those of <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a>, and <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a>'s radioactivity would have prevented him from handling it in the quantities he claimed. Moreover, <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a> is not found in the <a href="/school1/ptable/element/Th" class="wiki-link" title="Thorium (Th)">thorium</a> series, and the true identity of dakin is not known.
+</p><p>In 1936, the team of Romanian physicist Horia Hulubei and French physicist Yvette Cauchois claimed to have discovered element 85 by observing its X-ray emission lines. In 1939, they published another paper which supported and extended previous data. In 1944, Hulubei published a summary of data he had obtained up to that time, claiming it was supported by the work of other researchers. He chose the name "dor", presumably from the Romanian for "longing" [for peace], as World War II had started five years earlier. As Hulubei was writing in French, which does not use the "-ine" suffix for elements, dor would likely have been rendered in English as "dorine", had it been adopted. In 1947, Hulubei's claim was effectively rejected by the Austrian chemist Friedrich Paneth, who would later chair the IUPAC committee responsible for recognition of new elements. Even though Hulubei's samples did contain astatine-218, his means to detect it were too weak, by current standards, to enable correct identification; moreover, he could not perform chemical tests on the element. He had also been involved in an earlier false claim as to the discovery of element 87 (<a href="/school1/ptable/element/Fr" class="wiki-link" title="Francium (Fr)">francium</a>) and this is thought to have caused other researchers to downplay his work.
+</p>
+<figure class="mw-default-size" typeof="mw:File/Thumb"><img alt="A greyscale photo of the upper body of a man" src="/school1/ptable/theme-assets/default/images/inline/862a65677abc63401fb6443754fe516e.jpg" decoding="async" width="190" height="266" style="--mw-file-upright: 0.75" class="mw-file-element mw-file-upright" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/4/41/Segre.jpg/500px-Segre.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="1919" data-file-height="2687" /><figcaption>Emilio Segrè, one of the discoverers of the main-group element astatine</figcaption></figure>
+<p>In 1940, the Swiss chemist Walter Minder announced the discovery of element 85 as the beta decay product of <a href="/school1/ptable/element/Ra" class="wiki-link" title="Radium (Ra)">radium</a> A (<a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">polonium</a>-218), choosing the name "helvetium" (from <span title="Latin-language text"><i lang="la">Helvetia</i></span>, the Latin name of Switzerland). Berta Karlik and Traude Bernert were unsuccessful in reproducing his experiments, and subsequently attributed Minder's results to contamination of his <a href="/school1/ptable/element/Rn" class="wiki-link" title="Radon (Rn)">radon</a> stream (<a href="/school1/ptable/element/Rn" class="wiki-link" title="Radon (Rn)">radon</a>-222 is the parent isotope of <a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">polonium</a>-218). In 1942, Minder, in collaboration with the English scientist Alice Leigh-Smith, announced the discovery of another isotope of element 85, presumed to be the product of <a href="/school1/ptable/element/Th" class="wiki-link" title="Thorium (Th)">thorium</a> A (polonium-216) beta decay. They named this substance "anglo-helvetium", but Karlik and Bernert were again unable to reproduce these results.
+</p><p>Later in 1940, Dale R. Corson, Kenneth Ross MacKenzie, and Emilio Segrè isolated the element at the University of California, Berkeley. Instead of searching for the element in nature, the scientists created it by bombarding <a href="/school1/ptable/element/Bi" class="wiki-link" title="Bismuth (Bi)">bismuth</a>-209 with alpha particles in a cyclotron (particle accelerator) to produce, after emission of two neutrons, astatine-211. The discoverers, however, did not immediately suggest a name for the element. The reason for this was that at the time, an element created synthetically in "invisible quantities" that had not yet been discovered in nature was not seen as a completely valid one; in addition, chemists were reluctant to recognize radioactive isotopes as legitimately as stable ones. In 1943, astatine was found as a product of two naturally occurring decay chains by Berta Karlik and Traude Bernert, first in the so-called <a href="/school1/ptable/element/U" class="wiki-link" title="Uranium (U)">uranium</a> series, and then in the <a href="/school1/ptable/element/Ac" class="wiki-link" title="Actinium (Ac)">actinium</a> series. (Since then, astatine was also found in a third decay chain, the <a href="/school1/ptable/element/Np" class="wiki-link" title="Neptunium (Np)">neptunium</a> series.) Friedrich Paneth in 1946 called to finally recognize synthetic elements, quoting, among other reasons, recent confirmation of their natural occurrence, and proposed that the discoverers of the newly discovered unnamed elements name these elements. In early 1947, <i>Nature</i> published the discoverers' suggestions; a letter from Corson, MacKenzie, and Segrè suggested the name "astatine" coming from the Ancient Greek <span title="Ancient Greek (to 1453)-language romanization"><i lang="grc-Latn">ástatos</i></span> (<span title="Ancient Greek (to 1453)-language text"><span lang="grc">ἄστατος</span></span>) meaning <span class="gloss-quot">'</span><span class="gloss-text">unstable</span><span class="gloss-quot">'</span>, because of its propensity for radioactive decay, with the ending "-ine", found in the names of the four previously discovered halogens. The name was also chosen to continue the tradition of the four stable halogens, where the name referred to a property of the element.
+</p><p>Corson and his colleagues classified astatine as a metal on the basis of its analytical chemistry. Subsequent investigators reported iodine-like, cationic, or amphoteric behavior. In a 2003 retrospective, Corson wrote that "some of the properties [of astatine] are similar to iodine&#160;... it also exhibits metallic properties, more like its metallic neighbors Po and Bi."
+</p>
+<div class="mw-heading mw-heading2">
+
+[Isotopes]
+<link rel="mw-deduplicated-inline-style" href="mw-data:TemplateStyles:r1368532237" /><div role="note" class="hatnote navigation-not-searchable">Main article: Isotopes of <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a></div>
+<div style="float:left; margin:0 1.4em 0 0">
+<table class="wikitable sortable" style="font-size:85%; text-align:right">
+<caption>Alpha decay characteristics for sample <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a> isotopes
+</caption>
+<tbody><tr>
+<th>Mass<br />number
+</th>
+<th>Half-life
+</th>
+<th>Probability<br />of alpha<br />decay
+</th>
+<th>Alpha-<br />decay<br />half-life
+</th></tr>
+<tr>
+<th style="background:lightyellow;">207
+</th>
+<td><span class="nowrap"><span data-sort-value="7003648000000000000♠"></span>1.80&#160;h</span>
+</td>
+<td><span data-sort-value="7000860000000000000♠">8.6</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7004752400000000000♠"></span>20.9&#160;h</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">208
+</th>
+<td><span class="nowrap"><span data-sort-value="7003586800000000000♠"></span>1.63&#160;h</span>
+</td>
+<td><span data-sort-value="6999550000000000000♠">0.55</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7006106272000000000♠"></span>12.3&#160;d</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">209
+</th>
+<td><span class="nowrap"><span data-sort-value="7004194760000000000♠"></span>5.41&#160;h</span>
+</td>
+<td><span data-sort-value="7000409999999999999♠">4.1</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7005475200000000000♠"></span>5.5&#160;d</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">210
+</th>
+<td><span class="nowrap"><span data-sort-value="7004291600000000000♠"></span>8.1&#160;h</span>
+</td>
+<td><span data-sort-value="6999175000000000000♠">0.175</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7007166752000000000♠"></span>193&#160;d</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">211
+</th>
+<td><span class="nowrap"><span data-sort-value="7004259560000000000♠"></span>7.21&#160;h</span>
+</td>
+<td><span data-sort-value="7001418000000000000♠">41.8</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7004619200000000000♠"></span>17.2&#160;h</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">212
+</th>
+<td><span class="nowrap"><span data-sort-value="6999310000000000000♠"></span>0.31&#160;s</span>
+</td>
+<td><span data-sort-value="7001999900000000000♠" style="display:none"></span>≈100%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="6999310000000000000♠"></span>0.31&#160;s</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">213
+</th>
+<td><span class="nowrap"><span data-sort-value="6993125000000000000♠"></span>125&#160;ns</span>
+</td>
+<td><span data-sort-value="7002100000000000000♠">100</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="6993125000000000000♠"></span>125&#160;ns</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">214
+</th>
+<td><span class="nowrap"><span data-sort-value="6993558000000000000♠"></span>558&#160;ns</span>
+</td>
+<td><span data-sort-value="7002100000000000000♠">100</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="6993558000000000000♠"></span>558&#160;ns</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">219
+</th>
+<td><span class="nowrap"><span data-sort-value="7001560000000000000♠"></span>56&#160;s</span>
+</td>
+<td><span data-sort-value="7001970000000000000♠">97</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7001580000000000000♠"></span>58&#160;s</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">220
+</th>
+<td><span class="nowrap"><span data-sort-value="7002222600000000000♠"></span>3.71&#160;min</span>
+</td>
+<td><span data-sort-value="7000800000000000000♠">8</span>%
+</td>
+<td style="background:lightyellow;"><span class="nowrap"><span data-sort-value="7003278400000000000♠"></span>46.4&#160;min</span>
+</td></tr>
+<tr>
+<th style="background:lightyellow;">221
+</th>
+<td><span class="nowrap"><span data-sort-value="7002138000000000000♠"></span>2.3&#160;min</span>
+</td>
+<td><span data-sort-value="5000000000000000000♠" style="display:none"></span>experimentally<br />alpha-stable
+</td>
+<td style="background:lightyellow;"><span data-sort-value="9000000000000000000♠" style="display:none"></span>∞
+</td></tr></tbody></table></div>
+<p>All of <a href="/school1/ptable/element/At" class="wiki-link" title="Astatine (At)">astatine</a>'s isotopes are short-lived; the most stable is astatine-210, with a half-life of 8.1 hours. There are 41 known isotopes of astatine, with mass numbers of 188 and 190–229. Theoretical modeling suggests that about 37 more isotopes could exist. No stable or long-lived astatine isotope has been observed, nor is one expected to exist.
+</p><p>Astatine's alpha decay energies follow the same trend as for other heavy elements. Lighter astatine isotopes have quite high energies of alpha decay, which become lower as the nuclei become heavier. Astatine-211 has a significantly higher energy than the previous isotope, because it has a nucleus with 126 neutrons, and 126 is a magic number corresponding to a filled neutron shell. Despite having a similar half-life to the previous isotope (8.1&#160;hours for astatine-210 and 7.2&#160;hours for astatine-211), the alpha decay probability is much higher for the latter: 41.81% against only 0.18%. The two following isotopes release even more energy, with astatine-213 releasing the most energy. For this reason, it is the shortest-lived astatine isotope. Even though heavier astatine isotopes release less energy, no long-lived astatine isotope exists, because of the increasing role of beta decay (electron emission). This decay mode is especially important for astatine; as early as 1950 it was postulated that all isotopes of the element undergo beta decay, though nuclear mass measurements indicate that <sup>215</sup>At is in fact beta-stable, as it has the lowest mass of all isobars with <i>A</i>&#160;=&#160;215. Astatine-210 and most of the lighter isotopes exhibit beta plus decay (positron emission), astatine-217 and heavier isotopes except astatine-218 exhibit beta minus decay, while astatine-211 undergoes electron capture.
+</p><p>The most stable isotope is astatine-210, which has a half-life of 8.1&#160;hours. The primary decay mode is beta plus, to the relatively long-lived (in comparison to astatine isotopes) alpha emitter <a href="/school1/ptable/element/Po" class="wiki-link" title="Polonium (Po)">polonium</a>-210. In total, only five isotopes have half-lives exceeding one hour (astatine-207 to -211). The least stable ground state isotope is astatine-213, with a half-life of 125 nanoseconds. It undergoes alpha decay to the extremely long-lived <a href="/school1/ptable/element/Bi" class="wiki-link" title="Bismuth (Bi)">bismuth</a>-209.
+</p><p>Astatine has 24 known nuclear isomers, which are nuclei with one or more nucleons (protons or neutrons) in an excited state. A nuclear isomer may also be called a "meta-state", meaning the system has more internal energy than the "ground state" (the state with the lowest possible internal energy), making the former likely to decay into the latter. There may be more than one isomer for each isotope. The most stable of these nuclear isomers is astatine-202m1, which has a half-life of about 3 minutes, longer than those of all the ground states bar those of isotopes 203–211 and 220. The least stable is astatine-213m1; its half-life of 110 nanoseconds is shorter than 125 nanoseconds for astatine-213, the shortest-lived ground state.
+</p>
+<div class="mw-heading mw-heading2">

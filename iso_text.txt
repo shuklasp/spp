@@ -1,0 +1,6 @@
+Seventeen isotopes of mendelevium are known, with mass numbers from 244 to 260; all are radioactive. The longest-lived isotope is 258Md with a half-life of 51.6 days. Nevertheless, the shorter-lived 256Md (half-life 77.7 minutes) is more often used in chemical experiments because it can be produced in larger quantities from einsteinium, as 258Md would require 255Es, of which significant quantities are available only as a minor component of an isotopic mixture.
+
+The half-lives of mendelevium isotopes mostly increase smoothly (apart from odd/even effects) toward higher mass, up to 258Md, then decrease (as indicated by what experimental data is available) as spontaneous fission becomes the dominant decay mode; the second longest-living isotope is 260Md, the heaviest known, with a half-life of 27.8 days. Mendelevium is the last element that has any known isotope with a half-life longer than a day.
+
+Mendelevium-256, the currently most important isotope of mendelevium, decays about 90% through electron capture and 10% through alpha decay. It is most easily detected through the spontaneous fission of its electron capture daughter fermium-256, but in the presence of other nuclides that undergo spontaneous fission, alpha decays at the characteristic energies for mendelevium-256 (7.205 and 7.139 MeV) can provide more useful identification.
+

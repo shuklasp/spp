@@ -1,0 +1,117 @@
+165932
+  -OEChem-08152606542D
+
+ 11  0  0     0  0  0  0  0  0999 V2000
+    0.8660    4.3660    0.0000 Ti  0  0  0  0  0  0  0  0  0  0  0  0
+    2.5981    4.3660    0.0000 Ti  0  0  0  0  0  0  0  0  0  0  0  0
+    0.8660    1.0000    0.0000 Al  0  1  0  0  0  0  0  0  0  0  0  0
+    2.5981    1.0000    0.0000 Al  0  1  0  0  0  0  0  0  0  0  0  0
+    1.7321    1.5000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    0.0000    1.5000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    0.8660    0.0000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    1.7321    4.8660    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    0.0000    3.8660    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    0.3660    5.2321    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+    1.3660    3.5000    0.0000 O   0  6  0  0  0  0  0  0  0  0  0  0
+M  CHG  8   1   4   2   4   3   3   4   3   5  -2   6  -2   7  -2   8  -2
+M  CHG  3   9  -2  10  -2  11  -2
+M  END
+> <PUBCHEM_COMPOUND_CID>
+165932
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+0
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+7
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQAAOAAAABIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_NAME>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+dialuminum;heptakis(oxygen(2-));bis(titanium(4+))
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/2Al.7O.2Ti/q2*+3;7*-2;2*+4
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+COTUMVFAJGQVPQ-UHFFFAOYSA-N
+
+> <PUBCHEM_EXACT_MASS>
+261.823361
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+Al2O7Ti2
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+261.69
+
+> <PUBCHEM_SMILES>
+[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[Al+3].[Al+3].[Ti+4].[Ti+4]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[O-2].[Al+3].[Al+3].[Ti+4].[Ti+4]
+
+> <PUBCHEM_CACTVS_TPSA>
+7
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+261.823361
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+11
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+11
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

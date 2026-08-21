@@ -1,0 +1,16 @@
+# Scaffolded Workflow Definition for TestUser
+# Keyed by entity_type (or entity_type.bundle)
+#
+# TUTORIAL & CONCEPTS:
+# - States: Define the valid lifecycle stages for this entity.
+# - Transitions: Move the entity between states via WorkflowManager::applyTransition().
+# - Parallel Markings: An entity can occupy multiple concurrent states simultaneously.
+# - Saga Pattern: Define 'compensations' callbacks to revert actions on rollback().
+# - SLA Timeouts: 'timeout' triggers automatic escalation via 'timeout_transition'.
+# ##############################################################################
+" . strtolower(TestUser) . ":
+  description: "Automated lifecycle workflow for TestUser"
+  states:
+    - draft
+    - pending_approval
+    - active

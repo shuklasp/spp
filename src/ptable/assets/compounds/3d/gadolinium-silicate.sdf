@@ -1,0 +1,128 @@
+22061702
+  -OEChem-08152607232D
+
+ 14  9  0     0  0  0  0  0  0999 V2000
+    3.7071   -0.1724    0.0000 Gd  0  1  0  0  0  0  0  0  0  0  0  0
+    7.0532    0.7241    0.0000 Gd  0  1  0  0  0  0  0  0  0  0  0  0
+    2.7071   -1.1724    0.0000 Si  0  0  0  0  0  0  0  0  0  0  0  0
+    5.3801    0.2759    0.0000 Si  0  0  0  0  0  0  0  0  0  0  0  0
+    8.7262    1.1724    0.0000 Si  0  0  0  0  0  0  0  0  0  0  0  0
+    3.7071   -1.1724    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    2.7071   -0.1724    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    4.4142    0.5347    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    6.0872    0.9830    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    7.7603    1.4312    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    7.3120   -0.2418    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    2.0000   -1.8795    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.6390   -0.6901    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    9.4333    1.8795    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+  3  6  1  0  0  0  0
+  3  7  1  0  0  0  0
+  3 12  2  0  0  0  0
+  4  8  1  0  0  0  0
+  4  9  1  0  0  0  0
+  4 13  2  0  0  0  0
+  5 10  1  0  0  0  0
+  5 11  1  0  0  0  0
+  5 14  2  0  0  0  0
+M  CHG  8   1   3   2   3   6  -1   7  -1   8  -1   9  -1  10  -1  11  -1
+M  END
+> <PUBCHEM_COMPOUND_CID>
+22061702
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+18.8
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+9
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQAAPAwAAAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+tris(dioxido(oxo)silane);bis(gadolinium(3+))
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+tris(dioxido(oxo)silane);bis(gadolinium(3+))
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+tris(dioxido(oxo)silane);bis(gadolinium(3+))
+
+> <PUBCHEM_IUPAC_NAME>
+tris(dioxido(oxo)silane);bis(gadolinium(3+))
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+tris(bis(oxidanidyl)-oxidanylidene-silane);bis(gadolinium(3+))
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+bis(gadolinium(3+));tris(keto(dioxido)silane)
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/2Gd.3O3Si/c;;3*1-4(2)3/q2*+3;3*-2
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+PNGFPRXVMBWZAZ-UHFFFAOYSA-N
+
+> <PUBCHEM_EXACT_MASS>
+545.73618
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+Gd2O9Si3
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+542.75
+
+> <PUBCHEM_SMILES>
+[O-][Si](=O)[O-].[O-][Si](=O)[O-].[O-][Si](=O)[O-].[Gd+3].[Gd+3]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+[O-][Si](=O)[O-].[O-][Si](=O)[O-].[O-][Si](=O)[O-].[Gd+3].[Gd+3]
+
+> <PUBCHEM_CACTVS_TPSA>
+190
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+543.73323
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+14
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+5
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

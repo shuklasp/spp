@@ -1,0 +1,245 @@
+
+SPP Framework CLI Utility
+---------------------------
+Available Commands:
+
+                           Test SCIM User Provisioning locally
+  ai:benchmark:models      Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
+  ai:make:workflow         Synthesize natural language business requirements into valid sppworkflow YAML definitions
+  ai:prompt                Send a prompt to the AI provider
+  ai:providers             List all registered AI providers
+  ai:refactor:enterprise   AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
+  api:key:generate         Generates a new permanent API Key.
+  api:key:revoke           Revoke an existing API token
+  api:route:list           Tabulate all exposed REST API routes
+  app:config               Configure application settings (e.g., base_url, table_prefix)
+  app:default              Set or view the default global CLI application context
+  app:list                 List all registered SPP applications
+  app:quota                Set hardware resource limits for a Guest App in the WebOS Registry. Usage: app:quota <alias> [--ram=...] [--cpu=...]
+  app:set-base             Set an application as the primary/base application
+  ask                      Ask the SPP AI Mentor a question about the framework.
+  audit:lineage            Traverses and verifies cryptographic Merkle-DAG trace logs
+  auth:tokens              Manage Personal Access Tokens for API Authentication
+  blade:clear              Clear the compiled Blade view cache
+  blade:view               Manage Blade views (list, create, delete)
+  bridge:call              Internal RPC bridge to invoke PHP methods from Polyglot clients
+  cache:clear              Clear the application file/redis cache
+  cache:compile-registry   Rebuilds the Orion Cache and System Registry
+  cache:prune              Prune expired cache items from storage
+  cache:purge              Purge cache tags or URLs from the reverse proxy (Varnish/CDN).
+  cache:stats              Display cache driver statistics
+  cache:warmup             Warm up common application caches
+  clear:aicache            Clears the WebOS AI Decision cache.
+  clear:cache              Clear the application file/redis cache
+  component:crud           Manage SPP UI components (list, create, edit, delete)
+  config                   Manage framework and application configuration
+  config:export            Export database tables and global settings to SQL, SQLite, or XDB format
+  config:import            Import database tables and settings from an exported SQL, SQLite, or XDB file
+  config:sync              Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+  cron:flush               Clear cron history and lock files
+  cron:list                List all registered scheduled tasks
+  cron:run                 Execute pending cron jobs manually
+  db:migration:verify-zero-downtimePerform a dry-run analysis of database migration DDL statements to verify zero-downtime compliance and schema safety
+  db:sync                  Synchronize data between two database adapters (e.g. MySQL to XDB)
+  db:verify                Runs the SPP XDB MySQL Compatibility Verification Suite
+  dbsettings:export        Export SPP module DB settings to JSON
+  dbsettings:import        Import SPP module DB settings from JSON
+  delete:app               Delete an SPP application context and all its data (files, config, caches, views)
+  deploy:backups           List available snapshot backups on a remote target for rollback
+  deploy:build             Create a local deployment artifact bundle without pushing
+  deploy:cleanup           Prune old rollback snapshots from the remote target server
+  deploy:cluster           Deploy to a multi-server cluster sequentially
+  deploy:env               Manage remote environment variables securely
+  deploy:history           
+  deploy:init              
+  deploy:logs              View and tail remote application error logs securely over HTTP
+  deploy:maintenance       Toggle manual maintenance mode on a remote target or local environment
+  deploy:plan              Perform a dry run to view file changes and raw database SQL diffs before deploying
+  deploy:pull              
+  deploy:push              Push the local project state to a remote SPP target server
+  deploy:rollback          Roll back a remote target to a specific snapshot backup ID
+  deploy:run               Securely execute an arbitrary shell command on the remote server
+  deploy:token:rotate      Rotate the secure deployment gateway token on both local and remote environments with zero downtime
+  di:list                  List the Dependency Injection container bindings
+  diff:apply               Apply a patch or delta file
+  diff:compare             Compare two JSON arrays or states
+  diff:history             View revision history of an entity
+  diff:rollback            Rollback an entity to a previous state
+  docs:api                 Documentation utilities (build, api, openapi, man, phpdoc).
+  docs:build               Documentation utilities (build, api, openapi, man, phpdoc).
+  docs:man                 Documentation utilities (build, api, openapi, man, phpdoc).
+  docs:openapi             Documentation utilities (build, api, openapi, man, phpdoc).
+  docs:phpdoc              Documentation utilities (build, api, openapi, man, phpdoc).
+  doctor                   Diagnose the health of the WebOS architecture
+  drishyam:clear           Clear the Drishyam rendering cache
+  drishyam:compile         Pre-compile Drishyam templates for production
+  drishyam:theme:check     Validate Drishyam theme assets and structure
+  ent:edit                 Edit an existing SPPEntity definition
+  entity:crud              Manage SPP entities (list, create, edit, delete)
+  env:backup               Backup all environment configurations
+  env:get                  Get a specific configuration variable
+  env:list                 List all environment and configuration variables for an app context
+  env:mode                 Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
+  env:set                  Set a specific configuration variable
+  env:status               Display system health and environment status
+  env:token:rotate         Rotate the system deployment token
+  event:dispatch           Alias for event:fire
+  event:fire               Trigger a specific event manually
+  event:list-listeners     List all registered global event listeners
+  ext:disable              Disable a specific extension
+  ext:enable               Enable a specific extension
+  ext:install              Install an extension from a zip or directory
+  ext:list                 List all available and installed extensions
+  forge                    Unified automation and LiveSync engine
+  form:crud                Manage SPP forms (list, create, edit, delete)
+  frontend:debug           Toggle Frontend CDN development mode (on|off)
+  generate                 AI Copilot: Generate an entire application feature from a natural language prompt.
+  group:create             Create a new shared resource group
+  group:delete             Delete a shared resource group
+  group:edit               Edit an existing shared resource group
+  group:list               List all shared resource groups
+  i18n:export              Export translations for a specific locale to a JSON file.
+  i18n:import              Import translations from a JSON file into the database.
+  iam:abac                 Manage Attribute-Based Access Control (ABAC) policies
+  iam:roles                List all Roles and Entity Role Assignments
+  import:component         Imports pristine air-gapped sovereign UI components
+  integration:install      Provision an external app directory and register the SPP route bypass
+  integration:queue:work   Run the persistent CDC integration event queue worker
+  integration:restore      Time-travel a user state to a historical point using CQRS Event Sourcing
+  integration:seed         Bulk seed local SPP users into a specific integration target
+  interdb:config           Get or set the interdb operating mode
+  interdb:mapping:add      Add a new InterDB mapping
+  interdb:mapping:list     List all InterDB mappings
+  interdb:mapping:remove   Remove an InterDB mapping
+  kernel:compile           Compiles the WebOS Kernel into the FastCGI performance cache.
+  lang:export              Export active database translation overrides into JSON language file
+  lang:import              Import JSON language file into active database translation overrides
+  lang:list                List all translations
+  lang:scan                Scan directories for new translation keys
+  lang:set                 Set a translation for a key
+  lekhak:generate-docs     Generates documentation nodes for SPP Core and Modules.
+  lekhak:setup             Initializes Lekhak CMS database tables.
+  lint                     Run SPP native linter on a file
+  list                     Lists all discovered SPP CLI commands.
+  live:status              Check the status of websocket/polling servers
+  live:trigger             Push a live event to clients
+  logger:clear             Clear the SPP application logs
+  logger:tail              Tail the SPP application log file
+  make:app                 Create a new SPP application context
+  make:app-legacy          Legacy scaffolder — forwards to make:app (kept for backward compatibility)
+  make:blade               Scaffold a new Blade template (Drishyam Paradigm)
+  make:blade-project       Scaffold a new Blade-enabled SPP application
+  make:blade-scaffold      Create a full stack Blade scaffold (Entity, YAML Form, Controller, Blade Views)
+  make:command             Create a new CLI command class
+  make:command-test        Generate a boilerplate Parikshak feature test for a given command
+  make:controller          Create a new controller class
+  make:deployment          Generate Enterprise Docker and K8s scaffolding for the application.
+  make:dotnet-service      Create a new .NET service project
+  make:drupal-bridge       Scaffold a Drupal module to bridge SPP into Drupal
+  make:entity              Create a new SPPEntity definition
+  make:event               Create a new event entry and scaffold its handler
+  make:eventhand           Create a new Event Handler class
+  make:form                Create a new SPP form definition
+  make:go-service          Create a new Go service script
+  make:java-service        Create a new Java service script
+  make:live-component      Create a new Live Component class
+  make:middleware          Create a new middleware class
+  make:migration           Create a new database migration file
+  make:mixed-paradigm      Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX
+  make:model               Create a new model class (Fluent-ready)
+  make:module              Create a new SPP module
+  make:node-service        Create a new Node.js service script
+  make:partial             Scaffold a new external view partial template (HTML/PHP/JS)
+  make:perl-service        Create a new Perl service script
+  make:polyglot            Scaffold a new polyglot service (e.g. php spp.php make:polyglot python MyService)
+  make:polyglot-partial    Scaffold a new external polyglot partial service file (Python/Node/Go)
+  make:python-service      Create a new Python service script
+  make:react-component     Scaffold a new React component (ESM/No-build)
+  make:scaffold            Create a full stack scaffold (Entity, DB, Controller, View)
+  make:seeder              Create a new Database Seeder class
+  make:service             Create a new service class
+  make:sppview             Scaffold a new native AST SPPView template
+  make:stream              Scaffold a new external Turbo Stream template
+  make:twig                Scaffold a new Twig template (Drishyam Paradigm)
+  make:ux-component        Scaffold a new SPP-UX reactive component
+  make:view                Create a new view definition (equivalent to Drupal Views).
+  make:vue-component       Scaffold a new Vue 3 component (ESM/No-build)
+  make:wizard              Scaffold a modern WizardController, workflow config, and partials
+  man                      Format and display manual pages for SPP commands
+  man:generate             Generate highly detailed man-pages in Markdown and UNIX roff formats
+  manifest:export          Exports tool autodiscovery definitions for AI Copilots
+  mesh:add                 Mounts a legacy application as a passthrough route in the WebOS Mesh
+  mesh:list                Lists all active Mesh passthrough routes
+  mesh:remove              Unmounts a legacy application from the WebOS Mesh
+  mesh:update              Updates features for an existing mesh route
+  middleware:list          List the middleware pipeline for an app
+  migrate                  Run pending database migrations
+  migrate:make             Generate a new database migration class.
+  module:disable           Disable an SPP module
+  module:enable            Enable an SPP module
+  module:install           Install or upgrade a specific module or all active modules
+  module:list              Discovers and tabulates active kernel framework modules
+  module:setting:list      List all settings for a given module
+  module:setting:update    Update a configuration setting for a specific module
+  module:uninstall         Uninstall a module (drops tracking but retains data tables)
+  module:update            Execute the update hook for a specific module
+  oauth:client:create      Create a new OAuth 2.0 Client App
+  oauth:client:delete      Delete an OAuth 2.0 Client App
+  oauth:client:list        List all OAuth 2.0 Client Apps
+  polyglot:list            Discovers and tabulates all registered polyglot services
+  polyglot:run             Executes a specific polyglot service directly
+  polyglot:status          Checks the runtime environment for polyglot language binaries
+  polyglot:worker          Manage Polyglot persistent workers
+  profile:report:generate  Dump a performance profile trace for debugging
+  profile:status           Check if the performance profiler is running/enabled
+  queue:list               List all jobs currently in the queue
+  queue:work               Starts a worker loop to process background jobs from the queue.
+  schedule:run             Run all scheduled cron tasks declared by active modules
+  serve                    Start a local development server for the current application
+  serve:async              Boot the persistent memory asynchronous coroutine runtime (FrankenPHP/OpenSwoole)
+  service:crud             Manage SPP services (list, create, edit, delete)
+  session:clean            Clean up expired sessions
+  session:destroy-all      Invalidate all active sessions across the application
+  shell                    Launch the interactive SPP Shell Mode (run all CLI commands, switch apps, inspect state, tabs, AI, polyglot, etc.).
+  site:install             Initialize the database and load default configurations for a specific profile.
+  storage:clean            Clean up temporary files in storage
+  storage:link             Create symbolic links for public storage
+  storage:sync             Sync local storage with external disks (stub)
+  sys:debug                Toggle global framework debug mode (on|off)
+  sys:seed                 Run all database seeders for an application
+  sys:status               Displays framework health, environment diagnostics, and polyglot bridge status
+  sys:test:auto            Runs Automated Evolutionary Testing (Parikshak) for the current application.
+  sys:upgrade              Synchronize the database schema incrementally from all active module definitions (db.yml)
+  test                     Run Parikshak Unit and Feature Tests
+  test:blueprint           Generate a structural blueprint for an entity
+  test:dry-run             Dry-run all registered commands to catch syntax and initialization errors
+  test:module              Run PHPUnit tests for an isolated module
+  test:monkey              Runs chaos monkey / fuzzing scenarios for an entity
+  test:routes              Test route scanner
+  test:run                 Runs Parikshak evaluation for an entity or the whole suite
+  theme:activate           Switch the active theme adapter (native/wp/joomla) and optionally set the theme name
+  tinker                   Interact with your application in a REPL shell.
+  userprofile:export       Export user profile data for compliance/GDPR
+  userprofile:schema:updateSync extended user profile metadata schemas
+  ux:debug                 Toggle SPP-UX verbose logging (on|off)
+  verify:sovereignty       Validates complete stack self-containment/zero external links
+  view:cache               Pre-compiles all AST views into PHP for optimal performance
+  view:page:add            Add a new page route to an app
+  view:page:list           List all registered pages/routes for an app
+  view:page:remove         Remove a page route from an app
+  view:service:add         Register a new AJAX service endpoint
+  view:service:list        List all registered AJAX services for an app
+  view:service:remove      Remove an AJAX service endpoint from an app
+  view:service:test        Test an AJAX service endpoint from the CLI
+  workflow:dump            Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+  workflow:process-timeoutsProcess SLA timeouts on entities and trigger automatic escalation transitions
+  xdb:describe             Describe the schema of an XDB table
+  xdb:list-dbs             List all available XDB databases
+  xdb:list-tables          List all tables in an XDB database
+  xdb:make:migration       Create a new SPP_XDB migration file
+  xdb:make:seeder          Create a new SPP_XDB seeder file
+  xdb:migrate              Run SPP_XDB Database Migrations
+  xdb:query                Execute a SQL or XPath query on the XML database
+  xdb:seed                 Run SPP_XDB Database Seeders
+  xdb:shell                Launch the interactive SPPXDB shell
+

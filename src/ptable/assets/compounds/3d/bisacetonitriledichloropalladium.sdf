@@ -1,0 +1,131 @@
+6093782
+  -OEChem-08152607062D
+
+ 15 12  0     0  0  0  0  0  0999 V2000
+    0.8660    2.2869    0.0000 Pd  0  0  0  0  0  0  0  0  0  0  0  0
+    1.7321    2.7869    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0
+    0.0000    2.7869    0.0000 Cl  0  0  0  0  0  0  0  0  0  0  0  0
+    6.0010    1.5369    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    6.0010    5.0739    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2690    0.5369    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.2690    4.0739    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1350    1.0369    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.1350    4.5739    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.9590    1.0739    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    3.7321    0.2269    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5790    0.0000    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    3.9590    4.6108    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    3.7321    3.7639    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5790    3.5369    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+  1  2  1  0  0  0  0
+  1  3  1  0  0  0  0
+  4  8  3  0  0  0  0
+  5  9  3  0  0  0  0
+  6  8  1  0  0  0  0
+  6 10  1  0  0  0  0
+  6 11  1  0  0  0  0
+  6 12  1  0  0  0  0
+  7  9  1  0  0  0  0
+  7 13  1  0  0  0  0
+  7 14  1  0  0  0  0
+  7 15  1  0  0  0  0
+M  END
+> <PUBCHEM_COMPOUND_CID>
+6093782
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+32.1
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+2
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcYBjAAAGAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAAAAAAAACBAAACAAAAAAAQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+bis(acetonitrile);dichloropalladium
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+bis(acetonitrile);dichloropalladium
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+bis(acetonitrile);dichloropalladium
+
+> <PUBCHEM_IUPAC_NAME>
+bis(acetonitrile);dichloropalladium
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+bis(chloranyl)palladium;bis(ethanenitrile)
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+bis(acetonitrile);dichloropalladium
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/2C2H3N.2ClH.Pd/c2*1-2-3;;;/h2*1H3;2*1H;/q;;;;+2/p-2
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+RBYGDVHOECIAFC-UHFFFAOYSA-L
+
+> <PUBCHEM_EXACT_MASS>
+257.89428
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+C4H6Cl2N2Pd
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+259.43
+
+> <PUBCHEM_SMILES>
+CC#N.CC#N.Cl[Pd]Cl
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+CC#N.CC#N.Cl[Pd]Cl
+
+> <PUBCHEM_CACTVS_TPSA>
+47.6
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+257.89428
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+9
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+3
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

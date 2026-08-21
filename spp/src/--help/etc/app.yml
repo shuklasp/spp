@@ -1,0 +1,6 @@
+# Self-contained application descriptor
+# Discovered automatically by SPP framework
+base_url: "/--help"
+table_prefix: "--help_"
+type: "legacy"
+shared_group: "core"

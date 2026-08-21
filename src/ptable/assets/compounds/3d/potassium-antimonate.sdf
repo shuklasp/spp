@@ -1,0 +1,126 @@
+15238731
+  -OEChem-08152605462D
+
+ 13  8  0     0  0  0  0  0  0999 V2000
+    3.7321   -0.4330    0.0000 Sb  0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641   -0.4330    0.0000 Sb  0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000   -0.4330    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    3.7321    1.2990    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    7.1962   -0.4330    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    5.4641    1.2990    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    4.5981    0.0670    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8660   -0.9330    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    3.2321    0.4330    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    6.3301   -0.9330    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    5.9641    0.4330    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    4.2321   -1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.9641   -1.2990    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+  1  7  1  0  0  0  0
+  1  8  1  0  0  0  0
+  1  9  1  0  0  0  0
+  1 12  2  0  0  0  0
+  2  7  1  0  0  0  0
+  2 10  1  0  0  0  0
+  2 11  1  0  0  0  0
+  2 13  2  0  0  0  0
+M  CHG  8   3   1   4   1   5   1   6   1   8  -1   9  -1  10  -1  11  -1
+M  END
+> <PUBCHEM_COMPOUND_CID>
+15238731
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+124
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+7
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQAAOAAAYAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+tetrapotassium;dioxido-oxo-stibonatooxy-lambda5-stibane
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+tetrapotassium;dioxido-oxo-stibonatooxystiborane
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+tetrapotassium;dioxido-oxo-stibonatooxy-&lambda;<SUP>5</SUP>-stibane
+
+> <PUBCHEM_IUPAC_NAME>
+tetrapotassium;dioxido-oxo-stibonatooxy-lambda5-stibane
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+tetrapotassium;bis(oxidanidyl)-oxidanylidene-stibonatooxy-lambda5-stibane
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+tetrapotassium;keto-dioxido-stibonatooxy-stiborane
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/4K.7O.2Sb/q4*+1;;;;4*-1;;
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+YHTCYQWTSKTPPO-UHFFFAOYSA-N
+
+> <PUBCHEM_EXACT_MASS>
+511.62725
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+K4O7Sb2
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+511.91
+
+> <PUBCHEM_SMILES>
+[O-][Sb](=O)([O-])O[Sb](=O)([O-])[O-].[K+].[K+].[K+].[K+]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+[O-][Sb](=O)([O-])O[Sb](=O)([O-])[O-].[K+].[K+].[K+].[K+]
+
+> <PUBCHEM_CACTVS_TPSA>
+136
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+509.62685
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+13
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+5
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

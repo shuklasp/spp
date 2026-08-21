@@ -1,0 +1,19 @@
+.TH MAKE:LIVE-COMPONENT 1 "SPP CLI" "Version 1.0" "SPP Manual"
+.SH NAME
+make:live-component \- Scaffolds a new Live Component class and its associated external HTML partial.
+.SH SYNOPSIS
+.B php spp.php make:live-component
+.I <ComponentName>
+[\-\-app=AppName]
+.SH DESCRIPTION
+This command generates a pure PHP backend Live Component designed to work with the SPPLive and SPP-UX full-stack morphing engine. The generated component logic resides in PHP, while the view template is strictly separated into an external HTML partial to enforce zero inline HTML string literals.
+.SH OPTIONS
+.TP
+.B <ComponentName>
+(Required) The class name of the Live Component (e.g., DashboardMetrics).
+.TP
+.B \-\-app=<AppName>
+(Optional) The context application to scaffold into. Defaults to the primary spp/ context if omitted.
+.SH UNDER THE HOOD
+Creates a new PHP class at src/{AppName}/live/class.{componentname}.php.
+Creates an external HTML partial at resources/{AppName}/views/partials/{ComponentName}.html.

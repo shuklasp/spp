@@ -1,0 +1,26 @@
+.TH SPP-dev-diagnostics 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+dev:diagnostics
+.PP
+ \- Manage Dev Diagnostics operations. Usage: admin:diagnostics <action> [--payload=...] [--json]
+.SH DESCRIPTION
+Manage Dev Diagnostics operations. Usage: admin:diagnostics <action> [--payload=...] [--json]
+.PP
+.SH SYNOPSIS
+php spp.php dev:diagnostics [OPTIONS]
+.PP
+.SH OPTIONS
+No static options detected for this command.
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Interacts with the SPP relational database layer.
+.br
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+.br
+\(bu Interacts with the application cache layer (Redis/Memcached).
+.br
+.PP
+.PP

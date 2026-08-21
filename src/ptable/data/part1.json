@@ -1,0 +1,202 @@
+{
+  "H": [
+    "Water", "Hydrogen peroxide", "Hydrogen sulfide", "Methane", "Ethane", "Propane", "Butane", "Ammonia", "Hydrazine", "Hydrogen chloride",
+    "Hydrogen fluoride", "Hydrogen bromide", "Hydrogen iodide", "Hydrogen cyanide", "Hydrogen azide", "Sulfuric acid", "Nitric acid", "Phosphoric acid", "Acetic acid", "Formic acid",
+    "Methanol", "Ethanol", "Propanol", "Benzene", "Toluene", "Phenol", "Aniline", "Acetone", "Formaldehyde", "Acetaldehyde"
+  ],
+  "He": [
+    "Helium hydride ion", "Disodium helide", "Helium dimer", "Helium trimer", "Helium clathrate", "Helium fullerene complex", "Helium trapped in ice", "Helium nanodroplet", "Helium-neon complex", "Helium-argon complex",
+    "Helium-krypton complex", "Helium-xenon complex", "Helium-hydrogen complex", "Helium-water complex", "Helium-ammonia complex", "Helium-methane complex", "Helium-ethane complex", "Helium-benzene complex", "Helium-oxygen complex", "Helium-nitrogen complex",
+    "Helium-carbon monoxide complex", "Helium-carbon dioxide complex", "Helium-fluorine complex", "Helium-chlorine complex", "Helium-bromine complex", "Helium-iodine complex", "Helium-lithium complex", "Helium-sodium complex", "Helium-magnesium complex", "Helium-calcium complex"
+  ],
+  "Li": [
+    "Lithium chloride", "Lithium bromide", "Lithium iodide", "Lithium fluoride", "Lithium oxide", "Lithium peroxide", "Lithium sulfide", "Lithium nitride", "Lithium hydride", "Lithium aluminum halide",
+    "Lithium carbonate", "Lithium sulfate", "Lithium nitrate", "Lithium phosphate", "Lithium acetate", "Lithium hydroxide", "Lithium amide", "Lithium imide", "Lithium azide", "Lithium cyanate",
+    "Lithium thiocyanate", "Lithium borate", "Lithium aluminate", "Lithium silicate", "Lithium titanate", "Lithium niobate", "Lithium tantalate", "Lithium cobalt oxide", "Lithium iron phosphate", "Lithium manganese oxide"
+  ],
+  "Be": [
+    "Beryllium chloride", "Beryllium bromide", "Beryllium iodide", "Beryllium fluoride", "Beryllium oxide", "Beryllium sulfide", "Beryllium nitride", "Beryllium hydride", "Beryllium carbide", "Beryllium borohydride",
+    "Beryllium carbonate", "Beryllium sulfate", "Beryllium nitrate", "Beryllium phosphate", "Beryllium acetate", "Beryllium hydroxide", "Beryllium azide", "Beryllium aluminate", "Beryllium silicate", "Beryllium copper alloy",
+    "Beryllium acetylacetonate", "Beryllium formiate", "Beryllium oxalate", "Beryllium cyanide", "Beryllium thiocyanate", "Beryllium selenide", "Beryllium telluride", "Beryllium phosphide", "Beryllium arsenide", "Beryllium antimonide"
+  ],
+  "B": [
+    "Boron trifluoride", "Boron trichloride", "Boron tribromide", "Boron triiodide", "Boron oxide", "Boron sulfide", "Boron nitride", "Boron carbide", "Boron phosphide", "Boron arsenide",
+    "Diborane", "Tetraborane", "Pentaborane", "Decaborane", "Borazine", "Boric acid", "Sodium borate", "Potassium borate", "Lithium borate", "Calcium borate",
+    "Boron suboxide", "Boron monofluoride", "Boron monochloride", "Boron monobromide", "Boron monoiodide", "Sodium tetraphenylborate", "Lithium tetrahydridoborate", "Potassium tetrafluoroborate", "Fluoroboric acid", "Carborane"
+  ],
+  "C": [
+    "Carbon dioxide", "Carbon monoxide", "Carbon suboxide", "Carbon disulfide", "Carbon diselenide", "Carbon tetrachloride", "Carbon tetrafluoride", "Carbon tetrabromide", "Carbon tetraiodide", "Phosgene",
+    "Methane", "Ethane", "Propane", "Butane", "Pentane", "Hexane", "Ethene", "Propene", "Ethyne", "Propyne",
+    "Benzene", "Toluene", "Xylene", "Phenol", "Aniline", "Methanol", "Ethanol", "Propanol", "Formaldehyde", "Acetone"
+  ],
+  "N": [
+    "Ammonia", "Hydrazine", "Hydroxylamine", "Nitrogen trifluoride", "Nitrogen trichloride", "Nitrogen tribromide", "Nitrogen triiodide", "Nitrous oxide", "Nitric oxide", "Nitrogen dioxide",
+    "Dinitrogen tetroxide", "Dinitrogen pentoxide", "Nitric acid", "Nitrous acid", "Sodium nitrate", "Potassium nitrate", "Ammonium nitrate", "Calcium nitrate", "Silver nitrate", "Lead(II) nitrate",
+    "Urea", "Cyanogen", "Hydrogen cyanide", "Sodium cyanide", "Potassium cyanide", "Ammonium chloride", "Ammonium sulfate", "Ammonium phosphate", "Ammonium carbonate", "Pyridine"
+  ],
+  "O": [
+    "Water", "Hydrogen peroxide", "Carbon dioxide", "Carbon monoxide", "Sulfur dioxide", "Sulfur trioxide", "Nitrogen dioxide", "Nitrous oxide", "Nitric oxide", "Phosphorus pentoxide",
+    "Sodium oxide", "Potassium oxide", "Lithium oxide", "Calcium oxide", "Magnesium oxide", "Aluminum oxide", "Iron(III) oxide", "Iron(II) oxide", "Copper(II) oxide", "Copper(I) oxide",
+    "Zinc oxide", "Titanium dioxide", "Silicon dioxide", "Lead(II) oxide", "Lead(IV) oxide", "Silver oxide", "Manganese dioxide", "Sodium peroxide", "Barium peroxide", "Ozone"
+  ],
+  "F": [
+    "Hydrogen fluoride", "Sodium fluoride", "Potassium fluoride", "Lithium fluoride", "Calcium fluoride", "Magnesium fluoride", "Aluminum fluoride", "Iron(III) fluoride", "Copper(II) fluoride", "Zinc fluoride",
+    "Carbon tetrafluoride", "Nitrogen trifluoride", "Oxygen difluoride", "Sulfur hexafluoride", "Sulfur tetrafluoride", "Phosphorus pentafluoride", "Phosphorus trifluoride", "Chlorine trifluoride", "Chlorine pentafluoride", "Bromine trifluoride",
+    "Bromine pentafluoride", "Iodine heptafluoride", "Iodine pentafluoride", "Xenon difluoride", "Xenon tetrafluoride", "Xenon hexafluoride", "Krypton difluoride", "Uranium hexafluoride", "Tungsten hexafluoride", "Molybdenum hexafluoride"
+  ],
+  "Ne": [
+    "Neon dimer", "Neon trimer", "Neon-hydrogen complex", "Neon-water complex", "Neon-ammonia complex", "Neon-methane complex", "Neon-ethane complex", "Neon-benzene complex", "Neon-oxygen complex", "Neon-nitrogen complex",
+    "Neon-carbon monoxide complex", "Neon-carbon dioxide complex", "Neon-fluorine complex", "Neon-chlorine complex", "Neon-bromine complex", "Neon-iodine complex", "Neon-helium complex", "Neon-argon complex", "Neon-krypton complex", "Neon-xenon complex",
+    "Neon-lithium complex", "Neon-sodium complex", "Neon-magnesium complex", "Neon-aluminum complex", "Neon-silicon complex", "Neon-phosphorus complex", "Neon-sulfur complex", "Neon fullerene complex", "Neon clathrate", "Neon trapped in ice"
+  ],
+  "Na": [
+    "Sodium chloride", "Sodium bromide", "Sodium iodide", "Sodium fluoride", "Sodium oxide", "Sodium peroxide", "Sodium sulfide", "Sodium nitride", "Sodium hydride", "Sodium borohydride",
+    "Sodium carbonate", "Sodium bicarbonate", "Sodium sulfate", "Sodium bisulfate", "Sodium nitrate", "Sodium nitrite", "Sodium phosphate", "Sodium acetate", "Sodium hydroxide", "Sodium amide",
+    "Sodium azide", "Sodium cyanide", "Sodium thiocyanate", "Sodium borate", "Sodium aluminate", "Sodium silicate", "Sodium titanate", "Sodium chlorate", "Sodium perchlorate", "Sodium hypochlorite"
+  ],
+  "Mg": [
+    "Magnesium chloride", "Magnesium bromide", "Magnesium iodide", "Magnesium fluoride", "Magnesium oxide", "Magnesium peroxide", "Magnesium sulfide", "Magnesium nitride", "Magnesium hydride", "Magnesium carbide",
+    "Magnesium carbonate", "Magnesium sulfate", "Magnesium nitrate", "Magnesium phosphate", "Magnesium acetate", "Magnesium hydroxide", "Magnesium aluminate", "Magnesium silicate", "Magnesium titanate", "Magnesium chlorate",
+    "Magnesium perchlorate", "Magnesium hypochlorite", "Magnesium cyanide", "Magnesium thiocyanate", "Magnesium borate", "Magnesium chromate", "Magnesium dichromate", "Magnesium molybdate", "Magnesium tungstate", "Magnesium oxalate"
+  ],
+  "Al": [
+    "Aluminum chloride", "Aluminum bromide", "Aluminum iodide", "Aluminum fluoride", "Aluminum oxide", "Aluminum sulfide", "Aluminum nitride", "Aluminum hydride", "Aluminum carbide", "Aluminum phosphide",
+    "Aluminum carbonate", "Aluminum sulfate", "Aluminum nitrate", "Aluminum phosphate", "Aluminum acetate", "Aluminum hydroxide", "Aluminum silicate", "Aluminum titanate", "Aluminum chlorate", "Aluminum perchlorate",
+    "Aluminum cyanide", "Aluminum thiocyanate", "Aluminum borate", "Aluminum antimonide", "Aluminum arsenide", "Aluminum selenide", "Aluminum telluride", "Lithium aluminum hydride", "Sodium aluminate", "Potassium aluminate"
+  ],
+  "Si": [
+    "Silicon dioxide", "Silicon carbide", "Silicon nitride", "Silicon tetrachloride", "Silicon tetrafluoride", "Silicon tetrabromide", "Silicon tetraiodide", "Silane", "Disilane", "Trisilane",
+    "Silicon disulfide", "Silicon monoxide", "Silicic acid", "Sodium silicate", "Potassium silicate", "Calcium silicate", "Magnesium silicate", "Aluminum silicate", "Lithium silicate", "Lead silicate",
+    "Zirconium silicate", "Titanium silicate", "Zinc silicate", "Iron silicate", "Copper silicate", "Silicon phosphide", "Silicon arsenide", "Silicon boride", "Trichlorosilane", "Dichlorosilane"
+  ],
+  "P": [
+    "Phosphorus trichloride", "Phosphorus pentachloride", "Phosphorus tribromide", "Phosphorus pentabromide", "Phosphorus trifluoride", "Phosphorus pentafluoride", "Phosphorus triiodide", "Phosphorus pentoxide", "Phosphorus trioxide", "Phosphorus tetroxide",
+    "Phosphoric acid", "Phosphorous acid", "Hypophosphorous acid", "Sodium phosphate", "Potassium phosphate", "Calcium phosphate", "Magnesium phosphate", "Ammonium phosphate", "Lithium phosphate", "Iron(III) phosphate",
+    "Aluminum phosphate", "Zinc phosphate", "Silver phosphate", "Phosphine", "Diphosphane", "Phosphorus pentasulfide", "Phosphorus trisulfide", "Phosphoryl chloride", "Phosphoryl bromide", "Phosphoryl fluoride"
+  ],
+  "S": [
+    "Sulfur dioxide", "Sulfur trioxide", "Sulfuric acid", "Sulfurous acid", "Hydrogen sulfide", "Sodium sulfide", "Potassium sulfide", "Calcium sulfide", "Magnesium sulfide", "Iron(II) sulfide",
+    "Iron(III) sulfide", "Copper(II) sulfide", "Zinc sulfide", "Lead(II) sulfide", "Silver sulfide", "Sulfur hexafluoride", "Sulfur tetrafluoride", "Sulfur dichloride", "Disulfur dichloride", "Sulfuryl chloride",
+    "Thionyl chloride", "Sodium sulfate", "Potassium sulfate", "Calcium sulfate", "Magnesium sulfate", "Barium sulfate", "Copper(II) sulfate", "Iron(II) sulfate", "Zinc sulfate", "Ammonium sulfate"
+  ],
+  "Cl": [
+    "Sodium chloride", "Potassium chloride", "Lithium chloride", "Calcium chloride", "Magnesium chloride", "Aluminum chloride", "Iron(III) chloride", "Iron(II) chloride", "Copper(II) chloride", "Zinc chloride",
+    "Hydrogen chloride", "Chlorine dioxide", "Chlorine monoxide", "Dichlorine heptoxide", "Chloric acid", "Perchloric acid", "Hypochlorous acid", "Chlorous acid", "Sodium chlorate", "Sodium perchlorate",
+    "Sodium hypochlorite", "Potassium chlorate", "Potassium perchlorate", "Calcium hypochlorite", "Chlorine trifluoride", "Chlorine pentafluoride", "Carbon tetrachloride", "Chloroform", "Dichloromethane", "Methyl chloride"
+  ],
+  "Ar": [
+    "Argon fluorohydride", "Argon dimer", "Argon trimer", "Argon-hydrogen complex", "Argon-water complex", "Argon-ammonia complex", "Argon-methane complex", "Argon-ethane complex", "Argon-benzene complex", "Argon-oxygen complex",
+    "Argon-nitrogen complex", "Argon-carbon monoxide complex", "Argon-carbon dioxide complex", "Argon-fluorine complex", "Argon-chlorine complex", "Argon-bromine complex", "Argon-iodine complex", "Argon-helium complex", "Argon-neon complex", "Argon-krypton complex",
+    "Argon-xenon complex", "Argon-lithium complex", "Argon-sodium complex", "Argon-magnesium complex", "Argon-aluminum complex", "Argon-silicon complex", "Argon-phosphorus complex", "Argon-sulfur complex", "Argon clathrate", "Argon fullerene complex"
+  ],
+  "K": [
+    "Potassium chloride", "Potassium bromide", "Potassium iodide", "Potassium fluoride", "Potassium oxide", "Potassium peroxide", "Potassium superoxide", "Potassium sulfide", "Potassium nitride", "Potassium hydride",
+    "Potassium carbonate", "Potassium bicarbonate", "Potassium sulfate", "Potassium bisulfate", "Potassium nitrate", "Potassium nitrite", "Potassium phosphate", "Potassium acetate", "Potassium hydroxide", "Potassium amide",
+    "Potassium azide", "Potassium cyanide", "Potassium thiocyanate", "Potassium borate", "Potassium aluminate", "Potassium silicate", "Potassium titanate", "Potassium chlorate", "Potassium perchlorate", "Potassium permanganate"
+  ],
+  "Ca": [
+    "Calcium chloride", "Calcium bromide", "Calcium iodide", "Calcium fluoride", "Calcium oxide", "Calcium peroxide", "Calcium sulfide", "Calcium nitride", "Calcium hydride", "Calcium carbide",
+    "Calcium carbonate", "Calcium sulfate", "Calcium nitrate", "Calcium phosphate", "Calcium acetate", "Calcium hydroxide", "Calcium aluminate", "Calcium silicate", "Calcium titanate", "Calcium chlorate",
+    "Calcium perchlorate", "Calcium hypochlorite", "Calcium cyanide", "Calcium thiocyanate", "Calcium borate", "Calcium chromate", "Calcium molybdate", "Calcium tungstate", "Calcium oxalate", "Calcium cyanamide"
+  ],
+  "Sc": [
+    "Scandium chloride", "Scandium bromide", "Scandium iodide", "Scandium fluoride", "Scandium oxide", "Scandium sulfide", "Scandium nitride", "Scandium hydride", "Scandium carbide", "Scandium boride",
+    "Scandium carbonate", "Scandium sulfate", "Scandium nitrate", "Scandium phosphate", "Scandium acetate", "Scandium hydroxide", "Scandium aluminate", "Scandium silicate", "Scandium titanate", "Scandium chlorate",
+    "Scandium perchlorate", "Scandium cyanide", "Scandium thiocyanate", "Scandium borate", "Scandium chromate", "Scandium molybdate", "Scandium tungstate", "Scandium oxalate", "Scandium triflate", "Scandium acetylacetonate"
+  ],
+  "Ti": [
+    "Titanium tetrachloride", "Titanium tetrabromide", "Titanium tetraiodide", "Titanium tetrafluoride", "Titanium dioxide", "Titanium monoxide", "Titanium disulfide", "Titanium nitride", "Titanium hydride", "Titanium carbide",
+    "Titanium boride", "Titanium sulfate", "Titanium nitrate", "Titanium phosphate", "Titanium hydroxide", "Titanium aluminate", "Titanium silicate", "Titanium(III) chloride", "Titanium(III) bromide", "Titanium(III) iodide",
+    "Titanium(III) fluoride", "Titanium(II) chloride", "Titanium(IV) ethoxide", "Titanium(IV) isopropoxide", "Titanium(IV) butoxide", "Titanium(IV) propoxide", "Barium titanate", "Strontium titanate", "Calcium titanate", "Lead titanate"
+  ],
+  "V": [
+    "Vanadium pentoxide", "Vanadium dioxide", "Vanadium(III) oxide", "Vanadium(II) oxide", "Vanadium tetrachloride", "Vanadium trichloride", "Vanadium(II) chloride", "Vanadium pentafluoride", "Vanadium tetrafluoride", "Vanadium trifluoride",
+    "Vanadium tribromide", "Vanadium triiodide", "Vanadium disulfide", "Vanadium nitride", "Vanadium carbide", "Vanadium boride", "Vanadyl sulfate", "Vanadium sulfate", "Vanadium nitrate", "Vanadium phosphate",
+    "Vanadyl trichloride", "Vanadyl trifluoride", "Sodium vanadate", "Potassium vanadate", "Ammonium metavanadate", "Vanadium(III) acetylacetonate", "Vanadyl acetylacetonate", "Vanadocene", "Vanadocene dichloride", "Bismuth vanadate"
+  ],
+  "Cr": [
+    "Chromium(III) oxide", "Chromium(VI) oxide", "Chromium(IV) oxide", "Chromium(III) chloride", "Chromium(II) chloride", "Chromium(III) fluoride", "Chromium(II) fluoride", "Chromium(VI) fluoride", "Chromium(V) fluoride", "Chromium(III) bromide",
+    "Chromium(III) iodide", "Chromium(III) sulfide", "Chromium nitride", "Chromium carbide", "Chromium boride", "Chromium(III) sulfate", "Chromium(III) nitrate", "Chromium(III) phosphate", "Chromium(III) acetate", "Chromium(III) hydroxide",
+    "Sodium chromate", "Potassium chromate", "Sodium dichromate", "Potassium dichromate", "Ammonium dichromate", "Lead chromate", "Barium chromate", "Chromyl chloride", "Chromium hexacarbonyl", "Chromocene"
+  ],
+  "Mn": [
+    "Manganese dioxide", "Manganese(II) oxide", "Manganese(III) oxide", "Manganese heptoxide", "Manganese(II) chloride", "Manganese(III) chloride", "Manganese(II) fluoride", "Manganese(III) fluoride", "Manganese(IV) fluoride", "Manganese(II) bromide",
+    "Manganese(II) iodide", "Manganese(II) sulfide", "Manganese nitride", "Manganese carbide", "Manganese boride", "Manganese(II) sulfate", "Manganese(II) nitrate", "Manganese(II) phosphate", "Manganese(II) acetate", "Manganese(II) hydroxide",
+    "Potassium permanganate", "Sodium permanganate", "Barium permanganate", "Silver permanganate", "Lithium permanganate", "Potassium manganate", "Sodium manganate", "Barium manganate", "Manganese decacarbonyl", "Manganocene"
+  ],
+  "Fe": [
+    "Iron(III) oxide", "Iron(II) oxide", "Iron(II,III) oxide", "Iron(III) chloride", "Iron(II) chloride", "Iron(III) fluoride", "Iron(II) fluoride", "Iron(III) bromide", "Iron(II) bromide", "Iron(II) iodide",
+    "Iron(II) sulfide", "Iron(III) sulfide", "Iron disulfide", "Iron nitride", "Iron carbide", "Iron boride", "Iron(II) sulfate", "Iron(III) sulfate", "Iron(III) nitrate", "Iron(II) nitrate",
+    "Iron(III) phosphate", "Iron(II) acetate", "Iron(III) hydroxide", "Iron(II) hydroxide", "Iron pentacarbonyl", "Diiron nonacarbonyl", "Triiron dodecacarbonyl", "Ferrocene", "Potassium ferrocyanide", "Potassium ferricyanide"
+  ],
+  "Co": [
+    "Cobalt(II) oxide", "Cobalt(III) oxide", "Cobalt(II,III) oxide", "Cobalt(II) chloride", "Cobalt(III) chloride", "Cobalt(II) fluoride", "Cobalt(III) fluoride", "Cobalt(II) bromide", "Cobalt(II) iodide", "Cobalt(II) sulfide",
+    "Cobalt(III) sulfide", "Cobalt disulfide", "Cobalt nitride", "Cobalt carbide", "Cobalt boride", "Cobalt(II) sulfate", "Cobalt(III) sulfate", "Cobalt(II) nitrate", "Cobalt(III) nitrate", "Cobalt(II) phosphate",
+    "Cobalt(II) acetate", "Cobalt(II) hydroxide", "Cobalt(III) hydroxide", "Cobalt aluminate", "Cobalt titanate", "Dicobalt octacarbonyl", "Tetracobalt dodecacarbonyl", "Cobaltocene", "Sodium hexanitrocobaltate(III)", "Cobalt(II) thiocyanate"
+  ],
+  "Ni": [
+    "Nickel(II) oxide", "Nickel(III) oxide", "Nickel(II) chloride", "Nickel(II) fluoride", "Nickel(II) bromide", "Nickel(II) iodide", "Nickel(II) sulfide", "Nickel(III) sulfide", "Nickel disulfide", "Nickel nitride",
+    "Nickel carbide", "Nickel boride", "Nickel(II) sulfate", "Nickel(II) nitrate", "Nickel(II) phosphate", "Nickel(II) acetate", "Nickel(II) hydroxide", "Nickel(II) carbonate", "Nickel(II) cyanide", "Nickel(II) thiocyanate",
+    "Nickel(II) oxalate", "Nickel aluminate", "Nickel titanate", "Nickel tetracarbonyl", "Nickelocene", "Nickel(II) acetylacetonate", "Potassium tetracyanonickelate(II)", "Sodium tetracyanonickelate(II)", "Nickel(II) chromate", "Nickel(II) sulfamate"
+  ],
+  "Cu": [
+    "Copper(II) oxide", "Copper(I) oxide", "Copper(II) chloride", "Copper(I) chloride", "Copper(II) fluoride", "Copper(I) fluoride", "Copper(II) bromide", "Copper(I) bromide", "Copper(I) iodide", "Copper(II) sulfide",
+    "Copper(I) sulfide", "Copper nitride", "Copper(I) acetylide", "Copper(II) sulfate", "Copper(II) nitrate", "Copper(II) phosphate", "Copper(II) acetate", "Copper(II) hydroxide", "Copper(II) carbonate", "Copper(I) cyanide",
+    "Copper(II) thiocyanate", "Copper(II) oxalate", "Copper aluminate", "Copper chromate", "Copper(II) arsenate", "Copper(II) azide", "Copper(I) thiocyanate", "Tetraamminecopper(II) sulfate", "Copper(II) triflate", "Copper(II) acetylacetonate"
+  ],
+  "Zn": [
+    "Zinc oxide", "Zinc chloride", "Zinc bromide", "Zinc iodide", "Zinc fluoride", "Zinc sulfide", "Zinc selenide", "Zinc telluride", "Zinc nitride", "Zinc phosphide",
+    "Zinc arsenide", "Zinc antimonide", "Zinc sulfate", "Zinc nitrate", "Zinc phosphate", "Zinc acetate", "Zinc hydroxide", "Zinc carbonate", "Zinc cyanide", "Zinc thiocyanate",
+    "Zinc oxalate", "Zinc aluminate", "Zinc titanate", "Zinc chromate", "Zinc molybdate", "Zinc tungstate", "Zinc borate", "Zinc chlorate", "Zinc perchlorate", "Diethylzinc"
+  ],
+  "Ga": [
+    "Gallium(III) oxide", "Gallium(III) chloride", "Gallium(III) bromide", "Gallium(III) iodide", "Gallium(III) fluoride", "Gallium(III) sulfide", "Gallium(III) selenide", "Gallium(III) telluride", "Gallium nitride", "Gallium phosphide",
+    "Gallium arsenide", "Gallium antimonide", "Gallium(III) sulfate", "Gallium(III) nitrate", "Gallium(III) phosphate", "Gallium(III) acetate", "Gallium(III) hydroxide", "Gallium(I) oxide", "Gallium(I) sulfide", "Gallium(II) sulfide",
+    "Gallium(I) chloride", "Gallium(II) chloride", "Gallium trichloride", "Trimethylgallium", "Triethylgallium", "Gallium(III) acetylacetonate", "Gallium(III) nitrate hydrate", "Sodium gallate", "Potassium gallate", "Lithium gallate"
+  ],
+  "Ge": [
+    "Germanium dioxide", "Germanium monoxide", "Germanium tetrachloride", "Germanium tetrabromide", "Germanium tetraiodide", "Germanium tetrafluoride", "Germanium(II) chloride", "Germanium(II) bromide", "Germanium(II) iodide", "Germanium(II) fluoride",
+    "Germanium disulfide", "Germanium monosulfide", "Germanium diselenide", "Germanium monoselenide", "Germanium telluride", "Germanium nitride", "Germane", "Digermane", "Trigermane", "Tetragermane",
+    "Germanium(IV) sulfate", "Germanium(IV) acetate", "Germanium(IV) ethoxide", "Germanium(IV) methoxide", "Sodium germanate", "Potassium germanate", "Bismuth germanate", "Lead germanate", "Tetramethylgermane", "Tetraethylgermane"
+  ],
+  "As": [
+    "Arsenic trioxide", "Arsenic pentoxide", "Arsenic trichloride", "Arsenic pentachloride", "Arsenic tribromide", "Arsenic triiodide", "Arsenic trifluoride", "Arsenic pentafluoride", "Arsenic trisulfide", "Arsenic pentasulfide",
+    "Arsine", "Arsenic triselenide", "Arsenic tritelluride", "Arsenous acid", "Arsenic acid", "Sodium arsenite", "Sodium arsenate", "Potassium arsenite", "Potassium arsenate", "Calcium arsenate",
+    "Lead arsenate", "Copper(II) arsenate", "Iron(III) arsenate", "Zinc arsenate", "Silver arsenate", "Gallium arsenide", "Indium arsenide", "Aluminum arsenide", "Cadmium arsenide", "Trimethylarsine"
+  ],
+  "Se": [
+    "Selenium dioxide", "Selenium trioxide", "Selenium tetrachloride", "Selenium tetrabromide", "Selenium tetrafluoride", "Selenium hexafluoride", "Selenium monochloride", "Selenium monobromide", "Selenium disulfide", "Hydrogen selenide",
+    "Selenous acid", "Selenic acid", "Sodium selenite", "Sodium selenate", "Potassium selenite", "Potassium selenate", "Calcium selenite", "Calcium selenate", "Barium selenate", "Silver selenide",
+    "Zinc selenide", "Cadmium selenide", "Lead selenide", "Copper(II) selenide", "Iron(II) selenide", "Bismuth selenide", "Gallium selenide", "Indium selenide", "Thallium selenide", "Dimethyl selenide"
+  ],
+  "Br": [
+    "Sodium bromide", "Potassium bromide", "Lithium bromide", "Calcium bromide", "Magnesium bromide", "Aluminum bromide", "Iron(III) bromide", "Iron(II) bromide", "Copper(II) bromide", "Zinc bromide",
+    "Hydrogen bromide", "Bromine dioxide", "Bromine monoxide", "Bromine trifluoride", "Bromine pentafluoride", "Bromic acid", "Perbromic acid", "Hypobromous acid", "Sodium bromate", "Sodium perbromate",
+    "Sodium hypobromite", "Potassium bromate", "Potassium perbromate", "Calcium hypobromite", "Carbon tetrabromide", "Bromoform", "Dibromomethane", "Methyl bromide", "Ethyl bromide", "Bromobenzene"
+  ],
+  "Kr": [
+    "Krypton difluoride", "Krypton dimer", "Krypton trimer", "Krypton-hydrogen complex", "Krypton-water complex", "Krypton-ammonia complex", "Krypton-methane complex", "Krypton-ethane complex", "Krypton-benzene complex", "Krypton-oxygen complex",
+    "Krypton-nitrogen complex", "Krypton-carbon monoxide complex", "Krypton-carbon dioxide complex", "Krypton-fluorine complex", "Krypton-chlorine complex", "Krypton-bromine complex", "Krypton-iodine complex", "Krypton-helium complex", "Krypton-neon complex", "Krypton-argon complex",
+    "Krypton-xenon complex", "Krypton-lithium complex", "Krypton-sodium complex", "Krypton-magnesium complex", "Krypton-aluminum complex", "Krypton-silicon complex", "Krypton-phosphorus complex", "Krypton-sulfur complex", "Krypton clathrate", "Krypton fullerene complex"
+  ],
+  "Rb": [
+    "Rubidium chloride", "Rubidium bromide", "Rubidium iodide", "Rubidium fluoride", "Rubidium oxide", "Rubidium peroxide", "Rubidium superoxide", "Rubidium sulfide", "Rubidium nitride", "Rubidium hydride",
+    "Rubidium carbonate", "Rubidium bicarbonate", "Rubidium sulfate", "Rubidium bisulfate", "Rubidium nitrate", "Rubidium nitrite", "Rubidium phosphate", "Rubidium acetate", "Rubidium hydroxide", "Rubidium amide",
+    "Rubidium azide", "Rubidium cyanide", "Rubidium thiocyanate", "Rubidium borate", "Rubidium aluminate", "Rubidium silicate", "Rubidium titanate", "Rubidium chlorate", "Rubidium perchlorate", "Rubidium permanganate"
+  ],
+  "Sr": [
+    "Strontium chloride", "Strontium bromide", "Strontium iodide", "Strontium fluoride", "Strontium oxide", "Strontium peroxide", "Strontium sulfide", "Strontium nitride", "Strontium hydride", "Strontium carbide",
+    "Strontium carbonate", "Strontium sulfate", "Strontium nitrate", "Strontium phosphate", "Strontium acetate", "Strontium hydroxide", "Strontium aluminate", "Strontium silicate", "Strontium titanate", "Strontium chlorate",
+    "Strontium perchlorate", "Strontium hypochlorite", "Strontium cyanide", "Strontium thiocyanate", "Strontium borate", "Strontium chromate", "Strontium molybdate", "Strontium tungstate", "Strontium oxalate", "Strontium ruthenate"
+  ],
+  "Y": [
+    "Yttrium(III) chloride", "Yttrium(III) bromide", "Yttrium(III) iodide", "Yttrium(III) fluoride", "Yttrium(III) oxide", "Yttrium(III) sulfide", "Yttrium nitride", "Yttrium hydride", "Yttrium carbide", "Yttrium boride",
+    "Yttrium(III) carbonate", "Yttrium(III) sulfate", "Yttrium(III) nitrate", "Yttrium(III) phosphate", "Yttrium(III) acetate", "Yttrium(III) hydroxide", "Yttrium aluminate", "Yttrium silicate", "Yttrium titanate", "Yttrium chlorate",
+    "Yttrium perchlorate", "Yttrium cyanide", "Yttrium thiocyanate", "Yttrium borate", "Yttrium chromate", "Yttrium molybdate", "Yttrium tungstate", "Yttrium oxalate", "Yttrium barium copper oxide", "Yttrium iron garnet"
+  ],
+  "Zr": [
+    "Zirconium tetrachloride", "Zirconium tetrabromide", "Zirconium tetraiodide", "Zirconium tetrafluoride", "Zirconium dioxide", "Zirconium monoxide", "Zirconium disulfide", "Zirconium nitride", "Zirconium hydride", "Zirconium carbide",
+    "Zirconium boride", "Zirconium(IV) sulfate", "Zirconium(IV) nitrate", "Zirconium(IV) phosphate", "Zirconium(IV) acetate", "Zirconium(IV) hydroxide", "Zirconium(IV) silicate", "Zirconium tungstate", "Zirconium molybdate", "Zirconium(III) chloride",
+    "Zirconium(III) bromide", "Zirconium(III) iodide", "Zirconium(III) fluoride", "Zirconium(II) chloride", "Barium zirconate", "Strontium zirconate", "Calcium zirconate", "Lead zirconate", "Zirconocene dichloride", "Zirconyl chloride"
+  ]
+}

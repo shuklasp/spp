@@ -1,0 +1,6 @@
+# Self-contained application descriptor
+# Discovered automatically by SPP framework
+base_url: "/ptable"
+table_prefix: "ptable_"
+type: "mixed"
+shared_group: "core"

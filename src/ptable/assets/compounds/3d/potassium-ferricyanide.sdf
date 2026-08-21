@@ -1,0 +1,136 @@
+26250
+  -OEChem-08152606382D
+
+ 16  6  0     0  0  0  0  0  0999 V2000
+    3.8508    0.0000    0.0000 Fe  0  1  0  0  0  0  0  0  0  0  0  0
+    5.5829    0.0000    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    2.0000   -0.6736    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    2.9848    1.5000    0.0000 K   0  3  0  0  0  0  0  0  0  0  0  0
+    4.7169    1.5000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    2.9848   -1.5000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000    0.6737    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    3.8508   -2.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    3.8508    2.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    5.5829   -1.0000    0.0000 N   0  0  0  0  0  0  0  0  0  0  0  0
+    4.7169    0.5000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+    2.9848   -0.5000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+    2.9848    0.5000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+    3.8508   -1.0000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+    3.8508    1.0000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+    4.7169   -0.5000    0.0000 C   0  5  0  0  0  0  0  0  0  0  0  0
+  5 11  3  0  0  0  0
+  6 12  3  0  0  0  0
+  7 13  3  0  0  0  0
+  8 14  3  0  0  0  0
+  9 15  3  0  0  0  0
+ 10 16  3  0  0  0  0
+M  CHG  8   1   3   2   1   3   1   4   1  11  -1  12  -1  13  -1  14  -1
+M  CHG  2  15  -1  16  -1
+M  END
+> <PUBCHEM_COMPOUND_CID>
+26250
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+127
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+12
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+0
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQBjgAAAYAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+ferric;tripotassium;hexacyanide
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+tripotassium;iron(3+);hexacyanide
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+tripotassium;iron(3+);hexacyanide
+
+> <PUBCHEM_IUPAC_NAME>
+tripotassium;iron(3+);hexacyanide
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+tripotassium;iron(3+);hexacyanide
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+ferric;tripotassium;hexacyanide
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/6CN.Fe.3K/c6*1-2;;;;/q6*-1;+3;3*+1
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+BYGOPQKDHGXNCD-UHFFFAOYSA-N
+
+> <PUBCHEM_EXACT_MASS>
+328.844499
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+C6FeK3N6
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+329.24
+
+> <PUBCHEM_SMILES>
+[C-]#N.[C-]#N.[C-]#N.[C-]#N.[C-]#N.[C-]#N.[K+].[K+].[K+].[Fe+3]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+[C-]#N.[C-]#N.[C-]#N.[C-]#N.[C-]#N.[C-]#N.[K+].[K+].[K+].[Fe+3]
+
+> <PUBCHEM_CACTVS_TPSA>
+143
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+328.844499
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+16
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+10
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_NONSTANDARDBOND>
+1  11  6
+1  12  6
+1  13  6
+1  14  6
+1  15  6
+1  16  6
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

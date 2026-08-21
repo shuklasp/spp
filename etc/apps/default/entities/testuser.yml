@@ -1,0 +1,9 @@
+table: test_users
+id_field: id
+sequence: test_users_seq
+key_type: int
+extends: ''
+login_enabled: false
+attributes:
+  name: varchar(255)
+relations: {  }

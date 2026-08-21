@@ -1,0 +1,497 @@
+EXTRACT:
+.mw-parser-output .hatnote{font-style:italic}.mw-parser-output div.hatnote{padding-left:1.6em;margin-bottom:0.5em}.mw-parser-output .hatnote i{font-style:normal}.mw-parser-output .hatnote+.mw-empty-elt+.hatnote{margin-top:-0.5em}@media print{body.ns-0 .mw-parser-output .hatnote{display:none!important}}This article is about the chemical element. For other uses, see Silver (disambiguation).
+
+
+
+
+Chemical element with atomic number 47 (Ag)@media(min-width:640px){.mw-parser-output .infobox{margin-left:1em;float:right;clear:right;width:22em}}.mw-parser-output .infobox-subbox{padding:0;border:none;margin:-3px;width:auto;min-width:100%;font-size:100%;clear:none;float:none;background-color:transparent;color:inherit}.mw-parser-output .infobox-3cols-child{margin:-3px}.mw-parser-output .infobox .navbar{font-size:100%}.mw-parser-output .infobox-hiddenrow,body.skin--responsive.skin--responsive .mw-parser-output .infobox .infobox-hiddenrow{display:none}@media screen{html.skin-theme-clientpref-night .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media screen and (prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .infobox-full-data:not(.notheme)>div:not(.notheme)[style]{background:#1f1f23!important;color:#f8f9fa}}@media(min-width:640px){body.skin--responsive .mw-parser-output .infobox-table{display:table!important}body.skin--responsive .mw-parser-output .infobox-table>caption{display:table-caption!important}body.skin--responsive .mw-parser-output .infobox-table>tbody{display:table-row-group}body.skin--responsive .mw-parser-output .infobox-table th,body.skin--responsive .mw-parser-output .infobox-table td{padding-left:inherit;padding-right:inherit}}.mw-parser-output .ib-element-periodic-table{background-color:var(--background-color-neutral-subtle,#f8f9fa);border:1px solid var(--border-color-base,#a2a9b1);text-align:center;padding:0.4em;display:grid;justify-content:center;align-items:center;grid-template-columns:min-content min-content;gap:0.2em}.mw-parser-output .ib-element-periodic-table-symbol,.mw-parser-output .ib-element-periodic-table-name{font-size:90%;line-height:100%}.mw-parser-output .ib-element-periodic-table-name{grid-column:1/3}.mw-parser-output .ib-element .isotopes-table{display:table}.mw-parser-output .ib-element-vapor-pressure{display:table;text-align:center;font-size:90%;border-collapse:collapse;margin:0 auto}body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure th,body.skin--responsive.skin-minerva .mw-parser-output .ib-element-vapor-pressure td{padding:0.2em}Silver,&#160;47AgSilverAppearancelustrous white metalStandard atomic weight .mw-parser-output .nobold{font-weight:normal}Ar&#176;(Ag).mw-parser-output .plainlist ol,.mw-parser-output .plainlist ul{line-height:inherit;list-style:none;margin:0;padding:0}.mw-parser-output .plainlist ol li,.mw-parser-output .plainlist ul li{margin-bottom:0}107.8682±0.0002107.87±0.01&#160;(abridged)
+Silver in the periodic table
+.mw-parser-output .periodic-table-32-micro,.mw-parser-output .periodic-table-32-micro-119{margin:0;padding:0;empty-cells:hide;border-spacing:1px;text-align:center}.mw-parser-output .periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro.periodic-table-32-micro td,.mw-parser-output .periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119.periodic-table-32-micro-119 td{border:none;padding:0}.mw-parser-output .periodic-table-32-micro-insert-cell-gt118{width:6px;min-width:6px}.mw-parser-output .periodic-table-32-micro-no-insert-cell-gt118{width:0}.mw-parser-output .periodic-table-32-micro-119-dot{float:left;margin:3px 2px;background:var(--color-emphasized,black);width:2px;height:2px}.mw-parser-output .periodic-table-32-micro-119-spacer{width:1px;height:4px}
+
+
+Hydrogen
+
+
+
+Helium
+
+
+Lithium
+
+Beryllium
+
+
+
+Boron
+
+Carbon
+
+Nitrogen
+
+Oxygen
+
+Fluorine
+
+Neon
+
+
+Sodium
+
+Magnesium
+
+
+
+Aluminium
+
+Silicon
+
+Phosphorus
+
+Sulfur
+
+Chlorine
+
+Argon
+
+
+Potassium
+
+Calcium
+
+
+
+Scandium
+
+Titanium
+
+Vanadium
+
+Chromium
+
+Manganese
+
+Iron
+
+Cobalt
+
+Nickel
+
+Copper
+
+Zinc
+
+Gallium
+
+Germanium
+
+Arsenic
+
+Selenium
+
+Bromine
+
+Krypton
+
+
+Rubidium
+
+Strontium
+
+
+
+
+
+Yttrium
+
+Zirconium
+
+Niobium
+
+Molybdenum
+
+Technetium
+
+Ruthenium
+
+Rhodium
+
+Palladium
+
+Silver
+
+Cadmium
+
+Indium
+
+Tin
+
+Antimony
+
+Tellurium
+
+Iodine
+
+Xenon
+
+
+Caesium
+
+Barium
+
+Lanthanum
+
+Cerium
+
+Praseodymium
+
+Neodymium
+
+Promethium
+
+Samarium
+
+Europium
+
+Gadolinium
+
+Terbium
+
+Dysprosium
+
+Holmium
+
+Erbium
+
+Thulium
+
+Ytterbium
+
+Lutetium
+
+Hafnium
+
+Tantalum
+
+Tungsten
+
+Rhenium
+
+Osmium
+
+Iridium
+
+Platinum
+
+Gold
+
+Mercury (element)
+
+Thallium
+
+Lead
+
+Bismuth
+
+Polonium
+
+Astatine
+
+Radon
+
+
+Francium
+
+Radium
+
+Actinium
+
+Thorium
+
+Protactinium
+
+Uranium
+
+Neptunium
+
+Plutonium
+
+Americium
+
+Curium
+
+Berkelium
+
+Californium
+
+Einsteinium
+
+Fermium
+
+Mendelevium
+
+Nobelium
+
+Lawrencium
+
+Rutherfordium
+
+Dubnium
+
+Seaborgium
+
+Bohrium
+
+Hassium
+
+Meitnerium
+
+Darmstadtium
+
+Roentgenium
+
+Copernicium
+
+Nihonium
+
+Flerovium
+
+Moscovium
+
+Livermorium
+
+Tennessine
+
+Oganesson
+
+
+Cu↑Ag↓Au
+palladium ← silver → cadmium
+Atomic number (Z)47Groupgroup&#160;11Periodperiod&#160;5Block&#160; d-blockElectron configuration&#91;Kr&#93; 4d10 5s1Electrons per shell2, 8, 18, 18, 1Physical propertiesPhase at&#160;STPsolidMelting point1234.93&#160;K&#x20;&#x200b;(961.78&#160;°C,&#x20;&#x200b;1763.2&#160;°F)&#x20;Boiling point2435&#160;K&#x20;&#x200b;(2162&#160;°C,&#x20;&#x200b;3924&#160;°F)&#x20;Density (at&#160;20°&#160;C)10.503&#160;g/cm3(at&#160;STP)10,515&#160;g/Lwhen&#160;liquid (at&#160;m.p.)9.320&#160;g/cm3&#x20;Heat of fusion11.28&#160;kJ/mol&#x20;Heat of vaporisation254&#160;kJ/mol&#x20;Molar heat capacity25.350&#160;J/(mol·K)&#x20;Specific heat capacity235.005&#160;J/(kg·K)&#x20;Vapour&#160;pressure
+
+
+
+P&#160;(Pa)
+
+1
+
+10
+
+100
+
+1&#160;k
+
+10&#160;k
+
+100&#160;k
+
+
+at&#160;T&#160;(K)
+
+1283
+
+1413
+
+1575
+
+1782
+
+2055
+
+2433
+Atomic propertiesOxidation statescommon: +1
+−2, −1, 0, +2, +3ElectronegativityPauling&#160;scale: 1.93&#x20;Ionisation energies1st:&#160;731.0&#160;kJ/mol&#x20;2nd:&#160;2070&#160;kJ/mol&#x20;3rd:&#160;3361&#160;kJ/mol&#x20;&#x20;Atomic radiusempirical:&#x20;144&#160;pm&#x20;Covalent radius145±5&#160;pm&#x20;Van der Waals radius172&#160;pm&#x20;Spectral lines of silverOther propertiesNatural occurrenceprimordialCrystal structure&#x20;&#x200b;face-centred cubic (fcc)&#x20;(cF4)Lattice constanta&#160;=&#160;408.60&#160;pm (at&#160;20&#160;°C)Thermal expansion18.92×10−6/K (at&#160;20&#160;°C)Thermal conductivity429&#160;W/(m⋅K)&#x20;Thermal diffusivity174&#160;mm2/s&#x20;(at&#160;300&#160;K)&#x20;Electrical resistivity15.87&#160;nΩ⋅m&#x20;(at&#160;20&#160;°C)&#x20;Magnetic orderingdiamagnetic&#x20;Molar magnetic susceptibility−19.5×10−6&#160;cm3/mol&#x20;(296&#160;K)Young's modulus83&#160;GPa&#x20;Shear modulus30&#160;GPa&#x20;Bulk modulus100&#160;GPa&#x20;Speed of sound&#x20;thin&#160;rod2680&#160;m/s&#x20;(at&#160;r.t.)&#x20;Poisson ratio0.37&#x20;Mohs hardness2.5&#x20;Vickers hardness251&#160;MPa&#x20;Brinell hardness206–250&#160;MPa&#x20;CAS Number7440-22-4&#x20;HistoryNaminga non-Indo-European wanderwortDiscoverybefore 5000 BCSymbol"Ag": from Latin argentumIsotopes of silver.mw-parser-output .hlist dl,.mw-parser-output .hlist ol,.mw-parser-output .hlist ul{margin:0;padding:0}.mw-parser-output .hlist dd,.mw-parser-output .hlist dt,.mw-parser-output .hlist li{margin:0;display:inline}.mw-parser-output .hlist.inline,.mw-parser-output .hlist.inline dl,.mw-parser-output .hlist.inline ol,.mw-parser-output .hlist.inline ul,.mw-parser-output .hlist dl dl,.mw-parser-output .hlist dl ol,.mw-parser-output .hlist dl ul,.mw-parser-output .hlist ol dl,.mw-parser-output .hlist ol ol,.mw-parser-output .hlist ol ul,.mw-parser-output .hlist ul dl,.mw-parser-output .hlist ul ol,.mw-parser-output .hlist ul ul{display:inline}.mw-parser-output .hlist .mw-empty-li{display:none}.mw-parser-output .hlist dt::after{content:": "}.mw-parser-output .hlist dd::after,.mw-parser-output .hlist li::after{content:"\a0 · ";font-weight:bold}.mw-parser-output .hlist dd:last-child::after,.mw-parser-output .hlist dt:last-child::after,.mw-parser-output .hlist li:last-child::after{content:none}.mw-parser-output .hlist dd dd:first-child::before,.mw-parser-output .hlist dd dt:first-child::before,.mw-parser-output .hlist dd li:first-child::before,.mw-parser-output .hlist dt dd:first-child::before,.mw-parser-output .hlist dt dt:first-child::before,.mw-parser-output .hlist dt li:first-child::before,.mw-parser-output .hlist li dd:first-child::before,.mw-parser-output .hlist li dt:first-child::before,.mw-parser-output .hlist li li:first-child::before{content:" (";font-weight:normal}.mw-parser-output .hlist dd dd:last-child::after,.mw-parser-output .hlist dd dt:last-child::after,.mw-parser-output .hlist dd li:last-child::after,.mw-parser-output .hlist dt dd:last-child::after,.mw-parser-output .hlist dt dt:last-child::after,.mw-parser-output .hlist dt li:last-child::after,.mw-parser-output .hlist li dd:last-child::after,.mw-parser-output .hlist li dt:last-child::after,.mw-parser-output .hlist li li:last-child::after{content:")";font-weight:normal}.mw-parser-output .hlist ol{counter-reset:listitem}.mw-parser-output .hlist ol>li{counter-increment:listitem}.mw-parser-output .hlist ol>li::before{content:" "counter(listitem)"\a0 "}.mw-parser-output .hlist dd ol>li:first-child::before,.mw-parser-output .hlist dt ol>li:first-child::before,.mw-parser-output .hlist li ol>li:first-child::before{content:" ("counter(listitem)"\a0 "}.mw-parser-output .navbar{display:inline;font-size:88%;font-weight:normal}.mw-parser-output .navbar-collapse{float:left;text-align:left}.mw-parser-output .navbar-boxtext{word-spacing:0}.mw-parser-output .navbar ul{display:inline-block;white-space:nowrap;line-height:inherit}.mw-parser-output .navbar-brackets::before{margin-right:-0.125em;content:"[ "}.mw-parser-output .navbar-brackets::after{margin-left:-0.125em;content:" ]"}.mw-parser-output .navbar li{word-spacing:-0.125em}.mw-parser-output .navbar a>span,.mw-parser-output .navbar a>abbr{text-decoration:inherit}.mw-parser-output .navbar-mini abbr{font-variant:small-caps;border-bottom:none;text-decoration:none;cursor:inherit}.mw-parser-output .navbar-ct-full{font-size:114%;margin:0 7em}.mw-parser-output .navbar-ct-mini{font-size:114%;margin:0 4em}html.skin-theme-clientpref-night .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}@media(prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .navbar li a abbr{color:var(--color-base)!important}}@media print{.mw-parser-output .navbar{display:none!important}}ve.mw-parser-output .ib-isotopes .infobox-header{background:#e0e0e0;color:inherit}.mw-parser-output .ib-isotopes .infobox-below{background:#e8e8e8;color:inherit}.mw-parser-output .ib-isotopes .isotopes-table{display:table}.mw-parser-output .isotopes-table{text-align:center;width:100%;border-collapse:collapse;margin:0;padding:0}.mw-parser-output .isotopes-table-headers>:not(:first-child){padding:0.1em}.mw-parser-output .isotopes-table-footnote{text-align:left;padding-left:0.5em;background:var(--background-color-neutral-subtle,#f8f9fa);color:inherit}body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table th,body.skin--responsive.skin-minerva .mw-parser-output .isotopes-table td{padding:0.1em}
+
+
+
+Main isotopes
+
+Decay
+
+
+.mw-parser-output .sr-only{border:0;clip:rect(0,0,0,0);clip-path:polygon(0px 0px,0px 0px,0px 0px);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;white-space:nowrap}Isotope
+
+abun&#173;dance
+
+half-life (t1/2)
+
+mode
+
+pro&#173;duct
+
+
+105Ag
+
+synth
+
+41.29&#160;d
+
+ε
+
+105Pd
+
+
+106mAg
+
+synth
+
+8.28&#160;d
+
+ε
+
+106Pd
+
+
+107Ag
+
+51.8%
+
+stable
+
+
+108mAg
+
+synth
+
+439&#160;y
+
+ε
+
+108Pd
+
+
+IT
+
+108Ag
+
+
+109Ag
+
+48.2%
+
+stable
+
+
+110m2Ag
+
+synth
+
+249.86&#160;d
+
+β−
+
+110Cd
+
+
+111Ag
+
+synth
+
+7.43&#160;d
+
+β−
+
+111Cd
+
+&#160;Category: Silverviewtalkedit&#x20;|&#x20;references
+Silver is a chemical element; it has symbol Ag (from&#32;Latin&#32; argentum&#160;'silver') and atomic number 47. A soft, white, lustrous transition metal, it exhibits the highest electrical conductivity, thermal conductivity and reflectivity of any metal. Silver is found in the Earth's crust in the pure, free elemental form ("native silver"), as an alloy with gold and other metals, and in minerals such as acanthite, argentite and chlorargyrite. Most silver is recovered as a byproduct of lead–zinc, copper and gold mining and refining.
+Silver has long been valued as a precious metal and coinage metal. It is one of the seven metals of antiquity, and has had an enduring role in monetary systems, jewellery, tableware and decorative arts. Its purity is commonly measured on a per-mille basis; a 94%-pure alloy is described as "0.940 fine". Because pure silver is relatively soft, silver used in jewellery, coinage and household objects is often alloyed with copper or other metals.
+Beyond currency and investment uses such as coins and bullion, silver is an important industrial material. It is used in photovoltaics, electrical contacts and conductors, printed electronics, brazing alloys, catalysis, specialised mirrors and window coatings, and antimicrobial materials. Silver halides are important in photographic film, photographic paper and photochromic glass, although demand for photographic silver has declined with the spread of digital imaging.
+
+
+
+
+--- Characteristics ---
+Silver bullion bar, 1000 ounces
+Silver is extremely ductile and, like gold, can be drawn into a wire one atom wide.
+Silver is similar in its physical and chemical properties to its two vertical neighbours in group 11 of the periodic table: copper, and gold. Its 47 electrons are arranged in the configuration [Kr]4d105s1, similarly to copper ([Ar]3d104s1) and gold ([Xe]4f145d106s1); group 11 is one of the few groups in the d-block which has a completely consistent set of electron configurations. This distinctive electron configuration, with a single electron in the highest occupied s subshell over a filled d subshell, accounts for many of the singular properties of metallic silver.
+Silver is a relatively soft and extremely ductile and malleable transition metal, though it is slightly less malleable than gold. Silver crystallises in a face-centred cubic lattice with bulk coordination number 12, where only the single 5s electron is delocalised, similarly to copper and gold. Unlike metals with incomplete d-shells, metallic bonds in silver are lacking a covalent character and are relatively weak. This observation explains the low hardness and high ductility of single crystals of silver.
+Silver has a brilliant, white, metallic lustre that can take a high polish, and which is so characteristic that the name of the metal itself has become a colour name. Protected silver has greater optical reflectivity than aluminium at all wavelengths longer than ~450&#160;nm. At wavelengths shorter than 450&#160;nm, silver's reflectivity is inferior to that of aluminium and drops to zero near 310&#160;nm.
+Very high electrical and thermal conductivity are common to the elements in group 11, because their single s electron is free and does not interact with the filled d subshell, as such interactions (which occur in the preceding transition metals) lower electron mobility. The thermal conductivity of silver is among the highest of all materials, although the thermal conductivity of carbon (in the diamond allotrope) and superfluid helium-4 are higher. The electrical conductivity of silver is the highest of all metals, greater even than copper. Silver also has the lowest contact resistance of any metal. Silver is rarely used for its electrical conductivity, due to its high cost, although an exception is in radio-frequency engineering, particularly at VHF and higher frequencies where silver plating improves electrical conductivity because those currents tend to flow on the surface of conductors rather than through the interior. During World War II in the US, 13540 tons of silver were used for the electromagnets in calutrons for enriching uranium, mainly because of the wartime shortage of copper.
+Silver readily forms alloys with copper, gold, and zinc. Zinc-silver alloys with low zinc concentration may be considered as face-centred cubic solid solutions of zinc in silver, as the structure of the silver is largely unchanged while the electron concentration rises as more zinc is added. Increasing the electron concentration further leads to body-centred cubic (electron concentration 1.5), complex cubic (1.615), and hexagonal close-packed phases (1.75).
+
+
+--- Isotopes ---
+Main article: Isotopes of silver
+Naturally occurring silver is composed of two stable isotopes, 107Ag and 109Ag, with 107Ag being slightly more abundant (51.839% natural abundance). This almost equal abundance is rare in the periodic table. The atomic weight is 107.8682(2)&#160;Da; this value is very important because of the importance of silver compounds, particularly halides, in gravimetric analysis. Both isotopes of silver are produced in stars via the s-process (slow neutron capture), as well as in supernovas via the r-process (rapid neutron capture).
+Twenty-eight radioisotopes have been characterised, the most stable being 105Ag with a half-life of 41.29 days, 111Ag with a half-life of 7.45 days, and 112Ag with a half-life of 3.13 hours. Silver has numerous nuclear isomers, the most stable being 108mAg (t1/2 = 418 years), 110mAg (t1/2 = 249.79 days) and 106mAg (t1/2 = 8.28 days). All of the remaining radioactive isotopes have half-lives of less than an hour, and the majority of these have half-lives of less than three minutes.
+Isotopes of silver range in atomic mass from 92.950&#160;Da (93Ag) to 129.950&#160;Da (130Ag); the primary decay mode before the most abundant stable isotope, 107Ag, is electron capture and the primary mode after is beta decay. The primary decay products before 107Ag are palladium (element 46) isotopes, and the primary products after are cadmium (element 48) isotopes.
+The palladium isotope 107Pd decays by beta emission to 107Ag with a half-life of 6.5 million years. Iron meteorites are the only objects with a high-enough palladium-to-silver ratio to yield measurable variations in 107Ag abundance. Radiogenic 107Ag was first discovered in the Santa Clara meteorite in 1978. 107Pd–107Ag correlations observed in bodies that have clearly been melted since the accretion of the Solar System must reflect the presence of unstable nuclides in the early Solar System.
+
+
+--- History ---
+Silver vase, c.&#8201;2400 BC
+Karashamb silver goblet, 23rd–22nd century BC
+Silver was known in prehistoric times: the three metals of group 11, copper, silver, and gold, occur in the elemental form in nature and were probably used as the first primitive forms of money as opposed to simple bartering. Unlike copper, silver did not lead to the growth of metallurgy, on account of its low structural strength; it was more often used ornamentally or as money. Since silver is more reactive than gold, supplies of native silver were much more limited than those of gold. For example, silver was more expensive than gold in Egypt until around the fifteenth century BC: the Egyptians are thought to have separated gold from silver by heating the metals with salt, and then reducing the silver chloride produced to the metal.
+The situation changed with the discovery of cupellation, a technique that allowed silver metal to be extracted from its ores. While slag heaps found in Asia Minor and on the islands of the Aegean Sea indicate that silver was being separated from lead as early as the 4th millennium BC, and one of the earliest silver extraction centres in Europe was Sardinia in the early Chalcolithic period, these techniques did not spread widely until later,
+when it spread throughout the region and beyond. The origins of silver production in India, China, and Japan were almost certainly equally ancient, but are not well-documented due to their great age.
+
+Silver mining and processing in Kutná Hora, Bohemia, 1490s
+When the Phoenicians first came to what is now Spain, they obtained so much silver that they could not fit it all on their ships, and as a result used silver to weight their anchors instead of lead. By the time of the Greek and Roman civilisations, silver coins were a staple of the economy: the Greeks were already extracting silver from galena by the 7th century BC, and the rise of Athens was partly made possible by the nearby silver mines at Laurium, from which they extracted about 30 tonnes a year from 600 to 300&#160;BC. The stability of the Roman currency relied to a high degree on the supply of silver bullion, mostly from Spain, which Roman miners produced on a scale unparalleled before the discovery of the New World. Reaching a peak production of 200 tonnes per year, an estimated silver stock of 10,000 tonnes circulated in the Roman economy in the middle of the second century AD, five to ten times larger than the combined amount of silver available to medieval Europe and the Abbasid Caliphate around AD&#160;800. The Romans also recorded the extraction of silver in central and northern Europe in the same time period. This production came to a nearly complete halt with the fall of the Roman Empire, not to resume until the time of Charlemagne: by then, tens of thousands of tonnes of silver had already been extracted.
+Central Europe became the centre of silver production during the Middle Ages, as the Mediterranean deposits exploited by the ancient civilisations had been exhausted. Silver mines were opened in Bohemia, Saxony, Alsace, the Lahn region, Siegerland, Silesia, Hungary, Norway, Steiermark, Schwaz, and the southern Black Forest. Most of these ores were quite rich in silver and could simply be separated by hand from the remaining rock and then smelted; some deposits of native silver were also encountered. Many of these mines were soon exhausted, but a few of them remained active until the Industrial Revolution. In the Americas, high temperature silver-lead cupellation technology was developed by pre-Inca civilisations as early as AD&#160;60–120; silver deposits in India, China, Japan, and pre-Columbian America continued to be mined during this time.
+With the discovery of America and the plundering of silver by the Spanish conquistadors, Central and South America became the dominant producers of silver until around the beginning of the 18th century, particularly Peru, Bolivia, Chile, and Argentina: the last of these countries later took its name from that of the metal that composed so much of its mineral wealth. The silver trade gave way to a global network of exchange. As one historian put it, silver "went round the world and made the world go round." Much of this silver ended up in the hands of the Chinese. A Portuguese merchant in 1621 noted that silver "wanders throughout all the world... before flocking to China, where it remains as if at its natural centre". Still, much of it went to Spain, allowing Spanish rulers to pursue military and political ambitions in both Europe and the Americas. "New World mines", concluded several historians, "supported the Spanish empire."
+In the 19th century, primary production of silver moved to North America, particularly Canada, Mexico, and Nevada in the United States: some secondary production from lead and zinc ores also took place in Europe, and deposits in Siberia and the Russian Far East as well as in Australia were mined. Poland emerged as an important producer during the 1970s after the discovery of copper deposits that were rich in silver, before the centre of production returned to the Americas the following decade. Today, Peru and Mexico are still among the primary silver producers, but the distribution of silver production around the world is quite balanced and about one-fifth of the silver supply comes from recycling instead of new production.
+
+
+		
+			
+			Proto-Elamite kneeling bull holding a spouted vessel; 3100–2900 BC; 16.3×6.3×10.8&#160;cm; Metropolitan Museum of Art (New York City)
+		
+		
+			
+			Ancient Egyptian figurine of Horus as falcon god with an Egyptian crown; c.&#8201;500 BC; silver and electrum; height: 26.9&#160;cm; Staatliche Sammlung für Ägyptische Kunst (Munich, Germany)
+		
+		
+			
+			Ancient Greek tetradrachm; 315–308 BC; diameter: 2.7&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			Ancient Greek gilded bowl; 2nd–1st century BC; height: 7.6&#160;cm, diameter: 14.8&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			Roman plate; 1st–2nd century AD; height: 0.1&#160;cm, diameter: 12.7&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			Roman bust of Serapis; 2nd century; 15.6×9.5&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			Auricular basin with scenes from the story of Diana and Actaeon; 1613; length: 50&#160;cm, height: 6&#160;cm, width: 40&#160;cm; Rijksmuseum (Amsterdam, the Netherlands)
+		
+		
+			
+			French Rococo tureen; 1749; height: 26.3&#160;cm, width: 39&#160;cm, depth: 24&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			French Rococo coffeepot; 1757; height: 29.5&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			French Neoclassical ewer; 1784–1785; height: 32.9&#160;cm; Metropolitan Museum of Art
+		
+		
+			
+			Neo-Rococo coffeepot; 1845; overall: 32×23.8×15.4&#160;cm; Cleveland Museum of Art (Cleveland, Ohio, US)
+		
+		
+			
+			French Art Nouveau dessert spoons; circa 1890; Cooper Hewitt, Smithsonian Design Museum (New York City)
+		
+		
+			
+			Art Nouveau jardinière; circa 1905–1910; height: 22&#160;cm, width: 47&#160;cm, depth: 22.5&#160;cm; Cooper Hewitt, Smithsonian Design Museum
+		
+		
+			
+			Hand mirror; 1906; height: 20.7&#160;cm, weight: 88 g; Rijksmuseum (Amsterdam, the Netherlands)
+		
+		
+			
+			Mystery watch; ca. 1889; diameter: 5.4&#160;cm, depth: 1.8&#160;cm; Musée d'Horlogerie of Le Locle (Switzerland)
+		
+
+
+--- Applications ---

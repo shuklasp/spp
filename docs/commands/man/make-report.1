@@ -1,0 +1,15 @@
+.TH MAKE:REPORT 1 "2026-08-21" "SPP Framework" "SPP CLI Commands"
+.SH NAME
+make:report \- Scaffolds a new SPPReport YAML configuration and its corresponding HTMX view partial securely.
+.SH SYNOPSIS
+\fBphp spp.php make:report\fR [\fINAME\fR]
+.SH DESCRIPTION
+The \fBmake:report\fR command helps developers rapidly scaffold new Enterprise reports. Rather than writing JSON or YAML manually, this command provisions a standard configuration with safe defaults inside the \fIetc/sppreports/\fR directory. Furthermore, to adhere to the strict framework architectural rules regarding zero inline HTML, it generates a securely escaped view partial in the \fIpartials/reports/\fR directory that uses \fIhtmlspecialchars()\fR and avoids executing PHP directly inside the controller.
+.SH OPTIONS
+.TP
+\fINAME\fR
+(Required) The name of the report you wish to scaffold. It will be sanitized to letters, numbers, hyphens, and underscores.
+.SH UNDER THE HOOD
+1. Reads the provided \fINAME\fR and sanitizes it.
+2. Creates \fIetc/sppreports/<name>.yml\fR with boilerplate structure.
+3. Creates \fIpartials/reports/<name>.php\fR with a standard HTML grid wrapped safely for HTMX and Turbo Streams.

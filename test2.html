@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ignition Error: Error</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --bg: #09090b; 
+            --surface: rgba(24, 24, 27, 0.75); 
+            --surface-hover: rgba(39, 39, 42, 0.85);
+            --primary: #f43f5e; 
+            --primary-glow: rgba(244, 63, 94, 0.2);
+            --text: #f4f4f5; 
+            --muted: #a1a1aa; 
+            --border: rgba(255, 255, 255, 0.1);
+            --accent: #6366f1;
+            --accent-glow: rgba(99, 102, 241, 0.2);
+            --success: #10b981;
+            --code-bg: #000000;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: var(--bg); 
+            background-image: 
+                radial-gradient(circle at 100% 0%, var(--primary-glow), transparent 500px),
+                radial-gradient(circle at 0% 100%, var(--accent-glow), transparent 500px);
+            background-attachment: fixed;
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            line-height: 1.6; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .container { 
+            max-width: 1300px; 
+            width: 100%; 
+            margin: 40px auto; 
+            padding: 0 24px; 
+            animation: fadeUp 0.5s ease-out forwards; 
+        }
+        
+        /* Navbar / Brand Header */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .brand {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .brand-pill {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .env-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+        .env-badge {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        /* Hero Exception Banner */
+        .header-card { 
+            background: var(--surface); 
+            backdrop-filter: blur(16px);
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border);
+            border-left: 8px solid var(--primary); 
+            margin-bottom: 32px; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); 
+        }
+        .exception-type { 
+            font-size: 0.9rem; 
+            text-transform: uppercase; 
+            letter-spacing: 2px; 
+            color: var(--primary); 
+            font-weight: 800; 
+            margin-bottom: 12px; 
+            display: inline-block;
+        }
+        .message { 
+            font-size: 2.2rem; 
+            font-weight: 800; 
+            letter-spacing: -0.8px; 
+            line-height: 1.25; 
+            color: white;
+            margin-bottom: 20px;
+        }
+        .location-tag { 
+            color: #38bdf8; 
+            font-family: 'Fira Code', monospace; 
+            font-size: 0.9rem; 
+            background: rgba(0, 0, 0, 0.4); 
+            padding: 10px 16px; 
+            border-radius: 8px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+
+        /* Tab Navigation */
+        .tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: var(--surface);
+            color: var(--muted);
+            border: 1px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+        .tab-btn:hover {
+            background: var(--surface-hover);
+            color: var(--text);
+        }
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px -5px var(--accent-glow);
+        }
+
+        /* Tab Content Views */
+        .tab-pane {
+            display: none;
+            background: var(--surface); 
+            backdrop-filter: blur(16px);
+            padding: 40px; 
+            border-radius: 20px; 
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.4); 
+        }
+        .tab-pane.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        /* Grid for Stack Trace & Snippets */
+        .trace-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 32px;
+        }
+        @media (max-width: 1024px) {
+            .trace-layout { grid-template-columns: 1fr; }
+        }
+        .frame-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 700px;
+            overflow-y: auto;
+            padding-right: 12px;
+        }
+        /* Custom scrollbar for frames */
+        .frame-list::-webkit-scrollbar { width: 6px; }
+        .frame-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        .frame-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+        .frame-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .frame-card:hover {
+            background: var(--surface-hover);
+            transform: translateX(4px);
+        }
+        .frame-card.active {
+            border-left: 4px solid var(--accent);
+            background: rgba(99, 102, 241, 0.15);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+        .frame-func {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #38bdf8;
+            font-weight: 600;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+        .frame-path {
+            font-size: 0.8rem;
+            color: var(--muted);
+            word-break: break-all;
+        }
+
+        /* Active Code Preview */
+        .code-preview-container {
+            display: flex;
+            flex-direction: column;
+        }
+        .code-header {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 12px 20px;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+            border: 1px solid var(--border);
+            border-bottom: none;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .code-snippet-box {
+            background: var(--code-bg);
+            border-bottom-left-radius: 12px;
+            border-bottom-right-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px 0;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            box-shadow: inset 0 2px 15px rgba(0,0,0,0.8);
+        }
+        .code-line {
+            padding: 4px 20px;
+            white-space: pre;
+            color: #e2e8f0;
+            display: flex;
+        }
+        .code-line:hover { background: rgba(255, 255, 255, 0.04); }
+        .code-line.error-line {
+            background: rgba(244, 63, 94, 0.2);
+            border-left: 4px solid var(--primary);
+            padding-left: 16px;
+            color: white;
+            font-weight: 600;
+        }
+        .line-num {
+            color: #475569;
+            width: 50px;
+            flex-shrink: 0;
+            user-select: none;
+            border-right: 1px solid #262626;
+            margin-right: 20px;
+            text-align: right;
+            padding-right: 12px;
+        }
+
+        /* Actionable Fix Pane */
+        .fix-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-left: 6px solid var(--success);
+            padding: 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+        }
+        .fix-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #34d399;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .fix-desc {
+            color: #e2e8f0;
+            font-size: 1.05rem;
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+        .fix-cmd {
+            background: #000;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-family: 'Fira Code', monospace;
+            color: #a7f3d0;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: var(--success);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { opacity: 0.9; }
+
+        /* Key Value Info Tables */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-table th, .info-table td {
+            padding: 16px 24px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        .info-table th {
+            width: 250px;
+            font-weight: 600;
+            color: #38bdf8;
+            background: rgba(0,0,0,0.2);
+            border-top-left-radius: 8px;
+            border-bottom-left-radius: 8px;
+        }
+        .info-table td {
+            color: var(--text);
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            background: rgba(0,0,0,0.1);
+            border-top-right-radius: 8px;
+            border-bottom-right-radius: 8px;
+        }
+
+        /* CLI Guide Pane */
+        .cli-guide-card {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 32px;
+            border-radius: 16px;
+        }
+        .cli-heading {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #818cf8;
+            margin-bottom: 16px;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Brand Header -->
+        <header class="top-bar">
+            <div class="brand">
+                <span>🔥 SPP Ignition</span>
+                <span class="brand-pill">DEVELOPER MODE</span>
+            </div>
+            <div class="env-indicator">
+                <span>App Context: <strong>ptable</strong></span>
+                <span class="env-badge">SPP_DEBUG = TRUE</span>
+            </div>
+        </header>
+
+        <!-- Hero Exception Card -->
+        <div class="header-card">
+            <div class="exception-type">Error</div>
+            <h1 class="message">Call to undefined method App\ptable\Serv\PeriodicTableData::getElementBySymbol()</h1>
+            <div class="location-tag">
+                <span>📁 /mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php</span>
+                <span>::</span>
+                <span>Line 58</span>
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('trace')">🔥 Stack Trace & Snippets</button>
+            <button class="tab-btn" onclick="switchTab('fix')">💡 Actionable AI Solution</button>
+            <button class="tab-btn" onclick="switchTab('request')">🌍 Request & Routing</button>
+            <button class="tab-btn" onclick="switchTab('env')">🛡️ Environment & CLI Switch</button>
+        </div>
+
+        <!-- Tab Content 1: Stack Trace & Snippets -->
+        <div id="tab-trace" class="tab-pane active">
+            <div class="trace-layout">
+                <!-- Left Column: Frame List -->
+                <div class="frame-list">
+                    <!-- Main Exception Frame -->
+                    <div class="frame-card active" onclick="selectFrame(0)">
+                        <div class="frame-func">💥 Exception Thrown</div>
+                        <div class="frame-path">HomeController.php:58</div>
+                    </div>
+                    <!-- Trace Frames -->
+                                                                        <div class="frame-card" onclick="selectFrame(1)">
+                                <div class="frame-func">
+                                    App\ptable\Serv\HomeController-&gt;element()
+                                </div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(2)">
+                                <div class="frame-func">
+                                    call_user_func_array()
+                                </div>
+                                                                    <div class="frame-path">class.viewrouter.php:86</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(3)">
+                                <div class="frame-func">
+                                    SPPMod\SPPView\ViewRouter::showPage()
+                                </div>
+                                                                    <div class="frame-path">class.viewpage.php:46</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(4)">
+                                <div class="frame-func">
+                                    SPPMod\SPPView\ViewPage::showPage()
+                                </div>
+                                                                    <div class="frame-path">index.php:181</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(5)">
+                                <div class="frame-func">
+                                    {closure}()
+                                </div>
+                                                                    <div class="frame-path">class.pipeline.php:73</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(6)">
+                                <div class="frame-func">
+                                    SPP\Core\Pipeline-&gt;SPP\Core\{closure}()
+                                </div>
+                                                                    <div class="frame-path">RequestLogger.php:24</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(7)">
+                                <div class="frame-func">
+                                    SPPMod\SPPLogger\RequestLogger-&gt;handle()
+                                </div>
+                                                                    <div class="frame-path">class.pipeline.php:59</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(8)">
+                                <div class="frame-func">
+                                    SPP\Core\Pipeline-&gt;SPP\Core\{closure}()
+                                </div>
+                                                                    <div class="frame-path">class.csrfmiddleware.php:49</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(9)">
+                                <div class="frame-func">
+                                    SPP\Core\Middleware\CSRFMiddleware-&gt;handle()
+                                </div>
+                                                                    <div class="frame-path">class.pipeline.php:59</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(10)">
+                                <div class="frame-func">
+                                    SPP\Core\Pipeline-&gt;SPP\Core\{closure}()
+                                </div>
+                                                                    <div class="frame-path">ApiAuthMiddleware.php:18</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(11)">
+                                <div class="frame-func">
+                                    SPP\Core\Middleware\ApiAuthMiddleware-&gt;handle()
+                                </div>
+                                                                    <div class="frame-path">class.pipeline.php:59</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(12)">
+                                <div class="frame-func">
+                                    SPP\Core\Pipeline-&gt;SPP\Core\{closure}()
+                                </div>
+                                                                    <div class="frame-path">class.pipeline.php:44</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(13)">
+                                <div class="frame-func">
+                                    SPP\Core\Pipeline-&gt;then()
+                                </div>
+                                                                    <div class="frame-path">class.middlewarekernel.php:80</div>
+                                                            </div>
+                                                    <div class="frame-card" onclick="selectFrame(14)">
+                                <div class="frame-func">
+                                    SPP\Core\MiddlewareKernel::run()
+                                </div>
+                                                                    <div class="frame-path">index.php:75</div>
+                                                            </div>
+                                                            </div>
+
+                <!-- Right Column: Active Code Snippets -->
+                <div class="code-preview-container">
+                    <!-- Main Exception Snippet (Frame 0) -->
+                    <div id="snippet-0" class="code-snippet-box-wrapper">
+                        <div class="code-header">
+                            <span>/mnt/c/projects/apache/school1/src/ptable/serv/HomeController.php</span>
+                            <span>Line 58</span>
+                        </div>
+                        <div class="code-snippet-box">
+                            <div class='code-line'><span class='line-num'>49</span>         ]);
+</div><div class='code-line'><span class='line-num'>50</span>     }
+</div><div class='code-line'><span class='line-num'>51</span> 
+</div><div class='code-line'><span class='line-num'>52</span>     public function element($symbol = null, $request = null)
+</div><div class='code-line'><span class='line-num'>53</span>     {
+</div><div class='code-line'><span class='line-num'>54</span>         if (empty($symbol)) {
+</div><div class='code-line'><span class='line-num'>55</span>             return $this-&gt;index();
+</div><div class='code-line'><span class='line-num'>56</span>         }
+</div><div class='code-line'><span class='line-num'>57</span> 
+</div><div class='code-line error-line'><span class='line-num'>58</span>         $element = PeriodicTableData::getElementBySymbol($symbol);
+</div><div class='code-line'><span class='line-num'>59</span>         if (!$element) {
+</div><div class='code-line'><span class='line-num'>60</span>             return $this-&gt;index();
+</div><div class='code-line'><span class='line-num'>61</span>         }
+</div><div class='code-line'><span class='line-num'>62</span> 
+</div><div class='code-line'><span class='line-num'>63</span>         $wikiData = LocalDataService::getElementData($symbol);
+</div><div class='code-line'><span class='line-num'>64</span> 
+</div><div class='code-line'><span class='line-num'>65</span>         return $this-&gt;render(&#039;element&#039;, [
+</div><div class='code-line'><span class='line-num'>66</span>             &#039;title&#039; =&gt; $element[&#039;name&#039;] . &#039; (&#039; . $element[&#039;symbol&#039;] . &#039;)&#039;,
+</div><div class='code-line'><span class='line-num'>67</span>             &#039;element&#039; =&gt; $element,
+</div><div class='code-line'><span class='line-num'>68</span>             &#039;wiki&#039; =&gt; $wikiData
+</div>                        </div>
+                    </div>
+
+                    <!-- Trace Frame Snippets (Frame 1..N) -->
+                                                                        <div id="snippet-1" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>Internal Closure / Core</span>
+                                    <span>Line N/A</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'>Code snippet not available for this frame.</div>                                </div>
+                            </div>
+                                                    <div id="snippet-2" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewrouter.php</span>
+                                    <span>Line 86</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>77</span>                                 $mwInstance-&gt;handle();
+</div><div class='code-line'><span class='line-num'>78</span>                             }
+</div><div class='code-line'><span class='line-num'>79</span>                         }
+</div><div class='code-line'><span class='line-num'>80</span>                     }
+</div><div class='code-line'><span class='line-num'>81</span>                 }
+</div><div class='code-line'><span class='line-num'>82</span> 
+</div><div class='code-line'><span class='line-num'>83</span>                 $controller = new $class();
+</div><div class='code-line'><span class='line-num'>84</span>                 if (method_exists($controller, $method)) {
+</div><div class='code-line'><span class='line-num'>85</span>                     $params = $pageData[&#039;params&#039;] ?? [];
+</div><div class='code-line error-line'><span class='line-num'>86</span>                     $result = call_user_func_array([$controller, $method], $params);
+</div><div class='code-line'><span class='line-num'>87</span>                     if (is_string($result)) {
+</div><div class='code-line'><span class='line-num'>88</span>                         echo $result;
+</div><div class='code-line'><span class='line-num'>89</span>                         $filename = null;
+</div><div class='code-line'><span class='line-num'>90</span>                     }
+</div><div class='code-line'><span class='line-num'>91</span>                 }
+</div><div class='code-line'><span class='line-num'>92</span>             }
+</div><div class='code-line'><span class='line-num'>93</span>         }
+</div><div class='code-line'><span class='line-num'>94</span> 
+</div><div class='code-line'><span class='line-num'>95</span>         // --- Multi-Engine Paradigm Router ---
+</div><div class='code-line'><span class='line-num'>96</span>         if ($filename &amp;&amp; \SPP\Module::isEnabled(&#039;drishyam&#039;)) {
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-3" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/modules/spp/sppview/class.viewpage.php</span>
+                                    <span>Line 46</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>37</span>     protected static $pagehead;
+</div><div class='code-line'><span class='line-num'>38</span>     protected static $pagebody;
+</div><div class='code-line'><span class='line-num'>39</span>     protected static $pagemeta;
+</div><div class='code-line'><span class='line-num'>40</span>     protected static $xml;
+</div><div class='code-line'><span class='line-num'>41</span>     protected static $validators = [];
+</div><div class='code-line'><span class='line-num'>42</span> 
+</div><div class='code-line'><span class='line-num'>43</span>     // --- Core Routing &amp; Rendering (Delegated) ---
+</div><div class='code-line'><span class='line-num'>44</span>     public static function showPage($page = null, array $options = [])
+</div><div class='code-line'><span class='line-num'>45</span>     {
+</div><div class='code-line error-line'><span class='line-num'>46</span>         return ViewRouter::showPage($page, $options);
+</div><div class='code-line'><span class='line-num'>47</span>     }
+</div><div class='code-line'><span class='line-num'>48</span> 
+</div><div class='code-line'><span class='line-num'>49</span>     private static function renderFile(string $filename, array $pageData): void
+</div><div class='code-line'><span class='line-num'>50</span>     {
+</div><div class='code-line'><span class='line-num'>51</span>         ViewRenderer::renderFile($filename, $pageData);
+</div><div class='code-line'><span class='line-num'>52</span>     }
+</div><div class='code-line'><span class='line-num'>53</span> 
+</div><div class='code-line'><span class='line-num'>54</span>     public static function render($page = null)
+</div><div class='code-line'><span class='line-num'>55</span>     {
+</div><div class='code-line'><span class='line-num'>56</span>         $url = ($page != null) ? \SPPMod\SPPRouter\SPPRouter::getPage($page)[&#039;url&#039;] : null;
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-4" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/index.php</span>
+                                    <span>Line 181</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>172</span>         }
+</div><div class='code-line'><span class='line-num'>173</span> 
+</div><div class='code-line'><span class='line-num'>174</span>         $activeProc = \SPP\Scheduler::getActiveProc();
+</div><div class='code-line'><span class='line-num'>175</span>         if (method_exists($activeProc, &#039;handle&#039;)) {
+</div><div class='code-line'><span class='line-num'>176</span>             $activeProc-&gt;handle($request);
+</div><div class='code-line'><span class='line-num'>177</span>             return;
+</div><div class='code-line'><span class='line-num'>178</span>         }
+</div><div class='code-line'><span class='line-num'>179</span> 
+</div><div class='code-line'><span class='line-num'>180</span>         \SPPMod\SPPView\ViewPage::processForms();
+</div><div class='code-line error-line'><span class='line-num'>181</span>         \SPPMod\SPPView\ViewPage::showPage();
+</div><div class='code-line'><span class='line-num'>182</span>     });
+</div><div class='code-line'><span class='line-num'>183</span> } catch (\SPP\MeshPassthroughException $e) {
+</div><div class='code-line'><span class='line-num'>184</span>     // Escape Hatch for Mesh Legacy Virtualization (Scope Bleed Mitigation)
+</div><div class='code-line'><span class='line-num'>185</span>     // We catch the exception at the absolute global scope and perform the legacy require here.
+</div><div class='code-line'><span class='line-num'>186</span>     $_SERVER[&#039;SCRIPT_NAME&#039;] = $e-&gt;getScriptName();
+</div><div class='code-line'><span class='line-num'>187</span>     $_SERVER[&#039;PHP_SELF&#039;] = $_SERVER[&#039;SCRIPT_NAME&#039;];
+</div><div class='code-line'><span class='line-num'>188</span>     $_SERVER[&#039;SCRIPT_FILENAME&#039;] = $e-&gt;getScriptFilename();
+</div><div class='code-line'><span class='line-num'>189</span>     
+</div><div class='code-line'><span class='line-num'>190</span>     if ($e-&gt;hasUiMesh()) {
+</div><div class='code-line'><span class='line-num'>191</span>         ob_start();
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-5" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.pipeline.php</span>
+                                    <span>Line 73</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>64</span>         };
+</div><div class='code-line'><span class='line-num'>65</span>     }
+</div><div class='code-line'><span class='line-num'>66</span> 
+</div><div class='code-line'><span class='line-num'>67</span>     /**
+</div><div class='code-line'><span class='line-num'>68</span>      * Prepare the final destination callback.
+</div><div class='code-line'><span class='line-num'>69</span>      */
+</div><div class='code-line'><span class='line-num'>70</span>     private function prepareDestination(callable $destination): \Closure
+</div><div class='code-line'><span class='line-num'>71</span>     {
+</div><div class='code-line'><span class='line-num'>72</span>         return function ($passable) use ($destination) {
+</div><div class='code-line error-line'><span class='line-num'>73</span>             return $destination($passable);
+</div><div class='code-line'><span class='line-num'>74</span>         };
+</div><div class='code-line'><span class='line-num'>75</span>     }
+</div><div class='code-line'><span class='line-num'>76</span> }
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-6" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/modules/spp/spplogger/src/RequestLogger.php</span>
+                                    <span>Line 24</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>15</span>         // Pre-processing
+</div><div class='code-line'><span class='line-num'>16</span>         $method = $_SERVER[&#039;REQUEST_METHOD&#039;] ?? &#039;UNKNOWN&#039;;
+</div><div class='code-line'><span class='line-num'>17</span>         $uri = $_SERVER[&#039;REQUEST_URI&#039;] ?? &#039;UNKNOWN&#039;;
+</div><div class='code-line'><span class='line-num'>18</span> 
+</div><div class='code-line'><span class='line-num'>19</span>         // Log the request (MOCKED for now as I don&#039;t want to rely on the full logger module)
+</div><div class='code-line'><span class='line-num'>20</span>         // \SPPMod\SPPLogger\SPP_Logger::info(&quot;Incoming Request: $method $uri&quot;);
+</div><div class='code-line'><span class='line-num'>21</span>         // error_log(&quot;[SPP Middleware] Incoming Request: $method $uri&quot;);
+</div><div class='code-line'><span class='line-num'>22</span> 
+</div><div class='code-line'><span class='line-num'>23</span>         // Pass to the next middleware
+</div><div class='code-line error-line'><span class='line-num'>24</span>         $response = $next($request);
+</div><div class='code-line'><span class='line-num'>25</span> 
+</div><div class='code-line'><span class='line-num'>26</span>         // Post-processing
+</div><div class='code-line'><span class='line-num'>27</span>         return $response;
+</div><div class='code-line'><span class='line-num'>28</span>     }
+</div><div class='code-line'><span class='line-num'>29</span> }
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-7" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.pipeline.php</span>
+                                    <span>Line 59</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>50</span>     private function carry(): \Closure
+</div><div class='code-line'><span class='line-num'>51</span>     {
+</div><div class='code-line'><span class='line-num'>52</span>         return function ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>53</span>             return function ($passable) use ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>54</span>                 if (is_string($pipe)) {
+</div><div class='code-line'><span class='line-num'>55</span>                     $pipe = \SPP\Registry::make($pipe);
+</div><div class='code-line'><span class='line-num'>56</span>                 }
+</div><div class='code-line'><span class='line-num'>57</span> 
+</div><div class='code-line'><span class='line-num'>58</span>                 if ($pipe instanceof MiddlewareInterface) {
+</div><div class='code-line error-line'><span class='line-num'>59</span>                     return $pipe-&gt;handle($passable, $stack);
+</div><div class='code-line'><span class='line-num'>60</span>                 }
+</div><div class='code-line'><span class='line-num'>61</span> 
+</div><div class='code-line'><span class='line-num'>62</span>                 return $pipe($passable, $stack);
+</div><div class='code-line'><span class='line-num'>63</span>             };
+</div><div class='code-line'><span class='line-num'>64</span>         };
+</div><div class='code-line'><span class='line-num'>65</span>     }
+</div><div class='code-line'><span class='line-num'>66</span> 
+</div><div class='code-line'><span class='line-num'>67</span>     /**
+</div><div class='code-line'><span class='line-num'>68</span>      * Prepare the final destination callback.
+</div><div class='code-line'><span class='line-num'>69</span>      */
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-8" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/middleware/class.csrfmiddleware.php</span>
+                                    <span>Line 49</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>40</span>                     }
+</div><div class='code-line'><span class='line-num'>41</span>                 } catch (\Exception $e) {
+</div><div class='code-line'><span class='line-num'>42</span>                     if ($action !== &#039;login&#039;) {
+</div><div class='code-line'><span class='line-num'>43</span>                         throw $e;
+</div><div class='code-line'><span class='line-num'>44</span>                     }
+</div><div class='code-line'><span class='line-num'>45</span>                 }
+</div><div class='code-line'><span class='line-num'>46</span>             }
+</div><div class='code-line'><span class='line-num'>47</span>         }
+</div><div class='code-line'><span class='line-num'>48</span> 
+</div><div class='code-line error-line'><span class='line-num'>49</span>         return $next($request);
+</div><div class='code-line'><span class='line-num'>50</span>     }
+</div><div class='code-line'><span class='line-num'>51</span> }
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-9" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.pipeline.php</span>
+                                    <span>Line 59</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>50</span>     private function carry(): \Closure
+</div><div class='code-line'><span class='line-num'>51</span>     {
+</div><div class='code-line'><span class='line-num'>52</span>         return function ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>53</span>             return function ($passable) use ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>54</span>                 if (is_string($pipe)) {
+</div><div class='code-line'><span class='line-num'>55</span>                     $pipe = \SPP\Registry::make($pipe);
+</div><div class='code-line'><span class='line-num'>56</span>                 }
+</div><div class='code-line'><span class='line-num'>57</span> 
+</div><div class='code-line'><span class='line-num'>58</span>                 if ($pipe instanceof MiddlewareInterface) {
+</div><div class='code-line error-line'><span class='line-num'>59</span>                     return $pipe-&gt;handle($passable, $stack);
+</div><div class='code-line'><span class='line-num'>60</span>                 }
+</div><div class='code-line'><span class='line-num'>61</span> 
+</div><div class='code-line'><span class='line-num'>62</span>                 return $pipe($passable, $stack);
+</div><div class='code-line'><span class='line-num'>63</span>             };
+</div><div class='code-line'><span class='line-num'>64</span>         };
+</div><div class='code-line'><span class='line-num'>65</span>     }
+</div><div class='code-line'><span class='line-num'>66</span> 
+</div><div class='code-line'><span class='line-num'>67</span>     /**
+</div><div class='code-line'><span class='line-num'>68</span>      * Prepare the final destination callback.
+</div><div class='code-line'><span class='line-num'>69</span>      */
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-10" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/middleware/ApiAuthMiddleware.php</span>
+                                    <span>Line 18</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>9</span> class ApiAuthMiddleware implements \SPP\Core\MiddlewareInterface
+</div><div class='code-line'><span class='line-num'>10</span> {
+</div><div class='code-line'><span class='line-num'>11</span>     public function handle($request, \Closure $next)
+</div><div class='code-line'><span class='line-num'>12</span>     {
+</div><div class='code-line'><span class='line-num'>13</span>         $q = $_GET[&#039;q&#039;] ?? &#039;&#039;;
+</div><div class='code-line'><span class='line-num'>14</span>         $qPath = trim($q, &#039;/&#039;);
+</div><div class='code-line'><span class='line-num'>15</span> 
+</div><div class='code-line'><span class='line-num'>16</span>         // Only intercept AutoApiRouter routes
+</div><div class='code-line'><span class='line-num'>17</span>         if (!str_starts_with($qPath, &#039;api/v1/&#039;)) {
+</div><div class='code-line error-line'><span class='line-num'>18</span>             return $next($request);
+</div><div class='code-line'><span class='line-num'>19</span>         }
+</div><div class='code-line'><span class='line-num'>20</span> 
+</div><div class='code-line'><span class='line-num'>21</span>         $parts = explode(&#039;/&#039;, $qPath);
+</div><div class='code-line'><span class='line-num'>22</span> 
+</div><div class='code-line'><span class='line-num'>23</span>         // Allow token generation endpoint
+</div><div class='code-line'><span class='line-num'>24</span>         if (count($parts) &gt;= 3 &amp;&amp; $parts[1] === &#039;v1&#039; &amp;&amp; $parts[2] === &#039;auth&#039; &amp;&amp; ($parts[3] ?? &#039;&#039;) === &#039;token&#039;) {
+</div><div class='code-line'><span class='line-num'>25</span>             return $next($request);
+</div><div class='code-line'><span class='line-num'>26</span>         }
+</div><div class='code-line'><span class='line-num'>27</span> 
+</div><div class='code-line'><span class='line-num'>28</span>         // Require API Key by default, can be toggled via config
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-11" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.pipeline.php</span>
+                                    <span>Line 59</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>50</span>     private function carry(): \Closure
+</div><div class='code-line'><span class='line-num'>51</span>     {
+</div><div class='code-line'><span class='line-num'>52</span>         return function ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>53</span>             return function ($passable) use ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>54</span>                 if (is_string($pipe)) {
+</div><div class='code-line'><span class='line-num'>55</span>                     $pipe = \SPP\Registry::make($pipe);
+</div><div class='code-line'><span class='line-num'>56</span>                 }
+</div><div class='code-line'><span class='line-num'>57</span> 
+</div><div class='code-line'><span class='line-num'>58</span>                 if ($pipe instanceof MiddlewareInterface) {
+</div><div class='code-line error-line'><span class='line-num'>59</span>                     return $pipe-&gt;handle($passable, $stack);
+</div><div class='code-line'><span class='line-num'>60</span>                 }
+</div><div class='code-line'><span class='line-num'>61</span> 
+</div><div class='code-line'><span class='line-num'>62</span>                 return $pipe($passable, $stack);
+</div><div class='code-line'><span class='line-num'>63</span>             };
+</div><div class='code-line'><span class='line-num'>64</span>         };
+</div><div class='code-line'><span class='line-num'>65</span>     }
+</div><div class='code-line'><span class='line-num'>66</span> 
+</div><div class='code-line'><span class='line-num'>67</span>     /**
+</div><div class='code-line'><span class='line-num'>68</span>      * Prepare the final destination callback.
+</div><div class='code-line'><span class='line-num'>69</span>      */
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-12" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.pipeline.php</span>
+                                    <span>Line 44</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>35</span>      */
+</div><div class='code-line'><span class='line-num'>36</span>     public function then(callable $destination)
+</div><div class='code-line'><span class='line-num'>37</span>     {
+</div><div class='code-line'><span class='line-num'>38</span>         $pipeline = array_reduce(
+</div><div class='code-line'><span class='line-num'>39</span>             array_reverse($this-&gt;pipes),
+</div><div class='code-line'><span class='line-num'>40</span>             $this-&gt;carry(),
+</div><div class='code-line'><span class='line-num'>41</span>             $this-&gt;prepareDestination($destination)
+</div><div class='code-line'><span class='line-num'>42</span>         );
+</div><div class='code-line'><span class='line-num'>43</span> 
+</div><div class='code-line error-line'><span class='line-num'>44</span>         return $pipeline($this-&gt;passable);
+</div><div class='code-line'><span class='line-num'>45</span>     }
+</div><div class='code-line'><span class='line-num'>46</span> 
+</div><div class='code-line'><span class='line-num'>47</span>     /**
+</div><div class='code-line'><span class='line-num'>48</span>      * Get the closure that represents one layer of the onion.
+</div><div class='code-line'><span class='line-num'>49</span>      */
+</div><div class='code-line'><span class='line-num'>50</span>     private function carry(): \Closure
+</div><div class='code-line'><span class='line-num'>51</span>     {
+</div><div class='code-line'><span class='line-num'>52</span>         return function ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>53</span>             return function ($passable) use ($stack, $pipe) {
+</div><div class='code-line'><span class='line-num'>54</span>                 if (is_string($pipe)) {
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-13" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/spp/core/class.middlewarekernel.php</span>
+                                    <span>Line 80</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>71</span>         \SPP\Scheduler::setContext($context);
+</div><div class='code-line'><span class='line-num'>72</span> 
+</div><div class='code-line'><span class='line-num'>73</span>         \SPP\SPPEvent::registerEvent(&#039;event_spp_kernel_boot&#039;);
+</div><div class='code-line'><span class='line-num'>74</span>         $params = new \SPP\EventParams();
+</div><div class='code-line'><span class='line-num'>75</span>         \SPP\SPPEvent::fireEvent(&#039;event_spp_kernel_boot&#039;, $params);
+</div><div class='code-line'><span class='line-num'>76</span> 
+</div><div class='code-line'><span class='line-num'>77</span>         return (new Pipeline())
+</div><div class='code-line'><span class='line-num'>78</span>             -&gt;send($_REQUEST)
+</div><div class='code-line'><span class='line-num'>79</span>             -&gt;through(self::$middleware)
+</div><div class='code-line error-line'><span class='line-num'>80</span>             -&gt;then($destination);
+</div><div class='code-line'><span class='line-num'>81</span>     }
+</div><div class='code-line'><span class='line-num'>82</span> }
+</div>                                </div>
+                            </div>
+                                                    <div id="snippet-14" class="code-snippet-box-wrapper" style="display: none;">
+                                <div class="code-header">
+                                    <span>/mnt/c/projects/apache/school1/index.php</span>
+                                    <span>Line 75</span>
+                                </div>
+                                <div class="code-snippet-box">
+                                    <div class='code-line'><span class='line-num'>66</span>     $qPath = trim($q, &#039;/&#039;);
+</div><div class='code-line'><span class='line-num'>67</span>     if ($baseUrl !== &#039;&#039; &amp;&amp; (str_starts_with($qPath, $baseUrl . &#039;/&#039;) || $qPath === $baseUrl)) {
+</div><div class='code-line'><span class='line-num'>68</span>         $_GET[&#039;q&#039;] = ltrim(substr($qPath, strlen($baseUrl)), &#039;/&#039;);
+</div><div class='code-line'><span class='line-num'>69</span>     }
+</div><div class='code-line'><span class='line-num'>70</span> }
+</div><div class='code-line'><span class='line-num'>71</span> 
+</div><div class='code-line'><span class='line-num'>72</span> require_once(&#039;global_v3.php&#039;);
+</div><div class='code-line'><span class='line-num'>73</span> 
+</div><div class='code-line'><span class='line-num'>74</span> try {
+</div><div class='code-line error-line'><span class='line-num'>75</span>     \SPP\Core\MiddlewareKernel::run(function ($request) {
+</div><div class='code-line'><span class='line-num'>76</span>         $context = \SPP\Scheduler::getContext() ?: &#039;default&#039;;
+</div><div class='code-line'><span class='line-num'>77</span>         \SPP\Scheduler::setContext($context);
+</div><div class='code-line'><span class='line-num'>78</span>         $appBaseUri = defined(&#039;APP_BASE_URI&#039;) ? APP_BASE_URI : &#039;&#039;;
+</div><div class='code-line'><span class='line-num'>79</span>         $appAsset = function (string $path) use ($appBaseUri): string {
+</div><div class='code-line'><span class='line-num'>80</span>             return rtrim($appBaseUri, &#039;/&#039;) . &#039;/&#039; . ltrim($path, &#039;/&#039;);
+</div><div class='code-line'><span class='line-num'>81</span>         };
+</div><div class='code-line'><span class='line-num'>82</span> 
+</div><div class='code-line'><span class='line-num'>83</span>         // Register core scripts INSIDE the kernel
+</div><div class='code-line'><span class='line-num'>84</span>         \SPPMod\SPPView\ViewPage::addCssIncludeFile($appAsset(&#039;res/spp/css/spp.css&#039;));
+</div><div class='code-line'><span class='line-num'>85</span>         \SPPMod\SPPView\ViewPage::addJsIncludeFile($appAsset(&#039;res/spp/js/spp.js&#039;));
+</div>                                </div>
+                            </div>
+                                                            </div>
+            </div>
+        </div>
+
+        <!-- Tab Content 2: Actionable AI Fix -->
+        <div id="tab-fix" class="tab-pane">
+                        <div class="fix-box">
+                <div class="fix-title">💡 Missing or Incompatible Method Call</div>
+                <div class="fix-desc">A module or service attempted to invoke a method that does not exist in the target class. Verify that your core files (e.g. `class.commandmanager.php`) are fully up to date and include the expected API definitions.</div>
+                <div class="fix-cmd">
+                    <span id="cmd-text">php spp/spp.php env:mode dev</span>
+                    <button class="copy-btn" onclick="copyCommand()">📋 Copy Command</button>
+                </div>
+            </div>
+            
+            <div class="cli-guide-card">
+                <h3 class="cli-heading">🔄 Need to test in Production Mode?</h3>
+                <p style="color: var(--muted); margin-bottom: 16px;">
+                    You can switch out of developer error pages and preview the clean 500 error page instantly from your terminal:
+                </p>
+                <div style="background: #000; padding: 16px 24px; border-radius: 12px; font-family: 'Fira Code', monospace; color: #818cf8;">
+                    php spp/spp.php env:mode prod
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content 3: Request & Routing -->
+        <div id="tab-request" class="tab-pane">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">🌍 HTTP Request Context</h2>
+            <table class="info-table">
+                <tr>
+                    <th>Request URL</th>
+                    <td>/school1/ptable/element/Zn</td>
+                </tr>
+                <tr>
+                    <th>Request Method</th>
+                    <td>GET</td>
+                </tr>
+                <tr>
+                    <th>Application Context</th>
+                    <td>ptable</td>
+                </tr>
+                <tr>
+                    <th>Query Parameters ($_GET)</th>
+                    <td>{
+    &quot;q&quot;: &quot;element\/Zn&quot;
+}</td>
+                </tr>
+                <tr>
+                    <th>Body Parameters ($_POST)</th>
+                    <td>[]</td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- Tab Content 4: Environment & CLI Switch -->
+        <div id="tab-env" class="tab-pane">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 12px;">🛡️ SPP Architecture & Environment</h2>
+            <table class="info-table" style="margin-bottom: 32px;">
+                <tr>
+                    <th>SPP Framework Version</th>
+                    <td>0.7</td>
+                </tr>
+                <tr>
+                    <th>PHP Runtime Version</th>
+                    <td>8.3.6</td>
+                </tr>
+                <tr>
+                    <th>SAPI Mode</th>
+                    <td>apache2handler</td>
+                </tr>
+                <tr>
+                    <th>Debug Mode (SPP_DEBUG)</th>
+                    <td><span style="color: #34d399; font-weight: bold;">TRUE (Developer Ignition Mode)</span></td>
+                </tr>
+            </table>
+
+            <div class="cli-guide-card">
+                <h3 class="cli-heading">🚀 Instant Environment Switching via CLI</h3>
+                <p style="color: var(--muted); margin-bottom: 16px; line-height: 1.8;">
+                    The SPP framework provides a powerful CLI command to toggle your global environment error reporting mode seamlessly. It automatically updates <code>spp/etc/global-settings.yml</code>.
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <div style="background: #000; padding: 16px 24px; border-radius: 12px; font-family: 'Fira Code', monospace; color: #a7f3d0;">
+                        <div style="color: var(--muted); font-size: 0.8rem; margin-bottom: 4px;">// Switch to Developer Ignition Mode (SPP_DEBUG = true)</div>
+                        php spp/spp.php env:mode dev
+                    </div>
+                    <div style="background: #000; padding: 16px 24px; border-radius: 12px; font-family: 'Fira Code', monospace; color: #f43f5e;">
+                        <div style="color: var(--muted); font-size: 0.8rem; margin-bottom: 4px;">// Switch to Clean Production 500 Pages (SPP_DEBUG = false)</div>
+                        php spp/spp.php env:mode prod
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vanilla JS Interactivity -->
+    <script>
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            // Find active button and pane
+            const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(btn => btn.getAttribute('onclick').includes(tabId));
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            const activePane = document.getElementById('tab-' + tabId);
+            if (activePane) activePane.classList.add('active');
+        }
+
+        function selectFrame(index) {
+            document.querySelectorAll('.frame-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.code-snippet-box-wrapper').forEach(snippet => snippet.style.display = 'none');
+
+            const selectedCard = document.querySelectorAll('.frame-card')[index];
+            if (selectedCard) selectedCard.classList.add('active');
+
+            const selectedSnippet = document.getElementById('snippet-' + index);
+            if (selectedSnippet) selectedSnippet.style.display = 'block';
+        }
+
+        function copyCommand() {
+            const cmdText = document.getElementById('cmd-text').innerText;
+            navigator.clipboard.writeText(cmdText).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                copyBtn.innerText = '✅ Copied!';
+                setTimeout(() => copyBtn.innerText = '📋 Copy Command', 2000);
+            });
+        }
+    </script>
+</body>
+</html>
+

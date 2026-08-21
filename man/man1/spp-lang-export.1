@@ -1,0 +1,25 @@
+.TH SPP-lang-export 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+lang:export
+.PP
+ \- Export active database translation overrides into JSON language file
+.SH DESCRIPTION
+Export active database translation overrides into JSON language file
+.PP
+.SH SYNOPSIS
+php spp.php lang:export [OPTIONS]
+.PP
+.SH OPTIONS
+\(bu `--app=` : Expects a value. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Dynamically loads SPP kernel modules: spplang.
+.br
+\(bu Bootstraps a full application execution context via Scheduler.
+.br
+.PP
+.PP

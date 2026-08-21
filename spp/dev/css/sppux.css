@@ -1,0 +1,66 @@
+/* SPP-UX Master Styles - Legendary Universe Edition V12 (Themable) */
+
+:root {
+    /* Core Theme Tokens - Override these in your app's CSS */
+    --sppux-primary: #6366f1;
+    --sppux-primary-glow: rgba(99, 102, 241, 0.4);
+    --sppux-panel: rgba(15, 23, 42, 0.98);
+    --sppux-glass-bg: rgba(255, 255, 255, 0.05);
+    --sppux-glass-border: rgba(255, 255, 255, 0.12);
+    --sppux-glass-blur: blur(20px);
+    
+    /* Semantic Colors */
+    --sppux-success: #10b981;
+    --sppux-warning: #f59e0b;
+    --sppux-danger: #ef4444;
+    --sppux-text: #f3f4f6;
+    --sppux-text-dim: #9ca3af;
+}
+
+/* Theme Transitioning */
+.sppux-theme-transitioning * {
+    transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease, color 0.6s ease !important;
+}
+
+/* Success Beam (Elegant Feedback) */
+.sppux-success-beam {
+    position: fixed; top: 0; left: 0; width: 100%; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--sppux-success), transparent);
+    z-index: 100000;
+    box-shadow: 0 0 15px var(--sppux-success);
+    animation: sppux-beam-expand 0.6s ease-out forwards;
+    pointer-events: none;
+}
+.sppux-success-beam.fade-out { opacity: 0; transition: opacity 0.8s; }
+@keyframes sppux-beam-expand {
+    0% { transform: scaleX(0); opacity: 0; }
+    50% { transform: scaleX(1); opacity: 1; }
+    100% { transform: scaleX(1.2); opacity: 0.8; }
+}
+
+/* Base Component Styles using Variables */
+.glass-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: var(--sppux-glass-blur); z-index: 10000; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+.glass-overlay.active { opacity: 1; pointer-events: all; }
+.modal-box { width: 90%; max-width: 600px; background: var(--sppux-panel); border: 1px solid var(--sppux-glass-border); border-radius: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); overflow: hidden; margin: 10vh auto; }
+
+.sppux-popover { position: fixed; z-index: 10010; background: var(--sppux-panel); border: 1px solid var(--sppux-glass-border); border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.6); width: 220px; animation: sppux-pop-in 0.2s ease-out; }
+@keyframes sppux-pop-in { from { transform: scale(0.9) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+/* Stepper */
+.sppux-stepper { display: flex; justify-content: space-between; padding: 20px; }
+.sppux-step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+.sppux-step-circle { width: 32px; height: 32px; border-radius: 50%; background: var(--sppux-glass-bg); border: 2px solid var(--sppux-glass-border); display: flex; align-items: center; justify-content: center; color: var(--sppux-text-dim); z-index: 2; transition: 0.3s; }
+.sppux-step.active .sppux-step-circle { border-color: var(--sppux-primary); color: white; box-shadow: 0 0 15px var(--sppux-primary-glow); }
+.sppux-step.completed .sppux-step-circle { background: var(--sppux-success); border-color: var(--sppux-success); color: white; }
+.sppux-step-line { position: absolute; top: 16px; left: 50%; width: 100%; height: 2px; background: var(--sppux-glass-border); z-index: 1; }
+.sppux-step.completed .sppux-step-line { background: var(--sppux-success); }
+
+/* Buttons */
+.sppux-btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 18px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; border: none; outline: none; }
+.sppux-btn-primary { background: var(--sppux-primary); color: white; box-shadow: 0 4px 12px var(--sppux-primary-glow); }
+.sppux-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px var(--sppux-primary-glow); }
+
+/* Charts & Stats */
+.sppux-stats-card { background: var(--sppux-glass-bg); border: 1px solid var(--sppux-glass-border); border-radius: 16px; padding: 20px; transition: 0.3s; }
+.sppux-stats-card:hover { border-color: var(--sppux-primary); transform: scale(1.02); }
+.sppux-chart-bar { background: linear-gradient(to top, var(--sppux-primary), #fff); border-radius: 4px 4px 0 0; min-height: 4px; }

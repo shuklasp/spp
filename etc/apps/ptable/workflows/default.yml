@@ -1,0 +1,22 @@
+# =====================================================================================
+# SPP Framework - Default Application Workflow
+# =====================================================================================
+# Target Audience: Novice-First Tutorial
+#
+# Core Orchestration Concepts:
+# 1. States (Steps): The valid lifecycle stages of your entity.
+# 2. Transitions: The allowed movements between states.
+# 3. Parallel Markings: An entity can exist in multiple states at once.
+# 4. Saga Pattern: The 'compensations' callback lets you define rollback actions.
+# 5. SLA Timeouts: 'timeout' defines how long an entity can sit in a state before
+#    triggering an automatic daemon escalation ('spp workflow:process-timeouts').
+# =====================================================================================
+default:
+  description: "Default workflow for ptable"
+  states:
+    - initial
+    - active
+  transitions:
+    activate:
+      from: initial
+      to: active

@@ -1,0 +1,1 @@
+<?php require 'spp/sppinit.php'; require 'spp/admin/services/Auth.php'; $la = new \SPPMod\SPPAPI\LiveAction(); live_Auth_Login($la, ['username'=>'admin','password'=>'admin123']); print_r($la->getData());

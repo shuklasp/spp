@@ -1,0 +1,65 @@
+{
+  "SPP Workflow Definition": {
+    "prefix": "spp-workflow",
+    "body": [
+      "# ${1:workflow_name} Workflow Definition",
+      "# ─── Tutorial ───────────────────────────────────────────",
+      "# States: Valid lifecycle stages of your entity.",
+      "# Transitions: Allowed movements between states.",
+      "# Timeout: SLA definitions for automated escalation.",
+      "# Compensations: Saga-style rollback callbacks.",
+      "",
+      "states:",
+      "  - ${2:draft}",
+      "  - ${3:pending_review}",
+      "  - ${4:approved}",
+      "  - ${5:rejected}",
+      "  - ${6:archived}",
+      "",
+      "transitions:",
+      "  ${7:submit_for_review}:",
+      "    from: [${2:draft}]",
+      "    to: ${3:pending_review}",
+      "    timeout: 86400",
+      "    timeout_transition: ${8:auto_reject}",
+      "",
+      "  ${9:approve}:",
+      "    from: [${3:pending_review}]",
+      "    to: ${4:approved}",
+      "",
+      "  ${10:reject}:",
+      "    from: [${3:pending_review}]",
+      "    to: ${5:rejected}",
+      "",
+      "  ${8:auto_reject}:",
+      "    from: [${3:pending_review}]",
+      "    to: ${5:rejected}",
+      "",
+      "  ${11:archive}:",
+      "    from: [${4:approved}, ${5:rejected}]",
+      "    to: ${6:archived}",
+      "",
+      "compensations:",
+      "  ${9:approve}: ${12:rollback_approval}"
+    ],
+    "description": "Full SPP Workflow YAML definition with states, transitions, timeouts, and Saga compensations"
+  },
+  "SPP Workflow State": {
+    "prefix": "spp-state",
+    "body": [
+      "  - ${1:state_name}"
+    ],
+    "description": "Single SPP Workflow state entry"
+  },
+  "SPP Workflow Transition": {
+    "prefix": "spp-transition-yml",
+    "body": [
+      "  ${1:transition_name}:",
+      "    from: [${2:source_state}]",
+      "    to: ${3:target_state}",
+      "    timeout: ${4:86400}",
+      "    timeout_transition: ${5:auto_escalate}"
+    ],
+    "description": "SPP Workflow transition with timeout and SLA escalation"
+  }
+}

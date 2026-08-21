@@ -1,0 +1,593 @@
+{
+    "name": "spp-vscode-extension",
+    "publisher": "spp-dev",
+    "displayName": "SPP VS Code Extension",
+    "description": "IDE Toolkit for SPP Framework Development",
+    "version": "0.0.2",
+    "engines": {
+        "vscode": "^1.80.0"
+    },
+    "categories": [
+        "Snippets",
+        "Linters",
+        "Other"
+    ],
+    "activationEvents": [
+        "onLanguage:php",
+        "onLanguage:html",
+        "onLanguage:yaml"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "title": "SPP Framework",
+            "properties": {
+                "spp.enableCodeLens": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable all SPP Code Lenses (API Explorer, Man Page Generator)"
+                },
+                "spp.enableDiagnostics": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Enable/disable all SPP architectural linting rules"
+                },
+                "spp.serverPort": {
+                    "type": "number",
+                    "default": 8000,
+                    "description": "Port for the SPP Development Server"
+                },
+                "spp.logFilePath": {
+                    "type": "string",
+                    "default": "var/logs/spp_debug.log",
+                    "description": "Relative path to the log file to tail"
+                },
+                "spp.adminUrl": {
+                    "type": "string",
+                    "default": "http://localhost/sppadmin",
+                    "description": "Base URL for the SPPAdmin portal"
+                },
+                "spp.phpPath": {
+                    "type": "string",
+                    "default": "php",
+                    "description": "Path to the PHP binary"
+                }
+            }
+        },
+        "taskDefinitions": [
+            {
+                "type": "spp",
+                "required": [
+                    "command"
+                ],
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The SPP CLI command to execute"
+                    }
+                }
+            }
+        ],
+        "commands": [
+            {
+                "command": "spp.visualizeWorkflow",
+                "title": "SPP: Visualize Workflow",
+                "icon": "$(type-hierarchy)"
+            },
+            {
+                "command": "spp.autoRefactorEnterprise",
+                "title": "SPP: Auto-Refactor to Enterprise Standards"
+            },
+            {
+                "command": "spp.findStub",
+                "title": "SPP: Find Corresponding Framework Stub"
+            },
+            {
+                "command": "spp.generateTutorial",
+                "title": "SPP: Generate Tutorial Scaffold"
+            },
+            {
+                "command": "spp.runCommand",
+                "title": "SPP: Run Command",
+                "icon": "$(play)"
+            },
+            {
+                "command": "spp.openAdminPortal",
+                "title": "SPP: Open Admin Portal"
+            },
+            {
+                "command": "spp.tailLogs",
+                "title": "SPP: Tail Framework Logs"
+            },
+            {
+                "command": "spp.generateManPage",
+                "title": "SPP: Generate Man Page"
+            },
+            {
+                "command": "spp.generateManPages",
+                "title": "SPP: Generate Man Pages (Dual-Format)"
+            },
+            {
+                "command": "spp.toggleServer",
+                "title": "SPP: Toggle Dev Server"
+            },
+            {
+                "command": "spp.deployPush",
+                "title": "SPP: Deploy Push"
+            },
+            {
+                "command": "spp.makeController",
+                "title": "SPP: New Controller"
+            },
+            {
+                "command": "spp.makeEntity",
+                "title": "SPP: New Entity"
+            },
+            {
+                "command": "spp.makePartial",
+                "title": "SPP: New Partial (HTMX)"
+            },
+            {
+                "command": "spp.makeStream",
+                "title": "SPP: New Turbo Stream"
+            },
+            {
+                "command": "spp.makeLiveComponent",
+                "title": "SPP: New Live Component"
+            },
+            {
+                "command": "spp.makeService",
+                "title": "SPP: New Service"
+            },
+            {
+                "command": "spp.makeCommand",
+                "title": "SPP: New CLI Command"
+            },
+            {
+                "command": "spp.makeApp",
+                "title": "SPP: New App Scaffold"
+            },
+            {
+                "command": "spp.makeModule",
+                "title": "SPP: New Module"
+            },
+            {
+                "command": "spp.makeMigration",
+                "title": "SPP: New Migration"
+            },
+            {
+                "command": "spp.makeMiddleware",
+                "title": "SPP: New Middleware"
+            },
+            {
+                "command": "spp.makeForm",
+                "title": "SPP: New Form Definition"
+            },
+            {
+                "command": "spp.makeEvent",
+                "title": "SPP: New Event"
+            },
+            {
+                "command": "spp.makeEventHandler",
+                "title": "SPP: New Event Handler"
+            },
+            {
+                "command": "spp.makeModel",
+                "title": "SPP: New Model"
+            },
+            {
+                "command": "spp.makeSeeder",
+                "title": "SPP: New Seeder"
+            },
+            {
+                "command": "spp.makeScaffold",
+                "title": "SPP: Full CRUD Scaffold"
+            },
+            {
+                "command": "spp.makeUxComponent",
+                "title": "SPP: New UX Component"
+            },
+            {
+                "command": "spp.makeReactComponent",
+                "title": "SPP: New React Component"
+            },
+            {
+                "command": "spp.makeVueComponent",
+                "title": "SPP: New Vue Component"
+            },
+            {
+                "command": "spp.makeDeployment",
+                "title": "SPP: New Deployment Config"
+            },
+            {
+                "command": "spp.makePolyglot",
+                "title": "SPP: New Polyglot Service"
+            },
+            {
+                "command": "spp.makeBladeScaffold",
+                "title": "SPP: New Blade Scaffold"
+            },
+            {
+                "command": "spp.makeSppView",
+                "title": "SPP: New SPPView Template"
+            },
+            {
+                "command": "spp.makeTwig",
+                "title": "SPP: New Twig Template"
+            },
+            {
+                "command": "spp.refreshModules",
+                "title": "SPP: Refresh Modules",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "spp.refreshRoutes",
+                "title": "SPP: Refresh Routes",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "spp.refreshEnv",
+                "title": "SPP: Refresh Environment",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "spp.refreshCron",
+                "title": "SPP: Refresh Cron",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "spp.refreshQueue",
+                "title": "SPP: Refresh Queue",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "spp.makeXdbMigration",
+                "title": "Make XDB Migration",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makeXdbSeeder",
+                "title": "Make XDB Seeder",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makeNodeService",
+                "title": "Make Node.js Service",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makePythonService",
+                "title": "Make Python Service",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makeGoService",
+                "title": "Make Go Service",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makeJavaService",
+                "title": "Make Java Service",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.makePolyglotPartial",
+                "title": "Make Polyglot Partial",
+                "category": "SPP Framework"
+            },
+            {
+                "command": "spp.exploreHistory",
+                "title": "SPP: Explore Entity History (CQRS)"
+            },
+            {
+                "command": "spp.diffSnapshot",
+                "title": "SPP: Diff Snapshot"
+            },
+            {
+                "command": "spp.makeAiWorkflow",
+                "title": "SPP: Make AI Workflow"
+            },
+            {
+                "command": "spp.askAi",
+                "title": "SPP: Ask Swarm AI"
+            },
+            {
+                "command": "spp.runFuzzing",
+                "title": "SPP: Run Chaos Fuzzing (TestMonkey)"
+            },
+            {
+                "command": "spp.toggleFeature",
+                "title": "SPP: Toggle Feature Flag",
+                "icon": "$(settings-gear)"
+            },
+            {
+                "command": "spp.refactorEnterprise",
+                "title": "SPP: Apply Enterprise Rules (W3CTraceContext)"
+            },
+            {
+                "command": "spp.rebuildXdbIndex",
+                "title": "SPP: Rebuild O(log N) Binary Index"
+            },
+            {
+                "command": "spp.makeDagJob",
+                "title": "SPP: Make DAG Job"
+            },
+            {
+                "command": "spp.attachEbpf",
+                "title": "SPP: Attach eBPF uprobe"
+            },
+            {
+                "command": "spp.monitorArena",
+                "title": "SPP: Monitor Memory Arena"
+            },
+            {
+                "command": "spp.exportAiManifest",
+                "title": "SPP: Export AI Manifest"
+            },
+            {
+                "command": "spp.generateCryptoShard",
+                "title": "SPP: Generate Crypto Shard (MPC)"
+            },
+            {
+                "command": "spp.orchestrateDbPool",
+                "title": "SPP: Orchestrate DB Pool"
+            },
+            {
+                "command": "spp.compileOsKernel",
+                "title": "SPP: Compile OS Kernel"
+            }
+        ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "spp.makeController",
+                    "group": "spp@1"
+                },
+                {
+                    "command": "spp.makeEntity",
+                    "group": "spp@2"
+                },
+                {
+                    "command": "spp.makePartial",
+                    "group": "spp@3"
+                },
+                {
+                    "command": "spp.makeStream",
+                    "group": "spp@4"
+                },
+                {
+                    "command": "spp.makeLiveComponent",
+                    "group": "spp@5"
+                },
+                {
+                    "command": "spp.makeService",
+                    "group": "spp@6"
+                },
+                {
+                    "command": "spp.makeCommand",
+                    "group": "spp@7"
+                },
+                {
+                    "command": "spp.makeMigration",
+                    "group": "spp@8"
+                },
+                {
+                    "command": "spp.makeMiddleware",
+                    "group": "spp@9"
+                },
+                {
+                    "command": "spp.makeForm",
+                    "group": "spp@10"
+                },
+                {
+                    "command": "spp.makeModel",
+                    "group": "spp@11"
+                },
+                {
+                    "command": "spp.makeUxComponent",
+                    "group": "spp@12"
+                },
+                {
+                    "command": "spp.findStub",
+                    "group": "spp@13"
+                },
+                {
+                    "command": "spp.makeXdbMigration",
+                    "when": "explorerResourceIsFolder && resourceFilename == spp_xdb",
+                    "group": "spp-xdb"
+                },
+                {
+                    "command": "spp.makeXdbSeeder",
+                    "when": "explorerResourceIsFolder && resourceFilename == spp_xdb",
+                    "group": "spp-xdb"
+                },
+                {
+                    "command": "spp.makeNodeService",
+                    "when": "explorerResourceIsFolder && resourceFilename == services",
+                    "group": "spp-polyglot"
+                },
+                {
+                    "command": "spp.makePythonService",
+                    "when": "explorerResourceIsFolder && resourceFilename == services",
+                    "group": "spp-polyglot"
+                },
+                {
+                    "command": "spp.makeGoService",
+                    "when": "explorerResourceIsFolder && resourceFilename == services",
+                    "group": "spp-polyglot"
+                },
+                {
+                    "command": "spp.makeJavaService",
+                    "when": "explorerResourceIsFolder && resourceFilename == services",
+                    "group": "spp-polyglot"
+                },
+                {
+                    "command": "spp.makePolyglotPartial",
+                    "when": "explorerResourceIsFolder && resourceFilename == services",
+                    "group": "spp-polyglot"
+                },
+                {
+                    "command": "spp.makeAiWorkflow",
+                    "group": "spp-scaffolding@31"
+                },
+                {
+                    "command": "spp.makeDagJob",
+                    "group": "spp-scaffolding@32"
+                }
+            ],
+            "editor/title": [
+                {
+                    "command": "spp.visualizeWorkflow",
+                    "when": "resourceExtname == .yml || resourceExtname == .yaml",
+                    "group": "navigation"
+                }
+            ],
+            "editor/context": [
+                {
+                    "command": "spp.autoRefactorEnterprise",
+                    "when": "resourceLangId == php",
+                    "group": "spp@1"
+                },
+                {
+                    "command": "spp.findStub",
+                    "when": "resourceLangId == php",
+                    "group": "spp@2"
+                },
+                {
+                    "command": "spp.askAi",
+                    "group": "spp-ai@1"
+                },
+                {
+                    "command": "spp.runFuzzing",
+                    "group": "spp-test@1",
+                    "when": "resourceLangId == php"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "spp.runCommand",
+                    "when": "view == spp-commands && viewItem == command",
+                    "group": "inline"
+                },
+                {
+                    "command": "spp.toggleFeature",
+                    "when": "view == spp-feature-flags && viewItem == featureFlag"
+                }
+            ],
+            "view/title": [
+                {
+                    "command": "spp.refreshModules",
+                    "when": "view == spp-modules",
+                    "group": "navigation"
+                },
+                {
+                    "command": "spp.refreshRoutes",
+                    "when": "view == spp-routes",
+                    "group": "navigation"
+                },
+                {
+                    "command": "spp.refreshEnv",
+                    "when": "view == spp-env",
+                    "group": "navigation"
+                },
+                {
+                    "command": "spp.refreshCron",
+                    "when": "view == spp-cron",
+                    "group": "navigation"
+                },
+                {
+                    "command": "spp.refreshQueue",
+                    "when": "view == spp-queue",
+                    "group": "navigation"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "spp-workbench",
+                    "title": "SPP Workbench",
+                    "icon": "$(server-environment)"
+                }
+            ]
+        },
+        "views": {
+            "spp-workbench": [
+                {
+                    "id": "spp-app-studio",
+                    "name": "App Studio"
+                },
+                {
+                    "id": "spp-entities",
+                    "name": "DB & Entities"
+                },
+                {
+                    "id": "spp-commands",
+                    "name": "Command Center"
+                },
+                {
+                    "id": "spp-modules",
+                    "name": "Modules"
+                },
+                {
+                    "id": "spp-routes",
+                    "name": "Routes & Services"
+                },
+                {
+                    "id": "spp-xdb",
+                    "name": "XML Database"
+                },
+                {
+                    "id": "spp-env",
+                    "name": "Environment"
+                },
+                {
+                    "id": "spp-cron",
+                    "name": "Cron & Scheduling"
+                },
+                {
+                    "id": "spp-queue",
+                    "name": "Job Queue"
+                },
+                {
+                    "id": "spp-portals",
+                    "name": "Admin Portals"
+                },
+                {
+                    "id": "spp-cqrs",
+                    "name": "CQRS Snapshot Explorer"
+                },
+                {
+                    "id": "spp-feature-flags",
+                    "name": "SPP: Feature Flags"
+                }
+            ]
+        },
+        "snippets": [
+            {
+                "language": "php",
+                "path": "./snippets/snippets.json"
+            },
+            {
+                "language": "html",
+                "path": "./snippets/snippets.json"
+            },
+            {
+                "language": "yaml",
+                "path": "./snippets/yaml-snippets.json"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src --ext ts"
+    },
+    "devDependencies": {
+        "@types/vscode": "^1.80.0",
+        "@types/node": "18.x",
+        "typescript": "^5.1.3"
+    }
+}

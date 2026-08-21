@@ -1,0 +1,160 @@
+6450336
+  -OEChem-08152604582D
+
+ 29 26  0     0  0  0  0  0  0999 V2000
+    4.5981    1.0670    0.0000 Pd  0  2  0  0  0  0  0  0  0  0  0  0
+    7.1962    3.5670    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    6.8301    2.2010    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    5.8301    3.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000    0.5670    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    2.3660   -0.7990    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    3.3660    0.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    2.0000    3.5670    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    2.3660    2.2010    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    3.3660    3.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981   -3.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    5.5981   -2.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    3.5981   -2.9330    0.0000 F   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641    1.5670    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    4.5981    0.0670    0.0000 O   0  5  0  0  0  0  0  0  0  0  0  0
+    3.7321    1.5670    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641   -1.4330    0.0000 O   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981    3.0670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.7321   -1.4330    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    5.4641    2.5670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.7321   -0.4330    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    3.7321    2.5670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981   -1.9330    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    6.3301    3.0670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8660    0.0670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    2.8660    3.0670    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981   -2.9330    0.0000 C   0  0  0  0  0  0  0  0  0  0  0  0
+    4.5981    3.6870    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+    3.1951   -1.7430    0.0000 H   0  0  0  0  0  0  0  0  0  0  0  0
+  2 24  1  0  0  0  0
+  3 24  1  0  0  0  0
+  4 24  1  0  0  0  0
+  5 25  1  0  0  0  0
+  6 25  1  0  0  0  0
+  7 25  1  0  0  0  0
+  8 26  1  0  0  0  0
+  9 26  1  0  0  0  0
+ 10 26  1  0  0  0  0
+ 11 27  1  0  0  0  0
+ 12 27  1  0  0  0  0
+ 13 27  1  0  0  0  0
+ 14 20  1  0  0  0  0
+ 15 21  1  0  0  0  0
+ 16 22  2  0  0  0  0
+ 17 23  2  0  0  0  0
+ 18 20  2  0  0  0  0
+ 18 22  1  0  0  0  0
+ 18 28  1  0  0  0  0
+ 19 21  2  0  0  0  0
+ 19 23  1  0  0  0  0
+ 19 29  1  0  0  0  0
+ 20 24  1  0  0  0  0
+ 21 25  1  0  0  0  0
+ 22 26  1  0  0  0  0
+ 23 27  1  0  0  0  0
+M  CHG  3   1   2  14  -1  15  -1
+M  END
+> <PUBCHEM_COMPOUND_CID>
+6450336
+
+> <PUBCHEM_COMPOUND_CANONICALIZED>
+1
+
+> <PUBCHEM_CACTVS_COMPLEXITY>
+210
+
+> <PUBCHEM_CACTVS_HBOND_ACCEPTOR>
+16
+
+> <PUBCHEM_CACTVS_HBOND_DONOR>
+0
+
+> <PUBCHEM_CACTVS_ROTATABLE_BOND>
+2
+
+> <PUBCHEM_CACTVS_SUBSKEYS>
+AAADcQBwOcAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGwAAAAAACASAgBAAAAAAAACIAKBSAAAAAAAgIAAACAAAAEgAAAAAAAAAAAAAAAAIAQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+
+> <PUBCHEM_IUPAC_OPENEYE_NAME>
+bis((Z)-1,1,1,5,5,5-hexafluoro-4-oxo-pent-2-en-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_CAS_NAME>
+bis((Z)-1,1,1,5,5,5-hexafluoro-4-oxo-2-penten-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_NAME_MARKUP>
+bis((<I>Z</I>)-1,1,1,5,5,5-hexafluoro-4-oxopent-2-en-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_NAME>
+bis((Z)-1,1,1,5,5,5-hexafluoro-4-oxopent-2-en-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_SYSTEMATIC_NAME>
+bis((Z)-1,1,1,5,5,5-hexakis(fluoranyl)-4-oxidanylidene-pent-2-en-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_TRADITIONAL_NAME>
+bis((Z)-1,1,1,5,5,5-hexafluoro-4-keto-pent-2-en-2-olate);palladium(2+)
+
+> <PUBCHEM_IUPAC_INCHI>
+InChI=1S/2C5H2F6O2.Pd/c2*6-4(7,8)2(12)1-3(13)5(9,10)11;/h2*1,12H;/q;;+2/p-2/b2*2-1-;
+
+> <PUBCHEM_IUPAC_INCHIKEY>
+OVIDFVVPPRGPGR-PAMPIZDHSA-L
+
+> <PUBCHEM_EXACT_MASS>
+519.87963
+
+> <PUBCHEM_MOLECULAR_FORMULA>
+C10H2F12O4Pd
+
+> <PUBCHEM_MOLECULAR_WEIGHT>
+520.52
+
+> <PUBCHEM_SMILES>
+C(=C(\[O-])/C(F)(F)F)\C(=O)C(F)(F)F.C(=C(\[O-])/C(F)(F)F)\C(=O)C(F)(F)F.[Pd+2]
+
+> <PUBCHEM_CONNECTIVITY_SMILES>
+C(=C(C(F)(F)F)[O-])C(=O)C(F)(F)F.C(=C(C(F)(F)F)[O-])C(=O)C(F)(F)F.[Pd+2]
+
+> <PUBCHEM_CACTVS_TPSA>
+80.3
+
+> <PUBCHEM_MONOISOTOPIC_WEIGHT>
+519.87963
+
+> <PUBCHEM_TOTAL_CHARGE>
+0
+
+> <PUBCHEM_HEAVY_ATOM_COUNT>
+27
+
+> <PUBCHEM_ATOM_DEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ATOM_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_BOND_DEF_STEREO_COUNT>
+2
+
+> <PUBCHEM_BOND_UDEF_STEREO_COUNT>
+0
+
+> <PUBCHEM_ISOTOPIC_ATOM_COUNT>
+0
+
+> <PUBCHEM_COMPONENT_COUNT>
+3
+
+> <PUBCHEM_CACTVS_TAUTO_COUNT>
+-1
+
+> <PUBCHEM_COORDINATE_TYPE>
+1
+5
+255
+
+$$$$

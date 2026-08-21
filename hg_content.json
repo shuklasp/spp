@@ -1,0 +1,24 @@
+{
+  "symbol": "Hg",
+  "name": "Mercury",
+  "atomic": 80,
+  "category": "transition metal",
+  "description": "",
+  "extract_html": "<div class=\"mw-content-ltr mw-parser-output\" lang=\"en\" dir=\"ltr\"><style data-mw-deduplicate=\"TemplateStyles:r1314755338\">.mw-parser-output .side-box{margin:4px 0;box-sizing:border-box;border:1px solid #aaa;font-size:88%;line-height:1.25em;background-color:var(--background-color-interactive-subtle,#f8f9fa);color:inherit;display:flow-root}.mw-parser-output .infobox .side-box{font-size:100%}.mw-parser-output .side-box-abovebelow,.mw-parser-output .side-box-text{padding:0.25em 0.9em}.mw-parser-output .side-box-image{padding:2px 0 2px 0.9em;text-align:center}.mw-parser-output .side-box-imageright{padding:2px 0.9em 2px 0;text-align:center}@media(min-width:500px){.mw-parser-output .side-box-flex{display:flex;align-items:center}.mw-parser-output .side-box-text{flex:1;min-width:0}}@media(min-width:640px){.mw-parser-output .side-box{width:238px}.mw-parser-output .side-box-right{clear:right;float:right;margin-left:1em}.mw-parser-output .side-box-left{margin-right:1em}}</style><style data-mw-deduplicate=\"TemplateStyles:r1311551236\">@media print{body.ns-0 .mw-parser-output .sistersitebox{display:none!important}}@media screen{html.skin-theme-clientpref-night .mw-parser-output .sistersitebox img[src*=\"Wiktionary-logo-en-v2.svg\"]{filter:invert(1)brightness(55%)contrast(250%)hue-rotate(180deg)}}@media screen and (prefers-color-scheme:dark){html.skin-theme-clientpref-os .mw-parser-output .sistersitebox img[src*=\"Wiktionary-logo-en-v2.svg\"]{filter:invert(1)brightness(55%)contrast(250%)hue-rotate(180deg)}}</style><div class=\"side-box side-box-right plainlinks sistersitebox\"><style data-mw-deduplicate=\"TemplateStyles:r1126788409\">.mw-parser-output .plainlist ol,.mw-parser-output .plainlist ul{line-height:inherit;list-style:none;margin:0;padding:0}.mw-parser-output .plainlist ol li,.mw-parser-output .plainlist ul li{margin-bottom:0}</style>\n<div class=\"side-box-flex\">\n<div class=\"side-box-image\"><span class=\"noviewer skin-invert-image\" typeof=\"mw:File\"><img alt=\"Wiktionary logo\" src=\"/school1/ptable/theme-assets/default/images/inline/e832f7f50be6aa7be4ed25826eae36d3.png\" decoding=\"async\" width=\"40\" height=\"40\" class=\"mw-file-element\" srcset=\"//upload.wikimedia.org/wikipedia/commons/thumb/9/99/Wiktionary-logo-en-v2.svg/120px-Wiktionary-logo-en-v2.svg.png?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x\" data-file-width=\"512\" data-file-height=\"512\" /></span></div>\n<div class=\"side-box-text plainlist\">Look up <i><b><a href=\"https://en.wiktionary.org/wiki/Mercury\" class=\"extiw\" title=\"wiktionary:Mercury\"><a href=\"/school1/ptable/element/Hg\" class=\"wiki-link\" title=\"Mercury (Hg)\">Mercury</a></a></b></i>&#160;or <i><b><a href=\"https://en.wiktionary.org/wiki/mercury\" class=\"extiw\" title=\"wiktionary:mercury\"><a href=\"/school1/ptable/element/Hg\" class=\"wiki-link\" title=\"Mercury (Hg)\">mercury</a></a></b></i> in Wiktionary, the free dictionary.</div></div>\n</div>\n<p><b><a href=\"/school1/ptable/element/Hg\" class=\"wiki-link\" title=\"Mercury (Hg)\">Mercury</a></b> most commonly refers to:\n</p>\n<ul><li>Mercury (planet), the closest planet to the Sun</li>\n<li>Mercury (element), a chemical element</li>\n<li>Mercury (mythology), a Roman deity</li></ul>\n<p><b>Mercury</b> or <b>The Mercury</b> may also refer to:\n</p>\n<style data-mw-deduplicate=\"TemplateStyles:r1044870489\">@media all and (max-width:720px){body.skin-minerva .mw-parser-output .tocright{display:none}.mw-parser-output .tocright{width:100%!important}}@media all and (min-width:720px){.mw-parser-output .tocright{float:right;clear:right;width:auto;margin:0 0 0.5em 1em}.mw-parser-output .tocright-clear-left{clear:left}.mw-parser-output .tocright-clear-both{clear:both}.mw-parser-output .tocright-clear-none{clear:none}}</style><div class=\"tocright\"><meta property=\"mw:PageProp/toc\" /></div>\n<div class=\"mw-heading mw-heading2\">",
+  "local_image": "https://upload.wikimedia.org/wikipedia/commons/b/be/Hydrargyrum_%2880_Hg%29.jpg",
+  "atomic_mass": 200.5923,
+  "density": 13.534,
+  "melt": 234.321,
+  "boil": 629.88,
+  "phase": "Liquid",
+  "discovered_by": "unknown, before 2000 BCE",
+  "electron_configuration": "1s2 2s2 2p6 3s2 3p6 4s2 3d10 4p6 5s2 4d10 5p6 6s2 4f14 5d10",
+  "electronegativity_pauling": 2,
+  "electron_affinity": -48,
+  "ionization_energies": [
+    1007.1,
+    1810,
+    3300
+  ],
+  "sections": []
+}

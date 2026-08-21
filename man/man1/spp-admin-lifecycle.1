@@ -1,0 +1,27 @@
+.TH SPP-admin-lifecycle 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+admin:lifecycle
+.PP
+ \- Manage Admin Lifecycle operations. Usage: admin:lifecycle <action> [--payload=...] [--json]
+.SH DESCRIPTION
+Manage Admin Lifecycle operations. Usage: admin:lifecycle <action> [--payload=...] [--json]
+.PP
+.SH SYNOPSIS
+php spp.php admin:lifecycle [OPTIONS]
+.PP
+.SH OPTIONS
+\(bu `--environments` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Performs direct filesystem modifications (create/write/delete).
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates internal components: \SPP\Module.
+.br
+\(bu Makes outbound HTTP requests to external APIs or services.
+.br
+.PP
+.PP

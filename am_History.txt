@@ -1,0 +1,210 @@
+<figure class="mw-default-size mw-halign-left" typeof="mw:File/Thumb"><img src="/school1/ptable/theme-assets/default/images/inline/cb7e79111ad263abb6c27c53a21993af.jpg" decoding="async" width="250" height="201" class="mw-file-element" srcset="//upload.wikimedia.org/wikipedia/commons/thumb/a/af/Berkeley_60-inch_cyclotron.jpg/500px-Berkeley_60-inch_cyclotron.jpg?utm_source=en.wikipedia.org&amp;utm_campaign=parser&amp;utm_content=thumbnail 2x" data-file-width="3000" data-file-height="2409" /><figcaption>The 60-inch cyclotron at the Lawrence Radiation Laboratory, University of California, Berkeley, in August 1939</figcaption></figure>
+<p>Although <a href="/school1/ptable/element/Am" class="wiki-link" title="Americium (Am)">americium</a> was likely produced in previous nuclear experiments, it was first intentionally synthesized, isolated and identified in late autumn 1944, at the University of California, Berkeley, by Glenn T. Seaborg, Leon O. Morgan, Ralph A. James, and Albert Ghiorso. They used a 60-inch cyclotron at the University of California, Berkeley. The element was chemically identified at the Metallurgical Laboratory (now Argonne National Laboratory) of the University of Chicago. Following the lighter <a href="/school1/ptable/element/Np" class="wiki-link" title="Neptunium (Np)">neptunium</a>, <a href="/school1/ptable/element/Pu" class="wiki-link" title="Plutonium (Pu)">plutonium</a>, and heavier <a href="/school1/ptable/element/Cm" class="wiki-link" title="Curium (Cm)">curium</a>, <a href="/school1/ptable/element/Am" class="wiki-link" title="Americium (Am)">americium</a> was the fourth transuranium element to be discovered. At the time, the periodic table had been restructured by Seaborg to its present layout, containing the actinide row below the lanthanide one. This led to <a href="/school1/ptable/element/Am" class="wiki-link" title="Americium (Am)">americium</a> being located right below its twin lanthanide element <a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">europium</a>; it was thus by analogy named after the Americas: "The name americium (after the Americas) and the symbol Am are suggested for the element on the basis of its position as the sixth member of the actinide rare-earth series, analogous to <a href="/school1/ptable/element/Eu" class="wiki-link" title="Europium (Eu)">europium</a>, Eu, of the lanthanide series."
+</p><p>The new element was isolated from its oxides in a complex, multi-step process. First <a href="/school1/ptable/element/Pu" class="wiki-link" title="Plutonium (Pu)">plutonium</a>-239 nitrate solution was coated on a <a href="/school1/ptable/element/Pt" class="wiki-link" title="Platinum (Pt)">platinum</a> foil of about 0.5&#160;cm<sup>2</sup> area, the solution was evaporated and the residue was converted into <a href="/school1/ptable/element/Pu" class="wiki-link" title="Plutonium (Pu)">plutonium</a> dioxide (PuO<sub>2</sub>) by calcining. After cyclotron irradiation, the coating was dissolved with nitric acid, and then precipitated as the hydroxide using concentrated aqueous ammonia solution. The residue was dissolved in perchloric acid. Further separation was carried out by ion exchange, yielding a certain isotope of <a href="/school1/ptable/element/Cm" class="wiki-link" title="Curium (Cm)">curium</a>. The separation of <a href="/school1/ptable/element/Cm" class="wiki-link" title="Curium (Cm)">curium</a> and americium was so painstaking that those elements were initially called by the Berkeley group as <i><a href="https://en.wiktionary.org/wiki/pandemonium" class="extiw" title="wikt:pandemonium">pandemonium</a></i> (from Greek for <i>all demons</i> or <i>hell</i>) and <i><a href="https://en.wiktionary.org/wiki/delirium" class="extiw" title="wikt:delirium">delirium</a></i> (from Latin for <i>madness</i>).
+</p><p>Initial experiments yielded four americium isotopes: <sup>241</sup>Am, <sup>242</sup>Am, <sup>239</sup>Am and <sup>238</sup>Am. Americium-241 was directly obtained from plutonium upon absorption of two neutrons. It decays by emission of a α-particle to <sup>237</sup>Np; the half-life of this decay was first determined as <span class="nowrap"><span data-sort-value="7002510000000000000♠"></span>510<span style="margin-left:0.225em;margin-right:0.225em;">±</span>20</span> years but then corrected to 432.2 years.
+</p>
+<dl><dd><span class="mwe-math-element mwe-math-element-inline"><span class="mwe-math-mathml-inline mwe-math-mathml-a11y" style="display: none;"><math xmlns="http://www.w3.org/1998/Math/MathML" alttext="{\displaystyle {\ce {^{239}_{94}Pu -&gt;[{\ce {(n,\gamma)}}] ^{240}_{94}Pu -&gt;[{\ce {(n,\gamma)}}] ^{241}_{94}Pu -&gt;[\beta^-][14.35\ {\ce {yr}}] ^{241}_{95}Am}}\ \left({\ce {-&gt;[\alpha][432.2\ {\ce {yr}}] ^{237}_{93}Np}}\right)}">
+  <semantics>
+    <mrow class="MJX-TeXAtom-ORD">
+      <mstyle displaystyle="true" scriptlevel="0">
+        <mrow class="MJX-TeXAtom-ORD">
+          <mmultiscripts>
+            <mtext>Pu</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>94</mn>
+            <mn>239</mn>
+          </mmultiscripts>
+          <mrow class="MJX-TeXAtom-REL">
+            <mover>
+              <mo>&#x2192;</mo>
+              <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                <mrow class="MJX-TeXAtom-ORD">
+                  <mrow class="MJX-TeXAtom-ORD">
+                    <mo stretchy="false">(</mo>
+                    <mtext>n</mtext>
+                    <mo>,</mo>
+                    <mi>&#x03B3;<!-- γ --></mi>
+                    <mo stretchy="false">)</mo>
+                  </mrow>
+                </mrow>
+              </mpadded>
+            </mover>
+          </mrow>
+          <mmultiscripts>
+            <mtext>Pu</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>94</mn>
+            <mn>240</mn>
+          </mmultiscripts>
+          <mrow class="MJX-TeXAtom-REL">
+            <mover>
+              <mo>&#x2192;</mo>
+              <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                <mrow class="MJX-TeXAtom-ORD">
+                  <mrow class="MJX-TeXAtom-ORD">
+                    <mo stretchy="false">(</mo>
+                    <mtext>n</mtext>
+                    <mo>,</mo>
+                    <mi>&#x03B3;<!-- γ --></mi>
+                    <mo stretchy="false">)</mo>
+                  </mrow>
+                </mrow>
+              </mpadded>
+            </mover>
+          </mrow>
+          <mmultiscripts>
+            <mtext>Pu</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>94</mn>
+            <mn>241</mn>
+          </mmultiscripts>
+          <mrow class="MJX-TeXAtom-REL">
+            <munderover>
+              <mo>&#x2192;</mo>
+              <mpadded width="+0.611em" lspace="0.278em" voffset="-.24em">
+                <mn>14.35</mn>
+                <mtext>&#xA0;</mtext>
+                <mrow class="MJX-TeXAtom-ORD">
+                  <mtext>yr</mtext>
+                </mrow>
+              </mpadded>
+              <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                <msup>
+                  <mi>&#x03B2;<!-- β --></mi>
+                  <mo>&#x2212;<!-- − --></mo>
+                </msup>
+              </mpadded>
+            </munderover>
+          </mrow>
+          <mmultiscripts>
+            <mtext>Am</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>95</mn>
+            <mn>241</mn>
+          </mmultiscripts>
+        </mrow>
+        <mtext>&#xA0;</mtext>
+        <mrow>
+          <mo>(</mo>
+          <mrow class="MJX-TeXAtom-ORD">
+            <mrow class="MJX-TeXAtom-REL">
+              <munderover>
+                <mo>&#x2192;</mo>
+                <mpadded width="+0.611em" lspace="0.278em" voffset="-.24em">
+                  <mn>432.2</mn>
+                  <mtext>&#xA0;</mtext>
+                  <mrow class="MJX-TeXAtom-ORD">
+                    <mtext>yr</mtext>
+                  </mrow>
+                </mpadded>
+                <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                  <mi>&#x03B1;<!-- α --></mi>
+                </mpadded>
+              </munderover>
+            </mrow>
+            <mmultiscripts>
+              <mtext>Np</mtext>
+              <none />
+              <none />
+              <mprescripts />
+              <mn>93</mn>
+              <mn>237</mn>
+            </mmultiscripts>
+          </mrow>
+          <mo>)</mo>
+        </mrow>
+      </mstyle>
+    </mrow>
+    <annotation encoding="application/x-tex">{\displaystyle {\ce {^{239}_{94}Pu -&gt;[{\ce {(n,\gamma)}}] ^{240}_{94}Pu -&gt;[{\ce {(n,\gamma)}}] ^{241}_{94}Pu -&gt;[\beta^-][14.35\ {\ce {yr}}] ^{241}_{95}Am}}\ \left({\ce {-&gt;[\alpha][432.2\ {\ce {yr}}] ^{237}_{93}Np}}\right)}</annotation>
+  </semantics>
+</math></span><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/c1e04227243220777cfab356aab3d5ea28566de2" class="mwe-math-fallback-image-inline mw-invert skin-invert" aria-hidden="true" style="vertical-align: -2.208ex; margin-top: -0.415ex; margin-bottom: -0.464ex; width:61.505ex; height:6.509ex;" alt="{\displaystyle {{\vphantom {A}}_{\hphantom {94}}^{\hphantom {239}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{94}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {239}}}\mathrm {Pu} {}\mathrel {\xrightarrow {{\mskip {2mu}}(\mathrm {n} ,\mathrm {\gamma } )} } {}{\vphantom {A}}_{\hphantom {94}}^{\hphantom {240}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{94}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {240}}}\mathrm {Pu} {}\mathrel {\xrightarrow {{\mskip {2mu}}(\mathrm {n} ,\mathrm {\gamma } )} } {}{\vphantom {A}}_{\hphantom {94}}^{\hphantom {241}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{94}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {241}}}\mathrm {Pu} {}\mathrel {\xrightarrow[{14.35\ \mathrm {yr} }]{\mathrm {\beta } {\vphantom {A}}^{-}}} {}{\vphantom {A}}_{\hphantom {95}}^{\hphantom {241}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{95}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {241}}}\mathrm {Am} }\ \left({{}\mathrel {\xrightarrow[{432.2\ \mathrm {yr} }]{\mathrm {\alpha } }} {}{\vphantom {A}}_{\hphantom {93}}^{\hphantom {237}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{93}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {237}}}\mathrm {Np} }\right)}"></span></dd></dl>
+<dl><dd><small> The times are half-lives</small></dd></dl>
+<p>The second isotope <sup>242</sup>Am was produced upon neutron bombardment of the already-created <sup>241</sup>Am. Upon rapid β-decay, <sup>242</sup>Am converts into the isotope of curium <sup>242</sup>Cm (which had been discovered previously). The half-life of this decay was initially determined at 17 hours, which was close to the presently accepted value of 16.02 h.
+</p>
+<dl><dd><span class="mwe-math-element mwe-math-element-inline"><span class="mwe-math-mathml-inline mwe-math-mathml-a11y" style="display: none;"><math xmlns="http://www.w3.org/1998/Math/MathML" alttext="{\displaystyle {\ce {^{241}_{95}Am -&gt;[{\ce {(n,\gamma)}}] ^{242}_{95}Am}}\ \left({\ce {-&gt;[\beta^-][16.02\ {\ce {h}}] ^{242}_{96}Cm}}\right)}">
+  <semantics>
+    <mrow class="MJX-TeXAtom-ORD">
+      <mstyle displaystyle="true" scriptlevel="0">
+        <mrow class="MJX-TeXAtom-ORD">
+          <mmultiscripts>
+            <mtext>Am</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>95</mn>
+            <mn>241</mn>
+          </mmultiscripts>
+          <mrow class="MJX-TeXAtom-REL">
+            <mover>
+              <mo>&#x2192;</mo>
+              <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                <mrow class="MJX-TeXAtom-ORD">
+                  <mrow class="MJX-TeXAtom-ORD">
+                    <mo stretchy="false">(</mo>
+                    <mtext>n</mtext>
+                    <mo>,</mo>
+                    <mi>&#x03B3;<!-- γ --></mi>
+                    <mo stretchy="false">)</mo>
+                  </mrow>
+                </mrow>
+              </mpadded>
+            </mover>
+          </mrow>
+          <mmultiscripts>
+            <mtext>Am</mtext>
+            <none />
+            <none />
+            <mprescripts />
+            <mn>95</mn>
+            <mn>242</mn>
+          </mmultiscripts>
+        </mrow>
+        <mtext>&#xA0;</mtext>
+        <mrow>
+          <mo>(</mo>
+          <mrow class="MJX-TeXAtom-ORD">
+            <mrow class="MJX-TeXAtom-REL">
+              <munderover>
+                <mo>&#x2192;</mo>
+                <mpadded width="+0.611em" lspace="0.278em" voffset="-.24em">
+                  <mn>16.02</mn>
+                  <mtext>&#xA0;</mtext>
+                  <mrow class="MJX-TeXAtom-ORD">
+                    <mtext>h</mtext>
+                  </mrow>
+                </mpadded>
+                <mpadded width="+0.611em" lspace="0.278em" voffset=".15em">
+                  <msup>
+                    <mi>&#x03B2;<!-- β --></mi>
+                    <mo>&#x2212;<!-- − --></mo>
+                  </msup>
+                </mpadded>
+              </munderover>
+            </mrow>
+            <mmultiscripts>
+              <mtext>Cm</mtext>
+              <none />
+              <none />
+              <mprescripts />
+              <mn>96</mn>
+              <mn>242</mn>
+            </mmultiscripts>
+          </mrow>
+          <mo>)</mo>
+        </mrow>
+      </mstyle>
+    </mrow>
+    <annotation encoding="application/x-tex">{\displaystyle {\ce {^{241}_{95}Am -&gt;[{\ce {(n,\gamma)}}] ^{242}_{95}Am}}\ \left({\ce {-&gt;[\beta^-][16.02\ {\ce {h}}] ^{242}_{96}Cm}}\right)}</annotation>
+  </semantics>
+</math></span><img src="https://wikimedia.org/api/rest_v1/media/math/render/svg/5f7ea91b21dda64052123dd4daa460996dd08332" class="mwe-math-fallback-image-inline mw-invert skin-invert" aria-hidden="true" style="vertical-align: -2.505ex; margin-top: -0.415ex; width:36.647ex; height:6.343ex;" alt="{\displaystyle {{\vphantom {A}}_{\hphantom {95}}^{\hphantom {241}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{95}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {241}}}\mathrm {Am} {}\mathrel {\xrightarrow {{\mskip {2mu}}(\mathrm {n} ,\mathrm {\gamma } )} } {}{\vphantom {A}}_{\hphantom {95}}^{\hphantom {242}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{95}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {242}}}\mathrm {Am} }\ \left({{}\mathrel {\xrightarrow[{16.02\ \mathrm {h} }]{\mathrm {\beta } {\vphantom {A}}^{-}}} {}{\vphantom {A}}_{\hphantom {96}}^{\hphantom {242}}{\mkern {-1.5mu}}{\vphantom {A}}_{{\vphantom {2}}{\llap {\smash[{t}]{96}}}}^{{\smash[{t}]{\vphantom {2}}}{\llap {242}}}\mathrm {Cm} }\right)}"></span></dd></dl>
+<p>The discovery of americium and curium in 1944 was closely related to the Manhattan Project; the results were confidential and declassified only in 1945. Seaborg leaked the synthesis of the elements 95 and 96 on the U.S. radio show for children <i>Quiz Kids</i> five days before the official presentation at an American Chemical Society meeting on 11 November 1945, when one of the listeners asked whether any new transuranium element besides plutonium and <a href="/school1/ptable/element/Np" class="wiki-link" title="Neptunium (Np)">neptunium</a> had been discovered during the war. After the discovery of americium isotopes <sup>241</sup>Am and <sup>242</sup>Am, their production and compounds were patented listing only Seaborg as the inventor. The initial americium samples weighed a few micrograms; they were barely visible and were identified by their radioactivity. The first substantial amounts of metallic americium, weighing 40–200 micrograms, were not prepared until 1951 by reduction of americium(III) fluoride with <a href="/school1/ptable/element/Ba" class="wiki-link" title="Barium (Ba)">barium</a> metal in high vacuum at 1100&#160;°C.
+</p>
+<div class="mw-heading mw-heading2">

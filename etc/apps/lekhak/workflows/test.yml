@@ -1,0 +1,55 @@
+# =====================================================================================
+# SPP Framework - Wizard Workflow Configuration
+# =====================================================================================
+# Target Audience: Novice-First Tutorial
+#
+# This file defines the state machine for your WizardController.
+# SPP workflows orchestrate how an entity moves from one step (state) to another.
+#
+# Core Orchestration Concepts:
+# 1. States (Steps): The valid lifecycle stages of your wizard. These are the "pages"
+#    the user visits (e.g. step_1, step_2, completed).
+# 2. Transitions: The allowed movements between states. For example, moving from
+#    step_1 to step_2 requires a valid transition.
+# 3. Parallel Markings: An entity can exist in multiple states at once (e.g. ["step_2", "pending_review"]).
+#    This allows parallel workflows to be executed simultaneously.
+# 4. Saga Pattern: The 'compensations' callback lets you define rollback actions 
+#    if a later step fails, ensuring data consistency across distributed systems.
+# 5. SLA Timeouts: 'timeout' defines how long an entity can sit in a state before
+#    triggering an automatic daemon escalation ('spp workflow:process-timeouts').
+#
+# Usage:
+# Your WizardController will read these states to determine the initial step,
+# the final step, and validate transitions when users submit forms.
+# =====================================================================================
+
+name: test
+entity: test
+
+states:
+  - step_1
+  - step_2
+  - step_3
+  - completed
+
+transitions:
+  next_to_step_2:
+    from: step_1
+    to: step_2
+    # Example SLA: escalate if stuck here for 24 hours
+    timeout: 86400
+    timeout_transition: escalate_abandoned
+  
+  next_to_step_3:
+    from: step_2
+    to: step_3
+    # Saga Pattern Compensation Example:
+    # compensations: ["\\App\\Workflows\\Compensations::revertStep2"]
+
+  finish_wizard:
+    from: step_3
+    to: completed
+
+  escalate_abandoned:
+    from: step_1
+    to: abandoned

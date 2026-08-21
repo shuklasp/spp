@@ -1,0 +1,202 @@
+{
+  "Nb": [
+    "Niobium pentoxide", "Niobium dioxide", "Niobium monoxide", "Niobium pentachloride", "Niobium tetrachloride", "Niobium trichloride", "Niobium pentafluoride", "Niobium pentabromide", "Niobium pentaiodide", "Niobium nitride",
+    "Niobium carbide", "Niobium boride", "Niobium disulfide", "Niobium trisulfide", "Niobium diselenide", "Niobium phosphide", "Niobium arsenide", "Niobium antimonide", "Lithium niobate", "Sodium niobate",
+    "Potassium niobate", "Silver niobate", "Lead niobate", "Niobium(V) ethoxide", "Niobium(V) oxalate", "Niobium sulfate", "Niobium phosphate", "Niobic acid", "Ferroniobium", "Niobium-tin alloy"
+  ],
+  "Mo": [
+    "Molybdenum trioxide", "Molybdenum dioxide", "Molybdenum disulfide", "Molybdenum hexacarbonyl", "Molybdenum hexafluoride", "Molybdenum pentachloride", "Molybdenum tetrachloride", "Molybdenum trichloride", "Molybdenum dichloride", "Molybdenum pentabromide",
+    "Molybdenum tribromide", "Molybdenum dibromide", "Molybdenum diiodide", "Molybdenum nitride", "Molybdenum carbide", "Molybdenum boride", "Molybdic acid", "Sodium molybdate", "Potassium molybdate", "Ammonium molybdate",
+    "Ammonium heptamolybdate", "Lead molybdate", "Calcium molybdate", "Bismuth molybdate", "Zinc molybdate", "Silver molybdate", "Molybdenum trisulfide", "Molybdenum diselenide", "Molybdenum ditelluride", "Molybdocene dichloride"
+  ],
+  "Tc": [
+    "Technetium(VII) oxide", "Technetium(IV) oxide", "Technetium(VI) fluoride", "Technetium(V) fluoride", "Technetium(IV) chloride", "Technetium(VI) chloride", "Technetium(IV) bromide", "Technetium(VII) sulfide", "Technetium(IV) sulfide", "Technetium nitride",
+    "Technetium carbide", "Pertechnetic acid", "Sodium pertechnetate", "Potassium pertechnetate", "Ammonium pertechnetate", "Technetium(III) chloride", "Technetium hexacarbonyl", "Technetium trichloride", "Technetium dibromide", "Technetium diiodide",
+    "Technetium(V) oxychloride", "Technetium(VI) oxyfluoride", "Technetium(VII) oxyfluoride", "Technetium dioxide dihydrate", "Barium pertechnetate", "Silver pertechnetate", "Technetium boride", "Technetium phosphide", "Technetium arsenide", "Technetium silicide"
+  ],
+  "Ru": [
+    "Ruthenium(VIII) oxide", "Ruthenium(IV) oxide", "Ruthenium(III) chloride", "Ruthenium(II) chloride", "Ruthenium(VI) fluoride", "Ruthenium(V) fluoride", "Ruthenium(III) fluoride", "Ruthenium(III) bromide", "Ruthenium(III) iodide", "Ruthenium(IV) sulfide",
+    "Ruthenium disulfide", "Ruthenium nitride", "Ruthenium carbide", "Ruthenium boride", "Ruthenium phosphide", "Ruthenium pentacarbonyl", "Triruthenium dodecacarbonyl", "Ruthenocene", "Ruthenium red", "Sodium ruthenate",
+    "Potassium ruthenate", "Strontium ruthenate", "Barium ruthenate", "Ruthenium(III) acetylacetonate", "Ruthenium(IV) acetate", "Ruthenium(III) nitrosyl chloride", "Ruthenium dioxide hydrate", "Ruthenium tetroxide", "Hexaammineruthenium(II) chloride", "Hexaammineruthenium(III) chloride"
+  ],
+  "Rh": [
+    "Rhodium(III) oxide", "Rhodium(IV) oxide", "Rhodium(III) chloride", "Rhodium(II) acetate", "Rhodium(VI) fluoride", "Rhodium(V) fluoride", "Rhodium(IV) fluoride", "Rhodium(III) fluoride", "Rhodium(III) bromide", "Rhodium(III) iodide",
+    "Rhodium(III) sulfide", "Rhodium(IV) sulfide", "Rhodium nitride", "Rhodium boride", "Rhodium phosphide", "Tetrarhodium dodecacarbonyl", "Hexarhodium hexadecacarbonyl", "Dirhodium tetraacetate", "Rhodocene", "Rhodium(III) sulfate",
+    "Rhodium(III) nitrate", "Rhodium(III) acetylacetonate", "Sodium hexachlororhodate(III)", "Potassium hexachlororhodate(III)", "Ammonium hexachlororhodate(III)", "Wilkinson's catalyst", "Rhodium(I) carbonyl chloride", "Rhodium(III) hydroxide", "Rhodium trichloride trihydrate", "Rhodium trifluoroacetate"
+  ],
+  "Pd": [
+    "Palladium(II) oxide", "Palladium(II) chloride", "Palladium(II) bromide", "Palladium(II) iodide", "Palladium(II) fluoride", "Palladium(IV) fluoride", "Palladium(II) sulfide", "Palladium(IV) sulfide", "Palladium(II) sulfate", "Palladium(II) nitrate",
+    "Palladium(II) acetate", "Palladium(II) acetylacetonate", "Palladium(II) hydroxide", "Palladium(II) cyanide", "Palladium(II) thiocyanate", "Tetrakis(triphenylphosphine)palladium(0)", "Palladium(II) trifluoroacetate", "Palladium(II) propionate", "Sodium tetrachloropalladate(II)", "Potassium tetrachloropalladate(II)",
+    "Ammonium tetrachloropalladate(II)", "Palladium on carbon", "Bis(benzonitrile)palladium(II) chloride", "Bis(acetonitrile)palladium(II) chloride", "Allylpalladium(II) chloride dimer", "Palladium(II) hexafluoroacetylacetonate", "Palladium hydride", "Palladium boride", "Palladium silicide", "Palladium phosphide"
+  ],
+  "Ag": [
+    "Silver(I) oxide", "Silver(I) chloride", "Silver(I) bromide", "Silver(I) iodide", "Silver(I) fluoride", "Silver(II) fluoride", "Silver(I) sulfide", "Silver(I) nitrate", "Silver(I) sulfate", "Silver(I) phosphate",
+    "Silver(I) carbonate", "Silver(I) acetate", "Silver(I) cyanide", "Silver(I) thiocyanate", "Silver(I) azide", "Silver(I) chlorate", "Silver(I) perchlorate", "Silver(I) chromate", "Silver(I) dichromate", "Silver(I) permanganate",
+    "Silver(I) molybdate", "Silver(I) tungstate", "Silver(I) arsenate", "Silver(I) arsenite", "Silver(I) acetylide", "Silver(I) fulminate", "Silver(I) nitrite", "Silver(I) periodate", "Silver(I) triflate", "Silver(III) oxide"
+  ],
+  "Cd": [
+    "Cadmium oxide", "Cadmium chloride", "Cadmium bromide", "Cadmium iodide", "Cadmium fluoride", "Cadmium sulfide", "Cadmium selenide", "Cadmium telluride", "Cadmium nitride", "Cadmium phosphide",
+    "Cadmium arsenide", "Cadmium antimonide", "Cadmium sulfate", "Cadmium nitrate", "Cadmium phosphate", "Cadmium acetate", "Cadmium hydroxide", "Cadmium carbonate", "Cadmium cyanide", "Cadmium thiocyanate",
+    "Cadmium oxalate", "Cadmium aluminate", "Cadmium titanate", "Cadmium chromate", "Cadmium molybdate", "Cadmium tungstate", "Cadmium borate", "Cadmium chlorate", "Cadmium perchlorate", "Dimethylcadmium"
+  ],
+  "In": [
+    "Indium(III) oxide", "Indium(I) oxide", "Indium(III) chloride", "Indium(I) chloride", "Indium(III) bromide", "Indium(I) bromide", "Indium(III) iodide", "Indium(I) iodide", "Indium(III) fluoride", "Indium(III) sulfide",
+    "Indium(II) sulfide", "Indium(III) selenide", "Indium(III) telluride", "Indium nitride", "Indium phosphide", "Indium arsenide", "Indium antimonide", "Indium(III) sulfate", "Indium(III) nitrate", "Indium(III) phosphate",
+    "Indium(III) acetate", "Indium(III) hydroxide", "Indium(III) acetylacetonate", "Indium tin oxide", "Trimethylindium", "Triethylindium", "Indium(III) triflate", "Sodium indate", "Potassium indate", "Lithium indate"
+  ],
+  "Sn": [
+    "Tin(IV) oxide", "Tin(II) oxide", "Tin(IV) chloride", "Tin(II) chloride", "Tin(IV) bromide", "Tin(II) bromide", "Tin(IV) iodide", "Tin(II) iodide", "Tin(IV) fluoride", "Tin(II) fluoride",
+    "Tin(IV) sulfide", "Tin(II) sulfide", "Tin(II) selenide", "Tin(II) telluride", "Tin(IV) sulfate", "Tin(II) sulfate", "Tin(II) nitrate", "Tin(II) phosphate", "Tin(II) acetate", "Tin(II) hydroxide",
+    "Tin(II) oxalate", "Sodium stannate", "Potassium stannate", "Barium stannate", "Lead stannate", "Tetramethyltin", "Tetraethyltin", "Tributyltin chloride", "Triphenyltin chloride", "Stannane"
+  ],
+  "Sb": [
+    "Antimony trioxide", "Antimony pentoxide", "Antimony trichloride", "Antimony pentachloride", "Antimony tribromide", "Antimony triiodide", "Antimony trifluoride", "Antimony pentafluoride", "Antimony trisulfide", "Antimony pentasulfide",
+    "Stibine", "Antimony triselenide", "Antimony tritelluride", "Antimonous acid", "Antimonic acid", "Sodium antimonate", "Potassium antimonate", "Lead antimonate", "Gallium antimonide", "Indium antimonide",
+    "Aluminum antimonide", "Cadmium antimonide", "Zinc antimonide", "Trimethylstibine", "Triphenylstibine", "Antimony potassium tartrate", "Antimony(III) sulfate", "Antimony(III) acetate", "Antimony(III) oxalate", "Antimony(V) sulfide"
+  ],
+  "Te": [
+    "Tellurium dioxide", "Tellurium trioxide", "Tellurium tetrachloride", "Tellurium tetrabromide", "Tellurium tetrafluoride", "Tellurium hexafluoride", "Tellurium dichloride", "Tellurium dibromide", "Tellurium disulfide", "Hydrogen telluride",
+    "Tellurous acid", "Telluric acid", "Sodium tellurite", "Sodium tellurate", "Potassium tellurite", "Potassium tellurate", "Bismuth telluride", "Lead telluride", "Cadmium telluride", "Zinc telluride",
+    "Mercury telluride", "Silver telluride", "Copper(II) telluride", "Iron(II) telluride", "Gallium telluride", "Indium telluride", "Thallium telluride", "Dimethyl telluride", "Diphenyl telluride", "Tellurium suboxide"
+  ],
+  "I": [
+    "Sodium iodide", "Potassium iodide", "Lithium iodide", "Calcium iodide", "Magnesium iodide", "Aluminum iodide", "Iron(III) iodide", "Iron(II) iodide", "Copper(I) iodide", "Zinc iodide",
+    "Hydrogen iodide", "Iodine dioxide", "Iodine pentoxide", "Iodine heptafluoride", "Iodine pentafluoride", "Iodine trifluoride", "Iodine monochloride", "Iodine monobromide", "Iodic acid", "Periodic acid",
+    "Sodium iodate", "Sodium periodate", "Potassium iodate", "Potassium periodate", "Calcium iodate", "Silver iodate", "Carbon tetraiodide", "Iodoform", "Diiodomethane", "Methyl iodide"
+  ],
+  "Xe": [
+    "Xenon difluoride", "Xenon tetrafluoride", "Xenon hexafluoride", "Xenon dioxide", "Xenon trioxide", "Xenon tetroxide", "Xenon oxytetrafluoride", "Xenon oxydifluoride", "Xenon dioxydifluoride", "Xenon trioxyfluoride",
+    "Xenic acid", "Perxenic acid", "Sodium perxenate", "Potassium perxenate", "Barium perxenate", "Xenon hexafluoroplatinate", "Xenon hexafluororhodate", "Xenon hexafluororuthenate", "Xenon undecaafluorodiantimonate", "Xenon fluorosulfate",
+    "Xenon bis(pentafluorotellurate)", "Xenon tetrakis(pentafluorotellurate)", "Xenon dichloride", "Xenon clathrate", "Xenon-water complex", "Xenon-hydrogen complex", "Xenon-nitrogen complex", "Xenon-oxygen complex", "Xenon-carbon dioxide complex", "Xenon-methane complex"
+  ],
+  "Cs": [
+    "Cesium chloride", "Cesium bromide", "Cesium iodide", "Cesium fluoride", "Cesium oxide", "Cesium peroxide", "Cesium superoxide", "Cesium sulfide", "Cesium nitride", "Cesium hydride",
+    "Cesium carbonate", "Cesium bicarbonate", "Cesium sulfate", "Cesium bisulfate", "Cesium nitrate", "Cesium nitrite", "Cesium phosphate", "Cesium acetate", "Cesium hydroxide", "Cesium amide",
+    "Cesium azide", "Cesium cyanide", "Cesium thiocyanate", "Cesium borate", "Cesium aluminate", "Cesium silicate", "Cesium titanate", "Cesium chlorate", "Cesium perchlorate", "Cesium permanganate"
+  ],
+  "Ba": [
+    "Barium chloride", "Barium bromide", "Barium iodide", "Barium fluoride", "Barium oxide", "Barium peroxide", "Barium sulfide", "Barium nitride", "Barium hydride", "Barium carbide",
+    "Barium carbonate", "Barium sulfate", "Barium nitrate", "Barium phosphate", "Barium acetate", "Barium hydroxide", "Barium aluminate", "Barium silicate", "Barium titanate", "Barium chlorate",
+    "Barium perchlorate", "Barium hypochlorite", "Barium cyanide", "Barium thiocyanate", "Barium borate", "Barium chromate", "Barium molybdate", "Barium tungstate", "Barium oxalate", "Barium ruthenate"
+  ],
+  "La": [
+    "Lanthanum(III) oxide", "Lanthanum(III) chloride", "Lanthanum(III) bromide", "Lanthanum(III) iodide", "Lanthanum(III) fluoride", "Lanthanum(III) sulfide", "Lanthanum nitride", "Lanthanum hexaboride", "Lanthanum carbide", "Lanthanum hydride",
+    "Lanthanum(III) carbonate", "Lanthanum(III) sulfate", "Lanthanum(III) nitrate", "Lanthanum(III) phosphate", "Lanthanum(III) acetate", "Lanthanum(III) hydroxide", "Lanthanum aluminate", "Lanthanum silicate", "Lanthanum titanate", "Lanthanum chlorate",
+    "Lanthanum perchlorate", "Lanthanum cyanide", "Lanthanum thiocyanate", "Lanthanum borate", "Lanthanum chromate", "Lanthanum molybdate", "Lanthanum tungstate", "Lanthanum oxalate", "Lanthanum triflate", "Lanthanum acetylacetonate"
+  ],
+  "Ce": [
+    "Cerium(IV) oxide", "Cerium(III) oxide", "Cerium(III) chloride", "Cerium(IV) sulfate", "Cerium(III) sulfate", "Cerium(III) nitrate", "Cerium(IV) nitrate", "Cerium(III) fluoride", "Cerium(IV) fluoride", "Cerium(III) bromide",
+    "Cerium(III) iodide", "Cerium(III) sulfide", "Cerium nitride", "Cerium hexaboride", "Cerium carbide", "Cerium hydride", "Cerium(III) carbonate", "Cerium(III) phosphate", "Cerium(III) acetate", "Cerium(III) hydroxide",
+    "Ammonium cerium(IV) nitrate", "Ammonium cerium(IV) sulfate", "Cerium aluminate", "Cerium silicate", "Cerium titanate", "Cerium(III) oxalate", "Cerium(IV) ammonium nitrate", "Cerium(III) triflate", "Cerium(III) acetylacetonate", "Cerium molybdate"
+  ],
+  "Pr": [
+    "Praseodymium(III) oxide", "Praseodymium(III,IV) oxide", "Praseodymium(IV) oxide", "Praseodymium(III) chloride", "Praseodymium(III) bromide", "Praseodymium(III) iodide", "Praseodymium(III) fluoride", "Praseodymium(IV) fluoride", "Praseodymium(III) sulfide", "Praseodymium nitride",
+    "Praseodymium hexaboride", "Praseodymium carbide", "Praseodymium hydride", "Praseodymium(III) carbonate", "Praseodymium(III) sulfate", "Praseodymium(III) nitrate", "Praseodymium(III) phosphate", "Praseodymium(III) acetate", "Praseodymium(III) hydroxide", "Praseodymium aluminate",
+    "Praseodymium silicate", "Praseodymium titanate", "Praseodymium chlorate", "Praseodymium perchlorate", "Praseodymium oxalate", "Praseodymium triflate", "Praseodymium acetylacetonate", "Praseodymium chromate", "Praseodymium molybdate", "Praseodymium tungstate"
+  ],
+  "Nd": [
+    "Neodymium(III) oxide", "Neodymium(III) chloride", "Neodymium(III) bromide", "Neodymium(III) iodide", "Neodymium(III) fluoride", "Neodymium(III) sulfide", "Neodymium nitride", "Neodymium hexaboride", "Neodymium carbide", "Neodymium hydride",
+    "Neodymium(III) carbonate", "Neodymium(III) sulfate", "Neodymium(III) nitrate", "Neodymium(III) phosphate", "Neodymium(III) acetate", "Neodymium(III) hydroxide", "Neodymium aluminate", "Neodymium silicate", "Neodymium titanate", "Neodymium chlorate",
+    "Neodymium perchlorate", "Neodymium oxalate", "Neodymium triflate", "Neodymium acetylacetonate", "Neodymium chromate", "Neodymium molybdate", "Neodymium tungstate", "Neodymium-iron-boron", "Neodymium yttrium aluminum garnet", "Neodymium glass"
+  ],
+  "Pm": [
+    "Promethium(III) oxide", "Promethium(III) chloride", "Promethium(III) bromide", "Promethium(III) iodide", "Promethium(III) fluoride", "Promethium(III) sulfide", "Promethium nitride", "Promethium hexaboride", "Promethium carbide", "Promethium hydride",
+    "Promethium(III) carbonate", "Promethium(III) sulfate", "Promethium(III) nitrate", "Promethium(III) phosphate", "Promethium(III) acetate", "Promethium(III) hydroxide", "Promethium aluminate", "Promethium silicate", "Promethium titanate", "Promethium chlorate",
+    "Promethium perchlorate", "Promethium oxalate", "Promethium triflate", "Promethium acetylacetonate", "Promethium chromate", "Promethium molybdate", "Promethium tungstate", "Promethium hydroxide", "Promethium borate", "Promethium silicate"
+  ],
+  "Sm": [
+    "Samarium(III) oxide", "Samarium(II) oxide", "Samarium(III) chloride", "Samarium(II) chloride", "Samarium(III) bromide", "Samarium(II) bromide", "Samarium(III) iodide", "Samarium(II) iodide", "Samarium(III) fluoride", "Samarium(II) fluoride",
+    "Samarium(III) sulfide", "Samarium nitride", "Samarium hexaboride", "Samarium carbide", "Samarium hydride", "Samarium(III) carbonate", "Samarium(III) sulfate", "Samarium(III) nitrate", "Samarium(III) phosphate", "Samarium(III) acetate",
+    "Samarium(III) hydroxide", "Samarium aluminate", "Samarium silicate", "Samarium titanate", "Samarium oxalate", "Samarium triflate", "Samarium acetylacetonate", "Samarium-cobalt", "Samarium chromate", "Samarium molybdate"
+  ],
+  "Eu": [
+    "Europium(III) oxide", "Europium(II) oxide", "Europium(III) chloride", "Europium(II) chloride", "Europium(III) bromide", "Europium(II) bromide", "Europium(III) iodide", "Europium(II) iodide", "Europium(III) fluoride", "Europium(II) fluoride",
+    "Europium(II) sulfide", "Europium(III) sulfide", "Europium nitride", "Europium hexaboride", "Europium carbide", "Europium hydride", "Europium(III) carbonate", "Europium(II) sulfate", "Europium(III) nitrate", "Europium(III) phosphate",
+    "Europium(III) acetate", "Europium(III) hydroxide", "Europium aluminate", "Europium silicate", "Europium titanate", "Europium oxalate", "Europium triflate", "Europium(III) acetylacetonate", "Europium chromate", "Europium molybdate"
+  ],
+  "Gd": [
+    "Gadolinium(III) oxide", "Gadolinium(III) chloride", "Gadolinium(III) bromide", "Gadolinium(III) iodide", "Gadolinium(III) fluoride", "Gadolinium(III) sulfide", "Gadolinium nitride", "Gadolinium hexaboride", "Gadolinium carbide", "Gadolinium hydride",
+    "Gadolinium(III) carbonate", "Gadolinium(III) sulfate", "Gadolinium(III) nitrate", "Gadolinium(III) phosphate", "Gadolinium(III) acetate", "Gadolinium(III) hydroxide", "Gadolinium aluminate", "Gadolinium silicate", "Gadolinium titanate", "Gadolinium chlorate",
+    "Gadolinium perchlorate", "Gadolinium oxalate", "Gadolinium triflate", "Gadolinium acetylacetonate", "Gadolinium chromate", "Gadolinium molybdate", "Gadolinium tungstate", "Gadolinium gallium garnet", "Gadolinium yttrium garnet", "Gadobenate dimeglumine"
+  ],
+  "Tb": [
+    "Terbium(III) oxide", "Terbium(III,IV) oxide", "Terbium(IV) oxide", "Terbium(III) chloride", "Terbium(III) bromide", "Terbium(III) iodide", "Terbium(III) fluoride", "Terbium(IV) fluoride", "Terbium(III) sulfide", "Terbium nitride",
+    "Terbium hexaboride", "Terbium carbide", "Terbium hydride", "Terbium(III) carbonate", "Terbium(III) sulfate", "Terbium(III) nitrate", "Terbium(III) phosphate", "Terbium(III) acetate", "Terbium(III) hydroxide", "Terbium aluminate",
+    "Terbium silicate", "Terbium titanate", "Terbium chlorate", "Terbium perchlorate", "Terbium oxalate", "Terbium triflate", "Terbium acetylacetonate", "Terbium chromate", "Terbium molybdate", "Terbium tungstate"
+  ],
+  "Dy": [
+    "Dysprosium(III) oxide", "Dysprosium(III) chloride", "Dysprosium(III) bromide", "Dysprosium(III) iodide", "Dysprosium(III) fluoride", "Dysprosium(III) sulfide", "Dysprosium nitride", "Dysprosium hexaboride", "Dysprosium carbide", "Dysprosium hydride",
+    "Dysprosium(III) carbonate", "Dysprosium(III) sulfate", "Dysprosium(III) nitrate", "Dysprosium(III) phosphate", "Dysprosium(III) acetate", "Dysprosium(III) hydroxide", "Dysprosium aluminate", "Dysprosium silicate", "Dysprosium titanate", "Dysprosium chlorate",
+    "Dysprosium perchlorate", "Dysprosium oxalate", "Dysprosium triflate", "Dysprosium acetylacetonate", "Dysprosium chromate", "Dysprosium molybdate", "Dysprosium tungstate", "Dysprosium iron garnet", "Dysprosium gallium garnet", "Dysprosium titanate"
+  ],
+  "Ho": [
+    "Holmium(III) oxide", "Holmium(III) chloride", "Holmium(III) bromide", "Holmium(III) iodide", "Holmium(III) fluoride", "Holmium(III) sulfide", "Holmium nitride", "Holmium hexaboride", "Holmium carbide", "Holmium hydride",
+    "Holmium(III) carbonate", "Holmium(III) sulfate", "Holmium(III) nitrate", "Holmium(III) phosphate", "Holmium(III) acetate", "Holmium(III) hydroxide", "Holmium aluminate", "Holmium silicate", "Holmium titanate", "Holmium chlorate",
+    "Holmium perchlorate", "Holmium oxalate", "Holmium triflate", "Holmium acetylacetonate", "Holmium chromate", "Holmium molybdate", "Holmium tungstate", "Holmium iron garnet", "Holmium gallium garnet", "Holmium aluminum garnet"
+  ],
+  "Er": [
+    "Erbium(III) oxide", "Erbium(III) chloride", "Erbium(III) bromide", "Erbium(III) iodide", "Erbium(III) fluoride", "Erbium(III) sulfide", "Erbium nitride", "Erbium hexaboride", "Erbium carbide", "Erbium hydride",
+    "Erbium(III) carbonate", "Erbium(III) sulfate", "Erbium(III) nitrate", "Erbium(III) phosphate", "Erbium(III) acetate", "Erbium(III) hydroxide", "Erbium aluminate", "Erbium silicate", "Erbium titanate", "Erbium chlorate",
+    "Erbium perchlorate", "Erbium oxalate", "Erbium triflate", "Erbium acetylacetonate", "Erbium chromate", "Erbium molybdate", "Erbium tungstate", "Erbium iron garnet", "Erbium gallium garnet", "Erbium aluminum garnet"
+  ],
+  "Tm": [
+    "Thulium(III) oxide", "Thulium(II) oxide", "Thulium(III) chloride", "Thulium(II) chloride", "Thulium(III) bromide", "Thulium(II) bromide", "Thulium(III) iodide", "Thulium(II) iodide", "Thulium(III) fluoride", "Thulium(II) fluoride",
+    "Thulium(III) sulfide", "Thulium nitride", "Thulium hexaboride", "Thulium carbide", "Thulium hydride", "Thulium(III) carbonate", "Thulium(III) sulfate", "Thulium(III) nitrate", "Thulium(III) phosphate", "Thulium(III) acetate",
+    "Thulium(III) hydroxide", "Thulium aluminate", "Thulium silicate", "Thulium titanate", "Thulium oxalate", "Thulium triflate", "Thulium acetylacetonate", "Thulium chromate", "Thulium molybdate", "Thulium tungstate"
+  ],
+  "Yb": [
+    "Ytterbium(III) oxide", "Ytterbium(II) oxide", "Ytterbium(III) chloride", "Ytterbium(II) chloride", "Ytterbium(III) bromide", "Ytterbium(II) bromide", "Ytterbium(III) iodide", "Ytterbium(II) iodide", "Ytterbium(III) fluoride", "Ytterbium(II) fluoride",
+    "Ytterbium(III) sulfide", "Ytterbium(II) sulfide", "Ytterbium nitride", "Ytterbium hexaboride", "Ytterbium carbide", "Ytterbium hydride", "Ytterbium(III) carbonate", "Ytterbium(III) sulfate", "Ytterbium(III) nitrate", "Ytterbium(III) phosphate",
+    "Ytterbium(III) acetate", "Ytterbium(III) hydroxide", "Ytterbium aluminate", "Ytterbium silicate", "Ytterbium titanate", "Ytterbium oxalate", "Ytterbium triflate", "Ytterbium acetylacetonate", "Ytterbium chromate", "Ytterbium molybdate"
+  ],
+  "Lu": [
+    "Lutetium(III) oxide", "Lutetium(III) chloride", "Lutetium(III) bromide", "Lutetium(III) iodide", "Lutetium(III) fluoride", "Lutetium(III) sulfide", "Lutetium nitride", "Lutetium hexaboride", "Lutetium carbide", "Lutetium hydride",
+    "Lutetium(III) carbonate", "Lutetium(III) sulfate", "Lutetium(III) nitrate", "Lutetium(III) phosphate", "Lutetium(III) acetate", "Lutetium(III) hydroxide", "Lutetium aluminate", "Lutetium silicate", "Lutetium titanate", "Lutetium chlorate",
+    "Lutetium perchlorate", "Lutetium oxalate", "Lutetium triflate", "Lutetium acetylacetonate", "Lutetium chromate", "Lutetium molybdate", "Lutetium tungstate", "Lutetium iron garnet", "Lutetium gallium garnet", "Lutetium aluminum garnet"
+  ],
+  "Hf": [
+    "Hafnium(IV) oxide", "Hafnium tetrachloride", "Hafnium tetrabromide", "Hafnium tetraiodide", "Hafnium tetrafluoride", "Hafnium(IV) sulfide", "Hafnium nitride", "Hafnium carbide", "Hafnium boride", "Hafnium hydride",
+    "Hafnium(IV) sulfate", "Hafnium(IV) nitrate", "Hafnium(IV) phosphate", "Hafnium(IV) acetate", "Hafnium(IV) hydroxide", "Hafnium(IV) silicate", "Hafnium tungstate", "Hafnium molybdate", "Hafnium(III) chloride", "Hafnium(III) bromide",
+    "Hafnium(III) iodide", "Hafnium(III) fluoride", "Hafnium(II) chloride", "Barium hafnate", "Strontium hafnate", "Calcium hafnate", "Lead hafnate", "Hafnocene dichloride", "Hafnyl chloride", "Hafnium ethoxide"
+  ],
+  "Ta": [
+    "Tantalum pentoxide", "Tantalum dioxide", "Tantalum monoxide", "Tantalum pentachloride", "Tantalum tetrachloride", "Tantalum trichloride", "Tantalum pentafluoride", "Tantalum pentabromide", "Tantalum pentaiodide", "Tantalum nitride",
+    "Tantalum carbide", "Tantalum boride", "Tantalum disulfide", "Tantalum trisulfide", "Tantalum diselenide", "Tantalum phosphide", "Tantalum arsenide", "Tantalum antimonide", "Lithium tantalate", "Sodium tantalate",
+    "Potassium tantalate", "Silver tantalate", "Lead tantalate", "Tantalum(V) ethoxide", "Tantalum(V) oxalate", "Tantalum sulfate", "Tantalum phosphate", "Tantalic acid", "Barium tantalate", "Strontium tantalate"
+  ],
+  "W": [
+    "Tungsten trioxide", "Tungsten dioxide", "Tungsten disulfide", "Tungsten hexacarbonyl", "Tungsten hexafluoride", "Tungsten pentachloride", "Tungsten tetrachloride", "Tungsten trichloride", "Tungsten dichloride", "Tungsten pentabromide",
+    "Tungsten tribromide", "Tungsten dibromide", "Tungsten diiodide", "Tungsten nitride", "Tungsten carbide", "Tungsten boride", "Tungstic acid", "Sodium tungstate", "Potassium tungstate", "Ammonium tungstate",
+    "Ammonium paratungstate", "Lead tungstate", "Calcium tungstate", "Barium tungstate", "Zinc tungstate", "Silver tungstate", "Tungsten trisulfide", "Tungsten diselenide", "Tungsten ditelluride", "Tungsten hexachloride"
+  ],
+  "Re": [
+    "Rhenium(VII) oxide", "Rhenium(VI) oxide", "Rhenium(IV) oxide", "Rhenium(VII) sulfide", "Rhenium(IV) sulfide", "Rhenium(VII) fluoride", "Rhenium(VI) fluoride", "Rhenium(V) fluoride", "Rhenium(IV) fluoride", "Rhenium(VI) chloride",
+    "Rhenium(V) chloride", "Rhenium(IV) chloride", "Rhenium(III) chloride", "Rhenium(V) bromide", "Rhenium(IV) bromide", "Rhenium(III) bromide", "Rhenium(IV) iodide", "Rhenium(III) iodide", "Rhenium(I) iodide", "Rhenium(VII) sulfide",
+    "Perrhenic acid", "Sodium perrhenate", "Potassium perrhenate", "Ammonium perrhenate", "Silver perrhenate", "Barium perrhenate", "Dirhenium decacarbonyl", "Methylrhenium trioxide", "Rhenium diboride", "Rhenium nitride"
+  ],
+  "Os": [
+    "Osmium tetroxide", "Osmium dioxide", "Osmium(VIII) oxide", "Osmium(VI) fluoride", "Osmium(V) fluoride", "Osmium(IV) fluoride", "Osmium(IV) chloride", "Osmium(III) chloride", "Osmium(IV) bromide", "Osmium(III) bromide",
+    "Osmium(IV) iodide", "Osmium(IV) sulfide", "Osmium disulfide", "Osmium nitride", "Osmium carbide", "Osmium boride", "Osmium phosphide", "Osmium pentacarbonyl", "Triosmium dodecacarbonyl", "Osmocene",
+    "Sodium osmate", "Potassium osmate", "Barium osmate", "Silver osmate", "Osmic acid", "Potassium osmiamate", "Osmium(III) acetylacetonate", "Osmium hexafluoride", "Osmium heptafluoride", "Osmium octafluoride"
+  ],
+  "Ir": [
+    "Iridium(IV) oxide", "Iridium(III) oxide", "Iridium(VI) fluoride", "Iridium(V) fluoride", "Iridium(IV) fluoride", "Iridium(III) fluoride", "Iridium(IV) chloride", "Iridium(III) chloride", "Iridium(IV) bromide", "Iridium(III) bromide",
+    "Iridium(IV) iodide", "Iridium(III) iodide", "Iridium(IV) sulfide", "Iridium(III) sulfide", "Iridium nitride", "Iridium boride", "Iridium phosphide", "Tetrairidium dodecacarbonyl", "Hexairidium hexadecacarbonyl", "Iridocene",
+    "Iridium(III) sulfate", "Iridium(III) nitrate", "Iridium(III) acetylacetonate", "Sodium hexachloroiridate(IV)", "Potassium hexachloroiridate(IV)", "Ammonium hexachloroiridate(IV)", "Vaska's complex", "Iridium(III) hydroxide", "Iridium trichloride hydrate", "Iridium dioxide hydrate"
+  ],
+  "Pt": [
+    "Platinum(IV) oxide", "Platinum(II) oxide", "Platinum(IV) chloride", "Platinum(II) chloride", "Platinum(IV) bromide", "Platinum(II) bromide", "Platinum(IV) iodide", "Platinum(II) iodide", "Platinum(VI) fluoride", "Platinum(V) fluoride",
+    "Platinum(IV) fluoride", "Platinum(II) fluoride", "Platinum(IV) sulfide", "Platinum(II) sulfide", "Platinum(IV) sulfate", "Platinum(II) sulfate", "Platinum(IV) nitrate", "Platinum(II) nitrate", "Platinum(IV) hydroxide", "Platinum(II) hydroxide",
+    "Chloroplatinic acid", "Sodium hexachloroplatinate(IV)", "Potassium hexachloroplatinate(IV)", "Ammonium hexachloroplatinate(IV)", "Sodium tetrachloroplatinate(II)", "Potassium tetrachloroplatinate(II)", "Ammonium tetrachloroplatinate(II)", "Cisplatin", "Zeise's salt", "Platinum acetylacetonate"
+  ],
+  "Au": [
+    "Gold(III) oxide", "Gold(I) oxide", "Gold(III) chloride", "Gold(I) chloride", "Gold(III) bromide", "Gold(I) bromide", "Gold(III) iodide", "Gold(I) iodide", "Gold(III) fluoride", "Gold(V) fluoride",
+    "Gold(III) sulfide", "Gold(I) sulfide", "Gold(III) selenide", "Gold(III) telluride", "Gold(III) hydroxide", "Gold(III) nitrate", "Gold(III) sulfate", "Chloroauric acid", "Sodium chloroaurate", "Potassium chloroaurate",
+    "Ammonium chloroaurate", "Sodium aurothiomalate", "Auranofin", "Gold(I) cyanide", "Gold(III) cyanide", "Potassium dicyanoaurate(I)", "Sodium dicyanoaurate(I)", "Gold(I) thiocyanate", "Gold(III) thiocyanate", "Gold heptafluoride"
+  ],
+  "Hg": [
+    "Mercury(II) oxide", "Mercury(I) oxide", "Mercury(II) chloride", "Mercury(I) chloride", "Mercury(II) bromide", "Mercury(I) bromide", "Mercury(II) iodide", "Mercury(I) iodide", "Mercury(II) fluoride", "Mercury(I) fluoride",
+    "Mercury(II) sulfide", "Mercury(II) selenide", "Mercury(II) telluride", "Mercury(II) sulfate", "Mercury(I) sulfate", "Mercury(II) nitrate", "Mercury(I) nitrate", "Mercury(II) acetate", "Mercury(I) acetate", "Mercury(II) fulminate",
+    "Mercury(II) thiocyanate", "Mercury(II) cyanide", "Mercury(II) chromate", "Mercury(II) phosphate", "Mercury(II) arsenate", "Dimethylmercury", "Diethylmercury", "Methylmercury chloride", "Ethylmercury chloride", "Thimerosal"
+  ]
+}

@@ -1,0 +1,23 @@
+.TH SPP-lint 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+lint
+.PP
+ \- Run SPP native linter on a file
+.SH DESCRIPTION
+Run SPP native linter on a file
+.PP
+.SH SYNOPSIS
+php spp.php lint [OPTIONS]
+.PP
+.SH OPTIONS
+\(bu `--file=` : Expects a value. Extracted via static analysis.
+.br
+\(bu `--json` : Boolean flag or option. Extracted via static analysis.
+.br
+.PP
+.SH UNDER THE HOOD
+Based on static analysis of the command's source code, invoking this command performs the following operations:
+\(bu Executes native PHP logic without major side-effects.
+.br
+.PP
+.PP
