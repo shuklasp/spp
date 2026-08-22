@@ -26,7 +26,7 @@ Complete Books 1–5, paying particular attention to application contexts, integ
 
 ### Migrator
 
-Read Book 1 concepts first, then use Book 5 Chapter 12 when porting an existing framework application.
+Read Book 1 concepts first, then use Book 5 migration material when porting an existing framework application.
 
 ### Kernel Hacker
 
@@ -42,7 +42,7 @@ Frameworks, HTTP, MVC, containers, DI, routing, `pages.yml`, attributes, CLI gen
 
 ### [Book 2 — Core SPP Runtime](../book-2-core-spp/README.md)
 
-Scheduler, Registry, Middleware, Events, Modules, CLI, forms, presentation, authentication, web security, workflow, data entry point, Parikshak, queues, reporting integration, scaffolds, debugging.
+Scheduler, Registry, Middleware, Events, Modules, CLI, forms, presentation, authentication, web security, workflow, Parikshak, queues, debugging, and developer tooling.
 
 **18 chapters — complete**
 
@@ -69,6 +69,14 @@ Enterprise workflow, transfer/promotion, observability, workers, AI, polyglot/IP
 Source tracing for Scheduler, Registry, MiddlewareKernel, Events, Modules, Routing, SPPDB, LiveComponent, SPPLive, SPPUX, and documentation synchronization.
 
 **12 chapters — complete**
+
+## Mandatory verification controls
+
+- [90 — Repository-Wide Audit Checklist](90-repository-wide-audit-checklist.md)
+- [91 — Runnable Lab Audit](91-runnable-lab-audit.md)
+- [92 — Diagram and Link Audit](92-diagram-and-link-audit.md)
+
+These are part of the release process, not optional afterthoughts.
 
 ## Canonical learning sequence
 
@@ -114,8 +122,9 @@ When the SPP implementation changes, update the handbook by:
 3. updating examples and diagrams;
 4. rerunning relevant tests/labs;
 5. updating source maps and migration notes;
-6. recording the new documentation baseline.
+6. recording the new documentation baseline;
+7. running the repository-wide audit controls.
 
 ## Completion status
 
-The V3 branch currently contains the six-book structure and the source-oriented chapter set. The next maintenance step is to deepen executable examples and perform a repository-wide link/diagram/source audit against the final SPP source baseline.
+The V3 branch contains the six-book structure and source-oriented chapter set. The remaining quality work is to deepen runnable examples and complete the repository-wide source/link/diagram audit for the final SPP source baseline.
