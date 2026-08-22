@@ -70,6 +70,13 @@ Source tracing for Scheduler, Registry, MiddlewareKernel, Events, Modules, Routi
 
 **12 chapters — complete**
 
+## Priority source-synchronized labs
+
+- [Priority Five — source-verified runnable labs](labs/priority-five-source-verified-labs.md)
+- [Priority Five — source map](source-maps/priority-five-source-map.md)
+
+These labs are the first executable verification layer for the five subsystems that changed most significantly in the August 2026 source baseline: **SPPDB, SPPReport, LiveComponent, SPPLive, and SPPUX**.
+
 ## Mandatory verification controls
 
 - [90 — Repository-Wide Audit Checklist](90-repository-wide-audit-checklist.md)
@@ -127,4 +134,4 @@ When the SPP implementation changes, update the handbook by:
 
 ## Completion status
 
-The V3 branch contains the six-book structure and source-oriented chapter set. The remaining quality work is to deepen runnable examples and complete the repository-wide source/link/diagram audit for the final SPP source baseline.
+The V3 branch contains the six-book structure, source-oriented chapter set, priority source maps, and executable verification scaffolding. Remaining work is to deepen the runnable examples and resolve any chapter-level mismatches found by executing the labs against the current SPP implementation.
