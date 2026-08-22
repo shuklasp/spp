@@ -70,6 +70,12 @@ Source tracing for Scheduler, Registry, MiddlewareKernel, Events, Modules, Routi
 
 **12 chapters — complete**
 
+## Framework landscape
+
+- [SPP in the Framework Landscape](08-spp-in-the-framework-landscape.md)
+
+Use this chapter after the initial framework concepts and before deep SPP specialization. It compares SPP with Laravel, Symfony, Django, and other framework families by architecture, runtime model, ecosystem, and application lifecycle rather than by unsupported feature-count marketing.
+
 ## Priority source-synchronized labs
 
 - [Priority Five — source-verified runnable labs](labs/priority-five-source-verified-labs.md)
@@ -89,12 +95,13 @@ These are part of the release process, not optional afterthoughts.
 
 ```mermaid
 flowchart TD
-    A[Book 1 Foundations] --> B[Book 2 Core SPP]
-    B --> C[Book 3 Data Platform]
-    B --> D[Book 4 Reactive Platform]
-    C --> E[Book 5 Enterprise]
-    D --> E
-    E --> F[Book 6 Kernel Hacker]
+    A[Book 1 Foundations] --> B[Framework landscape]
+    B --> C[Book 2 Core SPP]
+    C --> D[Book 3 Data Platform]
+    C --> E[Book 4 Reactive Platform]
+    D --> F[Book 5 Enterprise]
+    E --> F
+    F --> G[Book 6 Kernel Hacker]
 ```
 
 ## Teaching contract
@@ -134,4 +141,4 @@ When the SPP implementation changes, update the handbook by:
 
 ## Completion status
 
-The V3 branch contains the six-book structure, source-oriented chapter set, priority source maps, and executable verification scaffolding. Remaining work is to deepen the runnable examples and resolve any chapter-level mismatches found by executing the labs against the current SPP implementation.
+The V3 branch contains the six-book structure, source-oriented chapter set, framework landscape comparison, priority source maps, and executable verification scaffolding. Remaining work is to deepen the runnable examples and resolve any chapter-level mismatches found by executing the labs against the current SPP implementation.
