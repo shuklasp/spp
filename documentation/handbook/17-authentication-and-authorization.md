@@ -2,7 +2,7 @@
 
 ## Chapter 17 — Authentication and Authorization in SPP
 
-**Evidence:** `spp/modules/spp/sppauth/module.yml`, `class.sppauth.php`, `class.webguard.php`, `class.tokenguard.php`, `class.sppright.php`, `class.spprole.php`, authentication configuration, and related SPPAuth tests/documentation.
+**Evidence:** current SPPAuth source, guards, rights/roles, policy registry, security configuration, and related tests/documentation. Treat advertised capabilities as feature-specific claims requiring source/test verification.
 
 This chapter starts from a simple distinction:
 
@@ -14,133 +14,101 @@ They are related, but they are not the same problem.
 
 ## 17.1 Why frameworks provide authentication infrastructure
 
-In plain PHP, an application could inspect `$_SESSION`, read a cookie, compare a password, and decide whether a page should be shown.
-
-That becomes dangerous when every page implements its own version.
+In plain PHP, an application could inspect `$_SESSION`, read a cookie, compare a password, and decide whether a page should be shown. That becomes dangerous when every page implements its own version.
 
 A framework can centralize:
 
-- user identity;
+- identity;
 - session handling;
 - authentication guards;
 - permission checks;
 - role management;
+- policy/context evaluation;
 - audit integration; and
 - request middleware.
 
-SPP's `sppauth` module is the framework feature that provides native authentication facilities.
-
-The module manifest identifies `sppauth` as a core authentication module and declares dependencies on `sppdb` and `dbconfig`.
+SPP's `sppauth` subsystem provides native authentication and authorization facilities. It should be understood as a platform security subsystem rather than as one login helper.
 
 ---
 
 ## 17.2 The SPPAuth mental model
 
-SPPAuth uses an authentication facade plus named guards.
-
-The current source defines a default `web` guard and an `api` guard.
+SPPAuth exposes an authentication facade and named guards.
 
 ```mermaid
 flowchart TD
-    A[Application code] --> B[SPPAuth facade]
+    A[Application / request] --> B[SPPAuth facade]
     B --> C[Web guard]
-    B --> D[API token guard]
+    B --> D[API guard]
     C --> E[Session identity]
-    D --> F[API token identity]
+    D --> F[Token identity]
+    E --> G[Authorization context]
+    F --> G
+    G --> H[Rights / roles / policy]
 ```
 
-The important beginner lesson is that the facade provides a stable application-facing API while the guard determines **how identity is obtained and checked**.
+The facade is the application-facing entry point; the guard determines how identity is obtained and checked.
 
 ---
 
-## 17.3 Authentication: logging in
+## 17.3 Authentication is more than credential verification
 
-The legacy-compatible `SPPAuth::login()` method verifies a username and password through `SPPUser::verifyUserPassword()`.
+The implemented web path includes credential verification and can integrate rate limiting, audit logging, MFA state, and session authentication. A successful password check should therefore not be treated as the entire authentication decision.
 
-The implementation also integrates additional controls:
-
-- login-attempt rate limiting;
-- audit logging;
-- optional MFA challenge handling; and
-- session-based web authentication.
-
-This means login is more than a password comparison.
-
-A simplified conceptual flow is:
+Conceptually:
 
 ```mermaid
 flowchart TD
-    A[Username and password] --> B[Verify credentials]
-    B -- Invalid --> C[Record failed attempt]
-    B -- Valid --> D{MFA enabled}
-    D -- Yes --> E[Create MFA challenge]
-    D -- No --> F[Create authenticated web session]
-    E --> G[Continue after MFA]
+    A[Credentials] --> B[Verify credentials]
+    B -- Invalid --> C[Failed-attempt handling]
+    B -- Valid --> D{Additional authentication state?}
+    D -- MFA required --> E[MFA challenge/state]
+    D -- No --> F[Authenticated session]
+    E --> G[Complete authentication]
     F --> H[Authenticated request]
     G --> H
 ```
 
-The exact challenge/session behavior is implemented in `SPPAuth` and `WebGuard`.
+Use the guard/facade rather than reproducing these checks manually.
 
 ---
 
 ## 17.4 WebGuard
 
-`WebGuard` is session-based.
+`WebGuard` is session-oriented and reconstructs the authenticated user from SPP session state. The current implementation also performs additional security checks around MFA state, request fingerprinting, session/device revocation, and activity tracking.
 
-It stores the authenticated user identifier in an SPP session variable and reconstructs the `SPPUser` object when required.
+This leads to a useful rule:
 
-The guard also performs additional checks in `check()`, including:
-
-- MFA-pending state;
-- an IP/user-agent fingerprint check;
-- periodic session revocation checks through the `loginrec` table; and
-- session/device activity updates.
-
-Those are concrete implementation features visible in the source.
-
-A security-sensitive lesson follows:
-
-> Authentication state is not just a boolean. The guard may perform additional checks before considering the request authenticated.
+> **Authentication state is a runtime decision, not merely the presence of one session variable.**
 
 ---
 
 ## 17.5 Remember-me authentication
 
-`WebGuard::user()` also contains a remember-me path. When the normal session identity is absent, it can inspect the `spp_remember_me` cookie, hash its token, and look up a valid record in the `remember_tokens` table.
+The web guard contains a remember-me path that can use a browser token together with a server-side record in the `remember_tokens` table.
 
-This allows the guard to reconstruct an authenticated user without treating the browser cookie itself as the user object.
-
-The database record is an important part of the trust decision.
+The important security principle is that the cookie is not itself the authoritative user record. The server-side token record participates in the trust decision.
 
 ---
 
-## 17.6 API authentication
+## 17.6 API identity is a separate path
 
-`SPPAuth` maps the `api` guard to `TokenGuard`.
-
-The API authentication path is therefore conceptually separate from the browser/session path.
-
-This allows an application to distinguish:
+The API guard uses token-based identity rather than the browser session model.
 
 | Context | Guard | Typical identity mechanism |
 |---|---|---|
-| Browser/web | `web` | Session/user identity |
+| Browser/web | `web` | SPP session/user identity |
 | API | `api` | Token-based identity |
 
-The handbook does not equate the guards merely because both are exposed through `SPPAuth`.
+Do not assume that a browser session and an API bearer token have identical lifecycle, revocation, or authorization semantics without tracing the relevant implementation.
 
 ---
 
-## 17.7 Authorization: permissions and rights
+## 17.7 Authorization: rights, roles, and policy
 
-Once the framework knows who the user is, the next question is whether that user may perform an operation.
+After identity is established, authorization determines whether the subject may perform an operation.
 
-SPP exposes permission/right checks through `SPPAuth::can()` and the role/right subsystem.
-
-`SPPRight` represents system rights and resolves right IDs from the `rights` table.
-
-A right is best thought of as an application-level capability such as:
+SPP exposes rights and role mechanisms through the authentication subsystem. A right can represent a capability such as:
 
 ```text
 students.read
@@ -149,239 +117,199 @@ reports.export
 admin.users.manage
 ```
 
-The exact naming convention is application/module-defined.
-
----
-
-## 17.8 Roles
-
-`SPPRole` manages roles and the rights assigned to them.
-
-The source uses a `roleright` relationship table to connect roles and rights.
-
-It also supports polymorphic role assignment through an `entity_roles` table, allowing a role to be associated with an arbitrary entity class and ID.
+Roles group rights. Policy/context evaluation can add conditions beyond a simple capability check.
 
 ```mermaid
 flowchart LR
-    U[User or entity] --> R[Role]
-    R --> P[Rights]
-    P --> A[Allowed operation]
+    Subject[Authenticated subject] --> Role[Role / group membership]
+    Role --> Right[Rights]
+    Subject --> Context[Request / resource context]
+    Right --> Policy[Policy evaluation]
+    Context --> Policy
+    Policy --> Decision[Authorization decision]
 ```
 
-The important architectural distinction is:
-
-**roles group permissions; permissions describe capabilities.**
+The exact right names and business rules remain application/module-specific.
 
 ---
 
-## 17.9 Where group-based permissions fit
+## 17.8 Permission persistence is part of the architecture
 
-`WebGuard` resolves permissions from multiple sources, including:
+Permission data is not just presentation metadata. Current administrative paths use persisted permission/scope information, including SPPXDB-backed records in the inspected source path.
 
-- mandatory anonymous/authenticated groups;
-- legacy user rights;
-- Registry-provided rights;
-- groups assigned to the current user; and
-- role-derived permissions.
+This matters when debugging authorization: investigate the identity, scope/context, stored permission data, cache state, and policy evaluation—not only the UI.
 
-The resulting permission list is de-duplicated.
-
-This means that SPP authorization is not limited to one static role table.
+Some current development-oriented code paths have fallback behavior when an expected permission record is absent. **Do not document such fallback as a production authorization guarantee.** Production authorization should use explicit, configured policy and permission data.
 
 ---
 
-## 17.10 Permission caching
+## 17.9 Permission caching
 
-`WebGuard::can()` caches resolved permissions in session data.
+The web authorization path can cache resolved permissions in session data and compare cache state with permission-update information before reusing it.
 
-For authenticated users, the implementation can compare the cached permission timestamp with a database `rights_updated_at` value before deciding whether the cache is still valid.
+Therefore stale authorization can be a cache invalidation problem as well as a data problem.
 
-This is an example of a framework optimization that also changes the debugging model: if permissions appear stale, investigate both the authorization data and the permission cache invalidation path.
+A safe diagnostic sequence is:
 
----
-
-## 17.11 Attribute-based policy context
-
-The current `WebGuard::can()` implementation can evaluate an additional context through `PolicyRegistry::evaluate()` when a context is supplied.
-
-That is important because a permission alone may not always be enough.
-
-For example:
-
-```text
-Permission: reports.view
-
-Context:
-    department = science
-    report.owner = current_user
-```
-
-A policy layer can make the final decision depend on the context as well.
-
-This is the point where permission checking begins to resemble **attribute-based authorization**, but the handbook will only document the concrete policy semantics that the inspected `PolicyRegistry` implementation establishes.
+1. establish the authenticated identity;
+2. inspect the expected rights/roles/scopes;
+3. inspect policy/context inputs;
+4. inspect permission-cache state;
+5. verify the protected operation performs a server-side check.
 
 ---
 
-## 17.12 Authentication and middleware
+## 17.10 Authentication and middleware
 
-Authentication and middleware fit together naturally.
-
-Middleware can stop an unauthenticated request before it reaches the business layer.
+Authentication and middleware have complementary responsibilities.
 
 ```mermaid
 flowchart TD
-    A[HTTP request] --> B[Authentication middleware]
-    B -- Not authenticated --> C[Reject request]
-    B -- Authenticated --> D[Route or application handler]
-    D --> E[Authorization check]
+    A[HTTP request] --> B[Authentication boundary]
+    B -- Unauthenticated --> C[Reject / challenge]
+    B -- Authenticated --> D[Route / service]
+    D --> E[Authorization]
     E -- Denied --> F[Forbidden response]
     E -- Allowed --> G[Business operation]
 ```
 
-This gives two different decision points:
-
-- **authentication** establishes identity;
-- **authorization** decides whether the identified subject may perform the action.
+Authentication establishes identity. Authorization decides whether that identity can perform the requested operation. Middleware can enforce the boundary before the business layer is reached.
 
 ---
 
-## 17.13 MFA and authentication state
+## 17.11 MFA and intermediate authentication state
 
-`SPPAuth::login()` and `WebGuard` contain explicit handling for multi-factor authentication state.
+The authentication subsystem contains explicit MFA state handling. Credentials can therefore be accepted while the request remains in an intermediate authentication state.
 
-A login can therefore reach an intermediate state in which credentials were accepted but the user is not yet treated as fully authenticated.
-
-This is why security code should call the guard's authentication methods rather than assuming that the presence of one session variable proves full authentication.
+Application code should use the guard's authentication decision instead of assuming that successful credential verification alone means the user is fully authenticated.
 
 ---
 
-## 17.14 Session fingerprinting
+## 17.12 Session fingerprinting and revocation
 
-`WebGuard` stores a SHA-256 fingerprint derived from the request IP address and user-agent string.
+The web guard implements additional session checks, including a request fingerprint derived from IP/user-agent information and database-backed session/device state.
 
-On later authentication checks, the guard compares the current fingerprint with the stored value.
+These mechanisms have operational trade-offs. Network changes or privacy tooling can make a fingerprint less stable, so deployments should test the actual behavior with their traffic patterns.
 
-If they differ, the guard logs the condition and logs the user out.
-
-This is an implemented anti-hijacking measure, but it also has an operational trade-off: legitimate users whose network characteristics change unexpectedly may be forced to re-authenticate.
-
-That trade-off belongs in deployment and support documentation.
-
----
-
-## 17.15 Session revocation and device tracking
-
-The guard periodically checks the `loginrec` table using the current PHP session ID.
-
-If the database no longer contains the session record, the current authentication session is treated as revoked.
-
-The same table is updated with access information for active-device tracking.
-
-This creates an explicit relationship between:
+The broader architecture is:
 
 ```text
-Browser session
-      ↓
+Browser
+  ↓
 WebGuard
-      ↓
-SPP session state
-      ↓
-loginrec database record
+  ↓
+SPP session
+  ↓
+Persistent session/device record
 ```
 
-The system can therefore revoke sessions outside the browser session itself.
+The exact table/schema names are implementation details and should be verified against the current source before being copied into operational procedures.
 
 ---
 
-## 17.16 Logout
+## 17.13 Logout
 
-Logout should be performed through the guard/facade rather than by manually deleting one session variable.
+Use the guard/facade that owns authentication state rather than manually deleting one session value. Logout may involve more than one piece of authentication state.
 
-The guard owns the authentication state and associated integration points.
+This illustrates a general framework rule:
 
-This is another general framework principle:
-
-> Use the subsystem that owns a piece of state to change that state.
+> **Use the subsystem that owns a piece of state to change that state.**
 
 ---
 
-## 17.17 Security mistakes beginners make
+## 17.14 Security mistakes beginners make
 
-### Mistake 1 — Checking a session variable directly everywhere
+### Mistake 1 — Checking a session variable directly
 
-This bypasses the guard's additional checks.
+This can bypass guard-level checks.
 
 ### Mistake 2 — Treating authentication as authorization
 
-Being logged in does not automatically mean the user can perform every operation.
+Being authenticated does not grant every capability.
 
-### Mistake 3 — Trusting a client-provided permission
+### Mistake 3 — Trusting client-provided permissions
 
-Permissions must be resolved and checked on the server.
+Authorization must be decided server-side.
 
-### Mistake 4 — Assuming a role name is itself authorization
+### Mistake 4 — Treating a role name as the final decision
 
-Roles are a way of organizing rights. The final authorization decision concerns the requested capability and, where applicable, its context.
+Roles organize rights; the protected operation still needs an authorization decision.
 
-### Mistake 5 — Putting security checks only in the UI
+### Mistake 5 — Putting authorization only in the UI
 
-Hiding a button is not authorization. The server-side operation must enforce the rule.
+Hiding a button is not authorization.
+
+### Mistake 6 — Conflating API authentication with web authentication
+
+Token and session paths can have different lifecycle and trust semantics.
 
 ---
 
-## 17.18 Coming from other frameworks
+## 17.15 Coming from other frameworks
 
 ### Laravel
 
-The guard concept is familiar: authentication is accessed through a guard and authorization through permissions/policies. SPP additionally exposes its own rights/role/entity model.
+The guard concept is familiar, while SPP's rights/role/entity mechanisms define its concrete authorization model.
 
 ### Symfony
 
-Think in terms of security authenticators, voters, and firewall concepts, but do not assume identical APIs. SPP's concrete guard and rights classes define the behavior.
+The separation between authenticators, voters/policies, and request security is conceptually similar, but the APIs are framework-specific.
 
 ### Spring Security
 
-The separation between authentication and authorization is directly familiar. The SPP implementation is PHP-native and integrated with SPPDB, Registry, groups, roles, and middleware.
+The authentication/authorization separation maps naturally, but SPP integrates the concrete mechanisms with its own guards, Registry, data, middleware, and modules.
 
 ### Django
 
-Session authentication and permission concepts map naturally, but SPP's `SPPAuth` facade/guard model is framework-specific.
+Session authentication and permission concepts map naturally, but SPP's facade/guard model is different.
 
 ---
 
-## 17.19 Enterprise security architecture
+## 17.16 Enterprise security architecture
 
-A production system should keep the boundaries explicit:
+Keep these concerns explicit:
 
 | Concern | SPP layer |
 |---|---|
 | Credential verification | SPPAuth / user subsystem |
 | Session identity | WebGuard / SPP session |
-| API identity | TokenGuard |
-| Permission definitions | SPPRight |
-| Role grouping | SPPRole |
-| Request rejection | Middleware |
+| API identity | TokenGuard / API authentication path |
+| Permission definitions | Rights subsystem |
+| Role grouping | Role subsystem |
+| Request rejection | Middleware / request boundary |
 | Business authorization | Application/domain policy |
-| Audit trail | Audit subsystem and security logging |
+| Permission persistence | Configured data/XDB paths where applicable |
+| Audit | Audit/security logging subsystem |
 
-The framework provides building blocks; application/domain policy still decides what a business operation means.
+SPP provides mechanisms; the application still defines what its business operations mean and which identities may perform them.
+
+---
+
+## 17.17 Evidence boundary
+
+The repository's documentation may describe SPPAuth using broad terms such as zero-trust identity, MFA, passwordless authentication, ABAC, OAuth, or SCIM. Those should be treated as **feature-specific implementation claims**, not as evidence that every deployment automatically provides a complete zero-trust or compliance posture.
+
+For high-impact security decisions, verify the exact source path, configuration, tests, threat model, and deployment topology.
+
+Likewise, the presence of an authorization fallback in development-oriented code is not evidence that production should operate without an explicit permission record.
 
 ---
 
 ## Kernel Hacker note
 
-The current SPPAuth implementation is best understood as a **facade + guard + rights/role data model**.
+The current security architecture is best understood as:
 
-The guard is where important runtime checks occur. The facade offers application-facing compatibility methods while delegating to the selected guard.
+**facade → guard → identity → rights/roles/policy → protected operation**, with middleware providing request-boundary enforcement and persistence supporting session/permission state.
 
-That means a security bug can arise even if `SPPAuth::check()` is correct but a developer bypasses it by directly inspecting a session variable or user object.
+When diagnosing a security issue, trace the complete path rather than searching only for `SPPAuth::check()`.
 
 ### Source map
 
-- `spp/modules/spp/sppauth/module.yml`
 - `spp/modules/spp/sppauth/class.sppauth.php`
 - `spp/modules/spp/sppauth/class.webguard.php`
 - `spp/modules/spp/sppauth/class.tokenguard.php`
 - `spp/modules/spp/sppauth/class.sppright.php`
 - `spp/modules/spp/sppauth/class.spprole.php`
 - `spp/modules/spp/sppauth/class.policyregistry.php`
+- relevant SPPAPI authentication and middleware paths
+- relevant SPPXDB permission persistence paths
