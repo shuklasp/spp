@@ -20,7 +20,7 @@ src/myapp/modules/
     inventory/
 ```
 
-The existing SPP module-development material documents application-local module directories and describes them as a place for reusable application features. fileciteturn621file0L1-L2
+The existing SPP module-development material documents application-local module directories and describes them as a place for reusable application features.
 
 A module is a good fit when the feature has several of these:
 
@@ -85,7 +85,7 @@ deps:
 
 Then add configuration metadata or other manifest fields only when the current compiler supports them.
 
-The manifest is machine-readable runtime metadata, not merely documentation. Existing SPP module examples use fields such as `name`, `version`, `includes`, `deps`, and `config_variables`. fileciteturn621file0L1-L2
+The manifest is machine-readable runtime metadata. Existing first-party module examples use fields such as `name`, `version`, `includes`, `deps`, and `config_variables`.
 
 ## 86.5 Application ownership
 
@@ -222,7 +222,7 @@ Do not couple ordinary business code directly to low-level storage internals unl
 
 If a module needs database setup, seed data, directories, or external integration configuration, make that lifecycle explicit.
 
-The repository contains application module examples with `install.php` and `uninstall.php`; installation examples obtain a database through `ModuleInstaller::getDb()` and document possible setup operations. fileciteturn618file6L105-L113
+Repository examples show application modules using `install.php`/`uninstall.php` hooks and obtaining their database through `ModuleInstaller::getDb()`.
 
 Installation is not the same as runtime loading.
 
@@ -230,7 +230,7 @@ Installation is not the same as runtime loading.
 
 Never assume that uninstall means “delete everything”.
 
-The repository's example uninstall guidance explicitly leaves database-table removal as an optional decision because retaining data can prevent loss. fileciteturn618file8L132-L139
+The repository's example uninstall guidance leaves database-table removal as an optional decision because retaining data may be the safer choice.
 
 For production modules, document:
 
@@ -263,7 +263,7 @@ Authentication, authorization, validation, and persistence protect different bou
 
 ## 86.16 Testing with Parikshak
 
-Parikshak is the primary SPP testing engine. Test the module at multiple boundaries:
+**Parikshak is the primary SPP testing engine.** Test the module at multiple boundaries:
 
 | Test | Question |
 |---|---|
@@ -277,7 +277,7 @@ Parikshak is the primary SPP testing engine. Test the module at multiple boundar
 | Installation | Does required setup work? |
 | Failure | Does the expected boundary reject bad state? |
 
-The repository exposes `SPPTestCase`, `SPPTestResponse`, and `SPPTestRunner` as part of the Parikshak infrastructure. fileciteturn607file3L59-L69
+The Parikshak subsystem exposes SPP-aware test cases, response assertions, test runners, and factory/database helpers.
 
 ## 86.17 Deliberate failure exercise
 
