@@ -26,7 +26,7 @@ Every diagram must be useful, source-accurate, simple, and GitHub-renderable.
 The September source audit identified integrated architecture views that complement the feature chapters:
 
 - [81 — September architecture delta audit](81-september-architecture-delta-audit.md)
-- [82 — Lab: SPPAPI and security boundary](82-lab-sppapi-and-security.md)
+- [82 — Lab: SPPAPI and security boundary](82-sppapi-and-security-lab.md)
 - [83 — Live architecture delta](83-live-architecture-delta.md)
 - [84 — Data, identity, and platform architecture delta](84-data-identity-platform-architecture-delta.md)
 
@@ -112,6 +112,20 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [67 — Architecture Anti-Patterns](67-architecture-antipatterns-and-mistakes.md)
 - [68 — How to Read the SPP Source](68-reading-the-spp-source.md)
 - [69 — Enterprise Reference Case Study](69-enterprise-reference-case-study.md)
+
+### Developer guides
+
+- [85 — Framework-Level Module Development Guide](85-framework-module-development-guide.md)
+- [86 — Application-Level Module Development Guide](86-application-module-development-guide.md)
+- [87 — SPPAI Developer Guide](87-spai-developer-guide.md)
+
+These guides deliberately separate **framework/platform module authorship** from **application-specific module development**, while keeping both inside the same SPP module lifecycle. The SPPAI guide similarly moves from facade concepts to provider/model selection, structured output, tool authorization, testing, and API integration.
+
+### Specialized architecture and workflow chapters
+
+- [67 — Workflow, approval, wizards, and state machines](67-workflow-approval-wizards-and-state-machines.md)
+- [68 — Queue, Cron, workers, and background execution](68-queue-cron-workers-background-execution.md)
+- [69 — i18n, reporting, and observability](69-i18n-reporting-observability.md)
 
 ### Migration and coverage
 
