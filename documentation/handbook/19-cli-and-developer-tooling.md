@@ -2,368 +2,247 @@
 
 ## Chapter 19 — The SPP CLI and Development Workflow
 
-**Evidence:** `docs/spp-cli-manual.md`, `spp/commands/`, command stubs, and the command implementations referenced by the repository.
+**Evidence:** current repository CLI documentation and command implementations. Command names and options must be verified against the current command implementation before being copied into production procedures.
 
-A framework becomes much easier to work with when you stop treating its command-line tools as magic commands and understand what they are doing for you.
+A framework becomes easier to work with when you understand the CLI as an **interface to the framework**, not as the framework itself.
 
-SPP has a large CLI surface. It includes commands for application creation, modules, middleware, events, views, LiveComponents, SPPUX components, database work, testing, documentation, cache management, deployment, and polyglot services.
-
-This chapter teaches how to think about that CLI rather than simply memorizing hundreds of commands.
+SPP has commands for application creation, modules, middleware, events, views, LiveComponents, SPPUX components, database work, testing, documentation, cache management, deployment, and other framework services.
 
 ---
 
 ## 19.1 What is a CLI?
 
-CLI means **Command-Line Interface**.
+CLI means **Command-Line Interface**. It lets a developer interact with a framework from a terminal.
 
-Instead of opening a browser and clicking a button, you type a command into a terminal.
-
-For example:
-
-```bash
-php spp.php make:app myapp
-```
-
-A CLI command is just another interface to the framework. It can create files, inspect runtime state, compile metadata, run tests, or start services.
-
-The important relationship is:
+A useful architectural model is:
 
 ```mermaid
 flowchart LR
     A[Developer] --> B[SPP CLI]
-    B --> C[Framework command]
-    C --> D[Files]
-    C --> E[Runtime state]
-    C --> F[Tests or services]
+    B --> C[Command implementation]
+    C --> D[Framework service / facade]
+    C --> E[Files or configuration]
+    C --> F[Runtime / worker]
 ```
+
+A command is an entry point. It is not automatically the internal API used by every other SPP subsystem.
 
 ---
 
-## 19.2 Why use generators?
+## 19.2 The important distinction: command versus service
 
-Suppose an SPP application needs a middleware class.
+This distinction matters throughout the current SPP architecture.
 
-You could manually create the file and remember its namespace, directory, and framework conventions.
-
-A generator can create the starting structure for you.
-
-The repository provides generators such as:
-
-```text
-make:app
-make:controller
-make:service
-make:middleware
-make:event
-make:eventhand
-make:module
-make:entity
-make:form
-make:live-component
-make:ux-component
-make:view
-make:blade
-make:command
+```mermaid
+flowchart TD
+    CLI[CLI command] --> Command[Command interface]
+    HTTP[HTTP/API] --> Service[Programmatic service/facade]
+    Live[Live interaction] --> Service
+    AI[AI integration] --> Service
+    Command --> Service
+    Service --> Domain[Application/domain behavior]
 ```
 
-The exact command list is maintained in `docs/spp-cli-manual.md` and the corresponding command implementations.
+A CLI command may call a service, but application code should not assume that invoking the command manager is the universal way to invoke the underlying capability.
+
+When source inspection shows a live or AI path calling a facade/service directly, that is evidence of a real programmatic boundary. Teach that boundary directly.
 
 ---
 
-## 19.3 Generators do not replace understanding
+## 19.3 Why use generators?
 
-A beginner mistake is:
+Generators create conventional starting structures for applications and framework resources.
 
-> “The generator created the files, therefore I know what the files do.”
+Examples in the repository include commands for creating applications, controllers, services, middleware, events, modules, entities, forms, LiveComponents, SPPUX components, views, Blade resources, and commands.
 
-That is backwards.
+A generator is **scaffolding**, not architecture knowledge.
 
-The generator should be thought of as a **scaffolding tool**.
+After generation, understand:
 
-It creates a conventional starting point. The application developer still needs to understand:
-
-- where the generated file lives;
+- where the file lives;
 - which namespace it uses;
-- what SPP discovers automatically;
-- what configuration is required; and
+- how SPP discovers it;
+- which configuration is required; and
 - which lifecycle invokes it.
-
-That is why the handbook explains the underlying architecture before relying heavily on generators.
 
 ---
 
 ## 19.4 Application creation
 
-The repository includes `make:app` and a `MakeAppCommand` implementation.
+SPP provides an application-generation command. The beginner curriculum should still teach the resulting application structure manually first, because understanding the generated output makes troubleshooting substantially easier.
 
-The first-application tutorial uses the manually understandable application structure before treating the generator as a convenience.
-
-That gives two valid approaches:
-
-| Approach | Best for |
+| Approach | Best use |
 |---|---|
-| Manual structure | Learning and understanding the architecture |
-| `make:app` | Quickly starting a real project |
+| Manual structure | Learning and source tracing |
+| Generator | Rapid project creation |
 
-A good developer should be able to do both.
+A strong SPP developer should be able to read the generated structure without treating it as magic.
 
 ---
 
 ## 19.5 Module commands
 
-The CLI includes module operations such as:
+Module-management commands operate on the same module architecture taught in the foundations chapters.
 
-```text
-module:list
-module:enable
-module:disable
-module:install
-module:uninstall
-module:update
-module:setting:list
-module:setting:update
-```
-
-These commands operate on the framework's module architecture described in Chapter 5.
-
-The useful mental model is:
+Conceptually:
 
 ```mermaid
 flowchart TD
-    A[Developer command] --> B[Module management]
-    B --> C[Module metadata]
-    C --> D[Activation or installation]
-    D --> E[Compiled/runtime module state]
+    A[CLI operation] --> B[Module metadata]
+    B --> C[Install / enable / disable]
+    C --> D[Discovery / compiled state]
+    D --> E[Runtime module availability]
 ```
 
-The command is therefore another entry point into the module lifecycle.
+A source file existing on disk does not necessarily prove that the module is active in the current runtime.
 
 ---
 
-## 19.6 Event commands
+## 19.6 Event and middleware commands
 
-The repository includes commands such as:
+Event and middleware commands are useful for isolating framework subsystems.
 
-```text
-event:fire
-event:dispatch
-event:list-listeners
-```
-
-These are useful when debugging or exercising the event system without requiring a full browser request.
-
-A practical technique is to use the CLI to isolate whether the event layer works before debugging the much larger HTTP stack.
+For debugging, prefer a focused command when one exists rather than immediately testing the entire HTTP application. This can establish whether the event, middleware, or registration layer works independently of the presentation layer.
 
 ---
 
-## 19.7 Middleware commands
+## 19.7 Live and reactive commands
 
-The CLI includes:
+The CLI includes development operations around live and UI capabilities. These belong to the broader LiveComponent/SPP Live/SPPUX architecture.
 
-```text
-make:middleware
-middleware:list
-```
+The architectural rule remains:
 
-This reflects two distinct jobs:
-
-1. generate a new middleware implementation;
-2. inspect the middleware currently known to the runtime.
-
-That distinction is useful when debugging because a source file existing on disk does not necessarily prove that the framework loaded it into the active middleware stack.
+> **The command manipulates or exercises a resource; the runtime still owns application execution.**
 
 ---
 
-## 19.8 Live and reactive development
+## 19.8 Database and storage commands
 
-The CLI also contains development commands for live and UI features, including:
+SPP exposes commands for database, migration, XDB, and storage administration.
 
-```text
-make:live-component
-make:ux-component
-make:stream
-live:status
-live:trigger
-frontend:debug
-```
-
-These commands belong to the LiveComponent/SPP Live/SPPUX development surface.
-
-The architectural principle remains the same: the command creates or manipulates resources; the runtime still owns execution.
+Because these areas have different architectural layers, command syntax should be treated as a reference concern. The deeper handbook chapters should explain the underlying SPPDB/XDB/storage model rather than duplicating every CLI option.
 
 ---
 
-## 19.9 Database and storage commands
+## 19.9 Testing commands
 
-The documented CLI includes commands for database and storage administration, such as:
+The CLI provides testing entry points, including module and route-oriented operations.
 
-```text
-db:sync
-db:verify
-migrate
-migrate:make
-xdb-related administration commands
-storage:clean
-storage:link
-storage:sync
-```
+Testing commands are another way to execute framework behavior without a browser. For subsystem diagnosis, that makes them valuable even when the final application is primarily HTTP/API/live.
 
-The exact syntax and options belong to the current CLI implementation. The handbook should link to the command-specific reference rather than duplicating every flag in every architecture chapter.
+The testing architecture itself is documented in the Parikshak chapters.
 
 ---
 
-## 19.10 Testing commands
+## 19.10 Deployment commands
 
-SPP's CLI includes a substantial testing surface, including:
+The repository contains deployment-oriented commands. Treat these as **operational tooling**, not as proof that one command sequence is appropriate for every production topology.
 
-```text
-test
-test:run
-test:module
-test:routes
-test:dry-run
-test:blueprint
-test:monkey
-test:module
-```
+Before using a deployment command operationally, inspect:
 
-The important beginner concept is that a test command is simply another executable entry point into application behavior.
+1. what files it changes;
+2. what configuration it reads;
+3. whether it creates backups;
+4. whether it changes maintenance/traffic state;
+5. whether it launches or restarts workers; and
+6. how rollback is actually implemented.
 
-It allows the same runtime components to be exercised without a browser.
+A command name such as `deploy:rollback` is not itself evidence of a complete transactional rollback guarantee.
 
 ---
 
-## 19.11 Deployment commands
+## 19.11 Documentation and generated artifacts
 
-The command manual exposes deployment-related commands such as:
+SPP's tooling includes documentation-related commands and generated API/OpenAPI/PHPDoc surfaces.
 
-```text
-deploy:init
-deploy:build
-deploy:plan
-deploy:run
-deploy:rollback
-deploy:backups
-deploy:history
-deploy:maintenance
-deploy:env
-```
+Generated documentation is useful evidence, but the source-first hierarchy remains:
 
-A production deployment should not be built around ad-hoc shell commands when the repository already provides controlled deployment operations.
+**executable source → tests/fixtures → consumed configuration → repository docs → interpretation.**
 
-However, the existence of a command does not by itself prove that a command is safe for every production environment. Each deployment command should be reviewed against its current implementation and the deployment topology.
+Generated documentation should therefore be used to locate and understand APIs, while high-impact behavioral claims are confirmed in source/tests.
 
 ---
 
-## 19.12 Documentation commands
+## 19.12 Environment and configuration
 
-SPP also exposes commands for building or inspecting documentation:
+CLI tooling can make environment and configuration changes convenient. That convenience does not remove deployment security requirements.
 
-```text
-docs:api
-docs:build
-docs:man
-docs:openapi
-docs:phpdoc
-```
-
-This illustrates a useful framework property: the framework is documenting and inspecting itself through the same command infrastructure used for application development.
+Never place production secrets into source control simply because a configuration command can write them. Use the deployment's secret-management mechanism and verify which configuration source the runtime actually consumes.
 
 ---
 
-## 19.13 Environment and configuration commands
-
-The CLI includes environment/configuration operations such as:
-
-```text
-env:get
-env:set
-env:list
-env:status
-env:mode
-config:export
-config:import
-config:sync
-```
-
-Keep an important production rule in mind:
-
-> Do not place secrets into source-controlled configuration merely because a CLI command makes configuration easy to edit.
-
-Use the repository's deployment/environment facilities and your deployment secret-management policy appropriately.
-
----
-
-## 19.14 A useful CLI debugging workflow
-
-When an SPP feature fails, do not immediately begin changing source code.
-
-First ask whether the CLI can isolate the subsystem.
-
-For example:
+## 19.13 A useful CLI debugging workflow
 
 ```mermaid
 flowchart TD
-    A[Problem] --> B{Can CLI inspect subsystem?}
-    B -- Yes --> C[Run focused command]
+    A[Problem] --> B{Focused CLI inspection exists?}
+    B -- Yes --> C[Run focused operation]
     C --> D{Subsystem works?}
-    D -- Yes --> E[Inspect integration layer]
+    D -- Yes --> E[Trace integration boundary]
     D -- No --> F[Fix subsystem/configuration]
-    B -- No --> G[Use source and runtime tracing]
+    B -- No --> G[Trace source/runtime]
 ```
 
-This approach reduces the debugging search space.
+This is especially effective when debugging modules, events, middleware, configuration, database adapters, and workers.
 
 ---
 
-## 19.15 Coming from other frameworks
+## 19.14 Coming from other frameworks
 
 ### Laravel / Symfony
 
-The SPP CLI plays a role similar to Artisan or Symfony Console commands, but the command surface is tightly integrated with SPP's particular module, application, rendering, live, and polyglot subsystems.
+The SPP CLI plays a role similar to Artisan or Symfony Console. The exact command implementations and runtime integrations are SPP-specific.
 
 ### Django
 
-Think of management commands: the framework exposes developer and administration operations through the terminal.
+Think of Django management commands: the terminal provides another framework entry point.
 
 ### Spring Boot
 
-Think of the CLI as development/operations tooling around the application runtime rather than a substitute for the runtime itself.
+The closest mental model is operational/development tooling around the application runtime rather than a replacement for application services.
 
 ---
 
-## 19.16 Why the CLI belongs in the architecture handbook
+## 19.15 Why the CLI belongs in an architecture handbook
 
-It may seem strange to document commands in an architecture book, but commands are important because they exercise and modify the same runtime architecture described throughout this handbook.
+Commands reveal framework boundaries.
 
-For example:
+For example, a module-generation operation can flow through:
 
 ```text
-make:module
-    ↓
-module manifest/files
-    ↓
+CLI
+ ↓
+module files / manifest
+ ↓
 module discovery
-    ↓
-compiled module registry
-    ↓
+ ↓
+compiled registry
+ ↓
 runtime activation
 ```
 
-That is architecture, not merely command syntax.
+That is architecture, not merely syntax.
+
+At the same time, the reverse assumption is unsafe: **not every internal caller should execute a CLI command**. The current architecture distinguishes command interfaces from reusable service/facade APIs.
 
 ---
 
 ## Kernel Hacker note
 
-The SPP CLI is effectively another set of framework entry points. Some commands construct application/runtime state directly, some modify configuration or source files, and others launch long-running services.
+When tracing a command, identify its command class first. Then determine whether it:
 
-That means a production-safe CLI design should be reviewed with the same source-first discipline as HTTP entry points: identify the command class, determine what runtime it initializes, trace side effects, and understand whether it operates synchronously or launches persistent workers.
+- edits files;
+- changes configuration;
+- calls a reusable framework service;
+- mutates persistent state;
+- starts a worker/service; or
+- composes several of these operations.
+
+This produces a much more accurate architectural picture than treating all commands as equivalent wrappers.
 
 ### Source map
 
-- `docs/spp-cli-manual.md`
-- `spp/commands/`
-- `spp/commands/stubs/`
-- `spp/commands/MakeAppCommand.php`
-- command-specific implementations for module/live/polyglot/database/deployment/testing operations
+- current CLI documentation under `docs/`
+- command implementations under the repository's command surface
+- corresponding service/facade implementations
+- Parikshak testing documentation and implementation
