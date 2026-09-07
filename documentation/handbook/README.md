@@ -10,6 +10,8 @@ The handbook is a **learning book plus an implementation reference**. It assumes
 
 Every substantial claim is classified internally as **Implemented**, **Documented**, **Derived**, **Guidance**, or **Planned/Unverified**. Authority order: executable source; tests/fixtures; consumed configuration/manifests; repository documentation; architectural interpretation. When documentation is stronger than implementation evidence, the handbook records the discrepancy rather than copying an unsupported guarantee.
 
+See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-model.md) for the full evidence rules.
+
 ## Diagram policy
 
 - **Mermaid** for genuine architecture, lifecycle, sequence, decision, and data-flow diagrams.
@@ -58,6 +60,9 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [07 — LiveComponent](07-livecomponent.md)
 - [08 — SPP Live transports](08-spp-live-transports.md)
 - [09 — SPPUX runtime](09-sppux-runtime.md)
+- [45 — LiveComponent from zero to kernel](45-livecomponent-from-zero-to-kernel.md)
+- [46 — SPP Live transport architecture](46-spp-live-transport-architecture.md)
+- [47 — SPPUX browser runtime from zero](47-sppux-browser-runtime-from-zero.md)
 - [83 — Live architecture delta](83-live-architecture-delta.md)
 
 ### API, security, data, and platform
@@ -91,8 +96,12 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [45 — LiveComponent](45-livecomponent-from-zero-to-kernel.md)
 - [46 — SPP Live](46-spp-live-transport-architecture.md)
 - [47 — SPPUX](47-sppux-browser-runtime-from-zero.md)
-- [48 — Polyglot and IPC](48-polyglot-ipc-and-external-application-architecture.md)
+- [48 — Polyglot and IPC](48-polyglot-and-external-application-architecture.md)
 - [49 — Multi-Application Enterprise Architecture](49-multi-application-enterprise-deployment.md)
+- [56 — Middleware and Pipeline](56-middleware-and-pipeline.md)
+- [57 — Events and SPPEvent](57-events-and-sppevent.md)
+- [58 — Registry and Dependency Injection](58-registry-and-dependency-injection.md)
+- [59 — Modules, manifests, and scaffolding](59-modules-manifests-and-scaffolding.md)
 - [66 — Same Problem, Multiple SPP Solutions](66-same-problem-multiple-spp-solutions.md)
 - [67 — Architecture Anti-Patterns](67-architecture-antipatterns-and-mistakes.md)
 - [68 — How to Read the SPP Source](68-reading-the-spp-source.md)
@@ -106,8 +115,10 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [28 — Framework feature inventory](28-framework-feature-inventory.md)
 - [29 — Feature coverage roadmap](29-feature-coverage-roadmap.md)
 - [60 — Handbook completion plan](60-handbook-completion-plan.md)
-- [63 — Evidence and status model](63-feature-evidence-and-status-model.md)
-- [64 — Documentation quality gate](64-handbook-documentation-quality-gate.md)
+- [61 — SPP Learning Roadmap](61-spp-learning-roadmap.md)
+- [62 — Continuous Task Desk Curriculum](62-continuous-task-desk-curriculum.md)
+- [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-model.md)
+- [64 — Handbook Documentation Quality Gate](64-handbook-documentation-quality-gate.md)
 
 ## Canonical learning loop
 
@@ -118,3 +129,5 @@ A subsystem is not fully learned merely because its reference chapter has been r
 ## Source-first rule
 
 The handbook never treats the existence of a class, method, scaffold, or documentation paragraph as proof of a broad enterprise guarantee. Distributed consistency, transaction semantics, correlation propagation, protocol security, AI recovery, content-promotion guarantees, and similar claims must be tied to concrete implementation/test evidence before being presented as current SPP behavior.
+
+For the release checklist used when adding or revising chapters, see [64 — Handbook Documentation Quality Gate](64-handbook-documentation-quality-gate.md).
