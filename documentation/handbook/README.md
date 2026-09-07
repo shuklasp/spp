@@ -54,6 +54,9 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [50 — Frameworks 101](50-frameworks-101-and-how-spp-builds-on-them.md)
 - [51 — Framework Concept to SPP Feature Map](51-framework-concept-to-spp-feature-map.md)
 - [52 — 30-Minute Quick Start](52-30-minute-quick-start.md)
+- [53 — Configuration and Runtime Settings](53-configuration-and-settings.md)
+- [54 — Routing and Dispatch](54-routing-and-dispatch.md)
+- [55 — Forms, Validation, and Data Binding](55-forms-validation-and-data-binding.md)
 - [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [71 — What Makes SPP Different?](71-what-makes-spp-different.md)
 
@@ -99,7 +102,7 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [45 — LiveComponent](45-livecomponent-from-zero-to-kernel.md)
 - [46 — SPP Live](46-spp-live-transport-architecture.md)
 - [47 — SPPUX](47-sppux-browser-runtime-from-zero.md)
-- [48 — Polyglot and IPC](48-polyglot-and-external-application-architecture.md)
+- [48 — Polyglot and IPC](48-polyglot-ipc-and-external-application-architecture.md)
 - [49 — Multi-Application Enterprise Architecture](49-multi-application-enterprise-deployment.md)
 - [56 — Middleware and Pipeline](56-middleware-and-pipeline.md)
 - [57 — Events and SPPEvent](57-events-and-sppevent.md)
