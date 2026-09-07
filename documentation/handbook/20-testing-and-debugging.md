@@ -8,6 +8,8 @@ SPP contains many runtime boundaries. A failure may therefore originate in appli
 
 The solution is not to memorize the framework. The solution is to **reduce the problem to the smallest boundary that can explain the symptom**.
 
+> **Important:** Parikshak is the main testing engine for SPP. PHPUnit-style vocabulary can help explain general testing concepts, but the SPP learning loop should be built around Parikshak and the Parikshak APIs actually present in the repository.
+
 ---
 
 ## 20.1 What is a test?
@@ -23,7 +25,9 @@ Then the task is persisted
 And the expected event is triggered
 ```
 
-Tests are also executable evidence. They show which behavior the project actively chooses to assert.
+Tests are executable evidence. They show which behavior the project actively chooses to assert.
+
+In SPP, the principal framework testing surface is **Parikshak**. Its repository documentation describes it as an automated/evolutionary testing engine, and the source/documentation tree contains Parikshak test-case, response, factory, faker, and related testing components. The handbook therefore uses “test with Parikshak” as the default rather than treating Parikshak as an optional add-on.
 
 ---
 
@@ -41,7 +45,78 @@ When these disagree, the handbook should not silently choose the most convenient
 
 ---
 
-## 20.3 Do not debug the whole framework
+## 20.3 Parikshak is part of the framework learning loop
+
+The intended learning loop is:
+
+```mermaid
+flowchart LR
+    A[Learn a subsystem] --> B[Build a small behavior]
+    B --> C[Test with Parikshak]
+    C --> D[Deliberately break it]
+    D --> E[Diagnose the failing boundary]
+    E --> F[Trace the source]
+    F --> A
+```
+
+This matters because framework knowledge without executable verification is easy to confuse with documentation knowledge.
+
+For a new subsystem, prefer this order:
+
+1. identify the smallest behavior to prove;
+2. build it;
+3. express the expected behavior using Parikshak;
+4. introduce a controlled failure;
+5. diagnose it;
+6. inspect the implementation that explains the result.
+
+Do not make the tutorial's first testing example depend on an unrelated external test runner unless that runner is explicitly required by the current SPP project.
+
+---
+
+## 20.4 What Parikshak should test
+
+The test target should be the behavior at the boundary being taught.
+
+Examples:
+
+```text
+Application/context
+    → correct application is selected
+
+Module system
+    → required module is discoverable/active
+
+Middleware
+    → request is allowed or rejected as intended
+
+Events
+    → listener executes with the expected event contract
+
+SPPView
+    → expected view output is produced
+
+LiveComponent
+    → lifecycle/state/action behavior is correct
+
+SPPAPI
+    → request/exposure/dispatch/response behavior is correct
+
+SPPAuth
+    → authentication and authorization decisions are correct
+
+Persistence
+    → expected data operation occurs
+
+SPPUX
+    → browser-facing interaction contract is correct
+```
+
+The test should prove the boundary—not merely that a class can be instantiated.
+
+---
+
+## 20.5 Do not debug the whole framework
 
 For a `403 Forbidden`, possible causes include authentication, authorization, middleware, route handling, application logic, an event listener, or an external boundary.
 
@@ -53,7 +128,7 @@ That question is more useful than searching the entire repository for `403`.
 
 ---
 
-## 20.4 The SPP debugging ladder
+## 20.6 The SPP debugging ladder
 
 ```mermaid
 flowchart TD
@@ -73,7 +148,7 @@ For example, if the wrong application is selected, template debugging is prematu
 
 ---
 
-## 20.5 Context and configuration diagnosis
+## 20.7 Context and configuration diagnosis
 
 If the wrong application responds, first inspect the application context and the scheduler/context-selection path.
 
@@ -89,7 +164,7 @@ Only after the correct application is established should route/controller debugg
 
 ---
 
-## 20.6 Module diagnosis
+## 20.8 Module diagnosis
 
 A source file existing on disk does not prove that its module is active.
 
@@ -105,7 +180,7 @@ This is why module commands and source maps are useful diagnostic tools.
 
 ---
 
-## 20.7 Service resolution failures
+## 20.9 Service resolution failures
 
 If the container cannot construct a service, ask:
 
@@ -119,17 +194,17 @@ Do not start by changing the service implementation if the failure occurs before
 
 ---
 
-## 20.8 Middleware short-circuiting
+## 20.10 Middleware short-circuiting
 
 Middleware may return a response without calling the next stage.
 
 Therefore, a controller that never executes may be completely correct.
 
-Use focused logging or a debugger to establish whether the request enters and exits each relevant middleware boundary.
+Use focused diagnostics to establish whether the request enters and exits each relevant middleware boundary.
 
 ---
 
-## 20.9 Event listener diagnosis
+## 20.11 Event listener diagnosis
 
 Use this checklist:
 
@@ -146,7 +221,7 @@ This is much faster than repeatedly modifying listener code without proving that
 
 ---
 
-## 20.10 View and rendering diagnosis
+## 20.12 View and rendering diagnosis
 
 A rendering failure can occur at several distinct stages:
 
@@ -166,7 +241,7 @@ LiveComponent can add another layer because its server-side lifecycle and state 
 
 ---
 
-## 20.11 LiveComponent versus SPP Live versus SPPUX
+## 20.13 LiveComponent versus SPP Live versus SPPUX
 
 These must be diagnosed separately.
 
@@ -201,7 +276,7 @@ Do not automatically blame the WebSocket layer when the defect is in component s
 
 ---
 
-## 20.12 Database and query diagnosis
+## 20.14 Database and query diagnosis
 
 When controlled query logging is available, use it to establish facts:
 
@@ -216,7 +291,7 @@ Also distinguish SPPDB abstraction, adapter behavior, and concrete engine behavi
 
 ---
 
-## 20.13 Cache diagnosis
+## 20.15 Cache diagnosis
 
 When output is stale, distinguish:
 
@@ -242,7 +317,7 @@ A cache is an optimization, not the authoritative record.
 
 ---
 
-## 20.14 API/security diagnosis
+## 20.16 API/security diagnosis
 
 For an API failure, trace the request boundary before the controller:
 
@@ -270,21 +345,23 @@ Do not treat a successful token parse as proof that the requested operation is a
 
 ---
 
-## 20.15 Test at the smallest useful layer
+## 20.17 Test at the smallest useful layer — with Parikshak
 
 | Test scope | Main question |
 |---|---|
-| Unit | Does one rule/class behave correctly? |
+| Focused/class behavior | Does one rule or class behave correctly? |
 | Service/integration | Do application dependencies cooperate? |
 | Route/API | Does the request reach the intended boundary? |
 | Live/UI | Do rendering and interaction behave correctly? |
 | End-to-end | Does the complete user journey succeed? |
 
+Use Parikshak as the primary SPP test engine for these scopes where its current APIs support the required boundary.
+
 The goal is diagnostic precision, not maximum test count.
 
 ---
 
-## 20.16 Deterministic test data
+## 20.18 Deterministic test data
 
 Tests should control their inputs rather than depending on uncontrolled production state.
 
@@ -296,11 +373,13 @@ This is especially important for:
 - module configuration; and
 - component state.
 
+Parikshak's repository surface includes factory/faker-related components, which are useful concepts for constructing controlled test inputs. Their exact APIs should be read from the installed/current source rather than inferred from similarly named libraries.
+
 When a test fails, you want the failure to describe the code—not an unexplained environmental accident.
 
 ---
 
-## 20.17 Debug mode and production safety
+## 20.19 Debug mode and production safety
 
 Development diagnostics can reveal sensitive information. Before enabling broad debug output in production, review whether it can expose credentials, tokens, cookies, internal service details, or personal data.
 
@@ -308,7 +387,7 @@ Debugging facilities should be treated as operational controls, not harmless dev
 
 ---
 
-## 20.18 The one-layer-at-a-time rule
+## 20.20 The one-layer-at-a-time rule
 
 Use this sequence as a default:
 
@@ -328,11 +407,11 @@ Change one layer at a time. Otherwise you can make the problem disappear without
 
 ---
 
-## 20.19 Coming from other frameworks
+## 20.21 Coming from other frameworks
 
 ### Laravel / Symfony
 
-The strategy is familiar: locate the first framework boundary capable of producing the symptom and test it independently.
+The strategy is familiar: locate the first framework boundary capable of producing the symptom and test it independently. The SPP-specific difference is that **Parikshak is the primary testing engine** for the SPP framework workflow.
 
 ### Django
 
@@ -348,11 +427,41 @@ SPP adds an important server/client distinction: LiveComponent is server-side PH
 
 The most effective SPP debugging technique is **boundary reduction**. Scheduler, App, Registry, Module, SPPEvent, MiddlewareKernel, SPPView, SPPAPI, LiveComponent, SPP Live, SPPUX, database adapters, authentication guards, and integration bridges each provide a smaller search space.
 
-Once the failing boundary is known, source search becomes substantially more tractable.
+Parikshak adds the executable verification loop around those boundaries: establish expected behavior, reproduce it, mutate/break it, inspect the failure, and trace the implementation that explains the result.
 
 ### Source map
 
+- Parikshak documentation and current module source
+- Parikshak test-case/response/factory/faker components
 - `spp/tests/`
 - current framework/module implementations
 - CLI/testing documentation and command implementations
 - subsystem-specific tests and diagnostics
+
+---
+
+## Practical assignment
+
+Build a secure Task Desk with:
+
+```text
+browser login
+RBAC
+protected routes
+CSRF
+rate limiting
+security headers
+JWT-protected API
+record-level authorization
+```
+
+Then:
+
+1. write the positive and negative behavioral checks in Parikshak;
+2. deliberately break one protection;
+3. reproduce the failure;
+4. identify the earliest failing SPP boundary;
+5. trace the corresponding source; and
+6. restore the protection and rerun the Parikshak suite.
+
+The assignment is complete only when the learner can explain **both the behavior and the implementation path that produced it**.
