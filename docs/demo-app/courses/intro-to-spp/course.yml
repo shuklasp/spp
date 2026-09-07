@@ -1,0 +1,61 @@
+id: intro-to-spp
+title: 'Mastering SPP Framework'
+tagline: 'From Novice to Enterprise Architect'
+description: 'A comprehensive, hands-on masterclass covering the request lifecycle, CLI SAPI security, high-performance ViewControllers, and Saga workflow orchestration.'
+level: Intermediate
+category: 'Web Architecture'
+duration: '2 hours'
+badge_icon: 🎓
+published: true
+passing_score: 80
+certificate_enabled: true
+instructor:
+  name: 'Prof. Satya Prakash Shukla'
+  title: 'Chief Framework Architect'
+  bio: 'Enterprise software architect specializing in high-performance web kernels and resilient state machines.'
+prerequisites:
+  - 'Basic familiarity with PHP 8.2+'
+  - 'Understanding of MVC paradigms and HTTP basics'
+modules:
+  -
+    id: mod_foundations
+    title: 'Module 1: Architecture & SAPI Core'
+    description: 'Explore the SPP request lifecycle, zero-cost routing, and strict CLI SAPI guarding.'
+    lessons:
+      -
+        id: 01_lifecycle
+        title: 'The SPP Request Lifecycle'
+        duration: '15 mins'
+        type: reading
+        file: mod_foundations/01_lifecycle.md
+      -
+        id: 02_sapi_guarding
+        title: 'CLI SAPI Security & Daemon Architecture'
+        duration: '20 mins'
+        type: reading
+        file: mod_foundations/02_sapi_guarding.md
+      -
+        id: quiz_foundations
+        title: 'Foundations Knowledge Check'
+        duration: '10 mins'
+        type: quiz
+        passing_score: 80
+        quiz_file: mod_foundations/quiz_foundations.yml
+  -
+    id: mod_workflows
+    title: 'Module 2: Workflows, CQRS & Saga Orchestration'
+    description: 'Master state machines, parallel markings, compensating transactions, and audit trails.'
+    lessons:
+      -
+        id: 01_workflows
+        title: 'Designing Resilient State Machines'
+        duration: '25 mins'
+        type: reading
+        file: mod_workflows/01_workflows.md
+      -
+        id: quiz_final
+        title: 'Final Certification Assessment'
+        duration: '15 mins'
+        type: quiz
+        passing_score: 85
+        quiz_file: mod_workflows/quiz_final.yml

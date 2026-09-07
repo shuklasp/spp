@@ -1,23 +1,20 @@
-.TH SPP-middleware-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-middleware-list 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-middleware:list
-.PP
- \- List the middleware pipeline for an app
+spp-middleware-list \- List the middleware pipeline for an app
+.SH SYNOPSIS
+.B php spp.php middleware:list
+[OPTIONS]
 .SH DESCRIPTION
 List the middleware pipeline for an app
 .PP
-.SH SYNOPSIS
-php spp.php middleware:list [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from MiddlewareListCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: \ReflectionClass.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br
+\(bu Instantiates key components: \ReflectionClass.
+.br

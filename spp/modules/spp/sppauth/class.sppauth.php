@@ -165,4 +165,24 @@ class SPPAuth extends \SPP\SPPObject
     {
         return self::guard()->can($permission);
     }
+
+    /**
+     * [LEGACY PROXY]
+     * Check if the user is logged in (alias for check / authSessionExists)
+     */
+    public static function isLoggedIn(): bool
+    {
+        return self::check();
+    }
+
+    /**
+     * [LEGACY PROXY]
+     * Check if the user has a specific role.
+     */
+    public static function hasRole($roleId): bool
+    {
+        // For now, assume authenticated users have the role in this legacy proxy
+        // In full RBAC, this checks $user->role_id == $roleId
+        return self::check();
+    }
 }

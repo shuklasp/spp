@@ -9,6 +9,13 @@ import TraceView from './trace.js';
 
 export default class SystemView extends BaseComponent {
     async onInit() {
+        const hash = location.hash;
+        let initialTab = 'system';
+        if (hash.includes('tab=trace') || hash.includes('#trace')) initialTab = 'trace';
+        else if (hash.includes('tab=config') || hash.includes('#config')) initialTab = 'config';
+        else if (hash.includes('tab=queue') || hash.includes('#queue')) initialTab = 'queue';
+        else if (hash.includes('tab=polyglot') || hash.includes('#polyglot')) initialTab = 'polyglot';
+
         this.state = {
             loading: true,
             system: null,
@@ -18,7 +25,7 @@ export default class SystemView extends BaseComponent {
             settings: null,
             editMode: 'form', // 'form' or 'yaml'
             savingSettings: false,
-            activeMainTab: 'system', // 'system', 'trace', 'config', 'queue', 'polyglot'
+            activeMainTab: initialTab, // 'system', 'trace', 'config', 'queue', 'polyglot'
             // --- Inlined Config state ---
             configData: { global: {}, app: {}, sys: {} },
             configActiveTab: 'global',
@@ -44,7 +51,8 @@ export default class SystemView extends BaseComponent {
         try {
             const res = await this.api('get_global_settings');
             if (res.success) {
-                this.setState({ settings: res.data });
+                const data = res.data?.parsed ? res.data : { parsed: res.data?.settings || res.data || {}, raw: res.data?.raw || '' };
+                this.setState({ settings: data });
             }
         } catch (e) {
             console.error('Failed to fetch settings:', e);
@@ -113,11 +121,13 @@ export default class SystemView extends BaseComponent {
                 let systemData = {};
                 let bridgeData = null;
                 try {
-                    const parsed = JSON.parse(sysRes.data.output || sysRes.data);
-                    systemData = parsed.system || {};
-                    bridgeData = parsed.bridge || null;
+                    const raw = sysRes.data?.output || sysRes.data;
+                    const parsed = typeof raw === 'string' ? JSON.parse(raw) : (raw || {});
+                    systemData = parsed.system || sysRes.data?.system || {};
+                    bridgeData = parsed.bridge || sysRes.data?.bridge || null;
                 } catch (e) {
-                    console.error("Failed to parse sys:status output", e, sysRes.data.output);
+                    systemData = sysRes.data?.system || {};
+                    bridgeData = sysRes.data?.bridge || null;
                 }
 
                 this.setState({
@@ -557,7 +567,7 @@ export default class SystemView extends BaseComponent {
 
     renderSettingsEditor() {
         const { settings, editMode, savingSettings } = this.state;
-        if (!settings) return '';
+        if (!settings || !settings.parsed) return '';
 
         const proto = settings.parsed.prototyping || { auto_evolution: 'manual', view_generation: 'php_html' };
 

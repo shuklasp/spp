@@ -1,24 +1,20 @@
-.TH SPP-integration-restore 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-integration-restore 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-integration:restore
-.PP
- \- Time-travel a user state to a historical point using CQRS Event Sourcing
+spp-integration-restore \- Time-travel a user state to a historical point using CQRS Event Sourcing
+.SH SYNOPSIS
+.B php spp.php integration:restore
+[OPTIONS]
 .SH DESCRIPTION
 Time-travel a user state to a historical point using CQRS Event Sourcing
 .PP
-.SH SYNOPSIS
-php spp.php integration:restore [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php integration:restore <user_id> <timestamp_or_snapshot_id>
-.PP
+.br
+
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

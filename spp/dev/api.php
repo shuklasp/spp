@@ -142,6 +142,7 @@ function sendResponse($success, $data = [], $message = '')
     } else {
         echo $json;
     }
+    session_write_close();
     exit;
 }
 
@@ -317,8 +318,6 @@ function isPublicAdminAction(string $action): bool
         'login',
         'Auth_Login',
         'Auth_VerifyMFA',
-        'Auth_SendMagicLink',
-        'Auth_ConsumeMagicLink',
         'logout',
         'check_auth',
         'get_profile',
@@ -377,20 +376,19 @@ if (!function_exists('createEntityRevision')) {
 try {
     file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] API Request: action=" . ($_REQUEST['action'] ?? 'none') . " session_keys=" . (isset($_SESSION) ? implode(',', array_keys($_SESSION)) : 'none') . "\n", FILE_APPEND);
 
-    // 2. Authentication & Context Setup
-    $authContext = 'sppdev';
+    $authContext = 'sppadmin';
     $appContext = $_REQUEST['appname'] ?? $_REQUEST['context'] ?? 'default';
-    if ($appContext === 'sppdev')
+    if ($appContext === 'sppadmin')
         $appContext = 'default';
 
     try {
         try {
-            \SPP\Scheduler::getProcObj($authContext);
+            \SPP\Scheduler::getProcObj($appContext);
         } catch (\Exception $e) {
-            new \SPP\App($authContext);
+            new \SPP\App($appContext);
         }
-        \SPP\Scheduler::setContext($authContext);
-        file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context set to $authContext\n", FILE_APPEND);
+        \SPP\Scheduler::setContext($appContext);
+        file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context set to $appContext\n", FILE_APPEND);
     } catch (\Exception $e) {
         file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Context failure: " . $e->getMessage() . "\n", FILE_APPEND);
     }
@@ -408,6 +406,16 @@ try {
 
     $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
+    if ($action === 'info') {
+        echo json_encode([
+            'session_save_path' => session_save_path(),
+            'session_handler' => ini_get('session.save_handler'),
+            'redis_class' => class_exists('\Redis'),
+            'session' => $_SESSION ?? []
+        ]);
+        exit;
+    }
+
     if (!$action) {
         $jsonInput = file_get_contents('php://input');
         if (!empty($jsonInput)) {
@@ -419,6 +427,7 @@ try {
         }
     }
 
+    require_once __DIR__ . '/services/CommandBridge.php';
     require_once __DIR__ . '/services/General.php';
     error_log("Dispatching action: " . $action);
 
@@ -439,21 +448,23 @@ try {
         sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
     }
 
-    // Switch context if target app context differs from auth context
-    if ($appContext !== $authContext) {
-        try {
-            try {
-                \SPP\Scheduler::getProcObj($appContext);
-            } catch (\Exception $e) {
-                new \SPP\App($appContext);
-            }
-            \SPP\Scheduler::setContext($appContext);
-        } catch (\Exception $e) {
-            file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] Failed to switch to context $appContext: " . $e->getMessage() . "\n", FILE_APPEND);
+    $requestData = array_merge($_GET, $_POST, $_REQUEST);
+
+    // 1. Unified CommandBridge: Execute via CLI or synchronized action
+    $bridgeRes = \SPP\Admin\Services\CommandBridge::handleAction($action, $requestData);
+    if ($bridgeRes['success'] || (isset($bridgeRes['error']) && !str_contains($bridgeRes['error'], 'not recognized by CommandBridge'))) {
+        $resData = $bridgeRes;
+        if (array_key_exists('data', $bridgeRes)) {
+            $resData = $bridgeRes['data'];
+        } else {
+            unset($resData['success'], $resData['message'], $resData['error']);
         }
+        sendResponse($bridgeRes['success'], $resData, $bridgeRes['message'] ?? ($bridgeRes['error'] ?? ''));
+        exit;
     }
 
-    \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $_REQUEST);
+    // 2. Fallback to specialized service dispatcher
+    \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $requestData);
 } catch (\Throwable $e) {
     $errorMsg = "[" . date('Y-m-d H:i:s') . "] API FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";
     file_put_contents(SPP_BASE_DIR . "/api_debug.log", $errorMsg, FILE_APPEND);

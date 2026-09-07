@@ -1,25 +1,22 @@
-.TH SPP-userprofile-export 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-userprofile-export 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-userprofile:export
-.PP
- \- Export user profile data for compliance/GDPR
+spp-userprofile-export \- Export user profile data for compliance/GDPR
+.SH SYNOPSIS
+.B php spp.php userprofile:export
+[OPTIONS]
 .SH DESCRIPTION
 Export user profile data for compliance/GDPR
 .PP
-.SH SYNOPSIS
-php spp.php userprofile:export [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php userprofile:export --user=<user_id>
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--user=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --user=
+Expects a value. Extracted via static analysis from UserProfileExportCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

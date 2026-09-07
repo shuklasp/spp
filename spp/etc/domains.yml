@@ -1,0 +1,10 @@
+# SPP Virtual Host Domain Mapping Configuration
+# Maps HTTP Host headers to specific SPP application contexts.
+# Supports exact hosts and wildcard subdomains.
+
+domains:
+  docs.localhost: SPPDocs
+  api.localhost: sppapi
+  lekhak.localhost: lekhak
+  "*.docs.localhost": SPPDocs
+  "*.spp.internal": SPPDocs

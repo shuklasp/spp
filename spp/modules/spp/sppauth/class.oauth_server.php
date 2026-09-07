@@ -34,8 +34,7 @@ class OAuthServer
         // 2. Ensure user is logged in
         $guard = new WebGuard();
         if (!$guard->check()) {
-            // Redirect to login page, then back here
-            header("Location: /login?redirect=" . urlencode($_SERVER['REQUEST_URI']));
+            header("Location: " . \SPP\App::url('login') . "?redirect=" . urlencode($_SERVER['REQUEST_URI']));
             exit;
         }
 

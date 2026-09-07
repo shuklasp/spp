@@ -1,6 +1,6 @@
 ## `ext:install`
 
-**Purpose**: Install an extension from a zip or directory
+**Description**: Install an extension from a zip or directory
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php ext:install --source=<path_or_url>
 
 ```
 
-### Options Available
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--source=` : Expects a value. Extracted via static analysis from ExtInstallCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

@@ -1,0 +1,35 @@
+php_flag display_errors 1
+RewriteEngine On
+
+# Ban direct external browser access targeting the underlying spp/admin and spp/dev paths directly
+RewriteCond %{THE_REQUEST} \s/+(.+/)?spp/(admin|dev) [NC]
+RewriteRule ^ - [F,L]
+
+# Ban direct access to sensitive internal configurations, blueprints, and markup templates
+RewriteCond %{REQUEST_URI} !/sppadmin/routes\.json$ [NC]
+RewriteCond %{REQUEST_URI} !/spp/admin/routes\.json$ [NC]
+RewriteCond %{REQUEST_URI} !/sppdev/routes\.json$ [NC]
+RewriteCond %{REQUEST_URI} !/spp/dev/routes\.json$ [NC]
+RewriteRule \.(yml|yaml|json|lock|md|html|blade\.php|sppux\.js)$ - [F,L]
+
+# Ban direct execution of backend application scripts under /src and framework core modules
+RewriteCond %{REQUEST_URI} ^/school1/(src|spp/modules|spp/core)/ [NC]
+RewriteRule \.php$ - [F,L]
+
+# Redirect /sppadmin and /sppdev to include trailing slash
+RewriteRule ^sppadmin$ /school1/sppadmin/ [R=301,L]
+RewriteRule ^sppdev$ /school1/sppdev/ [R=301,L]
+
+# Route requests to the isolated framework directories
+RewriteRule ^sppadmin/(.*)$ spp/admin/$1 [L,QSA]
+RewriteRule ^sppdev/(.*)$ spp/dev/$1 [L,QSA]
+
+# Dedicated API routes
+RewriteRule ^spp-api/(.*)$ spp/admin/api.php?action=$1 [L,QSA]
+RewriteRule ^sppdev-api/(.*)$ spp/dev/api.php?action=$1 [L,QSA]
+
+# Framework processing for all other requests
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/school1/spp/(admin|dev)/
+RewriteRule ^(.*)$ index.php?q=$1 [L,QSA]

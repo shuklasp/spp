@@ -1,22 +1,18 @@
-.TH SPP-env-backup 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-env-backup 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-env:backup
-.PP
- \- Backup all environment configurations
+spp-env-backup \- Backup all environment configurations
+.SH SYNOPSIS
+.B php spp.php env:backup
+[OPTIONS]
 .SH DESCRIPTION
 Backup all environment configurations
 .PP
-.SH SYNOPSIS
-php spp.php env:backup [OPTIONS]
-.PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: \ZipArchive.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: \ZipArchive.
+.br

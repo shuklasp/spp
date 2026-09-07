@@ -1,0 +1,114 @@
+<?php
+
+namespace SPPMod\Parikshak\Commands;
+
+use SPP\CLI\Command;
+use SPPMod\Parikshak\Parikshak;
+use SPP\Scheduler;
+use SPP\Module;
+
+/**
+ * Class ParikshakCommand
+ * CLI command to trigger the Parikshak (Evaluation) suite.
+ */
+class ParikshakCommand extends Command
+{
+    public function getName(): string
+    {
+        return 'sys:test:auto';
+    }
+
+    public function getDescription(): string
+    {
+        return 'Runs Automated Evolutionary Testing (Parikshak) for the current application.';
+    }
+
+    public function isCLIOnly(): bool
+    {
+        return true;
+    }
+
+    public function execute(array $args): void
+    {
+        // Guard check for module activity
+        if (!\SPP\Module::getConfig('active', 'parikshak')) {
+            $this->error("Parikshak (Evaluation) module is currently inactive. Set 'active: true' in config.yml to enable.");
+            return;
+        }
+
+        // Argument 0 is script, 1 is command, 2 is the actual first parameter
+        $appname = $args[2] ?? Scheduler::getContext() ?: 'default';
+        if ($appname === 'sys:test:auto') {
+            $appname = 'default';
+        }
+
+        $this->info("Initializing Parikshak Evaluator for context: [{$appname}]");
+
+        $origDbtype = \SPP\Module::getConfig('dbtype', 'sppdb', $appname);
+        $origSqlitePath = \SPP\Module::getConfig('sqlite_path', 'sppdb', $appname);
+
+        try {
+            // Inject in-memory SQLite for testing to isolate database state
+            \SPP\Module::setConfig('dbtype', 'sqlite', 'sppdb', $appname);
+            \SPP\Module::setConfig('sqlite_path', ':memory:', 'sppdb', $appname);
+            \SPP\DB::setProvider(new \SPPMod\SPPDB\SPPDB('sqlite::memory:', 'root', ''));
+
+            $tester = new Parikshak();
+            $results = $tester->runSuite($appname);
+
+            $this->renderReport($results);
+
+        } catch (\Exception $e) {
+            $this->error("Evaluation failed: " . $e->getMessage());
+        } finally {
+            if ($origDbtype !== null) {
+                \SPP\Module::setConfig('dbtype', $origDbtype, 'sppdb', $appname);
+            }
+            if ($origSqlitePath !== null) {
+                \SPP\Module::setConfig('sqlite_path', $origSqlitePath, 'sppdb', $appname);
+            }
+        }
+    }
+
+    private function renderReport(array $results): void
+    {
+        $this->info("==================================================");
+        $this->info("PARIKSHAK EVALUATION REPORT: " . $results['app']);
+        $this->info("Timestamp: " . $results['timestamp']);
+        $this->info("--------------------------------------------------");
+
+        foreach ($results['entities'] as $e) {
+            $status = strtoupper($e['status']);
+            $color = $e['status'] === 'passed' ? "\033[32m" : "\033[31m";
+            $this->line("{$color}[{$status}]\033[0m Entity: " . $e['class']);
+
+            if (!empty($e['errors'])) {
+                foreach ($e['errors'] as $err) {
+                    $this->line("   - Error: {$err}");
+                }
+            }
+        }
+
+        $this->info("--------------------------------------------------");
+        if (!empty($results['unit_tests'])) {
+            $this->info("UNIT TESTS:");
+            foreach ($results['unit_tests']['tests'] as $test) {
+                $status = strtoupper($test['status']);
+                $color = $test['status'] === 'passed' ? "\033[32m" : "\033[31m";
+                $this->line("{$color}[{$status}]\033[0m {$test['class']}::{$test['method']}");
+                if (!empty($test['error'])) {
+                    $this->line("   - Error: {$test['error']}");
+                }
+            }
+            $uPassed = $results['unit_tests']['summary']['passed'];
+            $uTotal = $results['unit_tests']['summary']['total'];
+            $this->info("--------------------------------------------------");
+            $this->info("UNIT SUMMARY: {$uPassed}/{$uTotal} Tests Passed.");
+        }
+
+        $passed = $results['summary']['passed'];
+        $total = $results['summary']['total'];
+        $this->info("ENTITY SUMMARY: {$passed}/{$total} Entities Passed Invariants.");
+        $this->info("==================================================");
+    }
+}

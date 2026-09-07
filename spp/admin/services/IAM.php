@@ -229,24 +229,31 @@ function live_IAM_SearchEntities($la, $params)
     $db = new \SPPMod\SPPDB\SPPDB();
     $results = [];
 
-    // 1. Specialized quick lookups for known types
-    if (str_contains($type, 'SPPUser')) {
-        $sql = 'SELECT id, username as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' WHERE username LIKE ? OR email LIKE ? LIMIT 10';
-        $rows = $db->execute_query($sql, ["%$q%", "%$q%"]);
-        foreach ($rows as $r) {
-            $results[] = ['id' => $r['username'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPUser', 'score' => 1.0];
-        }
-    } else if (str_contains($type, 'SPPGroup')) {
-        $sql = 'SELECT id, name as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppgroups') . ' WHERE name LIKE ? LIMIT 10';
-        $rows = $db->execute_query($sql, ["%$q%"]);
-        foreach ($rows as $r) {
-            $results[] = ['id' => $r['id'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPGroup', 'score' => 1.0];
-        }
+    // 1. Specialized quick lookups for known types or general lookup
+    if (empty($type) || str_contains($type, 'SPPUser')) {
+        try {
+            $sql = 'SELECT id, username as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('users') . ' WHERE username LIKE ? OR email LIKE ? LIMIT 10';
+            $rows = $db->execute_query($sql, ["%$q%", "%$q%"]);
+            foreach ($rows as $r) {
+                $results[] = ['id' => $r['username'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPUser', 'score' => 1.0];
+            }
+        } catch (\Throwable $e) {}
+    }
+    if (empty($type) || str_contains($type, 'SPPGroup')) {
+        try {
+            $sql = 'SELECT id, name as label FROM ' . \SPPMod\SPPDB\SPPDB::sppTable('sppgroups') . ' WHERE name LIKE ? LIMIT 10';
+            $rows = $db->execute_query($sql, ["%$q%"]);
+            foreach ($rows as $r) {
+                $results[] = ['id' => $r['id'], 'name' => $r['label'], 'entity' => 'SPPMod\\SPPAuth\\SPPGroup', 'score' => 1.0];
+            }
+        } catch (\Throwable $e) {}
     }
 
     // 2. Natural search fallback
     if (empty($results)) {
-        $results = \SPPMod\SPPDB\SPPEntity::searchNatural($q);
+        try {
+            $results = \SPPMod\SPPDB\SPPEntity::searchNatural($q);
+        } catch (\Throwable $e) {}
     }
 
     // 3. Manual broad search fallback

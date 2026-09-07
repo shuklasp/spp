@@ -1,0 +1,7 @@
+id: "slack_webhook"
+name: "Slack & Discord Webhook Broadcaster"
+version: "1.0.0"
+description: "Dispatches formatted outbound notifications to configured webhook URLs on document publishing and updates."
+category: "Integrations"
+author: "SPPDocs Enterprise Team"
+dependencies: []

@@ -1,0 +1,4 @@
+{
+    "SELECT * FROM users WHERE username = ? AND deleted_at IS NULL": 24,
+    "SELECT * FROM users WHERE deleted_at IS NULL": 40
+}

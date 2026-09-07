@@ -1,17 +1,17 @@
 ## `workflow:dump`
 
-**Purpose**: Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+**Description**: Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
 
 ### Synopsis
 ```bash
 php spp.php workflow:dump [OPTIONS]
 ```
 
-### Options Available
-- `--format=` : Expects a value. Extracted via static analysis.
-- `--file=` : Expects a value. Extracted via static analysis.
+### Options
+- `--format=` : Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
+- `--file=` : Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

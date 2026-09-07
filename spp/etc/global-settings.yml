@@ -243,7 +243,14 @@ apps:
     cache_driver: redis
     cache_host: 127.0.0.1
     cache_port: 6379
-base_app: lekhak
+  SPPDocs:
+    base_url: /sppdocs
+    table_prefix: SPPDocs_
+    type: mixed
+    shared_group: core
+    etc_path: src/SPPDocs/etc
+    src_path: src/SPPDocs
+base_app: SPPDocs
 prototyping:
   auto_evolution: manual
   view_generation: php_html
@@ -271,3 +278,5 @@ test_key: test_val
 assets:
   admin_js: spp/admin/js
   admin_css: spp/admin/css
+sppdocs:
+  auth_mode: sppauth

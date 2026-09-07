@@ -1,19 +1,18 @@
 ## `deploy:maintenance`
 
-**Purpose**: Toggle manual maintenance mode on a remote target or local environment
+**Description**: Toggle manual maintenance mode on a remote target or local environment
 
 ### Synopsis
 ```bash
 php spp.php deploy:maintenance [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--on` : Boolean flag or option. Extracted via static analysis.
-- `--off` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployMaintenanceCommand.php
+- `--on` : Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
+- `--off` : Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 

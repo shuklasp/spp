@@ -74,16 +74,34 @@ if (!function_exists('live_list_queue')) {
 if (!function_exists('live_get_event_trace')) {
     function live_get_event_trace($la, $params)
     {
-        // Read from spp_event_trace.log if it exists
+        $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
+        $jsonFile = $logDir . '/event_trace.json';
         $traces = [];
-        $logFile = defined('SPP_LOG_DIR') ? SPP_LOG_DIR . '/spp_event_trace.log' : SPP_BASE_DIR . '/var/logs/spp_event_trace.log';
-        if (file_exists($logFile)) {
-            $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $lines = array_slice($lines, -100); // Last 100
-            foreach ($lines as $line) {
-                $traces[] = ['raw' => $line];
+        if (file_exists($jsonFile)) {
+            $content = @file_get_contents($jsonFile);
+            if ($content) {
+                $decoded = json_decode($content, true);
+                if (is_array($decoded)) {
+                    $traces = $decoded;
+                }
             }
         }
+
+        // Fallback to spp_event_trace.log if event_trace.json was empty
+        if (empty($traces)) {
+            $logFile = $logDir . '/spp_event_trace.log';
+            if (file_exists($logFile)) {
+                $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                $lines = array_slice($lines, -50);
+                foreach ($lines as $line) {
+                    $parsed = json_decode($line, true);
+                    if ($parsed && isset($parsed['request_uri'])) {
+                        $traces[] = $parsed;
+                    }
+                }
+            }
+        }
+
         $la->setData(['traces' => $traces]);
     }
 }
@@ -91,15 +109,50 @@ if (!function_exists('live_get_event_trace')) {
 if (!function_exists('live_get_parikshak_trace')) {
     function live_get_parikshak_trace($la, $params)
     {
-        $traces = [];
-        $logFile = defined('SPP_LOG_DIR') ? SPP_LOG_DIR . '/parikshak.log' : SPP_BASE_DIR . '/var/logs/parikshak.log';
-        if (file_exists($logFile)) {
-            $lines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            $lines = array_slice($lines, -100); // Last 100
-            foreach ($lines as $line) {
-                $traces[] = ['raw' => $line];
+        $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
+        $files = [$logDir . '/parikshak_events.log', $logDir . '/parikshak.log'];
+        $content = '';
+        foreach ($files as $f) {
+            if (file_exists($f)) {
+                $c = @file_get_contents($f);
+                if (!empty(trim($c))) {
+                    $content = $c;
+                    break;
+                }
             }
         }
-        $la->setData(['traces' => $traces]);
+        $la->setData([
+            'content' => $content ?: "No Parikshak activity logged yet.\nClick 'Trigger Evolutionary Scan' above or run 'php spp.php test:run' to generate test logs.",
+            'traces' => []
+        ]);
     }
 }
+
+if (!function_exists('live_run_parikshak_scan')) {
+    function live_run_parikshak_scan($la, $params)
+    {
+        $app = $params['appname'] ?? $params['app'] ?? 'default';
+        if (empty($app)) $app = 'default';
+
+        $bridgePath = __DIR__ . '/CommandBridge.php';
+        if (file_exists($bridgePath)) {
+            require_once $bridgePath;
+            $bridge = new \SPP\Admin\Services\CommandBridge();
+            $res = $bridge->executeCommand('test:run', ['--app' => $app]);
+
+            $output = $res['output'] ?? '';
+            $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
+            if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
+            $logEntry = "[" . date('Y-m-d H:i:s') . "] Evolutionary Scan executed for '{$app}':\n" . $output . "\n----------------------------------------\n";
+            @file_put_contents($logDir . '/parikshak_events.log', $logEntry, FILE_APPEND);
+
+            if ($res['success'] ?? false) {
+                return $la->setData(['output' => $output])->notify("Parikshak scan executed successfully for {$app}.", 'success');
+            } else {
+                return $la->setData(['output' => $output])->notify("Parikshak scan completed for {$app}.", 'info');
+            }
+        }
+        return $la->setStatus('error')->notify("CommandBridge service not found", 'error');
+    }
+}
+

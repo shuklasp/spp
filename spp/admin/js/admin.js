@@ -33,54 +33,45 @@ class SPPAdmin {
         this.user = null;
         
         // Initialize Global Root Store
-        window.spp_root_store = new SPPStore({
-            user: null,
-            selectedApp: this.selectedApp,
-            theme: this.theme
-        });
+        const StoreClass = window.SPPStore || (window.SPPUX && window.SPPUX.SPPStore);
+        if (StoreClass) {
+            window.spp_root_store = new StoreClass({
+                user: null,
+                selectedApp: this.selectedApp,
+                theme: this.theme
+            });
+        }
         
         this.currentView = 'dashboard';
         this.viewIcons = {
             'dashboard': '👋',
-            'system': '🖥️',
-            'apps': '📱',
-            'modules': '📦',
-            'entities': '🏗️',
-            'forms': '📝',
             'identity': '🛡️',
-            'groups': '👥',
-            'services': '🔌',
-            'routing': '🛤️',
-            'interdb': '🕸️',
-            'xdb': '🗄️',
-            'ai': '🧠',
-            'parikshak': '🧪',
-            'spplang': '💬',
-            'trace': '🐛',
-            'lifecycle': '🔄',
+            'database': '🗄️',
+            'apps': '📱',
+            'system': '🖥️',
             'commands': '⚡',
-            'reports': '📊'
+            // Legacy aliases
+            'entities': '🏗️',
+            'xdb': '🗄️',
+            'interdb': '🕸️',
+            'lifecycle': '🔄',
+            'trace': '🐛',
+            'api_keys': '🔑'
         };
         this.viewTitles = {
-            'dashboard': 'Welcome Dashboard',
-            'system': 'System & Diagnostics',
-            'apps': 'App Studio',
-            'modules': 'Module Marketplace',
-            'entities': 'Database & Entities',
-            'forms': 'Modern Form Engine',
-            'identity': 'Identity & Security',
-            'groups': 'Group Dynamics',
-            'services': 'Services (DI & AJAX)',
-            'routing': 'Routing & Middleware',
-            'xdb': 'XML Database',
-            'interdb': 'InterDB Mesh',
-            'parikshak': 'Parikshak Evaluator',
-            'spplang': 'Translation Workbench',
-            'mobile': 'Mobile Studio',
-            'trace': 'Event Tracing',
-            'lifecycle': 'Lifecycle & Deployment',
-            'commands': 'CLI Workbench',
-            'reports': 'Report Builder'
+            'dashboard': 'Operations Dashboard',
+            'identity': 'Identity & Access (IAM)',
+            'database': 'Database & Storage',
+            'apps': 'Applications & Deployments',
+            'system': 'Observability & Diagnostics',
+            'commands': 'CLI Command Center',
+            // Legacy aliases
+            'entities': 'Database & Storage',
+            'xdb': 'Database & Storage',
+            'interdb': 'Database & Storage',
+            'lifecycle': 'Applications & Deployments',
+            'trace': 'Observability & Diagnostics',
+            'api_keys': 'Identity & Access (IAM)'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
@@ -396,8 +387,8 @@ class SPPAdmin {
         document.body.setAttribute('data-theme', theme);
         
         // Sync SPPUX Global Variable Theme if library is loaded
-        if (window.SPPUX && SPPUX.Theme) {
-            SPPUX.Theme.set(theme);
+        if (window.SPPUX && window.SPPUX.Theme) {
+            window.SPPUX.Theme.set ? window.SPPUX.Theme.set(theme) : (window.SPPUX.Theme.current = theme);
         }
 
         // Special cosmetic tweaks for body backgrounds if needed
@@ -555,26 +546,44 @@ class SPPAdmin {
     // =============================================
 
     handleRouting() {
-        let hash = location.hash.replace('#', '') || 'dashboard';
+        let rawHash = location.hash.replace('#', '') || 'dashboard';
+        let baseHash = rawHash.split('?')[0];
         
-        // Backward-compatible redirects for merged modules
+        // Backward-compatible redirects for merged modules into 6 core operational workspaces
         const redirects = {
-            'events': 'trace',
-            'middleware': 'routing',
-            'access': 'identity',
-            'groups': 'identity',
-            'config': 'system',
-            'copilot': 'ai',
-            'sppai': 'ai',
-            'ajax': 'services',
-            'queue': 'system',
-            'polyglot': 'system'
+            'events': 'system?tab=trace',
+            'trace': 'system?tab=trace',
+            'config': 'system?tab=config',
+            'queue': 'system?tab=queue',
+            'polyglot': 'system?tab=polyglot',
+            'xdb': 'database?tab=xdb',
+            'entities': 'database?tab=entities',
+            'interdb': 'database?tab=interdb',
+            'access': 'identity?tab=access',
+            'groups': 'identity?tab=groups',
+            'api_keys': 'identity?tab=api_keys',
+            'lifecycle': 'apps?tab=lifecycle',
+            'modules': 'apps?tab=modules',
+            'middleware': 'commands',
+            'copilot': 'commands',
+            'sppai': 'commands',
+            'ajax': 'system',
+            'services': 'system',
+            'routing': 'system',
+            'spplang': 'system',
+            'parikshak': 'system?tab=trace',
+            'ai': 'commands',
+            'mobile': 'apps',
+            'docs': 'dashboard',
+            'reports': 'dashboard'
         };
-        if (redirects[hash]) {
-            hash = redirects[hash];
-            location.hash = hash;
+
+        if (redirects[baseHash]) {
+            location.hash = redirects[baseHash];
             return;
         }
+
+        let hash = baseHash;
         this.currentView = hash;
 
         // Update Nav UI
@@ -618,7 +627,7 @@ class SPPAdmin {
      * RemoteView Component
      * Loads and renders a PHP-based view from the server.
      */
-    static RemoteView = class extends BaseComponent {
+    static RemoteView = class extends (window.BaseComponent || class {}) {
         async onInit() {
             this.state = { loading: true, html: '' };
             await this.fetchView();

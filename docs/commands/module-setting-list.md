@@ -1,16 +1,16 @@
 ## `module:setting:list`
 
-**Purpose**: List all settings for a given module
+**Description**: List all settings for a given module
 
 ### Synopsis
 ```bash
 php spp.php module:setting:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

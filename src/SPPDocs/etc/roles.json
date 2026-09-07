@@ -1,0 +1,114 @@
+{
+    "admin": {
+        "id": "admin",
+        "name": "Project Administrator",
+        "description": "Unrestricted access across all documentation, issues, milestones, releases, and settings.",
+        "is_system": true,
+        "permissions": [
+            "*"
+        ]
+    },
+    "maintainer": {
+        "id": "maintainer",
+        "name": "Maintainer",
+        "description": "Content authoring, full issue triage, milestone management, releases, and webhooks.",
+        "is_system": true,
+        "permissions": [
+            "docs.read",
+            "docs.create",
+            "docs.edit",
+            "docs.delete",
+            "docs.publish",
+            "issues.read",
+            "issues.create",
+            "issues.comment",
+            "issues.edit",
+            "issues.move",
+            "issues.delete",
+            "issues.log_time",
+            "milestones.read",
+            "milestones.create",
+            "milestones.edit",
+            "milestones.delete",
+            "forums.read",
+            "forums.post",
+            "forums.moderate",
+            "releases.read",
+            "releases.manage",
+            "webhooks.manage",
+            "automations.manage"
+        ]
+    },
+    "developer": {
+        "id": "developer",
+        "name": "Developer",
+        "description": "Active contributor: create\/edit\/move issues, log work hours, create milestones, and post discussions.",
+        "is_system": true,
+        "permissions": [
+            "docs.read",
+            "issues.read",
+            "issues.create",
+            "issues.comment",
+            "issues.edit",
+            "issues.move",
+            "issues.log_time",
+            "milestones.read",
+            "milestones.create",
+            "milestones.edit",
+            "forums.read",
+            "forums.post",
+            "releases.read"
+        ]
+    },
+    "reporter": {
+        "id": "reporter",
+        "name": "Reporter",
+        "description": "Community reporter: open issues, post comments, and participate in forum discussions.",
+        "is_system": true,
+        "permissions": [
+            "docs.read",
+            "issues.read",
+            "issues.create",
+            "issues.comment",
+            "milestones.read",
+            "forums.read",
+            "forums.post",
+            "releases.read"
+        ]
+    },
+    "viewer": {
+        "id": "viewer",
+        "name": "Viewer",
+        "description": "Read-only access to documentation, issue tracker, milestones, and release downloads.",
+        "is_system": true,
+        "permissions": [
+            "docs.read",
+            "issues.read",
+            "milestones.read",
+            "forums.read",
+            "releases.read"
+        ]
+    },
+    "guest": {
+        "id": "guest",
+        "name": "Guest",
+        "description": "Public unauthenticated access to documentation and forum threads.",
+        "is_system": true,
+        "permissions": [
+            "docs.read",
+            "issues.read",
+            "forums.read"
+        ]
+    },
+    "qa_engineer": {
+        "id": "qa_engineer",
+        "name": "QA Engineer",
+        "description": "Testing lead",
+        "is_system": false,
+        "permissions": [
+            "issues.read",
+            "issues.create",
+            "issues.edit"
+        ]
+    }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>3</next_id>
+  </_meta>
+<row id="1"><username>satya</username><password>$2y$10$0QWfr7hgnqWzYSn.orayEulwYgW4K1Ogmk1ow4cVGJ93jEGeUq2Su</password><role>registered</role><created_at>1788358514</created_at><id>1</id></row><row id="2"><username>verifyadmin</username><password>$2y$10$Cj4GmzO5ifZmbHjxPQJzauPpNe49F9Gc.utWtIUp7X4Bqy3aAumsu</password><display_name>Verify Admin</display_name><email>verify@test.local</email><role>registered</role><created_at>1788493385</created_at><id>2</id></row></database>

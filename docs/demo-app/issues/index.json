@@ -1,0 +1,52 @@
+{
+    "version": 1,
+    "next_number": 1,
+    "updated_at": 1788570683,
+    "issues": {
+        "issue_1788447117_94f8377a": {
+            "id": "issue_1788447117_94f8377a",
+            "number": 2,
+            "title": "Implement OAuth2 authentication",
+            "status": "closed",
+            "type": "feature",
+            "priority": "high",
+            "assignees": [],
+            "labels": [],
+            "milestone_id": null,
+            "due_date": null,
+            "parent_id": null,
+            "created_at": 1788447117,
+            "updated_at": 1788493647
+        },
+        "issue_1788447349_f52c4a78": {
+            "id": "issue_1788447349_f52c4a78",
+            "number": 1,
+            "title": "Audit trail test",
+            "status": "open",
+            "type": "task",
+            "priority": "medium",
+            "assignees": [],
+            "labels": [],
+            "milestone_id": null,
+            "due_date": null,
+            "parent_id": null,
+            "created_at": 1788447349,
+            "updated_at": 1788493647
+        },
+        "issue_test_git_1": {
+            "id": "issue_test_git_1",
+            "number": 777,
+            "title": "Test Issue for Git CI/CD",
+            "status": "open",
+            "type": "task",
+            "priority": "medium",
+            "assignees": [],
+            "labels": [],
+            "milestone_id": null,
+            "due_date": null,
+            "parent_id": null,
+            "created_at": 1788570683,
+            "updated_at": 1788570683
+        }
+    }
+}

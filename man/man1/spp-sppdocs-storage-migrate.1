@@ -1,0 +1,23 @@
+.TH SPP-sppdocs-storage-migrate 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-sppdocs-storage-migrate \- Migrate SPPDocs project issues between Flat-File JSON and SQLite storage
+.SH SYNOPSIS
+.B php spp.php sppdocs:storage:migrate
+[OPTIONS]
+.SH DESCRIPTION
+Migrate SPPDocs project issues between Flat-File JSON and SQLite storage
+.PP
+.SH OPTIONS
+.TP
+.B --project=
+Expects a value. Extracted via static analysis from SPPDocsStorageMigrateCommand.php
+.TP
+.B --to=
+Expects a value. Extracted via static analysis from SPPDocsStorageMigrateCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: JsonStorageDriver, SqliteStorageDriver.
+.br

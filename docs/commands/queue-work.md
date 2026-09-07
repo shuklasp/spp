@@ -1,16 +1,22 @@
 ## `queue:work`
 
-**Purpose**: Starts a worker loop to process background jobs from the queue.
+**Description**: Starts a worker loop to process background jobs from the queue.
 
 ### Synopsis
 ```bash
 php spp.php queue:work [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php queue:work
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from QueueWorkCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

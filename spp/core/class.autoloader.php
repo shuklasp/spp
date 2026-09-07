@@ -161,7 +161,8 @@ class Autoloader
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . strtolower($class) . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . $class . '.php',
                 SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'security' . DIRECTORY_SEPARATOR . $class . '.php',
-                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'security' . DIRECTORY_SEPARATOR . 'middleware' . DIRECTORY_SEPARATOR . $class . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'router' . DIRECTORY_SEPARATOR . 'class.' . strtolower($class) . '.php',
+                SPP_CORE_DIR . DIRECTORY_SEPARATOR . 'router' . DIRECTORY_SEPARATOR . $class . '.php',
                 SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $class . '.php',
                 SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $class . 'Driver.php',
                 SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . 'sppcache' . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . 'SPP' . $class . 'Manager.php'
@@ -221,6 +222,12 @@ class Autoloader
                 if (empty($parts)) return null;
                 $mod = strtolower(array_shift($parts));
                 $modDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'spp' . DIRECTORY_SEPARATOR . $mod;
+                if (!is_dir($modDir)) {
+                    $optionalDir = SPP_MODULES_DIR . DIRECTORY_SEPARATOR . 'optional' . DIRECTORY_SEPARATOR . $mod;
+                    if (is_dir($optionalDir)) {
+                        $modDir = $optionalDir;
+                    }
+                }
 
             } elseif ($prefix === 'ContribMod') {
                 if (empty($parts)) return null;
@@ -244,6 +251,19 @@ class Autoloader
 
     private static function resolvePsrClass(string $className, array $path): ?string
     {
+        if (class_exists('\\SPP\\Registry', false) && \SPP\Registry::isRegistered('__modns')) {
+            $nsMap = \SPP\Registry::get('__modns');
+            foreach ($nsMap as $ns => $modPath) {
+                if (strpos($className, $ns . '\\') === 0) {
+                    $relativeClass = substr($className, strlen($ns) + 1);
+                    $file = $modPath . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+                    if (file_exists($file)) return $file;
+                    $file = $modPath . DIRECTORY_SEPARATOR . str_replace('\\', DIRECTORY_SEPARATOR, $relativeClass) . '.php';
+                    if (file_exists($file)) return $file;
+                }
+            }
+        }
+
         if (strpos($className, 'SPP\\') === 0 && strpos($className, 'SPPMod\\') !== 0 && strpos($className, 'SPP\\Core\\') !== 0) {
             $parts = $path;
             array_shift($parts); // Remove SPP
@@ -306,11 +326,14 @@ class Autoloader
         }
 
         $lowerClass = strtolower($class);
+        $cleanClass = str_replace('_', '', $lowerClass);
         $searchFiles = [
             $modDir . DIRECTORY_SEPARATOR . $relPath . 'class.' . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . 'class.' . $cleanClass . '.php',
             $modDir . DIRECTORY_SEPARATOR . $relPath . 'int.' . $lowerClass . '.php',
             $modDir . DIRECTORY_SEPARATOR . $relPath . 'trait.' . $lowerClass . '.php',
             $modDir . DIRECTORY_SEPARATOR . $relPath . $lowerClass . '.php',
+            $modDir . DIRECTORY_SEPARATOR . $relPath . $cleanClass . '.php',
             $modDir . DIRECTORY_SEPARATOR . $relPath . $class . '.php',
             $modDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $relPath . $class . '.php',
             $modDir . DIRECTORY_SEPARATOR . 'src' . DIRECTORY_SEPARATOR . $relPath . $lowerClass . '.php'

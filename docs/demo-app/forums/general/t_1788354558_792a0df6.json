@@ -1,0 +1,28 @@
+{
+    "title": "Test Topic",
+    "author": "admin",
+    "content": "This is a test topic",
+    "timestamp": 1788354558,
+    "replies": [
+        {
+            "author": "admin",
+            "content": "Test reply",
+            "timestamp": 1788354583
+        },
+        {
+            "author": "admin",
+            "content": "This is another reply.",
+            "timestamp": 1788354612
+        },
+        {
+            "author": "admin",
+            "content": "This is reply from someone else",
+            "timestamp": 1788358617
+        },
+        {
+            "author": "satya",
+            "content": "another comment from satya",
+            "timestamp": 1788359282
+        }
+    ]
+}

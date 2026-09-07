@@ -1,6 +1,6 @@
 ## `make:react-component`
 
-**Purpose**: Scaffold a new React component (ESM/No-build)
+**Description**: Scaffold a new React component (ESM/No-build)
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php make:react-component <ComponentName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: React.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: React.
 

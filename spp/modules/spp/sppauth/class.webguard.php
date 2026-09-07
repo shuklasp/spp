@@ -226,6 +226,22 @@ class WebGuard implements GuardInterface
             try {
                 $this->user = new SPPUser($userId);
             } catch (\Exception $e) {
+                // Graceful fallback for non-ORM users (e.g. XDB, memory, demo, or external auth providers)
+                if (\SPP\SPPSession::sessionVarExists('__sppauth_user_data__')) {
+                    $userData = \SPP\SPPSession::getSessionVar('__sppauth_user_data__');
+                    if (is_array($userData) && !empty($userData)) {
+                        $this->user = (object) $userData;
+                        return $this->user;
+                    }
+                }
+                if (!empty($_SESSION['sppdocs_user'])) {
+                    $this->user = (object) [
+                        'id' => $_SESSION['sppdocs_user'],
+                        'username' => $_SESSION['sppdocs_user'],
+                        'role' => $_SESSION['sppdocs_role'] ?? 'admin'
+                    ];
+                    return $this->user;
+                }
                 file_put_contents(SPP_BASE_DIR . "/api_debug.log", "[" . date('Y-m-d H:i:s') . "] WebGuard::user SPPUser exception for $userId: " . $e->getMessage() . "\n", FILE_APPEND);
                 $this->logout();
                 $this->user = new AnonymousUser();
@@ -280,6 +296,8 @@ class WebGuard implements GuardInterface
         }
 
         \SPP\SPPSession::setSessionVar($this->sessionKey, $id);
+        \SPP\SPPSession::setSessionVar('__sppauth_user_data__', is_object($user) ? (array) $user : ['id' => $id, 'username' => $id]);
+        \SPP\SPPSession::setSessionVar('__sppauth_last_heartbeat__', time());
         $this->user = is_object($user) ? $user : null;
 
         // MFA Check
@@ -352,6 +370,8 @@ class WebGuard implements GuardInterface
     public function logout()
     {
         \SPP\SPPSession::unsetSessionVar($this->sessionKey);
+        \SPP\SPPSession::unsetSessionVar('__sppauth_user_data__');
+        \SPP\SPPSession::unsetSessionVar('__sppauth_last_heartbeat__');
         \SPP\SPPSession::unsetSessionVar($this->impersonateSessionKey);
         \SPP\SPPSession::unsetSessionVar($this->sudoSessionKey);
         \SPP\SPPSession::unsetSessionVar($this->mfaSessionKey);

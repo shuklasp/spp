@@ -1,39 +1,32 @@
-.TH SPP-deploy-build 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-build 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-deploy:build
-.PP
- \- Create a local deployment artifact bundle without pushing
+spp-deploy-build \- Create a local deployment artifact bundle without pushing
+.SH SYNOPSIS
+.B php spp.php deploy:build
+[OPTIONS]
 .SH DESCRIPTION
 Create a local deployment artifact bundle without pushing
 .PP
-.SH SYNOPSIS
-php spp.php deploy:build [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php deploy:build <target_uri> [--key=YOUR_API_KEY] [--no-db] [--no-files]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--key=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--no-db` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--no-files` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--status` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--sql` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--Create Table` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --key=
+Expects a value. Extracted via static analysis from DeployBuildCommand.php
+.TP
+.B --no-db
+Boolean flag. Extracted via static analysis from DeployBuildCommand.php
+.TP
+.B --no-files
+Boolean flag. Extracted via static analysis from DeployBuildCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
-.br
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \SPPMod\SPPDB\SPPDB.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
+.br

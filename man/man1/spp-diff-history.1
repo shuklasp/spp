@@ -1,29 +1,28 @@
-.TH SPP-diff-history 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-diff-history 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-diff:history
-.PP
- \- View revision history of an entity
+spp-diff-history \- View revision history of an entity
+.SH SYNOPSIS
+.B php spp.php diff:history
+[OPTIONS]
 .SH DESCRIPTION
 View revision history of an entity
 .PP
-.SH SYNOPSIS
-php spp.php diff:history [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php diff:history --type=<ModelClass> --id=<ID> [--json]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--type=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--id=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--json` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --type=
+Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+.TP
+.B --id=
+Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+.TP
+.B --json
+Boolean flag. Extracted via static analysis from DiffHistoryCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

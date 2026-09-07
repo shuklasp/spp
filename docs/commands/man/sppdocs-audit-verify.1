@@ -1,0 +1,15 @@
+.TH SPPDOCS-AUDIT-VERIFY 1 "September 2026" "SPP CLI Manual" "SPP System Documentation"
+.SH NAME
+sppdocs:audit:verify \- Verify cryptographic hash chain integrity of project audit logs
+.SH SYNOPSIS
+.B php spp.php sppdocs:audit:verify
+[\fB\-\-project\fR=\fIproject-id\fR]
+.SH DESCRIPTION
+.B sppdocs:audit:verify
+performs cryptographic verification of all audit trail entries in audit_chain.jsonl for an SPPDocs project, validating SHA-256 Merkle links to ensure tamper-evident records.
+.SH OPTIONS
+.TP
+.BI \-\-project= "project-id"
+Target project ID. Default is demo-app.
+.SH UNDER THE HOOD
+Reads each line of audit_chain.jsonl, recalculates hash digests from genesis to tip, and reports verification success or specific tampered line index.

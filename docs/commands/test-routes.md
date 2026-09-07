@@ -1,16 +1,16 @@
 ## `test:routes`
 
-**Purpose**: Test route scanner
+**Description**: Test route scanner
 
 ### Synopsis
 ```bash
 php spp.php test:routes [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from TestRouteCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 

@@ -23,8 +23,6 @@ class RouteScanner
         $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory));
         $regex = new \RegexIterator($iterator, '/^.+\.php$/i', \RecursiveRegexIterator::GET_MATCH);
 
-        file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Iterating files...\n", FILE_APPEND);
-
         foreach ($regex as $file) {
             $filePath = $file[0];
             $content = file_get_contents($filePath);
@@ -41,8 +39,6 @@ class RouteScanner
                     continue;
                 }
 
-                file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Class extracted: $fullClass\n", FILE_APPEND);
-
                 // Ensure the class is loaded
                 if (!class_exists($fullClass)) {
                     try {
@@ -52,10 +48,7 @@ class RouteScanner
                     }
                 }
 
-                file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Class required, exists: " . (class_exists($fullClass) ? 'YES' : 'NO') . "\n", FILE_APPEND);
-
                 if (class_exists($fullClass)) {
-                    file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Reflecting $fullClass...\n", FILE_APPEND);
                     $reflection = new ReflectionClass($fullClass);
                     
                     // Class-level route prefixes and middleware
@@ -98,7 +91,6 @@ class RouteScanner
             }
         }
 
-        file_put_contents(SPP_BASE_DIR . '/../spp_scanner_debug.log', "Done scanning $directory\n", FILE_APPEND);
         return $routes;
     }
 

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="perfection_test" table="employees">
+  <_schema>
+    <column name="id" type="int" primary="true"/>
+    <column name="name" type="varchar" notNull="true"/>
+    <column name="title" type="varchar" notNull="true"/>
+    <column name="remuneration" type="double"/>
+    
+  </_schema>
+  <data>
+  </data>
+<row id="1"><id>1</id><name>Satya</name><title>Architect</title><remuneration>130000</remuneration><history timestamp="2026-09-04 07:19:20"><id>1</id><name>Satya</name><role>Architect</role><salary>120000</salary><score>95.5</score></history></row><row id="2"><id>2</id><name>Amit</name><title>Manager</title><remuneration>95000</remuneration><history timestamp="2026-09-04 07:19:20"><id>2</id><name>Amit</name><role>Manager</role><salary>95000</salary><score>88</score></history></row><row id="3"><id>3</id><name>John</name><title>Developer</title><remuneration>85000</remuneration><history timestamp="2026-09-04 07:19:20"><id>3</id><name>John</name><role>Developer</role><salary>80000</salary><score>90</score></history></row><row id="4"><id>4</id><name>Jane</name><title>Designer</title><remuneration>75000</remuneration></row></database>

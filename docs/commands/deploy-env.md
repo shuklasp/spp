@@ -1,6 +1,6 @@
 ## `deploy:env`
 
-**Purpose**: Manage remote environment variables securely
+**Description**: Manage remote environment variables securely
 
 ### Synopsis
 ```bash
@@ -13,13 +13,12 @@ Usage: php spp.php deploy:env [target_uri] push --key=MY_KEY --value=MY_VALUE [-
 
 ```
 
-### Options Available
-- `--key_api=` : Expects a value. Extracted via static analysis.
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--value=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key_api=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
+- `--key=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
+- `--value=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

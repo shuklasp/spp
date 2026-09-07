@@ -1,0 +1,11 @@
+{
+    "satya": [
+        "admin",
+        "maintainer",
+        "developer"
+    ],
+    "verifyadmin": [
+        "developer",
+        "reporter"
+    ]
+}

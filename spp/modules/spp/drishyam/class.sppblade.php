@@ -13,6 +13,20 @@ class SPPBladeEngine extends BladeOne
         }
         return parent::runChild($view, $variables);
     }
+
+    public function runIsolated(string $view, array $variables = []): string
+    {
+        $backupSections = $this->sections;
+        $backupViewStack = $this->viewStack;
+        
+        $this->sections = [];
+        $this->viewStack = null;
+        $output = $this->runInternal($view, $variables, false, false);
+        
+        $this->sections = $backupSections;
+        $this->viewStack = $backupViewStack;
+        return $output;
+    }
 }
 
 /**
@@ -220,13 +234,30 @@ class SPPBlade extends \SPP\SPPObject
             return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::spppartial($expression); ?>";
         });
 
+        // @region('region_name', ['context_key' => $val])
+        $this->engine->directive('region', function ($expression) {
+            if (empty($expression))
+                return "";
+            return "<?php echo \\SPPMod\\Drishyam\\TemplateMacros::region($expression); ?>";
+        });
+
         // @url('path/to/route')
         $this->engine->directive('url', function ($expression) {
             $expr = trim($expression);
             if (empty($expr) || $expr === "''" || $expr === '""') {
                 return "<?php echo \\SPP\\App::getBaseUrl(\$app_name ?? \\SPP\\Scheduler::getContext()); ?>";
             }
-            return "<?php echo rtrim(\\SPP\\App::getBaseUrl(\$app_name ?? \\SPP\\Scheduler::getContext()), '/') . '/' . ltrim($expr, '/'); ?>";
+            return "<?php echo \\SPP\\Core\\Url::to($expr, \$app_name ?? \\SPP\\Scheduler::getContext()); ?>";
+        });
+
+        // @external_url('github.com/foo') or @external_url($project['links']['source'])
+        $this->engine->directive('external_url', function ($expression) {
+            return "<?php echo \\SPP\\Core\\Url::external($expression); ?>";
+        });
+
+        // @externalUrl('github.com/foo')
+        $this->engine->directive('externalUrl', function ($expression) {
+            return "<?php echo \\SPP\\Core\\Url::external($expression); ?>";
         });
 
         // @drupal_node(123)
@@ -395,13 +426,22 @@ class SPPBlade extends \SPP\SPPObject
             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Rendering absolute file. ViewName: $viewName, Paths: " . json_encode($paths) . "\n", FILE_APPEND);
 
             try {
-                $output = $this->engine->run($viewName, $data);
+                $output = $this->engine->runIsolated($viewName, $data);
                 @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] SPPBlade: Render successful for $viewName\n", FILE_APPEND);
                 return $output;
             } catch (\Throwable $e) {
-                $msg = "SPPBlade ERROR (Absolute): " . $e->getMessage() . "\n" . $e->getTraceAsString();
+                $msg = "SPPBlade Template Error in '$viewName': " . $e->getMessage();
                 @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
-                return "Blade Error: " . $e->getMessage();
+                
+                if (class_exists('\\SPP\\SPPException')) {
+                    $hint = "Check your Blade syntax in the file. Common issues include:\n"
+                          . "- Unescaped special characters inside {{ }} or {!! !!}\n"
+                          . "- Using raw PHP interpolation (like '\$var' in double quotes) instead of Blade directives\n"
+                          . "- Missing commas or brackets in array arguments passed to @directives (e.g. @spppartial)";
+                    throw new \SPP\SPPException($msg . "\n\n💡 Corrective Measure:\n" . $hint, 500, $e);
+                }
+                
+                return "<div style='padding:1rem;background:#fee2e2;color:#991b1b;border:1px solid #ef4444;border-radius:4px;'><strong>🔥 Blade Error:</strong> " . htmlspecialchars($e->getMessage()) . "</div>";
             }
         }
 
@@ -412,17 +452,28 @@ class SPPBlade extends \SPP\SPPObject
         // Support full paths by stripping base view path if present (Legacy/Fallback)
         if (strpos($view, $this->viewsPath) === 0) {
             $view = substr($view, strlen($this->viewsPath));
-            $view = ltrim($view, '/\\');
-            $view = str_replace('.blade.php', '', $view);
-            $view = str_replace(['/', '\\'], '.', $view);
         }
 
+        // Normalize view identifier: strip extensions and convert directory slashes to dots for BladeOne
+        $view = ltrim($view, '/\\');
+        $view = str_replace('.blade.php', '', $view);
+        $view = str_replace(['/', '\\'], '.', $view);
+
         try {
-            return $this->engine->run($view, $data);
+            return $this->engine->runIsolated($view, $data);
         } catch (\Throwable $e) {
-            $msg = "SPPBlade ERROR (Relative): " . $e->getMessage() . "\n" . $e->getTraceAsString();
+            $msg = "SPPBlade Template Error in '$view': " . $e->getMessage();
             @file_put_contents(SPP_LOG_DIR . '/debug_lekhak.log', "[" . date('Y-m-d H:i:s') . "] $msg\n", FILE_APPEND);
-            return "Blade Error: " . $e->getMessage();
+            
+            if (class_exists('\\SPP\\SPPException')) {
+                $hint = "Check your Blade syntax in the file. Common issues include:\n"
+                      . "- Unescaped special characters inside {{ }} or {!! !!}\n"
+                      . "- Using raw PHP interpolation (like '\$var' in double quotes) instead of Blade directives\n"
+                      . "- Missing commas or brackets in array arguments passed to @directives (e.g. @spppartial)";
+                throw new \SPP\SPPException($msg . "\n\n💡 Corrective Measure:\n" . $hint, 500, $e);
+            }
+            
+            return "<div style='padding:1rem;background:#fee2e2;color:#991b1b;border:1px solid #ef4444;border-radius:4px;'><strong>🔥 Blade Error:</strong> " . htmlspecialchars($e->getMessage()) . "</div>";
         }
     }
 

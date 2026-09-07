@@ -9,8 +9,15 @@
  */
 export default class FormsView extends BaseComponent {
     async onInit() {
+        const hash = location.hash;
+        let initialTab = 'forms';
+        if (hash.includes('tab=spplang') || hash.includes('#spplang')) initialTab = 'spplang';
+        else if (hash.includes('tab=mobile') || hash.includes('#mobile')) initialTab = 'mobile';
+        else if (hash.includes('tab=forms') || hash.includes('#forms')) initialTab = 'forms';
+
         this.state = {
-            loading: true,
+            activeMainTab: initialTab,
+            loading: (initialTab === 'forms'),
             forms: [],
             activeFormTab: 'builder',
             currentFormName: '',
@@ -18,7 +25,18 @@ export default class FormsView extends BaseComponent {
             currentFormSource: '',
             currentFormConfig: { form: { name: '', type: 'single' }, fields: [] }
         };
-        await this.fetchData();
+
+        if (initialTab === 'forms') {
+            await this.fetchData();
+        }
+    }
+
+    async switchMainTab(tab) {
+        if (this.state.activeMainTab === tab) return;
+        this.setState({ activeMainTab: tab });
+        if (tab === 'forms' && this.state.forms.length === 0) {
+            await this.fetchData();
+        }
     }
 
     async fetchData() {
@@ -39,35 +57,123 @@ export default class FormsView extends BaseComponent {
     }
 
     render() {
-        const { loading, forms, error } = this.state;
-
-        if (loading) return html`<div class="loading-state">Syncing form manifests...</div>`;
-        if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
+        const { loading, forms, error, activeMainTab } = this.state;
 
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            const defaultSource = 'form:\n  name: my_form\n  service: save_data\n\nfields:\n  - name: title\n    type: input\n    label: Title';
-            const headerHtml = html`
-                <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', 'yml', defaultSource)}>+ New Form</button>
-            `;
-            headerActions.innerHTML = headerHtml.toString();
-            
-            // Ensure buttons in the header also trigger events for this component
-            headerActions.querySelectorAll('[data-spp-evt]').forEach(el => {
-                const id = el.getAttribute('data-spp-evt');
-                if (window.__spp_handlers && window.__spp_handlers[id]) {
-                    this._handlers.set(id, window.__spp_handlers[id]);
-                }
-            });
-            
-            if (!headerActions._hasSppListener) {
-                ['click', 'change', 'input'].forEach(type => {
-                    headerActions.addEventListener(type, (e) => this._onEvent(e));
-                });
-                headerActions._hasSppListener = true;
+            if (activeMainTab === 'forms') {
+                const defaultSource = 'form:\n  name: my_form\n  service: save_data\n\nfields:\n  - name: title\n    type: input\n    label: Title';
+                const headerHtml = html`
+                    <button type="button" class="btn primary-btn btn-sm" @click=${() => this.openEditor('', 'yml', defaultSource)}>+ New Form</button>
+                `;
+                headerHtml.render(headerActions);
+            } else {
+                headerActions.innerHTML = '';
             }
         }
+
+        return html`
+            <div class="forms-workspace" style="display: flex; flex-direction: column; height: 100%;">
+                <!-- Sub-Navigation Toolbar -->
+                <div class="tabs-toolbar" style="margin-bottom: 1rem; border-bottom: 1px solid var(--glass-border); display: flex; gap: 8px; padding-bottom: 0.5rem; flex-wrap: wrap;">
+                    <button class="tab-btn ${activeMainTab === 'forms' ? 'active' : ''}" 
+                            @click=${() => this.switchMainTab('forms')}
+                            style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid ${activeMainTab === 'forms' ? 'var(--primary)' : 'transparent'}; background: ${activeMainTab === 'forms' ? 'var(--primary-subtle)' : 'transparent'}; color: ${activeMainTab === 'forms' ? 'var(--text-bright)' : 'var(--text-secondary)'}; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <span>📝</span> Form Designer & Manifests
+                    </button>
+                    <button class="tab-btn ${activeMainTab === 'spplang' ? 'active' : ''}" 
+                            @click=${() => this.switchMainTab('spplang')}
+                            style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid ${activeMainTab === 'spplang' ? 'var(--primary)' : 'transparent'}; background: ${activeMainTab === 'spplang' ? 'var(--primary-subtle)' : 'transparent'}; color: ${activeMainTab === 'spplang' ? 'var(--text-bright)' : 'var(--text-secondary)'}; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <span>💬</span> Translations & Locales (SPPLang)
+                    </button>
+                    <button class="tab-btn ${activeMainTab === 'mobile' ? 'active' : ''}" 
+                            @click=${() => this.switchMainTab('mobile')}
+                            style="display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 8px; border: 1px solid ${activeMainTab === 'mobile' ? 'var(--primary)' : 'transparent'}; background: ${activeMainTab === 'mobile' ? 'var(--primary-subtle)' : 'transparent'}; color: ${activeMainTab === 'mobile' ? 'var(--text-bright)' : 'var(--text-secondary)'}; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
+                        <span>📱</span> Mobile & Responsive Preview
+                    </button>
+                </div>
+
+                <div class="forms-content" style="flex: 1;">
+                    ${activeMainTab === 'spplang' ? this.renderSpplang() : ''}
+                    ${activeMainTab === 'mobile' ? this.renderMobile() : ''}
+                    ${activeMainTab === 'forms' ? this.renderFormsMain() : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    renderSpplang() {
+        setTimeout(async () => {
+            const mount = document.getElementById('forms-subview-mount');
+            if (mount) {
+                if (!this.spplangInstance) {
+                    try {
+                        const mod = await import('./spplang.js');
+                        const SpplangView = mod.default;
+                        const appObj = this.app || this.admin;
+                        this.spplangInstance = new SpplangView(appObj, mount, { app: appObj?.selectedApp });
+                        if (this.spplangInstance.onInit) await this.spplangInstance.onInit();
+                        if (typeof this.spplangInstance.update === 'function') await this.spplangInstance.update();
+                        else if (typeof this.spplangInstance.render === 'function') {
+                            const r = this.spplangInstance.render();
+                            if (r) mount.appendChild(r instanceof Node ? r : r);
+                        }
+                    } catch (e) {
+                        console.error('Failed to load spplang:', e);
+                        mount.innerHTML = `<div class="alert error" style="margin: 1.5rem;">Failed to load Translations: ${e.message}</div>`;
+                    }
+                } else {
+                    this.spplangInstance.container = mount;
+                    if (typeof this.spplangInstance.update === 'function') await this.spplangInstance.update();
+                }
+            }
+        }, 10);
+        return html`
+            <div id="forms-subview-mount" class="fade-in" style="min-height: 500px;">
+                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Translations...</div>
+            </div>
+        `;
+    }
+
+    renderMobile() {
+        setTimeout(async () => {
+            const mount = document.getElementById('forms-subview-mount');
+            if (mount) {
+                if (!this.mobileInstance) {
+                    try {
+                        const mod = await import('./mobile.js');
+                        const MobileView = mod.default;
+                        const appObj = this.app || this.admin;
+                        this.mobileInstance = new MobileView(appObj, mount, { app: appObj?.selectedApp });
+                        if (this.mobileInstance.onInit) await this.mobileInstance.onInit();
+                        if (typeof this.mobileInstance.update === 'function') await this.mobileInstance.update();
+                        else if (typeof this.mobileInstance.render === 'function') {
+                            const r = this.mobileInstance.render();
+                            if (r) mount.appendChild(r instanceof Node ? r : r);
+                        }
+                    } catch (e) {
+                        console.error('Failed to load mobile studio:', e);
+                        mount.innerHTML = `<div class="alert error" style="margin: 1.5rem;">Failed to load Mobile Studio: ${e.message}</div>`;
+                    }
+                } else {
+                    this.mobileInstance.container = mount;
+                    if (typeof this.mobileInstance.update === 'function') await this.mobileInstance.update();
+                }
+            }
+        }, 10);
+        return html`
+            <div id="forms-subview-mount" class="fade-in" style="min-height: 500px;">
+                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Mobile Studio...</div>
+            </div>
+        `;
+    }
+
+    renderFormsMain() {
+        const { loading, forms, error } = this.state;
+
+        if (loading) return html`<div class="loading-state">Syncing form manifests...</div>`;
+        if (error) return html`<div class="empty-state"><h3>Error</h3><p>${error}</p></div>`;
 
         if (forms.length === 0) {
             return html`

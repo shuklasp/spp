@@ -21,6 +21,12 @@ class AppServeAsyncCommand extends Command
 
     public function execute(array $args): void
     {
+        if (in_array('--help', $args, true) || in_array('-h', $args, true)) {
+            echo "Usage: php spp.php serve:async [--app=name] [--port=8080]\n";
+            echo "Boot the persistent memory asynchronous coroutine runtime.\n";
+            return;
+        }
+
         $appName = 'default';
         $port = 8080;
 

@@ -1,0 +1,22 @@
+{
+    "title": "Implement OAuth2 authentication",
+    "description": "",
+    "type": "feature",
+    "priority": "high",
+    "assignees": [],
+    "labels": [],
+    "status": "closed",
+    "author": "CLI",
+    "created_at": 1788447117,
+    "updated_at": 1788447302,
+    "comments": [
+        {
+            "author": "CLI",
+            "type": "event",
+            "timestamp": 1788447302,
+            "content": "Verified in tests"
+        }
+    ],
+    "time_logs": [],
+    "number": 2
+}

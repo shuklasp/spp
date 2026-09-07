@@ -412,7 +412,10 @@ PHP;
         }
 
         // 8. Create pages.yml for the new app to handle routing
-        if (!file_exists($appDir . '/pages.yml')) {
+        $targetPagesDir = is_dir(SPP_APP_DIR . "/src/{$appName}/etc")
+            ? SPP_APP_DIR . "/src/{$appName}/etc"
+            : $appDir;
+        if (!file_exists($targetPagesDir . '/pages.yml')) {
             $pagesYaml = [
                 'home' => 'index',
                 'pages' => [
@@ -423,7 +426,7 @@ PHP;
                     ]
                 ]
             ];
-            file_put_contents($appDir . '/pages.yml', Yaml::dump($pagesYaml, 4, 2));
+            file_put_contents($targetPagesDir . '/pages.yml', Yaml::dump($pagesYaml, 4, 2));
         }
 
         echo "\nSuccess! Integrated Blade project '{$appName}' created.\n";

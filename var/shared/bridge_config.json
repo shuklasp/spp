@@ -1,7 +1,7 @@
 {
-    "timestamp": 1786841747,
+    "timestamp": 1788784517,
     "spp_version": "0.7",
-    "base_dir": "\/mnt\/c\/projects\/apache\/school1\/spp",
+    "base_dir": "C:\\projects\\apache\\school1\\spp",
     "database": {
         "dbtype": "sqlite",
         "dbhost": false,
@@ -10,59 +10,61 @@
         "dbpasswd": false
     },
     "modules": {
-        "sppapi": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppapi",
-        "sppdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdb",
-        "dbconfig": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/dbconfig",
-        "sppauth": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppauth",
-        "spplogger": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spplogger",
-        "sppview": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppview",
-        "drishyam": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/drishyam",
-        "parikshak": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/parikshak",
-        "sppai": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppai",
-        "lekhni": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/contrib\/lekhni",
-        "sppxdb": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppxdb",
-        "sppdeploy": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdeploy",
-        "sppdoc": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/sppdoc",
-        "spprouter": "\/mnt\/c\/projects\/apache\/school1\/spp\/modules\/spp\/spprouter"
+        "sppapi": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppapi",
+        "sppdb": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppdb",
+        "dbconfig": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/dbconfig",
+        "sppauth": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppauth",
+        "spplogger": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spplogger",
+        "sppview": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/sppview",
+        "drishyam": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/drishyam",
+        "parikshak": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/parikshak",
+        "sppai": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppai",
+        "lekhni": "C:\\projects\\apache\\school1\\spp\/modules\/contrib\/lekhni",
+        "sppxdb": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppxdb",
+        "sppdeploy": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdeploy",
+        "sppdoc": "C:\\projects\\apache\\school1\\spp\/modules\/optional\/sppdoc",
+        "spprouter": "C:\\projects\\apache\\school1\\spp\/modules\/spp\/spprouter",
+        "reading_time": "C:\/projects\/apache\/school1\/src\/SPPDocs\/modules\/reading_time",
+        "slack_webhook": "C:\/projects\/apache\/school1\/src\/SPPDocs\/modules\/slack_webhook"
     },
     "runtimes": {
         "python": {
             "name": "Python",
-            "path": "\/usr\/bin\/python3",
-            "version": "Python 3.12.3"
+            "path": "C:\\Python312\\python.exe",
+            "version": "Python 3.12.0"
         },
         "perl": {
             "name": "Perl",
-            "path": "\/usr\/bin\/perl",
-            "version": "5.38.2"
+            "path": "C:\\xampp\\perl\\bin\\perl.exe",
+            "version": "5.32.1"
         },
         "java": {
             "name": "Java",
-            "path": "\/usr\/bin\/java",
-            "version": "21.0.11"
+            "path": "C:\\Program Files\\Common Files\\Oracle\\Java\\javapath\\java.exe",
+            "version": "15.0.2"
         },
         "node": {
             "name": "Node.js",
-            "path": "",
-            "version": ""
+            "path": "C:\\Program Files\\nodejs\\node.exe",
+            "version": "v21.4.0"
         },
         "dotnet": {
             "name": ".NET",
-            "path": "\/usr\/bin\/dotnet",
-            "version": "8.0.129"
+            "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+            "version": "8.0.400"
         },
         "go": {
             "name": "Go",
-            "path": "\/usr\/bin\/go",
-            "version": "1.22.2"
+            "path": "C:\\Program Files\\Go\\bin\\go.exe",
+            "version": "1.26.2"
         },
         "compiler": {
-            "name": "GCC",
-            "path": "\/usr\/bin\/gcc",
-            "version": "13.3.0"
+            "name": "C++ Compiler",
+            "path": "",
+            "version": ""
         }
     },
     "bridge_settings": {
-        "shared_dir": "\/mnt\/c\/projects\/apache\/school1\/var\/shared"
+        "shared_dir": "C:\\projects\\apache\\school1\\var\\shared"
     }
 }

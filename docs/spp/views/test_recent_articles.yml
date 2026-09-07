@@ -1,0 +1,27 @@
+id: test_recent_articles
+title: 'Recent Articles Grid'
+description: 'Test dynamic query view with sorting and card grid layout'
+collection: docs
+source_type: docs
+display_format: grid
+layout: grid
+limit: 6
+items_per_page: 6
+paginate: false
+sort_by: updated_at
+sort_dir: desc
+filters:
+  -
+    field: status
+    operator: equals
+    value: published
+sorts: {  }
+columns:
+  - title
+  - description
+  - updated_at
+fields:
+  - title
+  - description
+  - updated_at
+updated_at: 1788605004

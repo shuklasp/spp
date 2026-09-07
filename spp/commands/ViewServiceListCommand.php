@@ -39,8 +39,11 @@ class ViewServiceListCommand extends Command
         echo str_repeat("-", 85) . "\n";
 
         foreach ($services as $s) {
-            $source = $s['source'] === 'db' ? ($s['db_summary'] ?? 'Database') : ($s['source_path'] ?? 'services.yml');
-            echo str_pad($s['name'], 30) . str_pad($s['method'] ?? 'POST', 10) . str_pad($s['script'], 30) . $source . "\n";
+            $name = $s['name'] ?? 'N/A';
+            $method = $s['method'] ?? 'POST';
+            $script = $s['script'] ?? ($s['handler'] ?? ($s['class'] ?? ($s['action'] ?? 'N/A')));
+            $source = ($s['source'] ?? '') === 'db' ? ($s['db_summary'] ?? 'Database') : ($s['source_path'] ?? ($s['file'] ?? 'services.yml'));
+            echo str_pad($name, 30) . str_pad($method, 10) . str_pad($script, 30) . $source . "\n";
         }
         echo "\n";
     }

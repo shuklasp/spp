@@ -1,0 +1,7 @@
+id: "reading_time"
+name: "Reading Time & Word Count"
+version: "1.0.0"
+description: "Calculates estimated reading time and word count for documentation pages and injects metadata into views."
+category: "Content Pipeline"
+author: "SPPDocs Core Team"
+dependencies: []

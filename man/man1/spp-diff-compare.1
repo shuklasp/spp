@@ -1,31 +1,31 @@
-.TH SPP-diff-compare 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-diff-compare 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-diff:compare
-.PP
- \- Compare two JSON arrays or states
+spp-diff-compare \- Compare two JSON arrays or states
+.SH SYNOPSIS
+.B php spp.php diff:compare
+[OPTIONS]
 .SH DESCRIPTION
 Compare two JSON arrays or states
 .PP
-.SH SYNOPSIS
-php spp.php diff:compare [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php diff:compare --type=<ModelClass> --id=<ID> --rev=<RevID> [--json]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--type=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--id=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--rev=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--json` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --type=
+Expects a value. Extracted via static analysis from DiffCompareCommand.php
+.TP
+.B --id=
+Expects a value. Extracted via static analysis from DiffCompareCommand.php
+.TP
+.B --rev=
+Expects a value. Extracted via static analysis from DiffCompareCommand.php
+.TP
+.B --json
+Boolean flag. Extracted via static analysis from DiffCompareCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

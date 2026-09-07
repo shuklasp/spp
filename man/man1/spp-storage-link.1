@@ -1,23 +1,20 @@
-.TH SPP-storage-link 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-storage-link 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-storage:link
-.PP
- \- Create symbolic links for public storage
+spp-storage-link \- Create symbolic links for public storage
+.SH SYNOPSIS
+.B php spp.php storage:link
+[OPTIONS]
 .SH DESCRIPTION
 Create symbolic links for public storage
 .PP
-.SH SYNOPSIS
-php spp.php storage:link [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from StorageLinkCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br

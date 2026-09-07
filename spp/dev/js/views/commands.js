@@ -7,9 +7,11 @@ export default class CommandsView extends SPPUX.BaseComponent {
         this.state = {
             categories: {},
             loading: true,
+            filterTerm: '',
             activeCommand: null,
             commandUI: '',
-            terminalOutput: ''
+            terminalOutput: '',
+            executing: false
         };
         await this.fetchCommands();
     }
@@ -44,6 +46,9 @@ export default class CommandsView extends SPPUX.BaseComponent {
     }
 
     async executeCommand(cmdName, argsString = null) {
+        if (!cmdName) cmdName = this.state.activeCommand;
+        if (!cmdName) return;
+
         let args = argsString;
         if (args === null) {
             const input = document.getElementById('cmdArgs');
@@ -51,53 +56,92 @@ export default class CommandsView extends SPPUX.BaseComponent {
         }
 
         const initialTerminal = `> php spp.php ${cmdName} ${args}\nExecuting...`;
-        this.setState({ terminalOutput: initialTerminal });
+        this.setState({ terminalOutput: initialTerminal, executing: true });
 
         try {
             const res = await this.admin.api('execute_command', { command: cmdName, args: args });
             if (res.success) {
-                this.setState({ terminalOutput: initialTerminal + '\n\n' + res.data.output });
+                this.setState({ terminalOutput: initialTerminal + '\n\n' + (res.data.output || '(Command completed successfully with no output)'), executing: false });
             } else {
                 let errText = initialTerminal + '\n\nERROR: ' + res.message;
                 if (res._debug_output) {
                     errText += '\n\nDEBUG: ' + res._debug_output;
                 }
-                this.setState({ terminalOutput: errText });
+                this.setState({ terminalOutput: errText, executing: false });
             }
         } catch (e) {
-            this.setState({ terminalOutput: initialTerminal + '\n\nEXCEPTION: ' + e.message });
+            this.setState({ terminalOutput: initialTerminal + '\n\nEXCEPTION: ' + e.message, executing: false });
         }
     }
 
+    copyTerminalOutput() {
+        if (this.state.terminalOutput) {
+            navigator.clipboard.writeText(this.state.terminalOutput);
+            if (this.admin.notify) this.admin.notify("Terminal output copied to clipboard", "success");
+        }
+    }
+
+    clearTerminal() {
+        this.setState({ terminalOutput: '' });
+    }
+
     render() {
-        // Expose executeCommand globally so inline scripts in command UIs can call it
+        // Expose executeCommand and submitActiveCommand globally so form submissions and scripts work seamlessly
         window.executeCommand = (cmdName, args) => this.executeCommand(cmdName, args);
+        window.submitActiveCommand = () => {
+            const input = document.getElementById('cmdArgs');
+            const args = input ? input.value : '';
+            this.executeCommand(this.state.activeCommand, args);
+        };
 
         if (this.state.loading) {
             return SPPUX.html`<div class="loading-state"><div class="sppux-spinner"></div> Loading Command Center...</div>`;
         }
 
-        // Build Sidebar
-        let sidebarHtml = Object.entries(this.state.categories).map(([prefix, cmds]) => SPPUX.html`
-            <div class="category">
-                <div class="category-title" style="font-weight:bold; margin-top:15px; color:var(--primary); text-transform:uppercase;">${prefix}</div>
-                ${cmds.map(cmd => SPPUX.html`
-                    <div class="cmd-item" style="padding: 5px 10px; cursor:pointer;" 
-                        @click=${() => this.loadCommandUI(cmd.name)}>
-                        <span style="color:var(--text)">${cmd.name}</span>
+        const filter = (this.state.filterTerm || '').toLowerCase().trim();
+
+        // Build Sidebar with search filter
+        let filteredCount = 0;
+        let sidebarHtml = Object.entries(this.state.categories).map(([prefix, cmds]) => {
+            const matchingCmds = cmds.filter(cmd => {
+                if (!filter) return true;
+                return cmd.name.toLowerCase().includes(filter) || (cmd.description && cmd.description.toLowerCase().includes(filter));
+            });
+
+            if (matchingCmds.length === 0) return '';
+            filteredCount += matchingCmds.length;
+
+            return SPPUX.html`
+                <div class="category" style="margin-bottom: 12px;">
+                    <div class="category-title" style="font-weight:700; font-size:0.75rem; color:var(--primary); text-transform:uppercase; letter-spacing:0.05em; padding: 4px 8px;">
+                        ${prefix} (${matchingCmds.length})
                     </div>
-                `)}
-            </div>
-        `);
+                    ${matchingCmds.map(cmd => {
+                        const isActive = this.state.activeCommand === cmd.name;
+                        return SPPUX.html`
+                            <div class="cmd-item ${isActive ? 'active' : ''}" 
+                                style="padding: 6px 10px; border-radius: 6px; margin: 2px 0; cursor:pointer; font-size: 0.85rem; font-family: monospace; transition: all 0.15s; background: ${isActive ? 'var(--primary-glow, rgba(99,102,241,0.2))' : 'transparent'}; border-left: ${isActive ? '3px solid var(--primary)' : '3px solid transparent'};" 
+                                @click=${() => this.loadCommandUI(cmd.name)}
+                                title="${cmd.description || cmd.name}">
+                                <span style="color:${isActive ? 'var(--text-bright)' : 'var(--text)'}; font-weight:${isActive ? '600' : '400'};">${cmd.name}</span>
+                            </div>
+                        `;
+                    })}
+                </div>
+            `;
+        });
 
         return SPPUX.html`
             <style>
-                .cmd-layout { display: flex; gap: 20px; height: calc(100vh - 120px); }
-                .cmd-sidebar { width: 250px; background: var(--glass-bg); border-radius: 8px; padding: 15px; overflow-y: auto; }
-                .cmd-main { flex: 1; display: flex; flex-direction: column; gap: 20px; }
-                .cmd-ui-panel { background: var(--glass-bg); padding: 20px; border-radius: 8px; }
-                .cmd-terminal { flex: 1; background: #1e1e1e; color: #d4d4d4; padding: 15px; border-radius: 8px; font-family: monospace; overflow-y: auto; white-space: pre-wrap; }
-                .cmd-item:hover { background: rgba(0,0,0,0.05); }
+                .cmd-layout { display: flex; gap: 20px; height: calc(100vh - 140px); }
+                .cmd-sidebar { width: 280px; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 8px; padding: 15px; display: flex; flex-direction: column; }
+                .cmd-sidebar-list { flex: 1; overflow-y: auto; margin-top: 10px; }
+                .cmd-main { flex: 1; display: flex; flex-direction: column; gap: 15px; overflow-y: auto; }
+                .cmd-ui-panel { background: var(--glass-bg); border: 1px solid var(--glass-border); padding: 20px; border-radius: 8px; }
+                .cmd-terminal-wrapper { flex: 1; min-height: 250px; display: flex; flex-direction: column; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; overflow: hidden; }
+                .cmd-terminal-header { display: flex; justify-content: space-between; align-items: center; background: #1e293b; padding: 8px 14px; font-size: 0.8rem; color: #94a3b8; font-family: monospace; }
+                .cmd-terminal { flex: 1; color: #38bdf8; padding: 15px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 0.85rem; overflow-y: auto; white-space: pre-wrap; line-height: 1.5; }
+                .cmd-item:hover { background: rgba(255,255,255,0.05) !important; }
                 .command-ui-container h3 { margin-top: 0; }
                 .spp-input { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid var(--glass-border); border-radius: 4px; background: var(--glass-bg); color: var(--text); }
                 .spp-btn { padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
@@ -106,16 +150,44 @@ export default class CommandsView extends SPPUX.BaseComponent {
             
             <div class="cmd-layout">
                 <div class="cmd-sidebar">
-                    ${sidebarHtml}
+                    <div style="padding-bottom: 8px; border-bottom: 1px solid var(--glass-border);">
+                        <input type="text" 
+                            class="spp-element" 
+                            placeholder="Search 240+ commands..." 
+                            value="${this.state.filterTerm}"
+                            @input=${(e) => this.setState({ filterTerm: e.target.value })}
+                            style="width: 100%; padding: 7px 10px; font-size: 0.82rem; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-bright);">
+                        <div style="font-size: 0.7rem; color: var(--text-dim); margin-top: 6px;">
+                            ${filter ? `Found ${filteredCount} matching commands` : `Total: 247 registered commands`}
+                        </div>
+                    </div>
+                    <div class="cmd-sidebar-list">
+                        ${sidebarHtml}
+                    </div>
                 </div>
                 <div class="cmd-main">
                     <div class="cmd-ui-panel">
                         ${this.state.activeCommand 
                             ? new SPPUX.TrustedHTML(this.state.commandUI) 
-                            : SPPUX.html`<div style="color:var(--text-dim); text-align:center; padding: 40px;">Select a command from the left panel</div>`}
+                            : SPPUX.html`
+                                <div style="color:var(--text-dim); text-align:center; padding: 40px;">
+                                    <div style="font-size: 2.5rem; margin-bottom: 10px;">⚡</div>
+                                    <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-bright); margin-bottom: 6px;">CLI Command Center</div>
+                                    <p>Select any framework command from the sidebar to inspect its definition, parameters, and execute it live.</p>
+                                </div>
+                            `}
                     </div>
-                    <div class="cmd-terminal" style="${this.state.terminalOutput ? '' : 'display:none;'}">
-                        ${this.state.terminalOutput}
+                    <div class="cmd-terminal-wrapper" style="${this.state.terminalOutput ? '' : 'display:none;'}">
+                        <div class="cmd-terminal-header">
+                            <span>TERMINAL OUTPUT ${this.state.executing ? '⏳ Running...' : '✓'}</span>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn ghost-btn btn-sm" style="padding: 2px 8px; font-size: 0.75rem;" @click=${() => this.copyTerminalOutput()}>📋 Copy</button>
+                                <button class="btn ghost-btn btn-sm" style="padding: 2px 8px; font-size: 0.75rem;" @click=${() => this.clearTerminal()}>✕ Clear</button>
+                            </div>
+                        </div>
+                        <div class="cmd-terminal">
+                            ${this.state.terminalOutput}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -123,7 +195,6 @@ export default class CommandsView extends SPPUX.BaseComponent {
     }
 
     afterUpdate() {
-        // Execute any scripts embedded in the loaded command UI
         if (this.state.activeCommand && this.state.commandUI) {
             const container = document.querySelector('.cmd-ui-panel');
             if (container) {

@@ -1,27 +1,25 @@
-.TH SPP-module-update 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-module-update 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-module:update
-.PP
- \- Execute the update hook for a specific module
+spp-module-update \- Execute the update hook for a specific module
+.SH SYNOPSIS
+.B php spp.php module:update
+[OPTIONS]
 .SH DESCRIPTION
 Execute the update hook for a specific module
 .PP
-.SH SYNOPSIS
-php spp.php module:update [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--from=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--to=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --from=
+Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
+.TP
+.B --to=
+Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

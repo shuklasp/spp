@@ -1,23 +1,21 @@
-.TH SPP-workflow-dump 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-workflow-dump 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-workflow:dump
-.PP
- \- Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+spp-workflow-dump \- Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+.SH SYNOPSIS
+.B php spp.php workflow:dump
+[OPTIONS]
 .SH DESCRIPTION
 Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
 .PP
-.SH SYNOPSIS
-php spp.php workflow:dump [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--format=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--file=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --format=
+Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
+.TP
+.B --file=
+Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

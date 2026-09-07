@@ -20,6 +20,7 @@
 import { Signal, Computed, effect, batch, createStore, SPPStore } from './core/reactive.js';
 import { enqueue, flush, forceFlush, startBatch, endBatch } from './core/scheduler.js';
 import { TrustedHTML, html, Fragment, consumePendingHandlers, _pendingHandlers, render, repeat, until, portal, ref, bind, action } from './core/template.js';
+import { TemplateResult } from './core/parts.js';
 import { registerHandler, removeHandler, removeAllHandlers, initDelegation, _handlerRegistry } from './core/events.js';
 import { reconcileDOM, patchAttributes, longestIncreasingSubsequence } from './core/reconciler.js';
 import { ErrorBoundaryMixin, findNearestErrorBoundary } from './core/error-boundary.js';
@@ -27,7 +28,7 @@ import { bootSPPLive } from './spplive.js';
 
 // ─── Re-exports for ES Module consumers ───────────────────────────
 
-export { TrustedHTML, html, Fragment, Signal, Computed, SPPStore, repeat, until, portal, ref, bind, action };
+export { TrustedHTML, html, Fragment, TemplateResult, Signal, Computed, SPPStore, repeat, until, portal, ref, bind, action };
 export { effect, batch, createStore };
 export { defineElement, bootSPPLive };
 
@@ -540,6 +541,19 @@ export class BaseComponent {
 
     interpolateTemplate(str, ctx) {
         if (!str) return '';
+        
+        // [ENTERPRISE FIX] Prevent DOM XSS by HTML-escaping interpolated string values.
+        // Unescaped interpolation into innerHTML allows script injection if state contains untrusted data.
+        const escapeHtml = (unsafe) => {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                 .replace(/&/g, "&amp;")
+                 .replace(/</g, "&lt;")
+                 .replace(/>/g, "&gt;")
+                 .replace(/"/g, "&quot;")
+                 .replace(/'/g, "&#039;");
+        };
+
         return str.replace(/\$\{([a-zA-Z0-9_.\-]+)\}/g, (match, path) => {
             const parts = path.split('.');
             let current = ctx;
@@ -547,7 +561,7 @@ export class BaseComponent {
                 if (current === null || current === undefined) return '';
                 current = current[part];
             }
-            return (current !== null && current !== undefined) ? String(current) : '';
+            return (current !== null && current !== undefined) ? escapeHtml(current) : '';
         });
     }
 
@@ -724,8 +738,16 @@ export class BaseComponent {
             });
         }
 
-        // Unregister from global component set
+        // Unregister from global component set and dispose children to prevent memory leaks
         if (window.SPPUX && SPPUX._components) {
+            // Traverse active components to find and dispose children residing inside this container
+            if (this.container) {
+                for (const child of SPPUX._components) {
+                    if (child !== this && child.container && this.container.contains(child.container)) {
+                        child.dispose();
+                    }
+                }
+            }
             SPPUX._components.delete(this);
         }
 
@@ -838,6 +860,7 @@ export class SPPForm extends BaseComponent {
 export const SPPUX = {
     // Core classes
     TrustedHTML,
+    TemplateResult,
     html,
     Fragment,
     SPPStore,
@@ -930,7 +953,11 @@ export const SPPUX = {
 
     render: (template, container) => {
         if (!template || !container) return;
-        container.innerHTML = template.toString();
+        if (template instanceof TemplateResult) {
+            render(template, container);
+        } else {
+            container.innerHTML = typeof template.toString === 'function' ? template.toString() : String(template);
+        }
     },
 
     _components: new Set(),

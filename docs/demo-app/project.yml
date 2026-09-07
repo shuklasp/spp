@@ -1,0 +1,46 @@
+title: 'My Demo App'
+description: 'Documentation for My Demo App'
+default_version: v1
+versions:
+    v1: docs/demo-app/pages
+pages_dir: docs/demo-app/pages
+blog_dir: docs/demo-app/blog
+logo: /school1/public/uploads/logo_6a97dae39963f.jpg
+motto: 'Documentation for My Demo App'
+links:
+    website: 'https://satyalab.com'
+    source: 'https://github.com/shuklasp/spp'
+    forum: '/school1/sppdocs/forums?projectId=demo-app'
+    issues: '/school1/sppdocs/issues?projectId=demo-app'
+    custom: [{ icon: 💬, title: 'Discord Community', url: 'https://discord.gg/example' }, { icon: ⚡, title: 'API Reference', url: 'https://api.example.com/v1' }, { icon: 📦, title: 'NPM Package', url: 'https://npmjs.com/package/spp-docs' }]
+releases: {  }
+sidebar:
+    'Getting Started': [{ Welcome: index }]
+acl:
+    read: ['*']
+    write: [admin, editor]
+features:
+    docs: true
+    blog: true
+    book_export: true
+    issues: { enabled: true, driver: internal }
+    milestones: true
+    pm_dashboard: true
+    forums: { enabled: true, driver: internal }
+    views: false
+    taxonomy: false
+    blocks: false
+    modules: false
+    schemas: false
+    media: true
+    openapi: false
+    i18n: false
+    automations: false
+    webhooks: false
+    lms: true
+storage: json
+forums_guest_posting: false
+members:
+    prof_smith: instructor
+    ta_john: instructor
+    random_user: instructor

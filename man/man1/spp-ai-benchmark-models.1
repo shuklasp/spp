@@ -1,23 +1,21 @@
-.TH SPP-ai-benchmark-models 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ai-benchmark-models 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-ai:benchmark:models
-.PP
- \- Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
+spp-ai-benchmark-models \- Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
+.SH SYNOPSIS
+.B php spp.php ai:benchmark:models
+[OPTIONS]
 .SH DESCRIPTION
 Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
 .PP
-.SH SYNOPSIS
-php spp.php ai:benchmark:models [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--provider=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--models=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --provider=
+Expects a value. Extracted via static analysis from AIBenchmarkCommand.php
+.TP
+.B --models=
+Expects a value. Extracted via static analysis from AIBenchmarkCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

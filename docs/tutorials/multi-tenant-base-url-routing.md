@@ -95,3 +95,7 @@ The base URL calculation in `ViewRouter::showPage()` was refactored in both the 
 ```
 
 This ensures flawless, context-aware multi-tenant routing across all view paradigms.
+
+
+### Case-Insensitive Matching and Subdirectory Normalization
+In recent updates to SPP Framework, the router now correctly leverages \APP_BASE_URI\ for normalizing subdirectories (e.g. \C:/projects/school1\). Instead of relying on potentially mismatching OS file paths (which could break Alias configurations in Apache), \class.scheduler.php\ reliably strips the \APP_BASE_URI\ prefix from the incoming \REQUEST_URI\. Furthermore, both \class.scheduler.php\ and \class.spprouter.php\ have been upgraded to enforce **strict case-insensitive route resolution** using \stripos\ and \strcasecmp\. This ensures that a user typing \/School1/SPPDocs\ will correctly match the \/sppdocs\ route without throwing a fallback 404 error.

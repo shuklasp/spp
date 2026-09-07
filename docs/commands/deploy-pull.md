@@ -1,22 +1,20 @@
 ## `deploy:pull`
 
-**Purpose**: 
+**Description**: 
 
 ### Synopsis
 ```bash
 php spp.php deploy:pull [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--force` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--debug` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPullCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeployPullCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \ZipArchive, \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
 

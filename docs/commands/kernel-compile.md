@@ -1,16 +1,16 @@
 ## `kernel:compile`
 
-**Purpose**: Compiles the WebOS Kernel into the FastCGI performance cache.
+**Description**: Compiles the WebOS Kernel into the FastCGI performance cache.
 
 ### Synopsis
 ```bash
 php spp.php kernel:compile [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

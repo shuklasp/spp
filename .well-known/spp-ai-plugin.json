@@ -1,0 +1,16 @@
+{
+    "schema_version": "v1",
+    "name_for_model": "spp_application_framework",
+    "name_for_human": "SPP Core Enterprise Hub",
+    "description_for_model": "Pluggable module infrastructure interface enabling tool discovery, layout updates, and zero-trust execution queries.",
+    "auth": {
+        "type": "none"
+    },
+    "api": {
+        "type": "openapi",
+        "url": "spp/sppdocs/api.php?__svc=openapi_spec"
+    },
+    "logo_url": "spp/sppdocs/spp-logo.png",
+    "contact_email": "support@sppframework.internal",
+    "legal_info_url": "spp/sppdocs/legal"
+}

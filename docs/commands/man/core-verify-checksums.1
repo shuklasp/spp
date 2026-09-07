@@ -1,0 +1,27 @@
+.TH "core:verify-checksums" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+core:verify-checksums \- Verify integrity of core SPP framework files using SHA-256 checksums
+.SH SYNOPSIS
+.B php spp.php core:verify-checksums
+[\fB\-\-generate\fR]
+[\fB\-\-strict\fR]
+[\fB\-\-json\fR]
+.SH DESCRIPTION
+\fBcore:verify-checksums\fR verifies that all core engine files within the SPP framework remain untouched, authentic, and consistent with known baseline hashes. It detects modified code, deleted files, and untracked injected scripts.
+.SH OPTIONS
+.TP
+\fB\-\-generate\fR
+Generate or regenerate the baseline \fBspp/etc/checksums.json\fR signature manifest.
+.TP
+\fB\-\-strict\fR
+Fail with a non-zero exit code if any untracked or modified files are detected.
+.TP
+\fB\-\-json\fR
+Emit machine-readable verification summary as JSON.
+.SH UNDER THE HOOD
+.IP \(bu 3
+Filesystem traversal: Iterates through \fBspp/core\fR and \fBspp/modules/spp\fR.
+.IP \(bu 3
+Cryptographic hashing: Computes SHA-256 digests using PHP native hashing functions.
+.IP \(bu 3
+Manifest persistence: Compares against or generates \fBspp/etc/checksums.json\fR.

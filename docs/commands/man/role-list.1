@@ -1,0 +1,17 @@
+.TH "role:list" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+role:list \- Lists security roles and access groups.
+.SH SYNOPSIS
+.B php spp.php role:list
+[\-\-json] [\-\-app=\fIAPP\fR]
+.SH DESCRIPTION
+Fetches and displays defined security roles from the framework database.
+.SH OPTIONS
+.TP
+.BR \-\-json
+Outputs results in structured JSON format.
+.TP
+.BR \-\-app =\fIAPP\fR
+Targets a specific application context.
+.SH UNDER THE HOOD
+Queries the spp_roles table and serializes output.

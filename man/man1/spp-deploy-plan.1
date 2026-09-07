@@ -1,35 +1,27 @@
-.TH SPP-deploy-plan 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-plan 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-deploy:plan
-.PP
- \- Perform a dry run to view file changes and raw database SQL diffs before deploying
+spp-deploy-plan \- Perform a dry run to view file changes and raw database SQL diffs before deploying
+.SH SYNOPSIS
+.B php spp.php deploy:plan
+[OPTIONS]
 .SH DESCRIPTION
 Perform a dry run to view file changes and raw database SQL diffs before deploying
 .PP
-.SH SYNOPSIS
-php spp.php deploy:plan [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php deploy:plan <target_uri> [--key=YOUR_API_KEY] [--no-db]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--key=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--no-db` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--status` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--sql` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--Create Table` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --key=
+Expects a value. Extracted via static analysis from DeployPlanCommand.php
+.TP
+.B --no-db
+Boolean flag. Extracted via static analysis from DeployPlanCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
-.br
-\(bu Instantiates internal components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Instantiates key components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
+.br

@@ -1,25 +1,23 @@
-.TH SPP-migrate-make 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-migrate-make 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-migrate:make
-.PP
- \- Generate a new database migration class.
+spp-migrate-make \- Generate a new database migration class.
+.SH SYNOPSIS
+.B php spp.php migrate:make
+[OPTIONS]
 .SH DESCRIPTION
 Generate a new database migration class.
 .PP
-.SH SYNOPSIS
-php spp.php migrate:make [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--name=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --name=
+Expects a value. Extracted via static analysis from MakeCommand.php
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from MakeCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: database.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: database.
+.br

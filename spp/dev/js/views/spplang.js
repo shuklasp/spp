@@ -4,7 +4,6 @@
  * Provides a highly polished glassmorphic interface to scan codebases,
  * search/filter keys, edit translations, and update translation records.
  */
-import BaseComponent from '../../../modules/spp/sppux/js/BaseComponent.js';
 
 export default class SpplangView extends BaseComponent {
     async onInit() {

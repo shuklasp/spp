@@ -1,22 +1,18 @@
-.TH SPP-forge 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-forge 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-forge
-.PP
- \- Unified automation and LiveSync engine
+spp-forge \- Unified automation and LiveSync engine
+.SH SYNOPSIS
+.B php spp.php forge
+[OPTIONS]
 .SH DESCRIPTION
 Unified automation and LiveSync engine
 .PP
-.SH SYNOPSIS
-php spp.php forge [OPTIONS]
-.PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: \SPP\Core\ModuleCompiler, \SPP\Core\VersionManager, MakeUXComponentCommand, \RecursiveIteratorIterator, \RecursiveDirectoryIterator, module\n, UX.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: \SPP\Core\ModuleCompiler, \SPP\Core\VersionManager, MakeUXComponentCommand, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+.br

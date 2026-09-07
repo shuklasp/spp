@@ -765,28 +765,42 @@ if (!function_exists('live_preview_migration')) {
 if (!function_exists('live_check_auth')) {
     function live_check_auth($la, $params)
     {
-        $appContext = $params['appname'] ?? 'default';
-        if (\SPPMod\SPPAuth\SPPAuth::check()) {
+        $username = null;
+        $userId = '1';
+        if (isset($_SESSION['spp_admin_fallback'])) {
+            $username = 'admin';
+            $userId = '0';
+        } elseif (isset($_SESSION['spp_admin_user'])) {
+            $username = $_SESSION['spp_admin_user'];
+        } elseif (\SPP\SPPSession::sessionVarExists('__sppauth_user__')) {
+            $username = \SPP\SPPSession::getSessionVar('__sppauth_user__');
+        } elseif (class_exists('\\SPPMod\\SPPAuth\\SPPAuth') && \SPPMod\SPPAuth\SPPAuth::check()) {
             $user = \SPPMod\SPPAuth\SPPAuth::user();
             $userId = (string) \SPPMod\SPPAuth\SPPAuth::guard()->id();
-            $username = $userId;
-            if ($user) {
-                $username = $user->username ?? $user->get('UserName') ?? $userId;
-            }
-            return $la->setData(['username' => $username, 'user_id' => $userId])->notify("Authenticated.", "success");
-        } else {
-            return $la->setStatus('error')->notify("Please Authenticate yourself.", "error");
+            $username = $user ? ($user->username ?? $user->get('UserName') ?? $userId) : $userId;
         }
+
+        if ($username) {
+            return $la->setData(['username' => $username, 'user_id' => $userId])->notify("Authenticated.", "success");
+        }
+        return $la->setStatus('error')->notify("Please Authenticate yourself.", "error");
     }
 }
 
 if (!function_exists('live_get_profile')) {
     function live_get_profile($la, $params)
     {
-        $appContext = $params['appname'] ?? 'default';
-        if (\SPPMod\SPPAuth\SPPAuth::check()) {
-            $user = \SPPMod\SPPAuth\SPPAuth::user();
-            sendResponse(true, $user->getValues(), "Profile retrieved.");
+        if (function_exists('live_Auth_Profile')) {
+            return live_Auth_Profile($la, $params);
+        }
+        $username = $_SESSION['spp_admin_user'] ?? (isset($_SESSION['spp_admin_fallback']) ? 'admin' : null);
+        if ($username) {
+            return $la->setData([
+                'id' => 1,
+                'username' => $username,
+                'email' => $username . '@spp.local',
+                'role' => 'Administrator'
+            ])->notify("Profile retrieved.", "success");
         }
         return $la->setStatus('error')->notify("Profile not found.", "error");
     }

@@ -1,26 +1,22 @@
-.TH SPP-integration-seed 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-integration-seed 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-integration:seed
-.PP
- \- Bulk seed local SPP users into a specific integration target
+spp-integration-seed \- Bulk seed local SPP users into a specific integration target
+.SH SYNOPSIS
+.B php spp.php integration:seed
+[OPTIONS]
 .SH DESCRIPTION
 Bulk seed local SPP users into a specific integration target
 .PP
-.SH SYNOPSIS
-php spp.php integration:seed [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php integration:seed <app_name>
-.PP
+.br
+
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
-.br
-\(bu Instantiates internal components: DBAdapter.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Instantiates key components: DBAdapter.
+.br

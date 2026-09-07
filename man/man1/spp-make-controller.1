@@ -1,25 +1,22 @@
-.TH SPP-make-controller 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-controller 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:controller
-.PP
- \- Create a new controller class
+spp-make-controller \- Create a new controller class
+.SH SYNOPSIS
+.B php spp.php make:controller
+[OPTIONS]
 .SH DESCRIPTION
 Create a new controller class
 .PP
-.SH SYNOPSIS
-php spp.php make:controller [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php make:controller <name> [--app=appname] [--resource]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--resource` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --resource
+Boolean flag. Extracted via static analysis from MakeControllerCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: controller.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: controller.
 .br
-.PP
-.PP

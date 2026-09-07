@@ -1,0 +1,41 @@
+id: categories
+title: 'Documentation Categories'
+description: ''
+hierarchical: true
+terms:
+  architecture:
+    name: 'Architecture & Core'
+    slug: architecture
+    parent: null
+    description: 'Kernel, scheduler, and system architecture'
+    color: '#3b82f6'
+    icon: 🏛️
+  tutorials:
+    name: 'Tutorials & Guides'
+    slug: tutorials
+    parent: null
+    description: 'Hands-on guided walkthroughs'
+    color: '#10b981'
+    icon: 📚
+  security:
+    name: 'Security & RBAC'
+    slug: security
+    parent: architecture
+    description: 'Authentication, authorization, and audit logs'
+    color: '#ef4444'
+    icon: 🛡️
+  framework-architecture:
+    name: 'Framework Architecture'
+    slug: framework-architecture
+    parent: null
+    description: 'Core architectural concepts and structural diagrams'
+    color: '#3b82f6'
+    icon: 🏷️
+  cqrs-and-event-sourcing:
+    name: 'CQRS and Event Sourcing'
+    slug: cqrs-and-event-sourcing
+    parent: framework-architecture
+    description: 'Write models, projections, and snapshots'
+    color: '#3b82f6'
+    icon: 🏷️
+updated_at: 1788605004

@@ -1,6 +1,6 @@
 ## `make:sppview`
 
-**Purpose**: Scaffold a new native AST SPPView template
+**Description**: Scaffold a new native AST SPPView template
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php make:sppview <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: native.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: native.
 

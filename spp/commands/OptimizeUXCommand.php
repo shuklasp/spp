@@ -22,9 +22,14 @@ class OptimizeUXCommand extends Command
         $appname = $this->getOption($args, 'app', 'default');
         echo "Starting SPP-UX AOT Optimization for app: {$appname}...\n";
 
-        // Determine base path for the app (simplification for this proof of concept)
-        $baseDir = dirname(__DIR__, 3); 
+        // Determine base path for the app
+        $baseDir = defined('SPP_APP_DIR') ? SPP_APP_DIR : dirname(__DIR__, 2); 
         
+        $publicDir = "{$baseDir}/public";
+        if (!is_dir($publicDir)) {
+            @mkdir($publicDir, 0777, true);
+        }
+
         $jsFiles = $this->scanDirectoryForJs("{$baseDir}/spp/modules/spp/drishyam/js");
         // Also scan app specific JS files if needed
         $appDir = "{$baseDir}/src/{$appname}";

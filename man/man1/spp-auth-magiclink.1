@@ -1,0 +1,18 @@
+.TH SPP-auth-magiclink 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-auth-magiclink \- Generate a one-time passwordless Magic Link for a user
+.SH SYNOPSIS
+.B php spp.php auth:magiclink
+[OPTIONS]
+.SH DESCRIPTION
+Generate a one-time passwordless Magic Link for a user
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB, SPPUser.
+.br

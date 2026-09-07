@@ -1,6 +1,6 @@
 ## `diff:rollback`
 
-**Purpose**: Rollback an entity to a previous state
+**Description**: Rollback an entity to a previous state
 
 ### Synopsis
 ```bash
@@ -13,12 +13,12 @@ Usage: php spp.php diff:rollback --type=<ModelClass> --id=<ID> --rev=<RevID>
 
 ```
 
-### Options Available
-- `--type=` : Expects a value. Extracted via static analysis.
-- `--id=` : Expects a value. Extracted via static analysis.
-- `--rev=` : Expects a value. Extracted via static analysis.
+### Options
+- `--type=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
+- `--id=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
+- `--rev=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

@@ -1,6 +1,6 @@
 ## `make:module`
 
-**Purpose**: Create a new SPP module
+**Description**: Create a new SPP module (System or App level)
 
 ### Synopsis
 ```bash
@@ -9,15 +9,17 @@ php spp.php make:module [OPTIONS]
 
 ### Extended Usage
 ```text
-Usage: php spp.php make:module <name> [--scope=spp|contrib|app]
+Usage: php spp.php make:module <name> [--scope=spp|optional|contrib|app] [--app=AppName]
 
 ```
 
-### Options Available
-- `--scope=` : Expects a value. Extracted via static analysis.
+### Options
+- `--scope=` : Expects a value. Extracted via static analysis from MakeModuleCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from MakeModuleCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: SPP.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: SPP, MyService.
 

@@ -346,6 +346,15 @@ created_at: 1780656744',
       'cache_host' => '127.0.0.1',
       'cache_port' => 6379,
     ),
+    'SPPDocs' => 
+    array (
+      'base_url' => '/sppdocs',
+      'table_prefix' => 'SPPDocs_',
+      'type' => 'mixed',
+      'shared_group' => 'core',
+      'etc_path' => 'src/SPPDocs/etc',
+      'src_path' => 'src/SPPDocs',
+    ),
     'spp_docs' => 
     array (
       'base_url' => '/spp/docs',
@@ -355,7 +364,7 @@ created_at: 1780656744',
       'app_init' => 'init.php',
     ),
   ),
-  'base_app' => 'lekhak',
+  'base_app' => 'SPPDocs',
   'prototyping' => 
   array (
     'auto_evolution' => 'manual',
@@ -400,5 +409,9 @@ created_at: 1780656744',
   array (
     'admin_js' => 'spp/admin/js',
     'admin_css' => 'spp/admin/css',
+  ),
+  'sppdocs' => 
+  array (
+    'auth_mode' => 'sppauth',
   ),
 );

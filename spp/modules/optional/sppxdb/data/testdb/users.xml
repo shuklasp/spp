@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database>
+  <_meta>
+    <next_id>4</next_id>
+  </_meta>
+<row id="1"><name>Bob</name><age>40</age><id>1</id></row><row id="2"><name>Bob</name><age>50</age><id>2</id></row><row id="3"><name>Bob</name><age>50</age><id>3</id></row></database>

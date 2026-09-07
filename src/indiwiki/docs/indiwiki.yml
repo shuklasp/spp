@@ -1,0 +1,6 @@
+title: "IndiWiki"
+description: "Upcoming knowledge repository and wiki platform."
+landing_view: "landing.generic"
+default_version: "v1"
+versions:
+  v1: "C:/projects/apache/school1/src/indiwiki/docs"

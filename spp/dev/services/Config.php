@@ -5,137 +5,85 @@
 
 function live_Config_InterDB_Get($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['interdb_get', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
-        } else {
-            $la->setData($data ?: []);
-        }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
+    $path = SPP_MODULES_DIR . '/spp/sppinterdb/etc/config.yml';
+    if (!file_exists($path)) {
+        return $la->setData(['mode' => 'interdb', 'mappings' => []]);
     }
+    $config = \Symfony\Component\Yaml\Yaml::parseFile($path);
+    $la->setData($config);
 }
 
 function live_Config_InterDB_Save($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['interdb_save', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
-        } else {
-            $la->setData($data ?: []);
-        }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
+    $mode = $params['mode'] ?? 'interdb';
+    $mappings = $params['mappings'] ?? [];
+    try {
+        $path = SPP_MODULES_DIR . '/spp/sppinterdb/etc/config.yml';
+        $yaml = \Symfony\Component\Yaml\Yaml::dump(['mode' => $mode, 'mappings' => $mappings], 4, 4);
+        file_put_contents($path, $yaml);
+        $la->notify("InterDB configuration saved.", "success");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Failed to save: " . $e->getMessage());
     }
 }
 
 function live_Config_Ajax_List($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['ajax_list', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
-        } else {
-            $la->setData($data ?: []);
-        }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
-    }
+    $services = \SPPMod\SPPAPI\SPPAjax::listServices();
+    $la->setData(['services' => $services]);
 }
 
 function live_Config_Ajax_Save($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['ajax_save', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
-        } else {
-            $la->setData($data ?: []);
-        }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
+    $name = $params['name'] ?? '';
+    $script = $params['script'] ?? '';
+    $method = $params['method'] ?? 'POST';
+    $source = $params['source'] ?? 'yaml';
+
+    if (empty($name) || empty($script)) {
+        return $la->setStatus('error')->notify("Service name and script are required.");
     }
+
+    \SPPMod\SPPAPI\SPPAjax::registerService($name, $script, $method, $source);
+    $la->notify("Service '{$name}' registered successfully.", "success");
 }
 function live_Config_GetGlobalSettings($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['getglobalsettings', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
-        } else {
-            $la->setData($data ?: []);
-        }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
+    $path = SPP_BASE_DIR . '/etc/global-settings.yml';
+    if (!file_exists($path)) {
+        return $la->setStatus('error')->notify("Global settings file not found.");
     }
+    $raw = file_get_contents($path);
+    $parsed = \Symfony\Component\Yaml\Yaml::parse($raw);
+    $la->setData([
+        'raw' => $raw,
+        'parsed' => $parsed
+    ]);
 }
 
 function live_Config_SaveGlobalSettings($la, $params)
 {
-    $res = \SPP\CLI\CommandManager::execute('dev:config', ['saveglobalsettings', '--payload' => json_encode($params), '--json' => '1']);
-    if ($res['success']) {
-        $data = json_decode($res['output'], true);
-        if (isset($data['success']) && !$data['success']) {
-            $la->setStatus('error')->notify($data['error'] ?? 'Command failed.');
-        } elseif (isset($data['modal'])) {
-            $la->modal($data['modal']['title'], $data['modal']['html'], $data['modal']['buttons'] ?? []);
-        } elseif (isset($data['message'])) {
-            $la->notify($data['message']);
-            if (!empty($data['closeModal'])) $la->closeModal();
-            if (!empty($data['refresh'])) $la->refresh();
-            if (!empty($data['executeClientCode'])) $la->executeClientCode($data['executeClientCode']);
-            if (!empty($data['redirect'])) $la->redirect($data['redirect']);
+    $mode = $params['mode'] ?? 'form';
+    $path = SPP_BASE_DIR . '/etc/global-settings.yml';
+
+    try {
+        if ($mode === 'yaml') {
+            $yaml = $params['yaml'] ?? '';
+            if (empty($yaml))
+                return $la->setStatus('error')->notify("YAML content is empty.");
+            file_put_contents($path, $yaml);
         } else {
-            $la->setData($data ?: []);
+            $data = $params['data'] ?? null;
+            if (!$data)
+                return $la->setStatus('error')->notify("No data provided.");
+            if (is_string($data))
+                $data = json_decode($data, true);
+
+            $yaml = \Symfony\Component\Yaml\Yaml::dump($data, 10, 4);
+            file_put_contents($path, $yaml);
         }
-    } else {
-        $la->setStatus('error')->notify($res['error']);
+        $la->notify("Global settings saved successfully.", "success");
+    } catch (\Exception $e) {
+        $la->setStatus('error')->notify("Save failed: " . $e->getMessage());
     }
 }

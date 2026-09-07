@@ -10,7 +10,7 @@ class SysStatusCommand extends Command
 
     public function isCLIOnly(): bool
     {
-        return true;
+        return false;
     }
 
     public function execute(array $args): void

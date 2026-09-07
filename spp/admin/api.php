@@ -142,10 +142,7 @@ function sendResponse($success, $data = [], $message = '')
     } else {
         echo $json;
     }
-    file_put_contents('C:\projects\apache\school1\session_debug.txt', print_r($_SESSION, true));
-    $res = session_write_close();
-    error_log("session_write_close result: " . ($res ? "true" : "false"));
-    error_log("session id: " . session_id());
+    session_write_close();
     exit;
 }
 
@@ -430,6 +427,7 @@ try {
         }
     }
 
+    require_once __DIR__ . '/services/CommandBridge.php';
     require_once __DIR__ . '/services/General.php';
     error_log("Dispatching action: " . $action);
 
@@ -450,7 +448,23 @@ try {
         sendResponse(false, [], "Access Denied: You do not have permission to perform '{$action}'. Contact your administrator.");
     }
 
-    \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $_REQUEST);
+    $requestData = array_merge($_GET, $_POST, $_REQUEST);
+
+    // 1. Unified CommandBridge: Execute via CLI or synchronized action
+    $bridgeRes = \SPP\Admin\Services\CommandBridge::handleAction($action, $requestData);
+    if ($bridgeRes['success'] || (isset($bridgeRes['error']) && !str_contains($bridgeRes['error'], 'not recognized by CommandBridge'))) {
+        $resData = $bridgeRes;
+        if (array_key_exists('data', $bridgeRes)) {
+            $resData = $bridgeRes['data'];
+        } else {
+            unset($resData['success'], $resData['message'], $resData['error']);
+        }
+        sendResponse($bridgeRes['success'], $resData, $bridgeRes['message'] ?? ($bridgeRes['error'] ?? ''));
+        exit;
+    }
+
+    // 2. Fallback to specialized service dispatcher
+    \SPPMod\SPPAPI\Dispatchers\ServiceDispatcher::resolveAndExecute($action, $requestData);
 } catch (\Throwable $e) {
     $errorMsg = "[" . date('Y-m-d H:i:s') . "] API FATAL ERROR: " . $e->getMessage() . " in " . $e->getFile() . " on line " . $e->getLine() . "\n" . $e->getTraceAsString() . "\n";
     file_put_contents(SPP_BASE_DIR . "/api_debug.log", $errorMsg, FILE_APPEND);

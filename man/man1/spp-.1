@@ -1,24 +1,18 @@
-.TH SPP- 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP- 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-
-.PP
- \- Test SCIM User Provisioning locally
-.SH DESCRIPTION
-Test SCIM User Provisioning locally
-.PP
+spp- \- Generate a one-time passwordless Magic Link for a user
 .SH SYNOPSIS
-php spp.php  [OPTIONS]
-.PP
-.SH EXTENDED USAGE
-Usage: php spp.php scim:test:user <username> [email]
-.PP
+.B php spp.php 
+[OPTIONS]
+.SH DESCRIPTION
+Generate a one-time passwordless Magic Link for a user
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: SCIMHandler, \ReflectionClass.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Interacts with the SPP database layer directly.
 .br
-.PP
-.PP
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB, SPPUser.
+.br

@@ -134,68 +134,46 @@ try {
                 <span class="logo-text">SPP <span>Admin</span></span>
                 <span class="mode-badge">Admin Mode</span>
             </div>
-            <div id="app-selector-container" style="margin-bottom: 1rem;"></div>
-            <div class="sidebar-search" style="padding: 0 1rem; margin-bottom: 1rem;">
+            <div id="app-selector-container" style="margin-bottom: 0.5rem;"></div>
+            <div class="sidebar-search" style="padding: 0; margin-bottom: 0.5rem;">
                 <input type="text" id="sidebar-search" class="spp-element" placeholder="Search workbench..."
-                    style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-bright);">
+                    style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-bright);">
             </div>
             <nav id="sidebar-nav">
                 <ul>
+                    <!-- 1. OPERATIONS & OVERVIEW -->
+                    <!-- CORE OPERATIONAL WORKSPACES -->
+                    <div class="sidebar-section-title"
+                        style="font-size: 0.65rem; color: #3b82f6; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
+                        Platform Operations</div>
                     <li><a href="#dashboard" class="nav-item active" data-view="dashboard"
-                            data-keywords="welcome dashboard home" title="Welcome to Developer Heaven">
-                            <span class="icon">👋</span> Welcome Dashboard
+                            data-keywords="welcome dashboard home metrics overview operational health" title="Operational Overview & Health">
+                            <span class="icon">👋</span> Operations Dashboard
                         </a></li>
-
-
-
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 2. ACCESS & SECURITY -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #f59e0b; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Security & Access</div>
                     <li><a href="#identity" class="nav-item" data-view="identity"
-                            data-keywords="identity access users roles permissions groups security login auth"
-                            title="Manage users, roles, permissions and groups">
-                            <span class="icon">🛡️</span> Identity & Access
+                            data-keywords="identity access users roles permissions groups security login auth iam api keys tokens"
+                            title="IAM Users, Roles, Groups, and API Keys">
+                            <span class="icon">🛡️</span> Identity & Access (IAM)
                         </a></li>
-                    <li><a href="#api_keys" class="nav-item" data-view="api_keys"
-                            data-keywords="api keys tokens authentication rest oauth"
-                            title="Manage API Keys for external services">
-                            <span class="icon">🔑</span> API Keys
+                    <li><a href="#database" class="nav-item" data-view="database"
+                            data-keywords="database entities tables schema models migrations xdb nosql xml interdb mesh federation"
+                            title="Unified Data Plane: Relational, XDB NoSQL & InterDB Mesh">
+                            <span class="icon">🗄️</span> Database & Storage
                         </a></li>
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 4. ADVANCED ENGINES -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #10b981; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Advanced Engines</div>
-                    <li><a href="#reports" class="nav-item" data-view="reports"
-                            data-keywords="report builder bi business intelligence analytics charts graphs"
-                            title="Business Intelligence & Dynamic Reports">
-                            <span class="icon">📊</span> Report Builder
+                    <li><a href="#apps" class="nav-item" data-view="apps"
+                            data-keywords="apps applications modules multi-app tenant switch marketplace lifecycle deploy releases"
+                            title="Multi-App Management, Modules & Deployments">
+                            <span class="icon">📱</span> Applications & Deployments
                         </a></li>
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 5. DIAGNOSTICS -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Diagnostics</div>
                     <li><a href="#system" class="nav-item" data-view="system"
-                            data-keywords="diagnostics system server phpinfo traces logs errors"
-                            title="View Server environment, PHP info, and Framework Traces">
-                            <span class="icon">🖥️</span> Diagnostics
+                            data-keywords="diagnostics system server phpinfo traces logs health errors cache queue polyglot telemetry"
+                            title="Server Environment, Diagnostics, Queue & Event Tracing">
+                            <span class="icon">🖥️</span> Observability & Diagnostics
+                        </a></li>
+                    <li><a href="#commands" class="nav-item" data-view="commands"
+                            data-keywords="cli commands console terminal execute runner spp artisan"
+                            title="Command-First CLI Runner & Execution Engine">
+                            <span class="icon">⚡</span> CLI Command Center
                         </a></li>
                 </ul>
                 <div id="app-specific-menu-container"></div>

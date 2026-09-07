@@ -1,0 +1,29 @@
+.TH "security:audit" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+security:audit \- Audit framework and application configuration for security vulnerabilities and posture
+.SH SYNOPSIS
+.B php spp.php security:audit
+[\fB\-\-app\fR=\fIappName\fR]
+[\fB\-\-strict\fR]
+[\fB\-\-json\fR]
+.SH DESCRIPTION
+\fBsecurity:audit\fR executes a comprehensive security posture check across the SPP framework and target applications. It examines environment credential entropy, session cookie configuration, file system permission boundaries, debug status in production, and public docroot database leakage.
+.SH OPTIONS
+.TP
+\fB\-\-app\fR=\fIappName\fR
+Specify the target application context to audit (e.g. SPPDocs, Lekhak).
+.TP
+\fB\-\-strict\fR
+Enforce strict security gating by treating any warnings as fatal errors (exit code 1).
+.TP
+\fB\-\-json\fR
+Output audit results as a structured JSON object for automated CI/CD security pipelines.
+.SH UNDER THE HOOD
+.IP \(bu 3
+Filesystem inspection: Checks write access on sensitive system paths (\fBspp/core\fR, \fBspp/etc\fR) and permission masks on \fB.env\fR.
+.IP \(bu 3
+Docroot analysis: Scans \fBpublic/\fR for exposed SQLite database artifacts.
+.IP \(bu 3
+Session evaluation: Inspects active PHP session cookies for \fBhttponly\fR, \fBsecure\fR, and \fBsamesite\fR flags.
+.IP \(bu 3
+Secret verification: Verifies cryptographic entropy of application and database encryption keys.

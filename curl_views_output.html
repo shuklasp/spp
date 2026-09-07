@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Dynamic Views Studio — My Demo App — SPPDocs</title>
+ <!-- Include local HTMX as per SPP rules -->
+ <script src="/school1/sppadmin/js/htmx.min.js"></script>
+ <link rel="stylesheet" href="/school1/sppdocs/css/sppdocs.css?v=1788590220">
+ <link rel="stylesheet" href="/school1/sppdocs/css/admin.css?v=1788584444">
+</head>
+<body hx-boost="true">
+ <div id="spp-progress"></div>
+ 
+ <!-- Top Header -->
+ <header class="adm-header">
+ <div class="adm-header-left">
+ <a href="/school1/sppdocs/admin" class="adm-brand-title">
+ 🚀 SPPDocs <span class="adm-brand-badge">Control Center</span>
+ </a>
+  <span class="adm-badge adm-badge-admin">👑 Global Super Admin</span>
+   <div class="adm-header-active-project" title="Active Documentation Project Scope">
+ <span class="adm-project-dot"></span>
+ <span class="adm-header-proj-prefix">Project:</span>
+ <strong class="adm-header-proj-title">My Demo App</strong>
+ <code class="adm-header-proj-code">demo-app</code>
+ </div>
+  </div>
+
+ <!-- Header Center: Interactive Search Text Box -->
+ <div class="adm-header-search-wrap">
+ <div class="adm-header-search-box" onclick="openCommandPalette('nav')" title="Search documentation, issues, commands... (Ctrl+K)">
+ <span class="adm-search-icon">🔍</span>
+ <input type="text" class="adm-header-search-input" placeholder="Search documentation, issues, commands... (Ctrl+K)" readonly onclick="openCommandPalette('nav')" onfocus="this.blur(); openCommandPalette('nav');">
+ <kbd class="adm-search-kbd">Ctrl+K</kbd>
+ </div>
+ </div>
+
+ <div class="adm-header-right">
+ <a href="/school1/sppdocs" target="_blank" hx-boost="false" class="adm-btn adm-btn-secondary adm-btn-sm">🌐 View Portal &rarr;</a>
+ <div class="adm-user-badge">
+ <div class="adm-user-avatar">A</div>
+ <span>admin</span>
+ </div>
+ <a href="/school1/sppdocs/admin/logout" hx-boost="false" class="adm-btn adm-btn-danger adm-btn-sm">Logout</a>
+ </div>
+ </header>
+
+ <!-- Main Layout -->
+ <div class="adm-layout">
+ <!-- Sidebar Navigation -->
+ <aside class="adm-sidebar">
+ <!-- Global Platform Controls -->
+ <div>
+ <div class="adm-nav-group-title">Platform Administration</div>
+ <ul class="adm-nav-list">
+ <li>
+ <a href="/school1/sppdocs/admin" class="adm-nav-link ">
+ <span>📊</span> Projects Dashboard
+ </a>
+ </li>
+  <li>
+ <a href="/school1/sppdocs/admin/global-settings" class="adm-nav-link ">
+ <span>⚙️</span> Global Platform Settings
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/users" class="adm-nav-link ">
+ <span>👥</span> User & Access Governance
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/roles" class="adm-nav-link ">
+ <span>🛡️</span> Roles & Permissions
+ </a>
+ </li>
+  </ul>
+ </div>
+
+ <!-- Project Specific Controls (if a project is active) -->
+  <div>
+ <div class="adm-nav-group-title">Project: My Demo App</div>
+ <ul class="adm-nav-list">
+ <li>
+ <a href="/school1/sppdocs/admin/project/demo-app" class="adm-nav-link ">
+ <span>🛠️</span> Project Settings & Features
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/roles?projectId=demo-app" class="adm-nav-link ">
+ <span>🛡️</span> Team Members & RBAC
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/media?project=demo-app" class="adm-nav-link ">
+ <span>🖼️</span> Media Library
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/snippets?project=demo-app" class="adm-nav-link ">
+ <span>🧩</span> Global Snippets
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/analytics?project=demo-app" class="adm-nav-link ">
+ <span>📊</span> Reader Analytics & Demand
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/webhooks?projectId=demo-app" class="adm-nav-link ">
+ <span>🪝</span> Git & Outbox Webhooks
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/automations?projectId=demo-app" class="adm-nav-link ">
+ <span>⚡</span> CI/CD Automations
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/schemas?project=demo-app" class="adm-nav-link ">
+ <span>📐</span> Schema & Content Studio
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/openapi?project=demo-app" class="adm-nav-link ">
+ <span>⚡</span> Interactive API Explorer
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/i18n?project=demo-app" class="adm-nav-link ">
+ <span>🌐</span> Multi-Language (i18n) Hub
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/views?project=demo-app" class="adm-nav-link active">
+ <span>🔍</span> Views &amp; Query Studio
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/taxonomy?project=demo-app" class="adm-nav-link ">
+ <span>🏷️</span> Taxonomy &amp; Vocabularies
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/modules?project=demo-app" class="adm-nav-link ">
+ <span>🧩</span> Modules &amp; Extensions
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/blocks?project=demo-app" class="adm-nav-link ">
+ <span>🧱</span> Regions &amp; Blocks
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/export/book?project=demo-app" target="_blank" hx-boost="false" class="adm-nav-link">
+ <span>📕</span> Full-Book PDF & Export &rarr;
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/project/demo-app" target="_blank" hx-boost="false" class="adm-nav-link">
+ <span>📖</span> Live Documentation &rarr;
+ </a>
+ </li>
+ </ul>
+ </div>
+  </aside>
+
+ <!-- Main Content -->
+ <main class="adm-main" id="adm-main-content">
+  <div class="adm-project-context-strip">
+ <div class="adm-project-context-breadcrumbs">
+ <a href="/school1/sppdocs/admin" class="adm-context-crumb">Platform</a>
+ <span class="adm-context-sep">/</span>
+ <a href="/school1/sppdocs/admin/project/demo-app" class="adm-context-crumb adm-context-project">
+ <span class="adm-context-icon">📁</span>
+ <strong class="adm-context-name">My Demo App</strong>
+ <code class="adm-context-slug">demo-app</code>
+ </a>
+  <span class="adm-context-sep">/</span>
+ <span class="adm-context-current">
+  🔍 Views &amp; Query Studio
+  </span>
+  </div>
+ <div class="adm-project-context-quicknav">
+ <a href="/school1/sppdocs/project/demo-app" target="_blank" hx-boost="false" class="adm-btn adm-btn-secondary adm-btn-xs" title="View live documentation site">
+ 📖 Live Docs &rarr;
+ </a>
+ <a href="/school1/sppdocs/admin" class="adm-btn adm-btn-secondary adm-btn-xs" title="Switch to another project">
+ ⇄ Switch Project
+ </a>
+ </div>
+ </div>
+  
+ 
+ <div class="adm-content">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+ <div>
+ <h1 style="margin: 0 0 0.35rem 0; font-size: 1.6rem; font-weight: 700; color: var(--vp-c-text-1);">
+ 📊 Dynamic Views & Display Studio
+ </h1>
+ <p style="margin: 0; color: var(--vp-c-text-2); font-size: 0.9rem;">
+ Visual query builder. Construct dynamic lists, card grids, data tables, and syndication feeds without code.
+ </p>
+ </div>
+ <div>
+ <button type="button" class="adm-btn adm-btn-primary" onclick="openCreateViewModal()">
+ ➕ Create Dynamic View
+ </button>
+ </div>
+ </div>
+
+ 
+  <!-- Views Cards Grid -->
+ <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+  <div class="adm-card" style="background: var(--vp-c-bg); border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+ <div>
+ <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+ <span class="adm-badge" style="background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; font-weight: 700; text-transform: uppercase; font-size: 0.72rem;">
+ grid
+ </span>
+ <span style="font-size: 0.78rem; color: var(--vp-c-text-3);">Collection: <strong>page</strong></span>
+ </div>
+
+ <h3 style="margin: 0 0 0.35rem 0; font-size: 1.15rem; color: var(--vp-c-text-1);">
+ All Documentation Articles
+ </h3>
+ <code style="font-size: 0.78rem; color: var(--vp-c-text-3);">all_articles</code>
+
+  <p style="margin: 0.5rem 0; font-size: 0.85rem; color: var(--vp-c-text-2);">
+ Dynamic grid of all published documentation pages with search and category filters
+ </p>
+ 
+ <div style="margin: 0.75rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap; font-size: 0.78rem; color: var(--vp-c-text-2);">
+ <span>🔍 1 filter(s)</span>
+ <span>•</span>
+ <span>⬆️ 0 sort(s)</span>
+ <span>•</span>
+ <span>📄 Limit: 12</span>
+ </div>
+ </div>
+
+ <div style="border-top: 1px solid var(--vp-c-divider); padding-top: 0.85rem; margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+ <button type="button" 
+ class="adm-btn adm-btn-secondary adm-btn-sm" 
+ onclick="navigator.clipboard.writeText('::: component name=\x22view\x22 id=\x22all_articles\x22 :::'); this.innerText='✓ Copied!'; setTimeout(() => this.innerText='📋 Embed', 2000);"
+ title="Copy Markdown directive">
+ 📋 Embed
+ </button>
+ <div style="display: flex; gap: 0.4rem;">
+ <a href="/school1/sppdocs/project/demo-app/views/all_articles" target="_blank" hx-boost="false" class="adm-btn adm-btn-secondary adm-btn-sm">
+ 👁️ Preview &rarr;
+ </a>
+ <form action="/school1/sppdocs/admin/views/delete" method="POST" onsubmit="return confirm('Delete view all_articles?');" style="margin: 0;">
+ <input type="hidden" name="project_id" value="demo-app">
+ <input type="hidden" name="view_id" value="all_articles">
+ <button type="submit" class="adm-btn adm-btn-danger adm-btn-sm">🗑️</button>
+ </form>
+ </div>
+ </div>
+ </div>
+  </div>
+ </div>
+
+<!-- Create/Edit View Modal -->
+<div id="viewModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(2px);">
+ <div style="background: var(--vp-c-bg); border-radius: 10px; width: 850px; max-width: 95vw; max-height: 90vh; overflow-y: auto; padding: 1.75rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.35); border: 1px solid var(--vp-c-divider);">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--vp-c-divider); padding-bottom: 0.75rem;">
+ <h3 style="margin: 0; font-size: 1.25rem; color: var(--vp-c-text-1);">📊 Visual View Builder</h3>
+ <button type="button" onclick="document.getElementById('viewModal').style.display='none'" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--vp-c-text-3);">&times;</button>
+ </div>
+
+ <form action="/school1/sppdocs/admin/views/save" method="POST">
+ <input type="hidden" name="project_id" value="demo-app">
+
+ <!-- General Settings -->
+ <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+ <div class="form-group">
+ <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">View Identifier</label>
+ <input type="text" name="view_id" id="view_id_input" required placeholder="e.g. recent_articles, guides" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border: 1px solid var(--vp-c-divider); border-radius: 6px;">
+ </div>
+ <div class="form-group">
+ <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Display Title</label>
+ <input type="text" name="title" id="view_title_input" required placeholder="e.g. Recent Articles" style="width: 100%; box-sizing: border-box; padding: 0.45rem 0.6rem; border: 1px solid var(--vp-c-divider); border-radius: 6px;">
+ </div>
+ </div>
+
+ <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+ <div class="form-group">
+ <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Source Collection</label>
+ <select name="collection" style="width: 100%; box-sizing: border-box; padding: 0.45rem; border: 1px solid var(--vp-c-divider); border-radius: 6px;">
+ <option value="page">Documentation Pages (docs)</option>
+ <option value="blog">Blog Posts & Announcements</option>
+      </select>
+ </div>
+ <div class="form-group">
+ <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Display Format</label>
+ <select name="display_format" style="width: 100%; box-sizing: border-box; padding: 0.45rem; border: 1px solid var(--vp-c-divider); border-radius: 6px;">
+ <option value="grid">Responsive Card Grid</option>
+ <option value="table">Data Table</option>
+ <option value="list">Unformatted List</option>
+ <option value="json">REST JSON Endpoint</option>
+ </select>
+ </div>
+ <div class="form-group">
+ <label style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">Items Limit</label>
+ <input type="number" name="limit" value="10" min="1" max="100" style="width: 100%; box-sizing: border-box; padding: 0.45rem; border: 1px solid var(--vp-c-divider); border-radius: 6px;">
+ </div>
+ </div>
+
+ <!-- Filter Rules Builder -->
+ <div style="margin-bottom: 1.25rem; background: var(--vp-c-bg-soft); padding: 1rem; border-radius: 8px; border: 1px solid var(--vp-c-divider);">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+ <strong style="font-size: 0.9rem;">🔍 Filter Criteria (WHERE)</strong>
+ <button type="button" class="adm-btn adm-btn-secondary adm-btn-sm" onclick="addFilterRow()">+ Add Filter</button>
+ </div>
+ <div id="filtersContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+ <div class="filter-row" style="display: grid; grid-template-columns: 2fr 1.5fr 3fr auto; gap: 0.5rem; align-items: center;">
+ <input type="text" name="filters[0][field]" placeholder="Field (e.g. status, category)" value="status" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <select name="filters[0][operator]" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <option value="=">=</option>
+ <option value="!=">!=</option>
+ <option value="like">Contains (LIKE)</option>
+ <option value=">">&gt;</option>
+ <option value="<">&lt;</option>
+ </select>
+ <input type="text" name="filters[0][value]" placeholder="Value (e.g. published)" value="published" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer;">&times;</button>
+ </div>
+ </div>
+ </div>
+
+ <!-- Sort Rules Builder -->
+ <div style="margin-bottom: 1.5rem; background: var(--vp-c-bg-soft); padding: 1rem; border-radius: 8px; border: 1px solid var(--vp-c-divider);">
+ <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+ <strong style="font-size: 0.9rem;">⬆️ Sort Criteria (ORDER BY)</strong>
+ <button type="button" class="adm-btn adm-btn-secondary adm-btn-sm" onclick="addSortRow()">+ Add Sort</button>
+ </div>
+ <div id="sortsContainer" style="display: flex; flex-direction: column; gap: 0.5rem;">
+ <div class="sort-row" style="display: grid; grid-template-columns: 3fr 2fr auto; gap: 0.5rem; align-items: center;">
+ <input type="text" name="sorts[0][field]" placeholder="Field (e.g. date, modified_at)" value="date" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <select name="sorts[0][direction]" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <option value="DESC">Descending (Newest first)</option>
+ <option value="ASC">Ascending (Oldest first)</option>
+ </select>
+ <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer;">&times;</button>
+ </div>
+ </div>
+ </div>
+
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <button type="button" class="adm-btn adm-btn-secondary" onclick="document.getElementById('viewModal').style.display='none'">Cancel</button>
+ <button type="submit" class="adm-btn adm-btn-primary">💾 Save View</button>
+ </div>
+ </form>
+ </div>
+</div>
+
+<script>
+let filterIndex = 1;
+let sortIndex = 1;
+
+function openCreateViewModal() {
+ document.getElementById('view_id_input').value = '';
+ document.getElementById('view_title_input').value = '';
+ document.getElementById('viewModal').style.display = 'flex';
+}
+
+function addFilterRow() {
+ const container = document.getElementById('filtersContainer');
+ const div = document.createElement('div');
+ div.className = 'filter-row';
+ div.style = 'display: grid; grid-template-columns: 2fr 1.5fr 3fr auto; gap: 0.5rem; align-items: center;';
+ div.innerHTML = `
+ <input type="text" name="filters[${filterIndex}][field]" placeholder="Field" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <select name="filters[${filterIndex}][operator]" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <option value="=">=</option>
+ <option value="!=">!=</option>
+ <option value="like">Contains</option>
+ <option value=">">&gt;</option>
+ <option value="<">&lt;</option>
+ </select>
+ <input type="text" name="filters[${filterIndex}][value]" placeholder="Value" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer;">&times;</button>
+ `;
+ container.appendChild(div);
+ filterIndex++;
+}
+
+function addSortRow() {
+ const container = document.getElementById('sortsContainer');
+ const div = document.createElement('div');
+ div.className = 'sort-row';
+ div.style = 'display: grid; grid-template-columns: 3fr 2fr auto; gap: 0.5rem; align-items: center;';
+ div.innerHTML = `
+ <input type="text" name="sorts[${sortIndex}][field]" placeholder="Field" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <select name="sorts[${sortIndex}][direction]" style="padding: 0.4rem; border: 1px solid var(--vp-c-divider); border-radius: 4px;">
+ <option value="DESC">Descending</option>
+ <option value="ASC">Ascending</option>
+ </select>
+ <button type="button" onclick="this.parentElement.remove()" style="background: none; border: none; color: #ef4444; font-size: 1.1rem; cursor: pointer;">&times;</button>
+ `;
+ container.appendChild(div);
+ sortIndex++;
+}
+</script>
+ </main>
+ </div>
+
+ <!-- SPP-UX HTMX Integration -->
+ <script>
+ document.body.addEventListener('htmx:beforeRequest', function() {
+ const p = document.getElementById('spp-progress');
+ if (p) {
+ p.style.opacity = '1';
+ p.style.width = '20%';
+ clearInterval(window.sppProgressInt);
+ window.sppProgressInt = setInterval(() => {
+ let w = parseFloat(p.style.width);
+ if (w < 85) p.style.width = (w + 5) + '%';
+ }, 250);
+ }
+ });
+ document.body.addEventListener('htmx:afterRequest', function() {
+ const p = document.getElementById('spp-progress');
+ if (p) {
+ clearInterval(window.sppProgressInt);
+ p.style.width = '100%';
+ setTimeout(() => { p.style.opacity = '0'; }, 250);
+ setTimeout(() => { p.style.width = '0%'; }, 500);
+ }
+ });
+ document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+ if (evt.detail.xhr && evt.detail.xhr.status >= 400) {
+ evt.detail.shouldSwap = true;
+ evt.detail.isError = false;
+ }
+ });
+ </script>
+
+  <div id="sppdocs-cmd-palette" class="sppdocs-cmd-backdrop" data-project-id="demo-app" data-base-url="/school1/sppdocs" style="display: none;" hx-boost="false" onclick="if(event.target===this) closeCommandPalette()">
+ <div class="sppdocs-cmd-modal" onclick="event.stopPropagation()">
+ <div class="sppdocs-cmd-tabs">
+ <button type="button" class="sppdocs-cmd-tab-btn active" id="sppdocs-tab-nav" onclick="switchCmdMode('nav')">
+ <span>⚡</span> Commands & Instant Docs
+ </button>
+ <button type="button" class="sppdocs-cmd-tab-btn" id="sppdocs-tab-ai" onclick="switchCmdMode('ai')">
+ <span>🤖</span> Ask AI Assistant (RAG)
+ </button>
+ </div>
+
+ <div class="sppdocs-cmd-header">
+ <span class="sppdocs-cmd-icon" id="sppdocs-cmd-icon-indicator">🔍</span>
+ <input type="text" id="sppdocs-cmd-input" class="sppdocs-cmd-input" placeholder="Type a command or jump to... (Press Esc to close)" autocomplete="off">
+ <kbd class="sppdocs-cmd-kbd" id="sppdocs-cmd-enter-kbd">ESC</kbd>
+ </div>
+
+ <div id="sppdocs-cmd-instant-results"></div>
+
+ <div id="sppdocs-cmd-list" class="sppdocs-cmd-list">
+ <div class="sppdocs-cmd-section">Navigation & Quick Actions (Project: demo-app)</div>
+
+ <a href="/school1/sppdocs/issues/board?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="board kanban tasks sprint" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📋</span>
+ <span>Go to Kanban Board</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">B</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/issues?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="issues list tracker bugs" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📝</span>
+ <span>View All Issues</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">L</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/issues?projectId=demo-app&new=1" class="sppdocs-cmd-item" data-keyword="create new issue bug task" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>➕</span>
+ <span>Create New Issue</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">C</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/milestones?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="milestones sprints roadmap" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>🏁</span>
+ <span>View Milestones & Sprints</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">M</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/project/demo-app" class="sppdocs-cmd-item" data-keyword="docs documentation wiki" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📖</span>
+ <span>Live Documentation</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">D</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/admin/project/demo-app" class="sppdocs-cmd-item" data-keyword="admin settings project manage config" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>⚙️</span>
+ <span>Project Administration</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">A</kbd>
+ </a>
+
+ <a href="/school1/sppdocs" class="sppdocs-cmd-item" data-keyword="portal projects home hub" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>🚀</span>
+ <span>Projects Portal Home</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">P</kbd>
+ </a>
+ </div>
+
+ <div id="sppdocs-cmd-ai-container" style="display: none;"></div>
+
+ <template id="sppdocs-cmd-ai-loading-tpl">
+ <div class="sppdocs-ai-loading">
+ <div class="sppdocs-ai-spinner"></div>
+ <p>Synthesizing verified documentation passages...</p>
+ </div>
+ </template>
+
+ <template id="sppdocs-cmd-ai-error-tpl">
+ <div class="sppdocs-search-empty">
+ <p>Error connecting to search endpoint.</p>
+ </div>
+ </template>
+ </div>
+</div>
+
+<script>
+(function() {
+ 'use strict';
+
+ function getPalette() { return document.getElementById('sppdocs-cmd-palette'); }
+ function getInput() { return document.getElementById('sppdocs-cmd-input'); }
+ function getList() { return document.getElementById('sppdocs-cmd-list'); }
+ function getInstantBox() { return document.getElementById('sppdocs-cmd-instant-results'); }
+ function getAiContainer() { return document.getElementById('sppdocs-cmd-ai-container'); }
+ function getIconIndicator() { return document.getElementById('sppdocs-cmd-icon-indicator'); }
+ function getTabNav() { return document.getElementById('sppdocs-cmd-tab-nav'); }
+ function getTabAi() { return document.getElementById('sppdocs-cmd-tab-ai'); }
+ function getEnterKbd() { return document.getElementById('sppdocs-cmd-enter-kbd'); }
+
+ let currentMode = 'nav'; // 'nav' or 'ai'
+ let selectedIndex = -1;
+ let instantDebounceTimer = null;
+
+ function getBaseUrl() {
+ const p = getPalette();
+ if (p && p.dataset.baseUrl) return p.dataset.baseUrl;
+ return '';
+ }
+
+ function getCurrentProjectId() {
+ const params = new URLSearchParams(window.location.search);
+ if (params.get('projectId')) return params.get('projectId');
+ if (params.get('project')) return params.get('project');
+
+ const pathMatch = window.location.pathname.match(/\/(?:admin\/)?project\/([^\/\?]+)/);
+ if (pathMatch && pathMatch[1]) return decodeURIComponent(pathMatch[1]);
+
+ const p = getPalette();
+ if (p && p.dataset.projectId) return p.dataset.projectId;
+
+ return 'demo-app';
+ }
+
+ window.switchCmdMode = function(mode) {
+ currentMode = mode;
+ const tabNav = getTabNav();
+ const tabAi = getTabAi();
+ const iconIndicator = getIconIndicator();
+ const input = getInput();
+ const list = getList();
+ const instantBox = getInstantBox();
+ const aiContainer = getAiContainer();
+ const enterKbd = getEnterKbd();
+ const proj = getCurrentProjectId();
+
+ if (mode === 'ai') {
+ if (tabAi) tabAi.classList.add('active');
+ if (tabNav) tabNav.classList.remove('active');
+ if (iconIndicator) iconIndicator.textContent = '🤖';
+ if (input) input.placeholder = "Ask AI anything about " + (proj || 'this project') + "... (Press Enter)";
+ if (list) list.style.display = 'none';
+ if (instantBox) instantBox.innerHTML = '';
+ if (aiContainer) aiContainer.style.display = 'block';
+ if (enterKbd) enterKbd.textContent = 'ENTER ⏎';
+ } else {
+ if (tabNav) tabNav.classList.add('active');
+ if (tabAi) tabAi.classList.remove('active');
+ if (iconIndicator) iconIndicator.textContent = '🔍';
+ if (input) input.placeholder = "Type a command or jump to... (Press Esc to close)";
+ if (list) list.style.display = 'block';
+ if (aiContainer) aiContainer.style.display = 'none';
+ if (enterKbd) enterKbd.textContent = 'ESC';
+ if (input) filterItems(input.value);
+ }
+ if (input) {
+ input.focus();
+ }
+ };
+
+ window.openCommandPalette = function(preferredMode) {
+ const palette = getPalette();
+ const input = getInput();
+ if (!palette) return;
+
+ palette.style.display = 'flex';
+ if (input) {
+ input.value = '';
+ setTimeout(function() {
+ input.focus();
+ input.select();
+ }, 10);
+ }
+ if (preferredMode) {
+ window.switchCmdMode(preferredMode);
+ } else {
+ window.switchCmdMode('nav');
+ }
+ };
+
+ window.closeCommandPalette = function() {
+ const palette = getPalette();
+ if (palette) {
+ palette.style.display = 'none';
+ }
+ selectedIndex = -1;
+ };
+
+ function getVisibleItems() {
+ const list = getList();
+ if (!list) return [];
+ return Array.from(list.querySelectorAll('.sppdocs-cmd-item')).filter(el => el.style.display !== 'none');
+ }
+
+ function updateHighlight() {
+ const items = getVisibleItems();
+ items.forEach((item, idx) => {
+ if (idx === selectedIndex) {
+ item.classList.add('active');
+ item.scrollIntoView({ block: 'nearest' });
+ } else {
+ item.classList.remove('active');
+ }
+ });
+ }
+
+ function fetchInstantResults(q) {
+ const proj = getCurrentProjectId();
+ if (!proj || q.length < 2) {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = '';
+ return;
+ }
+ clearTimeout(instantDebounceTimer);
+ instantDebounceTimer = setTimeout(() => {
+ fetch(getBaseUrl() + '/api/search/instant?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+ .then(r => r.text())
+ .then(html => {
+ if (currentMode === 'nav') {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = html;
+ }
+ })
+ .catch(() => {});
+ }, 200);
+ }
+
+ function executeAiAsk(q) {
+ if (!q.trim()) return;
+ const proj = getCurrentProjectId();
+ const aiContainer = getAiContainer();
+ const loadingTpl = document.getElementById('sppdocs-cmd-ai-loading-tpl');
+ const errorTpl = document.getElementById('sppdocs-cmd-ai-error-tpl');
+
+ if (aiContainer && loadingTpl) {
+ aiContainer.innerHTML = loadingTpl.innerHTML;
+ }
+ 
+ fetch(getBaseUrl() + '/api/search/ask?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+ .then(r => r.text())
+ .then(html => {
+ const curAi = getAiContainer();
+ if (curAi) curAi.innerHTML = html;
+ })
+ .catch(err => {
+ const curAi = getAiContainer();
+ if (curAi && errorTpl) curAi.innerHTML = errorTpl.innerHTML;
+ });
+ }
+
+ function filterItems(q) {
+ q = (q || '').toLowerCase().trim();
+ const list = getList();
+ if (!list) return;
+ const items = list.querySelectorAll('.sppdocs-cmd-item');
+ items.forEach(item => {
+ const text = (item.textContent + ' ' + (item.dataset.keyword || '')).toLowerCase();
+ item.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+ });
+ selectedIndex = 0;
+ updateHighlight();
+
+ if (q.length >= 2) {
+ fetchInstantResults(q);
+ } else {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = '';
+ }
+ }
+
+ function isKeyK(e) {
+ if (!e) return false;
+ if (e.key && (e.key.toLowerCase() === 'k' || e.key === 'K')) return true;
+ if (e.code === 'KeyK') return true;
+ if (e.keyCode === 75 || e.which === 75) return true;
+ return false;
+ }
+
+ // Capture-Phase Hotkey Handler: Intercepts before browser default actions
+ function handleKeyDown(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+
+ // 1. Omnibox Buster: Intercept Ctrl+K / Cmd+K at Capture Level
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ if (typeof e.stopImmediatePropagation === 'function') {
+ e.stopImmediatePropagation();
+ }
+
+ const p = getPalette();
+ if (p && p.style.display === 'flex') {
+ window.closeCommandPalette();
+ } else {
+ window.openCommandPalette('nav');
+ }
+ return false;
+ }
+
+ const palette = getPalette();
+ const isPaletteOpen = palette && palette.style.display === 'flex';
+
+ // 2. Escape closes palette
+ if (e.key === 'Escape' && isPaletteOpen) {
+ e.preventDefault();
+ e.stopPropagation();
+ window.closeCommandPalette();
+ return false;
+ }
+
+ // 3. Navigation inside palette input
+ const input = getInput();
+ if (isPaletteOpen && e.target === input) {
+ if (currentMode === 'ai') {
+ if (e.key === 'Enter') {
+ e.preventDefault();
+ executeAiAsk(input.value);
+ }
+ return;
+ }
+
+ const items = getVisibleItems();
+ if (e.key === 'ArrowDown') {
+ e.preventDefault();
+ if (items.length > 0) {
+ selectedIndex = (selectedIndex + 1) % items.length;
+ updateHighlight();
+ }
+ } else if (e.key === 'ArrowUp') {
+ e.preventDefault();
+ if (items.length > 0) {
+ selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+ updateHighlight();
+ }
+ } else if (e.key === 'Enter') {
+ e.preventDefault();
+ if (items[selectedIndex]) {
+ const href = items[selectedIndex].getAttribute('href');
+ if (href && !href.startsWith('#')) {
+ window.closeCommandPalette();
+ window.location.href = href;
+ } else {
+ items[selectedIndex].click();
+ }
+ }
+ }
+ }
+ }
+
+ function handleKeyUp(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ if (typeof e.stopImmediatePropagation === 'function') {
+ e.stopImmediatePropagation();
+ }
+ return false;
+ }
+ }
+
+ // Delegated click listener: ensures clean native navigation for all command palette links
+ document.addEventListener('click', function(e) {
+ const item = e.target.closest('#sppdocs-cmd-palette a.sppdocs-cmd-item, #sppdocs-cmd-palette a.sppdocs-instant-result-item');
+ if (item) {
+ const href = item.getAttribute('href');
+ if (href && !href.startsWith('#') && item.target !== '_blank') {
+ window.closeCommandPalette();
+ window.location.href = href;
+ e.preventDefault();
+ }
+ }
+ });
+
+ // Delegated input listener (handles HTMX swaps seamlessly)
+ document.addEventListener('input', function(e) {
+ if (e.target && e.target.id === 'sppdocs-cmd-input') {
+ if (currentMode === 'nav') {
+ filterItems(e.target.value);
+ }
+ }
+ });
+
+ // Register global hotkey listeners with CAPTURE = TRUE once
+ if (!window._sppdocsCmdPaletteHotkeysBound) {
+ window._sppdocsCmdPaletteHotkeysBound = true;
+ window.addEventListener('keydown', handleKeyDown, true);
+ window.addEventListener('keyup', handleKeyUp, true);
+ window.addEventListener('keypress', function(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ return false;
+ }
+ }, true);
+ }
+})();
+</script>
+ <div id="sppdocs-shortcuts-help-modal" class="sppdocs-shortcuts-backdrop" onclick="if(event.target===this) this.style.display='none'">
+ <div class="sppdocs-shortcuts-modal" onclick="event.stopPropagation()">
+ <div class="sppdocs-shortcuts-header">
+ <h3 class="sppdocs-shortcuts-title">
+ <span>⌨️</span> Keyboard Shortcuts
+ </h3>
+ <button type="button" class="sppdocs-shortcuts-close" onclick="document.getElementById('sppdocs-shortcuts-help-modal').style.display='none'">&times;</button>
+ </div>
+
+ <div class="sppdocs-shortcuts-list">
+ <div class="sppdocs-shortcuts-section-title">Navigation & General</div>
+ 
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Open Command & AI Palette</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>⌘/Ctrl</kbd> + <kbd>K</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Focus Global Search</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>/</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Toggle Shortcuts Guide</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>?</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Close Modal or Palette</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>ESC</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-section-title">Issues & Project Management</div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Create New Issue</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>C</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Move Selection Down / Up</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>J</kbd> / <kbd>K</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Select / Deselect Row Checkbox</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>X</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Open Selected Issue / Result</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>Enter</kbd> or <kbd>O</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Edit Current Page</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>E</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-section-title">Quick Jumps</div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Kanban Board</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>B</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Issues List</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>L</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Milestones</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>M</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Documentation</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>D</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Project Administration</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>A</kbd></span>
+ </div>
+ </div>
+ </div>
+</div>
+
+<script src="/school1/sppdocs/src/SPPDocs/resources/js/sppdocs-shortcuts.js"></script>
+</body>
+</html>

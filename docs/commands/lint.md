@@ -1,17 +1,17 @@
 ## `lint`
 
-**Purpose**: Run SPP native linter on a file
+**Description**: Run SPP native linter on a file
 
 ### Synopsis
 ```bash
 php spp.php lint [OPTIONS]
 ```
 
-### Options Available
-- `--file=` : Expects a value. Extracted via static analysis.
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--file=` : Expects a value. Extracted via static analysis from LintCommand.php
+- `--json` : Boolean flag. Extracted via static analysis from LintCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

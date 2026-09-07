@@ -1,6 +1,6 @@
 ## `sys:debug`
 
-**Purpose**: Toggle global framework debug mode (on|off)
+**Description**: Toggle global framework debug mode (on|off)
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php sys:debug on|off
 
 ```
 
-### Options Available
-- `--settings` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 

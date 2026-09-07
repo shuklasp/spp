@@ -6,7 +6,7 @@ use SPPMod\SPPAuth\SCIMHandler;
 
 class SCIMProvisionCommand extends Command
 {
-    protected string $signature = 'scim:test:user {username} {email?}';
+    protected string $name = 'scim:test:user';
     protected string $description = 'Test SCIM User Provisioning locally';
 
     

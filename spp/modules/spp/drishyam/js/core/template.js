@@ -9,6 +9,7 @@
  */
 
 import { TemplateResult, getTemplate, TemplateInstance } from './parts.js';
+export { TemplateResult, getTemplate, TemplateInstance };
 
 // ─── TrustedHTML (v13 Backward Compatibility) ──────────────
 

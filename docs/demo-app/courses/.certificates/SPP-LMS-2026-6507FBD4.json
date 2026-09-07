@@ -1,0 +1,14 @@
+{
+    "certificate_id": "SPP-LMS-2026-6507FBD4",
+    "project_id": "demo-app",
+    "course_id": "intro-to-spp",
+    "course_title": "Mastering SPP Framework",
+    "student_name": "Test Student",
+    "username": "teststudent",
+    "issued_at": 1788627050,
+    "issue_date": "September 5, 2026",
+    "instructor": "Prof. Satya Prakash Shukla",
+    "instructor_title": "Chief Framework Architect",
+    "verification_hash": "cbc0e9daa0ee6ff3da61043853d02ce19854933b14a3ecbe99ab1a76cfee4379",
+    "verification_url": "scratch\/sppdocs\/lms\/verify?code=SPP-LMS-2026-6507FBD4"
+}

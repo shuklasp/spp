@@ -1,21 +1,18 @@
-.TH SPP-audit-lineage 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-audit-lineage 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-audit:lineage
-.PP
- \- Traverses and verifies cryptographic Merkle-DAG trace logs
+spp-audit-lineage \- Traverses and verifies cryptographic Merkle-DAG trace logs
+.SH SYNOPSIS
+.B php spp.php audit:lineage
+[OPTIONS]
 .SH DESCRIPTION
 Traverses and verifies cryptographic Merkle-DAG trace logs
 .PP
-.SH SYNOPSIS
-php spp.php audit:lineage [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from AuditLineageCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

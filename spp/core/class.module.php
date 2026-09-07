@@ -98,7 +98,7 @@ class Module extends \SPP\SPPObject implements ModuleInterface
     private static bool $allModulesLoaded = false;
 
     /** @var array<string> Search roots for system modules */
-    private static array $_system_module_roots = ['', 'spp', 'contrib', 'school', 'custom'];
+    private static array $_system_module_roots = ['', 'spp', 'optional', 'contrib', 'school', 'custom'];
 
     /** @var array $Dependencies Stores dependencies requested by the module */
     public $Dependencies = [];
@@ -867,13 +867,20 @@ class Module extends \SPP\SPPObject implements ModuleInterface
      * @return void
      * @throws \SPP\SPPException
      */
-    public static function loadAllModules(): void
+    public static function loadAllModules(bool $forceReload = false): void
     {
         $appname = \SPP\Scheduler::getContext();
 
         // Track loaded modules per app context to avoid redundant work
         // but ensure services are registered for every app instance.
         static $loadedContexts = [];
+        
+        if ($forceReload) {
+            unset($loadedContexts[$appname]);
+            \SPP\Registry::register('__mods', null);
+            \SPP\Registry::register('__modobj', null);
+        }
+        
         if (isset($loadedContexts[$appname])) {
             return;
         }
@@ -961,6 +968,12 @@ class Module extends \SPP\SPPObject implements ModuleInterface
         $module->ModuleType = $data['type'];
 
         \SPP\Registry::register('__modobj=>' . $name, $module);
+        
+        if (!empty($data['namespace'])) {
+            $nsMap = \SPP\Registry::getArray('__modns');
+            $nsMap[$data['namespace']] = $data['path'];
+            \SPP\Registry::register('__modns', $nsMap);
+        }
 
         if (!empty($data['services'])) {
             $module->registerServices($data['services']);

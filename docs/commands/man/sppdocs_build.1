@@ -1,0 +1,33 @@
+.TH SPPDOCS_BUILD 1 "September 2026" "SPP CLI Manual" "User Commands"
+.SH NAME
+sppdocs:build \- Compile SPPDocs documentation into standalone static HTML/CSS/JS for edge CDN hosting
+.SH SYNOPSIS
+.B php spp.php sppdocs:build
+[\fB\-\-project\fR=\fIproject_id\fR]
+[\fB\-\-out\fR=\fIoutput_path\fR]
+[\fB\-\-zip\fR]
+.SH DESCRIPTION
+\fBsppdocs:build\fR is an enterprise static site generator (SSG) command that compiles dynamic SPPDocs projects into fully pre-rendered, standalone static web bundles.
+.PP
+The resulting output can be hosted on edge CDNs (such as Cloudflare Pages, Vercel, GitHub Pages, or Amazon S3) with sub-20ms Time To First Byte (TTFB), eliminating PHP-FPM server runtime overhead and database locking constraints.
+.SH OPTIONS
+.TP
+\fB\-\-project\fR=\fIproject_id\fR
+Specify the identifier of the documentation project to compile. Defaults to \fBdemo-app\fR.
+.TP
+\fB\-\-out\fR=\fIoutput_path\fR
+Override the destination directory. Defaults to \fBsrc/SPPDocs/dist/<projectId>/\fR.
+.TP
+\fB\-\-zip\fR
+Package the generated static directory into a deployable \fB.zip\fR archive.
+.SH UNDER THE HOOD
+.IP \(bu 3
+Reads configuration from \fBsrc/SPPDocs/etc/sppdocs.yml\fR and project YAML declarations.
+.IP \(bu 3
+Parses Markdown frontmatter and translates CommonMark syntax, GitHub alerts, and Blade component tags into static HTML.
+.IP \(bu 3
+Copies local stylesheets from \fBsrc/SPPDocs/resources/css/\fR into \fB./assets/\fR.
+.IP \(bu 3
+Generates an inverted-index \fBsearch-index.json\fR for zero-latency client-side search.
+.IP \(bu 3
+Requires CLI SAPI execution (\fBisCLIOnly() = true\fR).

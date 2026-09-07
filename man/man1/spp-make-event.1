@@ -1,35 +1,29 @@
-.TH SPP-make-event 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-event 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:event
-.PP
- \- Create a new event entry and scaffold its handler
+spp-make-event \- Create a new event entry and scaffold its handler
+.SH SYNOPSIS
+.B php spp.php make:event
+[OPTIONS]
 .SH DESCRIPTION
 Create a new event entry and scaffold its handler
 .PP
-.SH SYNOPSIS
-php spp.php make:event [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php make:event <EventName> <HandlerClassName> [--app=appname] [--overridable] [--default-handler]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--overridable` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--default-handler` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--events` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--listeners` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --overridable
+Boolean flag. Extracted via static analysis from MakeEventCommand.php
+.TP
+.B --default-handler
+Boolean flag. Extracted via static analysis from MakeEventCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: event.
+\(bu Instantiates key components: event.
 .br
-.PP
-.PP

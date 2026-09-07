@@ -1,17 +1,62 @@
 {
-    "mobile": {
-        "title": "Mobile Studio",
+    "dashboard": {
+        "title": "Operations Dashboard",
+        "icon": "👋",
+        "component": "views/dashboard.js"
+    },
+    "identity": {
+        "title": "Identity & Access (IAM)",
+        "icon": "🛡️",
+        "component": "views/identity.js"
+    },
+    "database": {
+        "title": "Database & Storage",
+        "icon": "🗄️",
+        "component": "views/database.js"
+    },
+    "apps": {
+        "title": "Applications & Deployments",
         "icon": "📱",
-        "component": "views/mobile.js"
+        "component": "views/apps.js"
+    },
+    "system": {
+        "title": "Observability & Diagnostics",
+        "icon": "🖥️",
+        "component": "views/system.js"
+    },
+    "commands": {
+        "title": "CLI Command Center",
+        "icon": "⚡",
+        "component": "views/commands.js"
     },
     "api_keys": {
-        "title": "API Keys",
+        "title": "API Keys & Integrations",
         "icon": "🔑",
-        "component": "views/api_keys.js"
+        "component": "views/identity.js"
     },
-    "docs": {
-        "title": "Code Explorer",
-        "icon": "📚",
-        "component": "views/docs.js"
+    "xdb": {
+        "title": "XML Database (XDB)",
+        "icon": "🗄️",
+        "component": "views/database.js"
+    },
+    "entities": {
+        "title": "Entities & Schemas",
+        "icon": "🏗️",
+        "component": "views/database.js"
+    },
+    "interdb": {
+        "title": "InterDB Data Mesh",
+        "icon": "🕸️",
+        "component": "views/database.js"
+    },
+    "lifecycle": {
+        "title": "Deployments & Lifecycle",
+        "icon": "🔄",
+        "component": "views/apps.js"
+    },
+    "trace": {
+        "title": "Event Tracing & Telemetry",
+        "icon": "🐛",
+        "component": "views/system.js"
     }
 }

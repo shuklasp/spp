@@ -31,7 +31,10 @@ class TestDryRunCommand extends Command
         $skipped = 0;
 
         $skipList = [
-            'shell', 'tinker', 'queue:work', 'dev:server', 'db:console'
+            'shell', 'tinker', 'queue:work', 'dev:server', 'db:console',
+            'serve', 'serve:async', 'ui:serv', 'queue:listen', 'workflow:process-timeouts',
+            'queue:orchestrate:dag', 'chaos:inject', 'integration:queue:work',
+            'test:dry-run', 'test:monkey', 'test:run'
         ];
 
         foreach ($commands as $name => $cmd) {
@@ -51,7 +54,8 @@ class TestDryRunCommand extends Command
             }
 
             // Run in a separate process to catch fatal errors without crashing the harness
-            $commandStr = "php spp.php $name --help";
+            $stdinRedirect = (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') ? '< NUL' : '< /dev/null';
+            $commandStr = "php spp.php $name --help {$stdinRedirect}";
             $output = [];
             $returnVar = 0;
             

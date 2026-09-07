@@ -1,21 +1,18 @@
-.TH SPP-drishyam-theme-check 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-drishyam-theme-check 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-drishyam:theme:check
-.PP
- \- Validate Drishyam theme assets and structure
+spp-drishyam-theme-check \- Validate Drishyam theme assets and structure
+.SH SYNOPSIS
+.B php spp.php drishyam:theme:check
+[OPTIONS]
 .SH DESCRIPTION
 Validate Drishyam theme assets and structure
 .PP
-.SH SYNOPSIS
-php spp.php drishyam:theme:check [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from DrishyamThemeCheckCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
 .br
-.PP
-.PP

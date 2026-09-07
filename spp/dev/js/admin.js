@@ -33,54 +33,57 @@ class SPPAdmin {
         this.user = null;
         
         // Initialize Global Root Store
-        window.spp_root_store = new SPPStore({
-            user: null,
-            selectedApp: this.selectedApp,
-            theme: this.theme
-        });
+        const StoreClass = window.SPPStore || (window.SPPUX && window.SPPUX.SPPStore);
+        if (StoreClass) {
+            window.spp_root_store = new StoreClass({
+                user: null,
+                selectedApp: this.selectedApp,
+                theme: this.theme
+            });
+        }
         
         this.currentView = 'dashboard';
         this.viewIcons = {
             'dashboard': '👋',
-            'system': '🖥️',
-            'apps': '📱',
-            'modules': '📦',
+            'studio': '💻',
             'entities': '🏗️',
             'forms': '📝',
-            'identity': '🛡️',
-            'groups': '👥',
-            'services': '🔌',
             'routing': '🛤️',
-            'interdb': '🕸️',
-            'xdb': '🗄️',
-            'ai': '🧠',
-            'parikshak': '🧪',
-            'spplang': '💬',
-            'trace': '🐛',
-            'lifecycle': '🔄',
+            'testing': '🧪',
             'commands': '⚡',
-            'reports': '📊'
+            // Legacy aliases
+            'editor': '💻',
+            'apps': '📱',
+            'docs': '📚',
+            'xdb': '🗄️',
+            'interdb': '🕸️',
+            'database': '🏗️',
+            'spplang': '💬',
+            'mobile': '📱',
+            'services': '🔌',
+            'parikshak': '🧪',
+            'trace': '🐛'
         };
         this.viewTitles = {
-            'dashboard': 'Welcome Dashboard',
-            'system': 'System & Diagnostics',
+            'dashboard': 'Developer Studio Hub',
+            'studio': 'Studio & Scaffolder',
+            'entities': 'Entities & Schemas',
+            'forms': 'Forms & Locales',
+            'routing': 'Routing & Endpoints',
+            'testing': 'Testing & Tracing',
+            'commands': 'CLI Command Center',
+            // Legacy aliases
+            'editor': 'Code Editor',
             'apps': 'App Studio',
-            'modules': 'Module Marketplace',
-            'entities': 'Database & Entities',
-            'forms': 'Modern Form Engine',
-            'identity': 'Identity & Security',
-            'groups': 'Group Dynamics',
-            'services': 'Services (DI & AJAX)',
-            'routing': 'Routing & Middleware',
-            'xdb': 'XML Database',
-            'interdb': 'InterDB Mesh',
-            'parikshak': 'Parikshak Evaluator',
-            'spplang': 'Translation Workbench',
+            'docs': 'Code Explorer & Docs',
+            'xdb': 'XML Database (XDB)',
+            'interdb': 'InterDB Data Mesh',
+            'database': 'Entities & Schemas',
+            'spplang': 'Translations & Locales',
             'mobile': 'Mobile Studio',
-            'trace': 'Event Tracing',
-            'lifecycle': 'Lifecycle & Deployment',
-            'commands': 'CLI Workbench',
-            'reports': 'Report Builder'
+            'services': 'Services & Polyglot API',
+            'parikshak': 'Parikshak Testing',
+            'trace': 'Event Tracing'
         };
         this.availableApps = [];
         this.selectedApp = localStorage.getItem('spp_admin_selected_app') || 'default';
@@ -440,8 +443,8 @@ class SPPAdmin {
         document.body.setAttribute('data-theme', theme);
         
         // Sync SPPUX Global Variable Theme if library is loaded
-        if (window.SPPUX && SPPUX.Theme) {
-            SPPUX.Theme.set(theme);
+        if (window.SPPUX && window.SPPUX.Theme) {
+            window.SPPUX.Theme.set ? window.SPPUX.Theme.set(theme) : (window.SPPUX.Theme.current = theme);
         }
 
         // Special cosmetic tweaks for body backgrounds if needed
@@ -599,26 +602,38 @@ class SPPAdmin {
     // =============================================
 
     handleRouting() {
-        let hash = location.hash.replace('#', '') || 'dashboard';
+        let rawHash = location.hash.replace('#', '') || 'dashboard';
+        let baseHash = rawHash.split('?')[0];
         
-        // Backward-compatible redirects for merged modules
+        // Backward-compatible redirects for developer studio
         const redirects = {
-            'events': 'trace',
-            'middleware': 'routing',
+            'editor': 'studio?tab=editor',
+            'apps': 'studio?tab=apps',
+            'docs': 'studio?tab=docs',
+            'xdb': 'entities?tab=xdb',
+            'interdb': 'entities?tab=interdb',
+            'database': 'entities',
+            'spplang': 'forms?tab=spplang',
+            'mobile': 'forms?tab=mobile',
+            'services': 'routing?tab=services',
+            'middleware': 'routing?tab=middleware',
+            'parikshak': 'testing?tab=parikshak',
+            'trace': 'testing?tab=trace',
+            'events': 'testing?tab=trace',
             'access': 'identity',
             'groups': 'identity',
-            'config': 'system',
             'copilot': 'ai',
             'sppai': 'ai',
-            'ajax': 'services',
-            'queue': 'system',
-            'polyglot': 'system'
+            'lifecycle': 'commands',
+            'system': 'dashboard'
         };
-        if (redirects[hash]) {
-            hash = redirects[hash];
-            location.hash = hash;
+
+        if (redirects[baseHash]) {
+            location.hash = redirects[baseHash];
             return;
         }
+
+        let hash = baseHash;
         this.currentView = hash;
 
         // Update Nav UI
@@ -664,7 +679,7 @@ class SPPAdmin {
      * RemoteView Component
      * Loads and renders a PHP-based view from the server.
      */
-    static RemoteView = class extends BaseComponent {
+    static RemoteView = class extends (window.BaseComponent || class {}) {
         async onInit() {
             this.state = { loading: true, html: '' };
             await this.fetchView();

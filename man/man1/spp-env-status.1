@@ -1,23 +1,20 @@
-.TH SPP-env-status 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-env-status 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-env:status
-.PP
- \- Display system health and environment status
+spp-env-status \- Display system health and environment status
+.SH SYNOPSIS
+.B php spp.php env:status
+[OPTIONS]
 .SH DESCRIPTION
 Display system health and environment status
 .PP
-.SH SYNOPSIS
-php spp.php env:status [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from EnvStatusCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
+.br

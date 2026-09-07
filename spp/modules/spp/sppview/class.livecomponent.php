@@ -5,7 +5,9 @@ use ReflectionClass;
 use ReflectionProperty;
 use ReflectionMethod;
 
-class ValidationException extends \Exception {}
+if (!class_exists(__NAMESPACE__ . '\ValidationException', false)) {
+    class ValidationException extends \Exception {}
+}
 
 use SPP\Core\Interfaces\FrontendComponentInterface;
 use SPPMod\SPPView\Traits\LiveValidatorTrait;

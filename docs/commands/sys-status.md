@@ -1,17 +1,17 @@
 ## `sys:status`
 
-**Purpose**: Displays framework health, environment diagnostics, and polyglot bridge status
+**Description**: Displays framework health, environment diagnostics, and polyglot bridge status
 
 ### Synopsis
 ```bash
 php spp.php sys:status [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 

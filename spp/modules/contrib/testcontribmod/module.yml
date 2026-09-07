@@ -1,0 +1,18 @@
+module:
+  name: testcontribmod
+  version: '1.0.0'
+  type: module
+  compulsory: false
+  publicname: 'Testcontribmod Module'
+  publicdesc: 'A newly scaffolded module.'
+  namespace: 'ContribMod\Testcontribmod'
+  dependencies:
+    # List module dependencies here. Supports semantic versioning.
+    # sppdb: ^2.0
+    # sppauth: ^1.5
+    spprouter: ^1.0
+  includes:
+    # Legacy includes (Try to use src/ for PSR-4 autoloading instead)
+  assets:
+    # Defines aliases for public assets. Usage: /sppasset/testcontribmod/main/style.css
+    main: /public

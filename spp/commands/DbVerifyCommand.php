@@ -14,7 +14,9 @@ class DbVerifyCommand extends Command
     public function execute(array $args): void
     {
         echo "🗄️ Initializing SPP XDB MySQL Compatibility Verification Suite...\n";
-        $testScript = SPP_APP_DIR . '/spp/modules/spp/sppxdb/test_mysql_compatibility.php';
+        $testScript = file_exists(SPP_APP_DIR . '/spp/modules/optional/sppxdb/test_mysql_compatibility.php')
+            ? SPP_APP_DIR . '/spp/modules/optional/sppxdb/test_mysql_compatibility.php'
+            : SPP_APP_DIR . '/spp/modules/spp/sppxdb/test_mysql_compatibility.php';
         if (file_exists($testScript)) {
             passthru("php " . escapeshellarg($testScript));
         } else {

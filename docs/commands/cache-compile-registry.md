@@ -1,16 +1,16 @@
 ## `cache:compile-registry`
 
-**Purpose**: Rebuilds the Orion Cache and System Registry
+**Description**: Rebuilds the Orion Cache and System Registry
 
 ### Synopsis
 ```bash
 php spp.php cache:compile-registry [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPP\EventParams.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPP\EventParams.
 

@@ -3,19 +3,48 @@
  * XDB Management Service Group for SPP Admin
  */
 
-require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.sppxdb.php';
-require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.xdbmigrator.php';
-require_once SPP_BASE_DIR . '/modules/spp/sppxdb/class.seedermanager.php';
+$xdbDir = file_exists(SPP_BASE_DIR . '/modules/optional/sppxdb/class.sppxdb.php')
+    ? SPP_BASE_DIR . '/modules/optional/sppxdb'
+    : (file_exists(SPP_BASE_DIR . '/modules/spp/sppxdb/class.sppxdb.php') ? SPP_BASE_DIR . '/modules/spp/sppxdb' : null);
+
+if ($xdbDir) {
+    require_once $xdbDir . '/class.sppxdb.php';
+    if (file_exists($xdbDir . '/class.xdbmigrator.php')) require_once $xdbDir . '/class.xdbmigrator.php';
+    if (file_exists($xdbDir . '/class.seedermanager.php')) require_once $xdbDir . '/class.seedermanager.php';
+    if (file_exists($xdbDir . '/class.migrationmanager.php')) require_once $xdbDir . '/class.migrationmanager.php';
+}
 
 function live_XDB_ListDB($la, $params) {
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB();
-    $la->setData(['databases' => $xdb->listDatabases()]);
+    try {
+        $xdb = new \SPPMod\SPPXDB\SPP_XDB();
+        $dbs = $xdb->querySQL("SHOW DATABASES");
+        $databases = [];
+        if (is_array($dbs)) {
+            foreach ($dbs as $row) {
+                $databases[] = $row['Database'] ?? current($row);
+            }
+        }
+        $la->setData(['databases' => $databases]);
+    } catch (\Throwable $e) {
+        $la->setStatus('error')->notify("Failed to list databases: " . $e->getMessage());
+    }
 }
 
 function live_XDB_ListTables($la, $params) {
-    $dbname = $params['dbname'] ?? 'default';
-    $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname);
-    $la->setData(['tables' => $xdb->listTables()]);
+    $dbname = $params['dbname'] ?? $params['db'] ?? 'default';
+    try {
+        $xdb = new \SPPMod\SPPXDB\SPP_XDB($dbname);
+        $res = $xdb->querySQL("SHOW TABLES");
+        $tables = [];
+        if (is_array($res)) {
+            foreach ($res as $row) {
+                $tables[] = current($row);
+            }
+        }
+        $la->setData(['tables' => $tables]);
+    } catch (\Throwable $e) {
+        $la->setStatus('error')->notify("Failed to list tables: " . $e->getMessage());
+    }
 }
 
 function live_XDB_GetTableData($la, $params) {

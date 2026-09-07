@@ -1,23 +1,20 @@
-.TH SPP-oauth-client-list 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-oauth-client-list 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-oauth:client:list
-.PP
- \- List all OAuth 2.0 Client Apps
+spp-oauth-client-list \- List all OAuth 2.0 Client Apps
+.SH SYNOPSIS
+.B php spp.php oauth:client:list
+[OPTIONS]
 .SH DESCRIPTION
 List all OAuth 2.0 Client Apps
 .PP
-.SH SYNOPSIS
-php spp.php oauth:client:list [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--json` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --json
+Boolean flag. Extracted via static analysis from OAuthClientListCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
-.br
-\(bu Instantiates internal components: SPPDB.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Instantiates key components: SPPDB.
+.br

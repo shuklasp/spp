@@ -1,0 +1,331 @@
+Date : 2024-07-28 09:57:39
+Directory : c:\xampp\htdocs\school
+Total : 206 files,  20340 codes, 6838 comments, 4030 blanks, all 31208 lines
+
+Languages
++------------+------------+------------+------------+------------+------------+
+| language   | files      | code       | comment    | blank      | total      |
++------------+------------+------------+------------+------------+------------+
+| PHP        |        143 |     10,282 |      4,697 |      1,656 |     16,635 |
+| JavaScript |          8 |      6,858 |      1,897 |      2,081 |     10,836 |
+| XML        |         35 |      1,816 |        241 |         71 |      2,128 |
+| JSON       |          5 |        412 |          0 |          5 |        417 |
+| CSS        |          3 |        387 |          2 |         50 |        439 |
+| Markdown   |          4 |        202 |          0 |         92 |        294 |
+| SQL        |          3 |        196 |          1 |         70 |        267 |
+| YAML       |          4 |        182 |          0 |          4 |        186 |
+| Batch      |          1 |          5 |          0 |          1 |          6 |
++------------+------------+------------+------------+------------+------------+
+
+Directories
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                       | files      | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                          |        206 |     20,340 |      6,838 |      4,030 |     31,208 |
+| . (Files)                                                                                  |          9 |        304 |         76 |         41 |        421 |
+| etc                                                                                        |          1 |         21 |          0 |          1 |         22 |
+| events                                                                                     |          4 |        105 |         12 |         23 |        140 |
+| events (Files)                                                                             |          3 |         82 |         12 |         17 |        111 |
+| events\defaults                                                                            |          1 |         23 |          0 |          6 |         29 |
+| js                                                                                         |          4 |         47 |          7 |          6 |         60 |
+| js (Files)                                                                                 |          2 |         11 |          6 |          1 |         18 |
+| js\pages                                                                                   |          2 |         36 |          1 |          5 |         42 |
+| oldsrc                                                                                     |          9 |        238 |         76 |         25 |        339 |
+| oldsrc (Files)                                                                             |          1 |         65 |         35 |         11 |        111 |
+| oldsrc\comp                                                                                |          5 |         94 |          2 |          3 |         99 |
+| oldsrc\comp (Files)                                                                        |          4 |         94 |          1 |          2 |         97 |
+| oldsrc\comp\forms                                                                          |          1 |          0 |          1 |          1 |          2 |
+| oldsrc\server                                                                              |          3 |         79 |         39 |         11 |        129 |
+| resources                                                                                  |          2 |        387 |          2 |         49 |        438 |
+| resources\css                                                                              |          2 |        387 |          2 |         49 |        438 |
+| spp                                                                                        |        141 |     15,874 |      5,621 |      3,081 |     24,576 |
+| spp (Files)                                                                                |          4 |         73 |         81 |         19 |        173 |
+| spp\admin                                                                                  |          7 |        391 |         84 |         10 |        485 |
+| spp\app                                                                                    |          1 |         21 |          0 |          2 |         23 |
+| spp\core                                                                                   |         29 |      2,365 |      1,176 |        310 |      3,851 |
+| spp\dev                                                                                    |          7 |        287 |         77 |          9 |        373 |
+| spp\etc                                                                                    |         23 |      1,458 |        144 |         44 |      1,646 |
+| spp\etc (Files)                                                                            |          3 |        118 |         18 |          5 |        141 |
+| spp\etc\apps                                                                               |         19 |      1,202 |        119 |         37 |      1,358 |
+| spp\etc\apps\default                                                                       |          7 |        374 |         35 |         13 |        422 |
+| spp\etc\apps\default (Files)                                                               |          2 |         95 |         14 |          5 |        114 |
+| spp\etc\apps\default\modsconf                                                              |          5 |        279 |         21 |          8 |        308 |
+| spp\etc\apps\default\modsconf (Files)                                                      |          1 |         85 |          0 |          1 |         86 |
+| spp\etc\apps\default\modsconf\sppdb                                                        |          2 |         31 |          7 |          3 |         41 |
+| spp\etc\apps\default\modsconf\sppdojo                                                      |          1 |        138 |          7 |          2 |        147 |
+| spp\etc\apps\default\modsconf\sppentity                                                    |          1 |         25 |          7 |          2 |         34 |
+| spp\etc\apps\demo                                                                          |          4 |        276 |         28 |          8 |        312 |
+| spp\etc\apps\demo (Files)                                                                  |          2 |        113 |         14 |          4 |        131 |
+| spp\etc\apps\demo\modsconf                                                                 |          2 |        163 |         14 |          4 |        181 |
+| spp\etc\apps\demo\modsconf\sppdb                                                           |          1 |         25 |          7 |          2 |         34 |
+| spp\etc\apps\demo\modsconf\sppdojo                                                         |          1 |        138 |          7 |          2 |        147 |
+| spp\etc\apps\sppadmin                                                                      |          4 |        276 |         28 |          8 |        312 |
+| spp\etc\apps\sppadmin (Files)                                                              |          2 |        113 |         14 |          4 |        131 |
+| spp\etc\apps\sppadmin\modsconf                                                             |          2 |        163 |         14 |          4 |        181 |
+| spp\etc\apps\sppadmin\modsconf\sppdb                                                       |          1 |         25 |          7 |          2 |         34 |
+| spp\etc\apps\sppadmin\modsconf\sppdojo                                                     |          1 |        138 |          7 |          2 |        147 |
+| spp\etc\apps\sppdev                                                                        |          4 |        276 |         28 |          8 |        312 |
+| spp\etc\apps\sppdev (Files)                                                                |          2 |        113 |         14 |          4 |        131 |
+| spp\etc\apps\sppdev\modsconf                                                               |          2 |        163 |         14 |          4 |        181 |
+| spp\etc\apps\sppdev\modsconf\sppdb                                                         |          1 |         25 |          7 |          2 |         34 |
+| spp\etc\apps\sppdev\modsconf\sppdojo                                                       |          1 |        138 |          7 |          2 |        147 |
+| spp\etc\modsconf                                                                           |          1 |        138 |          7 |          2 |        147 |
+| spp\etc\modsconf\sppdojo                                                                   |          1 |        138 |          7 |          2 |        147 |
+| spp\install                                                                                |          8 |        113 |         35 |         43 |        191 |
+| spp\lib                                                                                    |          1 |      6,767 |      1,887 |      2,063 |     10,717 |
+| spp\lib\jquery                                                                             |          1 |      6,767 |      1,887 |      2,063 |     10,717 |
+| spp\modules                                                                                |         58 |      4,355 |      2,134 |        569 |      7,058 |
+| spp\modules (Files)                                                                        |          1 |         31 |         49 |          9 |         89 |
+| spp\modules\school                                                                         |          6 |        123 |         22 |         20 |        165 |
+| spp\modules\school\schorg                                                                  |          3 |         60 |         11 |         10 |         81 |
+| spp\modules\school\schperson                                                               |          3 |         63 |         11 |         10 |         84 |
+| spp\modules\spp                                                                            |         51 |      4,201 |      2,063 |        540 |      6,804 |
+| spp\modules\spp\sppajax                                                                    |          1 |         15 |          6 |          2 |         23 |
+| spp\modules\spp\sppauth                                                                    |          6 |        579 |        310 |         54 |        943 |
+| spp\modules\spp\sppconfig                                                                  |          2 |        189 |         85 |         12 |        286 |
+| spp\modules\spp\sppdb                                                                      |          5 |        300 |        181 |         30 |        511 |
+| spp\modules\spp\sppdb (Files)                                                              |          4 |        291 |        180 |         27 |        498 |
+| spp\modules\spp\sppdb\events                                                               |          1 |          9 |          1 |          3 |         13 |
+| spp\modules\spp\sppdb\events\defaults                                                      |          1 |          9 |          1 |          3 |         13 |
+| spp\modules\spp\sppentity                                                                  |          4 |        557 |        282 |         68 |        907 |
+| spp\modules\spp\spplogger                                                                  |          2 |         37 |         22 |          3 |         62 |
+| spp\modules\spp\sppprofile                                                                 |          2 |        342 |        118 |         21 |        481 |
+| spp\modules\spp\sppuserprofile                                                             |          1 |         30 |         10 |          3 |         43 |
+| spp\modules\spp\sppview                                                                    |         24 |      2,028 |        967 |        333 |      3,328 |
+| spp\modules\spp\sppview (Files)                                                            |         17 |      1,563 |        890 |        275 |      2,728 |
+| spp\modules\spp\sppview\formelements                                                       |          1 |        331 |         43 |         32 |        406 |
+| spp\modules\spp\sppview\js                                                                 |          1 |          0 |          0 |          1 |          1 |
+| spp\modules\spp\sppview\sppvalidator                                                       |          5 |        134 |         34 |         25 |        193 |
+| spp\modules\spp\sppwizard                                                                  |          2 |        104 |         64 |         11 |        179 |
+| spp\modules\spp\sppxdb                                                                     |          2 |         20 |         18 |          3 |         41 |
+| spp\res                                                                                    |          3 |         44 |          3 |         12 |         59 |
+| spp\res\css                                                                                |          1 |          0 |          0 |          1 |          1 |
+| spp\res\js                                                                                 |          2 |         44 |          3 |         11 |         58 |
+| spp\res\js (Files)                                                                         |          1 |         24 |          3 |          6 |         33 |
+| spp\res\js\sppview                                                                         |          1 |         20 |          0 |          5 |         25 |
+| src                                                                                        |          3 |         93 |          4 |          9 |        106 |
+| vendor                                                                                     |         33 |      3,271 |      1,040 |        795 |      5,106 |
+| vendor (Files)                                                                             |          1 |         20 |          1 |          5 |         26 |
+| vendor\bin                                                                                 |          1 |          5 |          0 |          1 |          6 |
+| vendor\composer                                                                            |         11 |        783 |        378 |        152 |      1,313 |
+| vendor\symfony                                                                             |         20 |      2,463 |        661 |        637 |      3,761 |
+| vendor\symfony\polyfill-ctype                                                              |          5 |        195 |        143 |         45 |        383 |
+| vendor\symfony\yaml                                                                        |         15 |      2,268 |        518 |        592 |      3,378 |
+| vendor\symfony\yaml (Files)                                                                |          9 |      1,969 |        413 |        498 |      2,880 |
+| vendor\symfony\yaml\Command                                                                |          1 |        203 |         15 |         56 |        274 |
+| vendor\symfony\yaml\Exception                                                              |          4 |         78 |         78 |         32 |        188 |
+| vendor\symfony\yaml\Tag                                                                    |          1 |         18 |         12 |          6 |         36 |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| filename                                                                                   | language   | code       | comment    | blank      | total      |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| c:\xampp\htdocs\school\README.md                                                           | Markdown   |          2 |          0 |          1 |          3 |
+| c:\xampp\htdocs\school\School.session.sql                                                  | SQL        |          2 |          0 |          0 |          2 |
+| c:\xampp\htdocs\school\composer.json                                                       | JSON       |          5 |          0 |          1 |          6 |
+| c:\xampp\htdocs\school\composer.lock                                                       | JSON       |        169 |          0 |          1 |        170 |
+| c:\xampp\htdocs\school\database.sql                                                        | SQL        |         97 |          1 |         35 |        133 |
+| c:\xampp\htdocs\school\etc\pages.yml                                                       | YAML       |         21 |          0 |          1 |         22 |
+| c:\xampp\htdocs\school\events\PageNotFound.php                                             | PHP        |         31 |          5 |          7 |         43 |
+| c:\xampp\htdocs\school\events\defaults\test_event.php                                      | PHP        |         23 |          0 |          6 |         29 |
+| c:\xampp\htdocs\school\events\sppdb_connection.php                                         | PHP        |         23 |          5 |          6 |         34 |
+| c:\xampp\htdocs\school\events\test_event.php                                               | PHP        |         28 |          2 |          4 |         34 |
+| c:\xampp\htdocs\school\global.php                                                          | PHP        |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\index.php                                                           | PHP        |          9 |         67 |          2 |         78 |
+| c:\xampp\htdocs\school\js\home.js                                                          | JavaScript |          8 |          6 |          1 |         15 |
+| c:\xampp\htdocs\school\js\pages\login-form.js                                              | JavaScript |         20 |          1 |          2 |         23 |
+| c:\xampp\htdocs\school\js\pages\navbar.js                                                  | JavaScript |         16 |          0 |          3 |         19 |
+| c:\xampp\htdocs\school\js\services.js                                                      | JavaScript |          3 |          0 |          0 |          3 |
+| c:\xampp\htdocs\school\loadcomp.php                                                        | PHP        |          6 |          4 |          0 |         10 |
+| c:\xampp\htdocs\school\oldsrc\comp\forms\login-form.php                                    | PHP        |          0 |          1 |          1 |          2 |
+| c:\xampp\htdocs\school\oldsrc\comp\home-welcome.php                                        | PHP        |          1 |          0 |          0 |          1 |
+| c:\xampp\htdocs\school\oldsrc\comp\loggedout.php                                           | PHP        |          1 |          0 |          0 |          1 |
+| c:\xampp\htdocs\school\oldsrc\comp\login-form.php                                          | PHP        |         39 |          1 |          1 |         41 |
+| c:\xampp\htdocs\school\oldsrc\comp\navbar.php                                              | PHP        |         53 |          0 |          1 |         54 |
+| c:\xampp\htdocs\school\oldsrc\home.php                                                     | PHP        |         65 |         35 |         11 |        111 |
+| c:\xampp\htdocs\school\oldsrc\server\auth.php                                              | PHP        |         44 |         16 |          1 |         61 |
+| c:\xampp\htdocs\school\oldsrc\server\class.person.php                                      | PHP        |         30 |         23 |          8 |         61 |
+| c:\xampp\htdocs\school\oldsrc\server\class.student.php                                     | PHP        |          5 |          0 |          2 |          7 |
+| c:\xampp\htdocs\school\resources\css\home.css                                              | CSS        |        211 |          1 |         22 |        234 |
+| c:\xampp\htdocs\school\resources\css\style.css                                             | CSS        |        176 |          1 |         27 |        204 |
+| c:\xampp\htdocs\school\serv.php                                                            | PHP        |         14 |          4 |          0 |         18 |
+| c:\xampp\htdocs\school\spp\admin\controller.modmain.php                                    | PHP        |         24 |         16 |          1 |         41 |
+| c:\xampp\htdocs\school\spp\admin\controls.devsetup.php                                     | PHP        |         18 |         41 |          1 |         60 |
+| c:\xampp\htdocs\school\spp\admin\controls.devsetup.xml                                     | XML        |        121 |          7 |          2 |        130 |
+| c:\xampp\htdocs\school\spp\admin\controls.devsetup.yml                                     | YAML       |         70 |          0 |          1 |         71 |
+| c:\xampp\htdocs\school\spp\admin\devsetup.php                                              | PHP        |         50 |          5 |          1 |         56 |
+| c:\xampp\htdocs\school\spp\admin\index.php                                                 | PHP        |         54 |          9 |          2 |         65 |
+| c:\xampp\htdocs\school\spp\admin\modmain.php                                               | PHP        |         54 |          6 |          2 |         62 |
+| c:\xampp\htdocs\school\spp\app\index.php                                                   | PHP        |         21 |          0 |          2 |         23 |
+| c:\xampp\htdocs\school\spp\core\class.app.php                                              | PHP        |        158 |         94 |         23 |        275 |
+| c:\xampp\htdocs\school\spp\core\class.eventhandler.php                                     | PHP        |        149 |         92 |         30 |        271 |
+| c:\xampp\htdocs\school\spp\core\class.externalhandler.php                                  | PHP        |         65 |         51 |         16 |        132 |
+| c:\xampp\htdocs\school\spp\core\class.module.php                                           | PHP        |        188 |        120 |         16 |        324 |
+| c:\xampp\htdocs\school\spp\core\class.registry.php                                         | PHP        |        147 |         89 |         15 |        251 |
+| c:\xampp\htdocs\school\spp\core\class.scheduler.php                                        | PHP        |         90 |         49 |         10 |        149 |
+| c:\xampp\htdocs\school\spp\core\class.settings.php                                         | PHP        |         50 |         11 |          5 |         66 |
+| c:\xampp\htdocs\school\spp\core\class.sppbase.php                                          | PHP        |         25 |         78 |          5 |        108 |
+| c:\xampp\htdocs\school\spp\core\class.sppdev.php                                           | PHP        |         47 |          8 |          3 |         58 |
+| c:\xampp\htdocs\school\spp\core\class.spperror.php                                         | PHP        |        218 |         66 |         20 |        304 |
+| c:\xampp\htdocs\school\spp\core\class.sppevent.php                                         | PHP        |        317 |        161 |         36 |        514 |
+| c:\xampp\htdocs\school\spp\core\class.sppexception.php                                     | PHP        |         41 |         18 |          4 |         63 |
+| c:\xampp\htdocs\school\spp\core\class.sppfs.php                                            | PHP        |         28 |          9 |          0 |         37 |
+| c:\xampp\htdocs\school\spp\core\class.sppglobal.php                                        | PHP        |         57 |         52 |          9 |        118 |
+| c:\xampp\htdocs\school\spp\core\class.sppobject.php                                        | PHP        |         51 |         36 |          6 |         93 |
+| c:\xampp\htdocs\school\spp\core\class.sppsession.php                                       | PHP        |        152 |        108 |         23 |        283 |
+| c:\xampp\htdocs\school\spp\core\class.sppstring.php                                        | PHP        |         43 |          6 |          2 |         51 |
+| c:\xampp\htdocs\school\spp\core\class.spputils.php                                         | PHP        |         55 |         11 |          6 |         72 |
+| c:\xampp\htdocs\school\spp\core\class.sppxml.php                                           | PHP        |         41 |          9 |          5 |         55 |
+| c:\xampp\htdocs\school\spp\core\class.stack.php                                            | PHP        |         44 |          7 |          5 |         56 |
+| c:\xampp\htdocs\school\spp\core\class.xsettings.php                                        | PHP        |         48 |         10 |          5 |         63 |
+| c:\xampp\htdocs\school\spp\core\excelgenerate.php                                          | PHP        |          9 |          0 |          0 |          9 |
+| c:\xampp\htdocs\school\spp\core\index.php                                                  | PHP        |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\spp\core\int.imodule.php                                            | PHP        |          6 |          0 |          1 |          7 |
+| c:\xampp\htdocs\school\spp\core\int.sppientity.php                                         | PHP        |          4 |          0 |          0 |          4 |
+| c:\xampp\htdocs\school\spp\core\settings.php                                               | PHP        |         13 |          3 |          0 |         16 |
+| c:\xampp\htdocs\school\spp\core\sppfuncs.php                                               | PHP        |        120 |         87 |         33 |        240 |
+| c:\xampp\htdocs\school\spp\core\sppsystemevents.php                                        | PHP        |         16 |          0 |          2 |         18 |
+| c:\xampp\htdocs\school\spp\core\sppsystemexceptions.php                                    | PHP        |        183 |          1 |         29 |        213 |
+| c:\xampp\htdocs\school\spp\dev\controls.devsetup.php                                       | PHP        |         18 |         41 |          0 |         59 |
+| c:\xampp\htdocs\school\spp\dev\controls.devsetup.xml                                       | XML        |        121 |          7 |          2 |        130 |
+| c:\xampp\htdocs\school\spp\dev\devconsole.php                                              | PHP        |         12 |          1 |          2 |         15 |
+| c:\xampp\htdocs\school\spp\dev\devsetup.php                                                | PHP        |         50 |          5 |          1 |         56 |
+| c:\xampp\htdocs\school\spp\dev\devsetup1.php                                               | PHP        |         36 |          2 |          1 |         39 |
+| c:\xampp\htdocs\school\spp\dev\index.php                                                   | PHP        |         43 |         18 |          2 |         63 |
+| c:\xampp\htdocs\school\spp\dev\model.index.php                                             | PHP        |          7 |          3 |          1 |         11 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modsconf\modules.yml                           | YAML       |         85 |          0 |          1 |         86 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modsconf\sppdb\config.xml                      | XML        |         25 |          7 |          2 |         34 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modsconf\sppdb\config.yml                      | YAML       |          6 |          0 |          1 |          7 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modsconf\sppdojo\dojosources.xml               | XML        |        138 |          7 |          2 |        147 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modsconf\sppentity\config.xml                  | XML        |         25 |          7 |          2 |         34 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\modules.xml                                    | XML        |         76 |          7 |          2 |         85 |
+| c:\xampp\htdocs\school\spp\etc\apps\default\settings.xml                                   | XML        |         19 |          7 |          3 |         29 |
+| c:\xampp\htdocs\school\spp\etc\apps\demo\modsconf\sppdb\config.xml                         | XML        |         25 |          7 |          2 |         34 |
+| c:\xampp\htdocs\school\spp\etc\apps\demo\modsconf\sppdojo\dojosources.xml                  | XML        |        138 |          7 |          2 |        147 |
+| c:\xampp\htdocs\school\spp\etc\apps\demo\modules.xml                                       | XML        |         97 |          7 |          2 |        106 |
+| c:\xampp\htdocs\school\spp\etc\apps\demo\settings.xml                                      | XML        |         16 |          7 |          2 |         25 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppadmin\modsconf\sppdb\config.xml                     | XML        |         25 |          7 |          2 |         34 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppadmin\modsconf\sppdojo\dojosources.xml              | XML        |        138 |          7 |          2 |        147 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppadmin\modules.xml                                   | XML        |         97 |          7 |          2 |        106 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppadmin\settings.xml                                  | XML        |         16 |          7 |          2 |         25 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppdev\modsconf\sppdb\config.xml                       | XML        |         25 |          7 |          2 |         34 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppdev\modsconf\sppdojo\dojosources.xml                | XML        |        138 |          7 |          2 |        147 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppdev\modules.xml                                     | XML        |         97 |          7 |          2 |        106 |
+| c:\xampp\htdocs\school\spp\etc\apps\sppdev\settings.xml                                    | XML        |         16 |          7 |          2 |         25 |
+| c:\xampp\htdocs\school\spp\etc\initrc.php                                                  | PHP        |          2 |          4 |          1 |          7 |
+| c:\xampp\htdocs\school\spp\etc\modsconf\sppdojo\dojosources.xml                            | XML        |        138 |          7 |          2 |        147 |
+| c:\xampp\htdocs\school\spp\etc\modules.xml                                                 | XML        |         97 |          7 |          2 |        106 |
+| c:\xampp\htdocs\school\spp\etc\settings.xml                                                | XML        |         19 |          7 |          2 |         28 |
+| c:\xampp\htdocs\school\spp\index.php                                                       | PHP        |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\spp\install\appusers.php                                            | PHP        |          2 |         10 |          1 |         13 |
+| c:\xampp\htdocs\school\spp\install\database.sql                                            | SQL        |         97 |          0 |         35 |        132 |
+| c:\xampp\htdocs\school\spp\install\index.php                                               | PHP        |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\spp\install\sysconfigtabvars.php                                    | PHP        |          2 |          5 |          2 |          9 |
+| c:\xampp\htdocs\school\spp\install\sysconfigvars.php                                       | PHP        |          3 |          5 |          0 |          8 |
+| c:\xampp\htdocs\school\spp\install\sysrights.php                                           | PHP        |          2 |          5 |          2 |          9 |
+| c:\xampp\htdocs\school\spp\install\sysroles.php                                            | PHP        |          2 |          5 |          1 |          8 |
+| c:\xampp\htdocs\school\spp\install\syssequences.php                                        | PHP        |          5 |          5 |          1 |         11 |
+| c:\xampp\htdocs\school\spp\lib\jquery\jquery-3.7.1.js                                      | JavaScript |      6,767 |      1,887 |      2,063 |     10,717 |
+| c:\xampp\htdocs\school\spp\modules\class.sppdbentity.php                                   | PHP        |         31 |         49 |          9 |         89 |
+| c:\xampp\htdocs\school\spp\modules\school\schorg\class.schorg.php                          | PHP        |         33 |          5 |          6 |         44 |
+| c:\xampp\htdocs\school\spp\modules\school\schorg\module.xml                                | XML        |         15 |          6 |          2 |         23 |
+| c:\xampp\htdocs\school\spp\modules\school\schorg\orgexceptions.php                         | PHP        |         12 |          0 |          2 |         14 |
+| c:\xampp\htdocs\school\spp\modules\school\schperson\class.schperson.php                    | PHP        |         36 |          5 |          6 |         47 |
+| c:\xampp\htdocs\school\spp\modules\school\schperson\module.xml                             | XML        |         15 |          6 |          2 |         23 |
+| c:\xampp\htdocs\school\spp\modules\school\schperson\personexceptions.php                   | PHP        |         12 |          0 |          2 |         14 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppajax\module.xml                                  | XML        |         15 |          6 |          2 |         23 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\class.sppauth.php                           | PHP        |         93 |         72 |          8 |        173 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\class.sppright.php                          | PHP        |         49 |         34 |          7 |         90 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\class.spprole.php                           | PHP        |         75 |         38 |          6 |        119 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\class.sppuser.php                           | PHP        |        227 |        107 |         21 |        355 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\class.sppusersession.php                    | PHP        |        116 |         52 |         10 |        178 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppauth\module.xml                                  | XML        |         19 |          7 |          2 |         28 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppconfig\class.sppconfig.php                       | PHP        |        174 |         78 |         10 |        262 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppconfig\module.xml                                | XML        |         15 |          7 |          2 |         24 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppdb\class.sppdb.php                               | PHP        |        176 |        135 |         20 |        331 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppdb\class.sppsequence.php                         | PHP        |         95 |         38 |          4 |        137 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppdb\events\defaults\sppdb_connection.php          | PHP        |          9 |          1 |          3 |         13 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppdb\modinit.php                                   | PHP        |          4 |          0 |          1 |          5 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppdb\module.xml                                    | XML        |         16 |          7 |          2 |         25 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppentity\class.sppentity.php                       | PHP        |        315 |        181 |         41 |        537 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppentity\class.sppentityrelations.php              | PHP        |        212 |         95 |         22 |        329 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppentity\entityexceptions.php                      | PHP        |         15 |          0 |          3 |         18 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppentity\module.xml                                | XML        |         15 |          6 |          2 |         23 |
+| c:\xampp\htdocs\school\spp\modules\spp\spplogger\class.spplogger.php                       | PHP        |         22 |         15 |          1 |         38 |
+| c:\xampp\htdocs\school\spp\modules\spp\spplogger\module.xml                                | XML        |         15 |          7 |          2 |         24 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppprofile\class.sppprofile.php                     | PHP        |        327 |        111 |         19 |        457 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppprofile\module.xml                               | XML        |         15 |          7 |          2 |         24 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppuserprofile\class.sppuserprofile.php             | PHP        |         30 |         10 |          3 |         43 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\ajaxexceptions.php                          | PHP        |         13 |          0 |          3 |         16 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.ajax.php                              | PHP        |         93 |         60 |         15 |        168 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.domevent.php                          | PHP        |          6 |          0 |          1 |          7 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.pages.php                             | PHP        |         92 |         11 |          4 |        107 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.sppformelement.php                    | PHP        |         19 |         12 |          6 |         37 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.spphtmlblock.php                      | PHP        |         50 |          5 |         17 |         72 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.spphtmltable.php                      | PHP        |        152 |         23 |         22 |        197 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.spprequest.php                        | PHP        |         30 |          0 |          5 |         35 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.sppresponse.php                       | PHP        |         43 |         66 |         15 |        124 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.sppvalidator.php                      | PHP        |         47 |         16 |         10 |         73 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.sppviewerrors.php                     | PHP        |         70 |          0 |          7 |         77 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.sppviewform.php                       | PHP        |        159 |         69 |         22 |        250 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.viewpage.php                          | PHP        |        361 |        353 |         62 |        776 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\class.viewtag.php                           | PHP        |        313 |        267 |         67 |        647 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\classes.htmlelements.php                    | PHP        |         89 |          1 |         15 |        105 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\formelements\classes.formelements.php       | PHP        |        331 |         43 |         32 |        406 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\js\sppview.js                               | JavaScript |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\modinit.php                                 | PHP        |          4 |          0 |          2 |          6 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\module.xml                                  | XML        |         22 |          7 |          2 |         31 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\sppvalidator\class.sppmultiplevalidator.php | PHP        |         26 |          7 |          5 |         38 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\sppvalidator\class.sppsinglevalidator.php   | PHP        |         19 |          7 |          6 |         32 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\sppvalidator\class.sppvalidate.php          | PHP        |          5 |         10 |          3 |         18 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\sppvalidator\classes.sppvalidators.php      | PHP        |         67 |          3 |          9 |         79 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppview\sppvalidator\module.xml                     | XML        |         17 |          7 |          2 |         26 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppwizard\class.sppwizard.php                       | PHP        |         89 |         57 |          9 |        155 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppwizard\module.xml                                | XML        |         15 |          7 |          2 |         24 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppxdb\class.sppxdb.php                             | PHP        |          5 |         11 |          1 |         17 |
+| c:\xampp\htdocs\school\spp\modules\spp\sppxdb\module.xml                                   | XML        |         15 |          7 |          2 |         24 |
+| c:\xampp\htdocs\school\spp\pages.php                                                       | PHP        |          5 |          0 |          4 |          9 |
+| c:\xampp\htdocs\school\spp\res\css\spp.css                                                 | CSS        |          0 |          0 |          1 |          1 |
+| c:\xampp\htdocs\school\spp\res\js\spp.js                                                   | JavaScript |         24 |          3 |          6 |         33 |
+| c:\xampp\htdocs\school\spp\res\js\sppview\sppview.js                                       | JavaScript |         20 |          0 |          5 |         25 |
+| c:\xampp\htdocs\school\spp\services.php                                                    | PHP        |         19 |          0 |          5 |         24 |
+| c:\xampp\htdocs\school\spp\sppinit.php                                                     | PHP        |         49 |         81 |          9 |        139 |
+| c:\xampp\htdocs\school\src\about.php                                                       | PHP        |          5 |          0 |          0 |          5 |
+| c:\xampp\htdocs\school\src\home.php                                                        | PHP        |         49 |          4 |          6 |         59 |
+| c:\xampp\htdocs\school\src\login.php                                                       | PHP        |         39 |          0 |          3 |         42 |
+| c:\xampp\htdocs\school\vendor\autoload.php                                                 | PHP        |         20 |          1 |          5 |         26 |
+| c:\xampp\htdocs\school\vendor\bin\yaml-lint.bat                                            | Batch      |          5 |          0 |          1 |          6 |
+| c:\xampp\htdocs\school\vendor\composer\ClassLoader.php                                     | PHP        |        286 |        235 |         59 |        580 |
+| c:\xampp\htdocs\school\vendor\composer\InstalledVersions.php                               | PHP        |        178 |        133 |         49 |        360 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_classmap.php                               | PHP        |          6 |          1 |          4 |         11 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_files.php                                  | PHP        |          6 |          1 |          4 |         11 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_namespaces.php                             | PHP        |          5 |          1 |          4 |         10 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_psr4.php                                   | PHP        |          7 |          1 |          4 |         12 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_real.php                                   | PHP        |         35 |          4 |         12 |         51 |
+| c:\xampp\htdocs\school\vendor\composer\autoload_static.php                                 | PHP        |         36 |          1 |          9 |         46 |
+| c:\xampp\htdocs\school\vendor\composer\installed.json                                      | JSON       |        162 |          0 |          1 |        163 |
+| c:\xampp\htdocs\school\vendor\composer\installed.php                                       | PHP        |         41 |          0 |          1 |         42 |
+| c:\xampp\htdocs\school\vendor\composer\platform_check.php                                  | PHP        |         21 |          1 |          5 |         27 |
+| c:\xampp\htdocs\school\vendor\symfony\polyfill-ctype\Ctype.php                             | PHP        |         76 |        127 |         30 |        233 |
+| c:\xampp\htdocs\school\vendor\symfony\polyfill-ctype\README.md                             | Markdown   |          8 |          0 |          5 |         13 |
+| c:\xampp\htdocs\school\vendor\symfony\polyfill-ctype\bootstrap.php                         | PHP        |         38 |          8 |          5 |         51 |
+| c:\xampp\htdocs\school\vendor\symfony\polyfill-ctype\bootstrap80.php                       | PHP        |         35 |          8 |          4 |         47 |
+| c:\xampp\htdocs\school\vendor\symfony\polyfill-ctype\composer.json                         | JSON       |         38 |          0 |          1 |         39 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\CHANGELOG.md                                    | Markdown   |        182 |          0 |         82 |        264 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Command\LintCommand.php                         | PHP        |        203 |         15 |         56 |        274 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Dumper.php                                      | PHP        |        113 |         29 |         37 |        179 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Escaper.php                                     | PHP        |         41 |         45 |         10 |         96 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Exception\DumpException.php                     | PHP        |          5 |         13 |          4 |         22 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Exception\ExceptionInterface.php                | PHP        |          5 |         13 |          4 |         22 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Exception\ParseException.php                    | PHP        |         63 |         39 |         20 |        122 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Exception\RuntimeException.php                  | PHP        |          5 |         13 |          4 |         22 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Inline.php                                      | PHP        |        595 |        115 |        126 |        836 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Parser.php                                      | PHP        |        900 |        129 |        216 |      1,245 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\README.md                                       | Markdown   |         10 |          0 |          4 |         14 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Tag\TaggedValue.php                             | PHP        |         18 |         12 |          6 |         36 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Unescaper.php                                   | PHP        |         56 |         42 |         11 |        109 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\Yaml.php                                        | PHP        |         34 |         53 |         11 |         98 |
+| c:\xampp\htdocs\school\vendor\symfony\yaml\composer.json                                   | JSON       |         38 |          0 |          1 |         39 |
+| Total                                                                                      |            |     20,340 |      6,838 |      4,030 |     31,208 |
++--------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+

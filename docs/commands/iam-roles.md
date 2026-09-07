@@ -1,6 +1,6 @@
 ## `iam:roles`
 
-**Purpose**: List all Roles and Entity Role Assignments
+**Description**: List all Roles and Entity Role Assignments
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php iam:roles list
 
 ```
 
-### Options Available
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--json` : Boolean flag. Extracted via static analysis from RoleCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 

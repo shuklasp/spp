@@ -1,0 +1,28 @@
+{
+    "title": "Audit trail test",
+    "description": "",
+    "type": "task",
+    "priority": "medium",
+    "assignees": [],
+    "labels": [],
+    "status": "todo",
+    "author": "CLI",
+    "created_at": 1788447349,
+    "updated_at": 1788588251,
+    "comments": [
+        {
+            "author": "System",
+            "content": "admin moved this from 'open' to 'in_progress'.",
+            "timestamp": 1788588248,
+            "type": "event"
+        },
+        {
+            "author": "System",
+            "content": "admin moved this from 'in_progress' to 'todo'.",
+            "timestamp": 1788588251,
+            "type": "event"
+        }
+    ],
+    "time_logs": [],
+    "number": 1
+}

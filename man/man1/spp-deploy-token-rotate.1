@@ -1,25 +1,20 @@
-.TH SPP-deploy-token-rotate 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-token-rotate 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-deploy:token:rotate
-.PP
- \- Rotate the secure deployment gateway token on both local and remote environments with zero downtime
+spp-deploy-token-rotate \- Rotate the secure deployment gateway token on both local and remote environments with zero downtime
+.SH SYNOPSIS
+.B php spp.php deploy:token:rotate
+[OPTIONS]
 .SH DESCRIPTION
 Rotate the secure deployment gateway token on both local and remote environments with zero downtime
 .PP
-.SH SYNOPSIS
-php spp.php deploy:token:rotate [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--key=` : Expects a value. Extracted via static analysis.
-.br
-\(bu `--status` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --key=
+Expects a value. Extracted via static analysis from DeployTokenRotateCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: deployment, token.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: deployment, token.
+.br

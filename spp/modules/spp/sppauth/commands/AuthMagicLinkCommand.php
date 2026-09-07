@@ -9,6 +9,7 @@ use SPPMod\SPPAuth\SPPUser;
 
 class AuthMagicLinkCommand extends Command
 {
+    protected string $name = 'auth:magiclink';
     protected string $signature = 'auth:magiclink {email}';
     protected string $description = 'Generate a one-time passwordless Magic Link for a user';
 

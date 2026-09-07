@@ -1,17 +1,17 @@
 ## `env:token:rotate`
 
-**Purpose**: Rotate the system deployment token
+**Description**: Rotate the system deployment token
 
 ### Synopsis
 ```bash
 php spp.php env:token:rotate [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvTokenRotateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 

@@ -1,25 +1,22 @@
-.TH SPP-module-install 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-module-install 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-module:install
-.PP
- \- Install or upgrade a specific module or all active modules
+spp-module-install \- Install or upgrade a specific module or all active modules
+.SH SYNOPSIS
+.B php spp.php module:install
+[OPTIONS]
 .SH DESCRIPTION
 Install or upgrade a specific module or all active modules
 .PP
-.SH SYNOPSIS
-php spp.php module:install [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php module:install <modulename> [--all]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--all` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --all
+Boolean flag. Extracted via static analysis from ModuleInstallCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Executes native PHP logic without major side-effects.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
 .br
-.PP
-.PP

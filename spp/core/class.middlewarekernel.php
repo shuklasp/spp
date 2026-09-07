@@ -23,7 +23,8 @@ class MiddlewareKernel
         // 1. Load Core Middleware and Registry (Programmatic registration)
         $registered = \SPP\Registry::get('__middleware=>global') ?: [];
         self::$middleware = array_merge([
-            \SPP\Core\Middleware\ApiAuthMiddleware::class
+            \SPP\Core\Middleware\ApiAuthMiddleware::class,
+            \SPP\Core\Security\Middleware\CsrfMiddleware::class
         ], (array) $registered);
 
         // 2. Load from Global Config

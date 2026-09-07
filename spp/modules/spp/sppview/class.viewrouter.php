@@ -83,6 +83,31 @@ class ViewRouter
                 $controller = new $class();
                 if (method_exists($controller, $method)) {
                     $params = $pageData['params'] ?? [];
+                    $namedParams = $pageData['named_params'] ?? [];
+                    
+                    if (!empty($namedParams)) {
+                        try {
+                            $refMethod = new \ReflectionMethod($controller, $method);
+                            $finalParams = [];
+                            $positionalIndex = 0;
+                            
+                            foreach ($refMethod->getParameters() as $refParam) {
+                                $paramName = $refParam->getName();
+                                if (array_key_exists($paramName, $namedParams)) {
+                                    $finalParams[] = $namedParams[$paramName];
+                                } elseif (array_key_exists($positionalIndex, $params)) {
+                                    $finalParams[] = $params[$positionalIndex];
+                                } else {
+                                    $finalParams[] = $refParam->isDefaultValueAvailable() ? $refParam->getDefaultValue() : null;
+                                }
+                                $positionalIndex++;
+                            }
+                            $params = $finalParams;
+                        } catch (\ReflectionException $e) {
+                            // Fallback to basic positional binding if reflection fails
+                        }
+                    }
+
                     $result = call_user_func_array([$controller, $method], $params);
                     if (is_string($result)) {
                         echo $result;

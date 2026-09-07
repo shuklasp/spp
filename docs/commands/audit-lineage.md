@@ -1,16 +1,16 @@
 ## `audit:lineage`
 
-**Purpose**: Traverses and verifies cryptographic Merkle-DAG trace logs
+**Description**: Traverses and verifies cryptographic Merkle-DAG trace logs
 
 ### Synopsis
 ```bash
 php spp.php audit:lineage [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from AuditLineageCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

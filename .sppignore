@@ -1,0 +1,10 @@
+# SPPDeploy Ignore File
+# Paths listed here will not be synchronized to the remote server
+
+/.git
+/spp/var/cache
+/spp/var/logs
+/spp/var/sessions
+/spp/var/backups
+/.sppdeploy.yml
+/.maintenance

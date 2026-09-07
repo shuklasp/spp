@@ -38,14 +38,20 @@ class ABACPolicyCommand extends Command
     public function execute(array $args): void
     {
         $action = $args['action'] ?? 'list';
-        $isJson = isset($args['json']) || in_array('--json', $args, true);
+        $isJson = $this->hasFlag($args, 'json') || in_array('--json', $args, true);
         
-        $db = new SPPDB();
-        $table = SPPDB::sppTable('abac_policies');
+        $policies = [];
+        try {
+            $db = new SPPDB();
+            $table = SPPDB::sppTable('abac_policies');
+            if ($action === 'list') {
+                $policies = $db->execute_query("SELECT id, permission, condition_logic, status FROM $table ORDER BY id DESC") ?? [];
+            }
+        } catch (\Throwable $e) {
+            $policies = [];
+        }
 
         if ($action === 'list') {
-            $policies = $db->execute_query("SELECT id, permission, condition_logic, status FROM $table ORDER BY id DESC");
-            
             if ($isJson) {
                 echo json_encode(['sources' => [['items' => $policies ?? []]]]);
                 return;

@@ -184,9 +184,9 @@ export default class ApiKeysView extends BaseComponent {
     render() {
         const { loading, error, keys, showGenerateModal } = this.state;
 
-        // Update Header
+        // Update Header (only if standalone without external parent tabs)
         const headerActions = document.getElementById('header-actions');
-        if (headerActions) {
+        if (headerActions && !headerActions.querySelector('.spp-tabs')) {
             headerActions.innerHTML = '';
             const btn = document.createElement('button');
             btn.className = 'btn primary-btn btn-sm';

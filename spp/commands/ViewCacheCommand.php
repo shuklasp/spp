@@ -22,6 +22,12 @@ class ViewCacheCommand extends Command
 
     public function execute(array $args): void
     {
+        if (in_array('--help', $args, true) || in_array('-h', $args, true)) {
+            echo "Usage: php spp.php view:cache [--app=name]\n";
+            echo "Pre-compiles all AST views into PHP for optimal performance.\n";
+            return;
+        }
+
         $app = null;
         foreach ($args as $arg) {
             if (strpos($arg, '--app=') === 0) {

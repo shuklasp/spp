@@ -1,0 +1,28 @@
+id: all_articles
+title: 'All Documentation Articles'
+description: 'Dynamic grid of all published documentation pages with search and category filters'
+collection: page
+source_type: docs
+display_format: grid
+layout: grid
+limit: 12
+items_per_page: 12
+paginate: true
+sort_by: title
+sort_dir: asc
+filters:
+  -
+    field: status
+    operator: equals
+    value: published
+    exposed: false
+sorts: {  }
+columns:
+  - title
+  - description
+  - category
+fields:
+  - title
+  - description
+  - category
+updated_at: 1788605004

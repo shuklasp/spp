@@ -1,0 +1,55 @@
+.TH PKG:INSTALL 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+pkg:install \- Download and install a native SPP app or external package from a URL, local path, or central registry
+.SH SYNOPSIS
+.B php spp.php pkg:install
+.I <source_or_name>
+.I <app_name>
+[\-\-type=native|external] [\-\-route=/path]
+.SH DESCRIPTION
+The
+.B pkg:install
+command serves as the SPP Package Manager. It is designed to automatically provision either native SPP applications or external legacy applications (like Drupal, WordPress, or custom PHP scripts) directly into your environment.
+.PP
+When downloading an
+.B external
+app, the system will automatically route requests to it using the SPP WebOS Mesh router bypass mechanism.
+.PP
+When downloading a
+.B native
+app, the system will unpack it into the src/ directory, register it in global-settings.yml, and trigger the site:install hook.
+.SH OPTIONS
+.TP
+.I <source_or_name>
+(Required) The local .zip file path, an HTTP/HTTPS URL to a .zip file, or the central registry shortname (e.g., spp-blog-app).
+.TP
+.I <app_name>
+(Required) The internal machine name you wish to assign to this application (e.g., school1, wordpress).
+.TP
+.B \-\-type=native|external
+(Optional) Specify native (default) for standard SPP applications that live in src/. Specify external for third-party CMS/scripts that should be unpacked into public/ and routed via mesh.
+.TP
+.B \-\-route=/path
+(Optional) When using \-\-type=external, you must specify the URL prefix where the application will be mounted (e.g., \-\-route=/blog).
+.SH EXAMPLES
+.B Install a Native Application from the Central Registry:
+.br
+php spp.php pkg:install sample-crm-app my_crm
+.PP
+.B Install a Native Application from a ZIP URL:
+.br
+php spp.php pkg:install https://example.com/downloads/crm.zip my_crm
+.PP
+.B Install WordPress (External CMS) and Mount it on /blog:
+.br
+php spp.php pkg:install https://wordpress.org/latest.zip wordpress \-\-type=external \-\-route=/blog
+.SH UNDER THE HOOD
+1. Network / FS Activity: Downloads the specified ZIP file into var/tmp and extracts it. Handles GitHub repository ZIP wrappers automatically.
+.br
+2. Filesystem Writes: Moves the extracted directory into src/<app_name> (native) or public/<route> (external).
+.br
+3. Config Modifications (Native): Injects the new application and its route mapping into spp/etc/global-settings.yml.
+.br
+4. Config Modifications (External): Injects the route bypass into spp/etc/routes.yml and creates a dummy spp-webos-config.php file in the target directory to spoof WebOS isolation variables.
+.br
+5. Hooks: Calls php spp.php site:install <app_name> for native installations to build out database schemas.

@@ -18,6 +18,12 @@ class QueueWorkCommand extends Command
 
     public function execute(array $args): void
     {
+        if (in_array('--help', $args, true) || in_array('-h', $args, true)) {
+            echo "Usage: php spp.php queue:work\n";
+            echo "Starts a worker loop to process background jobs from the queue.\n";
+            return;
+        }
+
         echo "Starting SPP Queue Worker Daemon...\n";
         
         // Define sleep duration between polling empty queue

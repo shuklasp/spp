@@ -28,17 +28,26 @@ class RoleCommand extends Command
     public function execute(array $args): void
     {
         $action = $args['action'] ?? 'list';
-        $isJson = isset($args['json']) || in_array('--json', $args, true);
+        $isJson = $this->hasFlag($args, 'json') || in_array('--json', $args, true);
 
-        $db = new SPPDB();
-        $rolesTable = SPPDB::sppTable('roles');
-        $erTable = SPPDB::sppTable('entity_roles');
+        $roles = [];
+        $assignments = [];
+        try {
+            $db = new SPPDB();
+            $rolesTable = SPPDB::sppTable('roles');
+            $erTable = SPPDB::sppTable('entity_roles');
+
+            if ($action === 'list') {
+                $roles = $db->execute_query("SELECT id, role_name, description FROM $rolesTable ORDER BY id ASC") ?? [];
+                $sql = "SELECT er.target_class, er.target_id, r.role_name FROM $erTable er JOIN $rolesTable r ON er.role_id = r.id";
+                $assignments = $db->execute_query($sql) ?? [];
+            }
+        } catch (\Throwable $e) {
+            $roles = [];
+            $assignments = [];
+        }
 
         if ($action === 'list') {
-            $roles = $db->execute_query("SELECT id, role_name, description FROM $rolesTable ORDER BY id ASC");
-            $sql = "SELECT er.target_class, er.target_id, r.role_name FROM $erTable er JOIN $rolesTable r ON er.role_id = r.id";
-            $assignments = $db->execute_query($sql);
-
             if ($isJson) {
                 echo json_encode([
                     'roles' => $roles ?? [],

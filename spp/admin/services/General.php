@@ -30,22 +30,15 @@ if (!function_exists('live_login')) {
         live_Auth_Login($la, $p);
     }
 }
-if (!function_exists('live_Auth_VerifyMFA')) {
-    function live_Auth_VerifyMFA($la, $p)
+if (!function_exists('live_verify_mfa')) {
+    function live_verify_mfa($la, $p)
     {
-        live_Auth_VerifyMFA($la, $p);
-    }
-}
-if (!function_exists('live_Auth_SendMagicLink')) {
-    function live_Auth_SendMagicLink($la, $p)
-    {
-        live_Auth_SendMagicLink($la, $p);
-    }
-}
-if (!function_exists('live_Auth_ConsumeMagicLink')) {
-    function live_Auth_ConsumeMagicLink($la, $p)
-    {
-        live_Auth_ConsumeMagicLink($la, $p);
+        if (function_exists('live_Auth_VerifyMFA')) {
+            live_Auth_VerifyMFA($la, $p);
+        } else {
+            $la->set('status', 'error');
+            $la->set('message', 'MFA verification service unavailable');
+        }
     }
 }
 if (!function_exists('live_logout')) {

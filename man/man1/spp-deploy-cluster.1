@@ -1,27 +1,24 @@
-.TH SPP-deploy-cluster 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-deploy-cluster 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-deploy:cluster
-.PP
- \- Deploy to a multi-server cluster sequentially
+spp-deploy-cluster \- Deploy to a multi-server cluster sequentially
+.SH SYNOPSIS
+.B php spp.php deploy:cluster
+[OPTIONS]
 .SH DESCRIPTION
 Deploy to a multi-server cluster sequentially
 .PP
-.SH SYNOPSIS
-php spp.php deploy:cluster [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php deploy:cluster <cluster_name>
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--force` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --force
+Boolean flag. Extracted via static analysis from DeployClusterCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: DeployPushCommand.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: DeployPushCommand.
+.br

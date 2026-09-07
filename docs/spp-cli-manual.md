@@ -1,28 +1,8 @@
 # SPP CLI Manual
 
-Detailed reference for all `spp.php` commands.
+Detailed reference for all `spp.php` commands, generated via static code analysis.
 
 ## Table of Contents
-- [``](#)
-- [`admin:adminrbac`](#adminadminrbac)
-- [`admin:ai`](#adminai)
-- [`admin:audit`](#adminaudit)
-- [`admin:auth`](#adminauth)
-- [`admin:bootstrap`](#adminbootstrap)
-- [`admin:config`](#adminconfig)
-- [`admin:core`](#admincore)
-- [`admin:diagnostics`](#admindiagnostics)
-- [`admin:docs`](#admindocs)
-- [`admin:entities`](#adminentities)
-- [`admin:forms`](#adminforms)
-- [`admin:general`](#admingeneral)
-- [`admin:iam`](#adminiam)
-- [`admin:legacy`](#adminlegacy)
-- [`admin:lifecycle`](#adminlifecycle)
-- [`admin:modules`](#adminmodules)
-- [`admin:routing`](#adminrouting)
-- [`admin:spplang`](#adminspplang)
-- [`admin:xdb`](#adminxdb)
 - [`ai:benchmark:models`](#aibenchmarkmodels)
 - [`ai:make:workflow`](#aimakeworkflow)
 - [`ai:prompt`](#aiprompt)
@@ -38,6 +18,7 @@ Detailed reference for all `spp.php` commands.
 - [`app:set-base`](#appsetbase)
 - [`ask`](#ask)
 - [`audit:lineage`](#auditlineage)
+- [`auth:magiclink`](#authmagiclink)
 - [`auth:tokens`](#authtokens)
 - [`blade:clear`](#bladeclear)
 - [`blade:view`](#bladeview)
@@ -79,25 +60,6 @@ Detailed reference for all `spp.php` commands.
 - [`deploy:rollback`](#deployrollback)
 - [`deploy:run`](#deployrun)
 - [`deploy:token:rotate`](#deploytokenrotate)
-- [`dev:adminrbac`](#devadminrbac)
-- [`dev:ai`](#devai)
-- [`dev:audit`](#devaudit)
-- [`dev:auth`](#devauth)
-- [`dev:codeeditor`](#devcodeeditor)
-- [`dev:config`](#devconfig)
-- [`dev:core`](#devcore)
-- [`dev:diagnostics`](#devdiagnostics)
-- [`dev:docs`](#devdocs)
-- [`dev:entities`](#deventities)
-- [`dev:forms`](#devforms)
-- [`dev:general`](#devgeneral)
-- [`dev:iam`](#deviam)
-- [`dev:legacy`](#devlegacy)
-- [`dev:lifecycle`](#devlifecycle)
-- [`dev:modules`](#devmodules)
-- [`dev:routing`](#devrouting)
-- [`dev:spplang`](#devspplang)
-- [`dev:xdb`](#devxdb)
 - [`di:list`](#dilist)
 - [`diff:apply`](#diffapply)
 - [`diff:compare`](#diffcompare)
@@ -149,6 +111,7 @@ Detailed reference for all `spp.php` commands.
 - [`interdb:mapping:add`](#interdbmappingadd)
 - [`interdb:mapping:list`](#interdbmappinglist)
 - [`interdb:mapping:remove`](#interdbmappingremove)
+- [`issue`](#issue)
 - [`kernel:compile`](#kernelcompile)
 - [`lang:export`](#langexport)
 - [`lang:import`](#langimport)
@@ -189,10 +152,9 @@ Detailed reference for all `spp.php` commands.
 - [`make:node-service`](#makenodeservice)
 - [`make:partial`](#makepartial)
 - [`make:perl-service`](#makeperlservice)
-- [`make:polyglot`](#makepolyglot)
-- [`make:polyglot-partial`](#makepolyglotpartial)
 - [`make:python-service`](#makepythonservice)
 - [`make:react-component`](#makereactcomponent)
+- [`make:report`](#makereport)
 - [`make:scaffold`](#makescaffold)
 - [`make:seeder`](#makeseeder)
 - [`make:service`](#makeservice)
@@ -224,16 +186,16 @@ Detailed reference for all `spp.php` commands.
 - [`oauth:client:create`](#oauthclientcreate)
 - [`oauth:client:delete`](#oauthclientdelete)
 - [`oauth:client:list`](#oauthclientlist)
-- [`polyglot:async`](#polyglotasync)
-- [`polyglot:list`](#polyglotlist)
-- [`polyglot:run`](#polyglotrun)
-- [`polyglot:status`](#polyglotstatus)
-- [`polyglot:worker`](#polyglotworker)
+- [`optimize:ux`](#optimizeux)
+- [`pkg:install`](#pkginstall)
 - [`profile:report:generate`](#profilereportgenerate)
 - [`profile:status`](#profilestatus)
 - [`queue:list`](#queuelist)
 - [`queue:work`](#queuework)
+- [`role:create`](#rolecreate)
+- [`role:list`](#rolelist)
 - [`schedule:run`](#schedulerun)
+- [`scim:test:user`](#scimtestuser)
 - [`serve`](#serve)
 - [`serve:async`](#serveasync)
 - [`service:crud`](#servicecrud)
@@ -241,6 +203,8 @@ Detailed reference for all `spp.php` commands.
 - [`session:destroy-all`](#sessiondestroyall)
 - [`shell`](#shell)
 - [`site:install`](#siteinstall)
+- [`sppdocs:audit:verify`](#sppdocsauditverify)
+- [`sppdocs:storage:migrate`](#sppdocsstoragemigrate)
 - [`storage:clean`](#storageclean)
 - [`storage:link`](#storagelink)
 - [`storage:sync`](#storagesync)
@@ -258,6 +222,11 @@ Detailed reference for all `spp.php` commands.
 - [`test:run`](#testrun)
 - [`theme:activate`](#themeactivate)
 - [`tinker`](#tinker)
+- [`ui:add`](#uiadd)
+- [`user:create`](#usercreate)
+- [`user:delete`](#userdelete)
+- [`user:list`](#userlist)
+- [`user:password:reset`](#userpasswordreset)
 - [`userprofile:export`](#userprofileexport)
 - [`userprofile:schema:update`](#userprofileschemaupdate)
 - [`ux:debug`](#uxdebug)
@@ -284,443 +253,29 @@ Detailed reference for all `spp.php` commands.
 
 ---
 
-## ``
-
-**Purpose**: Test SCIM User Provisioning locally
-
-### Synopsis
-```bash
-php spp.php  [OPTIONS]
-```
-
-### Extended Usage
-```text
-Usage: php spp.php scim:test:user <username> [email]
-
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SCIMHandler, \ReflectionClass.
-
-
----
-
-## `admin:adminrbac`
-
-**Purpose**: Manage Admin AdminRBAC operations. Usage: admin:adminrbac <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:adminrbac [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
-
-
----
-
-## `admin:ai`
-
-**Purpose**: Manage Admin AI operations. Usage: admin:ai <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:ai [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: sppai.
-
-
----
-
-## `admin:audit`
-
-**Purpose**: Manage Admin Audit operations. Usage: admin:audit <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:audit [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-
-
----
-
-## `admin:auth`
-
-**Purpose**: Manage Admin Auth operations. Usage: admin:auth <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:auth [OPTIONS]
-```
-
-### Options Available
-- `--spp_admin_fallback` : Boolean flag or option. Extracted via static analysis.
-- `--spp_admin_user` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPAuth\SPPUser, \SPPMod\SPPDB\SPPDB.
-
-
----
-
-## `admin:bootstrap`
-
-**Purpose**: Initialize SPP Admin environment (XDB Provisioning)
-
-### Synopsis
-```bash
-php spp.php admin:bootstrap [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
-
-
----
-
-## `admin:config`
-
-**Purpose**: Manage Admin Config operations. Usage: admin:config <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:config [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-
-
----
-
-## `admin:core`
-
-**Purpose**: Manage Admin Core operations. Usage: admin:core <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:core [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \SPP\EventParams.
-
-
----
-
-## `admin:diagnostics`
-
-**Purpose**: Manage Admin Diagnostics operations. Usage: admin:diagnostics <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:diagnostics [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-- Interacts with the application cache layer (Redis/Memcached).
-
-
----
-
-## `admin:docs`
-
-**Purpose**: Manage Admin Docs operations. Usage: admin:docs <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:docs [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-
-
----
-
-## `admin:entities`
-
-**Purpose**: Manage Admin Entities operations. Usage: admin:entities <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:entities [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `admin:forms`
-
-**Purpose**: Manage Admin Forms operations. Usage: admin:forms <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:forms [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `admin:general`
-
-**Purpose**: Manage Admin General operations. Usage: admin:general <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:general [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPAPI\LiveAction.
-
-
----
-
-## `admin:iam`
-
-**Purpose**: Manage Admin IAM operations. Usage: admin:iam <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:iam [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \SPPMod\SPPAuth\SPPGroup, secret.
-
-
----
-
-## `admin:legacy`
-
-**Purpose**: Manage Admin Legacy operations. Usage: admin:legacy <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:legacy [OPTIONS]
-```
-
-### Options Available
-- `--apps` : Boolean flag or option. Extracted via static analysis.
-- `--enable_api` : Boolean flag or option. Extracted via static analysis.
-- `--columns` : Boolean flag or option. Extracted via static analysis.
-- `--fields` : Boolean flag or option. Extracted via static analysis.
-- `--modules` : Boolean flag or option. Extracted via static analysis.
-- `--name` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \\Exception, record, \SPPMod\SPPDB\SPPDB, RecursiveIteratorIterator, RecursiveDirectoryIterator, \ReflectionClass, \SPP\Module.
-- Makes outbound HTTP requests to external APIs or services.
-
-
----
-
-## `admin:lifecycle`
-
-**Purpose**: Manage Admin Lifecycle operations. Usage: admin:lifecycle <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:lifecycle [OPTIONS]
-```
-
-### Options Available
-- `--environments` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \SPP\Module.
-- Makes outbound HTTP requests to external APIs or services.
-
-
----
-
-## `admin:modules`
-
-**Purpose**: Manage Admin Modules operations. Usage: admin:modules <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:modules [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPP\Module.
-
-
----
-
-## `admin:routing`
-
-**Purpose**: Manage Admin Routing operations. Usage: admin:routing <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:routing [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `admin:spplang`
-
-**Purpose**: Manage Admin spplang operations. Usage: admin:spplang <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:spplang [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: translation.
-
-
----
-
-## `admin:xdb`
-
-**Purpose**: Manage Admin XDB operations. Usage: admin:xdb <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php admin:xdb [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB, \SPPMod\SPPXDB\MigrationManager, \SPPMod\SPPXDB\SeederManager.
-
-
----
-
 ## `ai:benchmark:models`
 
-**Purpose**: Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
+**Description**: Benchmark configured AI models (Ollama, OpenAI, Anthropic) for tool calling latency and schema accuracy
 
 ### Synopsis
 ```bash
 php spp.php ai:benchmark:models [OPTIONS]
 ```
 
-### Options Available
-- `--provider=` : Expects a value. Extracted via static analysis.
-- `--models=` : Expects a value. Extracted via static analysis.
+### Options
+- `--provider=` : Expects a value. Extracted via static analysis from AIBenchmarkCommand.php
+- `--models=` : Expects a value. Extracted via static analysis from AIBenchmarkCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `ai:make:workflow`
 
-**Purpose**: Synthesize natural language business requirements into valid sppworkflow YAML definitions
+**Description**: Synthesize natural language business requirements into valid sppworkflow YAML definitions
 
 ### Synopsis
 ```bash
@@ -732,21 +287,21 @@ php spp.php ai:make:workflow [OPTIONS]
 Usage: php spp.php ai:make:workflow <workflow_name> \
 ```
 
-### Options Available
-- `--provider=` : Expects a value. Extracted via static analysis.
+### Options
+- `--provider=` : Expects a value. Extracted via static analysis from MakeAiWorkflowCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Dynamically loads SPP kernel modules: sppai.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Dynamically loads kernel modules: sppai.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `ai:prompt`
 
-**Purpose**: Send a prompt to the AI provider
+**Description**: Send a prompt to the AI provider
 
 ### Synopsis
 ```bash
@@ -758,81 +313,81 @@ php spp.php ai:prompt [OPTIONS]
 Usage: php spp.php ai:prompt \
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--provider=` : Expects a value. Extracted via static analysis.
-- `--model=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from AiPromptCommand.php
+- `--provider=` : Expects a value. Extracted via static analysis from AiPromptCommand.php
+- `--model=` : Expects a value. Extracted via static analysis from AiPromptCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: sppai.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: sppai.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `ai:providers`
 
-**Purpose**: List all registered AI providers
+**Description**: List all registered AI providers
 
 ### Synopsis
 ```bash
 php spp.php ai:providers [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from AiProvidersCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: sppai.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: sppai.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `ai:refactor:enterprise`
 
-**Purpose**: AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
+**Description**: AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
 
 ### Synopsis
 ```bash
 php spp.php ai:refactor:enterprise [OPTIONS]
 ```
 
-### Options Available
-- `--path=` : Expects a value. Extracted via static analysis.
+### Options
+- `--path=` : Expects a value. Extracted via static analysis from RefactorEnterpriseCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `api:key:generate`
 
-**Purpose**: Generates a new permanent API Key.
+**Description**: Generates a new permanent API Key.
 
 ### Synopsis
 ```bash
 php spp.php api:key:generate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: permanent, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: permanent, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `api:key:revoke`
 
-**Purpose**: Revoke an existing API token
+**Description**: Revoke an existing API token
 
 ### Synopsis
 ```bash
@@ -845,38 +400,38 @@ Usage: php spp.php api:key:revoke --token=<token>
 
 ```
 
-### Options Available
-- `--token=` : Expects a value. Extracted via static analysis.
+### Options
+- `--token=` : Expects a value. Extracted via static analysis from ApiKeyRevokeCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `api:route:list`
 
-**Purpose**: Tabulate all exposed REST API routes
+**Description**: Tabulate all exposed REST API routes
 
 ### Synopsis
 ```bash
 php spp.php api:route:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `app:config`
 
-**Purpose**: Configure application settings (e.g., base_url, table_prefix)
+**Description**: Configure application settings (e.g., base_url, table_prefix)
 
 ### Synopsis
 ```bash
@@ -889,57 +444,57 @@ Usage: php spp.php app:config <app_name> [--base_url=...] [--table_prefix=...]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `app:default`
 
-**Purpose**: Set or view the default global CLI application context
+**Description**: Set or view the default global CLI application context
 
 ### Synopsis
 ```bash
 php spp.php app:default [OPTIONS]
 ```
 
-### Options Available
-- `--set=` : Expects a value. Extracted via static analysis.
+### Options
+- `--set=` : Expects a value. Extracted via static analysis from AppDefaultCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `app:list`
 
-**Purpose**: List all registered SPP applications
+**Description**: List all registered SPP applications
 
 ### Synopsis
 ```bash
 php spp.php app:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `app:quota`
 
-**Purpose**: Set hardware resource limits for a Guest App in the WebOS Registry. Usage: app:quota <alias> [--ram=...] [--cpu=...]
+**Description**: Set hardware resource limits for a Guest App in the WebOS Registry. Usage: app:quota <alias> [--ram=...] [--cpu=...]
 
 ### Synopsis
 ```bash
@@ -952,19 +507,19 @@ Usage: php spp.php app:quota <alias> [--ram=...] [--cpu=...]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `app:set-base`
 
-**Purpose**: Set an application as the primary/base application
+**Description**: Set an application as the primary/base application
 
 ### Synopsis
 ```bash
@@ -977,19 +532,19 @@ Usage: php spp.php app:set-base <app_name>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `ask`
 
-**Purpose**: Ask the SPP AI Mentor a question about the framework.
+**Description**: Ask the SPP AI Mentor a question about the framework.
 
 ### Synopsis
 ```bash
@@ -1001,293 +556,313 @@ php spp.php ask [OPTIONS]
 Usage: php spp.php ask \
 ```
 
-### Options Available
-- `--error` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \Exception, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
 ## `audit:lineage`
 
-**Purpose**: Traverses and verifies cryptographic Merkle-DAG trace logs
+**Description**: Traverses and verifies cryptographic Merkle-DAG trace logs
 
 ### Synopsis
 ```bash
 php spp.php audit:lineage [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from AuditLineageCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+
+
+---
+
+## `auth:magiclink`
+
+**Description**: Generate a one-time passwordless Magic Link for a user
+
+### Synopsis
+```bash
+php spp.php auth:magiclink [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, SPPUser.
 
 
 ---
 
 ## `auth:tokens`
 
-**Purpose**: Manage Personal Access Tokens for API Authentication
+**Description**: Manage Personal Access Tokens for API Authentication
 
 ### Synopsis
 ```bash
 php spp.php auth:tokens [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPUser, SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPUser, SPPDB.
 
 
 ---
 
 ## `blade:clear`
 
-**Purpose**: Clear the compiled Blade view cache
+**Description**: Clear the compiled Blade view cache
 
 ### Synopsis
 ```bash
 php spp.php blade:clear [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `blade:view`
 
-**Purpose**: Manage Blade views (list, create, delete)
+**Description**: Manage Blade views (list, create, delete)
 
 ### Synopsis
 ```bash
 php spp.php blade:view [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `bridge:call`
 
-**Purpose**: Internal RPC bridge to invoke PHP methods from Polyglot clients
+**Description**: Internal RPC bridge to invoke PHP methods from Polyglot clients
 
 ### Synopsis
 ```bash
 php spp.php bridge:call [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \ReflectionMethod.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \ReflectionMethod.
 
 
 ---
 
 ## `cache:clear`
 
-**Purpose**: Clear the application file/redis cache
+**Description**: Clear the application file/redis cache
 
 ### Synopsis
 ```bash
 php spp.php cache:clear [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `cache:compile-registry`
 
-**Purpose**: Rebuilds the Orion Cache and System Registry
+**Description**: Rebuilds the Orion Cache and System Registry
 
 ### Synopsis
 ```bash
 php spp.php cache:compile-registry [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPP\EventParams.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPP\EventParams.
 
 
 ---
 
 ## `cache:prune`
 
-**Purpose**: Prune expired cache items from storage
+**Description**: Prune expired cache items from storage
 
 ### Synopsis
 ```bash
 php spp.php cache:prune [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CachePruneCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `cache:purge`
 
-**Purpose**: Purge cache tags or URLs from the reverse proxy (Varnish/CDN).
+**Description**: Purge cache tags or URLs from the reverse proxy (Varnish/CDN).
 
 ### Synopsis
 ```bash
 php spp.php cache:purge [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
-- Makes outbound HTTP requests to external APIs or services.
 
 
 ---
 
 ## `cache:stats`
 
-**Purpose**: Display cache driver statistics
+**Description**: Display cache driver statistics
 
 ### Synopsis
 ```bash
 php spp.php cache:stats [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CacheStatsCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `cache:warmup`
 
-**Purpose**: Warm up common application caches
+**Description**: Warm up common application caches
 
 ### Synopsis
 ```bash
 php spp.php cache:warmup [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CacheWarmupCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
 ## `clear:aicache`
 
-**Purpose**: Clears the WebOS AI Decision cache.
+**Description**: Clears the WebOS AI Decision cache.
 
 ### Synopsis
 ```bash
 php spp.php clear:aicache [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php clear:aicache
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from ClearAiCacheCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `clear:cache`
 
-**Purpose**: Clear the application file/redis cache
+**Description**: Clear the application file/redis cache
 
 ### Synopsis
 ```bash
 php spp.php clear:cache [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `component:crud`
 
-**Purpose**: Manage SPP UI components (list, create, edit, delete)
+**Description**: Manage SPP UI components (list, create, edit, delete)
 
 ### Synopsis
 ```bash
 php spp.php component:crud [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `config`
 
-**Purpose**: Manage framework and application configuration
+**Description**: Manage framework and application configuration
 
 ### Synopsis
 ```bash
@@ -1300,163 +875,163 @@ Usage: spp config [get|set|delete|list|cache|clear] [key] [value]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `config:export`
 
-**Purpose**: Export database tables and global settings to SQL, SQLite, or XDB format
+**Description**: Export database tables and global settings to SQL, SQLite, or XDB format
 
 ### Synopsis
 ```bash
 php spp.php config:export [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
 
 
 ---
 
 ## `config:import`
 
-**Purpose**: Import database tables and settings from an exported SQL, SQLite, or XDB file
+**Description**: Import database tables and settings from an exported SQL, SQLite, or XDB file
 
 ### Synopsis
 ```bash
 php spp.php config:import [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, \PDO, \DOMDocument.
 
 
 ---
 
 ## `config:sync`
 
-**Purpose**: Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
+**Description**: Synchronize framework configurations (e.g. workflows, dynamic fields) to DB schemas or system registries
 
 ### Synopsis
 ```bash
 php spp.php config:sync [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `cron:flush`
 
-**Purpose**: Clear cron history and lock files
+**Description**: Clear cron history and lock files
 
 ### Synopsis
 ```bash
 php spp.php cron:flush [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CronFlushCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `cron:list`
 
-**Purpose**: List all registered scheduled tasks
+**Description**: List all registered scheduled tasks
 
 ### Synopsis
 ```bash
 php spp.php cron:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CronListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `cron:run`
 
-**Purpose**: Execute pending cron jobs manually
+**Description**: Execute pending cron jobs manually
 
 ### Synopsis
 ```bash
 php spp.php cron:run [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from CronRunCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPP\CLI\Commands\WorkflowProcessTimeoutsCommand.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPP\CLI\Commands\WorkflowProcessTimeoutsCommand.
 
 
 ---
 
 ## `db:migration:verify-zero-downtime`
 
-**Purpose**: Perform a dry-run analysis of database migration DDL statements to verify zero-downtime compliance and schema safety
+**Description**: Perform a dry-run analysis of database migration DDL statements to verify zero-downtime compliance and schema safety
 
 ### Synopsis
 ```bash
 php spp.php db:migration:verify-zero-downtime [OPTIONS]
 ```
 
-### Options Available
-- `--path=` : Expects a value. Extracted via static analysis.
+### Options
+- `--path=` : Expects a value. Extracted via static analysis from VerifyZeroDowntimeCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `db:sync`
 
-**Purpose**: Synchronize data between two database adapters (e.g. MySQL to XDB)
+**Description**: Synchronize data between two database adapters (e.g. MySQL to XDB)
 
 ### Synopsis
 ```bash
@@ -1469,30 +1044,30 @@ Usage: php spp.php db:sync --from=[engine:table] --to=[engine:table]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `db:verify`
 
-**Purpose**: Runs the SPP XDB MySQL Compatibility Verification Suite
+**Description**: Runs the SPP XDB MySQL Compatibility Verification Suite
 
 ### Synopsis
 ```bash
 php spp.php db:verify [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
 
 
@@ -1500,26 +1075,26 @@ Based on static analysis of the command's source code, invoking this command per
 
 ## `dbsettings:export`
 
-**Purpose**: Export SPP module DB settings to JSON
+**Description**: Export SPP module DB settings to JSON
 
 ### Synopsis
 ```bash
 php spp.php dbsettings:export [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from DBSettingsExportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `dbsettings:import`
 
-**Purpose**: Import SPP module DB settings from JSON
+**Description**: Import SPP module DB settings from JSON
 
 ### Synopsis
 ```bash
@@ -1532,20 +1107,20 @@ Usage: php spp.php dbsettings:import --file=settings.json [--app=<app_name>]
 
 ```
 
-### Options Available
-- `--file=` : Expects a value. Extracted via static analysis.
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--file=` : Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from DBSettingsImportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `delete:app`
 
-**Purpose**: Delete an SPP application context and all its data (files, config, caches, views)
+**Description**: Delete an SPP application context and all its data (files, config, caches, views)
 
 ### Synopsis
 ```bash
@@ -1558,46 +1133,43 @@ Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]
 
 ```
 
-### Options Available
-- `--force` : Boolean flag or option. Extracted via static analysis.
-- `--keep-db` : Boolean flag or option. Extracted via static analysis.
-- `--dry-run` : Boolean flag or option. Extracted via static analysis.
-- `----force` : Boolean flag or option. Extracted via static analysis.
-- `----keep-db` : Boolean flag or option. Extracted via static analysis.
-- `----dry-run` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--keep-db` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+- `--dry-run` : Boolean flag. Extracted via static analysis from DeleteAppCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+- Instantiates key components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
 ## `deploy:backups`
 
-**Purpose**: List available snapshot backups on a remote target for rollback
+**Description**: List available snapshot backups on a remote target for rollback
 
 ### Synopsis
 ```bash
 php spp.php deploy:backups [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployBackupsCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:build`
 
-**Purpose**: Create a local deployment artifact bundle without pushing
+**Description**: Create a local deployment artifact bundle without pushing
 
 ### Synopsis
 ```bash
@@ -1610,47 +1182,43 @@ Usage: php spp.php deploy:build <target_uri> [--key=YOUR_API_KEY] [--no-db] [--n
 
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--no-db` : Boolean flag or option. Extracted via static analysis.
-- `--no-files` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--sql` : Boolean flag or option. Extracted via static analysis.
-- `--Create Table` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployBuildCommand.php
+- `--no-db` : Boolean flag. Extracted via static analysis from DeployBuildCommand.php
+- `--no-files` : Boolean flag. Extracted via static analysis from DeployBuildCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `deploy:cleanup`
 
-**Purpose**: Prune old rollback snapshots from the remote target server
+**Description**: Prune old rollback snapshots from the remote target server
 
 ### Synopsis
 ```bash
 php spp.php deploy:cleanup [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--keep=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployCleanupCommand.php
+- `--keep=` : Expects a value. Extracted via static analysis from DeployCleanupCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:cluster`
 
-**Purpose**: Deploy to a multi-server cluster sequentially
+**Description**: Deploy to a multi-server cluster sequentially
 
 ### Synopsis
 ```bash
@@ -1663,20 +1231,20 @@ Usage: php spp.php deploy:cluster <cluster_name>
 
 ```
 
-### Options Available
-- `--force` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--force` : Boolean flag. Extracted via static analysis from DeployClusterCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: DeployPushCommand.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: DeployPushCommand.
 
 
 ---
 
 ## `deploy:env`
 
-**Purpose**: Manage remote environment variables securely
+**Description**: Manage remote environment variables securely
 
 ### Synopsis
 ```bash
@@ -1689,105 +1257,101 @@ Usage: php spp.php deploy:env [target_uri] push --key=MY_KEY --value=MY_VALUE [-
 
 ```
 
-### Options Available
-- `--key_api=` : Expects a value. Extracted via static analysis.
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--value=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key_api=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
+- `--key=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
+- `--value=` : Expects a value. Extracted via static analysis from DeployEnvCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:history`
 
-**Purpose**: 
+**Description**: 
 
 ### Synopsis
 ```bash
 php spp.php deploy:history [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployHistoryCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:init`
 
-**Purpose**: 
+**Description**: 
 
 ### Synopsis
 ```bash
 php spp.php deploy:init [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `deploy:logs`
 
-**Purpose**: View and tail remote application error logs securely over HTTP
+**Description**: View and tail remote application error logs securely over HTTP
 
 ### Synopsis
 ```bash
 php spp.php deploy:logs [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--lines=` : Expects a value. Extracted via static analysis.
-- `--tail` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployLogsCommand.php
+- `--lines=` : Expects a value. Extracted via static analysis from DeployLogsCommand.php
+- `--tail` : Boolean flag. Extracted via static analysis from DeployLogsCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:maintenance`
 
-**Purpose**: Toggle manual maintenance mode on a remote target or local environment
+**Description**: Toggle manual maintenance mode on a remote target or local environment
 
 ### Synopsis
 ```bash
 php spp.php deploy:maintenance [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--on` : Boolean flag or option. Extracted via static analysis.
-- `--off` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployMaintenanceCommand.php
+- `--on` : Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
+- `--off` : Boolean flag. Extracted via static analysis from DeployMaintenanceCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `deploy:plan`
 
-**Purpose**: Perform a dry run to view file changes and raw database SQL diffs before deploying
+**Description**: Perform a dry run to view file changes and raw database SQL diffs before deploying
 
 ### Synopsis
 ```bash
@@ -1800,84 +1364,71 @@ Usage: php spp.php deploy:plan <target_uri> [--key=YOUR_API_KEY] [--no-db]
 
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--no-db` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--sql` : Boolean flag or option. Extracted via static analysis.
-- `--Create Table` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPlanCommand.php
+- `--no-db` : Boolean flag. Extracted via static analysis from DeployPlanCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `deploy:pull`
 
-**Purpose**: 
+**Description**: 
 
 ### Synopsis
 ```bash
 php spp.php deploy:pull [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--force` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--debug` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPullCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeployPullCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \ZipArchive, \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `deploy:push`
 
-**Purpose**: Push the local project state to a remote SPP target server
+**Description**: Push the local project state to a remote SPP target server
 
 ### Synopsis
 ```bash
 php spp.php deploy:push [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--artifact=` : Expects a value. Extracted via static analysis.
-- `--dry-run` : Boolean flag or option. Extracted via static analysis.
-- `--no-db` : Boolean flag or option. Extracted via static analysis.
-- `--no-files` : Boolean flag or option. Extracted via static analysis.
-- `--force` : Boolean flag or option. Extracted via static analysis.
-- `--pre_deploy` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--message` : Boolean flag or option. Extracted via static analysis.
-- `--keys` : Boolean flag or option. Extracted via static analysis.
-- `--debug` : Boolean flag or option. Extracted via static analysis.
-- `--sql` : Boolean flag or option. Extracted via static analysis.
-- `--Create Table` : Boolean flag or option. Extracted via static analysis.
-- `--webhooks` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPushCommand.php
+- `--artifact=` : Expects a value. Extracted via static analysis from DeployPushCommand.php
+- `--dry-run` : Boolean flag. Extracted via static analysis from DeployPushCommand.php
+- `--no-db` : Boolean flag. Extracted via static analysis from DeployPushCommand.php
+- `--no-files` : Boolean flag. Extracted via static analysis from DeployPushCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeployPushCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \SPPMod\SPPDeploy\Scanner\ProjectScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \ZipArchive, \Exception, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `deploy:rollback`
 
-**Purpose**: Roll back a remote target to a specific snapshot backup ID
+**Description**: Roll back a remote target to a specific snapshot backup ID
 
 ### Synopsis
 ```bash
@@ -1890,21 +1441,20 @@ Usage: php spp.php deploy:rollback [target_uri] <backup_id> [--key=YOUR_API_KEY]
 
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--force` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployRollbackCommand.php
+- `--force` : Boolean flag. Extracted via static analysis from DeployRollbackCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `deploy:run`
 
-**Purpose**: Securely execute an arbitrary shell command on the remote server
+**Description**: Securely execute an arbitrary shell command on the remote server
 
 ### Synopsis
 ```bash
@@ -1916,450 +1466,59 @@ php spp.php deploy:run [OPTIONS]
 Usage: php spp.php deploy:run [target_uri] \
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--exit_code` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployRunCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `deploy:token:rotate`
 
-**Purpose**: Rotate the secure deployment gateway token on both local and remote environments with zero downtime
+**Description**: Rotate the secure deployment gateway token on both local and remote environments with zero downtime
 
 ### Synopsis
 ```bash
 php spp.php deploy:token:rotate [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: deployment, token.
-
-
----
-
-## `dev:adminrbac`
-
-**Purpose**: Manage Dev AdminRBAC operations. Usage: dev:adminrbac <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:adminrbac [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
-
-
----
-
-## `dev:ai`
-
-**Purpose**: Manage Dev AI operations. Usage: admin:ai <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:ai [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: sppai.
-
-
----
-
-## `dev:audit`
-
-**Purpose**: Manage Dev Audit operations. Usage: admin:audit <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:audit [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-
-
----
-
-## `dev:auth`
-
-**Purpose**: Manage Dev Auth operations. Usage: admin:auth <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:auth [OPTIONS]
-```
-
-### Options Available
-- `--spp_dev_fallback` : Boolean flag or option. Extracted via static analysis.
-- `--spp_dev_user` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPAuth\SPPUser, \SPPMod\SPPDB\SPPDB.
-
-
----
-
-## `dev:codeeditor`
-
-**Purpose**: Manage Dev CodeEditor operations. Usage: dev:codeeditor <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:codeeditor [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-
-
----
-
-## `dev:config`
-
-**Purpose**: Manage Dev Config operations. Usage: admin:config <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:config [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-
-
----
-
-## `dev:core`
-
-**Purpose**: Manage Dev Core operations. Usage: admin:core <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:core [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \SPP\EventParams.
-
-
----
-
-## `dev:diagnostics`
-
-**Purpose**: Manage Dev Diagnostics operations. Usage: admin:diagnostics <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:diagnostics [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-- Interacts with the application cache layer (Redis/Memcached).
-
-
----
-
-## `dev:docs`
-
-**Purpose**: Manage Dev Docs operations. Usage: admin:docs <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:docs [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-
-
----
-
-## `dev:entities`
-
-**Purpose**: Manage Dev Entities operations. Usage: admin:entities <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:entities [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `dev:forms`
-
-**Purpose**: Manage Dev Forms operations. Usage: admin:forms <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:forms [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `dev:general`
-
-**Purpose**: Manage Dev General operations. Usage: admin:general <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:general [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPAPI\LiveAction.
-
-
----
-
-## `dev:iam`
-
-**Purpose**: Manage Dev IAM operations. Usage: admin:iam <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:iam [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, \SPPMod\SPPAuth\SPPGroup, secret.
-
-
----
-
-## `dev:legacy`
-
-**Purpose**: Manage Dev Legacy operations. Usage: admin:legacy <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:legacy [OPTIONS]
-```
-
-### Options Available
-- `--apps` : Boolean flag or option. Extracted via static analysis.
-- `--enable_api` : Boolean flag or option. Extracted via static analysis.
-- `--columns` : Boolean flag or option. Extracted via static analysis.
-- `--fields` : Boolean flag or option. Extracted via static analysis.
-- `--modules` : Boolean flag or option. Extracted via static analysis.
-- `--name` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \\Exception, record, \SPPMod\SPPDB\SPPDB, RecursiveIteratorIterator, RecursiveDirectoryIterator, \ReflectionClass, \SPP\Module.
-- Makes outbound HTTP requests to external APIs or services.
-
-
----
-
-## `dev:lifecycle`
-
-**Purpose**: Manage Dev Lifecycle operations. Usage: admin:lifecycle <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:lifecycle [OPTIONS]
-```
-
-### Options Available
-- `--environments` : Boolean flag or option. Extracted via static analysis.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Executes external system binaries or shell commands.
-- Instantiates internal components: \SPP\Module.
-- Makes outbound HTTP requests to external APIs or services.
-
-
----
-
-## `dev:modules`
-
-**Purpose**: Manage Dev Modules operations. Usage: admin:modules <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:modules [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPP\Module.
-
-
----
-
-## `dev:routing`
-
-**Purpose**: Manage Dev Routing operations. Usage: admin:routing <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:routing [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-
-
----
-
-## `dev:spplang`
-
-**Purpose**: Manage Dev spplang operations. Usage: admin:spplang <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:spplang [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: translation.
-
-
----
-
-## `dev:xdb`
-
-**Purpose**: Manage Dev XDB operations. Usage: admin:xdb <action> [--payload=...] [--json]
-
-### Synopsis
-```bash
-php spp.php dev:xdb [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB, \SPPMod\SPPXDB\MigrationManager, \SPPMod\SPPXDB\SeederManager.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployTokenRotateCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: deployment, token.
 
 
 ---
 
 ## `di:list`
 
-**Purpose**: List the Dependency Injection container bindings
+**Description**: List the Dependency Injection container bindings
 
 ### Synopsis
 ```bash
 php spp.php di:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from DiListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `diff:apply`
 
-**Purpose**: Apply a patch or delta file
+**Description**: Apply a patch or delta file
 
 ### Synopsis
 ```bash
@@ -2372,19 +1531,19 @@ Usage: diff:apply --file=patch.json
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `diff:compare`
 
-**Purpose**: Compare two JSON arrays or states
+**Description**: Compare two JSON arrays or states
 
 ### Synopsis
 ```bash
@@ -2397,22 +1556,22 @@ Usage: php spp.php diff:compare --type=<ModelClass> --id=<ID> --rev=<RevID> [--j
 
 ```
 
-### Options Available
-- `--type=` : Expects a value. Extracted via static analysis.
-- `--id=` : Expects a value. Extracted via static analysis.
-- `--rev=` : Expects a value. Extracted via static analysis.
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--type=` : Expects a value. Extracted via static analysis from DiffCompareCommand.php
+- `--id=` : Expects a value. Extracted via static analysis from DiffCompareCommand.php
+- `--rev=` : Expects a value. Extracted via static analysis from DiffCompareCommand.php
+- `--json` : Boolean flag. Extracted via static analysis from DiffCompareCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `diff:history`
 
-**Purpose**: View revision history of an entity
+**Description**: View revision history of an entity
 
 ### Synopsis
 ```bash
@@ -2425,21 +1584,21 @@ Usage: php spp.php diff:history --type=<ModelClass> --id=<ID> [--json]
 
 ```
 
-### Options Available
-- `--type=` : Expects a value. Extracted via static analysis.
-- `--id=` : Expects a value. Extracted via static analysis.
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--type=` : Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+- `--id=` : Expects a value. Extracted via static analysis from DiffHistoryCommand.php
+- `--json` : Boolean flag. Extracted via static analysis from DiffHistoryCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `diff:rollback`
 
-**Purpose**: Rollback an entity to a previous state
+**Description**: Rollback an entity to a previous state
 
 ### Synopsis
 ```bash
@@ -2452,202 +1611,202 @@ Usage: php spp.php diff:rollback --type=<ModelClass> --id=<ID> --rev=<RevID>
 
 ```
 
-### Options Available
-- `--type=` : Expects a value. Extracted via static analysis.
-- `--id=` : Expects a value. Extracted via static analysis.
-- `--rev=` : Expects a value. Extracted via static analysis.
+### Options
+- `--type=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
+- `--id=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
+- `--rev=` : Expects a value. Extracted via static analysis from DiffRollbackCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `docs:api`
 
-**Purpose**: Documentation utilities (build, api, openapi, man, phpdoc).
+**Description**: Documentation utilities (build, api, openapi, man, phpdoc).
 
 ### Synopsis
 ```bash
 php spp.php docs:api [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+- Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 
 
 ---
 
 ## `docs:build`
 
-**Purpose**: Documentation utilities (build, api, openapi, man, phpdoc).
+**Description**: Documentation utilities (build, api, openapi, man, phpdoc).
 
 ### Synopsis
 ```bash
 php spp.php docs:build [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+- Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 
 
 ---
 
 ## `docs:man`
 
-**Purpose**: Documentation utilities (build, api, openapi, man, phpdoc).
+**Description**: Documentation utilities (build, api, openapi, man, phpdoc).
 
 ### Synopsis
 ```bash
 php spp.php docs:man [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+- Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 
 
 ---
 
 ## `docs:openapi`
 
-**Purpose**: Documentation utilities (build, api, openapi, man, phpdoc).
+**Description**: Documentation utilities (build, api, openapi, man, phpdoc).
 
 ### Synopsis
 ```bash
 php spp.php docs:openapi [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+- Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 
 
 ---
 
 ## `docs:phpdoc`
 
-**Purpose**: Documentation utilities (build, api, openapi, man, phpdoc).
+**Description**: Documentation utilities (build, api, openapi, man, phpdoc).
 
 ### Synopsis
 ```bash
 php spp.php docs:phpdoc [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+- Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 
 
 ---
 
 ## `doctor`
 
-**Purpose**: Diagnose the health of the WebOS architecture
+**Description**: Diagnose the health of the WebOS architecture
 
 ### Synopsis
 ```bash
 php spp.php doctor [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `drishyam:clear`
 
-**Purpose**: Clear the Drishyam rendering cache
+**Description**: Clear the Drishyam rendering cache
 
 ### Synopsis
 ```bash
 php spp.php drishyam:clear [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `drishyam:compile`
 
-**Purpose**: Pre-compile Drishyam templates for production
+**Description**: Pre-compile Drishyam templates for production
 
 ### Synopsis
 ```bash
 php spp.php drishyam:compile [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from DrishyamCompileCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `drishyam:theme:check`
 
-**Purpose**: Validate Drishyam theme assets and structure
+**Description**: Validate Drishyam theme assets and structure
 
 ### Synopsis
 ```bash
 php spp.php drishyam:theme:check [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from DrishyamThemeCheckCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `ent:edit`
 
-**Purpose**: Edit an existing SPPEntity definition
+**Description**: Edit an existing SPPEntity definition
 
 ### Synopsis
 ```bash
@@ -2679,64 +1838,64 @@ Examples:
     php spp.php ent:edit Student --table=new_students --add-field="graduation_year:int" --remove-field="age"
 ```
 
-### Options Available
-- `--table=` : Expects a value. Extracted via static analysis.
-- `--extends=` : Expects a value. Extracted via static analysis.
-- `--login=` : Expects a value. Extracted via static analysis.
-- `--add-field=` : Expects a value. Extracted via static analysis.
-- `--remove-field=` : Expects a value. Extracted via static analysis.
-- `--add-relation=` : Expects a value. Extracted via static analysis.
-- `--remove-relation=` : Expects a value. Extracted via static analysis.
+### Options
+- `--table=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--extends=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--login=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--add-field=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--remove-field=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--add-relation=` : Expects a value. Extracted via static analysis from EntEditCommand.php
+- `--remove-relation=` : Expects a value. Extracted via static analysis from EntEditCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `entity:crud`
 
-**Purpose**: Manage SPP entities (list, create, edit, delete)
+**Description**: Manage SPP entities (list, create, edit, delete)
 
 ### Synopsis
 ```bash
 php spp.php entity:crud [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `env:backup`
 
-**Purpose**: Backup all environment configurations
+**Description**: Backup all environment configurations
 
 ### Synopsis
 ```bash
 php spp.php env:backup [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \ZipArchive.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \ZipArchive.
 
 
 ---
 
 ## `env:get`
 
-**Purpose**: Get a specific configuration variable
+**Description**: Get a specific configuration variable
 
 ### Synopsis
 ```bash
@@ -2749,58 +1908,58 @@ Usage: php spp.php env:get <key> [--app=appname]
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvGetCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `env:list`
 
-**Purpose**: List all environment and configuration variables for an app context
+**Description**: List all environment and configuration variables for an app context
 
 ### Synopsis
 ```bash
 php spp.php env:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `env:mode`
 
-**Purpose**: Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
+**Description**: Switch environment error reporting mode between dev (Ignition errors) and prod (500 pages)
 
 ### Synopsis
 ```bash
 php spp.php env:mode [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `env:set`
 
-**Purpose**: Set a specific configuration variable
+**Description**: Set a specific configuration variable
 
 ### Synopsis
 ```bash
@@ -2813,59 +1972,59 @@ Usage: php spp.php env:set <key> <value> [--app=appname]
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvSetCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `env:status`
 
-**Purpose**: Display system health and environment status
+**Description**: Display system health and environment status
 
 ### Synopsis
 ```bash
 php spp.php env:status [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvStatusCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `env:token:rotate`
 
-**Purpose**: Rotate the system deployment token
+**Description**: Rotate the system deployment token
 
 ### Synopsis
 ```bash
 php spp.php env:token:rotate [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvTokenRotateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
 
 ---
 
 ## `event:dispatch`
 
-**Purpose**: Alias for event:fire
+**Description**: Alias for event:fire
 
 ### Synopsis
 ```bash
@@ -2878,19 +2037,19 @@ Usage: php spp.php event:fire --event=<event_name> [--payload=<json>]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `event:fire`
 
-**Purpose**: Trigger a specific event manually
+**Description**: Trigger a specific event manually
 
 ### Synopsis
 ```bash
@@ -2903,41 +2062,41 @@ Usage: php spp.php event:fire --event=<event_name> [--payload=<json>]
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--event=` : Expects a value. Extracted via static analysis.
-- `--payload=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EventFireCommand.php
+- `--event=` : Expects a value. Extracted via static analysis from EventFireCommand.php
+- `--payload=` : Expects a value. Extracted via static analysis from EventFireCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `event:list-listeners`
 
-**Purpose**: List all registered global event listeners
+**Description**: List all registered global event listeners
 
 ### Synopsis
 ```bash
 php spp.php event:list-listeners [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EventListListenersCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `ext:disable`
 
-**Purpose**: Disable a specific extension
+**Description**: Disable a specific extension
 
 ### Synopsis
 ```bash
@@ -2950,19 +2109,19 @@ Usage: php spp.php ext:disable <extension_name>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `ext:enable`
 
-**Purpose**: Enable a specific extension
+**Description**: Enable a specific extension
 
 ### Synopsis
 ```bash
@@ -2975,19 +2134,19 @@ Usage: php spp.php ext:enable <extension_name>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `ext:install`
 
-**Purpose**: Install an extension from a zip or directory
+**Description**: Install an extension from a zip or directory
 
 ### Synopsis
 ```bash
@@ -3000,115 +2159,115 @@ Usage: php spp.php ext:install --source=<path_or_url>
 
 ```
 
-### Options Available
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--source=` : Expects a value. Extracted via static analysis from ExtInstallCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `ext:list`
 
-**Purpose**: List all available and installed extensions
+**Description**: List all available and installed extensions
 
 ### Synopsis
 ```bash
 php spp.php ext:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `forge`
 
-**Purpose**: Unified automation and LiveSync engine
+**Description**: Unified automation and LiveSync engine
 
 ### Synopsis
 ```bash
 php spp.php forge [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPP\Core\ModuleCompiler, \SPP\Core\VersionManager, MakeUXComponentCommand, \RecursiveIteratorIterator, \RecursiveDirectoryIterator, module\n, UX.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \SPP\Core\ModuleCompiler, \SPP\Core\VersionManager, MakeUXComponentCommand, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
 ## `form:crud`
 
-**Purpose**: Manage SPP forms (list, create, edit, delete)
+**Description**: Manage SPP forms (list, create, edit, delete)
 
 ### Synopsis
 ```bash
 php spp.php form:crud [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `frontend:debug`
 
-**Purpose**: Toggle Frontend CDN development mode (on|off)
+**Description**: Toggle Frontend CDN development mode (on|off)
 
 ### Synopsis
 ```bash
 php spp.php frontend:debug [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `generate`
 
-**Purpose**: AI Copilot: Generate an entire application feature from a natural language prompt.
+**Description**: AI Copilot: Generate an entire application feature from a natural language prompt.
 
 ### Synopsis
 ```bash
 php spp.php generate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `group:create`
 
-**Purpose**: Create a new shared resource group
+**Description**: Create a new shared resource group
 
 ### Synopsis
 ```bash
@@ -3121,22 +2280,21 @@ Usage: php spp.php group:create <group_name> [--extends=core] [--prefix=...]
 
 ```
 
-### Options Available
-- `--extends=` : Expects a value. Extracted via static analysis.
-- `--prefix=` : Expects a value. Extracted via static analysis.
-- `--shared_groups` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--extends=` : Expects a value. Extracted via static analysis from GroupCreateCommand.php
+- `--prefix=` : Expects a value. Extracted via static analysis from GroupCreateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: shared.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: shared.
 
 
 ---
 
 ## `group:delete`
 
-**Purpose**: Delete a shared resource group
+**Description**: Delete a shared resource group
 
 ### Synopsis
 ```bash
@@ -3149,19 +2307,19 @@ Usage: php spp.php group:delete <group_name>
 
 ```
 
-### Options Available
-- `--shared_group` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `group:edit`
 
-**Purpose**: Edit an existing shared resource group
+**Description**: Edit an existing shared resource group
 
 ### Synopsis
 ```bash
@@ -3174,80 +2332,80 @@ Usage: php spp.php group:edit <group_name> [--extends=...] [--prefix=...]
 
 ```
 
-### Options Available
-- `--extends=` : Expects a value. Extracted via static analysis.
-- `--prefix=` : Expects a value. Extracted via static analysis.
+### Options
+- `--extends=` : Expects a value. Extracted via static analysis from GroupEditCommand.php
+- `--prefix=` : Expects a value. Extracted via static analysis from GroupEditCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `group:list`
 
-**Purpose**: List all shared resource groups
+**Description**: List all shared resource groups
 
 ### Synopsis
 ```bash
 php spp.php group:list [OPTIONS]
 ```
 
-### Options Available
-- `--entities` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `i18n:export`
 
-**Purpose**: Export translations for a specific locale to a JSON file.
+**Description**: Export translations for a specific locale to a JSON file.
 
 ### Synopsis
 ```bash
 php spp.php i18n:export [OPTIONS]
 ```
 
-### Options Available
-- `--locale=` : Expects a value. Extracted via static analysis.
+### Options
+- `--locale=` : Expects a value. Extracted via static analysis from I18nExportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `i18n:import`
 
-**Purpose**: Import translations from a JSON file into the database.
+**Description**: Import translations from a JSON file into the database.
 
 ### Synopsis
 ```bash
 php spp.php i18n:import [OPTIONS]
 ```
 
-### Options Available
-- `--locale=` : Expects a value. Extracted via static analysis.
+### Options
+- `--locale=` : Expects a value. Extracted via static analysis from I18nImportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `iam:abac`
 
-**Purpose**: Manage Attribute-Based Access Control (ABAC) policies
+**Description**: Manage Attribute-Based Access Control (ABAC) policies
 
 ### Synopsis
 ```bash
@@ -3259,20 +2417,20 @@ php spp.php iam:abac [OPTIONS]
 Usage: php spp.php iam:abac --action=create --param1=\
 ```
 
-### Options Available
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--json` : Boolean flag. Extracted via static analysis from ABACPolicyCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `iam:roles`
 
-**Purpose**: List all Roles and Entity Role Assignments
+**Description**: List all Roles and Entity Role Assignments
 
 ### Synopsis
 ```bash
@@ -3285,39 +2443,39 @@ Usage: php spp.php iam:roles list
 
 ```
 
-### Options Available
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--json` : Boolean flag. Extracted via static analysis from RoleCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `import:component`
 
-**Purpose**: Imports pristine air-gapped sovereign UI components
+**Description**: Imports pristine air-gapped sovereign UI components
 
 ### Synopsis
 ```bash
 php spp.php import:component [OPTIONS]
 ```
 
-### Options Available
-- `--target=` : Expects a value. Extracted via static analysis.
+### Options
+- `--target=` : Expects a value. Extracted via static analysis from ImportComponentCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `integration:install`
 
-**Purpose**: Provision an external app directory and register the SPP route bypass
+**Description**: Provision an external app directory and register the SPP route bypass
 
 ### Synopsis
 ```bash
@@ -3330,39 +2488,40 @@ Usage: php spp.php integration:install <app_name> <route_path> [--isolation=virt
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \Exception.
 
 
 ---
 
 ## `integration:queue:work`
 
-**Purpose**: Run the persistent CDC integration event queue worker
+**Description**: Run the persistent CDC integration event queue worker
 
 ### Synopsis
 ```bash
 php spp.php integration:queue:work [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: DBAdapter.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: DBAdapter.
 
 
 ---
 
 ## `integration:restore`
 
-**Purpose**: Time-travel a user state to a historical point using CQRS Event Sourcing
+**Description**: Time-travel a user state to a historical point using CQRS Event Sourcing
 
 ### Synopsis
 ```bash
@@ -3375,19 +2534,19 @@ Usage: php spp.php integration:restore <user_id> <timestamp_or_snapshot_id>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `integration:seed`
 
-**Purpose**: Bulk seed local SPP users into a specific integration target
+**Description**: Bulk seed local SPP users into a specific integration target
 
 ### Synopsis
 ```bash
@@ -3400,39 +2559,39 @@ Usage: php spp.php integration:seed <app_name>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: DBAdapter.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: DBAdapter.
 
 
 ---
 
 ## `interdb:config`
 
-**Purpose**: Get or set the interdb operating mode
+**Description**: Get or set the interdb operating mode
 
 ### Synopsis
 ```bash
 php spp.php interdb:config [OPTIONS]
 ```
 
-### Options Available
-- `--mappings` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `interdb:mapping:add`
 
-**Purpose**: Add a new InterDB mapping
+**Description**: Add a new InterDB mapping
 
 ### Synopsis
 ```bash
@@ -3445,39 +2604,39 @@ Usage: php spp.php interdb:mapping:add <alias> <engine> <table>
 
 ```
 
-### Options Available
-- `--mappings` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: InterDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: InterDB.
 
 
 ---
 
 ## `interdb:mapping:list`
 
-**Purpose**: List all InterDB mappings
+**Description**: List all InterDB mappings
 
 ### Synopsis
 ```bash
 php spp.php interdb:mapping:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `interdb:mapping:remove`
 
-**Purpose**: Remove an InterDB mapping
+**Description**: Remove an InterDB mapping
 
 ### Synopsis
 ```bash
@@ -3490,120 +2649,139 @@ Usage: php spp.php interdb:mapping:remove <alias>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+
+
+---
+
+## `issue`
+
+**Description**: Manage SPPDocs issues directly from the command line (create, list, view, close)
+
+### Synopsis
+```bash
+php spp.php issue [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `kernel:compile`
 
-**Purpose**: Compiles the WebOS Kernel into the FastCGI performance cache.
+**Description**: Compiles the WebOS Kernel into the FastCGI performance cache.
 
 ### Synopsis
 ```bash
 php spp.php kernel:compile [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `lang:export`
 
-**Purpose**: Export active database translation overrides into JSON language file
+**Description**: Export active database translation overrides into JSON language file
 
 ### Synopsis
 ```bash
 php spp.php lang:export [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangExportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `lang:import`
 
-**Purpose**: Import JSON language file into active database translation overrides
+**Description**: Import JSON language file into active database translation overrides
 
 ### Synopsis
 ```bash
 php spp.php lang:import [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangImportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `lang:list`
 
-**Purpose**: List all translations
+**Description**: List all translations
 
 ### Synopsis
 ```bash
 php spp.php lang:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `lang:scan`
 
-**Purpose**: Scan directories for new translation keys
+**Description**: Scan directories for new translation keys
 
 ### Synopsis
 ```bash
 php spp.php lang:scan [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangScanCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: translation.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: translation.
 
 
 ---
 
 ## `lang:set`
 
-**Purpose**: Set a translation for a key
+**Description**: Set a translation for a key
 
 ### Synopsis
 ```bash
@@ -3616,117 +2794,117 @@ Usage: php spp.php lang:set <key> <locale> <translation>
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangSetCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `lekhak:generate-docs`
 
-**Purpose**: Generates documentation nodes for SPP Core and Modules.
+**Description**: Generates documentation nodes for SPP Core and Modules.
 
 ### Synopsis
 ```bash
 php spp.php lekhak:generate-docs [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: DocGen, LekhakNode.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: DocGen, LekhakNode.
 
 
 ---
 
 ## `lekhak:setup`
 
-**Purpose**: Initializes Lekhak CMS database tables.
+**Description**: Initializes Lekhak CMS database tables.
 
 ### Synopsis
 ```bash
 php spp.php lekhak:setup [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `lint`
 
-**Purpose**: Run SPP native linter on a file
+**Description**: Run SPP native linter on a file
 
 ### Synopsis
 ```bash
 php spp.php lint [OPTIONS]
 ```
 
-### Options Available
-- `--file=` : Expects a value. Extracted via static analysis.
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--file=` : Expects a value. Extracted via static analysis from LintCommand.php
+- `--json` : Boolean flag. Extracted via static analysis from LintCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `list`
 
-**Purpose**: Lists all discovered SPP CLI commands.
+**Description**: Lists all discovered SPP CLI commands.
 
 ### Synopsis
 ```bash
 php spp.php list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `live:status`
 
-**Purpose**: Check the status of websocket/polling servers
+**Description**: Check the status of websocket/polling servers
 
 ### Synopsis
 ```bash
 php spp.php live:status [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LiveStatusCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `live:trigger`
 
-**Purpose**: Push a live event to clients
+**Description**: Push a live event to clients
 
 ### Synopsis
 ```bash
@@ -3739,99 +2917,99 @@ Usage: php spp.php live:trigger --channel=<channel> --event=<event> [--payload=<
 
 ```
 
-### Options Available
-- `--channel=` : Expects a value. Extracted via static analysis.
-- `--event=` : Expects a value. Extracted via static analysis.
-- `--payload=` : Expects a value. Extracted via static analysis.
+### Options
+- `--channel=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php
+- `--event=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php
+- `--payload=` : Expects a value. Extracted via static analysis from LiveTriggerCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `logger:clear`
 
-**Purpose**: Clear the SPP application logs
+**Description**: Clear the SPP application logs
 
 ### Synopsis
 ```bash
 php spp.php logger:clear [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `logger:tail`
 
-**Purpose**: Tail the SPP application log file
+**Description**: Tail the SPP application log file
 
 ### Synopsis
 ```bash
 php spp.php logger:tail [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `make:app`
 
-**Purpose**: Create a new SPP application context
+**Description**: Create a new SPP application context
 
 ### Synopsis
 ```bash
 php spp.php make:app [OPTIONS]
 ```
 
-### Options Available
-- `--enterprise` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--enterprise` : Boolean flag. Extracted via static analysis from MakeAppCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: SPP.
+- Instantiates key components: SPP.
 
 
 ---
 
 ## `make:app-legacy`
 
-**Purpose**: Legacy scaffolder — forwards to make:app (kept for backward compatibility)
+**Description**: Legacy scaffolder — forwards to make:app (kept for backward compatibility)
 
 ### Synopsis
 ```bash
 php spp.php make:app-legacy [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: MakeAppCommand.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: MakeAppCommand.
 
 
 ---
 
 ## `make:blade`
 
-**Purpose**: Scaffold a new Blade template (Drishyam Paradigm)
+**Description**: Scaffold a new Blade template (Drishyam Paradigm)
 
 ### Synopsis
 ```bash
@@ -3844,20 +3022,20 @@ Usage: php spp.php make:blade <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Drishyam, Blade.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Drishyam, Blade.
 
 
 ---
 
 ## `make:blade-project`
 
-**Purpose**: Scaffold a new Blade-enabled SPP application
+**Description**: Scaffold a new Blade-enabled SPP application
 
 ### Synopsis
 ```bash
@@ -3870,40 +3048,39 @@ Usage: php spp.php make:blade-project <app_name>
 
 ```
 
-### Options Available
-- `----force` : Boolean flag or option. Extracted via static analysis.
-- `--logout` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Blade, SPP, app.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Blade, SPP, app.
 
 
 ---
 
 ## `make:blade-scaffold`
 
-**Purpose**: Create a full stack Blade scaffold (Entity, YAML Form, Controller, Blade Views)
+**Description**: Create a full stack Blade scaffold (Entity, YAML Form, Controller, Blade Views)
 
 ### Synopsis
 ```bash
 php spp.php make:blade-scaffold [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `make:command`
 
-**Purpose**: Create a new CLI command class
+**Description**: Create a new CLI command class
 
 ### Synopsis
 ```bash
@@ -3916,19 +3093,19 @@ Usage: php spp.php make:command <name> [--app=appname] [--command=cmd:name]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: CLI.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: CLI.
 
 
 ---
 
 ## `make:command-test`
 
-**Purpose**: Generate a boilerplate Parikshak feature test for a given command
+**Description**: Generate a boilerplate Parikshak feature test for a given command
 
 ### Synopsis
 ```bash
@@ -3941,19 +3118,19 @@ Usage: php spp.php make:command-test <CommandName> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `make:controller`
 
-**Purpose**: Create a new controller class
+**Description**: Create a new controller class
 
 ### Synopsis
 ```bash
@@ -3966,38 +3143,38 @@ Usage: php spp.php make:controller <name> [--app=appname] [--resource]
 
 ```
 
-### Options Available
-- `--resource` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--resource` : Boolean flag. Extracted via static analysis from MakeControllerCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: controller.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: controller.
 
 
 ---
 
 ## `make:deployment`
 
-**Purpose**: Generate Enterprise Docker and K8s scaffolding for the application.
+**Description**: Generate Enterprise Docker and K8s scaffolding for the application.
 
 ### Synopsis
 ```bash
 php spp.php make:deployment [OPTIONS]
 ```
 
-### Options Available
-- `--with-redis` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--with-redis` : Boolean flag. Extracted via static analysis from MakeDeploymentCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `make:dotnet-service`
 
-**Purpose**: Create a new .NET service project
+**Description**: Create a new .NET service project
 
 ### Synopsis
 ```bash
@@ -4010,41 +3187,41 @@ Usage: spp make:dotnet-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: console.
+- Instantiates key components: console.
 
 
 ---
 
 ## `make:drupal-bridge`
 
-**Purpose**: Scaffold a Drupal module to bridge SPP into Drupal
+**Description**: Scaffold a Drupal module to bridge SPP into Drupal
 
 ### Synopsis
 ```bash
 php spp.php make:drupal-bridge [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: TwigFunction.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: TwigFunction.
 
 
 ---
 
 ## `make:entity`
 
-**Purpose**: Create a new SPPEntity definition
+**Description**: Create a new SPPEntity definition
 
 ### Synopsis
 ```bash
@@ -4076,27 +3253,27 @@ Examples:
     php spp.php make:entity Student --table=spp_students --fields="name:varchar(255),age:int" --extends="\App\Entities\User" --login=true --relations="\App\Entities\Profile:OneToOne:student_id"
 ```
 
-### Options Available
-- `--fields=` : Expects a value. Extracted via static analysis.
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--table=` : Expects a value. Extracted via static analysis.
-- `--extends=` : Expects a value. Extracted via static analysis.
-- `--login=` : Expects a value. Extracted via static analysis.
-- `--relations=` : Expects a value. Extracted via static analysis.
-- `--api` : Boolean flag or option. Extracted via static analysis.
-- `--resource` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--fields=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--table=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--extends=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--login=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--relations=` : Expects a value. Extracted via static analysis from MakeEntityCommand.php
+- `--api` : Boolean flag. Extracted via static analysis from MakeEntityCommand.php
+- `--resource` : Boolean flag. Extracted via static analysis from MakeEntityCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: SPPEntity.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: SPPEntity.
 
 
 ---
 
 ## `make:event`
 
-**Purpose**: Create a new event entry and scaffold its handler
+**Description**: Create a new event entry and scaffold its handler
 
 ### Synopsis
 ```bash
@@ -4109,24 +3286,22 @@ Usage: php spp.php make:event <EventName> <HandlerClassName> [--app=appname] [--
 
 ```
 
-### Options Available
-- `--overridable` : Boolean flag or option. Extracted via static analysis.
-- `--default-handler` : Boolean flag or option. Extracted via static analysis.
-- `--events` : Boolean flag or option. Extracted via static analysis.
-- `--listeners` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--overridable` : Boolean flag. Extracted via static analysis from MakeEventCommand.php
+- `--default-handler` : Boolean flag. Extracted via static analysis from MakeEventCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-- Instantiates internal components: event.
+- Instantiates key components: event.
 
 
 ---
 
 ## `make:eventhand`
 
-**Purpose**: Create a new Event Handler class
+**Description**: Create a new Event Handler class
 
 ### Synopsis
 ```bash
@@ -4139,20 +3314,20 @@ Usage: php spp.php make:eventhand <HandlerClassName> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
-- Instantiates internal components: Event.
+- Instantiates key components: Event.
 
 
 ---
 
 ## `make:form`
 
-**Purpose**: Create a new SPP form definition
+**Description**: Create a new SPP form definition
 
 ### Synopsis
 ```bash
@@ -4165,19 +3340,19 @@ Usage: php spp.php make:form <name> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP.
 
 
 ---
 
 ## `make:go-service`
 
-**Purpose**: Create a new Go service script
+**Description**: Create a new Go service script
 
 ### Synopsis
 ```bash
@@ -4190,19 +3365,19 @@ Usage: spp make:go-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Go.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Go.
 
 
 ---
 
 ## `make:java-service`
 
-**Purpose**: Create a new Java service script
+**Description**: Create a new Java service script
 
 ### Synopsis
 ```bash
@@ -4215,20 +3390,20 @@ Usage: spp make:java-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Java.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Java.
 
 
 ---
 
 ## `make:live-component`
 
-**Purpose**: Create a new Live Component class
+**Description**: Create a new Live Component class
 
 ### Synopsis
 ```bash
@@ -4241,19 +3416,19 @@ Usage: php spp.php make:live-component <name> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Live.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Live.
 
 
 ---
 
 ## `make:middleware`
 
-**Purpose**: Create a new middleware class
+**Description**: Create a new middleware class
 
 ### Synopsis
 ```bash
@@ -4266,39 +3441,39 @@ Usage: php spp.php make:middleware <name> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: middleware.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: middleware.
 
 
 ---
 
 ## `make:migration`
 
-**Purpose**: Create a new database migration file
+**Description**: Create a new database migration file
 
 ### Synopsis
 ```bash
 php spp.php make:migration [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: database.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: database.
 
 
 ---
 
 ## `make:mixed-paradigm`
 
-**Purpose**: Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX
+**Description**: Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX
 
 ### Synopsis
 ```bash
@@ -4311,20 +3486,20 @@ Usage: php spp.php make:mixed-paradigm <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Drishyam.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Drishyam.
 
 
 ---
 
 ## `make:model`
 
-**Purpose**: Create a new model class (Fluent-ready)
+**Description**: Create a new model class (Fluent-ready)
 
 ### Synopsis
 ```bash
@@ -4337,19 +3512,19 @@ Usage: php spp.php make:model <name> [--app=appname] [--table=tablename]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: model.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: model.
 
 
 ---
 
 ## `make:module`
 
-**Purpose**: Create a new SPP module
+**Description**: Create a new SPP module (System or App level)
 
 ### Synopsis
 ```bash
@@ -4358,24 +3533,26 @@ php spp.php make:module [OPTIONS]
 
 ### Extended Usage
 ```text
-Usage: php spp.php make:module <name> [--scope=spp|contrib|app]
+Usage: php spp.php make:module <name> [--scope=spp|optional|contrib|app] [--app=AppName]
 
 ```
 
-### Options Available
-- `--scope=` : Expects a value. Extracted via static analysis.
+### Options
+- `--scope=` : Expects a value. Extracted via static analysis from MakeModuleCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from MakeModuleCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: SPP.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: SPP, MyService.
 
 
 ---
 
 ## `make:node-service`
 
-**Purpose**: Create a new Node.js service script
+**Description**: Create a new Node.js service script
 
 ### Synopsis
 ```bash
@@ -4388,19 +3565,19 @@ Usage: spp make:node-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Node.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Node.
 
 
 ---
 
 ## `make:partial`
 
-**Purpose**: Scaffold a new external view partial template (HTML/PHP/JS)
+**Description**: Scaffold a new external view partial template (HTML/PHP/JS)
 
 ### Synopsis
 ```bash
@@ -4413,20 +3590,20 @@ Usage: php spp.php make:partial <PartialName.html|.php|.js> [--app=AppName]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: external.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: external.
 
 
 ---
 
 ## `make:perl-service`
 
-**Purpose**: Create a new Perl service script
+**Description**: Create a new Perl service script
 
 ### Synopsis
 ```bash
@@ -4439,70 +3616,19 @@ Usage: spp make:perl-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Perl.
-
-
----
-
-## `make:polyglot`
-
-**Purpose**: Scaffold a new polyglot service (e.g. php spp.php make:polyglot python MyService)
-
-### Synopsis
-```bash
-php spp.php make:polyglot [OPTIONS]
-```
-
-### Extended Usage
-```text
-Usage: spp make:polyglot <language> <service_name> [--app=context]
-
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: polyglot.
-
-
----
-
-## `make:polyglot-partial`
-
-**Purpose**: Scaffold a new external polyglot partial service file (Python/Node/Go)
-
-### Synopsis
-```bash
-php spp.php make:polyglot-partial [OPTIONS]
-```
-
-### Extended Usage
-```text
-Usage: php spp.php make:polyglot-partial <ModuleName.py|.js|.go> [--lang=python|node|go] [--app=AppName]
-
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: external.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Perl.
 
 
 ---
 
 ## `make:python-service`
 
-**Purpose**: Create a new Python service script
+**Description**: Create a new Python service script
 
 ### Synopsis
 ```bash
@@ -4515,19 +3641,19 @@ Usage: spp make:python-service <name> [--app=context]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: Python.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: Python.
 
 
 ---
 
 ## `make:react-component`
 
-**Purpose**: Scaffold a new React component (ESM/No-build)
+**Description**: Scaffold a new React component (ESM/No-build)
 
 ### Synopsis
 ```bash
@@ -4540,60 +3666,86 @@ Usage: php spp.php make:react-component <ComponentName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: React.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: React.
+
+
+---
+
+## `make:report`
+
+**Description**: Scaffold a new SPPReport YAML configuration
+
+### Synopsis
+```bash
+php spp.php make:report [OPTIONS]
+```
+
+### Extended Usage
+```text
+Usage: php spp.php make:report <name>
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: SPPReport.
 
 
 ---
 
 ## `make:scaffold`
 
-**Purpose**: Create a full stack scaffold (Entity, DB, Controller, View)
+**Description**: Create a full stack scaffold (Entity, DB, Controller, View)
 
 ### Synopsis
 ```bash
 php spp.php make:scaffold [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `make:seeder`
 
-**Purpose**: Create a new Database Seeder class
+**Description**: Create a new Database Seeder class
 
 ### Synopsis
 ```bash
 php spp.php make:seeder [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from MakeSeederCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Database.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Database.
 
 
 ---
 
 ## `make:service`
 
-**Purpose**: Create a new service class
+**Description**: Create a new service class
 
 ### Synopsis
 ```bash
@@ -4606,19 +3758,19 @@ Usage: php spp.php make:service <name> [--app=appname] [--lang=python]
 
 ```
 
-### Options Available
-- `--lang=` : Expects a value. Extracted via static analysis.
+### Options
+- `--lang=` : Expects a value. Extracted via static analysis from MakeServiceCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand, MakePerlCommand, MakeJavaCommand.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand.
 
 
 ---
 
 ## `make:sppview`
 
-**Purpose**: Scaffold a new native AST SPPView template
+**Description**: Scaffold a new native AST SPPView template
 
 ### Synopsis
 ```bash
@@ -4631,20 +3783,20 @@ Usage: php spp.php make:sppview <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: native.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: native.
 
 
 ---
 
 ## `make:stream`
 
-**Purpose**: Scaffold a new external Turbo Stream template
+**Description**: Scaffold a new external Turbo Stream template
 
 ### Synopsis
 ```bash
@@ -4657,20 +3809,20 @@ Usage: php spp.php make:stream <StreamName.html|.php|.blade.php> [--app=AppName]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: external.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: external.
 
 
 ---
 
 ## `make:twig`
 
-**Purpose**: Scaffold a new Twig template (Drishyam Paradigm)
+**Description**: Scaffold a new Twig template (Drishyam Paradigm)
 
 ### Synopsis
 ```bash
@@ -4683,20 +3835,20 @@ Usage: php spp.php make:twig <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Drishyam, Twig.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Drishyam, Twig.
 
 
 ---
 
 ## `make:ux-component`
 
-**Purpose**: Scaffold a new SPP-UX reactive component
+**Description**: Scaffold a new SPP-UX reactive component
 
 ### Synopsis
 ```bash
@@ -4709,40 +3861,40 @@ Usage: php spp.php make:ux-component <ComponentName> [--template=external]
 
 ```
 
-### Options Available
-- `--template=external` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--template=external` : Boolean flag. Extracted via static analysis from MakeUXComponentCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: reactive, SPP.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: reactive, SPP.
 
 
 ---
 
 ## `make:view`
 
-**Purpose**: Create a new view definition (equivalent to Drupal Views).
+**Description**: Create a new view definition (equivalent to Drupal Views).
 
 ### Synopsis
 ```bash
 php spp.php make:view [OPTIONS]
 ```
 
-### Options Available
-- `--table=` : Expects a value. Extracted via static analysis.
+### Options
+- `--table=` : Expects a value. Extracted via static analysis from MakeViewCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: view, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: view, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `make:vue-component`
 
-**Purpose**: Scaffold a new Vue 3 component (ESM/No-build)
+**Description**: Scaffold a new Vue 3 component (ESM/No-build)
 
 ### Synopsis
 ```bash
@@ -4755,20 +3907,20 @@ Usage: php spp.php make:vue-component <ComponentName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Vue.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Vue.
 
 
 ---
 
 ## `make:wizard`
 
-**Purpose**: Scaffold a modern WizardController, workflow config, and partials
+**Description**: Scaffold a modern WizardController, workflow config, and partials
 
 ### Synopsis
 ```bash
@@ -4781,216 +3933,214 @@ Usage: php spp.php make:wizard <WizardName> [--app=AppName]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `man`
 
-**Purpose**: Format and display manual pages for SPP commands
+**Description**: Format and display manual pages for SPP commands
 
 ### Synopsis
 ```bash
 php spp.php man [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: elements.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: elements.
 
 
 ---
 
 ## `man:generate`
 
-**Purpose**: Generate highly detailed man-pages in Markdown and UNIX roff formats
+**Description**: Generate highly detailed man-pages in Markdown and UNIX roff formats
 
 ### Synopsis
 ```bash
 php spp.php man:generate [OPTIONS]
 ```
 
-### Options Available
-- `--force` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--force` : Boolean flag. Extracted via static analysis from ManGenerateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \ReflectionClass.
-- Makes outbound HTTP requests to external APIs or services.
-- Interacts with the application cache layer (Redis/Memcached).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `manifest:export`
 
-**Purpose**: Exports tool autodiscovery definitions for AI Copilots
+**Description**: Exports tool autodiscovery definitions for AI Copilots
 
 ### Synopsis
 ```bash
 php spp.php manifest:export [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `mesh:add`
 
-**Purpose**: Mounts a legacy application as a passthrough route in the WebOS Mesh
+**Description**: Mounts a legacy application as a passthrough route in the WebOS Mesh
 
 ### Synopsis
 ```bash
 php spp.php mesh:add [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `mesh:list`
 
-**Purpose**: Lists all active Mesh passthrough routes
+**Description**: Lists all active Mesh passthrough routes
 
 ### Synopsis
 ```bash
 php spp.php mesh:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `mesh:remove`
 
-**Purpose**: Unmounts a legacy application from the WebOS Mesh
+**Description**: Unmounts a legacy application from the WebOS Mesh
 
 ### Synopsis
 ```bash
 php spp.php mesh:remove [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `mesh:update`
 
-**Purpose**: Updates features for an existing mesh route
+**Description**: Updates features for an existing mesh route
 
 ### Synopsis
 ```bash
 php spp.php mesh:update [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `middleware:list`
 
-**Purpose**: List the middleware pipeline for an app
+**Description**: List the middleware pipeline for an app
 
 ### Synopsis
 ```bash
 php spp.php middleware:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from MiddlewareListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \ReflectionClass.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \ReflectionClass.
 
 
 ---
 
 ## `migrate`
 
-**Purpose**: Run pending database migrations
+**Description**: Run pending database migrations
 
 ### Synopsis
 ```bash
 php spp.php migrate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPPMigrationManager.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPPMigrationManager.
 
 
 ---
 
 ## `migrate:make`
 
-**Purpose**: Generate a new database migration class.
+**Description**: Generate a new database migration class.
 
 ### Synopsis
 ```bash
 php spp.php migrate:make [OPTIONS]
 ```
 
-### Options Available
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--name=` : Expects a value. Extracted via static analysis from MakeCommand.php
+- `--app=` : Expects a value. Extracted via static analysis from MakeCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: database.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: database.
 
 
 ---
 
 ## `module:disable`
 
-**Purpose**: Disable an SPP module
+**Description**: Disable an SPP module
 
 ### Synopsis
 ```bash
@@ -5003,19 +4153,19 @@ Usage: php spp.php module:disable <modulename>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:enable`
 
-**Purpose**: Enable an SPP module
+**Description**: Enable an SPP module
 
 ### Synopsis
 ```bash
@@ -5028,19 +4178,19 @@ Usage: php spp.php module:enable <modulename>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:install`
 
-**Purpose**: Install or upgrade a specific module or all active modules
+**Description**: Install or upgrade a specific module or all active modules
 
 ### Synopsis
 ```bash
@@ -5053,76 +4203,76 @@ Usage: php spp.php module:install <modulename> [--all]
 
 ```
 
-### Options Available
-- `--all` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--all` : Boolean flag. Extracted via static analysis from ModuleInstallCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:list`
 
-**Purpose**: Discovers and tabulates active kernel framework modules
+**Description**: Discovers and tabulates active kernel framework modules
 
 ### Synopsis
 ```bash
 php spp.php module:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:setting:list`
 
-**Purpose**: List all settings for a given module
+**Description**: List all settings for a given module
 
 ### Synopsis
 ```bash
 php spp.php module:setting:list [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:setting:update`
 
-**Purpose**: Update a configuration setting for a specific module
+**Description**: Update a configuration setting for a specific module
 
 ### Synopsis
 ```bash
 php spp.php module:setting:update [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:uninstall`
 
-**Purpose**: Uninstall a module (drops tracking but retains data tables)
+**Description**: Uninstall a module (drops tracking but retains data tables)
 
 ### Synopsis
 ```bash
@@ -5135,19 +4285,19 @@ Usage: php spp.php module:uninstall <modulename>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `module:update`
 
-**Purpose**: Execute the update hook for a specific module
+**Description**: Execute the update hook for a specific module
 
 ### Synopsis
 ```bash
@@ -5160,20 +4310,20 @@ Usage: php spp.php module:update <modulename> [--from=1.0] [--to=1.1]
 
 ```
 
-### Options Available
-- `--from=` : Expects a value. Extracted via static analysis.
-- `--to=` : Expects a value. Extracted via static analysis.
+### Options
+- `--from=` : Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
+- `--to=` : Expects a value. Extracted via static analysis from ModuleUpdateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `oauth:client:create`
 
-**Purpose**: Create a new OAuth 2.0 Client App
+**Description**: Create a new OAuth 2.0 Client App
 
 ### Synopsis
 ```bash
@@ -5185,20 +4335,20 @@ php spp.php oauth:client:create [OPTIONS]
 Usage: php spp.php oauth:client:create --name=\
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: OAuth, SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: OAuth, SPPDB.
 
 
 ---
 
 ## `oauth:client:delete`
 
-**Purpose**: Delete an OAuth 2.0 Client App
+**Description**: Delete an OAuth 2.0 Client App
 
 ### Synopsis
 ```bash
@@ -5211,257 +4361,272 @@ Usage: php spp.php oauth:client:delete <id>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `oauth:client:list`
 
-**Purpose**: List all OAuth 2.0 Client Apps
+**Description**: List all OAuth 2.0 Client Apps
 
 ### Synopsis
 ```bash
 php spp.php oauth:client:list [OPTIONS]
 ```
 
-### Options Available
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--json` : Boolean flag. Extracted via static analysis from OAuthClientListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 
 
 ---
 
-## `polyglot:async`
+## `optimize:ux`
 
-**Purpose**: Internal command to execute polyglot calls asynchronously
+**Description**: AOT Pre-compile SPP-UX tagged templates to eliminate browser JIT parsing overhead
 
 ### Synopsis
 ```bash
-php spp.php polyglot:async [OPTIONS]
+php spp.php optimize:ux [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
-
-
----
-
-## `polyglot:list`
-
-**Purpose**: Discovers and tabulates all registered polyglot services
-
-### Synopsis
-```bash
-php spp.php polyglot:list [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: DOMDocument, DOMXPath, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
-## `polyglot:run`
+## `pkg:install`
 
-**Purpose**: Executes a specific polyglot service directly
+**Description**: Download and install a native SPP app or external package from a URL, local path, or central registry
 
 ### Synopsis
 ```bash
-php spp.php polyglot:run [OPTIONS]
+php spp.php pkg:install [OPTIONS]
 ```
 
 ### Extended Usage
 ```text
-Usage: php spp.php polyglot:run --path=<relative_path_to_service> [args...]
+Usage: php spp.php pkg:install <source_or_name> <app_name> [--type=native|external] [--route=/path]
 
 ```
 
-### Options Available
-- `--path=` : Expects a value. Extracted via static analysis.
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 - Executes external system binaries or shell commands.
-
-
----
-
-## `polyglot:status`
-
-**Purpose**: Checks the runtime environment for polyglot language binaries
-
-### Synopsis
-```bash
-php spp.php polyglot:status [OPTIONS]
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes external system binaries or shell commands.
-
-
----
-
-## `polyglot:worker`
-
-**Purpose**: Manage Polyglot persistent workers
-
-### Synopsis
-```bash
-php spp.php polyglot:worker [OPTIONS]
-```
-
-### Extended Usage
-```text
-Usage: spp polyglot:worker [start|stop|restart|status] <module> [<lang>]
-
-```
-
-### Options Available
-No static options detected for this command.
-
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Executes external system binaries or shell commands.
+- Instantiates key components: \ZipArchive.
 
 
 ---
 
 ## `profile:report:generate`
 
-**Purpose**: Dump a performance profile trace for debugging
+**Description**: Dump a performance profile trace for debugging
 
 ### Synopsis
 ```bash
 php spp.php profile:report:generate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `profile:status`
 
-**Purpose**: Check if the performance profiler is running/enabled
+**Description**: Check if the performance profiler is running/enabled
 
 ### Synopsis
 ```bash
 php spp.php profile:status [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `queue:list`
 
-**Purpose**: List all jobs currently in the queue
+**Description**: List all jobs currently in the queue
 
 ### Synopsis
 ```bash
 php spp.php queue:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from QueueListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `queue:work`
 
-**Purpose**: Starts a worker loop to process background jobs from the queue.
+**Description**: Starts a worker loop to process background jobs from the queue.
 
 ### Synopsis
 ```bash
 php spp.php queue:work [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php queue:work
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from QueueWorkCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+
+
+---
+
+## `role:create`
+
+**Description**: Create a new role
+
+### Synopsis
+```bash
+php spp.php role:create [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: role, \SPPMod\SPPDB\SPPDB.
+
+
+---
+
+## `role:list`
+
+**Description**: List all defined roles and permissions
+
+### Synopsis
+```bash
+php spp.php role:list [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `schedule:run`
 
-**Purpose**: Run all scheduled cron tasks declared by active modules
+**Description**: Run all scheduled cron tasks declared by active modules
 
 ### Synopsis
 ```bash
 php spp.php schedule:run [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPP\Cron\Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPP\Cron\Scheduler.
+
+
+---
+
+## `scim:test:user`
+
+**Description**: Test SCIM User Provisioning locally
+
+### Synopsis
+```bash
+php spp.php scim:test:user [OPTIONS]
+```
+
+### Extended Usage
+```text
+Usage: php spp.php scim:test:user <username> [email]
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SCIMHandler, \ReflectionClass.
 
 
 ---
 
 ## `serve`
 
-**Purpose**: Start a local development server for the current application
+**Description**: Start a local development server for the current application
 
 ### Synopsis
 ```bash
 php spp.php serve [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php serve [--port=8000]
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from AppServeCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
 
 
@@ -5469,183 +4634,230 @@ Based on static analysis of the command's source code, invoking this command per
 
 ## `serve:async`
 
-**Purpose**: Boot the persistent memory asynchronous coroutine runtime (FrankenPHP/OpenSwoole)
+**Description**: Boot the persistent memory asynchronous coroutine runtime (FrankenPHP/OpenSwoole)
 
 ### Synopsis
 ```bash
 php spp.php serve:async [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--port=` : Expects a value. Extracted via static analysis.
+### Extended Usage
+```text
+Usage: php spp.php serve:async [--app=name] [--port=8080]
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+```
+
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from AppServeAsyncCommand.php
+- `--port=` : Expects a value. Extracted via static analysis from AppServeAsyncCommand.php
+- `--help` : Boolean flag. Extracted via static analysis from AppServeAsyncCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `service:crud`
 
-**Purpose**: Manage SPP services (list, create, edit, delete)
+**Description**: Manage SPP services (list, create, edit, delete)
 
 ### Synopsis
 ```bash
 php spp.php service:crud [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `session:clean`
 
-**Purpose**: Clean up expired sessions
+**Description**: Clean up expired sessions
 
 ### Synopsis
 ```bash
 php spp.php session:clean [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `session:destroy-all`
 
-**Purpose**: Invalidate all active sessions across the application
+**Description**: Invalidate all active sessions across the application
 
 ### Synopsis
 ```bash
 php spp.php session:destroy-all [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `shell`
 
-**Purpose**: Launch the interactive SPP Shell Mode (run all CLI commands, switch apps, inspect state, tabs, AI, polyglot, etc.).
+**Description**: Launch the interactive SPP Shell Mode (run all CLI commands, switch apps, inspect state, tabs, AI, polyglot, etc.).
 
 ### Synopsis
 ```bash
 php spp.php shell [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPP\Core\InteractiveShell.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPP\Core\InteractiveShell.
 
 
 ---
 
 ## `site:install`
 
-**Purpose**: Initialize the database and load default configurations for a specific profile.
+**Description**: Initialize the database and load default configurations for a specific profile.
 
 ### Synopsis
 ```bash
 php spp.php site:install [OPTIONS]
 ```
 
-### Options Available
-- `--profile=` : Expects a value. Extracted via static analysis.
+### Options
+- `--profile=` : Expects a value. Extracted via static analysis from SiteInstallCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+
+
+---
+
+## `sppdocs:audit:verify`
+
+**Description**: Verify the cryptographic SHA-256 hash chain integrity of an SPPDocs project audit trail
+
+### Synopsis
+```bash
+php spp.php sppdocs:audit:verify [OPTIONS]
+```
+
+### Options
+- `--project=` : Expects a value. Extracted via static analysis from SPPDocsAuditVerifyCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+
+
+---
+
+## `sppdocs:storage:migrate`
+
+**Description**: Migrate SPPDocs project issues between Flat-File JSON and SQLite storage
+
+### Synopsis
+```bash
+php spp.php sppdocs:storage:migrate [OPTIONS]
+```
+
+### Options
+- `--project=` : Expects a value. Extracted via static analysis from SPPDocsStorageMigrateCommand.php
+- `--to=` : Expects a value. Extracted via static analysis from SPPDocsStorageMigrateCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: JsonStorageDriver, SqliteStorageDriver.
 
 
 ---
 
 ## `storage:clean`
 
-**Purpose**: Clean up temporary files in storage
+**Description**: Clean up temporary files in storage
 
 ### Synopsis
 ```bash
 php spp.php storage:clean [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from StorageCleanCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `storage:link`
 
-**Purpose**: Create symbolic links for public storage
+**Description**: Create symbolic links for public storage
 
 ### Synopsis
 ```bash
 php spp.php storage:link [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from StorageLinkCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `storage:sync`
 
-**Purpose**: Sync local storage with external disks (stub)
+**Description**: Sync local storage with external disks (stub)
 
 ### Synopsis
 ```bash
 php spp.php storage:sync [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from StorageSyncCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `sys:debug`
 
-**Purpose**: Toggle global framework debug mode (on|off)
+**Description**: Toggle global framework debug mode (on|off)
 
 ### Synopsis
 ```bash
@@ -5658,117 +4870,117 @@ Usage: php spp.php sys:debug on|off
 
 ```
 
-### Options Available
-- `--settings` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `sys:seed`
 
-**Purpose**: Run all database seeders for an application
+**Description**: Run all database seeders for an application
 
 ### Synopsis
 ```bash
 php spp.php sys:seed [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `sys:status`
 
-**Purpose**: Displays framework health, environment diagnostics, and polyglot bridge status
+**Description**: Displays framework health, environment diagnostics, and polyglot bridge status
 
 ### Synopsis
 ```bash
 php spp.php sys:status [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `sys:test:auto`
 
-**Purpose**: Runs Automated Evolutionary Testing (Parikshak) for the current application.
+**Description**: Runs Automated Evolutionary Testing (Parikshak) for the current application.
 
 ### Synopsis
 ```bash
 php spp.php sys:test:auto [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, Parikshak.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, Parikshak.
 
 
 ---
 
 ## `sys:upgrade`
 
-**Purpose**: Synchronize the database schema incrementally from all active module definitions (db.yml)
+**Description**: Synchronize the database schema incrementally from all active module definitions (db.yml)
 
 ### Synopsis
 ```bash
 php spp.php sys:upgrade [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPPDB.
 
 
 ---
 
 ## `test`
 
-**Purpose**: Run Parikshak Unit and Feature Tests
+**Description**: Run Parikshak Unit and Feature Tests
 
 ### Synopsis
 ```bash
 php spp.php test [OPTIONS]
 ```
 
-### Options Available
-- `--coverage` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--coverage` : Boolean flag. Extracted via static analysis from TestCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB, SPPTestRunner.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB, SPPTestRunner.
 
 
 ---
 
 ## `test:blueprint`
 
-**Purpose**: Generate a structural blueprint for an entity
+**Description**: Generate a structural blueprint for an entity
 
 ### Synopsis
 ```bash
@@ -5781,32 +4993,32 @@ Usage: php spp.php test:blueprint <EntityClass>
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from TestBlueprintCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: parikshak.
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\Parikshak\Parikshak.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: parikshak.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\Parikshak\Parikshak.
 
 
 ---
 
 ## `test:dry-run`
 
-**Purpose**: Dry-run all registered commands to catch syntax and initialization errors
+**Description**: Dry-run all registered commands to catch syntax and initialization errors
 
 ### Synopsis
 ```bash
 php spp.php test:dry-run [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
 
 
@@ -5814,7 +5026,7 @@ Based on static analysis of the command's source code, invoking this command per
 
 ## `test:module`
 
-**Purpose**: Run PHPUnit tests for an isolated module
+**Description**: Run PHPUnit tests for an isolated module
 
 ### Synopsis
 ```bash
@@ -5827,11 +5039,11 @@ Usage: php spp.php test:module <modulename>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
 
 
@@ -5839,7 +5051,7 @@ Based on static analysis of the command's source code, invoking this command per
 
 ## `test:monkey`
 
-**Purpose**: Runs chaos monkey / fuzzing scenarios for an entity
+**Description**: Runs chaos monkey / fuzzing scenarios for an entity
 
 ### Synopsis
 ```bash
@@ -5852,100 +5064,204 @@ Usage: php spp.php test:monkey <EntityClass>
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--entities` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from TestMonkeyCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: parikshak.
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\Parikshak\Parikshak.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: parikshak.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\Parikshak\Parikshak.
 
 
 ---
 
 ## `test:routes`
 
-**Purpose**: Test route scanner
+**Description**: Test route scanner
 
 ### Synopsis
 ```bash
 php spp.php test:routes [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from TestRouteCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `test:run`
 
-**Purpose**: Runs Parikshak evaluation for an entity or the whole suite
+**Description**: Runs Parikshak evaluation for an entity or the whole suite
 
 ### Synopsis
 ```bash
 php spp.php test:run [OPTIONS]
 ```
 
-### Options Available
-- `--coverage` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--coverage` : Boolean flag. Extracted via static analysis from TestRunCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Dynamically loads SPP kernel modules: parikshak.
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\Parikshak\Parikshak.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Dynamically loads kernel modules: parikshak.
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\Parikshak\Parikshak.
 
 
 ---
 
 ## `theme:activate`
 
-**Purpose**: Switch the active theme adapter (native/wp/joomla) and optionally set the theme name
+**Description**: Switch the active theme adapter (native/wp/joomla) and optionally set the theme name
 
 ### Synopsis
 ```bash
 php spp.php theme:activate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `tinker`
 
-**Purpose**: Interact with your application in a REPL shell.
+**Description**: Interact with your application in a REPL shell.
 
 ### Synopsis
 ```bash
 php spp.php tinker [OPTIONS]
 ```
 
-### Options Available
-- `--force` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--force` : Boolean flag. Extracted via static analysis from TinkerCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
+
+
+---
+
+## `ui:add`
+
+**Description**: Add beautifully styled, zero-build SPP-UX components to your project
+
+### Synopsis
+```bash
+php spp.php ui:add [OPTIONS]
+```
+
+### Extended Usage
+```text
+Usage: php spp.php ui:add <component_name>
+
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+
+
+---
+
+## `user:create`
+
+**Description**: Create a new user account
+
+### Synopsis
+```bash
+php spp.php user:create [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: user, \SPPMod\SPPDB\SPPDB.
+
+
+---
+
+## `user:delete`
+
+**Description**: Delete a user account by username or ID
+
+### Synopsis
+```bash
+php spp.php user:delete [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+
+
+---
+
+## `user:list`
+
+**Description**: List all registered framework users
+
+### Synopsis
+```bash
+php spp.php user:list [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
+
+
+---
+
+## `user:password:reset`
+
+**Description**: Reset password for a user
+
+### Synopsis
+```bash
+php spp.php user:password:reset [OPTIONS]
+```
+
+### Options
+No static options detected.
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: password, \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `userprofile:export`
 
-**Purpose**: Export user profile data for compliance/GDPR
+**Description**: Export user profile data for compliance/GDPR
 
 ### Synopsis
 ```bash
@@ -5958,95 +5274,101 @@ Usage: php spp.php userprofile:export --user=<user_id>
 
 ```
 
-### Options Available
-- `--user=` : Expects a value. Extracted via static analysis.
+### Options
+- `--user=` : Expects a value. Extracted via static analysis from UserProfileExportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `userprofile:schema:update`
 
-**Purpose**: Sync extended user profile metadata schemas
+**Description**: Sync extended user profile metadata schemas
 
 ### Synopsis
 ```bash
 php spp.php userprofile:schema:update [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `ux:debug`
 
-**Purpose**: Toggle SPP-UX verbose logging (on|off)
+**Description**: Toggle SPP-UX verbose logging (on|off)
 
 ### Synopsis
 ```bash
 php spp.php ux:debug [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 
 
 ---
 
 ## `verify:sovereignty`
 
-**Purpose**: Validates complete stack self-containment/zero external links
+**Description**: Validates complete stack self-containment/zero external links
 
 ### Synopsis
 ```bash
 php spp.php verify:sovereignty [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `view:cache`
 
-**Purpose**: Pre-compiles all AST views into PHP for optimal performance
+**Description**: Pre-compiles all AST views into PHP for optimal performance
 
 ### Synopsis
 ```bash
 php spp.php view:cache [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php view:cache [--app=name]
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from ViewCacheCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 
 
 ---
 
 ## `view:page:add`
 
-**Purpose**: Add a new page route to an app
+**Description**: Add a new page route to an app
 
 ### Synopsis
 ```bash
@@ -6059,42 +5381,42 @@ Usage: php spp.php view:page:add --name=<route> --url=<target> [--app=default] [
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--url=` : Expects a value. Extracted via static analysis.
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+- `--url=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
+- `--source=` : Expects a value. Extracted via static analysis from ViewPageAddCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: page.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: page.
 
 
 ---
 
 ## `view:page:list`
 
-**Purpose**: List all registered pages/routes for an app
+**Description**: List all registered pages/routes for an app
 
 ### Synopsis
 ```bash
 php spp.php view:page:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewPageListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `view:page:remove`
 
-**Purpose**: Remove a page route from an app
+**Description**: Remove a page route from an app
 
 ### Synopsis
 ```bash
@@ -6107,21 +5429,21 @@ Usage: php spp.php view:page:remove --name=<route> [--app=default] [--source=yam
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
+- `--source=` : Expects a value. Extracted via static analysis from ViewPageRemoveCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `view:service:add`
 
-**Purpose**: Register a new AJAX service endpoint
+**Description**: Register a new AJAX service endpoint
 
 ### Synopsis
 ```bash
@@ -6134,43 +5456,43 @@ Usage: php spp.php view:service:add --name=<service> --script=<path> [--method=P
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--script=` : Expects a value. Extracted via static analysis.
-- `--method=` : Expects a value. Extracted via static analysis.
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+- `--script=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+- `--method=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
+- `--source=` : Expects a value. Extracted via static analysis from ViewServiceAddCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: AJAX.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: AJAX.
 
 
 ---
 
 ## `view:service:list`
 
-**Purpose**: List all registered AJAX services for an app
+**Description**: List all registered AJAX services for an app
 
 ### Synopsis
 ```bash
 php spp.php view:service:list [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceListCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `view:service:remove`
 
-**Purpose**: Remove an AJAX service endpoint from an app
+**Description**: Remove an AJAX service endpoint from an app
 
 ### Synopsis
 ```bash
@@ -6183,21 +5505,21 @@ Usage: php spp.php view:service:remove --name=<service> [--app=default] [--sourc
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--source=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
+- `--source=` : Expects a value. Extracted via static analysis from ViewServiceRemoveCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `view:service:test`
 
-**Purpose**: Test an AJAX service endpoint from the CLI
+**Description**: Test an AJAX service endpoint from the CLI
 
 ### Synopsis
 ```bash
@@ -6209,62 +5531,61 @@ php spp.php view:service:test [OPTIONS]
 Usage: php spp.php view:service:test --name=<service> [--app=default] [--payload=
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
-- `--name=` : Expects a value. Extracted via static analysis.
-- `--payload=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+- `--name=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
+- `--payload=` : Expects a value. Extracted via static analysis from ViewServiceTestCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
 
 ---
 
 ## `workflow:dump`
 
-**Purpose**: Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
+**Description**: Dump a workflow definition as a visual state graph (Mermaid.js or Graphviz DOT)
 
 ### Synopsis
 ```bash
 php spp.php workflow:dump [OPTIONS]
 ```
 
-### Options Available
-- `--format=` : Expects a value. Extracted via static analysis.
-- `--file=` : Expects a value. Extracted via static analysis.
+### Options
+- `--format=` : Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
+- `--file=` : Expects a value. Extracted via static analysis from WorkflowDumpCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---
 
 ## `workflow:process-timeouts`
 
-**Purpose**: Process SLA timeouts on entities and trigger automatic escalation transitions
+**Description**: Process SLA timeouts on entities and trigger automatic escalation transitions
 
 ### Synopsis
 ```bash
 php spp.php workflow:process-timeouts [OPTIONS]
 ```
 
-### Options Available
-- `--timeout` : Boolean flag or option. Extracted via static analysis.
-- `--timeout_transition` : Boolean flag or option. Extracted via static analysis.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 
 
 ---
 
 ## `xdb:describe`
 
-**Purpose**: Describe the schema of an XDB table
+**Description**: Describe the schema of an XDB table
 
 ### Synopsis
 ```bash
@@ -6277,57 +5598,57 @@ Usage: php spp xdb:describe <table_name> [--db=dbname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
 
 ---
 
 ## `xdb:list-dbs`
 
-**Purpose**: List all available XDB databases
+**Description**: List all available XDB databases
 
 ### Synopsis
 ```bash
 php spp.php xdb:list-dbs [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
 
 ---
 
 ## `xdb:list-tables`
 
-**Purpose**: List all tables in an XDB database
+**Description**: List all tables in an XDB database
 
 ### Synopsis
 ```bash
 php spp.php xdb:list-tables [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
 
 ---
 
 ## `xdb:make:migration`
 
-**Purpose**: Create a new SPP_XDB migration file
+**Description**: Create a new SPP_XDB migration file
 
 ### Synopsis
 ```bash
@@ -6340,19 +5661,19 @@ Usage: php spp.php xdb:make:migration <name_of_table>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP_XDB, MigrationManager.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP_XDB, MigrationManager.
 
 
 ---
 
 ## `xdb:make:seeder`
 
-**Purpose**: Create a new SPP_XDB seeder file
+**Description**: Create a new SPP_XDB seeder file
 
 ### Synopsis
 ```bash
@@ -6365,39 +5686,39 @@ Usage: php spp.php xdb:make:seeder <name_of_seeder>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP_XDB, SeederManager.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP_XDB, SeederManager.
 
 
 ---
 
 ## `xdb:migrate`
 
-**Purpose**: Run SPP_XDB Database Migrations
+**Description**: Run SPP_XDB Database Migrations
 
 ### Synopsis
 ```bash
 php spp.php xdb:migrate [OPTIONS]
 ```
 
-### Options Available
-- `--steps=` : Expects a value. Extracted via static analysis.
-- `--rollback` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--steps=` : Expects a value. Extracted via static analysis from XdbMigrateCommand.php
+- `--rollback` : Boolean flag. Extracted via static analysis from XdbMigrateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP_XDB, MigrationManager.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP_XDB, MigrationManager.
 
 
 ---
 
 ## `xdb:query`
 
-**Purpose**: Execute a SQL or XPath query on the XML database
+**Description**: Execute a SQL or XPath query on the XML database
 
 ### Synopsis
 ```bash
@@ -6409,50 +5730,50 @@ php spp.php xdb:query [OPTIONS]
 Usage: php spp xdb:query \
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: \SPPMod\SPPXDB\SPP_XDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: \SPPMod\SPPXDB\SPP_XDB.
 
 
 ---
 
 ## `xdb:seed`
 
-**Purpose**: Run SPP_XDB Database Seeders
+**Description**: Run SPP_XDB Database Seeders
 
 ### Synopsis
 ```bash
 php spp.php xdb:seed [OPTIONS]
 ```
 
-### Options Available
-- `--class=` : Expects a value. Extracted via static analysis.
+### Options
+- `--class=` : Expects a value. Extracted via static analysis from XdbSeedCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP_XDB, SeederManager.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP_XDB, SeederManager.
 
 
 ---
 
 ## `xdb:shell`
 
-**Purpose**: Launch the interactive SPPXDB shell
+**Description**: Launch the interactive SPPXDB shell
 
 ### Synopsis
 ```bash
 php spp.php xdb:shell [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 
 
 ---

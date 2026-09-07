@@ -1,26 +1,22 @@
-.TH SPP-make-partial 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-partial 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:partial
-.PP
- \- Scaffold a new external view partial template (HTML/PHP/JS)
+spp-make-partial \- Scaffold a new external view partial template (HTML/PHP/JS)
+.SH SYNOPSIS
+.B php spp.php make:partial
+[OPTIONS]
 .SH DESCRIPTION
 Scaffold a new external view partial template (HTML/PHP/JS)
 .PP
-.SH SYNOPSIS
-php spp.php make:partial [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php make:partial <PartialName.html|.php|.js> [--app=AppName]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: external.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: external.
+.br

@@ -1,25 +1,22 @@
-.TH SPP-make-service 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-service 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:service
-.PP
- \- Create a new service class
+spp-make-service \- Create a new service class
+.SH SYNOPSIS
+.B php spp.php make:service
+[OPTIONS]
 .SH DESCRIPTION
 Create a new service class
 .PP
-.SH SYNOPSIS
-php spp.php make:service [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php make:service <name> [--app=appname] [--lang=python]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--lang=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --lang=
+Expects a value. Extracted via static analysis from MakeServiceCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand, MakePerlCommand, MakeJavaCommand.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: service, MakePythonCommand, MakeNodeCommand, MakeGoCommand, MakeDotNetCommand.
 .br
-.PP
-.PP

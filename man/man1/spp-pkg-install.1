@@ -1,0 +1,24 @@
+.TH SPP-pkg-install 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-pkg-install \- Download and install a native SPP app or external package from a URL, local path, or central registry
+.SH SYNOPSIS
+.B php spp.php pkg:install
+[OPTIONS]
+.SH DESCRIPTION
+Download and install a native SPP app or external package from a URL, local path, or central registry
+.PP
+Usage: php spp.php pkg:install <source_or_name> <app_name> [--type=native|external] [--route=/path]
+.br
+
+.PP
+.SH OPTIONS
+No explicit options statically detected.
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Executes external system binaries or shell commands.
+.br
+\(bu Instantiates key components: \ZipArchive.
+.br

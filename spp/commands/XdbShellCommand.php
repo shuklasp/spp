@@ -18,7 +18,9 @@ class XdbShellCommand extends \SPP\CLI\Command
 
     public function execute(array $args): void
     {
-        $shellScript = dirname(__DIR__) . '/modules/spp/sppxdb/xdb-shell.php';
+        $shellScript = file_exists(dirname(__DIR__) . '/modules/optional/sppxdb/xdb-shell.php')
+            ? dirname(__DIR__) . '/modules/optional/sppxdb/xdb-shell.php'
+            : dirname(__DIR__) . '/modules/spp/sppxdb/xdb-shell.php';
         
         if (!file_exists($shellScript)) {
             echo "Error: Interactive shell script not found at $shellScript\n";

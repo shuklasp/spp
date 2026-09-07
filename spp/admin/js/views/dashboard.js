@@ -562,20 +562,20 @@ export default class DashboardView extends BaseComponent {
                 </div>
 
                 <div class="quick-actions stagger-3">
+                    <button class="quick-action-btn" @click=${() => location.hash = 'identity'}>
+                        🛡️ Identity & IAM
+                    </button>
+                    <button class="quick-action-btn" @click=${() => location.hash = 'database'}>
+                        🗄️ Database & Storage
+                    </button>
                     <button class="quick-action-btn" @click=${() => location.hash = 'apps'}>
-                        🚀 App Studio
+                        📱 Applications
                     </button>
-                    <button class="quick-action-btn" @click=${() => location.hash = 'entities'}>
-                        🏗️ Entities
-                    </button>
-                    <button class="quick-action-btn" @click=${() => location.hash = 'parikshak'}>
-                        🧪 Run Tests
-                    </button>
-                    <button class="quick-action-btn" @click=${() => location.hash = 'copilot'}>
-                        🤖 AI Copilot
+                    <button class="quick-action-btn" @click=${() => location.hash = 'system'}>
+                        🖥️ Observability
                     </button>
                     <button class="quick-action-btn" @click=${() => location.hash = 'commands'}>
-                        ⚡ CLI
+                        ⚡ Command Center
                     </button>
                 </div>
 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="perfection_test" table="departments">
+  <_schema>
+    <column name="id" type="INT" primary="true"/>
+    <column name="dept_name" type="VARCHAR"/>
+  </_schema>
+  <data>
+  </data>
+<row id="1"><id>1</id><dept_name>Engineering</dept_name></row><row id="2"><id>2</id><dept_name>Management</dept_name></row><row id="3"><id>3</id><dept_name>Design</dept_name></row><row id="1"><id>1</id><dept_name>Engineering</dept_name></row><row id="2"><id>2</id><dept_name>Management</dept_name></row><row id="3"><id>3</id><dept_name>Design</dept_name></row></database>

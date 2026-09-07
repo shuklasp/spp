@@ -1,0 +1,26 @@
+.TH "user:create" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+user:create \- Provisions a new framework user account.
+.SH SYNOPSIS
+.B php spp.php user:create
+\fIusername\fR [\-\-email=\fIEMAIL\fR] [\-\-password=\fIPASS\fR] [\-\-role=\fIROLE\fR] [\-\-json] [\-\-app=\fIAPP\fR]
+.SH DESCRIPTION
+Creates a new user record with bcrypt-hashed credentials and optional role mapping.
+.SH OPTIONS
+.TP
+.BR \-\-email =\fIEMAIL\fR
+User's contact email.
+.TP
+.BR \-\-password =\fIPASS\fR
+Plaintext password to hash and store.
+.TP
+.BR \-\-role =\fIROLE\fR
+Initial assigned role.
+.TP
+.BR \-\-json
+Outputs results in structured JSON format.
+.TP
+.BR \-\-app =\fIAPP\fR
+Targets a specific application context.
+.SH UNDER THE HOOD
+Validates uniqueness, executes password_hash(), inserts row into spp_users, and associates roles.

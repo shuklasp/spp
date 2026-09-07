@@ -1,6 +1,6 @@
 ## `deploy:plan`
 
-**Purpose**: Perform a dry run to view file changes and raw database SQL diffs before deploying
+**Description**: Perform a dry run to view file changes and raw database SQL diffs before deploying
 
 ### Synopsis
 ```bash
@@ -13,15 +13,12 @@ Usage: php spp.php deploy:plan <target_uri> [--key=YOUR_API_KEY] [--no-db]
 
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--no-db` : Boolean flag or option. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
-- `--sql` : Boolean flag or option. Extracted via static analysis.
-- `--Create Table` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployPlanCommand.php
+- `--no-db` : Boolean flag. Extracted via static analysis from DeployPlanCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: \SPPMod\SPPDeploy\Scanner\FileScanner, \SPPMod\SPPDeploy\Scanner\DbScanner, \SPPMod\SPPDB\SPPDB.
 

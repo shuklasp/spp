@@ -1,0 +1,48 @@
+title: 'Final Certification Assessment'
+description: 'Comprehensive exam to qualify for your Certificate of Completion.'
+passing_score: 85
+questions:
+  -
+    id: q1
+    type: multiple_choice
+    prompt: 'How should state transitions be triggered on an SPPEntity?'
+    options:
+      -
+        id: a
+        text: 'Using $entity->applyTransition($name, $user, $comment)'
+        correct: true
+      -
+        id: b
+        text: 'Directly mutating $entity->status = "approved"'
+        correct: false
+      -
+        id: c
+        text: 'Writing a raw SQL UPDATE query'
+        correct: false
+    explanation: 'applyTransition() enforces guards, triggers lifecycle hooks, and logs state changes to the audit history.'
+  -
+    id: q2
+    type: multiple_choice
+    prompt: 'What pattern does SPP utilize to rollback multi-step distributed operations?'
+    options:
+      -
+        id: a
+        text: 'Saga Compensating Transactions'
+        correct: true
+      -
+        id: b
+        text: 'Two-Phase Commit Locks'
+        correct: false
+      -
+        id: c
+        text: 'Process Crash & Restart'
+        correct: false
+    explanation: 'SPP workflows support Saga-style compensating transactions for state rollbacks.'
+  -
+    id: q3
+    type: code_check
+    prompt: 'Complete the helper call in a ViewController to transition an entity and negotiate HTMX:'
+    code: '$this->____($entity, "approve", $context);'
+    expected: transitionEntity
+    hint: 'Helper method on ViewController'
+    explanation: 'transitionEntity() handles execution and automatically negotiates HTMX or Turbo Stream partials.'

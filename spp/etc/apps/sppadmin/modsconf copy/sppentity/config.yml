@@ -1,9 +1,0 @@
-# SPPEntity Module Configuration
-# Migrated from config.xml
-
-variables:
-    dbtype: mysql
-    dbuser: root
-    dbpasswd: hello123
-    dbhost: localhost
-    dbname: school

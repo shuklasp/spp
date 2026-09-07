@@ -1,18 +1,17 @@
 ## `deploy:token:rotate`
 
-**Purpose**: Rotate the secure deployment gateway token on both local and remote environments with zero downtime
+**Description**: Rotate the secure deployment gateway token on both local and remote environments with zero downtime
 
 ### Synopsis
 ```bash
 php spp.php deploy:token:rotate [OPTIONS]
 ```
 
-### Options Available
-- `--key=` : Expects a value. Extracted via static analysis.
-- `--status` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--key=` : Expects a value. Extracted via static analysis from DeployTokenRotateCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: deployment, token.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: deployment, token.
 

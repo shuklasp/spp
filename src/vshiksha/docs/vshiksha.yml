@@ -1,0 +1,6 @@
+title: "vShiksha"
+description: "Next-generation educational platform."
+landing_view: "landing.generic"
+default_version: "v1"
+versions:
+  v1: "C:/projects/apache/school1/src/vshiksha/docs"

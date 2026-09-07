@@ -1,0 +1,8 @@
+general:
+  title: 'General Discussion'
+  description: 'Talk about anything related to My Demo App'
+  acl:
+    read:
+      - '*'
+    write:
+      - registered

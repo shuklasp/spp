@@ -37,7 +37,7 @@ class MakeLiveComponentCommand extends BaseMakeCommand
             'className' => $className
         ]);
 
-        $viewDir = ($app === 'default') ? SPP_APP_DIR . '/resources/views/partials' : SPP_APP_DIR . "/resources/{$app}/views/partials";
+        $viewDir = ($app === 'default') ? SPP_APP_DIR . '/resources/views/partials' : SPP_APP_DIR . "/src/{$app}/resources/views/partials";
         $partialPath = "{$viewDir}/" . $className . ".html";
         
         $partialSuccess = $this->buildFromStub('livecomponent_partial', $partialPath, [

@@ -1,25 +1,18 @@
-.TH SPP-workflow-process-timeouts 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-workflow-process-timeouts 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-workflow:process-timeouts
-.PP
- \- Process SLA timeouts on entities and trigger automatic escalation transitions
+spp-workflow-process-timeouts \- Process SLA timeouts on entities and trigger automatic escalation transitions
+.SH SYNOPSIS
+.B php spp.php workflow:process-timeouts
+[OPTIONS]
 .SH DESCRIPTION
 Process SLA timeouts on entities and trigger automatic escalation transitions
 .PP
-.SH SYNOPSIS
-php spp.php workflow:process-timeouts [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--timeout` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--timeout_transition` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Interacts with the SPP relational database layer.
-.br
-\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Interacts with the SPP database layer directly.
+.br
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
+.br

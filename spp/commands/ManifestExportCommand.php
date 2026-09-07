@@ -32,7 +32,10 @@ class ManifestExportCommand extends Command
                 "logo_url" => "/res/spp/images/logo.jpg"
             ], JSON_PRETTY_PRINT);
         }
-        file_put_contents($targetManifest, $manifestData);
+        if (is_array($manifestData)) {
+            $manifestData = json_encode($manifestData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        }
+        file_put_contents($targetManifest, (string)$manifestData);
         echo "  📄 Successfully exported Open API plugin definition map: {$targetManifest}\n";
     }
 

@@ -1,20 +1,16 @@
-.TH SPP-schedule-run 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-schedule-run 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-schedule:run
-.PP
- \- Run all scheduled cron tasks declared by active modules
+spp-schedule-run \- Run all scheduled cron tasks declared by active modules
+.SH SYNOPSIS
+.B php spp.php schedule:run
+[OPTIONS]
 .SH DESCRIPTION
 Run all scheduled cron tasks declared by active modules
 .PP
-.SH SYNOPSIS
-php spp.php schedule:run [OPTIONS]
-.PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: \SPP\Cron\Scheduler.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: \SPP\Cron\Scheduler.
 .br
-.PP
-.PP

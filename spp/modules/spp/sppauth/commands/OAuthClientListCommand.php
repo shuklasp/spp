@@ -16,11 +16,16 @@ class OAuthClientListCommand extends Command
 
     public function execute(array $args): void
     {
-        $db = new SPPDB();
-        $table = SPPDB::sppTable('oauth_clients');
-        $isJson = isset($args['json']) || in_array('--json', $args, true);
+        $isJson = $this->hasFlag($args, 'json') || in_array('--json', $args, true);
 
-        $clients = $db->execute_query("SELECT id, name, redirect_uri, created_at FROM $table ORDER BY created_at DESC");
+        $clients = [];
+        try {
+            $db = new SPPDB();
+            $table = SPPDB::sppTable('oauth_clients');
+            $clients = $db->execute_query("SELECT id, name, redirect_uri, created_at FROM $table ORDER BY created_at DESC") ?? [];
+        } catch (\Throwable $e) {
+            $clients = [];
+        }
 
         if ($isJson) {
             echo json_encode(['sources' => [['items' => $clients ?? []]]]);

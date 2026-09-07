@@ -1,0 +1,53 @@
+.TH "make:drupal-import" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+make:drupal-import \- Import content, taxonomies, and media from Drupal JSON:API into SPP with 0 external dependencies
+.SH SYNOPSIS
+.B php spp.php make:drupal-import
+\fB\-\-url\fR=\fIurl\fR
+[\fB\-\-type\fR=\fIcontent|taxonomy|all\fR]
+[\fB\-\-bundle\fR=\fIbundle\fR]
+[\fB\-\-vocabulary\fR=\fIvocab\fR]
+[\fB\-\-app\fR=\fIappName\fR]
+[\fB\-\-project\fR=\fIprojectId\fR]
+[\fB\-\-limit\fR=\fIn\fR]
+[\fB\-\-dry-run\fR]
+[\fB\-\-mock\fR]
+.SH DESCRIPTION
+\fBmake:drupal-import\fR connects to any Drupal JSON:API endpoint, downloads content nodes and taxonomy terms, converts HTML into clean Markdown with YAML frontmatter, and stores them directly in the target SPP application repository. Uses pure PHP stream contexts with zero external library overhead.
+.SH OPTIONS
+.TP
+\fB\-\-url\fR=\fIurl\fR
+Base URL of the Drupal site to import from.
+.TP
+\fB\-\-type\fR=\fIcontent|taxonomy|all\fR
+Select import entity type (default: all).
+.TP
+\fB\-\-bundle\fR=\fIbundle\fR
+Drupal node bundle / content type (default: article).
+.TP
+\fB\-\-vocabulary\fR=\fIvocab\fR
+Drupal taxonomy vocabulary machine name (default: tags).
+.TP
+\fB\-\-app\fR=\fIappName\fR
+Destination SPP application context (default: SPPDocs).
+.TP
+\fB\-\-project\fR=\fIprojectId\fR
+Destination project ID within the app (default: spp).
+.TP
+\fB\-\-limit\fR=\fIn\fR
+Maximum items to fetch (default: 50).
+.TP
+\fB\-\-dry-run\fR
+Simulate import without writing to disk.
+.TP
+\fB\-\-mock\fR
+Use built-in mock fixtures for offline testing.
+.SH UNDER THE HOOD
+.IP \(bu 3
+Pure PHP HTTP Client: Queries JSON:API via native PHP stream contexts.
+.IP \(bu 3
+Markup Conversion: Converts HTML nodes to GitHub Flavored Markdown.
+.IP \(bu 3
+Filesystem Storage: Writes documentation to \fBdocs/{project}/{bundle}/{slug}.md\fR.
+.IP \(bu 3
+Taxonomy Store: Updates \fBdata/projects/{project}/taxonomy.json\fR.

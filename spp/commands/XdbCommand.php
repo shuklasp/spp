@@ -26,8 +26,13 @@ class XdbCommand extends \SPP\CLI\Command
             break;
         }
 
+        $isJson = $this->hasFlag($args, 'json');
         if (!$query) {
-            echo "Usage: php spp xdb:query \"SELECT * FROM db.table\" [--type=sql|xpath]\n";
+            if ($isJson) {
+                echo json_encode(['success' => false, 'error' => 'Query string required.']);
+            } else {
+                echo "Usage: php spp xdb:query \"SELECT * FROM db.table\" [--type=sql|xpath]\n";
+            }
             return;
         }
 
@@ -41,23 +46,26 @@ class XdbCommand extends \SPP\CLI\Command
 
         try {
             // Ensure module class is loaded
-            $xdbClass = dirname(__DIR__) . '/modules/spp/sppxdb/class.sppxdb.php';
+            $xdbClass = file_exists(dirname(__DIR__) . '/modules/optional/sppxdb/class.sppxdb.php')
+                ? dirname(__DIR__) . '/modules/optional/sppxdb/class.sppxdb.php'
+                : dirname(__DIR__) . '/modules/spp/sppxdb/class.sppxdb.php';
             if (file_exists($xdbClass)) {
                 require_once($xdbClass);
-            } else {
-                throw new \Exception("SPP_XDB class not found at $xdbClass");
             }
             
             $xdb = new \SPPMod\SPPXDB\SPP_XDB();
 
             if ($type === 'xpath') {
-                echo "Executing XPath: $query\n";
-                // XPath requires a table connection usually, unless it's a global query (unsupported currently without connect)
-                // We'll assume the user might have connected via SQL or we just use default.
+                if (!$isJson) echo "Executing XPath: $query\n";
                 $results = $xdb->queryX($query);
             } else {
-                echo "Executing SQL: $query\n";
+                if (!$isJson) echo "Executing SQL: $query\n";
                 $results = $xdb->querySQL($query);
+            }
+
+            if ($isJson) {
+                echo json_encode(['success' => true, 'results' => $results ?: []]);
+                return;
             }
 
             if (is_array($results)) {
@@ -68,7 +76,11 @@ class XdbCommand extends \SPP\CLI\Command
             }
 
         } catch (\Exception $e) {
-            echo "Error: " . $e->getMessage() . "\n";
+            if ($isJson) {
+                echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            } else {
+                echo "Error: " . $e->getMessage() . "\n";
+            }
         }
     }
 }

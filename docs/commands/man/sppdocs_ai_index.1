@@ -1,0 +1,18 @@
+.TH SPPDOCS-AI-INDEX 1 "September 2026" "SPP Framework" "SPPDocs CLI Manual"
+.SH NAME
+sppdocs:ai:index \- Index documentation into semantic chunk vector signatures for AI search and RAG
+.SH SYNOPSIS
+.B php spp.php sppdocs:ai:index
+[\fB\-\-project=\fIproject-id\fR]
+[\fB\-\-provider=\fIoffline|openai|gemini|anthropic|ollama|custom\fR]
+.SH DESCRIPTION
+\fBsppdocs:ai:index\fR parses all markdown documentation files for a project, chunks them into semantic sections by header, and generates vector signatures using BM25 and TF-IDF weighting. The resulting index powers natural-language question answering with exact source citations via the web search palette or REST API.
+.SH OPTIONS
+.TP
+\fB\-\-project=\fIproject-id\fR
+Target documentation project identifier (defaults to \fIdemo-app\fR).
+.TP
+\fB\-\-provider=\fIoffline|openai|gemini|anthropic|ollama|custom\fR
+AI indexing provider (defaults to \fIoffline\fR).
+.SH UNDER THE HOOD
+Decomposes markdown files in the project's pages directory into heading-bounded chunks, calculates term frequencies, builds \fIdocs/<project-id>/vector-index.json\fR, and strictly restricts execution to the CLI SAPI.

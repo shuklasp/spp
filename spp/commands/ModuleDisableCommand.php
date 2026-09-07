@@ -31,6 +31,11 @@ class ModuleDisableCommand extends Command
             return;
         }
 
+        if (\SPP\Module::isCompulsory($moduleName)) {
+            echo "❌ Error: Cannot disable compulsory core module '{$moduleName}'. It is required for the framework to boot.\n";
+            return;
+        }
+
         echo "🛑 Disabling module '{$moduleName}'...\n";
         try {
             $res = ModuleInstaller::setModuleStatus($moduleName, 'inactive');

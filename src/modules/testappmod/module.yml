@@ -1,0 +1,18 @@
+module:
+  name: testappmod
+  version: '1.0.0'
+  type: module
+  compulsory: false
+  publicname: 'Testappmod Module'
+  publicdesc: 'A newly scaffolded module.'
+  namespace: 'AppMod\School1\Testappmod'
+  dependencies:
+    # List module dependencies here. Supports semantic versioning.
+    # sppdb: ^2.0
+    # sppauth: ^1.5
+    spprouter: ^1.0
+  includes:
+    # Legacy includes (Try to use src/ for PSR-4 autoloading instead)
+  assets:
+    # Defines aliases for public assets. Usage: /sppasset/testappmod/main/style.css
+    main: /public

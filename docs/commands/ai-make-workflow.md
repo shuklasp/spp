@@ -1,6 +1,6 @@
 ## `ai:make:workflow`
 
-**Purpose**: Synthesize natural language business requirements into valid sppworkflow YAML definitions
+**Description**: Synthesize natural language business requirements into valid sppworkflow YAML definitions
 
 ### Synopsis
 ```bash
@@ -12,12 +12,12 @@ php spp.php ai:make:workflow [OPTIONS]
 Usage: php spp.php ai:make:workflow <workflow_name> \
 ```
 
-### Options Available
-- `--provider=` : Expects a value. Extracted via static analysis.
+### Options
+- `--provider=` : Expects a value. Extracted via static analysis from MakeAiWorkflowCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Dynamically loads SPP kernel modules: sppai.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Dynamically loads kernel modules: sppai.
+- Bootstraps a full application execution context (Scheduler::withContext).
 

@@ -1,0 +1,20 @@
+.TH "role:create" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+role:create \- Registers a new security role.
+.SH SYNOPSIS
+.B php spp.php role:create
+\fIname\fR [\-\-description=\fITEXT\fR] [\-\-json] [\-\-app=\fIAPP\fR]
+.SH DESCRIPTION
+Creates a new security role entry in the framework RBAC repository.
+.SH OPTIONS
+.TP
+.BR \-\-description =\fITEXT\fR
+Description of role purpose.
+.TP
+.BR \-\-json
+Outputs results in structured JSON format.
+.TP
+.BR \-\-app =\fIAPP\fR
+Targets a specific application context.
+.SH UNDER THE HOOD
+Validates uniqueness of role name and inserts row into spp_roles.

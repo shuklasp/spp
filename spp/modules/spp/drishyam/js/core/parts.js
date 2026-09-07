@@ -21,6 +21,87 @@ export class TemplateResult {
         this.strings = strings;
         this.values = values;
     }
+
+    /**
+     * Converts this TemplateResult to an HTML string.
+     * Recursively serializes child TemplateResults, arrays, and primitive values.
+     * Omits functions, null, undefined, and booleans (matching standard JSX/lit behavior).
+     * Safely handles boolean attributes (?disabled, ?selected) and event attributes (@click).
+     * 
+     * @returns {string}
+     */
+    toString() {
+        if (!this.strings || !Array.isArray(this.strings)) return '';
+        let result = '';
+        const len = this.strings.length;
+        for (let i = 0; i < len; i++) {
+            const str = this.strings[i];
+            if (this.values && i < this.values.length) {
+                const val = this.values[i];
+                
+                // Check if this hole is a boolean attribute like ?selected="..." or ?disabled="..."
+                const boolAttrMatch = str.match(/([ \t\r\n])\?([a-zA-Z0-9_\-]+)=["']?$/);
+                if (boolAttrMatch) {
+                    const prefix = str.slice(0, boolAttrMatch.index + boolAttrMatch[1].length);
+                    const attrName = boolAttrMatch[2];
+                    if (val) {
+                        result += prefix + attrName + '="true"';
+                    } else {
+                        result += prefix + 'data-spp-off=""';
+                    }
+                    continue;
+                }
+
+                // Check if this hole is an event attribute like @click=${fn}
+                const eventAttrMatch = str.match(/([ \t\r\n])@([a-zA-Z0-9_\-]+)=["']?$/);
+                if (eventAttrMatch && typeof val === 'function') {
+                    const prefix = str.slice(0, eventAttrMatch.index + eventAttrMatch[1].length);
+                    result += prefix;
+                    continue;
+                }
+
+                result += str;
+                result += TemplateResult.stringifyValue(val);
+            } else {
+                result += str;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Renders this TemplateResult into a DOM container element.
+     * Delegates to window.SPPUX.render or fine-grained render() if available.
+     * 
+     * @param {Element} container 
+     */
+    render(container) {
+        if (!container) return;
+        if (window.SPPUX && typeof window.SPPUX.render === 'function') {
+            window.SPPUX.render(this, container);
+        } else {
+            container.innerHTML = this.toString();
+        }
+    }
+
+    static stringifyValue(val) {
+        if (val === null || val === undefined || typeof val === 'function' || typeof val === 'boolean') {
+            return '';
+        }
+        if (Array.isArray(val)) {
+            return val.map(v => TemplateResult.stringifyValue(v)).join('');
+        }
+        if (typeof val === 'object') {
+            if (val instanceof TemplateResult) {
+                return val.toString();
+            }
+            if (typeof val.toString === 'function' && val.toString !== Object.prototype.toString) {
+                return val.toString();
+            }
+            return '';
+        }
+        return String(val);
+    }
 }
 
 const templateCache = new WeakMap();
@@ -128,15 +209,26 @@ export class TemplateInstance {
         const getNode = (path) => {
             let curr = this.fragment;
             // When hydrating from container, children start directly inside
-            for (const i of path) curr = curr.childNodes[i];
+            for (const i of path) {
+                if (!curr || !curr.childNodes || i >= curr.childNodes.length) return null;
+                curr = curr.childNodes[i];
+            }
             return curr;
         };
 
-        for (const desc of template.parts) {
-            const node = getNode(desc.path);
-            let part;
+        // Pass 1: Resolve all target nodes BEFORE any DOM mutations to avoid child index shifts
+        const resolvedNodes = template.parts.map(desc => getNode(desc.path));
+
+        // Pass 2: Instantiate parts and insert comment markers without disrupting unresolved paths
+        for (let i = 0; i < template.parts.length; i++) {
+            const desc = template.parts[i];
+            const node = resolvedNodes[i];
+            if (!node) continue;
+
+            let part = null;
             
             if (desc.type === 'node') {
+                if (!node.parentNode) continue;
                 if (isHydrating) {
                     // For node holes, the server must output a comment or an element we can bound.
                     // If it's a TextNode or Element, we wrap it in our comment boundaries for future updates.

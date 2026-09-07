@@ -103,11 +103,11 @@ your-project/
         <!-- SECTION 3: Routing -->
         <!-- ================================================================ -->
         <h2 style="color:#6366f1; margin-top:2.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">3. Routing</h2>
-        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>etc/apps/{{APP_NAME}}/pages.yml</code>. SPP supports five route types:</p>
+        <p style="color:#475569; line-height:1.8;">Routes are defined in <code>src/{{APP_NAME}}/etc/pages.yml</code> (or <code>etc/apps/{{APP_NAME}}/pages.yml</code> for legacy structures). SPP supports five route types:</p>
 
         <h3 style="color:#475569; margin-top:1.5rem;">3a. pages.yml Route Types</h3>
         <pre style="background:#0f172a; color:#e2e8f0; padding:1.2rem; border-radius:10px; overflow-x:auto; font-size:0.82rem; line-height:1.7;">
-# ── etc/apps/{{APP_NAME}}/pages.yml ──
+# ── src/{{APP_NAME}}/etc/pages.yml (or etc/apps/{{APP_NAME}}/pages.yml) ──
 
 defaults:
   home: home                              # Default page when no route matches

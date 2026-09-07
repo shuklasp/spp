@@ -1,0 +1,30 @@
+.TH SPPDOCS-CI-INIT 1 "September 2026" "SPP Framework" "SPPDocs CLI Manual"
+.SH NAME
+sppdocs:ci:init \- Scaffold CI/CD automation pipelines and local Git commit hooks for SPPDocs
+.SH SYNOPSIS
+.B php spp.php sppdocs:ci:init
+[\fB\-\-project=\fIproject-id\fR]
+[\fB\-\-platform=\fIgithub|gitlab|local\fR]
+[\fB\-\-url=\fIwebhook-url\fR]
+[\fB\-\-secret=\fIsecret-token\fR]
+[\fB\-\-output=\fIcustom-path\fR]
+.SH DESCRIPTION
+\fBsppdocs:ci:init\fR configures turnkey continuous integration pipelines for repositories connected to an SPPDocs workspace. It generates GitHub Actions workflows, GitLab CI definitions, or local Git post-commit hooks that synchronize pushes, auto-resolve issues via commit messages (e.g., "Fixes #12"), and log billable developer hours.
+.SH OPTIONS
+.TP
+\fB\-\-project=\fIproject-id\fR
+Target documentation project identifier (defaults to \fIdemo-app\fR).
+.TP
+\fB\-\-platform=\fIgithub|gitlab|local\fR
+Target CI/CD ecosystem (defaults to \fIgithub\fR).
+.TP
+\fB\-\-url=\fIwebhook-url\fR
+Target webhook endpoint for dispatching git events.
+.TP
+\fB\-\-secret=\fIsecret-token\fR
+HMAC SHA-256 signature token for authenticating webhook requests.
+.TP
+\fB\-\-output=\fIcustom-path\fR
+Custom destination file path.
+.SH UNDER THE HOOD
+Compiles platform-specific CI definitions, ensures target directories exist, writes configuration files with appropriate permissions, and restricts execution to CLI SAPI environments.

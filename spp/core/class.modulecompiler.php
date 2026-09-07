@@ -71,11 +71,13 @@ class ModuleCompiler
                     'path' => $module->ModPath,
                     'type' => $module->ModuleType,
                     'version' => $module->Version,
-                    'dependencies' => $module->Dependencies,
+                    'namespace' => $rawManifest['namespace'] ?? null,
+                    'dependencies' => $rawManifest['dependencies'] ?? $module->Dependencies,
                     'includes' => $module->IncludeFiles,
                     'services' => $this->extractServices($module),
                     'config' => $this->extractConfig($module),
                     'raw_manifest' => $rawManifest,
+                    'events' => file_exists($module->ModPath . SPP_DS . 'events.yml') ? Yaml::parseFile($module->ModPath . SPP_DS . 'events.yml') : [],
                     'has_modinit' => file_exists($module->ModPath . SPP_DS . 'modinit.php')
                 ];
             } catch (\Exception $e) {
@@ -114,8 +116,24 @@ class ModuleCompiler
                         $deps = $parsed['module']['deps'] ?? ($parsed['module']['dependencies'] ?? []);
                     }
 
-                    foreach ($deps as $dep) {
+                    foreach ($deps as $key => $val) {
+                        // Support both sequential lists [- sppdb] and associative [sppdb: ^1.0]
+                        $dep = is_numeric($key) ? $val : $key;
+                        $constraint = is_numeric($key) ? null : $val;
+
                         if (isset($modules[$dep])) {
+                            // Enforce strict SemVer constraint if specified
+                            if ($constraint && class_exists('\\Composer\\Semver\\Semver')) {
+                                $depManifestPath = $modules[$dep]['manifest'] ?? null;
+                                $depVersion = '0.0.0';
+                                if ($depManifestPath) {
+                                    $depParsed = Yaml::parseFile($depManifestPath);
+                                    $depVersion = $depParsed['module']['version'] ?? '0.0.0';
+                                }
+                                if (!\Composer\Semver\Semver::satisfies($depVersion, $constraint)) {
+                                    throw new \SPP\Exceptions\MissingDependencyException("Module '{$name}' requires '{$dep}' constraint '{$constraint}', but version '{$depVersion}' is installed.");
+                                }
+                            }
                             $visit($dep);
                         } else {
                             throw new \SPP\Exceptions\MissingDependencyException("Module '{$name}' requires missing or inactive dependency '{$dep}'");
@@ -262,8 +280,34 @@ class ModuleCompiler
 
         $content = "<?php\n// SPP Compiled Module Registry - DO NOT EDIT\n";
         $content .= "return " . var_export($registry, true) . ";\n";
+        
+        $success = (bool) file_put_contents($this->cacheFile, $content);
 
-        return (bool) file_put_contents($this->cacheFile, $content);
+        // Aggregate events
+        $eventsCache = [];
+        foreach ($registry as $modName => $data) {
+            if ($modName === '__meta') continue;
+            if (!empty($data['events'])) {
+                foreach ($data['events'] as $eventName => $handlers) {
+                    if (!isset($eventsCache[$eventName])) {
+                        $eventsCache[$eventName] = [];
+                    }
+                    foreach ((array)$handlers as $handler) {
+                        $eventsCache[$eventName][] = [
+                            'module' => $modName,
+                            'handler' => $handler
+                        ];
+                    }
+                }
+            }
+        }
+
+        $eventFile = $dir . SPP_DS . 'events_' . $this->appContext . '.php';
+        $eventContent = "<?php\n// SPP Compiled Events Registry - DO NOT EDIT\n";
+        $eventContent .= "return " . var_export($eventsCache, true) . ";\n";
+        file_put_contents($eventFile, $eventContent);
+
+        return $success;
     }
 
     public static function getCachePath(string $appContext): string

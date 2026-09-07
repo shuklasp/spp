@@ -105,37 +105,50 @@ function _ensureDelegated(eventType) {
     const useCapture = _captureEvents.has(eventType);
 
     root.addEventListener(eventType, (e) => {
-        let target = e.target;
+        // [ENTERPRISE FIX] Use composedPath() to penetrate Shadow DOM boundaries.
+        // Native e.target stops at the Shadow Host, breaking synthetic events inside web components.
+        const path = typeof e.composedPath === 'function' ? e.composedPath() : [];
+        let target = path.length > 0 ? path[0] : e.target;
+        let pathIndex = 0;
+
         let handled = false;
 
-        // Walk up the DOM tree from the event target to the root
-        while (target && target !== root && target !== document) {
-            const handlers = _handlerRegistry.get(target);
-            if (handlers) {
-                const handler = handlers.get(eventType);
-                if (handler) {
-                    // Apply preventDefault unless this is a no-prevent event
-                    if (!_noPreventSet.has(eventType)) {
-                        e.preventDefault();
-                    }
+        // Walk up the DOM tree from the actual event target to the root
+        while (target && target !== root && target !== document && target !== window) {
+            if (target.nodeType === 1) { // Process only Element nodes
+                const handlers = _handlerRegistry.get(target);
+                if (handlers) {
+                    const handler = handlers.get(eventType);
+                    if (handler) {
+                        // Apply preventDefault unless this is a no-prevent event
+                        if (!_noPreventSet.has(eventType)) {
+                            e.preventDefault();
+                        }
 
-                    try {
-                        handler(e);
-                    } catch (err) {
-                        console.error(`[SPPUX Events] Handler error for "${eventType}":`, err);
-                    }
+                        try {
+                            handler(e);
+                        } catch (err) {
+                            console.error(`[SPPUX Events] Handler error for "${eventType}":`, err);
+                        }
 
-                    handled = true;
+                        handled = true;
 
-                    // Stop propagation if the handler requested it or
-                    // if it's not a drag event (matching v11 behavior)
-                    if (e.cancelBubble || (!eventType.startsWith('drag') && eventType !== 'drop')) {
-                        break;
+                        // Stop propagation if the handler requested it or
+                        // if it's not a drag event (matching v11 behavior)
+                        if (e.cancelBubble || (!eventType.startsWith('drag') && eventType !== 'drop')) {
+                            break; // breaks out of the while loop
+                        }
                     }
                 }
             }
 
-            target = target.parentElement;
+            // Move up to the next element in the composed path, or fallback to parentNode
+            if (path.length > 0) {
+                pathIndex++;
+                target = pathIndex < path.length ? path[pathIndex] : null;
+            } else {
+                target = target.parentNode || target.host;
+            }
         }
     }, useCapture);
 }

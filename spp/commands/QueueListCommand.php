@@ -78,9 +78,11 @@ class QueueListCommand extends Command
                 } else {
                     echo "Database module is not available.\n";
                 }
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // If the table doesn't exist or other DB errors occur
-                ob_end_clean(); // just in case
+                if (ob_get_level() > 0) {
+                    ob_end_clean();
+                }
                 echo "Error reading from queue: " . $e->getMessage() . "\n";
                 echo "It's possible the 'spp_jobs' table hasn't been created yet.\n";
             }

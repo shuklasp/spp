@@ -1,0 +1,14 @@
+title: 'Global Content'
+description: 'Projectless global pages and landing page'
+default_version: v1
+media_dir: public/uploads/global
+versions:
+  v1: docs/global/pages
+pages_dir: docs/global/pages
+blog_dir: docs/global/blog
+acl:
+  read:
+    - '*'
+  write:
+    - admin
+    - editor

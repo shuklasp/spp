@@ -79,6 +79,11 @@ class ModuleInstaller
             $provider->install();
         }
 
+        $installScript = $module->ModPath . SPP_DS . 'install.php';
+        if (file_exists($installScript)) {
+            require $installScript;
+        }
+
         if ($provider && method_exists($provider, 'postInstall')) {
             $provider->postInstall();
         }
@@ -246,6 +251,11 @@ class ModuleInstaller
             $provider->uninstall();
         }
 
+        $uninstallScript = $module->ModPath . SPP_DS . 'uninstall.php';
+        if (file_exists($uninstallScript)) {
+            require $uninstallScript;
+        }
+
         // We do NOT drop tables to prevent data loss.
         // We just drop the tracking.
 
@@ -327,9 +337,10 @@ class ModuleInstaller
 
     public static function setModuleStatus(string $moduleName, string $status): bool
     {
+        $context = \SPP\Scheduler::getContext() ?: 'default';
         $manifests = [
-            APP_ETC_DIR . SPP_DS . 'default' . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml',
-            SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . 'default' . SPP_DS . 'modules.yml',
+            APP_ETC_DIR . SPP_DS . $context . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml',
+            SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $context . SPP_DS . 'modules.yml',
             SPP_ETC_DIR . SPP_DS . 'modules.yml'
         ];
 
@@ -353,7 +364,7 @@ class ModuleInstaller
 
         if (!$found) {
             // Append to user modconf
-            $userConf = APP_ETC_DIR . SPP_DS . 'default' . SPP_DS . 'modsconf' . SPP_DS . 'modules.yml';
+            $userConf = SPP_ETC_DIR . SPP_DS . 'apps' . SPP_DS . $context . SPP_DS . 'modules.yml';
             if (!file_exists(dirname($userConf))) {
                 mkdir(dirname($userConf), 0777, true);
             }
@@ -363,7 +374,13 @@ class ModuleInstaller
         }
 
         $compiler = new ModuleCompiler();
-        $compiler->compile();
-        return true;
+        try {
+            $compiler->compile();
+            return true;
+        } catch (\SPP\Exceptions\MissingDependencyException $e) {
+            // Rollback status
+            self::setModuleStatus($moduleName, 'inactive');
+            throw $e;
+        }
     }
 }

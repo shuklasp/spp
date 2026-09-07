@@ -1,0 +1,34 @@
+.TH ISSUE 1 "September 2026" "SPP CLI Manual" "SPP System Documentation"
+.SH NAME
+issue \- Manage SPPDocs project issues from the command line
+.SH SYNOPSIS
+.B php spp.php issue
+\fIaction\fR
+[\fB\-\-project\fR=\fIproject-id\fR]
+[\fB\-\-title\fR=\fItitle\fR]
+[\fB\-\-id\fR=\fInumber\fR]
+.SH DESCRIPTION
+.B issue
+enables terminal developers to list, inspect, create, and close issues stored in SPPDocs projects without leaving the command line.
+.SH ACTIONS
+.TP
+.B list
+Display a formatted table of issues for the specified project.
+.TP
+.B create
+Create a new issue. Requires \-\-title.
+.TP
+.B view
+Display detailed attributes, description, and metadata of an issue. Requires \-\-id.
+.TP
+.B close
+Mark an issue as closed and append a closing comment. Requires \-\-id.
+.SH OPTIONS
+.TP
+.BI \-\-project= "project-id"
+Target project. Defaults to demo-app.
+.TP
+.BI \-\-id= "number"
+Sequential issue number (#1) or ID string.
+.SH UNDER THE HOOD
+Resolves StorageFactory, writes to index cache or SQLite WAL tables, and invokes workflow transitions.

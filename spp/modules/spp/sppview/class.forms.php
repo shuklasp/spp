@@ -25,17 +25,38 @@ class Forms extends \SPP\SPPObject
     {
         if (self::$yamlCache === null) {
             $appname = \SPP\Scheduler::getContext();
-            $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'forms.yml';
+            
+            $candidates = [];
+            if (class_exists('\SPP\App')) {
+                try {
+                    $app = \SPP\App::getApp($appname);
+                    if ($app) {
+                        $appConfDir = $app->getAppConfDir();
+                        if ($appConfDir) {
+                            $candidates[] = $appConfDir . SPP_DS . 'forms.yml';
+                        }
+                    }
+                } catch (\Throwable $e) {}
 
-            if (!file_exists($file)) {
-                // Fallback to legacy location (APP_ETC_DIR/forms.yml)
-                $legacyFile = APP_ETC_DIR . SPP_DS . 'forms.yml';
-                if (file_exists($legacyFile)) {
-                    $file = $legacyFile;
-                } else {
-                    self::$yamlCache = [];
-                    return [];
+                if (defined('SPP_APP_DIR')) {
+                    $candidates[] = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc' . SPP_DS . 'forms.yml';
                 }
+            }
+
+            $candidates[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'forms.yml';
+            $candidates[] = APP_ETC_DIR . SPP_DS . 'forms.yml';
+
+            $file = null;
+            foreach ($candidates as $cand) {
+                if (file_exists($cand)) {
+                    $file = $cand;
+                    break;
+                }
+            }
+
+            if (!$file) {
+                self::$yamlCache = [];
+                return [];
             }
 
             try {

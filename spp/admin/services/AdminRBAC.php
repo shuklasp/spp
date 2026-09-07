@@ -165,6 +165,8 @@ function getActionScopeMap(): array {
         'diagnostics_health'    => 'admin.system',
         'list_queue'            => 'admin.system',
         'get_event_trace'       => 'admin.trace',
+        'get_parikshak_trace'   => 'admin.trace',
+        'run_parikshak_scan'    => 'admin.trace',
         'get_admin_permissions' => 'admin.identity',
         'save_admin_permissions'=> 'admin.identity',
         'install_all_active'    => 'admin.system',
@@ -188,13 +190,14 @@ function getAdminUserScopes(): array {
         $userId = \SPP\SPPSession::sessionVarExists('__user_id__') ? \SPP\SPPSession::getSessionVar('__user_id__') : null;
         $username = \SPP\SPPSession::sessionVarExists('__username__') ? \SPP\SPPSession::getSessionVar('__username__') : '';
         $sppauthUser = \SPP\SPPSession::sessionVarExists('__sppauth_user__') ? \SPP\SPPSession::getSessionVar('__sppauth_user__') : ($_SESSION['spp_admin_user'] ?? '');
+        $sppauthUsername = is_array($sppauthUser) ? ($sppauthUser['username'] ?? '') : (string)$sppauthUser;
         $roleId = \SPP\SPPSession::sessionVarExists('__role_id__') ? \SPP\SPPSession::getSessionVar('__role_id__') : null;
 
         // Super-admin bypass: role_id 1 or the configured admin username
         $settings = \SPP\App::getGlobalSettings();
         $superAdmin = $settings['admin_username'] ?? 'admin';
         
-        if ($roleId == 1 || strtolower($username) === strtolower($superAdmin) || strtolower($sppauthUser) === strtolower($superAdmin)) {
+        if ($roleId == 1 || (is_string($username) && strtolower($username) === strtolower($superAdmin)) || (is_string($sppauthUsername) && strtolower($sppauthUsername) === strtolower($superAdmin))) {
             return $allScopes;
         }
 

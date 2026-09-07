@@ -42,6 +42,12 @@ class DeleteAppCommand extends Command
 
     public function execute(array $args): void
     {
+        if (in_array('--help', $args, true) || in_array('-h', $args, true)) {
+            echo "Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]\n";
+            echo "Removes an SPP application and all its associated resources, caches, and configuration.\n";
+            return;
+        }
+
         // ── Parse arguments ──────────────────────────────────────────
         $appName = $args['AppNameToConfirm'] ?? $this->getArgument($args, 0);
 

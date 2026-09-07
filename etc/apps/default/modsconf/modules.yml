@@ -6,3 +6,6 @@ modules:
     -
         name: sppdeploy
         status: active
+    -
+        name: sppchaos
+        status: active

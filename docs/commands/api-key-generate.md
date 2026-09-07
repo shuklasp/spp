@@ -1,17 +1,17 @@
 ## `api:key:generate`
 
-**Purpose**: Generates a new permanent API Key.
+**Description**: Generates a new permanent API Key.
 
 ### Synopsis
 ```bash
 php spp.php api:key:generate [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: permanent, \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: permanent, \SPPMod\SPPDB\SPPDB.
 

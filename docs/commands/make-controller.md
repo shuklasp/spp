@@ -1,6 +1,6 @@
 ## `make:controller`
 
-**Purpose**: Create a new controller class
+**Description**: Create a new controller class
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:controller <name> [--app=appname] [--resource]
 
 ```
 
-### Options Available
-- `--resource` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--resource` : Boolean flag. Extracted via static analysis from MakeControllerCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: controller.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: controller.
 

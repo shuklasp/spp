@@ -176,6 +176,9 @@ class SPPDB
 
             $dbtype = null;
             $dbname = null;
+            $read_url = null;
+            $read_dbuser = null;
+            $read_dbpasswd = null;
 
             if ($dburl == null) {
                 if ($dbOverride) {

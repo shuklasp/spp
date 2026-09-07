@@ -1,26 +1,22 @@
-.TH SPP-make-stream 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-stream 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:stream
-.PP
- \- Scaffold a new external Turbo Stream template
+spp-make-stream \- Scaffold a new external Turbo Stream template
+.SH SYNOPSIS
+.B php spp.php make:stream
+[OPTIONS]
 .SH DESCRIPTION
 Scaffold a new external Turbo Stream template
 .PP
-.SH SYNOPSIS
-php spp.php make:stream [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php make:stream <StreamName.html|.php|.blade.php> [--app=AppName]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
-.br
-\(bu Instantiates internal components: external.
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
+.br
+\(bu Instantiates key components: external.
+.br

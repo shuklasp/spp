@@ -143,26 +143,46 @@ class Scheduler extends \SPP\SPPObject
         $uri = explode('?', $uri)[0];
 
         // Normalize URI if running in a subdirectory
-        $root = str_replace('\\', '/', SPP_DOC_ROOT);
-        $appBase = str_replace('\\', '/', SPP_APP_DIR);
-
-        if ($root !== '') {
-            $subDir = trim(str_replace($root, '', $appBase), '/');
-            if ($subDir !== '') {
-                $uri = '/' . ltrim(str_replace('/' . $subDir, '', $uri), '/');
+        if (defined('APP_BASE_URI') && APP_BASE_URI !== '' && APP_BASE_URI !== '/') {
+            $baseUri = rtrim(APP_BASE_URI, '/');
+            if (stripos($uri, $baseUri) === 0) {
+                $uri = substr($uri, strlen($baseUri));
+            }
+        } else {
+            $root = str_replace('\\', '/', SPP_DOC_ROOT);
+            $appBase = str_replace('\\', '/', SPP_APP_DIR);
+            
+            // Only try string replace if appBase actually starts with root to avoid false stripping
+            if ($root !== '' && stripos($appBase, $root) === 0) {
+                $subDir = trim(substr($appBase, strlen($root)), '/');
+                if ($subDir !== '') {
+                    if (stripos($uri, '/' . $subDir) === 0) {
+                        $uri = '/' . ltrim(substr($uri, strlen('/' . $subDir)), '/');
+                    }
+                }
             }
         }
         $uri = ($uri === '') ? '/' : $uri;
 
         $apps = \SPP\App::getGlobalSettings('apps') ?: [];
 
-        $params = ['uri' => $uri, 'apps' => $apps, 'context' => null];
+        // 0. Domain / Virtual Host Multi-Tenant Resolution
+        $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+        $domainContext = null;
+        if ($host !== '' && class_exists('\SPP\Core\Router\DomainRouter')) {
+            $domainContext = \SPP\Core\Router\DomainRouter::resolve($host);
+        }
+
+        $params = ['uri' => $uri, 'apps' => $apps, 'context' => $domainContext];
         $evtParams = new \SPP\EventParams($params);
         \SPP\SPPEvent::fireEvent('event_spp_context_enforce', $evtParams, function ($p) {
             $payload = $p->getPayload();
+            if ($payload['context'] !== null) {
+                return; // Matched via Virtual Host Domain routing
+            }
             foreach ($payload['apps'] as $name => $cfg) {
                 $base = $cfg['base_url'] ?? '/' . $name;
-                if ($payload['uri'] === $base || strpos($payload['uri'], $base . '/') === 0) {
+                if (strtolower($payload['uri']) === strtolower($base) || stripos($payload['uri'], $base . '/') === 0) {
                     $payload['context'] = $name;
                     $p->setPayload($payload);
                     return;

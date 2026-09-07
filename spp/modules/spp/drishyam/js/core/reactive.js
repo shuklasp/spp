@@ -58,6 +58,8 @@ export class Signal {
         if (currentEffect) {
             this._subscribers.add(currentEffect);
             currentEffect._dependencies.add(this);
+        } else if (Signal.activeSubscriber) {
+            this._subscribers.add(Signal.activeSubscriber);
         }
         return this._value;
     }
@@ -163,6 +165,8 @@ export class Computed {
         if (currentEffect) {
             this._subscribers.add(currentEffect);
             currentEffect._dependencies.add(this);
+        } else if (Signal.activeSubscriber) {
+            this._subscribers.add(Signal.activeSubscriber);
         }
         if (this._dirty) {
             this._computeValue();

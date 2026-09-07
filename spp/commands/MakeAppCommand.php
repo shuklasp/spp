@@ -68,8 +68,8 @@ class MakeAppCommand extends BaseMakeCommand
 
         $baseUrl = $this->getArgument($args, 2) ?? null;
         if (!$baseUrl) {
-            $baseUrlInput = $this->prompt("Enter base URL", "/" . $appName);
-            $baseUrl = !empty($baseUrlInput) ? $baseUrlInput : "/" . $appName;
+            $baseUrlInput = $this->prompt("Enter base URL", "/" . strtolower($appName));
+            $baseUrl = !empty($baseUrlInput) ? $baseUrlInput : "/" . strtolower($appName);
         }
 
         $tablePrefix = $this->getArgument($args, 3) ?? null;
@@ -235,11 +235,24 @@ WORKFLOW;
 
     private function writePagesYml(string $appName, array $config): void
     {
-        $pagesFile = SPP_APP_DIR . "/etc/apps/{$appName}/pages.yml";
+        // Prioritize self-contained src/{appName}/etc/pages.yml if src/{appName}/etc exists
+        $srcEtcDir = SPP_APP_DIR . "/src/{$appName}/etc";
+        if (is_dir($srcEtcDir)) {
+            $pagesFile = $srcEtcDir . "/pages.yml";
+            $displayPath = "src/{$appName}/etc/pages.yml";
+        } else {
+            $pagesFile = SPP_APP_DIR . "/etc/apps/{$appName}/pages.yml";
+            $displayPath = "etc/apps/{$appName}/pages.yml";
+        }
+
         // Only write if doesn't exist
         if (!file_exists($pagesFile)) {
+            $dir = dirname($pagesFile);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
             file_put_contents($pagesFile, Yaml::dump($config, 10, 2));
-            echo "  ✓ etc/apps/{$appName}/pages.yml\n";
+            echo "  ✓ {$displayPath}\n";
         }
     }
 

@@ -82,7 +82,7 @@ class ViewLocator
             }
         }
 
-        if (file_exists($view)) {
+        if (is_file($view)) {
             self::$pathCache[$cacheKey] = $view;
             self::saveCache();
             return $view;
@@ -134,6 +134,9 @@ class ViewLocator
                     SPP_APP_DIR . "/src/{$app}/pages/{$view}{$ext}",
                     SPP_APP_DIR . "/src/{$app}/partials/{$view}{$ext}",
                     SPP_APP_DIR . "/src/{$app}/streams/{$view}{$ext}",
+                    SPP_APP_DIR . "/src/{$app}/resources/views/{$view}{$ext}",
+                    SPP_APP_DIR . "/src/{$app}/resources/views/partials/{$view}{$ext}",
+                    SPP_APP_DIR . "/src/{$app}/resources/views/streams/{$view}{$ext}",
                     SPP_APP_DIR . "/resources/views/{$view}{$ext}",
                     SPP_APP_DIR . "/resources/partials/{$view}{$ext}",
                     SPP_APP_DIR . "/resources/streams/{$view}{$ext}",
@@ -164,16 +167,28 @@ class ViewLocator
     }
 
     /**
-     * Clear the runtime view path cache and purge the persistent cache file.
+     * Resolve a view through a multi-tier template suggestion cascade (Drupal-grade template suggestions).
+     *
+     * @param string $defaultView Default base view if no suggestions match
+     * @param array $suggestions Ordered list of view template candidate paths/names
+     * @param string|null $app Application context (defaults to current Scheduler context)
+     * @return string Name or path of the first matching view, or $defaultView
      */
-    public static function clearCache(): void
+    public static function cascade(string $defaultView, array $suggestions = [], ?string $app = null): string
     {
-        self::$pathCache = [];
-        if (defined('SPP_APP_DIR')) {
-            $cacheFile = SPP_APP_DIR . '/spp/etc/view_cache.php';
-            if (file_exists($cacheFile)) {
-                @unlink($cacheFile);
+        $app = $app ?: (class_exists('\\SPP\\Scheduler') ? (\SPP\Scheduler::getContext() ?: 'default') : 'default');
+
+        foreach ($suggestions as $cand) {
+            if (empty($cand)) continue;
+            if (file_exists($cand) && is_file($cand)) {
+                return $cand;
+            }
+            $located = self::locate($cand, $app);
+            if ($located !== null) {
+                return $cand;
             }
         }
+
+        return $defaultView;
     }
 }

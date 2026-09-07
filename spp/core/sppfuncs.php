@@ -1,5 +1,15 @@
 <?php
-
+/**
+ * Global HTML Escaper
+ * Securely escapes variables for output in views.
+ */
+function e($value): string
+{
+    if (is_null($value)) {
+        return '';
+    }
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8', false);
+}
 function tsToD($ts)
 {
     $dt = getdate($ts);
@@ -150,4 +160,20 @@ function date_shift($date, $shift)
     }
     $shifted = strtotime($shift, $base);
     return $shifted !== false ? date("Y-m-d", $shifted) : null;
+}
+
+/**
+ * Generate an application or external URL using the framework Url engine.
+ */
+function url(string $path = '', ?string $appName = null, array $queryParams = []): string
+{
+    return \SPP\Core\Url::to($path, $appName, $queryParams);
+}
+
+/**
+ * Normalize an external URL to guarantee an explicit scheme (https://).
+ */
+function external_url(?string $url, string $defaultScheme = 'https'): string
+{
+    return \SPP\Core\Url::external($url, $defaultScheme);
 }

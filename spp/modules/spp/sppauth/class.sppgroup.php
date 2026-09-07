@@ -183,6 +183,24 @@ class SPPGroup extends SPPEntity
     }
 
     /**
+     * Delete group. If source is file-backed, removes the YAML file.
+     */
+    public function delete()
+    {
+        if ($this->source !== 'database' && !empty($this->filePath) && file_exists($this->filePath)) {
+            @unlink($this->filePath);
+            try {
+                $db = new \SPPMod\SPPDB\SPPDB();
+                $membersTable = \SPPMod\SPPDB\SPPDB::sppTable('group_members');
+                $db->execute_query("DELETE FROM {$membersTable} WHERE group_id = ?", [$this->id]);
+            } catch (\Throwable $e) {}
+            return true;
+        }
+
+        return parent::delete();
+    }
+
+    /**
      * Recursive membership check.
      */
     public function isMember($entity, bool $recursive = true, array &$seen = [])

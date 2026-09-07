@@ -1,0 +1,9 @@
+title: "Lekhak CMS"
+description: "Modern Polyglot Content Engine built on SPP."
+landing_view: "landing.lekhak"
+default_version: "v1"
+versions:
+  v1: "C:/projects/apache/school1/src/lekhak/docs"
+sidebar:
+  "Overview":
+    - "Introduction": "index"

@@ -1,0 +1,8 @@
+table: featuremodels
+id_field: id
+sequence: featuremodel_seq
+extends: ''
+login_enabled: false
+attributes:
+  name: varchar(255)
+  created_at: timestamp

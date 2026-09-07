@@ -1,6 +1,6 @@
 ## `interdb:mapping:remove`
 
-**Purpose**: Remove an InterDB mapping
+**Description**: Remove an InterDB mapping
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php interdb:mapping:remove <alias>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
 

@@ -26,12 +26,18 @@ export default class RoutingView extends BaseComponent {
             let action = 'list_pages';
             if (tab === 'services') action = 'list_services';
             if (tab === 'middleware') action = 'list_middleware';
+            if (tab === 'di') action = 'get_di_bindings';
 
             const res = await this.api(action, { context: window.admin?.selectedApp });
             if (res.success) {
                 if (tab === 'middleware') {
                     this.setState({
                         middlewareData: res.data,
+                        loading: false
+                    });
+                } else if (tab === 'di') {
+                    this.setState({
+                        diBindings: res.bindings || res.data?.bindings || [],
                         loading: false
                     });
                 } else {
@@ -41,7 +47,7 @@ export default class RoutingView extends BaseComponent {
                     });
                 }
             } else {
-                throw new Error(res.message);
+                throw new Error(res.message || res.error || 'Failed to load');
             }
         } catch (err) {
             this.setState({ loading: false, error: err.message });
@@ -54,12 +60,15 @@ export default class RoutingView extends BaseComponent {
         // Update Header
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            const btnLabel = activeTab === 'pages' ? '+ New Page Route' : '+ Register Service';
-            const action = activeTab === 'pages' ? () => this.openPageModal() : () => this.openServiceModal();
-            const headerHtml = html`
-                <button type="button" class="btn primary-btn btn-sm" @click=${action}>${btnLabel}</button>
-            `;
-            headerActions.innerHTML = headerHtml.toString();
+            let headerHtml = '';
+            if (activeTab === 'pages') {
+                headerHtml = html`<button type="button" class="btn primary-btn btn-sm" @click=${() => this.openPageModal()}>+ New Page Route</button>`;
+            } else if (activeTab === 'services') {
+                headerHtml = html`<button type="button" class="btn primary-btn btn-sm" @click=${() => this.openServiceModal()}>+ Register Service</button>`;
+            } else if (activeTab === 'di') {
+                headerHtml = html`<button type="button" class="btn ghost-btn btn-sm" @click=${() => this.switchTab('di', true)}>🔄 Refresh Bindings</button>`;
+            }
+            headerActions.innerHTML = headerHtml ? headerHtml.toString() : '';
         }
 
         return html`
@@ -71,6 +80,8 @@ export default class RoutingView extends BaseComponent {
                         @click=${() => this.switchTab('services')}>⚡ AJAX Services</button>
                     <button type="button" class="sub-tab-btn ${activeTab === 'middleware' ? 'active' : ''}" 
                         @click=${() => this.switchTab('middleware')}>🔀 Middleware</button>
+                    <button type="button" class="sub-tab-btn ${activeTab === 'di' ? 'active' : ''}" 
+                        @click=${() => this.switchTab('di')}>💉 DI Bindings</button>
                 </div>
 
                 <div id="routing-content">
@@ -84,7 +95,62 @@ export default class RoutingView extends BaseComponent {
     }
 
     renderGrid() {
-        const { sources, activeTab, middlewareData } = this.state;
+        const { sources, activeTab, middlewareData, diBindings } = this.state;
+
+        if (activeTab === 'di') {
+            const bindings = diBindings || [];
+            return html`
+                <div class="di-workspace">
+                    <div class="pipeline-header" style="margin-bottom: 1.25rem;">
+                        <h3>IoC & Dependency Injection Registry</h3>
+                        <p>Resolved singletons, container bindings, and autowired services active across SPP</p>
+                    </div>
+
+                    ${bindings.length === 0 ? html`
+                        <div class="empty-state">
+                            <div class="empty-icon">💉</div>
+                            <h3>No Active Bindings</h3>
+                            <p>All core services are using standard dynamic resolution.</p>
+                        </div>
+                    ` : html`
+                        <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                            <table class="data-table" style="margin: 0;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 38%;">Abstract / Contract</th>
+                                        <th style="width: 38%;">Concrete Implementation</th>
+                                        <th style="width: 12%;">Lifetime</th>
+                                        <th style="width: 12%;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${bindings.map(b => html`
+                                        <tr>
+                                            <td class="font-mono" style="color: var(--primary-color, #6366f1); font-size: 0.85rem;">
+                                                <strong>${b.abstract}</strong>
+                                            </td>
+                                            <td class="font-mono" style="color: var(--text-bright, #fff); font-size: 0.85rem;">
+                                                ${b.concrete}
+                                            </td>
+                                            <td>
+                                                <span class="badge ${b.shared ? 'success' : 'warning'}" style="font-size: 0.7rem;">
+                                                    ${b.shared ? 'Singleton' : 'Transient'}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span style="font-size: 0.78rem; font-weight: 600; color: ${b.instantiated ? 'var(--success, #22c55e)' : 'var(--text-dim, #94a3b8)'};">
+                                                    ${b.instantiated ? '● Active' : '○ Deferred'}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    `)}
+                                </tbody>
+                            </table>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
 
         if (activeTab === 'middleware') {
             if (!middlewareData) return '';

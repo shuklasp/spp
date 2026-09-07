@@ -16,24 +16,30 @@ class TestRouteCommand extends Command
     public function execute(array $args): void
     {
         $appname = 'Samvaad';
-        \SPP\App::bootApp($appname);
-        
-        $dirsToScan = [
-            SPP_APP_DIR . '/controllers',
-            SPP_APP_DIR . '/src/Controllers',
-            SPP_APP_DIR . '/src/controllers',
-            SPP_APP_DIR . '/serv'
-        ];
-        
-        $routes = [];
-        foreach ($dirsToScan as $dir) {
-            if (is_dir($dir)) {
-                echo "Scanning $dir...\n";
-                $scanned = \SPPMod\SPPView\RouteScanner::scan($dir);
-                $routes = array_merge($routes, $scanned);
+        foreach ($args as $arg) {
+            if (str_starts_with($arg, '--app=')) {
+                $appname = substr($arg, 6);
             }
         }
-        
-        print_r($routes);
+
+        \SPP\Scheduler::withContext($appname, function() use ($appname) {
+            $dirsToScan = [
+                SPP_APP_DIR . '/controllers',
+                SPP_APP_DIR . '/src/' . $appname . '/controllers',
+                SPP_APP_DIR . '/src/' . $appname . '/Controllers',
+                SPP_APP_DIR . '/serv'
+            ];
+            
+            $routes = [];
+            foreach ($dirsToScan as $dir) {
+                if (is_dir($dir)) {
+                    echo "Scanning $dir...\n";
+                    $scanned = \SPPMod\SPPView\RouteScanner::scan($dir);
+                    $routes = array_merge($routes, $scanned);
+                }
+            }
+            
+            print_r($routes);
+        });
     }
 }

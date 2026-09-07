@@ -274,7 +274,7 @@ class SPPRouter extends \SPP\SPPObject
         foreach ($yaml['pages'] as $name => $routeConfig) {
             $name = (string) $name;
             // A match is valid if q is exactly name OR starts with name followed by a slash
-            if ($name !== '' && (strpos($q, $name . '/') === 0 || $q === $name)) {
+            if ($name !== '' && (stripos($q, $name . '/') === 0 || strcasecmp($q, $name) === 0)) {
                 $matches[$name] = $routeConfig;
             }
         }
@@ -722,7 +722,7 @@ class SPPRouter extends \SPP\SPPObject
             }
 
             foreach ($routes as $name => $cfg) {
-                if ($q === $name || strpos($q, $name . '/') === 0) {
+                if (strcasecmp($q, $name) === 0 || stripos($q, $name . '/') === 0) {
                     return self::processRoute($name, $cfg, $q, $appname, null, $mod->ModPath);
                 }
             }
@@ -741,7 +741,7 @@ class SPPRouter extends \SPP\SPPObject
         }
 
         foreach ($appRoutes as $name => $cfg) {
-            if ($q === $name || strpos($q, $name . '/') === 0) {
+            if (strcasecmp($q, $name) === 0 || stripos($q, $name . '/') === 0) {
                 return self::processRoute($name, $cfg, $q, $appname, null);
             }
         }
@@ -1002,7 +1002,7 @@ class SPPRouter extends \SPP\SPPObject
         foreach ($contexts as $ctx) {
             $routes = self::$dynamicRoutes[$ctx] ?? [];
             foreach ($routes as $name => $cfg) {
-                if ($q === $name || strpos($q, $name . '/') === 0) {
+                if (strcasecmp($q, $name) === 0 || stripos($q, $name . '/') === 0) {
                     return self::processRoute($name, $cfg, $q, $ctx, self::getAppPagesFile($ctx), null);
                 }
             }
@@ -1055,7 +1055,7 @@ class SPPRouter extends \SPP\SPPObject
     {
         if ($source === 'yaml') {
             $appname = \SPP\Scheduler::getContext();
-            $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
+            $file = self::getAppPagesFile($appname);
 
             $yaml = file_exists($file) ? Yaml::parseFile($file) : ['pages' => [], 'defaults' => [], 'specials' => []];
             if (!isset($yaml['pages'])) {
@@ -1075,6 +1075,10 @@ class SPPRouter extends \SPP\SPPObject
                 $yaml['pages'][] = ['name' => $name, 'url' => $url];
             }
 
+            $dir = dirname($file);
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
             file_put_contents($file, Yaml::dump($yaml, 4, 2));
         } elseif ($source === 'db') {
 
@@ -1096,7 +1100,7 @@ class SPPRouter extends \SPP\SPPObject
     {
         if ($source === 'yaml') {
             $appname = \SPP\Scheduler::getContext();
-            $file = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'pages.yml';
+            $file = self::getAppPagesFile($appname);
             if (!file_exists($file)) {
                 return false;
             }

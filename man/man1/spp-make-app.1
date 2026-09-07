@@ -1,25 +1,22 @@
-.TH SPP-make-app 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-make-app 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-make:app
-.PP
- \- Create a new SPP application context
+spp-make-app \- Create a new SPP application context
+.SH SYNOPSIS
+.B php spp.php make:app
+[OPTIONS]
 .SH DESCRIPTION
 Create a new SPP application context
 .PP
-.SH SYNOPSIS
-php spp.php make:app [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--enterprise` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --enterprise
+Boolean flag. Extracted via static analysis from MakeAppCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: SPP.
+\(bu Instantiates key components: SPP.
 .br
-.PP
-.PP

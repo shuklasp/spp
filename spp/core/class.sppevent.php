@@ -41,8 +41,30 @@ class SPPEvent extends \SPP\SPPObject
                 });
             }
             self::$eventDefinitions = array_merge(self::$eventDefinitions, $data['definitions'] ?? []);
-            return;
         }
+
+        $appContext = \SPP\Scheduler::getContext() ?: 'default';
+        $modCacheFile = (defined('SPP_APP_DIR') ? SPP_APP_DIR : SPP_BASE_DIR) . SPP_DS . 'var' . SPP_DS . 'cache' . SPP_DS . 'events_' . $appContext . '.php';
+        if (file_exists($modCacheFile)) {
+            $modEvents = require $modCacheFile;
+            foreach ($modEvents as $evt => $handlers) {
+                if (!isset(self::$listeners[$evt])) {
+                    self::$listeners[$evt] = [];
+                }
+                foreach ($handlers as $handlerInfo) {
+                    self::$listeners[$evt][] = [
+                        'callback' => $handlerInfo['handler'],
+                        'priority' => 10, // Default priority for module events
+                        'id' => uniqid()
+                    ];
+                }
+                usort(self::$listeners[$evt], function($a, $b) {
+                    return $b['priority'] <=> $a['priority'];
+                });
+            }
+        }
+        
+        if (file_exists($cacheFile)) return;
 
         // We only scan explicitly known yml files, NO SCANDIR loops over class files!
         self::parseEventsYml(SPP_BASE_DIR . SPP_DS . 'etc' . SPP_DS . 'events.yml');
@@ -261,21 +283,36 @@ class SPPEvent extends \SPP\SPPObject
      */
     public static function fireEvent($event_name, \SPP\EventParams $params, callable|string|array|null $inline_handler = null)
     {
+        static $shutdownRegistered = false;
+        if (!$shutdownRegistered) {
+            register_shutdown_function([__CLASS__, 'persistTrace']);
+            $shutdownRegistered = true;
+        }
+
+        $eventTrace = [
+            'event' => $event_name,
+            'timestamp' => microtime(true),
+            'handlers' => []
+        ];
+
         if (defined('SPP_DEBUG') && SPP_DEBUG) {
             $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
             if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
             @file_put_contents($logDir . '/events.log', "[" . date('Y-m-d H:i:s') . "] Firing event: [{$event_name}]\n", FILE_APPEND);
         }
 
-        self::triggerHook('before_' . $event_name, $params);
+        self::triggerHookWithTrace('before_' . $event_name, $params, $eventTrace, 'before');
 
         if (!$params->isPropagationStopped()) {
             if (!empty(self::$listeners['instead_' . $event_name])) {
-                self::triggerHook('instead_' . $event_name, $params);
+                self::triggerHookWithTrace('instead_' . $event_name, $params, $eventTrace, 'instead');
             } else {
                 if ($inline_handler !== null) {
+                    $hStart = microtime(true);
                     $callback = $inline_handler;
+                    $hName = 'Inline Handler';
                     if (is_string($callback)) {
+                        $hName = $callback;
                         if (class_exists($callback)) {
                             $callback = [new $callback, '__invoke'];
                         } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback)) {
@@ -283,6 +320,7 @@ class SPPEvent extends \SPP\SPPObject
                             $callback = [new $className, '__invoke'];
                         }
                     } elseif (is_array($callback) && is_string($callback[0])) {
+                        $hName = $callback[0] . '::' . ($callback[1] ?? '');
                         if (class_exists($callback[0])) {
                             try {
                                 $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
@@ -305,10 +343,19 @@ class SPPEvent extends \SPP\SPPObject
                     if (is_callable($callback)) {
                         call_user_func_array($callback, [&$params]);
                     }
+                    $hEnd = microtime(true);
+                    $eventTrace['handlers'][] = [
+                        'stage' => 'main',
+                        'name' => $hName,
+                        'stopped' => $params->isPropagationStopped(),
+                        'duration' => round(($hEnd - $hStart) * 1000, 2)
+                    ];
                 }
 
                 if (isset(self::$eventDefinitions[$event_name]['default_handler']) && self::$eventDefinitions[$event_name]['default_handler']) {
+                    $hStart = microtime(true);
                     $defHandler = self::$eventDefinitions[$event_name]['default_handler'];
+                    $hName = is_string($defHandler) ? $defHandler : 'Default Handler';
                     if (is_string($defHandler)) {
                         if (class_exists($defHandler)) {
                             $defHandler = [new $defHandler, '__invoke'];
@@ -317,6 +364,7 @@ class SPPEvent extends \SPP\SPPObject
                             $defHandler = [new $className, '__invoke'];
                         }
                     } elseif (is_array($defHandler) && is_string($defHandler[0])) {
+                        $hName = $defHandler[0] . '::' . ($defHandler[1] ?? '');
                         if (class_exists($defHandler[0])) {
                             try {
                                 $refMethod = new \ReflectionMethod($defHandler[0], $defHandler[1]);
@@ -338,12 +386,21 @@ class SPPEvent extends \SPP\SPPObject
                     if (is_callable($defHandler)) {
                         call_user_func_array($defHandler, [&$params]);
                     }
+                    $hEnd = microtime(true);
+                    $eventTrace['handlers'][] = [
+                        'stage' => 'default',
+                        'name' => $hName,
+                        'stopped' => $params->isPropagationStopped(),
+                        'duration' => round(($hEnd - $hStart) * 1000, 2)
+                    ];
                 }
 
-                self::triggerHook($event_name, $params);
+                self::triggerHookWithTrace($event_name, $params, $eventTrace, 'main');
             }
         }
-        
+
+        self::$collectedTrace[] = $eventTrace;
+
         if (self::checkStop($params)) return;
 
         // 3. After Hooks
@@ -352,13 +409,22 @@ class SPPEvent extends \SPP\SPPObject
 
     public static function triggerHook(string $hookName, &$params)
     {
+        $dummy = [];
+        self::triggerHookWithTrace($hookName, $params, $dummy, 'hook');
+    }
+
+    public static function triggerHookWithTrace(string $hookName, &$params, array &$eventTrace, string $stage = 'hook')
+    {
         if (empty(self::$listeners[$hookName])) return;
 
         foreach (self::$listeners[$hookName] as $listener) {
+            $hStart = microtime(true);
             $callback = $listener['callback'];
+            $hName = 'Callable';
             
             // Auto-instantiate class names with __invoke
             if (is_string($callback)) {
+                $hName = $callback;
                 if (class_exists($callback)) {
                     $callback = [new $callback, '__invoke'];
                 } elseif (class_exists('\\EventHandlers\\Defaults\\' . $callback)) {
@@ -369,6 +435,7 @@ class SPPEvent extends \SPP\SPPObject
             
             // Auto-instantiate array callbacks if method is not static
             if (is_array($callback) && is_string($callback[0])) {
+                $hName = $callback[0] . '::' . ($callback[1] ?? '');
                 if (class_exists($callback[0])) {
                     try {
                         $refMethod = new \ReflectionMethod($callback[0], $callback[1]);
@@ -391,6 +458,17 @@ class SPPEvent extends \SPP\SPPObject
             if (is_callable($callback)) {
                 call_user_func_array($callback, [&$params]);
             }
+            $hEnd = microtime(true);
+
+            if (isset($eventTrace['handlers'])) {
+                $eventTrace['handlers'][] = [
+                    'stage' => $stage,
+                    'name' => $hName,
+                    'stopped' => self::checkStop($params),
+                    'duration' => round(($hEnd - $hStart) * 1000, 2)
+                ];
+            }
+
             if (self::checkStop($params)) {
                 break;
             }
@@ -431,5 +509,37 @@ class SPPEvent extends \SPP\SPPObject
     }
     public static function getCollectedTrace(): array { return self::$collectedTrace; }
     public static function clearTrace(): void { self::$collectedTrace = []; }
-    public static function persistTrace(): void {}
+    public static function persistTrace(): void
+    {
+        if (empty(self::$collectedTrace)) return;
+        $logDir = defined('SPP_LOG_DIR') ? SPP_LOG_DIR : SPP_BASE_DIR . '/var/logs';
+        if (!is_dir($logDir)) @mkdir($logDir, 0777, true);
+        $traceFile = $logDir . '/event_trace.json';
+
+        $existing = [];
+        if (file_exists($traceFile)) {
+            $content = @file_get_contents($traceFile);
+            if ($content) {
+                $decoded = json_decode($content, true);
+                if (is_array($decoded)) {
+                    $existing = $decoded;
+                }
+            }
+        }
+
+        $uri = (PHP_SAPI === 'cli') ? ('CLI ' . implode(' ', $_SERVER['argv'] ?? [])) : ($_SERVER['REQUEST_URI'] ?? 'HTTP');
+        $entry = [
+            'request_uri' => $uri,
+            'timestamp' => date('Y-m-d H:i:s'),
+            'trace' => self::$collectedTrace
+        ];
+
+        $existing[] = $entry;
+        if (count($existing) > 50) {
+            $existing = array_slice($existing, -50);
+        }
+
+        @file_put_contents($traceFile, json_encode($existing, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        self::$collectedTrace = [];
+    }
 }

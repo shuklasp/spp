@@ -29,6 +29,12 @@ abstract class Command
      */
     public function getName(): string
     {
+        if (!empty($this->name)) {
+            return $this->name;
+        }
+        if (property_exists($this, 'signature') && !empty($this->signature)) {
+            return explode(' ', trim($this->signature))[0];
+        }
         return $this->name;
     }
 

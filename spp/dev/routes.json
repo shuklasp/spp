@@ -1,17 +1,107 @@
 {
+    "dashboard": {
+        "title": "Developer Studio Hub",
+        "icon": "👋",
+        "component": "views/dashboard.js"
+    },
+    "studio": {
+        "title": "Studio & Scaffolder",
+        "icon": "💻",
+        "component": "views/studio.js"
+    },
+    "entities": {
+        "title": "Entities & Schemas",
+        "icon": "🏗️",
+        "component": "views/database.js"
+    },
+    "forms": {
+        "title": "Forms & Locales",
+        "icon": "📝",
+        "component": "views/forms.js"
+    },
+    "routing": {
+        "title": "Routing & Endpoints",
+        "icon": "🛤️",
+        "component": "views/routing.js"
+    },
+    "reports": {
+        "title": "Reports Studio & Analytics",
+        "icon": "📊",
+        "component": "views/reports.js"
+    },
+    "ai": {
+        "title": "AI Copilot & Playground",
+        "icon": "🤖",
+        "component": "views/ai.js"
+    },
+    "copilot": {
+        "title": "AI Copilot & Playground",
+        "icon": "🤖",
+        "component": "views/ai.js"
+    },
+    "testing": {
+        "title": "Testing & Tracing",
+        "icon": "🧪",
+        "component": "views/testing.js"
+    },
+    "commands": {
+        "title": "CLI Command Center",
+        "icon": "⚡",
+        "component": "views/commands.js"
+    },
+    "editor": {
+        "title": "Code Editor",
+        "icon": "💻",
+        "component": "views/studio.js"
+    },
+    "apps": {
+        "title": "App Studio",
+        "icon": "📱",
+        "component": "views/studio.js"
+    },
+    "docs": {
+        "title": "Code Explorer & Docs",
+        "icon": "📚",
+        "component": "views/studio.js"
+    },
+    "database": {
+        "title": "Database & Schemas",
+        "icon": "🏗️",
+        "component": "views/database.js"
+    },
+    "xdb": {
+        "title": "XML Database (XDB)",
+        "icon": "🗄️",
+        "component": "views/database.js"
+    },
+    "interdb": {
+        "title": "InterDB Data Mesh",
+        "icon": "🕸️",
+        "component": "views/database.js"
+    },
+    "spplang": {
+        "title": "Translations & Locales",
+        "icon": "💬",
+        "component": "views/forms.js"
+    },
     "mobile": {
         "title": "Mobile Studio",
         "icon": "📱",
-        "component": "views/mobile.js"
+        "component": "views/forms.js"
     },
-    "api_keys": {
-        "title": "API Keys",
-        "icon": "🔑",
-        "component": "views/api_keys.js"
+    "services": {
+        "title": "Services & Polyglot API",
+        "icon": "🔌",
+        "component": "views/routing.js"
     },
-    "docs": {
-        "title": "Code Explorer",
-        "icon": "📚",
-        "component": "views/docs.js"
+    "parikshak": {
+        "title": "Parikshak Testing",
+        "icon": "🧪",
+        "component": "views/testing.js"
+    },
+    "trace": {
+        "title": "Event Tracing",
+        "icon": "🐛",
+        "component": "views/testing.js"
     }
 }

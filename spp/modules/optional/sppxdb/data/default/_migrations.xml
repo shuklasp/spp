@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="default" table="_migrations">
+  <_schema>
+    <column name="id" type="int" />
+    <column name="migration" type="varchar" />
+    <column name="batch" type="int" />
+    <column name="executed_at" type="datetime" />
+  </_schema>
+  <data>
+  </data>
+</database>

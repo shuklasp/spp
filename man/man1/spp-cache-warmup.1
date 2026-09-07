@@ -1,25 +1,20 @@
-.TH SPP-cache-warmup 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-cache-warmup 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-cache:warmup
-.PP
- \- Warm up common application caches
+spp-cache-warmup \- Warm up common application caches
+.SH SYNOPSIS
+.B php spp.php cache:warmup
+[OPTIONS]
 .SH DESCRIPTION
 Warm up common application caches
 .PP
-.SH SYNOPSIS
-php spp.php cache:warmup [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--app=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --app=
+Expects a value. Extracted via static analysis from CacheWarmupCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Bootstraps a full application execution context via Scheduler.
-.br
-\(bu Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
-.br
-\(bu Interacts with the application cache layer (Redis/Memcached).
-.br
+Static analysis reveals the following runtime behaviors:
 .PP
-.PP
+\(bu Bootstraps a full application execution context (Scheduler::withContext).
+.br
+\(bu Instantiates key components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+.br

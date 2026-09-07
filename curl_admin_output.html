@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Projects Dashboard — SPPDocs</title>
+ <!-- Include local HTMX as per SPP rules -->
+ <script src="/school1/sppadmin/js/htmx.min.js"></script>
+ <link rel="stylesheet" href="/school1/sppdocs/css/sppdocs.css?v=1788590220">
+ <link rel="stylesheet" href="/school1/sppdocs/css/admin.css?v=1788584444">
+</head>
+<body hx-boost="true">
+ <div id="spp-progress"></div>
+ 
+ <!-- Top Header -->
+ <header class="adm-header">
+ <div class="adm-header-left">
+ <a href="/school1/sppdocs/admin" class="adm-brand-title">
+ 🚀 SPPDocs <span class="adm-brand-badge">Control Center</span>
+ </a>
+  <span class="adm-badge adm-badge-admin">👑 Global Super Admin</span>
+   </div>
+
+ <!-- Header Center: Interactive Search Text Box -->
+ <div class="adm-header-search-wrap">
+ <div class="adm-header-search-box" onclick="openCommandPalette('nav')" title="Search documentation, issues, commands... (Ctrl+K)">
+ <span class="adm-search-icon">🔍</span>
+ <input type="text" class="adm-header-search-input" placeholder="Search documentation, issues, commands... (Ctrl+K)" readonly onclick="openCommandPalette('nav')" onfocus="this.blur(); openCommandPalette('nav');">
+ <kbd class="adm-search-kbd">Ctrl+K</kbd>
+ </div>
+ </div>
+
+ <div class="adm-header-right">
+ <a href="/school1/sppdocs" target="_blank" hx-boost="false" class="adm-btn adm-btn-secondary adm-btn-sm">🌐 View Portal &rarr;</a>
+ <div class="adm-user-badge">
+ <div class="adm-user-avatar">A</div>
+ <span>admin</span>
+ </div>
+ <a href="/school1/sppdocs/admin/logout" hx-boost="false" class="adm-btn adm-btn-danger adm-btn-sm">Logout</a>
+ </div>
+ </header>
+
+ <!-- Main Layout -->
+ <div class="adm-layout">
+ <!-- Sidebar Navigation -->
+ <aside class="adm-sidebar">
+ <!-- Global Platform Controls -->
+ <div>
+ <div class="adm-nav-group-title">Platform Administration</div>
+ <ul class="adm-nav-list">
+ <li>
+ <a href="/school1/sppdocs/admin" class="adm-nav-link active">
+ <span>📊</span> Projects Dashboard
+ </a>
+ </li>
+  <li>
+ <a href="/school1/sppdocs/admin/global-settings" class="adm-nav-link ">
+ <span>⚙️</span> Global Platform Settings
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/users" class="adm-nav-link ">
+ <span>👥</span> User & Access Governance
+ </a>
+ </li>
+ <li>
+ <a href="/school1/sppdocs/admin/roles" class="adm-nav-link ">
+ <span>🛡️</span> Roles & Permissions
+ </a>
+ </li>
+  </ul>
+ </div>
+
+ <!-- Project Specific Controls (if a project is active) -->
+  </aside>
+
+ <!-- Main Content -->
+ <main class="adm-main" id="adm-main-content">
+  
+ 
+ <div class="adm-page-header">
+ <div>
+ <h1 class="adm-page-title">Projects Control Center</h1>
+ <p class="adm-page-desc">Overview of all documentation repositories, issue trackers, and team workspaces.</p>
+ </div>
+ <button type="button" class="adm-btn adm-btn-primary" onclick="document.getElementById('createProjectModal').classList.add('active')">
+ ➕ Create New Project
+ </button>
+</div>
+
+<!-- Stat Cards -->
+<div class="adm-stat-grid">
+ <div class="adm-stat-card">
+ <div>
+ <div class="adm-stat-label">Managed Projects</div>
+ <div class="adm-stat-val">7</div>
+ </div>
+ <div class="adm-stat-icon">📁</div>
+ </div>
+ <div class="adm-stat-card">
+ <div>
+ <div class="adm-stat-label">Global Super Admins</div>
+ <div class="adm-stat-val">1</div>
+ </div>
+ <div class="adm-stat-icon">👑</div>
+ </div>
+ <div class="adm-stat-card">
+ <div>
+ <div class="adm-stat-label">Registered Accounts</div>
+ <div class="adm-stat-val">3</div>
+ </div>
+ <div class="adm-stat-icon">👥</div>
+ </div>
+ <div class="adm-stat-card">
+ <div>
+ <div class="adm-stat-label">Platform Engine</div>
+ <div class="adm-stat-val" style="font-size: 1.25rem;">SPP v0.7</div>
+ </div>
+ <div class="adm-stat-icon">⚡</div>
+ </div>
+</div>
+
+<!-- Projects List -->
+<div class="adm-card">
+ <div class="adm-card-header">
+ <h2 class="adm-card-title">Active Projects</h2>
+ </div>
+
+ <div class="adm-table-wrap">
+ <table class="adm-table">
+ <thead>
+ <tr>
+ <th>Project</th>
+ <th>Storage Engine</th>
+ <th>Enabled Modules</th>
+ <th>Version</th>
+ <th style="text-align: right;">Operations</th>
+ </tr>
+ </thead>
+ <tbody>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ S
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/spp" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ SPP Framework
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">The flagship polyglot framework and kernel engine.</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v3</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/spp" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/spp" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ L
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/lekhak" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ Lekhak CMS
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Modern Polyglot Content Engine built on SPP.</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/lekhak" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/lekhak" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ V
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/vshiksha" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ vShiksha
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Next-generation educational platform.</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/vshiksha" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/vshiksha" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ I
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/indiwiki" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ IndiWiki
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Upcoming knowledge repository and wiki platform.</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/indiwiki" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/indiwiki" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ S
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/sppdocs" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ SPPDocs Engine
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Documentation for building with the SPPDocs portal engine.</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/sppdocs" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/sppdocs" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <div style="width: 32px; height: 32px; border-radius: 6px; background: var(--adm-brand-soft); color: var(--adm-brand); display: flex; align-items: center; justify-content: center; font-weight: 700;">
+ G
+ </div>
+  <div>
+ <a href="/school1/sppdocs/admin/project/global" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ Global Content
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Projectless global pages and landing page</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+     </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/global" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/global" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  <tr>
+ <td>
+ <div style="display: flex; align-items: center; gap: 0.75rem;">
+  <img src="/school1/public/uploads/logo_6a97dae39963f.jpg" alt="Logo" style="height: 32px; width: 32px; object-fit: contain; border-radius: 6px;" onerror="this.style.display='none'">
+  <div>
+ <a href="/school1/sppdocs/admin/project/demo-app" style="font-weight: 600; color: var(--adm-text-main); text-decoration: none; font-size: 1rem;">
+ My Demo App
+ </a>
+ <div style="font-size: 0.8rem; color: var(--adm-text-muted);">Documentation for My Demo App</div>
+ </div>
+ </div>
+ </td>
+ <td>
+  <span class="adm-badge adm-badge-info">📄 JSON (Indexed)</span>
+  </td>
+ <td>
+ <div style="display: flex; gap: 0.35rem; flex-wrap: wrap;">
+  <span class="adm-badge adm-badge-secondary">Docs</span>
+   <span class="adm-badge adm-badge-secondary">Issues</span>
+   <span class="adm-badge adm-badge-secondary">Forums</span>
+   <span class="adm-badge adm-badge-secondary">Milestones</span>
+  </div>
+ </td>
+ <td><code>v1</code></td>
+ <td style="text-align: right;">
+ <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+ <a href="/school1/sppdocs/admin/project/demo-app" class="adm-btn adm-btn-secondary adm-btn-sm">
+ ⚙️ Configure
+ </a>
+ <a href="/school1/sppdocs/project/demo-app" target="_blank" class="adm-btn adm-btn-primary adm-btn-sm">
+ View &rarr;
+ </a>
+ </div>
+ </td>
+ </tr>
+  </tbody>
+ </table>
+ </div>
+</div>
+
+<!-- Create Project Modal -->
+<div class="adm-modal" id="createProjectModal">
+ <div class="adm-modal-dialog">
+ <div class="adm-modal-header">
+ <h3 class="adm-modal-title">Create New Documentation Project</h3>
+ <button type="button" class="adm-modal-close" onclick="document.getElementById('createProjectModal').classList.remove('active')">&times;</button>
+ </div>
+ <form action="/school1/sppdocs/admin/project/create" method="POST">
+ <input type="hidden" name="csrf_token" value="6a135108de4261afa25452bb1292c165335f47833f994696fee7190e43a4c059">
+
+ <div class="adm-form-group">
+ <label class="adm-form-label">Project Identifier (Slug)</label>
+ <input type="text" name="project_id" placeholder="e.g. mobile-app" class="adm-form-input" required pattern="[a-zA-Z0-9\-_]+">
+ <div class="adm-form-desc">Unique identifier used in URLs. Alphanumeric and hyphens only.</div>
+ </div>
+
+ <div class="adm-form-group">
+ <label class="adm-form-label">Project Title</label>
+ <input type="text" name="title" placeholder="e.g. Mobile App Platform" class="adm-form-input" required>
+ </div>
+
+ <div class="adm-form-group">
+ <label class="adm-form-label">Short Tagline / Description</label>
+ <input type="text" name="description" placeholder="Brief summary of this project" class="adm-form-input">
+ </div>
+
+ <div class="adm-form-group">
+ <label class="adm-form-label">Initial Storage Engine</label>
+ <select name="storage" class="adm-form-select">
+ <option value="json" selected>JSON (Flat-File, Zero-Config)</option>
+ <option value="sqlite">SQLite (ACID, WAL-Mode Embedded Database)</option>
+ </select>
+ </div>
+
+ <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+ <button type="button" class="adm-btn adm-btn-secondary" onclick="document.getElementById('createProjectModal').classList.remove('active')">Cancel</button>
+ <button type="submit" class="adm-btn adm-btn-primary">Create Project</button>
+ </div>
+ </form>
+ </div>
+</div>
+ </main>
+ </div>
+
+ <!-- SPP-UX HTMX Integration -->
+ <script>
+ document.body.addEventListener('htmx:beforeRequest', function() {
+ const p = document.getElementById('spp-progress');
+ if (p) {
+ p.style.opacity = '1';
+ p.style.width = '20%';
+ clearInterval(window.sppProgressInt);
+ window.sppProgressInt = setInterval(() => {
+ let w = parseFloat(p.style.width);
+ if (w < 85) p.style.width = (w + 5) + '%';
+ }, 250);
+ }
+ });
+ document.body.addEventListener('htmx:afterRequest', function() {
+ const p = document.getElementById('spp-progress');
+ if (p) {
+ clearInterval(window.sppProgressInt);
+ p.style.width = '100%';
+ setTimeout(() => { p.style.opacity = '0'; }, 250);
+ setTimeout(() => { p.style.width = '0%'; }, 500);
+ }
+ });
+ document.body.addEventListener('htmx:beforeOnLoad', function (evt) {
+ if (evt.detail.xhr && evt.detail.xhr.status >= 400) {
+ evt.detail.shouldSwap = true;
+ evt.detail.isError = false;
+ }
+ });
+ </script>
+
+  <div id="sppdocs-cmd-palette" class="sppdocs-cmd-backdrop" data-project-id="demo-app" data-base-url="/school1/sppdocs" style="display: none;" hx-boost="false" onclick="if(event.target===this) closeCommandPalette()">
+ <div class="sppdocs-cmd-modal" onclick="event.stopPropagation()">
+ <div class="sppdocs-cmd-tabs">
+ <button type="button" class="sppdocs-cmd-tab-btn active" id="sppdocs-tab-nav" onclick="switchCmdMode('nav')">
+ <span>⚡</span> Commands & Instant Docs
+ </button>
+ <button type="button" class="sppdocs-cmd-tab-btn" id="sppdocs-tab-ai" onclick="switchCmdMode('ai')">
+ <span>🤖</span> Ask AI Assistant (RAG)
+ </button>
+ </div>
+
+ <div class="sppdocs-cmd-header">
+ <span class="sppdocs-cmd-icon" id="sppdocs-cmd-icon-indicator">🔍</span>
+ <input type="text" id="sppdocs-cmd-input" class="sppdocs-cmd-input" placeholder="Type a command or jump to... (Press Esc to close)" autocomplete="off">
+ <kbd class="sppdocs-cmd-kbd" id="sppdocs-cmd-enter-kbd">ESC</kbd>
+ </div>
+
+ <div id="sppdocs-cmd-instant-results"></div>
+
+ <div id="sppdocs-cmd-list" class="sppdocs-cmd-list">
+ <div class="sppdocs-cmd-section">Navigation & Quick Actions (Project: demo-app)</div>
+
+ <a href="/school1/sppdocs/issues/board?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="board kanban tasks sprint" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📋</span>
+ <span>Go to Kanban Board</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">B</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/issues?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="issues list tracker bugs" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📝</span>
+ <span>View All Issues</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">L</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/issues?projectId=demo-app&new=1" class="sppdocs-cmd-item" data-keyword="create new issue bug task" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>➕</span>
+ <span>Create New Issue</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">C</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/milestones?projectId=demo-app" class="sppdocs-cmd-item" data-keyword="milestones sprints roadmap" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>🏁</span>
+ <span>View Milestones & Sprints</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">M</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/project/demo-app" class="sppdocs-cmd-item" data-keyword="docs documentation wiki" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>📖</span>
+ <span>Live Documentation</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">D</kbd>
+ </a>
+
+ <a href="/school1/sppdocs/admin/project/demo-app" class="sppdocs-cmd-item" data-keyword="admin settings project manage config" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>⚙️</span>
+ <span>Project Administration</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">A</kbd>
+ </a>
+
+ <a href="/school1/sppdocs" class="sppdocs-cmd-item" data-keyword="portal projects home hub" hx-boost="false">
+ <div class="sppdocs-cmd-item-left">
+ <span>🚀</span>
+ <span>Projects Portal Home</span>
+ </div>
+ <kbd class="sppdocs-cmd-kbd">P</kbd>
+ </a>
+ </div>
+
+ <div id="sppdocs-cmd-ai-container" style="display: none;"></div>
+
+ <template id="sppdocs-cmd-ai-loading-tpl">
+ <div class="sppdocs-ai-loading">
+ <div class="sppdocs-ai-spinner"></div>
+ <p>Synthesizing verified documentation passages...</p>
+ </div>
+ </template>
+
+ <template id="sppdocs-cmd-ai-error-tpl">
+ <div class="sppdocs-search-empty">
+ <p>Error connecting to search endpoint.</p>
+ </div>
+ </template>
+ </div>
+</div>
+
+<script>
+(function() {
+ 'use strict';
+
+ function getPalette() { return document.getElementById('sppdocs-cmd-palette'); }
+ function getInput() { return document.getElementById('sppdocs-cmd-input'); }
+ function getList() { return document.getElementById('sppdocs-cmd-list'); }
+ function getInstantBox() { return document.getElementById('sppdocs-cmd-instant-results'); }
+ function getAiContainer() { return document.getElementById('sppdocs-cmd-ai-container'); }
+ function getIconIndicator() { return document.getElementById('sppdocs-cmd-icon-indicator'); }
+ function getTabNav() { return document.getElementById('sppdocs-cmd-tab-nav'); }
+ function getTabAi() { return document.getElementById('sppdocs-cmd-tab-ai'); }
+ function getEnterKbd() { return document.getElementById('sppdocs-cmd-enter-kbd'); }
+
+ let currentMode = 'nav'; // 'nav' or 'ai'
+ let selectedIndex = -1;
+ let instantDebounceTimer = null;
+
+ function getBaseUrl() {
+ const p = getPalette();
+ if (p && p.dataset.baseUrl) return p.dataset.baseUrl;
+ return '';
+ }
+
+ function getCurrentProjectId() {
+ const params = new URLSearchParams(window.location.search);
+ if (params.get('projectId')) return params.get('projectId');
+ if (params.get('project')) return params.get('project');
+
+ const pathMatch = window.location.pathname.match(/\/(?:admin\/)?project\/([^\/\?]+)/);
+ if (pathMatch && pathMatch[1]) return decodeURIComponent(pathMatch[1]);
+
+ const p = getPalette();
+ if (p && p.dataset.projectId) return p.dataset.projectId;
+
+ return 'demo-app';
+ }
+
+ window.switchCmdMode = function(mode) {
+ currentMode = mode;
+ const tabNav = getTabNav();
+ const tabAi = getTabAi();
+ const iconIndicator = getIconIndicator();
+ const input = getInput();
+ const list = getList();
+ const instantBox = getInstantBox();
+ const aiContainer = getAiContainer();
+ const enterKbd = getEnterKbd();
+ const proj = getCurrentProjectId();
+
+ if (mode === 'ai') {
+ if (tabAi) tabAi.classList.add('active');
+ if (tabNav) tabNav.classList.remove('active');
+ if (iconIndicator) iconIndicator.textContent = '🤖';
+ if (input) input.placeholder = "Ask AI anything about " + (proj || 'this project') + "... (Press Enter)";
+ if (list) list.style.display = 'none';
+ if (instantBox) instantBox.innerHTML = '';
+ if (aiContainer) aiContainer.style.display = 'block';
+ if (enterKbd) enterKbd.textContent = 'ENTER ⏎';
+ } else {
+ if (tabNav) tabNav.classList.add('active');
+ if (tabAi) tabAi.classList.remove('active');
+ if (iconIndicator) iconIndicator.textContent = '🔍';
+ if (input) input.placeholder = "Type a command or jump to... (Press Esc to close)";
+ if (list) list.style.display = 'block';
+ if (aiContainer) aiContainer.style.display = 'none';
+ if (enterKbd) enterKbd.textContent = 'ESC';
+ if (input) filterItems(input.value);
+ }
+ if (input) {
+ input.focus();
+ }
+ };
+
+ window.openCommandPalette = function(preferredMode) {
+ const palette = getPalette();
+ const input = getInput();
+ if (!palette) return;
+
+ palette.style.display = 'flex';
+ if (input) {
+ input.value = '';
+ setTimeout(function() {
+ input.focus();
+ input.select();
+ }, 10);
+ }
+ if (preferredMode) {
+ window.switchCmdMode(preferredMode);
+ } else {
+ window.switchCmdMode('nav');
+ }
+ };
+
+ window.closeCommandPalette = function() {
+ const palette = getPalette();
+ if (palette) {
+ palette.style.display = 'none';
+ }
+ selectedIndex = -1;
+ };
+
+ function getVisibleItems() {
+ const list = getList();
+ if (!list) return [];
+ return Array.from(list.querySelectorAll('.sppdocs-cmd-item')).filter(el => el.style.display !== 'none');
+ }
+
+ function updateHighlight() {
+ const items = getVisibleItems();
+ items.forEach((item, idx) => {
+ if (idx === selectedIndex) {
+ item.classList.add('active');
+ item.scrollIntoView({ block: 'nearest' });
+ } else {
+ item.classList.remove('active');
+ }
+ });
+ }
+
+ function fetchInstantResults(q) {
+ const proj = getCurrentProjectId();
+ if (!proj || q.length < 2) {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = '';
+ return;
+ }
+ clearTimeout(instantDebounceTimer);
+ instantDebounceTimer = setTimeout(() => {
+ fetch(getBaseUrl() + '/api/search/instant?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+ .then(r => r.text())
+ .then(html => {
+ if (currentMode === 'nav') {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = html;
+ }
+ })
+ .catch(() => {});
+ }, 200);
+ }
+
+ function executeAiAsk(q) {
+ if (!q.trim()) return;
+ const proj = getCurrentProjectId();
+ const aiContainer = getAiContainer();
+ const loadingTpl = document.getElementById('sppdocs-cmd-ai-loading-tpl');
+ const errorTpl = document.getElementById('sppdocs-cmd-ai-error-tpl');
+
+ if (aiContainer && loadingTpl) {
+ aiContainer.innerHTML = loadingTpl.innerHTML;
+ }
+ 
+ fetch(getBaseUrl() + '/api/search/ask?project=' + encodeURIComponent(proj) + '&q=' + encodeURIComponent(q))
+ .then(r => r.text())
+ .then(html => {
+ const curAi = getAiContainer();
+ if (curAi) curAi.innerHTML = html;
+ })
+ .catch(err => {
+ const curAi = getAiContainer();
+ if (curAi && errorTpl) curAi.innerHTML = errorTpl.innerHTML;
+ });
+ }
+
+ function filterItems(q) {
+ q = (q || '').toLowerCase().trim();
+ const list = getList();
+ if (!list) return;
+ const items = list.querySelectorAll('.sppdocs-cmd-item');
+ items.forEach(item => {
+ const text = (item.textContent + ' ' + (item.dataset.keyword || '')).toLowerCase();
+ item.style.display = (!q || text.includes(q)) ? 'flex' : 'none';
+ });
+ selectedIndex = 0;
+ updateHighlight();
+
+ if (q.length >= 2) {
+ fetchInstantResults(q);
+ } else {
+ const instantBox = getInstantBox();
+ if (instantBox) instantBox.innerHTML = '';
+ }
+ }
+
+ function isKeyK(e) {
+ if (!e) return false;
+ if (e.key && (e.key.toLowerCase() === 'k' || e.key === 'K')) return true;
+ if (e.code === 'KeyK') return true;
+ if (e.keyCode === 75 || e.which === 75) return true;
+ return false;
+ }
+
+ // Capture-Phase Hotkey Handler: Intercepts before browser default actions
+ function handleKeyDown(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+
+ // 1. Omnibox Buster: Intercept Ctrl+K / Cmd+K at Capture Level
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ if (typeof e.stopImmediatePropagation === 'function') {
+ e.stopImmediatePropagation();
+ }
+
+ const p = getPalette();
+ if (p && p.style.display === 'flex') {
+ window.closeCommandPalette();
+ } else {
+ window.openCommandPalette('nav');
+ }
+ return false;
+ }
+
+ const palette = getPalette();
+ const isPaletteOpen = palette && palette.style.display === 'flex';
+
+ // 2. Escape closes palette
+ if (e.key === 'Escape' && isPaletteOpen) {
+ e.preventDefault();
+ e.stopPropagation();
+ window.closeCommandPalette();
+ return false;
+ }
+
+ // 3. Navigation inside palette input
+ const input = getInput();
+ if (isPaletteOpen && e.target === input) {
+ if (currentMode === 'ai') {
+ if (e.key === 'Enter') {
+ e.preventDefault();
+ executeAiAsk(input.value);
+ }
+ return;
+ }
+
+ const items = getVisibleItems();
+ if (e.key === 'ArrowDown') {
+ e.preventDefault();
+ if (items.length > 0) {
+ selectedIndex = (selectedIndex + 1) % items.length;
+ updateHighlight();
+ }
+ } else if (e.key === 'ArrowUp') {
+ e.preventDefault();
+ if (items.length > 0) {
+ selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+ updateHighlight();
+ }
+ } else if (e.key === 'Enter') {
+ e.preventDefault();
+ if (items[selectedIndex]) {
+ const href = items[selectedIndex].getAttribute('href');
+ if (href && !href.startsWith('#')) {
+ window.closeCommandPalette();
+ window.location.href = href;
+ } else {
+ items[selectedIndex].click();
+ }
+ }
+ }
+ }
+ }
+
+ function handleKeyUp(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ if (typeof e.stopImmediatePropagation === 'function') {
+ e.stopImmediatePropagation();
+ }
+ return false;
+ }
+ }
+
+ // Delegated click listener: ensures clean native navigation for all command palette links
+ document.addEventListener('click', function(e) {
+ const item = e.target.closest('#sppdocs-cmd-palette a.sppdocs-cmd-item, #sppdocs-cmd-palette a.sppdocs-instant-result-item');
+ if (item) {
+ const href = item.getAttribute('href');
+ if (href && !href.startsWith('#') && item.target !== '_blank') {
+ window.closeCommandPalette();
+ window.location.href = href;
+ e.preventDefault();
+ }
+ }
+ });
+
+ // Delegated input listener (handles HTMX swaps seamlessly)
+ document.addEventListener('input', function(e) {
+ if (e.target && e.target.id === 'sppdocs-cmd-input') {
+ if (currentMode === 'nav') {
+ filterItems(e.target.value);
+ }
+ }
+ });
+
+ // Register global hotkey listeners with CAPTURE = TRUE once
+ if (!window._sppdocsCmdPaletteHotkeysBound) {
+ window._sppdocsCmdPaletteHotkeysBound = true;
+ window.addEventListener('keydown', handleKeyDown, true);
+ window.addEventListener('keyup', handleKeyUp, true);
+ window.addEventListener('keypress', function(e) {
+ const isCtrlOrCmd = (e.ctrlKey || e.metaKey) && !e.altKey;
+ if (isCtrlOrCmd && isKeyK(e)) {
+ e.preventDefault();
+ e.stopPropagation();
+ return false;
+ }
+ }, true);
+ }
+})();
+</script>
+ <div id="sppdocs-shortcuts-help-modal" class="sppdocs-shortcuts-backdrop" onclick="if(event.target===this) this.style.display='none'">
+ <div class="sppdocs-shortcuts-modal" onclick="event.stopPropagation()">
+ <div class="sppdocs-shortcuts-header">
+ <h3 class="sppdocs-shortcuts-title">
+ <span>⌨️</span> Keyboard Shortcuts
+ </h3>
+ <button type="button" class="sppdocs-shortcuts-close" onclick="document.getElementById('sppdocs-shortcuts-help-modal').style.display='none'">&times;</button>
+ </div>
+
+ <div class="sppdocs-shortcuts-list">
+ <div class="sppdocs-shortcuts-section-title">Navigation & General</div>
+ 
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Open Command & AI Palette</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>⌘/Ctrl</kbd> + <kbd>K</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Focus Global Search</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>/</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Toggle Shortcuts Guide</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>?</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Close Modal or Palette</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>ESC</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-section-title">Issues & Project Management</div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Create New Issue</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>C</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Move Selection Down / Up</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>J</kbd> / <kbd>K</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Select / Deselect Row Checkbox</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>X</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Open Selected Issue / Result</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>Enter</kbd> or <kbd>O</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Edit Current Page</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>E</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-section-title">Quick Jumps</div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Kanban Board</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>B</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Issues List</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>L</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Milestones</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>M</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Documentation</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>D</kbd></span>
+ </div>
+
+ <div class="sppdocs-shortcuts-row">
+ <span class="sppdocs-shortcuts-label">Jump to Project Administration</span>
+ <span class="sppdocs-shortcuts-keys"><kbd>A</kbd></span>
+ </div>
+ </div>
+ </div>
+</div>
+
+<script src="/school1/sppdocs/src/SPPDocs/resources/js/sppdocs-shortcuts.js"></script>
+</body>
+</html>

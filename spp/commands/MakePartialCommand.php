@@ -19,26 +19,18 @@ class MakePartialCommand extends BaseMakeCommand
 
     public function execute(array $args): void
     {
-        $name = null;
+        $name = $this->getArgument($args, 0) ?? $this->getOption($args, 'name');
         
-        foreach ($args as $i => $arg) {
-            if (strpos(strtolower($arg), '--name=') === 0) {
-                $name = substr($arg, 7);
-            } elseif ($i === 0 && strpos($arg, '--') !== 0) {
-                $name = $arg;
-            }
-        }
-
-        if (!$name) {
+        if (empty($name)) {
             echo "Usage: php spp.php make:partial <PartialName.html|.php|.js> [--app=AppName]\n";
             return;
         }
 
         $context = $this->getContext($args);
-        $targetDir = SPP_APP_DIR . '/resources/views/partials';
+        $targetDir = ($context === 'default') ? SPP_APP_DIR . '/resources/views/partials' : SPP_APP_DIR . "/src/{$context}/resources/views/partials";
         
         $fileName = $name;
-        if (!preg_match('/\.(php|html|js)$/i', $fileName)) {
+        if (!preg_match('/\.(php|html|js|blade\.php)$/i', $fileName)) {
             $fileName .= '.html'; // Default to .html partial if no extension provided
         }
         
@@ -51,7 +43,24 @@ class MakePartialCommand extends BaseMakeCommand
 
         $ext = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-        if ($ext === 'php') {
+        if (str_ends_with(strtolower($filePath), '.blade.php')) {
+            $content = <<<'PARTIAL'
+<!--
+  External Blade Partial: {{PARTIAL_NAME}}
+  Context: {{CONTEXT}}
+-->
+<div class="spp-partial-container" id="partial-{{PARTIAL_ID}}">
+    <div class="partial-header">
+        <h4>{{PARTIAL_NAME}}</h4>
+        <span class="badge badge-primary">{{CONTEXT}}</span>
+    </div>
+    <div class="partial-body">
+        <p>This standalone partial was rendered externally via @spppartial</p>
+        <p>Blade variables: {{ $variable ?? 'default' }}</p>
+    </div>
+</div>
+PARTIAL;
+        } elseif ($ext === 'php') {
             $content = <<<'PARTIAL'
 <?php
 /**

@@ -1,0 +1,18 @@
+.TH SPP-sppdocs-audit-verify 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
+.SH NAME
+spp-sppdocs-audit-verify \- Verify the cryptographic SHA-256 hash chain integrity of an SPPDocs project audit trail
+.SH SYNOPSIS
+.B php spp.php sppdocs:audit:verify
+[OPTIONS]
+.SH DESCRIPTION
+Verify the cryptographic SHA-256 hash chain integrity of an SPPDocs project audit trail
+.PP
+.SH OPTIONS
+.TP
+.B --project=
+Expects a value. Extracted via static analysis from SPPDocsAuditVerifyCommand.php
+.SH UNDER THE HOOD
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Executes native PHP logic without major side-effects or external dependencies.
+.br

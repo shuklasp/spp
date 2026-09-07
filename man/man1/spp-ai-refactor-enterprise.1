@@ -1,21 +1,18 @@
-.TH SPP-ai-refactor-enterprise 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-ai-refactor-enterprise 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-ai:refactor:enterprise
-.PP
- \- AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
+spp-ai-refactor-enterprise \- AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
+.SH SYNOPSIS
+.B php spp.php ai:refactor:enterprise
+[OPTIONS]
 .SH DESCRIPTION
 AI-powered automated refactoring daemon to modernize legacy code into strict SPP enterprise compliance
 .PP
-.SH SYNOPSIS
-php spp.php ai:refactor:enterprise [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--path=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --path=
+Expects a value. Extracted via static analysis from RefactorEnterpriseCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-.PP

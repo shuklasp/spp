@@ -1,0 +1,24 @@
+{
+  "name": "SPPDocs Enterprise Documentation Hub",
+  "short_name": "SPPDocs",
+  "description": "Enterprise-grade Documentation, AI Semantic Search & Project Management Suite",
+  "start_url": "/school1/public/index.php",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#ffffff",
+  "theme_color": "#ea580c",
+  "icons": [
+    {
+      "src": "/school1/public/assets/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/school1/public/assets/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}

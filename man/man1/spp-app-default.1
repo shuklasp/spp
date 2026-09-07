@@ -1,21 +1,18 @@
-.TH SPP-app-default 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-app-default 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-app:default
-.PP
- \- Set or view the default global CLI application context
+spp-app-default \- Set or view the default global CLI application context
+.SH SYNOPSIS
+.B php spp.php app:default
+[OPTIONS]
 .SH DESCRIPTION
 Set or view the default global CLI application context
 .PP
-.SH SYNOPSIS
-php spp.php app:default [OPTIONS]
-.PP
 .SH OPTIONS
-\(bu `--set=` : Expects a value. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --set=
+Expects a value. Extracted via static analysis from AppDefaultCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
-.PP
-.PP

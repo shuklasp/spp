@@ -1,17 +1,17 @@
 ## `integration:queue:work`
 
-**Purpose**: Run the persistent CDC integration event queue worker
+**Description**: Run the persistent CDC integration event queue worker
 
 ### Synopsis
 ```bash
 php spp.php integration:queue:work [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: DBAdapter.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: DBAdapter.
 

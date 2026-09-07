@@ -1,18 +1,18 @@
 ## `lang:export`
 
-**Purpose**: Export active database translation overrides into JSON language file
+**Description**: Export active database translation overrides into JSON language file
 
 ### Synopsis
 ```bash
 php spp.php lang:export [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from LangExportCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Dynamically loads SPP kernel modules: spplang.
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Dynamically loads kernel modules: spplang.
+- Bootstraps a full application execution context (Scheduler::withContext).
 

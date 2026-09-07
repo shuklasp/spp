@@ -1,6 +1,6 @@
 ## `make:form`
 
-**Purpose**: Create a new SPP form definition
+**Description**: Create a new SPP form definition
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:form <name> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: SPP.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: SPP.
 

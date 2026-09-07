@@ -1,0 +1,21 @@
+projects:
+  spp: 'C:/projects/apache/school1/docs/handbook/spp.yml'
+  lekhak: 'C:/projects/apache/school1/src/lekhak/docs/lekhak.yml'
+  vshiksha: 'C:/projects/apache/school1/src/vshiksha/docs/vshiksha.yml'
+  indiwiki: 'C:/projects/apache/school1/src/indiwiki/docs/indiwiki.yml'
+  sppdocs: 'C:/projects/apache/school1/src/SPPDocs/docs/v1/sppdocs.yml'
+  global: docs/global/project.yml
+  demo-app: docs/demo-app/project.yml
+auth_mode: sppauth
+global_admins:
+  - admin
+portal_title: 'SatyaLab Enterprise Docs Portal'
+portal_logo: /school1/sppdocs/assets/logo.jpg
+default_storage: json
+default_features:
+  docs: true
+  issues: true
+  milestones: true
+  pm_dashboard: true
+  forums: true
+  webhooks: true

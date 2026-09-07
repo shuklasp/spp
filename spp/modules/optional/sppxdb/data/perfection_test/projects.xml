@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database name="perfection_test" table="projects">
+  <_schema>
+    <column name="id" type="INT" primary="true"/>
+    <column name="project_name" type="VARCHAR"/>
+    <column name="dept_id" type="INT"/>
+  </_schema>
+  <data>
+  </data>
+<row id="101"><id>101</id><project_name>Studio</project_name><dept_id>1</dept_id></row><row id="102"><id>102</id><project_name>Polyglot</project_name><dept_id>1</dept_id></row><row id="103"><id>103</id><project_name>Lekhak</project_name><dept_id>3</dept_id></row><row id="101"><id>101</id><project_name>Studio</project_name><dept_id>1</dept_id></row><row id="102"><id>102</id><project_name>Polyglot</project_name><dept_id>1</dept_id></row><row id="103"><id>103</id><project_name>Lekhak</project_name><dept_id>3</dept_id></row></database>

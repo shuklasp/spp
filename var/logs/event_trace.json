@@ -1,560 +1,3041 @@
 [
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_modules&t=1781100600864",
-        "timestamp": "2026-06-10 14:10:04",
+        "request_uri": "/school1/sppdocs/css/admin.css?v=1788584444",
+        "timestamp": "2026-09-07 08:39:34",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781100601.607359,
-                "handlers": []
+                "timestamp": 1788770371.729518,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781100601.610332,
+                "timestamp": 1788770371.735001,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770371.74152,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781100601.638668,
+                "timestamp": 1788770371.749162,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770372.141972,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781100602.00183,
+                "timestamp": 1788770372.146742,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770373.900313,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 215.86
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/media/serve?project=demo-app&file=pratima_pp_election_502b6f60.png",
+        "timestamp": "2026-09-07 08:43:06",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770580.757164,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770580.767593,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770580.777908,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781100602.906455,
+                "timestamp": 1788770580.788622,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770581.71262,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770581.747432,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770585.164946,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 365.54
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/lms?project=demo-app",
+        "timestamp": "2026-09-07 08:43:33",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770607.614454,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.08
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770607.627484,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770607.64158,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770607.656123,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770608.830557,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770608.836286,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770611.794146,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 503.33
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770613.144564,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 260.69
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/project/demo-app",
+        "timestamp": "2026-09-07 08:44:43",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770675.924165,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.2
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770675.939395,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770675.953645,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770675.967858,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770677.171389,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770677.177724,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770680.842201,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 453.47
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770682.612127,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 668.99
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin",
+        "timestamp": "2026-09-07 08:45:13",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770706.671063,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.11
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770706.681792,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770706.693871,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770706.70586,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770707.791288,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770707.798363,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770711.388974,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 479.45
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770713.064713,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 646.26
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/project/demo-app",
+        "timestamp": "2026-09-07 08:45:34",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770726.266059,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.06
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770726.278101,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770726.291615,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770726.308155,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770727.399378,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770727.40467,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770730.894756,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 505.77
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770733.263022,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 1133.41
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/css/sppdocs.css?v=1788590220",
+        "timestamp": "2026-09-07 08:45:37",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770734.901223,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770734.905075,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770734.911782,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770734.919803,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770735.366709,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770735.372014,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770737.288839,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 245.18
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/issues?projectId=demo-app",
+        "timestamp": "2026-09-07 08:45:55",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770746.115684,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.23
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770746.129547,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770746.144978,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770746.157213,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770747.324008,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770747.330382,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770751.118119,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 400.44
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770752.117467,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 3173.98
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/assets/logo.jpg",
+        "timestamp": "2026-09-07 08:45:58",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770756.034066,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.11
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770756.041139,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770756.050405,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770756.059142,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770756.503949,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770756.509394,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770758.38371,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 241.43
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/issues/view?projectId=demo-app&issueId=issue_test_git_1",
+        "timestamp": "2026-09-07 08:46:18",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770767.36372,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.13
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770767.378921,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770767.392914,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770767.405574,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770768.727257,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770768.733836,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770771.76061,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 540.51
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770773.073706,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 5714.64
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/issues/board?projectId=demo-app",
+        "timestamp": "2026-09-07 08:47:40",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770853.032524,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.06
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770853.043698,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770853.057209,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770853.06878,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770854.099632,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770854.105243,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770857.36749,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 465.44
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770858.437944,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 1961.68
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/milestones?projectId=demo-app",
+        "timestamp": "2026-09-07 08:49:48",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788770982.341309,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.11
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788770982.346538,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770982.355256,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770982.363081,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788770983.064392,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788770983.070364,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788770986.121004,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 400.56
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788770987.063873,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 1444.09
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/issues/calendar?projectId=demo-app",
+        "timestamp": "2026-09-07 08:51:01",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788771054.320518,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788771054.33066,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771054.341025,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771054.35362,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771055.377904,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771055.385395,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788771058.205279,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 411.59
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788771059.214834,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 2001.11
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/issues?projectId=demo-app",
+        "timestamp": "2026-09-07 08:51:34",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788771088.55586,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788771088.565667,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771088.579,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771088.592529,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771089.592022,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771089.596668,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788771092.686868,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 395.42
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788771093.625319,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 833.26
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/assets/logo.jpg",
+        "timestamp": "2026-09-07 08:51:37",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788771095.018558,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788771095.022305,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771095.030323,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771095.038315,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771095.416802,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771095.421773,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788771097.298446,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 203.95
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/project/demo-app/taxonomy/categories/tutorials",
+        "timestamp": "2026-09-07 08:52:23",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788771137.898295,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.07
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788771137.90855,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771137.919668,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771137.930872,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788771138.966226,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788771138.9722,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788771142.634278,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 428.88
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/project/demo-app",
+        "timestamp": "2026-09-07 10:53:06",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788778383.346703,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.08
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788778383.352556,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778383.359911,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778383.366205,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778383.997889,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778384.002204,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778386.227822,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 231.66
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/login",
+        "timestamp": "2026-09-07 10:53:12",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788778389.453851,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.06
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788778389.458693,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778389.466423,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778389.474304,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778390.152969,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778390.157892,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778391.606584,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 227.4
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788778392.122535,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 247.25
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/css/admin_login.css?v=1788448918",
+        "timestamp": "2026-09-07 10:53:15",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788778392.751593,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.05
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788778392.754279,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778392.760318,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778392.76623,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778393.292095,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778393.29578,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778395.235226,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 247.07
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "request_uri": "/school1/sppdocs/admin/login",
+        "timestamp": "2026-09-07 10:53:37",
+        "trace": [
+            {
+                "event": "event_spp_context_enforce",
+                "timestamp": 1788778413.100514,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.07
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_route_resolve",
+                "timestamp": 1788778413.105686,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778413.11294,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778413.120686,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778413.732931,
+                "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788778413.736625,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778416.072903,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 366.24
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_auth_login",
+                "timestamp": 1788778417.160543,
                 "handlers": []
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=open_module_settings&t=1781100622091",
-        "timestamp": "2026-06-10 14:10:27",
+        "request_uri": "/school1/sppdocs/admin",
+        "timestamp": "2026-09-07 10:53:42",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781100622.227295,
-                "handlers": []
+                "timestamp": 1788778417.628559,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.1
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781100622.233152,
+                "timestamp": 1788778417.633555,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778417.643811,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781100622.275884,
+                "timestamp": 1788778417.652806,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778418.40326,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781100623.158964,
-                "handlers": []
+                "timestamp": 1788778418.407623,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781100626.086985,
-                "handlers": []
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778420.913683,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 327.85
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788778422.109172,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 486.46
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 16:19:47",
+        "request_uri": "/school1/sppdocs/css/admin.css?v=1788584444",
+        "timestamp": "2026-09-07 10:53:45",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781101183.204831,
-                "handlers": []
+                "timestamp": 1788778422.537518,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.09
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781101183.205274,
+                "timestamp": 1788778422.542662,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778422.549474,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781101183.320918,
+                "timestamp": 1788778422.55729,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778422.963901,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781101183.397716,
-                "handlers": []
+                "timestamp": 1788778422.96873,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778424.588609,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 213.61
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:04:06",
+        "request_uri": "/school1/sppdocs/css/sppdocs.css?v=1788590220",
+        "timestamp": "2026-09-07 10:53:45",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781107424.800395,
-                "handlers": []
+                "timestamp": 1788778422.536906,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.07
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781107424.802281,
+                "timestamp": 1788778422.542975,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778422.549478,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107424.823177,
+                "timestamp": 1788778422.557733,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788778422.964525,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107425.009867,
-                "handlers": []
+                "timestamp": 1788778422.969213,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788778425.241444,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 373.04
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:05:56",
+        "request_uri": "/school1/sppdocs/lms/lesson?projectId=demo-app&course=intro-to-spp&lesson=01_lifecycle",
+        "timestamp": "2026-09-07 11:06:03",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781107551.818838,
-                "handlers": []
+                "timestamp": 1788779158.844521,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.24
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781107551.82016,
+                "timestamp": 1788779158.849899,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779158.858264,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107551.831833,
+                "timestamp": 1788779158.864005,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779159.451048,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107551.901808,
-                "handlers": []
+                "timestamp": 1788779159.45371,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788779161.077591,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 200.66
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788779163.366907,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 395.1
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:06:46",
+        "request_uri": "/school1/sppdocs/assets/logo.jpg",
+        "timestamp": "2026-09-07 11:06:05",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781107602.000495,
-                "handlers": []
+                "timestamp": 1788779164.143342,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.09
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781107602.001342,
+                "timestamp": 1788779164.145982,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779164.151226,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107602.01175,
+                "timestamp": 1788779164.155168,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779164.352935,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781107602.086691,
-                "handlers": []
+                "timestamp": 1788779164.354887,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788779165.187841,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 87.25
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:28:54",
+        "request_uri": "/school1/sppdocs/lms/lesson/toggle",
+        "timestamp": "2026-09-07 11:10:13",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781108930.51348,
-                "handlers": []
+                "timestamp": 1788779406.611908,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.07
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781108930.514282,
+                "timestamp": 1788779406.618669,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779406.627089,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781108930.521819,
+                "timestamp": 1788779406.635439,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779407.318574,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781108930.568131,
+                "timestamp": 1788779407.322276,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788779409.571425,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 255.84
+                    }
+                ]
+            },
+            {
+                "event": "lms.lesson_completed",
+                "timestamp": 1788779410.306772,
                 "handlers": []
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788779413.377169,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 325.39
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:29:49",
+        "request_uri": "/school1/sppdocs/lms/lesson?projectId=demo-app&course=intro-to-spp&lesson=02_sapi_guarding",
+        "timestamp": "2026-09-07 11:10:24",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781108985.285405,
-                "handlers": []
+                "timestamp": 1788779418.547023,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.08
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781108985.285835,
+                "timestamp": 1788779418.552919,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779418.561812,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781108985.29173,
+                "timestamp": 1788779418.571334,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788779419.435302,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781108985.338223,
-                "handlers": []
+                "timestamp": 1788779419.439572,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788779421.761596,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 343.46
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788779424.181777,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 611.02
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-10 18:30:18",
+        "request_uri": "/school1/sppdev/",
+        "timestamp": "2026-09-07 12:29:46",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781109014.422839,
-                "handlers": []
+                "timestamp": 1788784181.34863,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781109014.423377,
+                "timestamp": 1788784181.358259,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784181.405875,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781109014.428253,
+                "timestamp": 1788784181.416254,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784181.91839,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781109014.476283,
+                "timestamp": 1788784181.921067,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784186.246786,
                 "handlers": []
+            },
+            {
+                "event": "event_spp_app_init",
+                "timestamp": 1788784186.249102,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 01:42:16",
+        "request_uri": "/school1/sppdev/api.php?action=check_auth&t=1788784187379",
+        "timestamp": "2026-09-07 12:29:50",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781134934.343263,
-                "handlers": []
+                "timestamp": 1788784188.062916,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781134934.344552,
+                "timestamp": 1788784188.066871,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784188.077064,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781134934.350328,
+                "timestamp": 1788784188.081991,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784188.55026,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781134934.500998,
-                "handlers": []
+                "timestamp": 1788784188.553605,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/",
-        "timestamp": "2026-06-10 23:45:49",
+        "request_uri": "/school1/sppadmin/",
+        "timestamp": "2026-09-07 12:29:57",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781135146.112295,
-                "handlers": []
+                "timestamp": 1788784195.049964,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781135146.116064,
+                "timestamp": 1788784195.053034,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784195.056705,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135146.143232,
+                "timestamp": 1788784195.060323,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784195.322324,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135146.898086,
+                "timestamp": 1788784195.32471,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784196.436582,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135149.000769,
-                "handlers": []
+                "timestamp": 1788784196.438803,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=check_auth&t=1781135150113",
-        "timestamp": "2026-06-10 23:45:56",
+        "request_uri": "/school1/sppadmin/api.php?action=check_auth&t=1788784197425",
+        "timestamp": "2026-09-07 12:30:00",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781135150.560937,
-                "handlers": []
+                "timestamp": 1788784197.980376,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.05
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781135150.567129,
+                "timestamp": 1788784197.987662,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784197.993025,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135150.589444,
+                "timestamp": 1788784197.998264,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.03
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784198.458574,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135151.960789,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1781135154.34415,
-                "handlers": []
+                "timestamp": 1788784198.46126,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php",
-        "timestamp": "2026-06-10 23:46:07",
+        "request_uri": "/school1/sppdocs/lms/lesson?projectId=demo-app&course=intro-to-spp&lesson=02_sapi_guarding",
+        "timestamp": "2026-09-07 12:30:11",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781135163.06691,
-                "handlers": []
+                "timestamp": 1788784200.698296,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781135163.074019,
+                "timestamp": 1788784200.70119,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784200.706737,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135163.099468,
+                "timestamp": 1788784200.711086,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784201.083397,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135164.163754,
-                "handlers": []
+                "timestamp": 1788784201.085746,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781135166.255305,
-                "handlers": []
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784202.496791,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 177.54
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788784209.120951,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 2171.37
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=list_apps&t=1781135167925",
-        "timestamp": "2026-06-10 23:46:10",
+        "request_uri": "/school1/sppdocs/assets/logo.jpg",
+        "timestamp": "2026-09-07 12:30:12",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781135168.084145,
-                "handlers": []
+                "timestamp": 1788784211.527499,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.05
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781135168.090221,
+                "timestamp": 1788784211.531766,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.06
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784211.536454,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135168.110264,
+                "timestamp": 1788784211.542402,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784211.745879,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135168.453762,
-                "handlers": []
+                "timestamp": 1788784211.750132,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.01
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781135169.659856,
-                "handlers": []
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784212.568826,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 98.41
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "\/school1\/sppadmin\/api.php?action=get_profile&t=1781135167925",
-        "timestamp": "2026-06-10 23:46:10",
+        "request_uri": "/school1/sppdocs/css/sppdocs.css?v=1788590220",
+        "timestamp": "2026-09-07 12:30:12",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781135168.100156,
-                "handlers": []
+                "timestamp": 1788784211.527626,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.11
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781135168.107991,
+                "timestamp": 1788784211.531297,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784211.53662,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135168.130107,
+                "timestamp": 1788784211.542016,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784211.746491,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781135168.450159,
-                "handlers": []
+                "timestamp": 1788784211.7497,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781135169.660116,
-                "handlers": []
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784212.569065,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 98.8
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 02:17:37",
+        "request_uri": "CLI C:\\Users\\Satya Prakash Shukla\\.gemini\\antigravity\\brain\\002592f0-b944-4445-af5a-5f9f3aeb2bc3\\scratch\\test_lms_shortcomings_remediation.php",
+        "timestamp": "2026-09-07 14:33:41",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781137056.351622,
-                "handlers": []
+                "timestamp": 1788784420.442759,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781137056.35379,
+                "timestamp": 1788784420.44681,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784420.447858,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781137056.358199,
+                "timestamp": 1788784420.448418,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784420.482454,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781137056.408362,
-                "handlers": []
+                "timestamp": 1788784420.482772,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784420.611903,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 4.3
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788784420.686571,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 58.29
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 02:27:49",
+        "request_uri": "CLI C:\\Users\\Satya Prakash Shukla\\.gemini\\antigravity\\brain\\002592f0-b944-4445-af5a-5f9f3aeb2bc3\\scratch\\test_lms_shortcomings_remediation.php",
+        "timestamp": "2026-09-07 14:34:06",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781137668.019402,
-                "handlers": []
+                "timestamp": 1788784445.868464,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.02
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781137668.020115,
+                "timestamp": 1788784445.869017,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784445.869798,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781137668.023551,
+                "timestamp": 1788784445.8704,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784445.901349,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781137668.078985,
-                "handlers": []
+                "timestamp": 1788784445.901916,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784446.015292,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 6.75
+                    }
+                ]
+            },
+            {
+                "event": "spp.controller.render",
+                "timestamp": 1788784446.061193,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 2.47
+                    }
+                ]
             }
         ]
     },
     {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 03:13:28",
+        "request_uri": "CLI C:\\Users\\Satya Prakash Shukla\\.gemini\\antigravity\\brain\\002592f0-b944-4445-af5a-5f9f3aeb2bc3\\scratch\\test_lms_pillars.php",
+        "timestamp": "2026-09-07 14:35:18",
         "trace": [
             {
                 "event": "event_spp_context_enforce",
-                "timestamp": 1781140392.280595,
-                "handlers": []
+                "timestamp": 1788784517.820761,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0.04
+                    }
+                ]
             },
             {
                 "event": "event_spp_route_resolve",
-                "timestamp": 1781140392.28164,
+                "timestamp": 1788784517.821278,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784517.822036,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781140392.499242,
+                "timestamp": 1788784517.822558,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
+            },
+            {
+                "event": "core.error.load",
+                "timestamp": 1788784517.855473,
                 "handlers": []
             },
             {
                 "event": "event_spp_app_init",
-                "timestamp": 1781140393.236237,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 03:15:04",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1781140497.895211,
-                "handlers": []
+                "timestamp": 1788784517.855793,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Inline Handler",
+                        "stopped": false,
+                        "duration": 0
+                    }
+                ]
             },
             {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1781140497.900552,
-                "handlers": []
+                "event": "event_spp_kernel_boot",
+                "timestamp": 1788784517.971959,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": false,
+                        "duration": 4.66
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781140497.905353,
-                "handlers": []
+                "event": "spp.controller.render",
+                "timestamp": 1788784518.015211,
+                "handlers": [
+                    {
+                        "stage": "main",
+                        "name": "Callable",
+                        "stopped": true,
+                        "duration": 3.32
+                    }
+                ]
             },
             {
-                "event": "event_spp_app_init",
-                "timestamp": 1781140497.96655,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1781140499.749843,
-                "handlers": []
-            }
-        ]
-    },
-    {
-        "request_uri": "CLI",
-        "timestamp": "2026-06-11 03:22:21",
-        "trace": [
-            {
-                "event": "event_spp_context_enforce",
-                "timestamp": 1781140939.955694,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_route_resolve",
-                "timestamp": 1781140939.956679,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1781140939.960593,
-                "handlers": []
-            },
-            {
-                "event": "event_spp_app_init",
-                "timestamp": 1781140940.025103,
+                "event": "lms.lesson_completed",
+                "timestamp": 1788784518.097077,
                 "handlers": []
             }
         ]

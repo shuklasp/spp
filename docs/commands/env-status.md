@@ -1,17 +1,17 @@
 ## `env:status`
 
-**Purpose**: Display system health and environment status
+**Description**: Display system health and environment status
 
 ### Synopsis
 ```bash
 php spp.php env:status [OPTIONS]
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvStatusCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
-- Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
+- Instantiates key components: \SPPMod\SPPDB\SPPDB.
 

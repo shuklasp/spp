@@ -1,6 +1,6 @@
 ## `integration:install`
 
-**Purpose**: Provision an external app directory and register the SPP route bypass
+**Description**: Provision an external app directory and register the SPP route bypass
 
 ### Synopsis
 ```bash
@@ -13,10 +13,11 @@ Usage: php spp.php integration:install <app_name> <route_path> [--isolation=virt
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: \Exception.
 

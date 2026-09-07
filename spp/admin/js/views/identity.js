@@ -8,12 +8,19 @@
  */
 export default class IdentityView extends BaseComponent {
     async onInit() {
+        // Detect tab from hash query param if provided (e.g., #identity?tab=api_keys or legacy #api_keys)
+        const hash = location.hash;
+        let initialTab = localStorage.getItem('spp_admin_identity_main_tab') || 'groups';
+        if (hash.includes('tab=api_keys') || hash.includes('#api_keys')) initialTab = 'api_keys';
+        else if (hash.includes('tab=access') || hash.includes('#access')) initialTab = 'access';
+        else if (hash.includes('tab=groups') || hash.includes('#groups')) initialTab = 'groups';
+
         this.state = {
             // --- Top-level tab ---
-            activeMainTab: localStorage.getItem('spp_admin_identity_main_tab') || 'groups',
+            activeMainTab: initialTab,
 
             // --- Shared ---
-            loading: true,
+            loading: (initialTab !== 'api_keys'),
             error: null,
 
             // --- Groups state ---
@@ -35,8 +42,10 @@ export default class IdentityView extends BaseComponent {
         // Load data for whichever main tab is active
         if (this.state.activeMainTab === 'groups') {
             await this.fetchGroupData();
-        } else {
+        } else if (this.state.activeMainTab === 'access') {
             await this.switchIamTab(this.state.iamActiveTab, true);
+        } else {
+            this.setState({ loading: false });
         }
     }
 
@@ -48,11 +57,11 @@ export default class IdentityView extends BaseComponent {
         if (this.state.activeMainTab === tab) return;
 
         localStorage.setItem('spp_admin_identity_main_tab', tab);
-        this.setState({ activeMainTab: tab, loading: true, error: null });
+        this.setState({ activeMainTab: tab, loading: (tab !== 'api_keys'), error: null });
 
         if (tab === 'groups') {
             await this.fetchGroupData();
-        } else {
+        } else if (tab === 'access') {
             await this.switchIamTab(this.state.iamActiveTab, true);
         }
     }
@@ -74,6 +83,14 @@ export default class IdentityView extends BaseComponent {
             }
         } catch (err) {
             this.setState({ loading: false, error: err.message });
+        }
+    }
+
+    async fetchData() {
+        if (this.state.activeMainTab === 'groups') {
+            await this.fetchGroupData();
+        } else if (this.state.activeMainTab === 'access') {
+            await this.switchIamTab(this.state.iamActiveTab, true);
         }
     }
 
@@ -147,22 +164,32 @@ export default class IdentityView extends BaseComponent {
 
         // Update Header
         const headerActions = document.getElementById('header-actions');
-        if (headerActions) {
+        if (headerActions && activeMainTab !== 'access') {
             const headerHtml = html`
                 <div class="spp-tabs" style="margin-right: 1rem; display: inline-flex;">
-                    <div class="tab ${activeMainTab === 'groups' ? 'active' : ''}" @click=${() => this.switchMainTab('groups')}>Groups</div>
-                    <div class="tab ${activeMainTab === 'access' ? 'active' : ''}" @click=${() => this.switchMainTab('access')}>Access Control (IAM)</div>
+                    <div class="tab ${activeMainTab === 'groups' ? 'active' : ''}">👥 Groups</div>
+                    <div class="tab ${activeMainTab === 'access' ? 'active' : ''}">🛡️ Access Control (IAM)</div>
+                    <div class="tab ${activeMainTab === 'api_keys' ? 'active' : ''}">🔑 API Keys & Integrations</div>
                 </div>
-                ${activeMainTab === 'groups' ? html`<button type="button" class="btn primary-btn btn-sm" @click=${() => this.openCreateModal()}>+ Create Group</button>` : ''}
+                ${activeMainTab === 'groups' ? html`<button type="button" class="btn primary-btn btn-sm">+ Create Group</button>` : ''}
+                ${activeMainTab === 'api_keys' ? html`<button type="button" id="api-key-gen-btn" class="btn primary-btn btn-sm">🔑 + Generate New Key</button>` : ''}
             `;
             headerActions.innerHTML = headerHtml.toString();
 
-            // Re-attach listeners for the tabs since we bypassed lit-html events
+            // Re-attach listeners for the tabs
             const tabs = headerActions.querySelectorAll('.tab');
             if (tabs[0]) tabs[0].onclick = () => this.switchMainTab('groups');
             if (tabs[1]) tabs[1].onclick = () => this.switchMainTab('access');
+            if (tabs[2]) tabs[2].onclick = () => this.switchMainTab('api_keys');
             const btn = headerActions.querySelector('.primary-btn');
-            if (btn) btn.onclick = () => this.openCreateModal();
+            if (btn) {
+                if (activeMainTab === 'groups') btn.onclick = () => this.openCreateModal();
+                if (activeMainTab === 'api_keys') btn.onclick = () => this.openApiKeyModal();
+            }
+        }
+
+        if (activeMainTab === 'api_keys') {
+            return this.renderApiKeys();
         }
 
         if (activeMainTab === 'access') {
@@ -171,6 +198,41 @@ export default class IdentityView extends BaseComponent {
 
         // --- Groups tab ---
         return this.renderGroups();
+    }
+
+    openApiKeyModal() {
+        if (this.apiKeyInstance && typeof this.apiKeyInstance.openGenerateModal === 'function') {
+            this.apiKeyInstance.openGenerateModal();
+        }
+    }
+
+    renderApiKeys() {
+        setTimeout(async () => {
+            const mount = document.getElementById('identity-apikeys-container');
+            if (mount) {
+                if (!this.apiKeyInstance) {
+                    try {
+                        const mod = await import('./api_keys.js');
+                        const ApiKeysView = mod.default;
+                        this.apiKeyInstance = new ApiKeysView(this.admin, mount, { app: this.admin.selectedApp });
+                        if (this.apiKeyInstance.onInit) await this.apiKeyInstance.onInit();
+                        this.apiKeyInstance.update();
+                    } catch (err) {
+                        console.error('Failed to load ApiKeysView:', err);
+                        mount.innerHTML = `<div class="alert error" style="margin: 1.5rem;">Failed to load API Keys & Integrations: ${err.message}</div>`;
+                    }
+                } else {
+                    this.apiKeyInstance.container = mount;
+                    this.apiKeyInstance.update();
+                }
+            }
+        }, 10);
+
+        return html`
+            <div id="identity-apikeys-container" class="fade-in" style="min-height: 450px;">
+                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading API Keys & Integrations...</div>
+            </div>
+        `;
     }
 
     // =========================================================================
@@ -372,7 +434,7 @@ export default class IdentityView extends BaseComponent {
 
     async loadMembers(groupId) {
         try {
-            const res = await this.api(`list_group_members&group_id=${groupId}`);
+            const res = await this.api('list_group_members', { group_id: groupId });
             if (res.success) {
                 this.state.currentMembers = res.data.members || [];
                 this.refreshMemberModal();
@@ -472,13 +534,11 @@ export default class IdentityView extends BaseComponent {
         // Update Header with IAM-specific "+ New" button
         const headerActions = document.getElementById('header-actions');
         if (headerActions) {
-            // The top-level tabs are already rendered by render(), but when on
-            // 'access' we also need the "+ New ..." button.
-            // We re-render the full header to include both top-level tabs and IAM action button.
             const headerHtml = html`
                 <div class="spp-tabs" style="margin-right: 1rem; display: inline-flex;">
-                    <div class="tab ${this.state.activeMainTab === 'groups' ? 'active' : ''}" @click=${() => this.switchMainTab('groups')}>Groups</div>
-                    <div class="tab ${this.state.activeMainTab === 'access' ? 'active' : ''}" @click=${() => this.switchMainTab('access')}>Access Control (IAM)</div>
+                    <div class="tab ${this.state.activeMainTab === 'groups' ? 'active' : ''}">👥 Groups</div>
+                    <div class="tab ${this.state.activeMainTab === 'access' ? 'active' : ''}">🛡️ Access Control (IAM)</div>
+                    <div class="tab ${this.state.activeMainTab === 'api_keys' ? 'active' : ''}">🔑 API Keys & Integrations</div>
                 </div>
             `;
             headerActions.innerHTML = headerHtml.toString();
@@ -487,6 +547,7 @@ export default class IdentityView extends BaseComponent {
             const tabs = headerActions.querySelectorAll('.tab');
             if (tabs[0]) tabs[0].onclick = () => this.switchMainTab('groups');
             if (tabs[1]) tabs[1].onclick = () => this.switchMainTab('access');
+            if (tabs[2]) tabs[2].onclick = () => this.switchMainTab('api_keys');
 
             // Add IAM-specific action button
             const btn = document.createElement('button');

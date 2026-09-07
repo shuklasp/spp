@@ -630,6 +630,33 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $appname = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
 
         $files = [];
+
+        // Check self-contained app conf dir (src/{app}/etc)
+        if (class_exists('\SPP\App')) {
+            try {
+                $app = \SPP\App::getApp($appname);
+                if ($app) {
+                    $appConfDir = $app->getAppConfDir();
+                    if ($appConfDir && is_dir($appConfDir)) {
+                        $files[] = $appConfDir . SPP_DS . 'entities' . SPP_DS . strtolower($short_name) . '.yml';
+                        $files[] = $appConfDir . SPP_DS . 'entities' . SPP_DS . $short_name . '.yml';
+                        $files[] = $appConfDir . SPP_DS . 'schemas' . SPP_DS . strtolower($short_name) . '.yml';
+                        $files[] = $appConfDir . SPP_DS . 'schemas' . SPP_DS . $short_name . '.yml';
+                    }
+                }
+            } catch (\Throwable $e) {}
+
+            if (defined('SPP_APP_DIR')) {
+                $srcEtcDir = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc';
+                if (is_dir($srcEtcDir)) {
+                    $files[] = $srcEtcDir . SPP_DS . 'entities' . SPP_DS . strtolower($short_name) . '.yml';
+                    $files[] = $srcEtcDir . SPP_DS . 'entities' . SPP_DS . $short_name . '.yml';
+                    $files[] = $srcEtcDir . SPP_DS . 'schemas' . SPP_DS . strtolower($short_name) . '.yml';
+                    $files[] = $srcEtcDir . SPP_DS . 'schemas' . SPP_DS . $short_name . '.yml';
+                }
+            }
+        }
+
         if (defined('APP_ETC_DIR')) {
             $files[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'entities' . SPP_DS . strtolower($short_name) . '.yml';
             $files[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'entities' . SPP_DS . $short_name . '.yml';
@@ -674,6 +701,28 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
         $appname = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
         $entities = [];
         $paths = [];
+
+        // Check self-contained app conf dir (src/{app}/etc)
+        if (class_exists('\SPP\App')) {
+            try {
+                $app = \SPP\App::getApp($appname);
+                if ($app) {
+                    $appConfDir = $app->getAppConfDir();
+                    if ($appConfDir && is_dir($appConfDir)) {
+                        $paths[] = $appConfDir . SPP_DS . 'entities';
+                        $paths[] = $appConfDir . SPP_DS . 'schemas';
+                    }
+                }
+            } catch (\Throwable $e) {}
+
+            if (defined('SPP_APP_DIR')) {
+                $srcEtcDir = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc';
+                if (is_dir($srcEtcDir)) {
+                    $paths[] = $srcEtcDir . SPP_DS . 'entities';
+                    $paths[] = $srcEtcDir . SPP_DS . 'schemas';
+                }
+            }
+        }
 
         if (defined('APP_ETC_DIR')) {
             $paths[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'entities';
@@ -720,6 +769,17 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
     {
         // 1. Save YAML Definition
         $entitiesDir = APP_ETC_DIR . '/' . $appname . '/entities';
+        if (class_exists('\SPP\App')) {
+            try {
+                $app = \SPP\App::getApp($appname);
+                if ($app) {
+                    $appConfDir = $app->getAppConfDir();
+                    if ($appConfDir) {
+                        $entitiesDir = $appConfDir . '/entities';
+                    }
+                }
+            } catch (\Throwable $e) {}
+        }
         if (!is_dir($entitiesDir)) {
             mkdir($entitiesDir, 0777, true);
         }
@@ -1561,7 +1621,7 @@ class SPPEntity implements \JsonSerializable, \SPP\Core\EntityInterface
      */
     public static function searchNatural(string $query)
     {
-        if (class_exists('\\SPPMod\\SPPAI\\SPPAI')) {
+        if (class_exists('\\SPPMod\\SPPAI\\SPPAI') && method_exists('\\SPPMod\\SPPAI\\SPPAI', 'search')) {
             return \SPPMod\SPPAI\SPPAI::search($query);
         }
         return [];

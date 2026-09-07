@@ -1,0 +1,2 @@
+spp:
+    php: 'env:set'

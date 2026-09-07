@@ -1,0 +1,3 @@
+{"type":"issue.commented","actor":"admin","target":"issue_test_git_1","summary":"Commented on 'Test Issue for Git CI\/CD'","timestamp":1788586866}
+{"type":"issue.moved","actor":"admin","target":"issue_1788447349_f52c4a78","summary":"Moved to in_progress","timestamp":1788588248}
+{"type":"issue.moved","actor":"admin","target":"issue_1788447349_f52c4a78","summary":"Moved to todo","timestamp":1788588252}

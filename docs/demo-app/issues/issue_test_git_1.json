@@ -1,0 +1,15 @@
+{
+    "number": 777,
+    "title": "Test Issue for Git CI\/CD",
+    "status": "open",
+    "comments": [
+        {
+            "author": "admin",
+            "content": "Testing",
+            "timestamp": 1788586866
+        }
+    ],
+    "time_logs": [],
+    "created_at": 1788570683,
+    "updated_at": 1788586866
+}

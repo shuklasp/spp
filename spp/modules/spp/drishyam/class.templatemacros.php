@@ -157,8 +157,17 @@ class TemplateMacros
     {
         $app = \SPP\Scheduler::getContext();
         $file = \SPPMod\SPPView\ViewLocator::locate($view, $app);
+        
+        if (!isset($data['base_url'])) {
+            $data['base_url'] = \SPP\App::getBaseUrl($app);
+        }
+
+        if (class_exists('\\SPPMod\\Drishyam\\SPPBlade') && str_ends_with($view, '.blade.php')) {
+            return \SPPMod\Drishyam\SPPBlade::render($file ?: $view, $data);
+        }
+
         if ($file && file_exists($file)) {
-            // Render isolated scope
+            // Render isolated scope natively (for extreme performance .html/.php partials)
             extract($data, EXTR_SKIP);
             ob_start();
             include $file;
@@ -329,6 +338,18 @@ class TemplateMacros
         $topic = $data['topic'] ?? 'default_topic';
         $content = self::spppartial($view, $data);
         return "<div data-spp-live-topic=\"" . htmlspecialchars($topic, ENT_QUOTES, 'UTF-8') . "\">" . $content . "</div>";
+    }
+
+    public static function region(string $region, array $context = []): string
+    {
+        $blocks = $context['blocks'] ?? [];
+        if (empty($blocks)) {
+            $projectId = $context['project_id'] ?? ($context['projectId'] ?? ($_SESSION['sppdocs_current_project'] ?? 'spp'));
+            if (class_exists('\\App\\SPPDocs\\Services\\BlockManager')) {
+                $blocks = \App\SPPDocs\Services\BlockManager::getRegionBlocks($projectId, $region);
+            }
+        }
+        return \SPPMod\SPPView\BlockManager::renderRegion($region, $blocks, $context);
     }
 }
 

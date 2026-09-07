@@ -1,0 +1,17 @@
+.TH "user:list" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+user:list \- Lists all registered framework users.
+.SH SYNOPSIS
+.B php spp.php user:list
+[\-\-json] [\-\-app=\fIAPP\fR]
+.SH DESCRIPTION
+Queries the framework database for registered users and displays them in a tabular layout or machine-readable JSON format.
+.SH OPTIONS
+.TP
+.BR \-\-json
+Outputs results in structured JSON format.
+.TP
+.BR \-\-app =\fIAPP\fR
+Targets a specific application context.
+.SH UNDER THE HOOD
+Connects to the configured relational database, queries the spp_users table, and serializes output.

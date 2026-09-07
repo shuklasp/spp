@@ -1,0 +1,25 @@
+name: SPPDocs Continuous Integration & Sync
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    types: [ opened, closed, reopened, synchronize ]
+
+jobs:
+  sppdocs-sync:
+    name: Notify SPPDocs Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 5
+
+      - name: Dispatch Git Webhook to SPPDocs Hub
+        run: |
+          curl -X POST "http://localhost/school1/public/api/git-webhook" \
+            -H "Content-Type: application/json" \
+            -H "X-GitHub-Event: ${{ github.event_name }}" \
+            -H "X-Hub-Signature-256: ${{ secrets.SPPDOCS_WEBHOOK_SECRET || 'b088c3e080b042664d31dd20d8d4a50d' }}" \
+            -d '${{ toJson(github.event) }}'

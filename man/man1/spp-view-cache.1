@@ -1,20 +1,22 @@
-.TH SPP-view-cache 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-view-cache 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-view:cache
-.PP
- \- Pre-compiles all AST views into PHP for optimal performance
+spp-view-cache \- Pre-compiles all AST views into PHP for optimal performance
+.SH SYNOPSIS
+.B php spp.php view:cache
+[OPTIONS]
 .SH DESCRIPTION
 Pre-compiles all AST views into PHP for optimal performance
 .PP
-.SH SYNOPSIS
-php spp.php view:cache [OPTIONS]
+Usage: php spp.php view:cache [--app=name]
+.br
+
 .PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+.TP
+.B --help
+Boolean flag. Extracted via static analysis from ViewCacheCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Instantiates internal components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Instantiates key components: \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 .br
-.PP
-.PP

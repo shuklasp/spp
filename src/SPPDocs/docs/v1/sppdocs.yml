@@ -1,0 +1,10 @@
+title: "SPPDocs Engine"
+description: "Documentation for building with the SPPDocs portal engine."
+landing_view: "landing.generic"
+default_version: "v1"
+versions:
+  v1: "C:/projects/apache/school1/src/SPPDocs/docs/v1"
+sidebar:
+  "Core Concepts":
+    - "Configuration": "configuration"
+    - "Routing": "routing"

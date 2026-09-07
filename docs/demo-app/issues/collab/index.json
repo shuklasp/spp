@@ -1,0 +1,16 @@
+{
+    "users": {
+        "bob": {
+            "username": "bob",
+            "avatar": "B",
+            "color": "#10b981",
+            "status": "editing",
+            "last_seen": 1788570552
+        }
+    },
+    "lock": {
+        "holder": "bob",
+        "acquired_at": 1788570552,
+        "expires_at": 1788570587
+    }
+}

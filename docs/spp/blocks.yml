@@ -1,0 +1,12 @@
+regions:
+  sidebar_bottom:
+    -
+      id: default_categories_block
+      title: 'Categories & Topics'
+      type: taxonomy_tree
+      vocab: categories
+      weight: 10
+      visibility:
+        paths: ['*']
+        roles: ['*']
+  header_top: {  }

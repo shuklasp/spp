@@ -1,7 +1,31 @@
-.TH "module:install" 1 "August 2026" "SPP Framework" "SPP Commands Manual"
+.TH "module:install" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
 .SH NAME
-module:install \- Install or upgrade a specific module or all active modules
+module:install \- Install, activate, and configure framework or application modules
 .SH SYNOPSIS
 .B php spp.php module:install
+\fImodulename\fR
+[\fB\-\-app\fR=\fIappName\fR]
+[\fB\-\-project\fR=\fIprojectId\fR]
+[\fB\-\-all\fR]
 .SH DESCRIPTION
-Install or upgrade a specific module or all active modules
+\fBmodule:install\fR activates and provisions modules across the SPP framework. Supports system modules in \fBspp/modules\fR as well as application-level extensions inside \fBsrc/{App}/modules\fR.
+.SH OPTIONS
+.TP
+\fImodulename\fR
+Name or directory slug of the module to install.
+.TP
+\fB\-\-app\fR=\fIappName\fR
+Target application context (e.g. SPPDocs).
+.TP
+\fB\-\-project\fR=\fIprojectId\fR
+Target project identifier for app-level modules (default: spp).
+.TP
+\fB\-\-all\fR
+Batch-install all active or discovered modules.
+.SH UNDER THE HOOD
+.IP \(bu 3
+Updates module status configurations in \fBspp/etc/modules.yml\fR.
+.IP \(bu 3
+Executes database migrations and module lifecycle hooks (\fBmodinit.php\fR).
+.IP \(bu 3
+Invalidates and regenerates autoloader cache.

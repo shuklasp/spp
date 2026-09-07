@@ -6,7 +6,7 @@ use Symfony\Component\Yaml\Yaml;
 
 require_once __DIR__ . '/class.sppobject.php';
 
-class App extends \SPP\SPPObject
+class App extends \SPP\SPPObject implements \Psr\Container\ContainerInterface
 {
     private bool $modsloaded = false;
     private ?SPPError $errobj = null;
@@ -425,6 +425,16 @@ class App extends \SPP\SPPObject
         $this->container->singleton($abstract, $concrete);
     }
 
+    public function get(string $id)
+    {
+        return $this->container->get($id);
+    }
+
+    public function has(string $id): bool
+    {
+        return method_exists($this->container, 'has') ? $this->container->has($id) : false;
+    }
+
     public function call($callable, array $parameters = [])
     {
         if (method_exists($this->container, 'call')) {
@@ -596,20 +606,21 @@ class App extends \SPP\SPPObject
         return false;
     }
 
-    public static function url(string $path = '', ?string $appName = null): string
+    public static function url(string $path = '', ?string $appName = null, array $queryParams = []): string
     {
-        $baseUrl = self::getBaseUrl($appName);
-        $path = ltrim($path, '/');
-        
-        if ($path === '') {
-            return $baseUrl;
-        }
-        
-        if (self::hasUrlRewriting()) {
-            return $baseUrl . '/' . $path;
-        }
-        
-        return $baseUrl . '/?q=' . $path;
+        return \SPP\Core\Url::to($path, $appName, $queryParams);
+    }
+
+    /**
+     * Normalize an external URL to ensure an explicit scheme (https://).
+     *
+     * @param string|null $url
+     * @param string $defaultScheme
+     * @return string
+     */
+    public static function externalUrl(?string $url, string $defaultScheme = 'https'): string
+    {
+        return \SPP\Core\Url::external($url, $defaultScheme);
     }
 
     /**

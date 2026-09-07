@@ -1,0 +1,11 @@
+name: Event
+fields:
+  event_date: 
+    type: date
+    label: Event Date
+  location: 
+    type: string
+    label: Location
+  price: 
+    type: number
+    label: Ticket Price

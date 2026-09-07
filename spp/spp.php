@@ -10,7 +10,7 @@ if (php_sapi_name() !== 'cli') {
 
 define('SPP_APP_DIR', dirname(__DIR__, 1));
 
-if ($argc < 2) {
+if ($argc < 2 || $argv[1] === '--help' || $argv[1] === '-h' || $argv[1] === 'help') {
     define('SPP_SKIP_DISCOVERY', true);
     // Bootstrap for discovery
     require_once __DIR__ . '/sppinit.php';
@@ -20,7 +20,7 @@ if ($argc < 2) {
     } else {
         echo "SPP CLI: Use 'php spp.php list' to see available commands.\n";
     }
-    exit(1);
+    exit(0);
 }
 
 $command = $argv[1];
@@ -28,6 +28,11 @@ $command = $argv[1];
 // Native fast-paths for performance critical commands (like cron)
 // Attempt to dynamically resolve the command rather than hardcoding paths
 if ($command === 'serve:async') {
+    if (in_array('--help', $argv, true) || in_array('-h', $argv, true)) {
+        echo "Usage: php spp.php serve:async [--app=name] [--port=8080]\n";
+        echo "Boot the persistent memory asynchronous coroutine runtime.\n";
+        exit(0);
+    }
     require_once __DIR__ . '/sppinit.php';
     require_once __DIR__ . '/core/Async/AsyncWorker.php';
     $appName = 'default';
@@ -126,6 +131,14 @@ if (isset($discoveredCommands[$command])) {
             } catch (\Exception $e) {
                 error_log("[SPP CLI] Warning: Failed to boot app context '{$appContext}'. " . $e->getMessage());
             }
+        }
+    }
+
+    // Intercept --help and -h to display standard man page if requested
+    if ((in_array('--help', $argv, true) || in_array('-h', $argv, true)) && $command !== 'man' && $command !== 'help') {
+        if (isset($discoveredCommands['man'])) {
+            $discoveredCommands['man']->execute(['spp.php', 'man', $command]);
+            exit(0);
         }
     }
 

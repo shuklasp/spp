@@ -1,0 +1,17 @@
+.TH "user:delete" 1 "September 2026" "SPP Framework" "SPP Commands Manual"
+.SH NAME
+user:delete \- Removes a framework user account.
+.SH SYNOPSIS
+.B php spp.php user:delete
+\fIuser_id_or_username\fR [\-\-json] [\-\-app=\fIAPP\fR]
+.SH DESCRIPTION
+Permanently removes a user record from spp_users and purges related role assignments.
+.SH OPTIONS
+.TP
+.BR \-\-json
+Outputs results in structured JSON format.
+.TP
+.BR \-\-app =\fIAPP\fR
+Targets a specific application context.
+.SH UNDER THE HOOD
+Enforces system administrator protection, removes spp_user_roles links, and deletes the row from spp_users.

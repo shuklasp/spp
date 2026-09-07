@@ -1,6 +1,6 @@
 ## `iam:abac`
 
-**Purpose**: Manage Attribute-Based Access Control (ABAC) policies
+**Description**: Manage Attribute-Based Access Control (ABAC) policies
 
 ### Synopsis
 ```bash
@@ -12,11 +12,11 @@ php spp.php iam:abac [OPTIONS]
 Usage: php spp.php iam:abac --action=create --param1=\
 ```
 
-### Options Available
-- `--json` : Boolean flag or option. Extracted via static analysis.
+### Options
+- `--json` : Boolean flag. Extracted via static analysis from ABACPolicyCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Interacts with the SPP relational database layer.
-- Instantiates internal components: SPPDB.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Interacts with the SPP database layer directly.
+- Instantiates key components: SPPDB.
 

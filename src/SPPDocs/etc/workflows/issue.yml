@@ -1,0 +1,40 @@
+# ##############################################################################
+# SPPDocs Issue Tracker Workflow Definition
+# Keyed by entity_type: sppdocs_issue
+#
+# STATES:
+#   - open: Newly logged or backlog issues ready for triage
+#   - in_progress: Work actively being performed
+#   - review: Work completed and pending review/QA
+#   - closed: Resolved or completed work
+# ##############################################################################
+
+sppdocs_issue:
+  description: "Standard lifecycle workflow for SPPDocs issues and tasks"
+  initial_state: open
+  states:
+    - open
+    - in_progress
+    - review
+    - closed
+  transitions:
+    start_progress:
+      from: [open, review]
+      to: in_progress
+      label: "Start Progress"
+    request_review:
+      from: [in_progress]
+      to: review
+      label: "Submit for Review"
+    close_issue:
+      from: [open, in_progress, review]
+      to: closed
+      label: "Close Issue"
+    reopen_issue:
+      from: [closed]
+      to: open
+      label: "Reopen Issue"
+    move_to_todo:
+      from: [in_progress, review, closed]
+      to: open
+      label: "Move to To-Do"

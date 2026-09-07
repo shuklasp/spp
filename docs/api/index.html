@@ -65,6 +65,11 @@
             "password": "varchar(255)",
             "role_id": "int",
             "status": "varchar(20)",
+            "mfa_enabled": "int",
+            "two_factor_enabled": "int",
+            "two_factor_secret": "varchar(255)",
+            "password_updated_at": "datetime",
+            "rights_updated_at": "datetime",
             "created_at": "datetime",
             "updated_at": "datetime"
         },
@@ -137,6 +142,12 @@
         "attributes": [],
         "relations": []
     },
+    "FeatureModel": {
+        "class": "App\\Default\\Entities\\FeatureModel",
+        "table": "featuremodels",
+        "attributes": [],
+        "relations": []
+    },
     "NewEntity1": {
         "class": "App\\Default\\Entities\\NewEntity1",
         "table": "newentity1s",
@@ -164,6 +175,12 @@
     "TestEntity": {
         "class": "App\\Default\\Entities\\TestEntity",
         "table": "testentitys",
+        "attributes": [],
+        "relations": []
+    },
+    "TestUser": {
+        "class": "App\\Default\\Entities\\TestUser",
+        "table": "testusers",
         "attributes": [],
         "relations": []
     },
@@ -223,42 +240,6 @@
         },
         "relations": []
     },
-    "Node": {
-        "class": "App\\Lekhak\\Entities\\Node",
-        "table": "nodes",
-        "attributes": {
-            "title": "varchar(255)",
-            "alias": "varchar(255)",
-            "bundle": "varchar(50)",
-            "body": "longtext",
-            "author_id": "bigint",
-            "status": "varchar(20)",
-            "langcode": "varchar(10)",
-            "translation_id": "bigint",
-            "created": "datetime",
-            "changed": "datetime",
-            "fields_data": "longtext"
-        },
-        "relations": []
-    },
-    "LekhakNode": {
-        "class": "SPPMod\\Lekhak\\Core\\LekhakNode",
-        "table": "nodes",
-        "attributes": {
-            "title": "varchar(255)",
-            "alias": "varchar(255)",
-            "bundle": "varchar(50)",
-            "body": "longtext",
-            "author_id": "bigint",
-            "status": "varchar(20)",
-            "langcode": "varchar(10)",
-            "translation_id": "bigint",
-            "created": "datetime",
-            "changed": "datetime",
-            "fields_data": "longtext"
-        },
-        "relations": []
-    },
     "Term": {
         "class": "App\\Lekhak\\Entities\\Term",
         "table": "terms",
@@ -294,6 +275,18 @@
             "label": "varchar(255)",
             "description": "text"
         },
+        "relations": []
+    },
+    "Item": {
+        "class": "App\\Samvaad\\Entities\\Item",
+        "table": "items",
+        "attributes": [],
+        "relations": []
+    },
+    "ShowcaseItem": {
+        "class": "App\\Samvaad\\Entities\\ShowcaseItem",
+        "table": "showcaseitems",
+        "attributes": [],
         "relations": []
     },
     "Student": {

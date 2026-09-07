@@ -1,0 +1,13 @@
+# events.yml
+# 
+# Defines event listeners for this module.
+# SPP uses Zero-Boot Event Discovery, meaning these are cached globally, 
+# and the module is dynamically loaded only when the event actually fires.
+# 
+# Format:
+# event.name:
+#   - AppMod\School1\Testmod\Listeners\ExampleListener::handle
+
+# Example:
+# user.registered:
+#   - AppMod\School1\Testmod\Listeners\UserEventSubscriber::onUserRegistered

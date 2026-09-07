@@ -21,6 +21,12 @@ class AppServeCommand extends Command
 
     public function execute(array $args): void
     {
+        if (in_array('--help', $args, true) || in_array('-h', $args, true)) {
+            echo "Usage: php spp.php serve [--port=8000]\n";
+            echo "Start a local development server for the current application.\n";
+            return;
+        }
+
         $port = 8000;
         foreach ($args as $arg) {
             if (strpos($arg, '--port=') === 0) {

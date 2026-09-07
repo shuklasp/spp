@@ -1,0 +1,19 @@
+.TH SPPDOCS-STORAGE-MIGRATE 1 "September 2026" "SPP CLI Manual" "SPP System Documentation"
+.SH NAME
+sppdocs:storage:migrate \- Migrate SPPDocs project issues between Flat-File JSON and SQLite storage
+.SH SYNOPSIS
+.B php spp.php sppdocs:storage:migrate
+\fB\-\-project\fR=\fIproject-id\fR
+[\fB\-\-to\fR=\fIsqlite|json\fR]
+.SH DESCRIPTION
+.B sppdocs:storage:migrate
+converts all issue data, comments, time logs, and milestones for a specified SPPDocs project between flat-file JSON and indexed SQLite WAL storage without downtime or data corruption.
+.SH OPTIONS
+.TP
+.BI \-\-project= "project-id"
+Identifier of the project configured under docs/<project-id>/project.yml.
+.TP
+.BI \-\-to= "sqlite|json"
+Target storage engine format. Default is sqlite.
+.SH UNDER THE HOOD
+The command scans the source directory, invokes the respective StorageDriver classes, transfers all records within an atomic transaction, updates project.yml, and regenerates index caches.

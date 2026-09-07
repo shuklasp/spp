@@ -1,39 +1,35 @@
-.TH SPP-delete-app 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-delete-app 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-delete:app
-.PP
- \- Delete an SPP application context and all its data (files, config, caches, views)
+spp-delete-app \- Delete an SPP application context and all its data (files, config, caches, views)
+.SH SYNOPSIS
+.B php spp.php delete:app
+[OPTIONS]
 .SH DESCRIPTION
 Delete an SPP application context and all its data (files, config, caches, views)
 .PP
-.SH SYNOPSIS
-php spp.php delete:app [OPTIONS]
-.PP
-.SH EXTENDED USAGE
 Usage: php spp.php delete:app <AppName> [--force] [--keep-db] [--dry-run]
-.PP
+.br
+
 .PP
 .SH OPTIONS
-\(bu `--force` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--keep-db` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `--dry-run` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `----force` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `----keep-db` : Boolean flag or option. Extracted via static analysis.
-.br
-\(bu `----dry-run` : Boolean flag or option. Extracted via static analysis.
-.br
-.PP
+.TP
+.B --help
+Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+.TP
+.B --force
+Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+.TP
+.B --keep-db
+Boolean flag. Extracted via static analysis from DeleteAppCommand.php
+.TP
+.B --dry-run
+Boolean flag. Extracted via static analysis from DeleteAppCommand.php
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
+\(bu Instantiates key components: \PDO, \RecursiveIteratorIterator, \RecursiveDirectoryIterator.
 .br
-.PP
-.PP

@@ -131,71 +131,63 @@ try {
         <!-- Navigation Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <span class="logo-text">SPP <span>Admin</span></span>
-                <span class="mode-badge">Dev Mode</span>
+                <span class="logo-text">SPP <span>Dev</span></span>
+                <span class="mode-badge" style="background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff;">Studio</span>
             </div>
-            <div id="app-selector-container" style="margin-bottom: 1rem;"></div>
-            <div class="sidebar-search" style="padding: 0 1rem; margin-bottom: 1rem;">
+            <div id="app-selector-container" style="margin-bottom: 0.5rem;"></div>
+            <div class="sidebar-search" style="padding: 0; margin-bottom: 0.5rem;">
                 <input type="text" id="sidebar-search" class="spp-element" placeholder="Search workbench..."
-                    style="width: 100%; font-size: 0.8rem; padding: 8px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-bright);">
+                    style="width: 100%; font-size: 0.8rem; padding: 6px 10px; border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid var(--glass-border); color: var(--text-bright);">
             </div>
             <nav id="sidebar-nav">
                 <ul>
+                    <!-- 1. DEVELOPER WORKSPACES -->
+                    <div class="sidebar-section-title"
+                        style="font-size: 0.65rem; color: #38bdf8; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
+                        Developer Studio</div>
                     <li><a href="#dashboard" class="nav-item active" data-view="dashboard"
-                            data-keywords="welcome dashboard home" title="Welcome to Developer Heaven">
-                            <span class="icon">👋</span> Welcome Dashboard
+                            data-keywords="welcome dashboard home workbench studio telemetry" title="Developer Studio Hub & Workspace">
+                            <span class="icon">👋</span> Studio Dashboard
                         </a></li>
-
-
-
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 2. ACCESS & SECURITY -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #f59e0b; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Security & Access</div>
-                    <li><a href="#identity" class="nav-item" data-view="identity"
-                            data-keywords="identity access users roles permissions groups security login auth"
-                            title="Manage users, roles, permissions and groups">
-                            <span class="icon">🛡️</span> Identity & Access
+                    <li><a href="#studio" class="nav-item" data-view="studio"
+                            data-keywords="code editor ide files source file browser scaffold apps docs manuals"
+                            title="In-Browser IDE, App Scaffolder & Docs">
+                            <span class="icon">💻</span> Studio & Scaffolder
                         </a></li>
-                    <li><a href="#api_keys" class="nav-item" data-view="api_keys"
-                            data-keywords="api keys tokens authentication rest oauth"
-                            title="Manage API Keys for external services">
-                            <span class="icon">🔑</span> API Keys
+                    <li><a href="#entities" class="nav-item" data-view="entities"
+                            data-keywords="entities models schema migrations tables database orm xdb nosql interdb"
+                            title="Entity Architect, SQL Migrations & NoSQL XDB">
+                            <span class="icon">🏗️</span> Entities & Schemas
                         </a></li>
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 4. ADVANCED ENGINES -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #10b981; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Advanced Engines</div>
+                    <li><a href="#forms" class="nav-item" data-view="forms"
+                            data-keywords="forms form engine designer validation fields spplang i18n mobile responsive"
+                            title="Visual Form Builder, Locales & Mobile Preview">
+                            <span class="icon">📝</span> Forms & Locales
+                        </a></li>
+                    <li><a href="#routing" class="nav-item" data-view="routing"
+                            data-keywords="routing routes url middleware controllers dispatch services polyglot rpc di container"
+                            title="Routing Table, Middleware & Polyglot Services">
+                            <span class="icon">🛤️</span> Routing & Endpoints
+                        </a></li>
                     <li><a href="#reports" class="nav-item" data-view="reports"
-                            data-keywords="report builder bi business intelligence analytics charts graphs"
-                            title="Business Intelligence & Dynamic Reports">
-                            <span class="icon">📊</span> Report Builder
+                            data-keywords="reports analytics visual designer sql olap pivot charts bi business intelligence exports csv excel"
+                            title="Interactive Visual Report Studio, Pivot OLAP & BI">
+                            <span class="icon">📊</span> Reports & Analytics
                         </a></li>
-
-                    <div class="sidebar-divider"
-                        style="height: 1px; background: var(--glass-border); margin: 1rem 0; opacity: 0.5;"></div>
-
-                    <!-- 5. DIAGNOSTICS -->
-                    <div class="sidebar-section-title"
-                        style="font-size: 0.65rem; color: #8b5cf6; text-transform: uppercase; padding: 0 1rem; margin-bottom: 0.5rem; letter-spacing: 0.1em;">
-                        Diagnostics</div>
-                    <li><a href="#system" class="nav-item" data-view="system"
-                            data-keywords="diagnostics system server phpinfo traces logs errors"
-                            title="View Server environment, PHP info, and Framework Traces">
-                            <span class="icon">🖥️</span> Diagnostics
+                    <li><a href="#ai" class="nav-item" data-view="ai"
+                            data-keywords="ai copilot prompt playground assistant generator llm sppai"
+                            title="AI Copilot, Prompt Playground & SPPAI Gateway">
+                            <span class="icon">🤖</span> AI Copilot & Playground
+                        </a></li>
+                    <li><a href="#testing" class="nav-item" data-view="testing"
+                            data-keywords="parikshak testing tests unit automated suite runner trace telemetry audit"
+                            title="Parikshak Automated Test Suite & Event Tracing">
+                            <span class="icon">🧪</span> Testing & Tracing
+                        </a></li>
+                    <li><a href="#commands" class="nav-item" data-view="commands"
+                            data-keywords="cli commands console terminal runner execute spp artisan"
+                            title="Interactive CLI Console & Command Engine">
+                            <span class="icon">⚡</span> CLI Command Center
                         </a></li>
                 </ul>
                 <div id="app-specific-menu-container"></div>

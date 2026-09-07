@@ -1,22 +1,18 @@
-.TH SPP-sys-status 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-sys-status 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-sys:status
-.PP
- \- Displays framework health, environment diagnostics, and polyglot bridge status
+spp-sys-status \- Displays framework health, environment diagnostics, and polyglot bridge status
+.SH SYNOPSIS
+.B php spp.php sys:status
+[OPTIONS]
 .SH DESCRIPTION
 Displays framework health, environment diagnostics, and polyglot bridge status
 .PP
-.SH SYNOPSIS
-php spp.php sys:status [OPTIONS]
-.PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+Static analysis reveals the following runtime behaviors:
+.PP
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: \SPPMod\SPPDB\SPPDB.
+\(bu Instantiates key components: \SPPMod\SPPDB\SPPDB.
 .br
-.PP
-.PP

@@ -1,6 +1,6 @@
 ## `test:module`
 
-**Purpose**: Run PHPUnit tests for an isolated module
+**Description**: Run PHPUnit tests for an isolated module
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php test:module <modulename>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
+### Under the Hood
+Based on static analysis of the command's source code:
 - Executes external system binaries or shell commands.
 

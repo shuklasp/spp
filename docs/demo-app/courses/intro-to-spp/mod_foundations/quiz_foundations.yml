@@ -1,0 +1,48 @@
+title: 'Foundations Knowledge Check'
+description: 'Test your understanding of SPP core principles and CLI guarding.'
+passing_score: 80
+questions:
+  -
+    id: q1
+    type: multiple_choice
+    prompt: 'Which method must high-privilege CLI commands override to block web SAPI execution?'
+    options:
+      -
+        id: a
+        text: 'public function isCLIOnly(): bool { return true; }'
+        correct: true
+      -
+        id: b
+        text: 'public function runCli(): void'
+        correct: false
+      -
+        id: c
+        text: 'protected $cliGuard = 1;'
+        correct: false
+    explanation: 'Overriding isCLIOnly(): bool ensures CommandManager blocks execution whenever PHP_SAPI !== "cli".'
+  -
+    id: q2
+    type: multi_select
+    prompt: 'Which template engines are natively supported by the SPP framework?'
+    options:
+      -
+        id: a
+        text: Blade
+        correct: true
+      -
+        id: b
+        text: Twig
+        correct: true
+      -
+        id: c
+        text: 'Smarty 1.0'
+        correct: false
+    explanation: 'SPP features first-class, high-performance adapters for both Blade and Twig.'
+  -
+    id: q3
+    type: code_check
+    prompt: 'Fill in the blank: What native method on SPPEntity checks if a transition is valid?'
+    code: '$entity->____("submit_for_review");'
+    expected: canTransition
+    hint: 'Native workflow method on SPPEntity'
+    explanation: '$entity->canTransition($transitionName) checks whether the current state permits the requested transition.'

@@ -79,6 +79,21 @@
                     "status": {
                         "type": "varchar(20)"
                     },
+                    "mfa_enabled": {
+                        "type": "int"
+                    },
+                    "two_factor_enabled": {
+                        "type": "int"
+                    },
+                    "two_factor_secret": {
+                        "type": "varchar(255)"
+                    },
+                    "password_updated_at": {
+                        "type": "datetime"
+                    },
+                    "rights_updated_at": {
+                        "type": "datetime"
+                    },
                     "created_at": {
                         "type": "datetime"
                     },
@@ -184,6 +199,14 @@
                     }
                 }
             },
+            "FeatureModel": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
             "NewEntity1": {
                 "type": "object",
                 "properties": {
@@ -217,6 +240,14 @@
                 }
             },
             "TestEntity": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "TestUser": {
                 "type": "object",
                 "properties": {
                     "id": {
@@ -328,82 +359,6 @@
                     }
                 }
             },
-            "Node": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "varchar(255)"
-                    },
-                    "alias": {
-                        "type": "varchar(255)"
-                    },
-                    "bundle": {
-                        "type": "varchar(50)"
-                    },
-                    "body": {
-                        "type": "longtext"
-                    },
-                    "author_id": {
-                        "type": "bigint"
-                    },
-                    "status": {
-                        "type": "varchar(20)"
-                    },
-                    "langcode": {
-                        "type": "varchar(10)"
-                    },
-                    "translation_id": {
-                        "type": "bigint"
-                    },
-                    "created": {
-                        "type": "datetime"
-                    },
-                    "changed": {
-                        "type": "datetime"
-                    },
-                    "fields_data": {
-                        "type": "longtext"
-                    }
-                }
-            },
-            "LekhakNode": {
-                "type": "object",
-                "properties": {
-                    "title": {
-                        "type": "varchar(255)"
-                    },
-                    "alias": {
-                        "type": "varchar(255)"
-                    },
-                    "bundle": {
-                        "type": "varchar(50)"
-                    },
-                    "body": {
-                        "type": "longtext"
-                    },
-                    "author_id": {
-                        "type": "bigint"
-                    },
-                    "status": {
-                        "type": "varchar(20)"
-                    },
-                    "langcode": {
-                        "type": "varchar(10)"
-                    },
-                    "translation_id": {
-                        "type": "bigint"
-                    },
-                    "created": {
-                        "type": "datetime"
-                    },
-                    "changed": {
-                        "type": "datetime"
-                    },
-                    "fields_data": {
-                        "type": "longtext"
-                    }
-                }
-            },
             "Term": {
                 "type": "object",
                 "properties": {
@@ -464,6 +419,22 @@
                     },
                     "description": {
                         "type": "text"
+                    }
+                }
+            },
+            "Item": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "ShowcaseItem": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer"
                     }
                 }
             },

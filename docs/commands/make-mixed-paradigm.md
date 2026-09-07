@@ -1,6 +1,6 @@
 ## `make:mixed-paradigm`
 
-**Purpose**: Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX
+**Description**: Scaffold a Kitchen Sink view blending SPPView, Drishyam, and SPPUX
 
 ### Synopsis
 ```bash
@@ -13,11 +13,11 @@ Usage: php spp.php make:mixed-paradigm <ViewName>
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Performs direct filesystem modifications (create/write/delete).
-- Instantiates internal components: Drishyam.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Performs raw filesystem modifications (create/write/delete).
+- Instantiates key components: Drishyam.
 

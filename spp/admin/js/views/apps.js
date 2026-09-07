@@ -12,12 +12,18 @@ export default class AppsView extends BaseComponent {
         const savedToggles = localStorage.getItem('spp_admin_apps_expanded');
         const expandedArray = savedToggles ? JSON.parse(savedToggles) : [];
 
+        // Detect tab from hash query param if provided (e.g., #apps?tab=lifecycle or legacy #lifecycle)
+        const hash = location.hash;
+        let initialTab = localStorage.getItem('spp_admin_apps_tab') || 'apps';
+        if (hash.includes('tab=lifecycle') || hash.includes('#lifecycle')) initialTab = 'lifecycle';
+        else if (hash.includes('tab=modules') || hash.includes('#modules')) initialTab = 'modules';
+
         this.state = {
             loading: true,
             apps: [],
             modules: [],
             sharedGroups: {},
-            activeTab: localStorage.getItem('spp_admin_apps_tab') || 'apps',
+            activeTab: initialTab,
             expandedPaths: new Set(expandedArray),
             modFilter: localStorage.getItem('spp_admin_mod_filter') || 'all',
             scaffoldOutput: '',
@@ -107,6 +113,8 @@ export default class AppsView extends BaseComponent {
                         @click=${() => this.setTab('apps')}>📱 Applications</button>
                     <button class="sub-tab-btn ${activeTab === 'modules' ? 'active' : ''}" 
                         @click=${() => this.setTab('modules')}>📦 Modules Registry</button>
+                    <button class="sub-tab-btn ${activeTab === 'lifecycle' ? 'active' : ''}" 
+                        @click=${() => this.setTab('lifecycle')}>🔄 Deployments & Lifecycle</button>
                     <button class="sub-tab-btn ${activeTab === 'builder' ? 'active' : ''}" 
                         @click=${() => this.setTab('builder')}>🛠️ App Builder (CLI)</button>
                     <button class="sub-tab-btn ${activeTab === 'groups' ? 'active' : ''}" 
@@ -118,10 +126,40 @@ export default class AppsView extends BaseComponent {
                 <div class="apps-content">
                     ${activeTab === 'apps' ? this.renderAppsTable() : ''}
                     ${activeTab === 'modules' ? this.renderModulesTable() : ''}
+                    ${activeTab === 'lifecycle' ? this.renderLifecycle() : ''}
                     ${activeTab === 'builder' ? this.renderAppBuilder() : ''}
                     ${activeTab === 'groups' ? this.renderGroupsTable() : ''}
                     ${activeTab === 'logs' ? this.renderServerLogs() : ''}
                 </div>
+            </div>
+        `;
+    }
+
+    renderLifecycle() {
+        setTimeout(async () => {
+            const mount = document.getElementById('apps-lifecycle-mount');
+            if (mount) {
+                if (!this.lifecycleInstance) {
+                    try {
+                        const mod = await import('./lifecycle.js');
+                        const LifecycleView = mod.default;
+                        this.lifecycleInstance = new LifecycleView(this.app || this.admin, mount, { app: (this.app || this.admin).selectedApp });
+                        if (this.lifecycleInstance.onInit) await this.lifecycleInstance.onInit();
+                        await this.lifecycleInstance.update();
+                    } catch (err) {
+                        console.error('Failed to load LifecycleView:', err);
+                        mount.innerHTML = `<div class="alert error" style="margin: 1.5rem;">Failed to load Deployments & Lifecycle: ${err.message}</div>`;
+                    }
+                } else {
+                    this.lifecycleInstance.container = mount;
+                    await this.lifecycleInstance.update();
+                }
+            }
+        }, 10);
+
+        return html`
+            <div id="apps-lifecycle-mount" class="fade-in" style="min-height: 500px;">
+                <div class="loading-state" style="padding: 2rem; text-align: center;"><div class="sppux-spinner"></div> Loading Deployment Command Center...</div>
             </div>
         `;
     }

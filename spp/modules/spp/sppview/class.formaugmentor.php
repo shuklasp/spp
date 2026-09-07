@@ -27,13 +27,45 @@ class FormAugmentor extends \SPP\SPPObject
             return $html;
         }
 
+        $appname = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
+        $formDirs = [];
+        if (class_exists('\SPP\App')) {
+            try {
+                $app = \SPP\App::getApp($appname);
+                if ($app) {
+                    $appConfDir = $app->getAppConfDir();
+                    if ($appConfDir) {
+                        $formDirs[] = $appConfDir . SPP_DS . 'forms';
+                    }
+                }
+            } catch (\Throwable $e) {}
+
+            if (defined('SPP_APP_DIR')) {
+                $formDirs[] = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc' . SPP_DS . 'forms';
+            }
+        }
+        if (defined('APP_ETC_DIR')) {
+            $formDirs[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'forms';
+            $formDirs[] = APP_ETC_DIR . SPP_DS . 'forms';
+        }
+        if (defined('SPP_ETC_DIR')) {
+            $formDirs[] = SPP_ETC_DIR . SPP_DS . 'forms';
+        }
+
         if (!extension_loaded('dom')) {
             // Strict regex fallback parsing
             $augmented = $html;
             $modified = false;
             if (preg_match_all('/<form[^>]*id="([^"]+)"[^>]*>/i', $augmented, $matches)) {
                 foreach ($matches[1] as $formId) {
-                    $yamlPath = defined('APP_ETC_DIR') ? APP_ETC_DIR . SPP_DS . 'forms' . SPP_DS . "{$formId}.yml" : null;
+                    $yamlPath = null;
+                    foreach ($formDirs as $fDir) {
+                        $cand = $fDir . SPP_DS . "{$formId}.yml";
+                        if (file_exists($cand)) {
+                            $yamlPath = $cand;
+                            break;
+                        }
+                    }
                     if ($yamlPath && file_exists($yamlPath)) {
                         $augmented = preg_replace(
                             '/<form([^>]*)id="' . preg_quote($formId, '/') . '"([^>]*)>/i',
@@ -64,10 +96,12 @@ class FormAugmentor extends \SPP\SPPObject
                 $yamlPath = null;
                 $candidatePaths = [];
 
-                if ($formId) {
-                    $candidatePaths[] = APP_ETC_DIR . SPP_DS . 'forms' . SPP_DS . "{$formId}.yml";
+                foreach ($formDirs as $fDir) {
+                    if ($formId) {
+                        $candidatePaths[] = $fDir . SPP_DS . "{$formId}.yml";
+                    }
+                    $candidatePaths[] = $fDir . SPP_DS . "{$ctxPage}.yml";
                 }
-                $candidatePaths[] = APP_ETC_DIR . SPP_DS . 'forms' . SPP_DS . "{$ctxPage}.yml";
 
                 foreach ($candidatePaths as $path) {
                     if (file_exists($path)) {

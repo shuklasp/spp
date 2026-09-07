@@ -34,10 +34,33 @@ class SPPWorkflowManager
         self::$workflows = [];
 
         // 2. Load from YAML files and recursive workflows directories
-        // Check in APP_ETC_DIR and SPP_ETC_DIR
+        // Check in self-contained app conf dir, APP_ETC_DIR and SPP_ETC_DIR
         $files = [];
         $dirs = [];
         $appname = class_exists('\SPP\Scheduler') ? \SPP\Scheduler::getContext() : 'default';
+
+        if (class_exists('\SPP\App')) {
+            try {
+                $app = \SPP\App::getApp($appname);
+                if ($app) {
+                    $appConfDir = $app->getAppConfDir();
+                    if ($appConfDir && is_dir($appConfDir)) {
+                        $files[] = $appConfDir . SPP_DS . 'workflows.yml';
+                        $dirs[] = $appConfDir . SPP_DS . 'workflows';
+                    }
+                }
+            } catch (\Throwable $e) {
+                // Ignore if app instance cannot be instantiated
+            }
+
+            if (defined('SPP_APP_DIR')) {
+                $srcEtcDir = SPP_APP_DIR . SPP_DS . 'src' . SPP_DS . $appname . SPP_DS . 'etc';
+                if (is_dir($srcEtcDir)) {
+                    $files[] = $srcEtcDir . SPP_DS . 'workflows.yml';
+                    $dirs[] = $srcEtcDir . SPP_DS . 'workflows';
+                }
+            }
+        }
 
         if (defined('APP_ETC_DIR')) {
             $files[] = APP_ETC_DIR . SPP_DS . $appname . SPP_DS . 'workflows.yml';

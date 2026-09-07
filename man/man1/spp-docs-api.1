@@ -1,24 +1,20 @@
-.TH SPP-docs-api 1 "19 July 2026" "SPP Framework" "SPP CLI Manual"
+.TH SPP-docs-api 1 "04 September 2026" "SPP Framework" "SPP CLI Manual"
 .SH NAME
-docs:api
-.PP
- \- Documentation utilities (build, api, openapi, man, phpdoc).
+spp-docs-api \- Documentation utilities (build, api, openapi, man, phpdoc).
+.SH SYNOPSIS
+.B php spp.php docs:api
+[OPTIONS]
 .SH DESCRIPTION
 Documentation utilities (build, api, openapi, man, phpdoc).
 .PP
-.SH SYNOPSIS
-php spp.php docs:api [OPTIONS]
-.PP
 .SH OPTIONS
-No static options detected for this command.
-.PP
+No explicit options statically detected.
 .SH UNDER THE HOOD
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-\(bu Performs direct filesystem modifications (create/write/delete).
+Static analysis reveals the following runtime behaviors:
+.PP
+\(bu Performs raw filesystem modifications (create/write/delete).
 .br
 \(bu Executes external system binaries or shell commands.
 .br
-\(bu Instantiates internal components: \SPPMod\SPPDoc\SPPDocGenerator.
+\(bu Instantiates key components: \SPPMod\SPPDoc\SPPDocGenerator.
 .br
-.PP
-.PP

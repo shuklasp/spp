@@ -1,6 +1,6 @@
 ## `make:middleware`
 
-**Purpose**: Create a new middleware class
+**Description**: Create a new middleware class
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php make:middleware <name> [--app=appname]
 
 ```
 
-### Options Available
-No static options detected for this command.
+### Options
+No static options detected.
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Instantiates internal components: middleware.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Instantiates key components: middleware.
 

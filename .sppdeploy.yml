@@ -1,0 +1,8 @@
+protected:
+  - 'spp/etc/db-config.yml'
+  - 'spp/etc/secrets.yml'
+  - 'var/logs/*'
+pre_deploy:
+  - 'echo "Running pre_deploy hook"'
+post_deploy:
+  - 'echo "Running post_deploy hook"'

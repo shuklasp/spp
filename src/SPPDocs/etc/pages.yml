@@ -1,0 +1,338 @@
+defaults:
+  home: home
+  pagedir: /src/SPPDocs
+specials:
+  -
+    name: resources
+    method: serveResource
+pages:
+  app:
+    url: index.php
+    special: 1
+  home:
+    controller: \App\SPPDocs\Controllers\DocsController@index
+  about:
+    controller: \App\SPPDocs\Serv\HomeController@about
+  guide:
+    url: pages/guide.php
+  dashboard:
+    controller: \App\SPPDocs\Serv\DashboardController@index
+  login:
+    controller: \App\SPPDocs\Serv\AuthController@loginForm
+  register:
+    controller: \App\SPPDocs\Serv\AuthController@registerForm
+  auth/login:
+    controller: \App\SPPDocs\Serv\AuthController@login
+  auth/register:
+    controller: \App\SPPDocs\Serv\AuthController@register
+  auth/logout:
+    controller: \App\SPPDocs\Serv\AuthController@logout
+  api/v1/items:
+    controller: \App\SPPDocs\Serv\ApiController@index
+  'api/v1/items/{id}':
+    controller: \App\SPPDocs\Serv\ApiController@show
+  contact:
+    url: pages/contact.php
+  error/404:
+    url: pages/errors/404.php
+  error/500:
+    url: pages/errors/500.php
+  assets:
+    assets: assets
+  theme-assets:
+    assets: resources/themes
+  comp-assets:
+    assets: comp
+  css:
+    assets: resources/css
+  forums:
+    controller: \App\SPPDocs\Controllers\ForumController@index
+  forums/forum:
+    controller: \App\SPPDocs\Controllers\ForumController@listThreads
+  forums/thread:
+    controller: \App\SPPDocs\Controllers\ForumController@viewThread
+  forums/post:
+    controller: \App\SPPDocs\Controllers\ForumController@createThread
+  forums/reply:
+    controller: \App\SPPDocs\Controllers\ForumController@postReply
+  forums/solution:
+    controller: \App\SPPDocs\Controllers\ForumController@markSolution
+  forums/react:
+    controller: \App\SPPDocs\Controllers\ForumController@reactReply
+  issues:
+    controller: \App\SPPDocs\Controllers\IssueController@index
+  issues/view:
+    controller: \App\SPPDocs\Controllers\IssueController@viewIssue
+  issues/create:
+    controller: \App\SPPDocs\Controllers\IssueController@create
+  issues/comment:
+    controller: \App\SPPDocs\Controllers\IssueController@postComment
+  issues/update:
+    controller: \App\SPPDocs\Controllers\IssueController@update
+  issues/teams:
+    controller: \App\SPPDocs\Controllers\IssueController@teamsIndex
+  issues/teams/save:
+    controller: \App\SPPDocs\Controllers\IssueController@saveTeam
+  issues/teams/delete:
+    controller: \App\SPPDocs\Controllers\IssueController@deleteTeam
+  issues/board:
+    controller: \App\SPPDocs\Controllers\IssueController@board
+  issues/move:
+    controller: \App\SPPDocs\Controllers\IssueController@moveCard
+  issues/events:
+    controller: \App\SPPDocs\Controllers\EventStreamController@streamEvents
+  issues/poll:
+    controller: \App\SPPDocs\Controllers\EventStreamController@poll
+  issues/calendar:
+    controller: \App\SPPDocs\Controllers\IssueController@calendar
+  issues/log-time:
+    controller: \App\SPPDocs\Controllers\IssueController@logTime
+  milestones:
+    controller: \App\SPPDocs\Controllers\MilestoneController@index
+  milestones/view:
+    controller: \App\SPPDocs\Controllers\MilestoneController@view
+  milestones/save:
+    controller: \App\SPPDocs\Controllers\MilestoneController@save
+  milestones/delete:
+    controller: \App\SPPDocs\Controllers\MilestoneController@delete
+  pm/dashboard:
+    controller: \App\SPPDocs\Controllers\DashboardPMController@index
+  pm/roadmap:
+    controller: \App\SPPDocs\Controllers\DashboardPMController@roadmap
+  activity:
+    controller: \App\SPPDocs\Controllers\DashboardPMController@activityFeed
+  notifications:
+    controller: \App\SPPDocs\Controllers\NotificationController@index
+  notifications/read:
+    controller: \App\SPPDocs\Controllers\NotificationController@markRead
+  notifications/read-all:
+    controller: \App\SPPDocs\Controllers\NotificationController@markAllRead
+  uploads/store:
+    controller: \App\SPPDocs\Controllers\UploadController@store
+  uploads/serve:
+    controller: \App\SPPDocs\Controllers\UploadController@serve
+  admin:
+    controller: \App\SPPDocs\Controllers\AdminController@dashboard
+  admin/login:
+    controller: \App\SPPDocs\Controllers\AdminController@showLogin
+  admin/logout:
+    controller: \App\SPPDocs\Controllers\AdminController@logout
+  admin/global-settings:
+    controller: \App\SPPDocs\Controllers\AdminController@globalSettings
+  admin/global-settings/save:
+    controller: \App\SPPDocs\Controllers\AdminController@saveGlobalSettings
+  admin/users:
+    controller: \App\SPPDocs\Controllers\AdminController@usersIndex
+  admin/users/create:
+    controller: \App\SPPDocs\Controllers\AdminController@createUser
+  admin/users/toggle-global-admin:
+    controller: \App\SPPDocs\Controllers\AdminController@toggleGlobalAdmin
+  admin/users/assign-roles:
+    controller: \App\SPPDocs\Controllers\AdminController@assignUserRoles
+  admin/project/create:
+    controller: \App\SPPDocs\Controllers\AdminController@createProject
+  admin/project/settings:
+    controller: \App\SPPDocs\Controllers\AdminController@saveSettings
+  admin/project/save-features:
+    controller: \App\SPPDocs\Controllers\AdminController@saveFeatures
+  admin/project/save-storage:
+    controller: \App\SPPDocs\Controllers\AdminController@saveStorage
+  admin/project/save-links:
+    controller: \App\SPPDocs\Controllers\AdminController@saveLinks
+  admin/project/save-releases:
+    controller: \App\SPPDocs\Controllers\AdminController@saveReleases
+  admin/project/save-team:
+    controller: \App\SPPDocs\Controllers\AdminController@saveTeam
+  admin/project/delete:
+    controller: \App\SPPDocs\Controllers\AdminController@deleteProject
+  'admin/project/{id}':
+    controller: \App\SPPDocs\Controllers\AdminController@manageProject
+  admin/media:
+    controller: \App\SPPDocs\Controllers\AdminController@mediaLibrary
+  admin/media/serve:
+    controller: \App\SPPDocs\Controllers\AdminController@serveMedia
+  admin/media/upload:
+    controller: \App\SPPDocs\Controllers\AdminController@uploadMedia
+  admin/media/delete:
+    controller: \App\SPPDocs\Controllers\AdminController@deleteMedia
+  admin/media/grid:
+    controller: \App\SPPDocs\Controllers\AdminController@mediaGrid
+  admin/roles:
+    controller: \App\SPPDocs\Controllers\AdminPMController@rolesIndex
+  admin/roles/save:
+    controller: \App\SPPDocs\Controllers\AdminPMController@saveRole
+  admin/roles/delete:
+    controller: \App\SPPDocs\Controllers\AdminPMController@deleteRole
+  admin/roles/assign-member:
+    controller: \App\SPPDocs\Controllers\AdminPMController@assignRoleMember
+  admin/automations:
+    controller: \App\SPPDocs\Controllers\AdminPMController@automationsIndex
+  admin/automations/save:
+    controller: \App\SPPDocs\Controllers\AdminPMController@saveAutomation
+  admin/automations/delete:
+    controller: \App\SPPDocs\Controllers\AdminPMController@deleteAutomation
+  admin/webhooks:
+    controller: \App\SPPDocs\Controllers\AdminPMController@webhooksIndex
+  admin/webhooks/save:
+    controller: \App\SPPDocs\Controllers\AdminPMController@saveWebhook
+  admin/webhooks/delete:
+    controller: \App\SPPDocs\Controllers\AdminPMController@deleteWebhook
+  api/pm-issues:
+    controller: \App\SPPDocs\Controllers\IssueApiController@listIssues
+  api/pm-issues-show:
+    controller: \App\SPPDocs\Controllers\IssueApiController@getIssue
+  api/pm-issues-create:
+    controller: \App\SPPDocs\Controllers\IssueApiController@createIssue
+  api/pm-milestones:
+    controller: \App\SPPDocs\Controllers\IssueApiController@listMilestones
+  api/pm-teams:
+    controller: \App\SPPDocs\Controllers\IssueApiController@listTeams
+  api/git-webhook:
+    controller: \App\SPPDocs\Controllers\IssueApiController@gitWebhook
+  api/search/ask:
+    controller: \App\SPPDocs\Controllers\SearchApiController@ask
+  api/search/instant:
+    controller: \App\SPPDocs\Controllers\SearchApiController@instant
+  api/collab/heartbeat:
+    controller: \App\SPPDocs\Controllers\CollabApiController@heartbeat
+  api/collab/diff-merge:
+    controller: \App\SPPDocs\Controllers\CollabApiController@diffMerge
+  api/collab/leave:
+    controller: \App\SPPDocs\Controllers\CollabApiController@leave
+  project:
+    controller: \App\SPPDocs\Controllers\DocsController@projectHome
+  project/{projectId}:
+    controller: \App\SPPDocs\Controllers\DocsController@projectHome
+  project/{projectId}/{pageName}:
+    controller: \App\SPPDocs\Controllers\DocsController@projectHome
+  preview:
+    controller: \App\SPPDocs\Controllers\DocsController@previewDraft
+  sitemap.xml:
+    controller: \App\SPPDocs\Controllers\SeoController@sitemapXml
+  robots.txt:
+    controller: \App\SPPDocs\Controllers\SeoController@robotsTxt
+  og/card:
+    controller: \App\SPPDocs\Controllers\SeoController@ogCard
+  admin/snippets:
+    controller: \App\SPPDocs\Controllers\AdminController@snippetsIndex
+  admin/snippets/save:
+    controller: \App\SPPDocs\Controllers\AdminController@saveSnippet
+  admin/snippets/delete:
+    controller: \App\SPPDocs\Controllers\AdminController@deleteSnippet
+  admin/analytics:
+    controller: \App\SPPDocs\Controllers\AdminController@analyticsDashboard
+  api/feedback/submit:
+    controller: \App\SPPDocs\Controllers\FeedbackController@submit
+  api/v1/content:
+    controller: \App\SPPDocs\Controllers\ContentApiController@list
+  api/v1/content/show:
+    controller: \App\SPPDocs\Controllers\ContentApiController@show
+  admin/schemas:
+    controller: \App\SPPDocs\Controllers\AdminController@schemasIndex
+  admin/schemas/save:
+    controller: \App\SPPDocs\Controllers\AdminController@saveSchema
+  admin/schemas/delete:
+    controller: \App\SPPDocs\Controllers\AdminController@deleteSchema
+  api/collab/stream:
+    controller: \App\SPPDocs\Controllers\CollabApiController@stream
+  api/collab/lock-section:
+    controller: \App\SPPDocs\Controllers\CollabApiController@lockSection
+  api/collab/unlock-section:
+    controller: \App\SPPDocs\Controllers\CollabApiController@unlockSection
+  admin/openapi:
+    controller: \App\SPPDocs\Controllers\OpenApiController@adminIndex
+  admin/openapi/import:
+    controller: \App\SPPDocs\Controllers\OpenApiController@importSpec
+  admin/openapi/delete:
+    controller: \App\SPPDocs\Controllers\OpenApiController@deleteSpec
+  api/openapi/proxy:
+    controller: \App\SPPDocs\Controllers\OpenApiController@proxy
+  admin/i18n:
+    controller: \App\SPPDocs\Controllers\AdminController@i18nIndex
+  admin/i18n/pair:
+    controller: \App\SPPDocs\Controllers\AdminController@i18nPair
+  admin/i18n/save:
+    controller: \App\SPPDocs\Controllers\AdminController@i18nSave
+  export/book:
+    controller: \App\SPPDocs\Controllers\ExportController@book
+  export/markdown:
+    controller: \App\SPPDocs\Controllers\ExportController@markdown
+  admin/views:
+    controller: \App\SPPDocs\Controllers\ViewController@adminIndex
+  admin/views/save:
+    controller: \App\SPPDocs\Controllers\ViewController@save
+  admin/views/delete:
+    controller: \App\SPPDocs\Controllers\ViewController@delete
+  admin/views/preview:
+    controller: \App\SPPDocs\Controllers\ViewController@preview
+  'project/{projectId}/views/{viewId}':
+    controller: \App\SPPDocs\Controllers\ViewController@show
+  'api/v1/views/{viewId}':
+    controller: \App\SPPDocs\Controllers\ViewController@apiShow
+  admin/taxonomy:
+    controller: \App\SPPDocs\Controllers\TaxonomyController@adminIndex
+  admin/taxonomy/save:
+    controller: \App\SPPDocs\Controllers\TaxonomyController@saveTerm
+  admin/taxonomy/delete:
+    controller: \App\SPPDocs\Controllers\TaxonomyController@deleteTerm
+  'project/{projectId}/taxonomy/{vocab}/{slug}':
+    controller: \App\SPPDocs\Controllers\TaxonomyController@archive
+  media/style:
+    controller: \App\SPPDocs\Controllers\MediaStyleController@serve
+  admin/modules:
+    controller: \App\SPPDocs\Controllers\ModuleController@adminIndex
+  admin/modules/toggle:
+    controller: \App\SPPDocs\Controllers\ModuleController@toggle
+  admin/blocks:
+    controller: \App\SPPDocs\Controllers\BlockController@adminIndex
+  admin/blocks/save:
+    controller: \App\SPPDocs\Controllers\BlockController@saveBlock
+  admin/blocks/delete:
+    controller: \App\SPPDocs\Controllers\BlockController@deleteBlock
+  admin/blocks/reorder:
+    controller: \App\SPPDocs\Controllers\BlockController@reorderBlocks
+  admin/project/preset/save:
+    controller: \App\SPPDocs\Controllers\AdminController@savePreset
+  admin/project/preset/delete:
+    controller: \App\SPPDocs\Controllers\AdminController@deletePreset
+  lms:
+    controller: \App\SPPDocs\Controllers\LmsController@catalog
+  courses:
+    controller: \App\SPPDocs\Controllers\LmsController@catalog
+  lms/course:
+    controller: \App\SPPDocs\Controllers\LmsController@course
+  lms/lesson:
+    controller: \App\SPPDocs\Controllers\LmsController@lesson
+  lms/lesson/toggle:
+    controller: \App\SPPDocs\Controllers\LmsController@toggleLesson
+  lms/quiz/submit:
+    controller: \App\SPPDocs\Controllers\LmsController@submitQuiz
+  lms/dashboard:
+    controller: \App\SPPDocs\Controllers\LmsController@dashboard
+  lms/my-learning:
+    controller: \App\SPPDocs\Controllers\LmsController@dashboard
+  lms/certificate:
+    controller: \App\SPPDocs\Controllers\LmsController@certificate
+  lms/verify:
+    controller: \App\SPPDocs\Controllers\LmsController@verifyCertificate
+  admin/lms:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@index
+  admin/lms/course/edit:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@editCourse
+  admin/lms/course/save:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@saveCourse
+  admin/lms/course/delete:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@deleteCourse
+  admin/lms/analytics:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@analytics
+  admin/lms/scaffold:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@scaffoldSample
+  admin/lms/lesson/edit:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@editLesson
+  admin/lms/lesson/save:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@saveLesson
+  admin/lms/lesson/delete:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@deleteLesson
+  admin/lms/export:
+    controller: \App\SPPDocs\Controllers\AdminLmsController@exportGradebook
+

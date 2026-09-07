@@ -1,0 +1,21 @@
+{
+    "username": "admin",
+    "course_id": "intro-to-spp",
+    "state": "enrolled",
+    "enrolled_at": 1788671866,
+    "last_accessed_at": 1788671866,
+    "completed_lessons": [],
+    "quiz_attempts": {
+        "quiz_foundations": {
+            "score": 67,
+            "passed": false,
+            "attempted_at": 1788671866,
+            "attempts_count": 1
+        }
+    },
+    "certificate_id": null,
+    "completed_count": 0,
+    "total_items": 5,
+    "percentage": 0,
+    "is_completed": false
+}

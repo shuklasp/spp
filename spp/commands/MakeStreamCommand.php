@@ -19,23 +19,15 @@ class MakeStreamCommand extends BaseMakeCommand
 
     public function execute(array $args): void
     {
-        $name = null;
+        $name = $this->getArgument($args, 0) ?? $this->getOption($args, 'name');
         
-        foreach ($args as $i => $arg) {
-            if (strpos(strtolower($arg), '--name=') === 0) {
-                $name = substr($arg, 7);
-            } elseif ($i === 0 && strpos($arg, '--') !== 0) {
-                $name = $arg;
-            }
-        }
-
-        if (!$name) {
+        if (empty($name)) {
             echo "Usage: php spp.php make:stream <StreamName.html|.php|.blade.php> [--app=AppName]\n";
             return;
         }
 
         $context = $this->getContext($args);
-        $targetDir = SPP_APP_DIR . '/resources/views/partials';
+        $targetDir = ($context === 'default') ? SPP_APP_DIR . '/resources/streams' : SPP_APP_DIR . "/src/{$context}/resources/views/streams";
         
         $fileName = $name;
         if (!preg_match('/\.(php|html|blade\.php)$/i', $fileName)) {

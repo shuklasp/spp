@@ -1,16 +1,22 @@
 ## `clear:aicache`
 
-**Purpose**: Clears the WebOS AI Decision cache.
+**Description**: Clears the WebOS AI Decision cache.
 
 ### Synopsis
 ```bash
 php spp.php clear:aicache [OPTIONS]
 ```
 
-### Options Available
-No static options detected for this command.
+### Extended Usage
+```text
+Usage: php spp.php clear:aicache
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Executes native PHP logic without major side-effects.
+```
+
+### Options
+- `--help` : Boolean flag. Extracted via static analysis from ClearAiCacheCommand.php
+
+### Under the Hood
+Based on static analysis of the command's source code:
+- Executes native PHP logic without major side-effects or external dependencies.
 

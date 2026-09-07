@@ -91,10 +91,6 @@ class PDOAdapter implements DBAdapter
         return $this->runWithReconnect(function () use ($sql, $params) {
             $pdo = $this->getReadPDO();
             try {
-                if (empty($params)) {
-                    $stmt = $pdo->query($sql);
-                    return $stmt ? $stmt->fetchAll(\PDO::FETCH_ASSOC) : [];
-                }
                 $stmt = $pdo->prepare($sql);
                 $stmt->execute($params);
                 return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -124,9 +120,6 @@ class PDOAdapter implements DBAdapter
     {
         return $this->runWithReconnect(function () use ($sql, $params) {
             $this->hasWritten = true;
-            if (empty($params)) {
-                return $this->pdo->exec($sql);
-            }
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute($params);
             return $stmt->rowCount();

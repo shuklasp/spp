@@ -1,6 +1,6 @@
 ## `env:get`
 
-**Purpose**: Get a specific configuration variable
+**Description**: Get a specific configuration variable
 
 ### Synopsis
 ```bash
@@ -13,10 +13,10 @@ Usage: php spp.php env:get <key> [--app=appname]
 
 ```
 
-### Options Available
-- `--app=` : Expects a value. Extracted via static analysis.
+### Options
+- `--app=` : Expects a value. Extracted via static analysis from EnvGetCommand.php
 
-### Under the Hood Activity
-Based on static analysis of the command's source code, invoking this command performs the following operations:
-- Bootstraps a full application execution context via Scheduler.
+### Under the Hood
+Based on static analysis of the command's source code:
+- Bootstraps a full application execution context (Scheduler::withContext).
 
