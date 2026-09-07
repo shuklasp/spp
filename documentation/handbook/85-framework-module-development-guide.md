@@ -20,7 +20,7 @@ flowchart TD
     I --> F
 ```
 
-**Evidence:** the framework contains `spp/core/class.module.php`, `spp/core/class.modulecompiler.php`, and `spp/core/class.moduleinstaller.php`. The existing module-development chapter identifies YAML/XML registries, manifests, dependency resolution, and application-specific compiled module caches as part of this architecture. fileciteturn621file0L1-L2
+**Source landmarks:** `spp/core/class.module.php`, `spp/core/class.modulecompiler.php`, `spp/core/class.moduleinstaller.php`, module registries, and the existing module-development guide.
 
 ## 85.2 Framework module versus application module
 
@@ -82,7 +82,7 @@ flowchart LR
     Feature --> Core
 ```
 
-The current module architecture resolves dependencies before producing the compiled registry and detects missing/circular dependencies. fileciteturn621file0L1-L2
+The module compiler resolves dependencies before producing the compiled registry and detects missing/circular dependencies.
 
 Rules for module authors:
 
@@ -112,7 +112,7 @@ Not every module needs every category.
 
 ## 85.7 Installation is not loading
 
-SPP distinguishes installation from runtime loading. The repository contains `ModuleInstaller`, and application-facing services/commands invoke it for installation operations. fileciteturn618file0L2-L9 fileciteturn618file7L116-L124
+SPP distinguishes installation from runtime loading. `ModuleInstaller` is used by application-facing module-management services and commands for installation operations.
 
 Think in separate stages:
 
@@ -124,7 +124,7 @@ Do not put irreversible application behavior into discovery merely because it is
 
 ## 85.8 Installation and uninstall hooks
 
-Repository module examples contain `install.php` and `uninstall.php`. The examples show installation code obtaining the database through `ModuleInstaller::getDb()` and optionally creating data/storage/integration state; uninstall examples explicitly treat data deletion as an application decision rather than automatically assuming it is safe. fileciteturn618file6L105-L113 fileciteturn618file8L132-L139
+Repository module examples contain `install.php` and `uninstall.php`. Installation examples obtain a database through `ModuleInstaller::getDb()` and can perform setup such as initial rows, directories, or integration state. Uninstall examples treat database-table removal as an explicit decision rather than an automatic assumption.
 
 A responsible module should make destructive behavior explicit and document retention semantics.
 
@@ -167,7 +167,7 @@ If an application needs to know how the module cache is internally assembled, th
 
 ## 85.11 Testing a framework module
 
-Use Parikshak as the primary SPP testing engine where the module behavior is testable through SPP/application boundaries.
+Use **Parikshak**, the primary SPP testing engine, where the module behavior is testable through SPP/application boundaries.
 
 Minimum matrix:
 
@@ -182,7 +182,7 @@ Minimum matrix:
 | Failure | Invalid input fails at the intended boundary |
 | Uninstall | Cleanup semantics are understood |
 
-The repository contains `TestCase`, `SPPTestCase`, `SPPTestRunner`, and related Parikshak infrastructure. fileciteturn607file1L15-L34
+The Parikshak subsystem includes `TestCase`, `SPPTestCase`, `SPPTestRunner`, and related test infrastructure.
 
 ## 85.12 Deliberate failure lab
 
@@ -224,7 +224,7 @@ compiled module cache
 application runtime
 ```
 
-The existing implementation uses an application-specific compiled module cache and normalizes dependency metadata before runtime loading. fileciteturn621file0L1-L2
+The compiler's application-specific cache and dependency normalization are central to this path.
 
 ## 85.14 Framework module quality checklist
 
