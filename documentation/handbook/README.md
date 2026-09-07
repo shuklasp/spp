@@ -50,7 +50,10 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 ### Foundations
 
 - [00 — Research status and learning order](00-handbook-status.md)
+- [01 — Getting Started](01-getting-started.md)
 - [50 — Frameworks 101](50-frameworks-101-and-how-spp-builds-on-them.md)
+- [51 — Framework Concept to SPP Feature Map](51-framework-concept-to-spp-feature-map.md)
+- [52 — 30-Minute Quick Start](52-30-minute-quick-start.md)
 - [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [71 — What Makes SPP Different?](71-what-makes-spp-different.md)
 
