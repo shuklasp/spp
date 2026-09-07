@@ -27,6 +27,12 @@ When to use / not use
 Framework comparison
 ```
 
+## September 2026 source baseline
+
+A repository-wide rescan was performed against the current SPP repository state on **2026-09-07**. The latest source commit inspected is `9315a847fb6b79c00879b9c4abca712bbc6a92ed` (`Sanitised SPP`). The preceding repository update `9b793303d72751842fa37ddb9df428e615b73222` records creation of `sppdocs`.
+
+The handbook must therefore be maintained against the September source state rather than treating the August 21 snapshot as permanently authoritative. See [72 — Current Source Rescan — 2026-09-07](72-current-source-rescan-2026-09-07.md).
+
 ## Evidence levels
 
 Every substantive claim follows this evidence hierarchy:
@@ -103,18 +109,31 @@ A diagram must be useful, source-accurate, simple enough to understand, and vali
 - `22-total-nerd-tutorial.md` — The same application evolved from plain PHP to SPP, LiveComponent, and SPPUX.
 - `23-coming-from-other-frameworks.md` — Conceptual migration guides for Laravel, Symfony, Django, Spring, ASP.NET, React, Vue, and Flutter readers.
 
+### September 2026 source-rescan additions
+
+- `72-current-source-rescan-2026-09-07.md` — Current module inventory and curriculum impact from the latest repository state.
+
+The rescan specifically requires deeper treatment of SPPAPI, SPPAuth, SPPCache, SPPCrypto, SPPDBPool, SPPEnv, SPPIntegrations, SPPLang, SPPLive, SPPLogger, SPPMaker, SPPMedia, SPPDocs, and SPPXDB.
+
 ## What remains for future deep-dive reference work
 
-The current handbook is the complete learning path. Further additions should deepen existing chapters rather than create unsupported parallel architecture. Candidates for deeper reference appendices include:
+The learning path is intentionally expanded whenever a source-backed subsystem represents a distinct developer responsibility. Future additions should deepen existing chapters rather than create unsupported parallel architecture.
 
-- complete ViewTag grammar and parser internals;
-- concrete SPP Live engine source-level references;
-- full SPPUX reconciliation and reactive implementation analysis;
-- complete CLI command catalog with per-command options;
-- detailed language-specific bridge references;
-- workflow/audit internals;
-- testing patterns for each major subsystem; and
-- detailed deployment runbooks for concrete environments.
+Priority deep dives after the September rescan are:
+
+- SPPAPI controllers, dispatchers, OpenAPI, subscribers, resources, responses, pagination, model binding, live actions and AJAX;
+- SPPAuth identity, guards, policies, field policies, RBAC, MFA, magic links, OAuth, SCIM, rate limiting and audit logging;
+- SPPCache lifecycle and operations;
+- SPPCrypto Vault and key-management architecture;
+- SPPDBPool and its relationship to SPPDB;
+- SPPEnv and environment/runtime configuration;
+- SPPIntegrations and integration boundaries;
+- SPPLang and localization;
+- SPPLogger and diagnostics;
+- SPPMaker and framework meta-programming;
+- SPPMedia and media/file workflows;
+- SPPDocs as framework documentation-generation tooling;
+- deeper SPPXDB source tracing including Raft-related, ACL, locking, observers, validation, query, and controller surfaces.
 
 These should only be added when their implementation has been traced sufficiently to support normative documentation.
 
@@ -136,10 +155,12 @@ The handbook does not present the following as universal implemented SPP behavio
 The primary repository roots are:
 
 - `spp/core/` — kernel/runtime infrastructure.
-- `spp/modules/spp/` — first-party modules, including SPPView, SPP Live, Drishyam, SPPUX, database, authentication, API, workflow, cache, and related subsystems.
+- `spp/modules/spp/` — first-party modules and platform subsystems.
 - `spp/modules/contrib/` — contributed modules and external integrations.
 - `spp/tests/` and module tests — executable evidence.
-- `spp/docs/` and `documentation/` — supporting project documentation and tutorials.
+- `spp/docs/` and `documentation/` — supporting project documentation, generated references, and tutorials.
+
+The September source tree explicitly contains first-party directories for API, authentication, cache, crypto, database, database pooling, environment configuration, integrations, language support, live runtime, logging, maker/scaffolding, and media, in addition to the previously documented presentation and reactive modules.
 
 ## Editorial rule
 
