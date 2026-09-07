@@ -13,7 +13,7 @@ A major SPP subsystem is **complete in the handbook** only when the following ar
 | SPP mapping | Exact SPP mechanism identified |
 | Hands-on build | Learner uses the capability |
 | CLI/scaffold | Shown when the repository exposes one |
-| Parikshak | Test exercise or explicit reason it does not apply |
+| Parikshak | Test exercise using the primary SPP testing engine, or explicit reason it does not apply |
 | Failure lab | Controlled failure and diagnosis |
 | Source map | Relevant implementation/tests/configuration landmarks |
 | Architecture | Appropriate Mermaid diagram, if useful |
@@ -25,7 +25,7 @@ A major SPP subsystem is **complete in the handbook** only when the following ar
 
 A feature is not considered complete because it has a chapter title or a source-code description.
 
-## 60.2 Order of execution
+## 60.2 Current execution order
 
 ### Phase A — Beginner foundation
 
@@ -33,8 +33,8 @@ A feature is not considered complete because it has a chapter title or a source-
 2. Framework Concept → SPP Feature Map
 3. 30-minute quick start
 4. Plain PHP → MVC → SPP Task Desk
-5. request lifecycle
-6. application contexts and Scheduler
+5. Request lifecycle
+6. Application contexts and Scheduler
 
 ### Phase B — Framework mechanics
 
@@ -42,7 +42,7 @@ A feature is not considered complete because it has a chapter title or a source-
 8. Events/SPPEvent
 9. Registry/DI
 10. Configuration/Settings
-11. Routing paradigms
+11. Routing paradigms and `pages.yml`
 12. Modules/scaffolding
 13. SPPView/BladeOne/Drishyam
 14. Forms/validation
@@ -56,7 +56,7 @@ A feature is not considered complete because it has a chapter title or a source-
 19. auth/identity/RBAC
 20. web security
 21. cache/logging/audit
-22. Parikshak
+22. **Parikshak — primary SPP testing engine**
 
 ### Phase D — Application capabilities
 
@@ -99,7 +99,7 @@ The Task Desk should progressively acquire:
 - forms;
 - entities and persistent storage;
 - authentication/RBAC/security;
-- tests;
+- **Parikshak tests at every applicable milestone**;
 - API;
 - workflow and approvals;
 - jobs and schedules;
@@ -112,7 +112,25 @@ The Task Desk should progressively acquire:
 - integration with at least one external service;
 - a multi-application enterprise topology.
 
-## 60.4 Repository QA pass
+## 60.4 Routing requirement
+
+Routing must be taught as a family of mechanisms rather than as one file format.
+
+The handbook must cover, where supported by the current repository:
+
+- application-context selection;
+- central page configuration such as `pages.yml`;
+- attribute routing through `#[Route]`/`AttributeRouter`;
+- route caching/compiled route maps;
+- CLI/scaffold generation;
+- API-specific routing/exposure;
+- middleware and authorization boundaries;
+- Parikshak route tests;
+- route debugging and collision/precedence analysis.
+
+A route generator is not the router itself: scaffolding produces artifacts that the runtime later discovers or loads.
+
+## 60.5 Repository QA pass
 
 Before a handbook release, audit the repository for:
 
@@ -129,9 +147,11 @@ Before a handbook release, audit the repository for:
 - modules that appear in the feature inventory but nowhere in the curriculum;
 - scaffolds/generators omitted from the relevant tutorial;
 - security-sensitive examples lacking validation/authentication context;
-- claims about distributed or enterprise behavior that lack implementation/test evidence.
+- claims about distributed or enterprise behavior that lack implementation/test evidence;
+- routing examples that omit application context or cache/discovery considerations;
+- tests that use a generic framework path when an SPP-native Parikshak test is the appropriate teaching path.
 
-## 60.5 Evidence rules
+## 60.6 Evidence rules
 
 The canonical handbook uses these status labels:
 
@@ -147,7 +167,7 @@ The canonical handbook uses these status labels:
 
 Do not upgrade a feature's status merely because its class, generated PHPDoc page, or historical documentation exists.
 
-## 60.6 Chapter QA template
+## 60.7 Chapter QA template
 
 Every major tutorial chapter should eventually contain this sequence:
 
@@ -156,7 +176,7 @@ Every major tutorial chapter should eventually contain this sequence:
 3. **SPP mapping** — identify the actual SPP mechanism.
 4. **Build** — create the feature.
 5. **Run** — observe it working.
-6. **Test** — write the Parikshak or other appropriate test.
+6. **Test** — use Parikshak when the subsystem is covered by the SPP testing engine; otherwise justify the alternative.
 7. **Break** — introduce a controlled failure.
 8. **Diagnose** — identify the failing SPP layer.
 9. **Source trace** — follow the implementation.
@@ -164,7 +184,7 @@ Every major tutorial chapter should eventually contain this sequence:
 11. **Trade-offs** — decide when not to use it.
 12. **Challenge** — extend the feature independently.
 
-## 60.7 Final release bar
+## 60.8 Final release bar
 
 The handbook is ready for a major release when a beginner can:
 
@@ -177,7 +197,7 @@ The handbook is ready for a major release when a beginner can:
 - render with SPP's presentation stack;
 - persist data through the documented abstractions;
 - secure the application;
-- test it with Parikshak;
+- test it with **Parikshak**;
 - build an API;
 - build a workflow;
 - run background work;
