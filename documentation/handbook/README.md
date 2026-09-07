@@ -60,6 +60,15 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [71 — What Makes SPP Different?](71-what-makes-spp-different.md)
 
+### Runtime mechanics and developer extension
+
+- [56 — Middleware and Pipeline](56-middleware-and-pipeline.md)
+- [57 — Events and SPPEvent](57-events-and-sppevent.md)
+- [58 — Registry and Dependency Injection](58-registry-and-dependency-injection.md)
+- [59 — Modules, manifests, and scaffolding](59-modules-manifests-and-scaffolding.md)
+- [85 — Framework-Level Module Development Guide](85-framework-module-development-guide.md)
+- [86 — Application-Level Module Development Guide](86-application-module-development-guide.md)
+
 ### Presentation and reactive architecture
 
 - [06 — SPPView, BladeOne, and Drishyam](06-sppview-and-bladeone.md)
@@ -71,7 +80,7 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [47 — SPPUX browser runtime from zero](47-sppux-browser-runtime-from-zero.md)
 - [83 — Live architecture delta](83-live-architecture-delta.md)
 
-### API, security, data, and platform
+### API, security, data, platform, and AI
 
 - [74 — SPPAPI](74-sppapi.md)
 - [75 — SPPAuth](75-sppauth.md)
@@ -81,6 +90,7 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [79 — SPPXDB](79-sppxdb.md)
 - [80 — September platform reference map](80-september-platform-reference-map.md)
 - [84 — Data, identity, and platform architecture delta](84-data-identity-platform-architecture-delta.md)
+- [87 — SPPAI Developer Guide](87-spai-developer-guide.md)
 
 ### Core reference
 
@@ -108,10 +118,15 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [57 — Events and SPPEvent](57-events-and-sppevent.md)
 - [58 — Registry and Dependency Injection](58-registry-and-dependency-injection.md)
 - [59 — Modules, manifests, and scaffolding](59-modules-manifests-and-scaffolding.md)
-- [66 — Same Problem, Multiple SPP Solutions](66-same-problem-multiple-spp-solutions.md)
-- [67 — Architecture Anti-Patterns](67-architecture-antipatterns-and-mistakes.md)
-- [68 — How to Read the SPP Source](68-reading-the-spp-source.md)
-- [69 — Enterprise Reference Case Study](69-enterprise-reference-case-study.md)
+- [65 — Parikshak: The SPP Testing Engine](65-parikshak-testing-engine.md)
+- [66 — Routing as a Multi-Paradigm Architecture](66-routing-multi-paradigm.md)
+- [67 — Workflow, Approval Chains, and State Machines](67-workflow-approval-wizards-and-state-machines.md)
+- [68 — Queue, Cron, Workers, and Background Execution](68-queue-cron-workers-background-execution.md)
+- [69 — Internationalization, Reporting, and Observability](69-i18n-reporting-observability.md)
+- [66A — Same Problem, Multiple SPP Solutions](66-same-problem-multiple-spp-solutions.md)
+- [67A — Architecture Anti-Patterns](67-architecture-antipatterns-and-mistakes.md)
+- [68A — How to Read the SPP Source](68-reading-the-spp-source.md)
+- [69A — Enterprise Reference Case Study](69-enterprise-reference-case-study.md)
 
 ### Developer guides
 
@@ -119,13 +134,7 @@ These are integration/audit chapters, not replacements for subsystem tutorials.
 - [86 — Application-Level Module Development Guide](86-application-module-development-guide.md)
 - [87 — SPPAI Developer Guide](87-spai-developer-guide.md)
 
-These guides deliberately separate **framework/platform module authorship** from **application-specific module development**, while keeping both inside the same SPP module lifecycle. The SPPAI guide similarly moves from facade concepts to provider/model selection, structured output, tool authorization, testing, and API integration.
-
-### Specialized architecture and workflow chapters
-
-- [67 — Workflow, approval, wizards, and state machines](67-workflow-approval-wizards-and-state-machines.md)
-- [68 — Queue, Cron, workers, and background execution](68-queue-cron-workers-background-execution.md)
-- [69 — i18n, reporting, and observability](69-i18n-reporting-observability.md)
+These guides deliberately separate **framework/platform module authorship** from **application-specific module development**, while keeping both inside the same SPP module lifecycle.
 
 ### Migration and coverage
 
