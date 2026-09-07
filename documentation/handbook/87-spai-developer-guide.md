@@ -17,7 +17,7 @@ flowchart TD
     B --> H[Embeddings]
 ```
 
-The current facade exposes provider selection, model selection, completion, chat, embeddings, tool calling, structured output, and registry access. Provider configuration maps named providers to driver classes. 
+The current facade exposes provider selection, model selection, completion, chat, embeddings, tool calling, structured output, and registry access. Provider configuration maps named providers to driver classes.
 
 ## 87.2 Source-backed facade surface
 
@@ -168,7 +168,7 @@ A configuration example should use an environment reference rather than a litera
 api_key: env:AI_PROVIDER_KEY
 ```
 
-The repository's modernization documentation describes environment interpolation for configuration. Treat that as repository documentation and verify the exact syntax against the installed configuration implementation before deployment. 
+The current SPP configuration documentation describes environment interpolation. Verify the exact syntax against the installed configuration implementation before deployment.
 
 ## 87.11 AI manifest security boundary
 
@@ -180,7 +180,7 @@ Therefore:
 
 Authentication and authorization must be established by the API/application boundary that exposes the capability.
 
-This is a deliberate handbook warning because feature marketing and security posture are not interchangeable claims.
+This is a deliberate handbook warning because feature metadata and security enforcement are separate concerns.
 
 ## 87.12 Testing AI features with Parikshak
 
