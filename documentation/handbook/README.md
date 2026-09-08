@@ -1,53 +1,43 @@
 # SPP Framework Handbook
 
-## Canonical Documentation
+This directory is the **canonical current handbook** for SPP on branch `handbook-v3`.
 
-This directory is the canonical source for the current SPP Framework Handbook on branch `handbook-v3`.
+## Read the handbook
 
-The handbook is a **learning book plus an implementation reference**. It supports two readers at once: developers new to frameworks and experienced developers/architects who need source maps, lifecycle rules, and architectural boundaries.
+Start with [00 — Handbook Status](00-handbook-status.md), then [01 — Getting Started](01-getting-started.md) and follow the learning roadmap in [61 — SPP Learning Roadmap](61-spp-learning-roadmap.md).
 
-## Canonical source rule
-
-Only current documentation belongs in this directory. Superseded chapter variants, duplicate tutorial branches, historical drafts, and scratch/research documents should be removed rather than presented as parallel documentation.
-
-The canonical learning loop is:
+The handbook uses one continuous learning loop:
 
 **Learn → Build → Test with Parikshak → Deliberately break → Diagnose → Trace source → Learn when not to use it.**
 
-The handbook's primary testing engine is **Parikshak**.
+Parikshak is the primary SPP testing engine.
 
-## Evidence policy
+## Canonical documentation policy
 
-Substantive claims are treated as **Implemented**, **Documented**, **Derived**, **Guidance**, or **Planned/Unverified**. Authority order is:
+Only current documentation belongs in this directory. Superseded chapter variants, duplicate tutorial branches, stale aliases, historical drafts, and research scratch files should be removed rather than presented as parallel documentation.
 
-1. executable source;
-2. tests and fixtures;
-3. consumed configuration/manifests;
-4. repository documentation;
-5. architectural interpretation.
-
-A class, method, generated document, manifest, or configuration key is not by itself proof of a broader enterprise guarantee.
-
-See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-model.md) and [64 — Handbook Documentation Quality Gate](64-handbook-documentation-quality-gate.md).
+See [93 — Canonical Handbook Fileset](93-latest-handbook-index.md).
 
 ## Foundations
 
 - [00 — Handbook Status](00-handbook-status.md)
 - [01 — Getting Started](01-getting-started.md)
 - [50 — Frameworks 101](50-frameworks-101-and-how-spp-builds-on-them.md)
-- [51 — Framework Concept to SPP Feature Map](51-framework-concept-to-spp-feature-map.md)
-- [52 — 30-Minute Quick Start](52-30-minute-quick-start.md)
+- [51 — Framework Concept → SPP Feature Map](51-framework-concept-to-spp-feature-map.md)
+- [52 — 30-Minute SPP Quick Start](52-30-minute-quickstart.md)
 - [53 — Configuration and Runtime Settings](53-configuration-and-settings.md)
 - [54 — Routing and Dispatch](54-routing-and-dispatch.md)
 - [55 — Forms, Validation, and Data Binding](55-forms-validation-and-data-binding.md)
 - [61 — SPP Learning Roadmap](61-spp-learning-roadmap.md)
 - [62 — Continuous Task Desk Curriculum](62-continuous-task-desk-curriculum.md)
+- [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-model.md)
+- [64 — Handbook Documentation Quality Gate](64-handbook-documentation-quality-gate.md)
 - [65 — The SPP Mental Model](65-spp-mental-model.md)
 - [71 — What Makes SPP Different?](71-what-makes-spp-different.md)
 
-## Runtime and Developer Extension
+## Runtime and Kernel
 
-- [02 — Kernel Scheduler](02-kernel-scheduler.md)
+- [02 — Kernel Scheduler and Application Contexts](02-kernel-scheduler.md)
 - [03 — Registry and Container](03-registry-and-container.md)
 - [04 — Events and Event Handlers](04-events-and-event-handlers.md)
 - [05 — Modules and Manifests](05-modules-and-manifests.md)
@@ -55,8 +45,6 @@ See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-mo
 - [57 — Events and SPPEvent](57-events-and-sppevent.md)
 - [58 — Registry and Dependency Injection](58-registry-and-dependency-injection.md)
 - [59 — Modules, Manifests, and Scaffolding](59-modules-manifests-and-scaffolding.md)
-- [85 — Framework-Level Module Development Guide](85-framework-module-development-guide.md)
-- [86 — Application-Level Module Development Guide](86-application-module-development-guide.md)
 
 ## Presentation and Reactive Architecture
 
@@ -69,7 +57,7 @@ See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-mo
 - [47 — SPPUX Browser Runtime from Zero](47-sppux-browser-runtime-from-zero.md)
 - [83 — Live Architecture Delta](83-live-architecture-delta.md)
 
-## API, Identity, Security, Data, Platform, and AI
+## Data, Identity, Security, API, and Platform
 
 - [16 — Database, SPPDB, and SPP XDB](16-database-and-storage.md)
 - [17 — Authentication and Authorization](17-authentication-and-authorization.md)
@@ -89,7 +77,6 @@ See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-mo
 - [79 — SPPXDB](79-sppxdb.md)
 - [80 — September Platform Reference Map](80-september-platform-reference-map.md)
 - [84 — Data, Identity, and Platform Architecture Delta](84-data-identity-platform-architecture-delta.md)
-- [87 — SPPAI Developer Guide](87-spai-developer-guide.md)
 
 ## Architecture and Integration
 
@@ -106,6 +93,14 @@ See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-mo
 - [81 — September Architecture Delta Audit](81-september-architecture-delta-audit.md)
 - [82 — SPPAPI and Security Boundary Lab](82-sppapi-and-security-lab.md)
 
+## Developer Guides
+
+- [85 — Framework-Level Module Development Guide](85-framework-module-development-guide.md)
+- [86 — Application-Level Module Development Guide](86-application-module-development-guide.md)
+- [87 — SPPAI Developer Guide](87-spai-developer-guide.md)
+
+These deliberately separate **framework/platform module authorship** from **application-specific module development**.
+
 ## Migration and Coverage
 
 - [23 — Coming to SPP from Other Frameworks](23-coming-from-other-frameworks.md)
@@ -115,20 +110,30 @@ See [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-mo
 - [60 — Handbook Completion Plan](60-handbook-completion-plan.md)
 - [70 — Porting to SPP from Other Frameworks](70-porting-to-spp-from-other-frameworks.md)
 - [70A — Framework Porting Playbooks](70a-framework-porting-playbooks.md)
-- [63 — Feature Evidence and Status Model](63-feature-evidence-and-status-model.md)
-- [64 — Handbook Documentation Quality Gate](64-handbook-documentation-quality-gate.md)
 
-## Canonical file policy
+## Source-first evidence policy
 
-This repository intentionally does not maintain old and new versions of the same chapter under different filenames. When a newer chapter supersedes an older one, the older file should be deleted.
+For current behavior, use this authority order:
 
-The canonical publishing rule is documented in [93 — Canonical Handbook Fileset](93-latest-handbook-index.md).
+```text
+Executable source
+      ↓
+Tests / fixtures
+      ↓
+Consumed configuration / manifests
+      ↓
+Repository documentation
+      ↓
+Architectural interpretation
+```
+
+The handbook distinguishes **Implemented**, **Documented**, **Derived**, **Guidance**, and **Planned/Unverified** claims. Strong security, transaction, distributed-systems, AI, transport, and deployment guarantees require concrete evidence.
 
 ## Diagram policy
 
-- **Mermaid** for architecture, lifecycle, sequence, decision, and data-flow diagrams.
-- **Code blocks** for PHP/JavaScript/YAML/XML/CLI, directory layouts, configuration, and actual output.
-- **Tables** for simple comparisons.
-- **Prose** for explanations and procedures.
+- **Mermaid** — architecture, lifecycle, sequence, decision, and data-flow diagrams.
+- **Code blocks** — PHP, JavaScript, YAML/XML, CLI, directory layouts, configuration, and actual output.
+- **Tables** — straightforward comparisons and relationships.
+- **Prose** — explanation and procedures.
 
 Every diagram must be useful, source-accurate, simple, and GitHub-renderable.
