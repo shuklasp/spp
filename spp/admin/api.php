@@ -179,7 +179,7 @@ function sendResponse($success, $data = [], $message = '', bool $autoNotify = tr
         'storage_get_file_props', 'storage_get_directory_props', 'storage_get_manifest_raw',
         'storage_validate_manifest_yaml', 'storage_diff_manifest', 'storage_manifest_health',
         'storage_verify_integrity', 'storage_check_capabilities', 'props_search',
-        'storage_get_favorites',
+        'storage_get_favorites', 'files_get_favorites',
         'domains_zone_history', 'dns_zone_history', 'domains_preview_rollback', 'dns_preview_rollback'
     ];
     $reqAction = $_REQUEST['action'] ?? '';

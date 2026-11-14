@@ -2418,6 +2418,86 @@ class CommandBridge
                 return DomainAdminService::autoProvisionCloudflare($params['hostname'] ?? ($params['domain'] ?? ''), $params['target_ip'] ?? null, isset($params['proxied']) ? (bool)$params['proxied'] : true);
 
             // -------------------------------------------------------------
+            // UNIFIED MULTI-PROVIDER DNS & REGISTRAR MANAGEMENT
+            // -------------------------------------------------------------
+            case 'dns_providers_list':
+            case 'domains_dns_providers':
+                return DomainAdminService::listDnsProviders();
+
+            case 'dns_provider_account_save':
+            case 'domains_dns_account_save':
+                return DomainAdminService::saveDnsProviderAccount($params['account'] ?? $params);
+
+            case 'dns_provider_account_delete':
+            case 'domains_dns_account_delete':
+                return DomainAdminService::deleteDnsProviderAccount((string)($params['account_id'] ?? ($params['id'] ?? '')));
+
+            case 'dns_provider_test':
+            case 'domains_dns_provider_test':
+                return DomainAdminService::testDnsProviderConnection(
+                    (string)($params['provider'] ?? ''),
+                    isset($params['account_id']) ? (string)$params['account_id'] : null
+                );
+
+            case 'dns_mapping_get':
+            case 'domains_dns_mapping_get':
+                return DomainAdminService::getDomainDnsMapping($params['domain'] ?? $params['host'] ?? '');
+
+            case 'dns_mapping_save':
+            case 'domains_dns_mapping_save':
+                return DomainAdminService::setDomainDnsMapping(
+                    $params['domain'] ?? $params['host'] ?? '',
+                    $params['mapping'] ?? $params
+                );
+
+            case 'dns_mappings_list':
+            case 'domains_dns_mappings_list':
+                return DomainAdminService::listDomainDnsMappings();
+
+            case 'dns_zone_compare':
+            case 'domains_dns_compare':
+                return DomainAdminService::compareDnsZone($params['domain'] ?? $params['host'] ?? '');
+
+            case 'dns_zone_sync':
+            case 'domains_dns_sync':
+                return DomainAdminService::syncDnsZone(
+                    $params['domain'] ?? $params['host'] ?? '',
+                    $params['direction'] ?? 'pull',
+                    !empty($params['dry_run']),
+                    !empty($params['force'])
+                );
+
+            case 'dns_audit_propagation':
+            case 'domains_dns_propagation':
+                return DomainAdminService::auditDnsPropagation(
+                    $params['hostname'] ?? ($params['domain'] ?? ''),
+                    $params['type'] ?? 'A',
+                    $params['expected'] ?? null
+                );
+
+            case 'dns_audit_dnssec':
+            case 'domains_dns_dnssec_audit':
+                return DomainAdminService::auditDnssec($params['domain'] ?? $params['host'] ?? '');
+
+            case 'dns_audit_mail':
+            case 'domains_dns_mail_audit':
+                return DomainAdminService::auditMailDns(
+                    $params['domain'] ?? $params['host'] ?? '',
+                    (array)($params['dkim_selectors'] ?? ['default', 'mail', 'spp', 'google'])
+                );
+
+            case 'dns_registrar_info':
+            case 'domains_registrar_info':
+                return DomainAdminService::getRegistrarInfo($params['domain'] ?? $params['host'] ?? '');
+
+            case 'dns_registrar_nameservers_update':
+            case 'domains_registrar_nameservers_update':
+                return DomainAdminService::updateRegistrarNameservers(
+                    $params['domain'] ?? $params['host'] ?? '',
+                    (array)($params['nameservers'] ?? [])
+                );
+
+            // -------------------------------------------------------------
             // RELATIONAL & NOSQL DATABASE STUDIO (SPP Database Studio)
             // -------------------------------------------------------------
             case 'db_list_databases':
@@ -3090,12 +3170,15 @@ class CommandBridge
             // FILE MANAGER & STORAGE QUOTA (SPP Storage Manager)
             // -------------------------------------------------------------
             case 'storage_get_favorites':
+            case 'files_get_favorites':
                 return StorageAdminService::getFavorites($params['domain'] ?? null);
 
             case 'storage_save_favorites':
+            case 'files_save_favorites':
                 return StorageAdminService::saveFavorites($params['favorites'] ?? [], $params['domain'] ?? null);
 
             case 'storage_add_favorite':
+            case 'files_add_favorite':
                 return StorageAdminService::addFavorite(
                     $params['label'] ?? '',
                     $params['path'] ?? '',
@@ -3104,6 +3187,7 @@ class CommandBridge
                 );
 
             case 'storage_remove_favorite':
+            case 'files_remove_favorite':
                 return StorageAdminService::removeFavorite(
                     $params['id'] ?? ($params['path'] ?? ''),
                     $params['domain'] ?? null
@@ -5138,6 +5222,13 @@ class CommandBridge
             case 'backup_vault_verify':
                 require_once __DIR__ . '/BackupAdminService.php';
                 return \SPP\Admin\Services\BackupAdminService::verifyBackup($params['filename'] ?? '');
+
+            case 'backup_vault_inspect':
+                require_once __DIR__ . '/BackupAdminService.php';
+                return \SPP\Admin\Services\BackupAdminService::inspectBackup(
+                    $params['filename'] ?? ($params['file'] ?? ''),
+                    $params['decryption_key'] ?? null
+                );
 
             case 'backup_vault_restore':
                 require_once __DIR__ . '/BackupAdminService.php';

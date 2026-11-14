@@ -36,6 +36,7 @@ function getAdminScopeMap(): array {
         'docs'        => 'admin.docs',
         'workflows'   => 'admin.workflows',
         'domains'     => 'admin.domains',
+        'dns'         => 'admin.dns',
         'files'       => 'admin.files',
         'terminal'    => 'admin.commands',
         'database'    => 'admin.database',
@@ -591,6 +592,36 @@ function getActionScopeMap(): array {
         'bind_all_zones_sync'        => 'admin.domains',
         'bind_zone_test'             => 'admin.domains',
         'bind_daemon_reload'         => 'admin.domains',
+
+        // Unified Multi-Provider DNS & Registrar Subsystem
+        'dns_providers_list'               => 'admin.dns.provider_admin',
+        'domains_dns_providers'            => 'admin.dns.provider_admin',
+        'dns_provider_account_save'        => 'admin.dns.credentials',
+        'domains_dns_account_save'         => 'admin.dns.credentials',
+        'dns_provider_account_delete'      => 'admin.dns.credentials',
+        'domains_dns_account_delete'       => 'admin.dns.credentials',
+        'dns_provider_test'                => 'admin.dns.provider_admin',
+        'domains_dns_provider_test'        => 'admin.dns.provider_admin',
+        'dns_mapping_get'                  => 'admin.dns.zone_read',
+        'domains_dns_mapping_get'          => 'admin.dns.zone_read',
+        'dns_mapping_save'                 => 'admin.dns.provider_admin',
+        'domains_dns_mapping_save'         => 'admin.dns.provider_admin',
+        'dns_mappings_list'                => 'admin.dns.zone_read',
+        'domains_dns_mappings_list'        => 'admin.dns.zone_read',
+        'dns_zone_compare'                 => 'admin.dns.zone_read',
+        'domains_dns_compare'              => 'admin.dns.zone_read',
+        'dns_zone_sync'                    => 'admin.dns.sync',
+        'domains_dns_sync'                 => 'admin.dns.sync',
+        'dns_audit_propagation'            => 'admin.dns.zone_read',
+        'domains_dns_propagation'          => 'admin.dns.zone_read',
+        'dns_audit_dnssec'                 => 'admin.dns.dnssec',
+        'domains_dns_dnssec_audit'         => 'admin.dns.dnssec',
+        'dns_audit_mail'                   => 'admin.dns.zone_read',
+        'domains_dns_mail_audit'           => 'admin.dns.zone_read',
+        'dns_registrar_info'               => 'admin.dns.registrar',
+        'domains_registrar_info'           => 'admin.dns.registrar',
+        'dns_registrar_nameservers_update' => 'admin.dns.registrar',
+        'domains_registrar_nameservers_update' => 'admin.dns.registrar',
         'doctor_diagnostics'         => 'admin.server',
         'doctor_repair'              => 'admin.server',
         'host_inspect'               => 'admin.server',
@@ -801,6 +832,14 @@ function getActionScopeMap(): array {
         'storage_site_roots'          => 'admin.files',
         'domains_site_roots'          => 'admin.files',
         'domains_site_directories'    => 'admin.files',
+        'storage_get_favorites'       => 'admin.files',
+        'storage_save_favorites'      => 'admin.files',
+        'storage_add_favorite'        => 'admin.files',
+        'storage_remove_favorite'     => 'admin.files',
+        'files_get_favorites'         => 'admin.files',
+        'files_save_favorites'        => 'admin.files',
+        'files_add_favorite'          => 'admin.files',
+        'files_remove_favorite'       => 'admin.files',
         'storage_extract_zip'         => 'admin.files',
         'storage_disk_usage'          => 'admin.files',
         'storage_disk_treemap'        => 'admin.files',
@@ -1391,6 +1430,12 @@ function hasAdminScope(string $scope): bool {
     if (count($parts) > 2) {
         $parent = $parts[0] . '.' . $parts[1];
         if (in_array($parent, $userScopes, true) || in_array($parent . '.*', $userScopes, true)) {
+            return true;
+        }
+    }
+    // Backward compatibility: 'admin.domains' grants 'admin.dns.*'
+    if (isset($parts[0], $parts[1]) && $parts[0] === 'admin' && $parts[1] === 'dns') {
+        if (in_array('admin.domains', $userScopes, true) || in_array('admin.domains.*', $userScopes, true)) {
             return true;
         }
     }

@@ -168,5 +168,15 @@ class StorageFileManagerFixesTest extends SPPTestCase
         // Cleanup test favorite
         $cleaned = StorageAdminService::removeFavorite($workspace);
         $this->assertIsArray($cleaned, "removeFavorite must return array of favorites.");
+
+        // Verify RBAC Gate Mapping for Favorites actions
+        require_once SPP_BASE_DIR . '/admin/services/AdminRBAC.php';
+        $this->assertTrue(function_exists('gateAdminAction'), "gateAdminAction function must exist.");
+        $this->assertTrue(gateAdminAction('storage_add_favorite'), "gateAdminAction('storage_add_favorite') must be allowed.");
+        $this->assertTrue(gateAdminAction('storage_get_favorites'), "gateAdminAction('storage_get_favorites') must be allowed.");
+        $this->assertTrue(gateAdminAction('storage_remove_favorite'), "gateAdminAction('storage_remove_favorite') must be allowed.");
+        $this->assertTrue(gateAdminAction('storage_save_favorites'), "gateAdminAction('storage_save_favorites') must be allowed.");
+        $this->assertTrue(gateAdminAction('files_add_favorite'), "gateAdminAction('files_add_favorite') must be allowed.");
+        $this->assertTrue(gateAdminAction('files_get_favorites'), "gateAdminAction('files_get_favorites') must be allowed.");
     }
 }
